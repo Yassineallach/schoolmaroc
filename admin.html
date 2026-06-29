@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SchoolMaroc — Éditeur de leçons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── Tokens ──────────────────────────────────────────── */
+:root {
+  --brand:       #C2185B;
+  --brand-h:     #9C0F47;
+  --brand-lt:    #FFF0F6;
+  --brand-mid:   #F8D7E7;
+  --ink:         #1A1B2E;
+  --ink2:        #52536A;
+  --ink3:        #9596B0;
+  --bg:          #F2F3FA;
+  --surf:        #FFFFFF;
+  --border:      #E3E5F2;
+  --border2:     #CAD0E6;
+  --ok:          #0A7A4A;
+  --ok-bg:       #E6F7EE;
+  --err:         #C0392B;
+  --err-bg:      #FEF0EE;
+  --sh-xs:       0 1px 3px rgba(26,27,46,.06);
+  --sh-sm:       0 2px 8px rgba(26,27,46,.08);
+  --sh-md:       0 4px 18px rgba(26,27,46,.11);
+  --sh-lg:       0 14px 44px rgba(26,27,46,.18);
+  --r-s: 8px; --r-m: 12px; --r-l: 16px; --r-xl: 20px;
+}
+
+/* ── Reset ───────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5;}
+
+/* ── Header ──────────────────────────────────────────── */
+header{
+  background:linear-gradient(135deg,#8D003A 0%,#C2185B 55%,#E91E80 100%);
+  color:#fff;padding:0 24px;height:62px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 14px rgba(194,24,91,.38);
+}
+.hd-brand{display:flex;align-items:center;gap:12px;}
+.hd-logo{
+  width:38px;height:38px;background:rgba(255,255,255,.18);
+  border:1.5px solid rgba(255,255,255,.35);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:13px;letter-spacing:-.5px;
+}
+.hd-text{display:flex;flex-direction:column;}
+.hd-name{font-weight:700;font-size:15px;line-height:1.2;}
+.hd-sub{font-size:11px;opacity:.72;font-weight:500;}
+#who{display:flex;align-items:center;gap:10px;}
+.uid{
+  font-family:'SF Mono','Fira Code',monospace;font-size:11px;
+  background:rgba(255,255,255,.14);padding:4px 10px;border-radius:6px;
+  border:1px solid rgba(255,255,255,.22);color:#fff;
+}
+
+/* ── Layout ──────────────────────────────────────────── */
+.wrap{max-width:800px;margin:0 auto;padding:28px 20px 72px;}
+
+/* ── Card ────────────────────────────────────────────── */
+.card{
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:var(--r-xl);padding:24px;margin-bottom:16px;
+  box-shadow:var(--sh-sm);
+}
+.card h2{
+  font-size:14px;font-weight:700;color:var(--ink);
+  margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+
+/* ── Form ────────────────────────────────────────────── */
+label{
+  display:block;font-size:11.5px;font-weight:700;
+  color:var(--ink2);margin:14px 0 5px;
+  letter-spacing:.04em;text-transform:uppercase;
+}
+input:not([type=color]):not([type=range]):not([type=file]):not([type=checkbox]):not([type=hidden]),
+select,textarea{
+  width:100%;padding:10px 13px;
+  border:1.5px solid var(--border);border-radius:var(--r-s);
+  font-size:14px;font-family:inherit;color:var(--ink);background:var(--surf);
+  transition:border-color .15s,box-shadow .15s;outline:none;-webkit-appearance:none;
+}
+input:not([type=color]):not([type=range]):not([type=file]):not([type=checkbox]):not([type=hidden]):focus,
+select:focus,textarea:focus{
+  border-color:var(--brand);box-shadow:0 0 0 3px rgba(194,24,91,.12);
+}
+textarea{min-height:64px;resize:vertical;line-height:1.6;}
+.row{display:flex;gap:12px;flex-wrap:wrap;}
+.row>*{flex:1;min-width:120px;}
+.hint{font-size:12px;color:var(--ink3);margin-top:5px;line-height:1.5;}
+.chk{display:flex;align-items:center;gap:8px;}
+.chk input{width:auto;}
+
+/* ── Buttons ─────────────────────────────────────────── */
+button{
+  font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+  border:none;border-radius:var(--r-s);padding:10px 16px;
+  transition:background .15s,box-shadow .15s,transform .1s;
+  display:inline-flex;align-items:center;gap:6px;line-height:1;
+}
+button:active{transform:scale(.97);}
+/* Primary (default) */
+button:not(.ghost):not(.danger):not(.btn-hd):not([style*="background:#fff"]):not([style*="background: #fff"]) {
+  background:var(--brand);color:#fff;
+  box-shadow:0 2px 8px rgba(194,24,91,.32);
+}
+button:not(.ghost):not(.danger):not(.btn-hd):not([style*="background:#fff"]):not([style*="background: #fff"]):hover{
+  background:var(--brand-h);box-shadow:0 4px 14px rgba(194,24,91,.42);
+}
+button.ghost{
+  background:var(--surf);color:var(--brand);border:1.5px solid var(--brand);
+  box-shadow:none;
+}
+button.ghost:hover{background:var(--brand-lt);}
+button.small{padding:6px 11px;font-size:12px;border-radius:7px;}
+button.danger{
+  background:var(--surf);color:var(--err);
+  border:1.5px solid #F2C2BE;box-shadow:none;
+}
+button.danger:hover{background:var(--err-bg);border-color:var(--err);}
+button.btn-hd{
+  background:rgba(255,255,255,.16);color:#fff;
+  border:1px solid rgba(255,255,255,.28);box-shadow:none;
+  font-size:12px;padding:6px 12px;
+}
+button.btn-hd:hover{background:rgba(255,255,255,.26);}
+
+/* ── Status ──────────────────────────────────────────── */
+.status{padding:11px 14px;border-radius:var(--r-s);font-size:13px;font-weight:600;margin-top:12px;display:none;}
+.ok{background:var(--ok-bg);color:var(--ok);border:1px solid #B7EDD3;display:block;}
+.err{background:var(--err-bg);color:var(--err);border:1px solid #F2C2BE;display:block;}
+
+/* ── Misc ────────────────────────────────────────────── */
+.hidden{display:none!important;}
+.thumb{max-width:160px;border-radius:var(--r-s);display:block;margin-top:10px;border:1px solid var(--border);box-shadow:var(--sh-xs);}
+.tag{font-size:11px;font-weight:700;color:#fff;background:var(--brand);border-radius:6px;padding:2px 8px;letter-spacing:.02em;}
+
+/* ── Rich-text field ─────────────────────────────────── */
+.rt{
+  width:100%;min-height:44px;padding:10px 13px;
+  border:1.5px solid var(--border);border-radius:var(--r-s);
+  font-size:14px;font-family:inherit;background:var(--surf);
+  line-height:1.6;outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.rt:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(194,24,91,.12);}
+.rt:empty::before{content:attr(data-ph);color:var(--ink3);}
+
+/* ── Rich-text toolbar ───────────────────────────────── */
+.rt-toolbar{
+  position:sticky;top:62px;z-index:80;
+  display:flex;align-items:center;gap:4px;flex-wrap:wrap;
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:var(--r-l);padding:8px 12px;
+  margin-bottom:16px;box-shadow:var(--sh-md);
+}
+.rt-toolbar button{
+  background:transparent!important;color:var(--ink2)!important;
+  border:1px solid transparent!important;border-radius:var(--r-s)!important;
+  padding:7px 10px!important;font-size:13px!important;font-weight:700!important;
+  min-width:34px;box-shadow:none!important;justify-content:center;
+}
+.rt-toolbar button:hover{background:var(--brand-lt)!important;color:var(--brand)!important;border-color:var(--brand-mid)!important;}
+.rt-toolbar select,.rt-toolbar input[type=color]{
+  width:auto;flex:none;padding:6px 8px;font-size:12px;
+  border-radius:var(--r-s);border:1.5px solid var(--border);
+  background:var(--bg);color:var(--ink);cursor:pointer;
+}
+.rt-toolbar input[type=color]{height:34px;width:40px;padding:2px;}
+.sep{width:1px;height:22px;background:var(--border);margin:0 3px;flex-shrink:0;}
+
+/* ── Toolbar sub-panels ──────────────────────────────── */
+.rt-palette{
+  position:sticky;top:120px;z-index:79;
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:var(--r-l);padding:14px;
+  margin:-10px 0 16px;box-shadow:var(--sh-md);
+}
+.rt-palette-row{display:flex;gap:6px;margin-bottom:10px;}
+.rt-mode{background:var(--bg);color:var(--ink2);border:1.5px solid var(--border);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600;box-shadow:none;}
+.rt-mode.active{background:var(--brand);color:#fff;border-color:var(--brand);}
+.rt-swatches{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;}
+.rt-swatch{width:100%;aspect-ratio:1;border-radius:5px;border:1px solid rgba(0,0,0,.1);cursor:pointer;padding:0;box-shadow:none;transition:transform .1s;}
+.rt-swatch:hover{transform:scale(1.2);box-shadow:0 0 0 2px var(--brand);}
+.rt-sizes{display:flex;flex-wrap:wrap;gap:6px;}
+.rt-size-btn{background:var(--bg);color:var(--ink);border:1.5px solid var(--border);border-radius:var(--r-s);padding:8px 14px;font-weight:600;font-size:13px;box-shadow:none;}
+.rt-size-btn:hover{background:var(--brand-lt);color:var(--brand);border-color:var(--brand-mid);}
+.rt-size-btn .px{color:var(--ink3);font-weight:500;font-size:11px;margin-left:4px;}
+#rtIconSearch{
+  width:100%;box-sizing:border-box;margin-bottom:10px;
+  padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--r-s);
+  font:inherit;color:var(--ink);outline:none;background:var(--surf);
+}
+#rtIconSearch:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(194,24,91,.12);}
+.rt-icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:6px;max-height:240px;overflow:auto;padding:2px;}
+.rt-icon-btn{display:flex;align-items:center;justify-content:center;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-s);padding:9px 0;cursor:pointer;color:var(--ink2);box-shadow:none;}
+.rt-icon-btn:hover{background:var(--brand-lt);color:var(--brand);border-color:var(--brand-mid);}
+.rt-icon-btn svg{width:20px;height:20px;display:block;pointer-events:none;}
+.rt-icon-btn span{pointer-events:none;}
+.rt .rt-icon-sel{outline:2px solid var(--brand);outline-offset:2px;border-radius:3px;background:rgba(194,24,91,.1);}
+.rt-icon-empty{grid-column:1/-1;color:var(--ink3);font-size:13px;text-align:center;padding:14px;}
+.rt-shape-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.rt-shape-type{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-s);padding:7px 11px;font-weight:600;font-size:12px;cursor:pointer;color:var(--ink2);box-shadow:none;}
+.rt-shape-type.active{background:var(--brand);color:#fff;border-color:var(--brand);}
+.rt-shape-swatches{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.rt-shape-sw{width:26px;height:26px;border-radius:7px;border:1.5px solid rgba(0,0,0,.12);cursor:pointer;box-shadow:none;padding:0;transition:transform .1s;}
+.rt-shape-sw:hover{transform:scale(1.15);box-shadow:0 0 0 2px var(--brand);}
+.rt-shape-lab{display:block;font-size:11.5px;font-weight:700;color:var(--ink2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;}
+.rt-shape-lab input[type=color]{display:block;width:48px;height:30px;border:1.5px solid var(--border);border-radius:var(--r-s);background:none;cursor:pointer;margin-top:4px;}
+.rt-shape-lab input[type=range]{display:block;width:100%;margin-top:6px;}
+.rt-shape-lab input[type=text]{display:block;width:100%;box-sizing:border-box;margin-top:4px;padding:7px 10px;border:1.5px solid var(--border);border-radius:var(--r-s);font:inherit;color:var(--ink);outline:none;background:var(--surf);}
+.rt-shape-lab input[type=text]:focus{border-color:var(--brand);}
+.rt-shape-foot{display:flex;align-items:center;gap:12px;margin-top:6px;border-top:1px solid var(--border);padding-top:12px;}
+.rt-shape-prevwrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:36px;overflow:hidden;}
+#rtShapeInsert{background:var(--brand);color:#fff;border:none;border-radius:var(--r-s);padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 8px rgba(194,24,91,.32);}
+#rtShapeInsert:hover{background:var(--brand-h);}
+
+/* ── Section / Block containers ──────────────────────── */
+.block{
+  border:1.5px solid var(--border);border-radius:var(--r-m);
+  padding:16px;margin-bottom:12px;background:var(--bg);position:relative;
+}
+.block .rm{
+  position:absolute;top:10px;right:10px;
+  background:var(--surf);color:var(--err);
+  border:1px solid #F2C2BE;border-radius:7px;
+  padding:3px 9px;font-size:12px;box-shadow:none;
+}
+.block .rm:hover{background:var(--err-bg);}
+.block-item{
+  border:1.5px dashed var(--border2);border-radius:var(--r-s);
+  padding:12px 14px;margin:8px 0;position:relative;background:var(--surf);
+}
+
+/* ── Lesson list ─────────────────────────────────────── */
+.lesson-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r-s);
+  margin-bottom:6px;background:var(--surf);cursor:pointer;
+  transition:border-color .15s,box-shadow .15s;
+}
+.lesson-row:hover{border-color:var(--brand);box-shadow:0 2px 10px rgba(194,24,91,.1);}
+
+/* ── Login ───────────────────────────────────────────── */
+#loginCard{
+  min-height:calc(100vh - 62px);display:flex;
+  align-items:center;justify-content:center;padding:24px;
+}
+.login-inner{
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:var(--r-xl);padding:36px 32px;
+  width:100%;max-width:420px;box-shadow:var(--sh-lg);
+}
+.login-icon{
+  width:52px;height:52px;
+  background:linear-gradient(135deg,#C2185B,#E91E80);
+  border-radius:16px;display:flex;align-items:center;justify-content:center;
+  font-size:24px;margin-bottom:20px;box-shadow:0 4px 16px rgba(194,24,91,.32);
+}
+.login-title{font-size:20px;font-weight:800;margin-bottom:4px;}
+.login-sub{font-size:13px;color:var(--ink3);margin-bottom:24px;line-height:1.5;}
+
+/* ── Action bar ──────────────────────────────────────── */
+.act-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.act-secondary{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd-brand">
+    <div class="hd-logo">SM</div>
+    <div class="hd-text">
+      <span class="hd-name">SchoolMaroc</span>
+      <span class="hd-sub">Éditeur de leçons</span>
+    </div>
+  </div>
+  <div id="who"></div>
+</header>
+
+<!-- ── Login ── -->
+<div id="loginCard">
+  <div class="login-inner">
+    <div class="login-icon">📚</div>
+    <div class="login-title">Connexion</div>
+    <div class="login-sub">Connectez-vous avec votre compte Firebase pour accéder à l'éditeur.</div>
+    <label>Adresse e-mail</label>
+    <input id="email" type="email" autocomplete="username" placeholder="vous@example.com">
+    <label style="margin-top:14px">Mot de passe</label>
+    <input id="password" type="password" autocomplete="current-password" placeholder="••••••••">
+    <div style="margin-top:20px">
+      <button id="loginBtn" style="width:100%;justify-content:center;padding:13px 16px;font-size:14px">Se connecter</button>
+    </div>
+    <div class="status" id="loginStatus"></div>
+  </div>
+</div>
+
+<!-- ── Editor ── -->
+<div id="editor" class="hidden">
+<div class="wrap">
+
+  <!-- Rich-text toolbar -->
+  <div class="rt-toolbar" id="rtToolbar">
+    <button type="button" data-cmd="bold" title="Gras" style="font-weight:800">B</button>
+    <button type="button" data-cmd="italic" title="Italique" style="font-style:italic">I</button>
+    <button type="button" data-cmd="underline" title="Souligné" style="text-decoration:underline">U</button>
+    <span class="sep"></span>
+    <button type="button" id="rtPaletteBtn" title="Palette de couleurs">⬤ Couleurs</button>
+    <input type="color" id="rtColor" value="#000000" title="Couleur personnalisée">
+    <button type="button" data-cmd="removeFormat" title="Effacer la mise en forme">✕ Format</button>
+    <span class="sep"></span>
+    <select id="rtFont" title="Police">
+      <option value="">Police</option>
+      <option value="sans-serif">Sans-serif</option>
+      <option value="serif">Serif</option>
+      <option value="monospace">Monospace</option>
+      <option value="cursive">Cursive</option>
+      <option value="'Courier New',monospace">Courier</option>
+      <option value="Georgia,serif">Georgia</option>
+    </select>
+    <span class="sep"></span>
+    <button type="button" id="rtSizeBtn" title="Taille du texte sélectionné">Aa Taille ▾</button>
+    <button type="button" id="rtIconBtn" title="Insérer une icône scolaire">◆ Icônes ▾</button>
+    <button type="button" id="rtShapeBtn" title="Insérer une forme colorée">▭ Formes ▾</button>
+    <span class="hint" style="flex:1;min-width:120px;margin:0;font-size:11px">Sélectionnez du texte, puis cliquez</span>
+  </div>
+
+  <div id="rtPalette" class="rt-palette hidden">
+    <div class="rt-palette-row" id="rtPaletteMode">
+      <button type="button" class="rt-mode active" data-target="text">Texte</button>
+      <button type="button" class="rt-mode" data-target="highlight">Surlignage</button>
+    </div>
+    <div class="rt-swatches" id="rtSwatches"></div>
+  </div>
+  <div id="rtSizeMenu" class="rt-palette hidden">
+    <div class="rt-sizes" id="rtSizes"></div>
+  </div>
+  <div id="rtIconMenu" class="rt-palette hidden">
+    <input type="text" id="rtIconSearch" placeholder="Rechercher… ex. crayon, atome, livre">
+    <div class="rt-icons" id="rtIcons"></div>
+  </div>
+  <div id="rtShapeMenu" class="rt-palette hidden">
+    <div class="rt-shape-row">
+      <button type="button" class="rt-shape-type active" data-r="6px">▭ Rectangle</button>
+      <button type="button" class="rt-shape-type" data-r="14px">▢ Arrondi</button>
+      <button type="button" class="rt-shape-type" data-r="999px">⬭ Pilule</button>
+      <button type="button" class="rt-shape-type" data-r="50%">⬤ Cercle</button>
+    </div>
+    <div class="rt-shape-swatches" id="rtShapeSwatches"></div>
+    <label class="rt-shape-lab">Couleur du fond
+      <input type="color" id="rtShapeColor" value="#FDE68A">
+    </label>
+    <label class="rt-shape-lab">Opacité du fond : <span id="rtShapeOpacVal">35%</span>
+      <input type="range" id="rtShapeOpacity" min="5" max="100" value="35">
+    </label>
+    <div class="rt-shape-row">
+      <label class="rt-shape-lab" style="flex:1">Largeur
+        <input type="text" id="rtShapeW" value="auto" placeholder="auto · 200px · 100%">
+      </label>
+      <label class="rt-shape-lab" style="flex:1">Hauteur
+        <input type="text" id="rtShapeH" value="auto" placeholder="auto · 60px">
+      </label>
+    </div>
+    <div class="rt-shape-foot">
+      <div class="rt-shape-prevwrap"><span id="rtShapePreview">Texte</span></div>
+      <button type="button" id="rtShapeInsert">Insérer la forme</button>
+    </div>
+  </div>
+
+  <!-- Niveau & Matière -->
+  <div class="card">
+    <h2>Niveau &amp; Matière</h2>
+    <div class="row">
+      <div><label>Niveau</label><select id="grade"></select></div>
+      <div><label>Matière</label><select id="subject"></select></div>
+    </div>
+    <div class="row" id="filiereRow" style="margin-top:12px;display:none">
+      <div><label>Filière</label><select id="filiere"></select></div>
+      <div></div>
+    </div>
+    <div style="margin-top:16px" class="row">
+      <button class="ghost small" id="listBtn">📋 Mes leçons (ce niveau/matière)</button>
+      <button class="ghost small" id="newBtn">＋ Nouvelle leçon</button>
+    </div>
+    <div id="lessonList" style="margin-top:14px"></div>
+  </div>
+
+  <!-- Leçon -->
+  <div class="card">
+    <h2>Leçon</h2>
+    <label>Titre de la leçon</label>
+    <input id="title" dir="auto" placeholder="Titre…">
+    <div class="hint">Le titre sert d'identifiant — ne le changez pas après enregistrement.</div>
+
+    <label>Titre « Objectif » <span style="font-weight:500;text-transform:none;font-size:11px">(vide = masqué)</span></label>
+    <div class="rt" id="objectiveTitle" contenteditable="true" dir="auto"></div>
+    <input type="hidden" id="objectiveTitleSize" value="16">
+
+    <label>Objectif <span style="font-weight:500;text-transform:none;font-size:11px">(optionnel)</span></label>
+    <div class="rt" id="objective" contenteditable="true" dir="auto"></div>
+    <input type="hidden" id="objectiveSize" value="13">
+
+    <label>Titre « Introduction » <span style="font-weight:500;text-transform:none;font-size:11px">(vide = « Introduction »)</span></label>
+    <div class="rt" id="introTitle" contenteditable="true" dir="auto"></div>
+    <input type="hidden" id="introTitleSize" value="18">
+
+    <label>Introduction <span style="font-weight:500;text-transform:none;font-size:11px">(optionnel)</span></label>
+    <div class="rt" id="introduction" contenteditable="true" dir="auto"></div>
+    <input type="hidden" id="introductionSize" value="14">
+  </div>
+
+  <!-- Cours -->
+  <div class="card">
+    <h2>Cours — sections <button class="ghost small" id="addSection">+ Section</button></h2>
+    <div id="sections"></div>
+  </div>
+
+  <!-- Exercices -->
+  <div class="card">
+    <h2>Exercices — sections <button class="ghost small" id="addExSection">+ Section</button></h2>
+    <div id="exSections"></div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="card">
+    <h2>Quiz <button class="ghost small" id="addQuiz">+ Question</button></h2>
+    <label>Titre du quiz <span style="font-weight:500;text-transform:none;font-size:11px">(optionnel)</span></label>
+    <input id="quizTitle" dir="auto" placeholder="Titre du quiz…">
+    <div id="quiz" style="margin-top:14px"></div>
+  </div>
+
+  <!-- À retenir & Astuce -->
+  <div class="card">
+    <h2>À retenir &amp; Astuce <span style="font-size:12px;font-weight:500;color:var(--ink3)">(optionnel)</span></h2>
+
+    <label>Titre « À retenir » <span style="font-weight:500;text-transform:none;font-size:11px">(vide = « À retenir »)</span></label>
+    <div class="rt" id="keyPointsTitle" contenteditable="true" dir="auto"></div>
+    <input type="hidden" id="keyPointsTitleSize" value="14">
+
+    <label>À retenir</label>
+    <div class="rt" id="keyPoints" contenteditable="true" dir="auto"></div>
+    <input type="hidden" id="keyPointsSize" value="14">
+
+    <label>Titre « Astuce » <span style="font-weight:500;text-transform:none;font-size:11px">(vide = « Astuce »)</span></label>
+    <div class="rt" id="astuceTitle" contenteditable="true" dir="auto"></div>
+    <input type="hidden" id="astuceTitleSize" value="14">
+
+    <label>Astuce</label>
+    <div class="rt" id="astuce" contenteditable="true" dir="auto"></div>
+    <input type="hidden" id="astuceSize" value="14">
+  </div>
+
+  <!-- Actions -->
+  <div class="card">
+    <div class="act-row">
+      <button id="saveBtn">💾 Enregistrer dans le cloud</button>
+      <button class="ghost" id="previewBtn">👁 Aperçu</button>
+      <button class="ghost" id="newBtn2">Nouvelle leçon</button>
+    </div>
+    <div class="act-secondary">
+      <button class="danger" id="delBtn">🗑 Supprimer cette leçon</button>
+    </div>
+    <div class="status" id="saveStatus"></div>
+  </div>
+
+</div><!-- /wrap -->
+</div><!-- /editor -->
+
+<!-- Preview modal -->
+<div id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(26,27,46,.55);z-index:200;justify-content:center;align-items:flex-start;padding:20px;overflow:auto;">
+  <div style="background:#F5EFE6;max-width:460px;width:100%;border-radius:20px;overflow:hidden;box-shadow:0 16px 48px rgba(26,27,46,.22);margin:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#fff;border-bottom:1px solid #E3E5F2;position:sticky;top:0;">
+      <strong style="color:#C2185B;font-size:14px">👁 Aperçu de la leçon</strong>
+      <button class="small danger" id="previewClose" style="background:#fff;color:#c0392b;border:1px solid #f0d0d0">Fermer ✕</button>
+    </div>
+    <div id="previewBody" style="padding:24px 20px 36px;min-height:120px;"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBThPOyYlHKv7rq_Mw6FfB6gdFFNIKWYNI",
+  authDomain: "school-maroc.firebaseapp.com",
+  projectId: "school-maroc",
+  storageBucket: "school-maroc.firebasestorage.app",
+  messagingSenderId: "1075264997229",
+  appId: "1:1075264997229:web:b1396b8bf60d03f2af7c64",
+};
+const app = getApps().length ? getApp() : initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = id => document.getElementById(id);
+const status = (el, msg, ok) => { el.textContent = msg; el.className = "status " + (ok ? "ok" : "err"); };
+const esc = v => (v==null?"":String(v)).replace(/"/g,"&quot;").replace(/</g,"&lt;");
+const lines = v => v.split("\n").map(s=>s.trim()).filter(Boolean);
+
+// Reusable font-size options for every text field.
+const SIZE_OPTS = [[13,"Petit"],[14,"Normal"],[16,"Grand"],[19,"Très grand"],[23,"Énorme"],[28,"Géant"]];
+// Quiz text is larger by design, so it gets its own scale (Normal keeps the look).
+const SIZE_OPTS_QUIZ = [[16,"Petit"],[22,"Normal"],[26,"Grand"],[30,"Très grand"],[36,"Énorme"]];
+const sizeOptionsHTML = (cur, def, opts=SIZE_OPTS) => { const v = cur || def; return opts.map(([s,l])=>`<option value="${s}"${s===v?" selected":""}>${l}</option>`).join(""); };
+// Size is now set inline via the toolbar; this just carries the field's base size invisibly.
+const sizeSelect = (cls, cur, def, opts=SIZE_OPTS) => `<input type="hidden" class="${cls}" value="${cur || def}">`;
+const readSize = (el, def) => parseInt(el && el.value) || def;
+// Populate the static .size-sel selects (objective, introduction, à retenir, astuce).
+function initSizeSelects() { document.querySelectorAll(".size-sel").forEach(sel => { sel.innerHTML = sizeOptionsHTML(null, parseInt(sel.dataset.default)||14); }); }
+
+// ---- Rich text (color / bold / italic / underline / font) ----
+let activeRT = null, savedRange = null;
+function saveSel() {
+  const s = window.getSelection();
+  if (s && s.rangeCount && activeRT && activeRT.contains(s.anchorNode)) savedRange = s.getRangeAt(0).cloneRange();
+}
+function restoreSel() {
+  if (savedRange) { const s = window.getSelection(); s.removeAllRanges(); s.addRange(savedRange); }
+}
+function rtExec(cmd, val) {
+  if (!activeRT) return;
+  activeRT.focus(); restoreSel();
+  try { document.execCommand("styleWithCSS", false, true); } catch {}
+  document.execCommand(cmd, false, val == null ? undefined : val);
+  saveSel();
+}
+// If the saved selection is exactly one inserted icon, return that element.
+function selectedIcon() {
+  if (!savedRange) return null;
+  const r = savedRange;
+  if (r.startContainer === r.endContainer && (r.endOffset - r.startOffset) === 1) {
+    const n = r.startContainer.childNodes && r.startContainer.childNodes[r.startOffset];
+    if (n && n.nodeType === 1 && n.matches && (n.matches("[data-rt-icon]") || n.matches("svg"))) return n;
+  }
+  return null;
+}
+// Colour command that also works on a selected icon (icons use currentColor,
+// so setting the element's color recolours the strokes; highlight = background).
+function setColor(c, highlight) {
+  const ic = selectedIcon();
+  if (ic) {
+    if (highlight) ic.style.background = c; else ic.style.color = c;
+    ic.classList.add("rt-icon-sel");
+    return;
+  }
+  rtExec(highlight ? "hiliteColor" : "foreColor", c);
+}
+// Apply a pixel font-size to ONLY the selected text (wraps it in a span),
+// leaving the rest of the field untouched.
+function rtFontSize(px) {
+  if (!activeRT) return;
+  activeRT.focus(); restoreSel();
+  const sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  if (range.collapsed) return; // nothing selected -> do nothing
+  const span = document.createElement("span");
+  span.style.fontSize = px + "px";
+  const frag = range.extractContents();
+  // Clear nested sizes so the chosen size applies uniformly to the selection.
+  frag.querySelectorAll && frag.querySelectorAll("[style*='font-size']").forEach(el => { el.style.fontSize = ""; });
+  frag.querySelectorAll && frag.querySelectorAll("font[size]").forEach(el => el.removeAttribute("size"));
+  span.appendChild(frag);
+  range.insertNode(span);
+  // Keep the affected text selected.
+  const nr = document.createRange();
+  nr.selectNodeContents(span);
+  sel.removeAllRanges(); sel.addRange(nr);
+  saveSel();
+}
+document.addEventListener("focusin", e => { if (e.target.classList && e.target.classList.contains("rt")) activeRT = e.target; });
+document.addEventListener("selectionchange", saveSel);
+// Tap an inserted icon to select it as a whole — then resize with 🅣 Taille,
+// recolour with 🎨, or delete it. Works for new (wrapped) icons and any bare
+// <svg> icons inserted earlier. pointerdown is reliable on mouse and touch.
+document.addEventListener("pointerdown", e => {
+  document.querySelectorAll(".rt .rt-icon-sel").forEach(el => el.classList.remove("rt-icon-sel"));
+  if (!e.target || !e.target.closest) return;
+  let ic = e.target.closest("[data-rt-icon]");
+  if (!ic) { const s = e.target.closest("svg"); if (s && s.closest(".rt")) ic = s; }
+  if (!ic) return;
+  const host = ic.closest(".rt");
+  if (!host) return;            // ignore icons shown in the picker
+  e.preventDefault();           // stop the caret landing inside the icon
+  host.focus();
+  activeRT = host;
+  ic.classList.add("rt-icon-sel");
+  const sel = window.getSelection();
+  const r = document.createRange();
+  r.selectNode(ic);
+  sel.removeAllRanges(); sel.addRange(r);
+  saveSel();
+});
+const ICON_LIB = [
+  {l:"Diplôme",p:"<path d=\"M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z\" /><path d=\"M22 10v6\" /><path d=\"M6 12.5V16a6 3 0 0 0 12 0v-3.5\" />"},
+  {l:"École",p:"<path d=\"M14 21v-3a2 2 0 0 0-4 0v3\" /><path d=\"M18 4.933V21\" /><path d=\"m4 6 7.106-3.79a2 2 0 0 1 1.788 0L20 6\" /><path d=\"m6 11-3.52 2.147a1 1 0 0 0-.48.854V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a1 1 0 0 0-.48-.853L18 11\" /><path d=\"M6 4.933V21\" /><circle cx=\"12\" cy=\"9\" r=\"2\" />"},
+  {l:"Livre",p:"<path d=\"M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20\" />"},
+  {l:"Livre ouvert",p:"<path d=\"M12 7v14\" /><path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\" />"},
+  {l:"Lecture",p:"<path d=\"M12 7v14\" /><path d=\"M16 12h2\" /><path d=\"M16 8h2\" /><path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\" /><path d=\"M6 12h2\" /><path d=\"M6 8h2\" />"},
+  {l:"Manuel",p:"<path d=\"M10 2v8l3-3 3 3V2\" /><path d=\"M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20\" />"},
+  {l:"Bibliothèque",p:"<path d=\"m16 6 4 14\" /><path d=\"M12 6v14\" /><path d=\"M8 8v12\" /><path d=\"M4 4v16\" />"},
+  {l:"Cahier",p:"<path d=\"M2 6h4\" /><path d=\"M2 10h4\" /><path d=\"M2 14h4\" /><path d=\"M2 18h4\" /><rect width=\"16\" height=\"20\" x=\"4\" y=\"2\" rx=\"2\" /><path d=\"M16 2v20\" />"},
+  {l:"Cahier & stylo",p:"<path d=\"M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4\" /><path d=\"M2 6h4\" /><path d=\"M2 10h4\" /><path d=\"M2 14h4\" /><path d=\"M2 18h4\" /><path d=\"M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z\" />"},
+  {l:"Crayon",p:"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /><path d=\"m15 5 4 4\" />"},
+  {l:"Stylo",p:"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" />"},
+  {l:"Plume",p:"<path d=\"M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z\" /><path d=\"m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18\" /><path d=\"m2.3 2.3 7.286 7.286\" /><circle cx=\"11\" cy=\"11\" r=\"2\" />"},
+  {l:"Surligneur",p:"<path d=\"m9 11-6 6v3h9l3-3\" /><path d=\"m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4\" />"},
+  {l:"Gomme",p:"<path d=\"M21 21H8a2 2 0 0 1-1.42-.587l-3.994-3.999a2 2 0 0 1 0-2.828l10-10a2 2 0 0 1 2.829 0l5.999 6a2 2 0 0 1 0 2.828L12.834 21\" /><path d=\"m5.082 11.09 8.828 8.828\" />"},
+  {l:"Règle",p:"<path d=\"M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z\" /><path d=\"m14.5 12.5 2-2\" /><path d=\"m11.5 9.5 2-2\" /><path d=\"m8.5 6.5 2-2\" /><path d=\"m17.5 15.5 2-2\" />"},
+  {l:"Règle & crayon",p:"<path d=\"M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13\" /><path d=\"m8 6 2-2\" /><path d=\"m18 16 2-2\" /><path d=\"m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17\" /><path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /><path d=\"m15 5 4 4\" />"},
+  {l:"Ciseaux",p:"<circle cx=\"6\" cy=\"6\" r=\"3\" /><path d=\"M8.12 8.12 12 12\" /><path d=\"M20 4 8.12 15.88\" /><circle cx=\"6\" cy=\"18\" r=\"3\" /><path d=\"M14.8 14.8 20 20\" />"},
+  {l:"Trombone",p:"<path d=\"m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551\" />"},
+  {l:"Cartable",p:"<path d=\"M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z\" /><path d=\"M8 10h8\" /><path d=\"M8 18h8\" /><path d=\"M8 22v-6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6\" /><path d=\"M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2\" />"},
+  {l:"Pomme",p:"<path d=\"M12 6.528V3a1 1 0 0 1 1-1h0\" /><path d=\"M18.237 21A15 15 0 0 0 22 11a6 6 0 0 0-10-4.472A6 6 0 0 0 2 11a15.1 15.1 0 0 0 3.763 10 3 3 0 0 0 3.648.648 5.5 5.5 0 0 1 5.178 0A3 3 0 0 0 18.237 21\" />"},
+  {l:"Globe",p:"<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20\" /><path d=\"M2 12h20\" />"},
+  {l:"Carte",p:"<path d=\"M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z\" /><path d=\"M15 5.764v15\" /><path d=\"M9 3.236v15\" />"},
+  {l:"Boussole",p:"<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z\" />"},
+  {l:"Langues",p:"<path d=\"m5 8 6 6\" /><path d=\"m4 14 6-6 2-3\" /><path d=\"M2 5h12\" /><path d=\"M7 2h1\" /><path d=\"m22 22-5-10-5 10\" /><path d=\"M14 18h6\" />"},
+  {l:"Calculatrice",p:"<rect width=\"16\" height=\"20\" x=\"4\" y=\"2\" rx=\"2\" /><line x1=\"8\" x2=\"16\" y1=\"6\" y2=\"6\" /><line x1=\"16\" x2=\"16\" y1=\"14\" y2=\"18\" /><path d=\"M16 10h.01\" /><path d=\"M12 10h.01\" /><path d=\"M8 10h.01\" /><path d=\"M12 14h.01\" /><path d=\"M8 14h.01\" /><path d=\"M12 18h.01\" /><path d=\"M8 18h.01\" />"},
+  {l:"Somme Σ",p:"<path d=\"M18 7V5a1 1 0 0 0-1-1H6.5a.5.5 0 0 0-.4.8l4.5 6a2 2 0 0 1 0 2.4l-4.5 6a.5.5 0 0 0 .4.8H17a1 1 0 0 0 1-1v-2\" />"},
+  {l:"Pi π",p:"<line x1=\"9\" x2=\"9\" y1=\"4\" y2=\"20\" /><path d=\"M4 7c0-1.7 1.3-3 3-3h13\" /><path d=\"M18 20c-1.7 0-3-1.3-3-3V4\" />"},
+  {l:"Division",p:"<circle cx=\"12\" cy=\"6\" r=\"1\" /><line x1=\"5\" x2=\"19\" y1=\"12\" y2=\"12\" /><circle cx=\"12\" cy=\"18\" r=\"1\" />"},
+  {l:"Plus",p:"<path d=\"M5 12h14\" /><path d=\"M12 5v14\" />"},
+  {l:"Moins",p:"<path d=\"M5 12h14\" />"},
+  {l:"Pourcentage",p:"<line x1=\"19\" x2=\"5\" y1=\"5\" y2=\"19\" /><circle cx=\"6.5\" cy=\"6.5\" r=\"2.5\" /><circle cx=\"17.5\" cy=\"17.5\" r=\"2.5\" />"},
+  {l:"Égal",p:"<line x1=\"5\" x2=\"19\" y1=\"9\" y2=\"9\" /><line x1=\"5\" x2=\"19\" y1=\"15\" y2=\"15\" />"},
+  {l:"Infini",p:"<path d=\"M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8\" />"},
+  {l:"Atome",p:"<circle cx=\"12\" cy=\"12\" r=\"1\" /><path d=\"M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z\" /><path d=\"M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z\" />"},
+  {l:"Microscope",p:"<path d=\"M6 18h8\" /><path d=\"M3 22h18\" /><path d=\"M14 22a7 7 0 1 0 0-14h-1\" /><path d=\"M9 14h2\" /><path d=\"M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z\" /><path d=\"M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3\" />"},
+  {l:"Télescope",p:"<path d=\"m10.065 12.493-6.18 1.318a.934.934 0 0 1-1.108-.702l-.537-2.15a1.07 1.07 0 0 1 .691-1.265l13.504-4.44\" /><path d=\"m13.56 11.747 4.332-.924\" /><path d=\"m16 21-3.105-6.21\" /><path d=\"M16.485 5.94a2 2 0 0 1 1.455-2.425l1.09-.272a1 1 0 0 1 1.212.727l1.515 6.06a1 1 0 0 1-.727 1.213l-1.09.272a2 2 0 0 1-2.425-1.455z\" /><path d=\"m6.158 8.633 1.114 4.456\" /><path d=\"m8 21 3.105-6.21\" /><circle cx=\"12\" cy=\"13\" r=\"2\" />"},
+  {l:"Erlenmeyer",p:"<path d=\"M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2\" /><path d=\"M6.453 15h11.094\" /><path d=\"M8.5 2h7\" />"},
+  {l:"Éprouvette",p:"<path d=\"M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5c-1.4 0-2.5-1.1-2.5-2.5V2\" /><path d=\"M8.5 2h7\" /><path d=\"M14.5 16h-5\" />"},
+  {l:"ADN",p:"<path d=\"m10 16 1.5 1.5\" /><path d=\"m14 8-1.5-1.5\" /><path d=\"M15 2c-1.798 1.998-2.518 3.995-2.807 5.993\" /><path d=\"m16.5 10.5 1 1\" /><path d=\"m17 6-2.891-2.891\" /><path d=\"M2 15c6.667-6 13.333 0 20-6\" /><path d=\"m20 9 .891.891\" /><path d=\"M3.109 14.109 4 15\" /><path d=\"m6.5 12.5 1 1\" /><path d=\"m7 18 2.891 2.891\" /><path d=\"M9 22c1.798-1.998 2.518-3.995 2.807-5.993\" />"},
+  {l:"Cerveau",p:"<path d=\"M12 18V5\" /><path d=\"M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4\" /><path d=\"M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5\" /><path d=\"M17.997 5.125a4 4 0 0 1 2.526 5.77\" /><path d=\"M18 18a4 4 0 0 0 2-7.464\" /><path d=\"M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517\" /><path d=\"M6 18a4 4 0 0 1-2-7.464\" /><path d=\"M6.003 5.125a4 4 0 0 0-2.526 5.77\" />"},
+  {l:"Idée",p:"<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /><path d=\"M9 18h6\" /><path d=\"M10 22h4\" />"},
+  {l:"Thermomètre",p:"<path d=\"M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z\" />"},
+  {l:"Flamme",p:"<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" />"},
+  {l:"Fusée",p:"<path d=\"M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5\" /><path d=\"M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09\" /><path d=\"M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z\" /><path d=\"M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05\" />"},
+  {l:"Palette",p:"<path d=\"M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z\" /><circle cx=\"13.5\" cy=\"6.5\" r=\".5\" fill=\"currentColor\" /><circle cx=\"17.5\" cy=\"10.5\" r=\".5\" fill=\"currentColor\" /><circle cx=\"6.5\" cy=\"12.5\" r=\".5\" fill=\"currentColor\" /><circle cx=\"8.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />"},
+  {l:"Musique",p:"<path d=\"M9 18V5l12-2v13\" /><circle cx=\"6\" cy=\"18\" r=\"3\" /><circle cx=\"18\" cy=\"16\" r=\"3\" />"},
+  {l:"Horloge",p:"<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"M12 6v6l4 2\" />"},
+  {l:"Calendrier",p:"<path d=\"M8 2v4\" /><path d=\"M16 2v4\" /><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" /><path d=\"M3 10h18\" />"},
+  {l:"Trophée",p:"<path d=\"M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978\" /><path d=\"M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978\" /><path d=\"M18 9h1.5a1 1 0 0 0 0-5H18\" /><path d=\"M4 22h16\" /><path d=\"M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z\" /><path d=\"M6 9H4.5a1 1 0 0 1 0-5H6\" />"},
+  {l:"Étoile",p:"<path d=\"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z\" />"},
+  {l:"Récompense",p:"<path d=\"m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526\" /><circle cx=\"12\" cy=\"8\" r=\"6\" />"},
+  {l:"Coche",p:"<path d=\"M20 6 9 17l-5-5\" />"},
+  {l:"Réponse juste",p:"<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"m9 12 2 2 4-4\" />"},
+  {l:"Réponse fausse",p:"<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"m15 9-6 6\" /><path d=\"m9 9 6 6\" />"},
+  {l:"Objectif",p:"<circle cx=\"12\" cy=\"12\" r=\"10\" /><circle cx=\"12\" cy=\"12\" r=\"6\" /><circle cx=\"12\" cy=\"12\" r=\"2\" />"},
+  {l:"Clé",p:"<path d=\"m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4\" /><path d=\"m21 2-9.6 9.6\" /><circle cx=\"7.5\" cy=\"15.5\" r=\"5.5\" />"},
+  {l:"Puzzle",p:"<path d=\"M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z\" />"},
+  {l:"Code",p:"<path d=\"m16 18 6-6-6-6\" /><path d=\"m8 6-6 6 6 6\" />"},
+  {l:"Graphique barres",p:"<path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /><path d=\"M18 17V9\" /><path d=\"M13 17V5\" /><path d=\"M8 17v-3\" />"},
+  {l:"Tableau de bord",p:"<path d=\"m12 14 4-4\" /><path d=\"M3.34 19a10 10 0 1 1 17.32 0\" />"},
+  {l:"Cadenas",p:"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /><path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />"},
+  {l:"Localisation",p:"<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\" /><circle cx=\"12\" cy=\"10\" r=\"3\" />"},
+  {l:"Notification",p:"<path d=\"M10.268 21a2 2 0 0 0 3.464 0\" /><path d=\"M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326\" />"},
+  {l:"Sablier",p:"<path d=\"M5 22h14\" /><path d=\"M5 2h14\" /><path d=\"M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22\" /><path d=\"M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2\" />"},
+];
+// Inline-SVG school icons. Sized in `em` so they scale with the surrounding
+// font-size (and the 🅣 Taille button), and use currentColor so they follow
+// the text colour — i.e. they behave like a character of text.
+const ICON_SVG = (p) => `<span data-rt-icon contenteditable="false" style="display:inline-block;vertical-align:-0.125em"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block">${p}</svg></span>`;
+// Insert an icon at the caret of the active rich-text field.
+function insertIcon(p) {
+  if (!activeRT) return;
+  activeRT.focus(); restoreSel();
+  const html = ICON_SVG(p) + " ";
+  let ok = false;
+  try { ok = document.execCommand("insertHTML", false, html); } catch (e) {}
+  if (!ok) {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount) {
+      const range = sel.getRangeAt(0);
+      range.deleteContents();
+      const tmp = document.createElement("div"); tmp.innerHTML = html;
+      const frag = document.createDocumentFragment(); let last;
+      while (tmp.firstChild) last = frag.appendChild(tmp.firstChild);
+      range.insertNode(frag);
+      if (last) { range.setStartAfter(last); range.collapse(true); sel.removeAllRanges(); sel.addRange(range); }
+    }
+  }
+  saveSel();
+}
+
+// Convert a hex colour + alpha (0..1) to rgba() so only the shape's FILL is
+// translucent — the text sitting on top stays fully opaque.
+function hexToRgba(hex, a) {
+  hex = String(hex).replace("#", "");
+  if (hex.length === 3) hex = hex.split("").map(c => c + c).join("");
+  const n = parseInt(hex, 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+// Wrap the selected text in a coloured "shape" box that sits behind it.
+function wrapShape(style) {
+  if (!activeRT) return;
+  activeRT.focus(); restoreSel();
+  const sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  const span = document.createElement("span");
+  span.setAttribute("data-shape", "1");
+  span.style.cssText = style;
+  if (range.collapsed) {
+    span.textContent = "Texte";
+    range.insertNode(span);
+  } else {
+    const frag = range.extractContents();
+    // Don't let nested shapes compound their backgrounds.
+    frag.querySelectorAll && frag.querySelectorAll("[data-shape]").forEach(el => {
+      el.removeAttribute("data-shape");
+      ["background", "borderRadius", "padding", "width", "height", "lineHeight", "textAlign"].forEach(k => el.style[k] = "");
+    });
+    span.appendChild(frag);
+    range.insertNode(span);
+  }
+  const nr = document.createRange(); nr.selectNodeContents(span);
+  sel.removeAllRanges(); sel.addRange(nr);
+  saveSel();
+}
+
+function initRichToolbar() {
+  document.querySelectorAll("#rtToolbar [data-cmd]").forEach(btn => {
+    btn.addEventListener("mousedown", e => e.preventDefault()); // keep the field's selection
+    btn.addEventListener("click", () => rtExec(btn.dataset.cmd));
+  });
+  const color = $("rtColor");
+  color.addEventListener("mousedown", saveSel);
+  color.addEventListener("input", () => setColor(color.value, false));
+  const font = $("rtFont");
+  font.addEventListener("mousedown", saveSel);
+  font.addEventListener("change", () => { rtExec("fontName", font.value || "inherit"); font.value = ""; });
+
+  const sizeBtn = $("rtSizeBtn"), sizeMenu = $("rtSizeMenu");
+  $("rtSizes").innerHTML = SIZE_OPTS.map(([s,l]) => `<button type="button" class="rt-size-btn" data-px="${s}">${l}<span class="px">${s}px</span></button>`).join("");
+  $("rtSizes").querySelectorAll(".rt-size-btn").forEach(b => {
+    b.addEventListener("mousedown", e => e.preventDefault()); // keep the field's selection
+    b.addEventListener("click", () => { rtFontSize(parseInt(b.dataset.px)); sizeMenu.classList.add("hidden"); });
+  });
+  sizeBtn.addEventListener("mousedown", e => e.preventDefault());
+  sizeBtn.addEventListener("click", () => { saveSel(); $("rtPalette").classList.add("hidden"); $("rtIconMenu").classList.add("hidden"); $("rtShapeMenu").classList.add("hidden"); sizeMenu.classList.toggle("hidden"); });
+
+  // ---- School icon picker ----
+  const iconBtn = $("rtIconBtn"), iconMenu = $("rtIconMenu"), iconWrap = $("rtIcons"), iconSearch = $("rtIconSearch");
+  function renderIcons(filter) {
+    const f = (filter || "").trim().toLowerCase();
+    const list = ICON_LIB.map((ic, i) => ({ ic, i })).filter(({ ic }) => !f || ic.l.toLowerCase().includes(f));
+    iconWrap.innerHTML = list.length
+      ? list.map(({ ic, i }) => `<button type="button" class="rt-icon-btn" data-i="${i}" title="${ic.l}">${ICON_SVG(ic.p)}</button>`).join("")
+      : `<div class="rt-icon-empty">Aucune icône</div>`;
+    iconWrap.querySelectorAll(".rt-icon-btn").forEach(b => {
+      b.addEventListener("mousedown", e => e.preventDefault()); // keep the field's caret
+      b.addEventListener("click", () => { insertIcon(ICON_LIB[+b.dataset.i].p); iconMenu.classList.add("hidden"); });
+    });
+  }
+  renderIcons("");
+  iconSearch.addEventListener("input", () => renderIcons(iconSearch.value));
+  iconBtn.addEventListener("mousedown", e => e.preventDefault());
+  iconBtn.addEventListener("click", () => {
+    saveSel();
+    $("rtPalette").classList.add("hidden"); $("rtSizeMenu").classList.add("hidden"); $("rtShapeMenu").classList.add("hidden");
+    const willShow = iconMenu.classList.contains("hidden");
+    if (willShow) { iconSearch.value = ""; renderIcons(""); }
+    iconMenu.classList.toggle("hidden");
+  });
+
+  // ---- Shape (coloured background for text) tool ----
+  const shapeBtn = $("rtShapeBtn"), shapeMenu = $("rtShapeMenu");
+  const shapeColor = $("rtShapeColor"), shapeOpac = $("rtShapeOpacity"), shapeOpacVal = $("rtShapeOpacVal");
+  const shapeW = $("rtShapeW"), shapeH = $("rtShapeH"), shapePrev = $("rtShapePreview");
+  let shapeRadius = "6px";
+  const shapeFills = ["#FDE68A","#FCA5A5","#A7F3D0","#BFDBFE","#DDD6FE","#FBCFE8","#FED7AA","#E5E7EB","#FEF08A","#99F6E4"];
+  $("rtShapeSwatches").innerHTML = shapeFills.map(c => `<button type="button" class="rt-shape-sw" data-c="${c}" style="background:${c}"></button>`).join("");
+  function buildShapeStyle() {
+    const a = (parseInt(shapeOpac.value, 10) || 100) / 100;
+    let s = `display:inline-block;background:${hexToRgba(shapeColor.value, a)};border-radius:${shapeRadius};padding:3px 10px;vertical-align:middle;`;
+    const w = shapeW.value.trim(), h = shapeH.value.trim();
+    if (w && w !== "auto") s += `width:${w};text-align:center;`;
+    if (h && h !== "auto") s += `height:${h};line-height:${h};`;
+    return s;
+  }
+  function updateShapePreview() {
+    shapePrev.style.cssText = buildShapeStyle();
+    shapeOpacVal.textContent = shapeOpac.value + "%";
+  }
+  shapeMenu.querySelectorAll(".rt-shape-type").forEach(b => {
+    b.addEventListener("mousedown", e => e.preventDefault());
+    b.addEventListener("click", () => {
+      shapeMenu.querySelectorAll(".rt-shape-type").forEach(x => x.classList.remove("active"));
+      b.classList.add("active"); shapeRadius = b.dataset.r; updateShapePreview();
+    });
+  });
+  $("rtShapeSwatches").querySelectorAll(".rt-shape-sw").forEach(b => {
+    b.addEventListener("mousedown", e => e.preventDefault());
+    b.addEventListener("click", () => { shapeColor.value = b.dataset.c; updateShapePreview(); });
+  });
+  shapeColor.addEventListener("input", updateShapePreview);
+  shapeOpac.addEventListener("input", updateShapePreview);
+  shapeW.addEventListener("input", updateShapePreview);
+  shapeH.addEventListener("input", updateShapePreview);
+  $("rtShapeInsert").addEventListener("mousedown", e => e.preventDefault());
+  $("rtShapeInsert").addEventListener("click", () => { wrapShape(buildShapeStyle()); shapeMenu.classList.add("hidden"); });
+  shapeBtn.addEventListener("mousedown", e => e.preventDefault());
+  shapeBtn.addEventListener("click", () => {
+    saveSel();
+    $("rtPalette").classList.add("hidden"); $("rtSizeMenu").classList.add("hidden"); $("rtIconMenu").classList.add("hidden");
+    shapeMenu.classList.toggle("hidden");
+    updateShapePreview();
+  });
+  updateShapePreview();
+
+  // ---- Full colour chart ----
+  let paletteMode = "text";
+  const applyColor = (c) => setColor(c, paletteMode === "highlight");
+  const colors = [];
+  for (let i = 0; i < 12; i++) colors.push(`hsl(0,0%,${Math.round(i*100/11)}%)`);      // grayscale row
+  [90,80,68,56,44,32,20].forEach(L => { for (let h = 0; h < 360; h += 30) colors.push(`hsl(${h},85%,${L}%)`); });
+  $("rtSwatches").innerHTML = colors.map(c => `<button type="button" class="rt-swatch" data-color="${c}" style="background:${c}"></button>`).join("");
+  $("rtSwatches").querySelectorAll(".rt-swatch").forEach(b => {
+    b.addEventListener("mousedown", e => e.preventDefault());
+    b.addEventListener("click", () => applyColor(b.dataset.color));
+  });
+  const palBtn = $("rtPaletteBtn");
+  palBtn.addEventListener("mousedown", e => e.preventDefault());
+  palBtn.addEventListener("click", () => { saveSel(); $("rtSizeMenu").classList.add("hidden"); $("rtIconMenu").classList.add("hidden"); $("rtShapeMenu").classList.add("hidden"); $("rtPalette").classList.toggle("hidden"); });
+  $("rtPaletteMode").querySelectorAll(".rt-mode").forEach(b => {
+    b.addEventListener("mousedown", e => e.preventDefault());
+    b.addEventListener("click", () => { paletteMode = b.dataset.target; $("rtPaletteMode").querySelectorAll(".rt-mode").forEach(x => x.classList.toggle("active", x === b)); });
+  });
+}
+// A contentEditable rich-text field. Reads/writes innerHTML (HTML).
+const richField = (cls, html, ph) => { const h = Array.isArray(html) ? html.map(esc).join("<br>") : (html || ""); return `<div class="rt ${cls}" contenteditable="true" dir="auto" data-ph="${esc(ph||"")}">${h}</div>`; };
+const rtHTML = el => { if (!el) return ""; let h = (el.innerHTML || "").trim(); if (/^(<br\s*\/?>|&nbsp;|\s)*$/i.test(h)) return ""; return h; };
+// Removes a leading number marker (e.g. "1", "1.", "1)") from a section name so Arabic flips RTL.
+const stripHeadingMarker = (v) => {
+  let s = (v == null ? "" : String(v));
+  const open = (s.match(/^(\s*<[^>]+>\s*)*/) || [""])[0];
+  let rest = s.slice(open.length);
+  rest = rest.replace(/^\s*[0-9٠-٩]{1,3}\s*[.\)\-–—:]?\s+(?=\S)/, "");
+  return open + rest;
+};
+// Set a rich field's HTML. Old lessons stored points/astuce as arrays → join lines.
+const setRT = (id, v) => { const el = $(id); if (el) el.innerHTML = Array.isArray(v) ? v.map(esc).join("<br>") : (v || ""); };
+
+const GRADES = [["1ap","1AP"],["2ap","2AP"],["3ap","3AP"],["4ap","4AP"],["5ap","5AP"],["6ap","6AP"],
+                ["1ac","1AC"],["2ac","2AC"],["3ac","3AC"],["tc","Tronc Commun"],["1bac","1Bac"],["2bac","2Bac"]];
+const SUBJECTS = [["maths","Maths"],["eveil","Éveil scientifique"],["arabe","Arabe"],["islam","Éducation islamique"],
+                  ["francais","Français"],["social","Social / Histoire-Géo"],["fartist","Arts plastiques"],
+                  ["sport","Sport / EPS"],["competences","Compétences / Vie"],["physique","Physique-Chimie"],
+                  ["svt","SVT"],["anglais","Anglais"],["philo","Philosophie"]];
+GRADES.forEach(([v,l])=>$("grade").insertAdjacentHTML("beforeend",`<option value="${v}">${l}</option>`));
+SUBJECTS.forEach(([v,l])=>$("subject").insertAdjacentHTML("beforeend",`<option value="${v}">${l}</option>`));
+$("grade").value="6ap"; $("subject").value="maths";
+
+// Filières per high-school level — MUST match the app's ids exactly.
+const FILIERES_BY_GRADE = {
+  tc:   [["scientifique","Scientifique"],["adab","الآداب والعلوم الإنسانية"]],
+  "1bac":[["sci-maths","Sciences Mathématiques"],["sci-exp","Sciences Expérimentales"],["adab","الآداب والعلوم الإنسانية"]],
+  "2bac":[["sci-maths","Sciences Mathématiques"],["sci-phys","Sciences Physiques et Chimiques"],["svt","Sciences de la Vie et de la Terre"],["sci-hum","العلوم الإنسانية"],["arabe","اللغة العربية"],["adab","الآداب"]],
+};
+const isLycee = g => ["tc","1bac","2bac"].includes(g);
+function refreshFiliere() {
+  const g = $("grade").value;
+  const list = FILIERES_BY_GRADE[g];
+  if (list) {
+    $("filiere").innerHTML = list.map(([v,l])=>`<option value="${v}">${l}</option>`).join("");
+    $("filiereRow").style.display = "";
+  } else {
+    $("filiere").innerHTML = "";
+    $("filiereRow").style.display = "none";
+  }
+}
+$("grade").addEventListener("change", refreshFiliere);
+refreshFiliere();
+initSizeSelects();
+initRichToolbar();
+
+$("loginBtn").onclick = async () => {
+  try { await signInWithEmailAndPassword(auth, $("email").value.trim(), $("password").value); }
+  catch (e) { status($("loginStatus"), "Échec: " + e.code, false); }
+};
+onAuthStateChanged(auth, user => {
+  if (user) {
+    $("loginCard").classList.add("hidden"); $("editor").classList.remove("hidden");
+    $("who").innerHTML = `<span class="uid">UID: ${user.uid}</span> &nbsp; <button class="small ghost" id="out" style="background:#fff">Déconnexion</button>`;
+    $("out").onclick = () => signOut(auth);
+    if (!$("sections").children.length) newLesson();
+  } else {
+    $("editor").classList.add("hidden"); $("loginCard").classList.remove("hidden"); $("who").innerHTML="";
+  }
+});
+
+function compress(file, maxDim=800, quality=0.65) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > height && width > maxDim) { height = Math.round(height*maxDim/width); width = maxDim; }
+      else if (height > maxDim) { width = Math.round(width*maxDim/height); height = maxDim; }
+      const c = document.createElement("canvas"); c.width = width; c.height = height;
+      c.getContext("2d").drawImage(img, 0, 0, width, height);
+      resolve(c.toDataURL("image/jpeg", quality));
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+function wireImage(fileInput, thumb, onData) {
+  fileInput.onchange = async () => {
+    const f = fileInput.files[0]; if (!f) return;
+    const data = await compress(f);
+    onData(data); thumb.src = data; thumb.classList.remove("hidden");
+  };
+}
+const rmBtn = node => { const b=document.createElement("button"); b.className="rm small"; b.textContent="✕"; b.onclick=()=>node.remove(); return b; };
+
+function addBlock(container, type, value, size) {
+  const d = document.createElement("div"); d.className = "block-item"; d.dataset.type = type;
+  d.style.cssText = "border:1px dashed #cdb4c4;border-radius:9px;padding:10px 12px;margin:8px 0;position:relative;background:#fff;";
+  let inner = "";
+  if (type === "text") {
+    inner = `<label>Texte</label>${richField("b-text", value, "")}<input type="hidden" class="b-size" value="${size || 14}">`;
+  }
+  else if (type === "points") inner = `<label>Points (Entrée = nouveau point)</label>${richField("b-points", value, "")}${sizeSelect("b-size", size, 14)}`;
+  else inner = `<label>Image</label><input type="file" class="b-file" accept="image/*"><img class="thumb b-thumb ${value?"":"hidden"}" ${value?`src="${value}"`:""}>`;
+  d.innerHTML = inner;
+  const rm = document.createElement("button"); rm.className = "small"; rm.textContent = "✕";
+  rm.style.cssText = "position:absolute;top:6px;right:6px;background:#fff;color:#c0392b;border:1px solid #f0d0d0;border-radius:8px;padding:2px 8px;";
+  rm.onclick = () => d.remove(); d.appendChild(rm);
+  container.appendChild(d);
+  if (type === "image") { d._image = value || ""; wireImage(d.querySelector(".b-file"), d.querySelector(".b-thumb"), data => { d._image = data; }); }
+}
+
+function addSection(s = {}, container, isEx = false) {
+  container = container || $("sections");
+  const d = document.createElement("div"); d.className = "block section";
+  d.innerHTML = `
+    <label>Nom de la section</label>${richField("s-heading", s.heading, "")}
+    ${sizeSelect("s-size", s.headingSize, 18)}
+    <div class="s-blocks"></div>
+    <div class="row" style="margin-top:8px">
+      <button type="button" class="ghost small add-text">+ Texte</button>
+      <button type="button" class="ghost small add-points">+ Points</button>
+      <button type="button" class="ghost small add-image">+ Image</button>
+    </div>
+    ${isEx ? `<label style="margin-top:10px;display:block">Solution (optionnel)</label>${richField("s-solution", s.solution, "")}` : ``}`;
+  d.appendChild(rmBtn(d)); container.appendChild(d);
+  const blocks = d.querySelector(".s-blocks");
+  d.querySelector(".add-text").onclick = () => addBlock(blocks, "text", "");
+  d.querySelector(".add-points").onclick = () => addBlock(blocks, "points", []);
+  d.querySelector(".add-image").onclick = () => addBlock(blocks, "image", "");
+  if (s.blocks && s.blocks.length) {
+    s.blocks.forEach(b => addBlock(blocks, b.type, b.type==="text"?b.text:(b.type==="points"?b.points:b.image), b.size));
+  } else if (s.content || (s.bullets && s.bullets.length) || s.image) {
+    if (s.content) addBlock(blocks, "text", s.content);
+    if (s.bullets && s.bullets.length) addBlock(blocks, "points", s.bullets);
+    if (s.image) addBlock(blocks, "image", s.image);
+  } else {
+    addBlock(blocks, "text", "");
+  }
+}
+
+// Read a container of sections (used by both Cours and Exercices)
+function readSections(container) {
+  return [...container.querySelectorAll(".section")].map(s => {
+    const o = { heading: stripHeadingMarker(rtHTML(s.querySelector(".s-heading"))), headingSize: readSize(s.querySelector(".s-size"), 18) };
+    const blocks = [...s.querySelector(".s-blocks").children].map(b => {
+      const t = b.dataset.type;
+      if (t === "text") { const v = rtHTML(b.querySelector(".b-text")); const sz = readSize(b.querySelector(".b-size"), 14); return v ? { type:"text", text:v, size:sz } : null; }
+      if (t === "points") { const v = rtHTML(b.querySelector(".b-points")); const sz = readSize(b.querySelector(".b-size"), 14); return v ? { type:"points", points:v, size:sz } : null; }
+      if (t === "image") { return b._image ? { type:"image", image:b._image } : null; }
+      return null;
+    }).filter(Boolean);
+    if (blocks.length) o.blocks = blocks;
+    const sol = s.querySelector(".s-solution"); if (sol) { const sv = rtHTML(sol); if (sv) o.solution = sv; }
+    return o;
+  }).filter(s => s.heading || (s.blocks && s.blocks.length) || s.solution);
+}
+$("addSection").onclick = () => addSection();
+
+function mkQuestion(container, e = {}) {
+  const o = e.opts || ["","","",""];
+  const d = document.createElement("div"); d.className = "block question";
+  d.innerHTML = `
+    <label>Question</label>${richField("e-q", e.q, "")}
+    <div class="row">
+      <div><label>Option 1</label>${richField("e-o", o[0], "")}</div>
+      <div><label>Option 2</label>${richField("e-o", o[1], "")}</div>
+      <div><label>Option 3</label>${richField("e-o", o[2], "")}</div>
+      <div><label>Option 4</label>${richField("e-o", o[3], "")}</div>
+    </div>
+    <label>Bonne réponse</label>
+    <select class="e-ans"><option value="0">Option 1</option><option value="1">Option 2</option><option value="2">Option 3</option><option value="3">Option 4</option></select>
+    <label>Explication</label>${richField("e-exp", e.exp, "")}
+    ${sizeSelect("e-size", e.size, 22, SIZE_OPTS_QUIZ)}`;
+  d.appendChild(rmBtn(d)); container.appendChild(d);
+  if (e.ans != null) { const ix = o.indexOf(e.ans); if (ix>=0) d.querySelector(".e-ans").value = String(ix); }
+}
+$("addQuiz").onclick = () => mkQuestion($("quiz"));
+$("addExSection").onclick = () => addSection({}, $("exSections"), true);
+
+function readQuestions(container) {
+  return [...container.querySelectorAll(".question")].map(e => {
+    const opts = [...e.querySelectorAll(".e-o")].map(i => rtHTML(i));
+    const ans = opts[parseInt(e.querySelector(".e-ans").value,10)] || "";
+    return { q: rtHTML(e.querySelector(".e-q")), opts, ans, exp: rtHTML(e.querySelector(".e-exp")), size: readSize(e.querySelector(".e-size"), 22) };
+  }).filter(e => e.q);
+}
+
+function buildLesson() {
+  const lesson = {
+    title: $("title").value.trim(),
+    objectiveTitle: rtHTML($("objectiveTitle")),
+    objectiveTitleSize: readSize($("objectiveTitleSize"), 16),
+    objective: rtHTML($("objective")),
+    objectiveSize: readSize($("objectiveSize"), 13),
+    introTitle: rtHTML($("introTitle")),
+    introTitleSize: readSize($("introTitleSize"), 18),
+    introduction: rtHTML($("introduction")),
+    introductionSize: readSize($("introductionSize"), 14),
+    sections: readSections($("sections")),
+    keyPointsTitle: rtHTML($("keyPointsTitle")),
+    keyPointsTitleSize: readSize($("keyPointsTitleSize"), 14),
+    keyPoints: rtHTML($("keyPoints")),
+    keyPointsSize: readSize($("keyPointsSize"), 14),
+    astuceTitle: rtHTML($("astuceTitle")),
+    astuceTitleSize: readSize($("astuceTitleSize"), 14),
+    astuce: rtHTML($("astuce")),
+    astuceSize: readSize($("astuceSize"), 14),
+    exercises: { sections: readSections($("exSections")) },
+    quiz: { title: $("quizTitle").value.trim(), exercises: readQuestions($("quiz")) },
+    examples: [],
+    _updated: Date.now(),
+  };
+  return lesson;
+}
+
+function fillForm(l) {
+  $("title").value = l.title || "";
+  setRT("objectiveTitle", l.objectiveTitle); $("objectiveTitleSize").value = l.objectiveTitleSize || 16;
+  setRT("objective", l.objective); $("objectiveSize").value = l.objectiveSize || 13;
+  setRT("introTitle", l.introTitle); $("introTitleSize").value = l.introTitleSize || 18;
+  setRT("introduction", l.introduction); $("introductionSize").value = l.introductionSize || 14;
+  setRT("keyPointsTitle", l.keyPointsTitle); $("keyPointsTitleSize").value = l.keyPointsTitleSize || 14;
+  setRT("keyPoints", l.keyPoints); $("keyPointsSize").value = l.keyPointsSize || 14;
+  setRT("astuceTitle", l.astuceTitle); $("astuceTitleSize").value = l.astuceTitleSize || 14;
+  setRT("astuce", l.astuce); $("astuceSize").value = l.astuceSize || 14;
+  $("quizTitle").value = l.quiz?.title || "";
+  $("sections").innerHTML=""; (l.sections||[]).forEach(s=>addSection(s)); if(!(l.sections||[]).length) addSection();
+  $("exSections").innerHTML=""; (l.exercises?.sections||[]).forEach(s=>addSection(s,$("exSections"),true)); if(!(l.exercises?.sections||[]).length) addSection({},$("exSections"),true);
+  $("quiz").innerHTML=""; (l.quiz?.exercises||[]).forEach(e=>mkQuestion($("quiz"),e)); if(!(l.quiz?.exercises||[]).length) mkQuestion($("quiz"));
+}
+
+function newLesson() { fillForm({ sections:[{}] }); $("title").value=""; status($("saveStatus"),"Nouvelle leçon vide. Remplissez puis enregistrez.",true); }
+$("newBtn").onclick = newLesson; $("newBtn2").onclick = newLesson;
+
+// For high-school levels the address includes the filière, so each filière keeps
+// its own separate lessons. Primaire/Collège keep the plain grade__subject key.
+const gradeKey = () => {
+  const g = $("grade").value;
+  return (isLycee(g) && $("filiere").value) ? `${g}__${$("filiere").value}` : g;
+};
+const docId = () => `${gradeKey()}__${$("subject").value}__${$("title").value.trim()}`;
+const indexId = () => `${gradeKey()}__${$("subject").value}`;
+
+// Delete a lesson doc AND remove its title from the index
+async function deleteLesson(title) {
+  const id = `${gradeKey()}__${$("subject").value}__${title}`;
+  await deleteDoc(doc(db, "lessons", id));
+  const iref = doc(db, "indexes", indexId());
+  let titles = [];
+  try { const s = await getDoc(iref); if (s.exists()) titles = s.data().titles || []; } catch {}
+  titles = titles.filter(t => t !== title);
+  await setDoc(iref, { titles });
+}
+
+$("delBtn").onclick = async () => {
+  const t = $("title").value.trim();
+  if (!t) { status($("saveStatus"), "❌ Aucun titre — rien à supprimer.", false); return; }
+  if (!confirm(`Supprimer définitivement la leçon « ${t} » ?`)) return;
+  try {
+    await deleteLesson(t);
+    newLesson();
+    status($("saveStatus"), `🗑 « ${t} » supprimée.`, true);
+  } catch (e) {
+    status($("saveStatus"), "❌ " + (e.code || e.message) + " — vérifiez les règles Firestore.", false);
+  }
+};
+
+$("saveBtn").onclick = async () => {
+  const lesson = buildLesson();
+  if (!lesson.title) { status($("saveStatus"), "❌ Titre manquant.", false); return; }
+  for (const e of lesson.quiz.exercises)
+    if (!e.opts.includes(e.ans) || !e.ans) { status($("saveStatus"), `❌ Réponse invalide: "${e.q}"`, false); return; }
+  const sizeKB = Math.round(JSON.stringify(lesson).length/1024);
+  if (sizeKB > 950) { status($("saveStatus"), `❌ Leçon trop lourde (${sizeKB} Ko, max ~1000). Réduisez le nombre/poids des images.`, false); return; }
+  try {
+    await setDoc(doc(db, "lessons", docId()), lesson);
+    const iref = doc(db, "indexes", indexId());
+    let titles = [];
+    try { const s = await getDoc(iref); if (s.exists()) titles = s.data().titles || []; } catch {}
+    if (!titles.includes(lesson.title)) titles.push(lesson.title);
+    await setDoc(iref, { titles });
+    status($("saveStatus"), `✅ Enregistré (${sizeKB} Ko). La leçon est dans le cloud.`, true);
+  } catch (e) {
+    status($("saveStatus"), "❌ " + (e.code||e.message) + " — vérifiez les règles Firestore (lessons & indexes).", false);
+  }
+};
+
+$("listBtn").onclick = async () => {
+  const wrap = $("lessonList"); wrap.innerHTML = "Chargement…";
+  try {
+    const s = await getDoc(doc(db, "indexes", indexId()));
+    const titles = s.exists() ? (s.data().titles||[]) : [];
+    if (!titles.length) { wrap.innerHTML = `<div class="hint">Aucune leçon enregistrée pour ce niveau/matière.</div>`; return; }
+    wrap.innerHTML = "";
+    titles.forEach(t => {
+      const row = document.createElement("div"); row.className = "lesson-row";
+      row.innerHTML = `<span style="flex:1">${esc(t)}</span>
+        <button class="small open" style="margin-right:6px">Modifier</button>
+        <button class="small del" style="background:#fff;color:#c0392b;border:1px solid #f0d0d0">Supprimer</button>`;
+      row.querySelector(".open").onclick = async () => {
+        $("title").value = t;
+        const ls = await getDoc(doc(db, "lessons", docId()));
+        if (ls.exists()) { fillForm(ls.data()); status($("saveStatus"), `Leçon « ${t} » chargée.`, true); window.scrollTo(0,0); }
+      };
+      row.querySelector(".del").onclick = async () => {
+        if (!confirm(`Supprimer définitivement la leçon « ${t} » ?`)) return;
+        try { await deleteLesson(t); row.remove(); status($("saveStatus"), `🗑 « ${t} » supprimée.`, true); }
+        catch (e) { status($("saveStatus"), "❌ " + (e.code || e.message), false); }
+      };
+      wrap.appendChild(row);
+    });
+  } catch (e) { wrap.innerHTML = `<div class="status err" style="display:block">${e.code||e.message}</div>`; }
+};
+
+// ---- Preview (renders the current lesson roughly like the app) ----
+function stripTags(html){ const d=document.createElement("div"); d.innerHTML=html||""; return d.textContent||""; }
+function asPv(v){ return Array.isArray(v) ? v.map(x=>x==null?"":String(x)).join("<br>") : (v==null?"":String(v)); }
+function previewRTL(l){
+  const parts=[]; const push=v=>{ if(Array.isArray(v)) v.forEach(push); else if(v) parts.push(stripTags(String(v))); };
+  push(l.objectiveTitle);push(l.objective);push(l.introTitle);push(l.introduction);
+  (l.sections||[]).forEach(s=>{push(s.heading);(s.blocks||[]).forEach(b=>{push(b.text);push(b.points);});});
+  push(l.keyPointsTitle);push(l.keyPoints);push(l.astuceTitle);push(l.astuce);
+  (l.quiz?.exercises||[]).forEach(q=>{push(q.q);push(q.opts);});
+  const t=parts.join(" ");
+  const ar=(t.match(/[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]/g)||[]).length;
+  const la=(t.match(/[A-Za-zÀ-ÿ]/g)||[]).length;
+  return ar>la;
+}
+function buildPreview(l){
+  const rtl=previewRTL(l), dir=rtl?"rtl":"ltr", ta=rtl?"right":"left", acc="#9B59B6";
+  const para=(html,sz)=>`<p style="font-size:${sz}px;color:#2D2D3A;line-height:1.75;margin:0 0 8px;direction:${dir};text-align:${ta}">${asPv(html)}</p>`;
+  const head=(html,sz)=>`<div style="font-weight:800;color:#2D2D3A;margin:14px 0 8px;direction:${dir};text-align:${ta};font-size:${sz}px">${asPv(html)}</div>`;
+  const divider=()=>`<div style="height:1px;background:#0001;margin:18px 0"></div>`;
+  const renderBlock=b=>{
+    if(b.type==="text") return para(b.text,b.size||14);
+    if(b.type==="image") return b.image?`<div style="text-align:center;margin:12px 0"><img src="${b.image}" style="max-width:100%;border-radius:12px"></div>`:"";
+    if(b.type==="points"){ if(Array.isArray(b.points)) return b.points.map(p=>`<div style="display:flex;gap:8px;direction:${dir};margin:6px 0"><span style="color:${acc}">•</span><span style="flex:1;font-size:${b.size||14}px;text-align:${ta}">${asPv(p)}</span></div>`).join(""); return `<div style="font-size:${b.size||14}px;direction:${dir};text-align:${ta};line-height:1.7">${asPv(b.points)}</div>`; }
+    return "";
+  };
+  let h="";
+  if(l.title) h+=`<div style="font-size:22px;font-weight:800;color:#2D2D3A;margin-bottom:6px;direction:${dir};text-align:${ta}">${esc(l.title)}</div>`;
+  if(l.objectiveTitle) h+=head(l.objectiveTitle,l.objectiveTitleSize||16);
+  if(l.objective) h+=`<div style="background:${acc}14;border:1px solid ${acc}33;border-radius:12px;padding:10px 14px;margin:8px 0 16px;direction:${dir};text-align:${ta};font-weight:700;color:${acc};font-size:${l.objectiveSize||13}px">${asPv(l.objective)}</div>`;
+  if(l.introduction){ h+=head(l.introTitle||(rtl?"مقدمة":"Introduction"),l.introTitleSize||18); h+=para(l.introduction,l.introductionSize||14); }
+  (l.sections||[]).forEach((s,i)=>{ h+=divider(); h+=`<div style="font-weight:800;font-size:${s.headingSize||18}px;direction:${dir};text-align:${ta};margin-bottom:8px">${asPv(stripHeadingMarker(s.heading))}</div>`; (s.blocks||[]).forEach(b=>h+=renderBlock(b)); });
+  const kp=l.keyPoints, hasKp=Array.isArray(kp)?kp.length:!!kp;
+  if(hasKp){ h+=divider(); h+=`<div style="display:inline-block;background:#eee;color:#444;border-radius:20px;padding:4px 12px;font-weight:800;margin-bottom:8px;font-size:${l.keyPointsTitleSize||14}px">${asPv(l.keyPointsTitle||(rtl?"ما يجب حفظه":"À retenir"))}</div>`; if(Array.isArray(kp)) h+=kp.map(p=>`<div style="display:flex;gap:8px;direction:${dir};margin:4px 0"><span>✓</span><span style="flex:1;font-size:${l.keyPointsSize||14}px;text-align:${ta}">${asPv(p)}</span></div>`).join(""); else h+=`<div style="font-size:${l.keyPointsSize||14}px;direction:${dir};text-align:${ta};line-height:1.7">${asPv(kp)}</div>`; }
+  const az=l.astuce, hasAz=Array.isArray(az)?az.length:!!az;
+  if(hasAz){ h+=divider(); h+=`<div style="display:inline-block;background:#F59E0B;color:#fff;border-radius:20px;padding:4px 12px;font-weight:800;margin-bottom:8px;font-size:${l.astuceTitleSize||14}px">${asPv(l.astuceTitle||(rtl?"ملاحظة":"Astuce"))}</div>`; h+=`<div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:14px;padding:14px 16px;direction:${dir};text-align:${ta};font-size:${l.astuceSize||14}px;line-height:1.7">${asPv(az)}</div>`; }
+  const exs=l.exercises?.sections||[];
+  if(exs.length){ h+=divider(); h+=`<div style="font-size:18px;font-weight:800;color:${acc};margin:6px 0 4px;direction:${dir};text-align:${ta}">📝 Exercices</div>`; exs.forEach(s=>{ h+=`<div style="font-weight:800;margin:10px 0 4px;direction:${dir};text-align:${ta};font-size:${s.headingSize||18}px">${asPv(stripHeadingMarker(s.heading))}</div>`; (s.blocks||[]).forEach(b=>h+=renderBlock(b)); }); }
+  const qs=l.quiz?.exercises||[];
+  if(qs.length){ h+=divider(); h+=`<div style="font-size:18px;font-weight:800;color:#7C6FCD;margin:6px 0 6px;direction:${dir};text-align:${ta}">❓ ${esc(l.quiz?.title||"Quiz")}</div>`; qs.forEach((q,qi)=>{ h+=`<div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:12px;margin-bottom:10px;direction:${dir};text-align:${ta}"><div style="font-weight:800;margin-bottom:8px;font-size:${q.size||18}px">${qi+1}. ${asPv(q.q)}</div>`; (q.opts||[]).forEach(o=>{ const ok=(o===q.ans && o); h+=`<div style="padding:7px 10px;border-radius:8px;margin:4px 0;border:2px solid ${ok?"#4CAF50":"#eee"};background:${ok?"#E8F5E9":"#fafafa"};font-size:${Math.round((q.size||22)*0.72)}px">${asPv(o)}${ok?" ✓":""}</div>`; }); h+=`</div>`; }); }
+  return h || `<div style="color:#888;text-align:center;padding:34px 20px;line-height:1.7">La leçon est encore vide.<br>Ajoutez un titre, une section ou du texte dans le formulaire, puis rouvrez l'aperçu.</div>`;
+}
+$("previewBtn").onclick = () => { $("previewBody").innerHTML = buildPreview(buildLesson()); $("previewModal").style.display = "flex"; };
+$("previewClose").onclick = () => { $("previewModal").style.display = "none"; };
+$("previewModal").addEventListener("click", e => { if (e.target.id === "previewModal") $("previewModal").style.display = "none"; });
+</script>
+</body>
+</html>
