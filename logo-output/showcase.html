@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SchoolMaroc — Logo Concepts</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --border: #1e1e2e;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --accent: #4f8ef7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 60px 40px;
+    min-height: 100vh;
+  }
+  header { text-align: center; margin-bottom: 64px; }
+  header h1 { font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  header h2 { font-size: 36px; font-weight: 300; letter-spacing: -0.02em; }
+  header p { margin-top: 12px; color: var(--muted); font-size: 14px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 32px 28px;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card .logo-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 140px;
+    margin-bottom: 28px;
+  }
+  .card svg { width: 96px; height: 96px; transition: transform 0.3s; }
+  .card:hover svg { transform: scale(1.06); }
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(79,142,247,0.1);
+    border: 1px solid rgba(79,142,247,0.2);
+    border-radius: 4px;
+    padding: 3px 8px;
+    margin-bottom: 10px;
+  }
+  .card h3 { font-size: 16px; font-weight: 500; margin-bottom: 8px; }
+  .card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .color-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .swatch {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  footer { text-align: center; margin-top: 80px; color: var(--muted); font-size: 12px; letter-spacing: 0.1em; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Logo Concepts</h1>
+  <h2>SchoolMaroc</h2>
+  <p>Education platform · Morocco · 6 design variants</p>
+</header>
+
+<div class="grid">
+
+  <!-- Variant 1: Star of Knowledge -->
+  <div class="card">
+    <div class="logo-wrap">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g1a" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#4f8ef7"/>
+            <stop offset="100%" stop-color="#7c5cf7"/>
+          </linearGradient>
+        </defs>
+        <!-- Geometric star (8-pointed) built from two squares -->
+        <rect x="30" y="30" width="40" height="40" rx="6" fill="url(#g1a)" opacity="0.15" transform="rotate(0 50 50)"/>
+        <rect x="30" y="30" width="40" height="40" rx="6" fill="none" stroke="url(#g1a)" stroke-width="1.5" transform="rotate(22.5 50 50)"/>
+        <rect x="30" y="30" width="40" height="40" rx="6" fill="none" stroke="url(#g1a)" stroke-width="1.5" opacity="0.6"/>
+        <!-- Center dot -->
+        <circle cx="50" cy="50" r="5" fill="url(#g1a)"/>
+        <!-- Corner accent dots -->
+        <circle cx="50" cy="22" r="2.5" fill="#4f8ef7" opacity="0.8"/>
+        <circle cx="78" cy="50" r="2.5" fill="#4f8ef7" opacity="0.8"/>
+        <circle cx="50" cy="78" r="2.5" fill="#4f8ef7" opacity="0.8"/>
+        <circle cx="22" cy="50" r="2.5" fill="#4f8ef7" opacity="0.8"/>
+        <animateTransform xmlns="http://www.w3.org/2000/svg" attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="20s" repeatCount="indefinite" additive="sum"/>
+      </svg>
+    </div>
+    <span class="tag">Geometric · Rotational</span>
+    <h3>Star of Knowledge</h3>
+    <p>Dual rotating squares echoing Islamic geometric art tradition. The layered squares suggest depth and the timelessness of Moroccan craft.</p>
+    <div class="color-row">
+      <div class="swatch" style="background:#4f8ef7"></div>
+      <div class="swatch" style="background:#7c5cf7"></div>
+      <div class="swatch" style="background:#0a0a0f"></div>
+    </div>
+  </div>
+
+  <!-- Variant 2: Open Book Arc -->
+  <div class="card">
+    <div class="logo-wrap">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g2a" x1="20" y1="30" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#00c6a2"/>
+            <stop offset="100%" stop-color="#0096e6"/>
+          </linearGradient>
+        </defs>
+        <!-- Book spine -->
+        <line x1="50" y1="38" x2="50" y2="72" stroke="url(#g2a)" stroke-width="2" stroke-linecap="round"/>
+        <!-- Left page arc -->
+        <path d="M50 38 Q30 38 28 58 Q28 70 50 72" stroke="url(#g2a)" stroke-width="2" stroke-linecap="round" fill="rgba(0,198,162,0.08)"/>
+        <!-- Right page arc -->
+        <path d="M50 38 Q70 38 72 58 Q72 70 50 72" stroke="url(#g2a)" stroke-width="2" stroke-linecap="round" fill="rgba(0,150,230,0.08)"/>
+        <!-- Lines on left page -->
+        <line x1="33" y1="48" x2="46" y2="47" stroke="url(#g2a)" stroke-width="1" opacity="0.5" stroke-linecap="round"/>
+        <line x1="32" y1="53" x2="46" y2="52" stroke="url(#g2a)" stroke-width="1" opacity="0.5" stroke-linecap="round"/>
+        <line x1="33" y1="58" x2="46" y2="57.5" stroke="url(#g2a)" stroke-width="1" opacity="0.5" stroke-linecap="round"/>
+        <!-- Lines on right page -->
+        <line x1="54" y1="47" x2="67" y2="48" stroke="url(#g2a)" stroke-width="1" opacity="0.5" stroke-linecap="round"/>
+        <line x1="54" y1="52" x2="68" y2="53" stroke="url(#g2a)" stroke-width="1" opacity="0.5" stroke-linecap="round"/>
+        <line x1="54" y1="57.5" x2="67" y2="58" stroke="url(#g2a)" stroke-width="1" opacity="0.5" stroke-linecap="round"/>
+        <!-- Top arc / growth indicator -->
+        <path d="M40 32 Q50 26 60 32" stroke="#00c6a2" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+        <circle cx="50" cy="26" r="3" fill="#00c6a2"/>
+      </svg>
+    </div>
+    <span class="tag">Symbolic · Friendly</span>
+    <h3>Open Book Arc</h3>
+    <p>Classic open-book form elevated with a glowing arc of growth. Warm and approachable — signals learning, progress, and knowledge access for all.</p>
+    <div class="color-row">
+      <div class="swatch" style="background:#00c6a2"></div>
+      <div class="swatch" style="background:#0096e6"></div>
+    </div>
+  </div>
+
+  <!-- Variant 3: Atlas Mountain Mark -->
+  <div class="card">
+    <div class="logo-wrap">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g3a" x1="20" y1="70" x2="80" y2="20" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#e85d4a"/>
+            <stop offset="50%" stop-color="#f0a050"/>
+            <stop offset="100%" stop-color="#ffd460"/>
+          </linearGradient>
+          <clipPath id="clip3">
+            <rect x="15" y="15" width="70" height="70" rx="8"/>
+          </clipPath>
+        </defs>
+        <rect x="15" y="15" width="70" height="70" rx="8" fill="rgba(232,93,74,0.08)" stroke="url(#g3a)" stroke-width="1.5"/>
+        <!-- Mountain peaks -->
+        <polygon points="50,28 68,62 32,62" fill="url(#g3a)" opacity="0.9" clip-path="url(#clip3)"/>
+        <polygon points="35,38 52,62 18,62" fill="url(#g3a)" opacity="0.5" clip-path="url(#clip3)"/>
+        <!-- Horizontal line (horizon) -->
+        <line x1="20" y1="62" x2="80" y2="62" stroke="url(#g3a)" stroke-width="1" opacity="0.4"/>
+        <!-- Star top (Moroccan motif) -->
+        <circle cx="50" cy="28" r="2.5" fill="#ffd460"/>
+      </svg>
+    </div>
+    <span class="tag">Identity · Bold</span>
+    <h3>Atlas Mountain Mark</h3>
+    <p>Triangular mountain silhouette — a direct nod to Morocco's Atlas range. Warm terracotta-to-gold palette evokes the Moroccan landscape and ambition.</p>
+    <div class="color-row">
+      <div class="swatch" style="background:#e85d4a"></div>
+      <div class="swatch" style="background:#f0a050"></div>
+      <div class="swatch" style="background:#ffd460"></div>
+    </div>
+  </div>
+
+  <!-- Variant 4: Node Constellation -->
+  <div class="card">
+    <div class="logo-wrap">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g4a" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#a78bfa"/>
+            <stop offset="100%" stop-color="#60a5fa"/>
+          </linearGradient>
+        </defs>
+        <!-- Connection lines -->
+        <line x1="50" y1="50" x2="30" y2="30" stroke="url(#g4a)" stroke-width="1" opacity="0.4"/>
+        <line x1="50" y1="50" x2="70" y2="30" stroke="url(#g4a)" stroke-width="1" opacity="0.4"/>
+        <line x1="50" y1="50" x2="72" y2="58" stroke="url(#g4a)" stroke-width="1" opacity="0.4"/>
+        <line x1="50" y1="50" x2="50" y2="75" stroke="url(#g4a)" stroke-width="1" opacity="0.4"/>
+        <line x1="50" y1="50" x2="28" y2="58" stroke="url(#g4a)" stroke-width="1" opacity="0.4"/>
+        <line x1="30" y1="30" x2="70" y2="30" stroke="url(#g4a)" stroke-width="1" opacity="0.25"/>
+        <line x1="70" y1="30" x2="72" y2="58" stroke="url(#g4a)" stroke-width="1" opacity="0.25"/>
+        <!-- Outer nodes -->
+        <circle cx="30" cy="30" r="4" fill="#a78bfa"/>
+        <circle cx="70" cy="30" r="4" fill="#a78bfa"/>
+        <circle cx="72" cy="58" r="3.5" fill="#60a5fa" opacity="0.9"/>
+        <circle cx="50" cy="75" r="3.5" fill="#60a5fa" opacity="0.9"/>
+        <circle cx="28" cy="58" r="3.5" fill="#60a5fa" opacity="0.9"/>
+        <!-- Central hub -->
+        <circle cx="50" cy="50" r="7" fill="url(#g4a)" opacity="0.2"/>
+        <circle cx="50" cy="50" r="5" fill="url(#g4a)"/>
+      </svg>
+    </div>
+    <span class="tag">Network · Digital</span>
+    <h3>Node Constellation</h3>
+    <p>Connected nodes radiating from a central hub — represents students, teachers, and schools networked into one platform. Modern and tech-forward.</p>
+    <div class="color-row">
+      <div class="swatch" style="background:#a78bfa"></div>
+      <div class="swatch" style="background:#60a5fa"></div>
+    </div>
+  </div>
+
+  <!-- Variant 5: Zellige Tile -->
+  <div class="card">
+    <div class="logo-wrap">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g5a" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#059669"/>
+            <stop offset="100%" stop-color="#0891b2"/>
+          </linearGradient>
+        </defs>
+        <!-- Zellige-inspired 12-point star pattern -->
+        <!-- Outer hexagon -->
+        <polygon points="50,20 74,35 74,65 50,80 26,65 26,35" fill="rgba(5,150,105,0.08)" stroke="url(#g5a)" stroke-width="1.5"/>
+        <!-- Inner rotated hexagon -->
+        <polygon points="50,30 66,40 66,60 50,70 34,60 34,40" fill="rgba(8,145,178,0.1)" stroke="url(#g5a)" stroke-width="1" opacity="0.7" transform="rotate(30 50 50)"/>
+        <!-- Star lines from outer to center -->
+        <line x1="50" y1="20" x2="50" y2="50" stroke="url(#g5a)" stroke-width="0.8" opacity="0.5"/>
+        <line x1="74" y1="35" x2="50" y2="50" stroke="url(#g5a)" stroke-width="0.8" opacity="0.5"/>
+        <line x1="74" y1="65" x2="50" y2="50" stroke="url(#g5a)" stroke-width="0.8" opacity="0.5"/>
+        <line x1="50" y1="80" x2="50" y2="50" stroke="url(#g5a)" stroke-width="0.8" opacity="0.5"/>
+        <line x1="26" y1="65" x2="50" y2="50" stroke="url(#g5a)" stroke-width="0.8" opacity="0.5"/>
+        <line x1="26" y1="35" x2="50" y2="50" stroke="url(#g5a)" stroke-width="0.8" opacity="0.5"/>
+        <!-- Center -->
+        <circle cx="50" cy="50" r="4.5" fill="url(#g5a)"/>
+        <!-- Accent dots at vertices -->
+        <circle cx="50" cy="20" r="2" fill="#059669"/>
+        <circle cx="74" cy="35" r="2" fill="#059669"/>
+        <circle cx="74" cy="65" r="2" fill="#0891b2"/>
+        <circle cx="50" cy="80" r="2" fill="#0891b2"/>
+        <circle cx="26" cy="65" r="2" fill="#0891b2"/>
+        <circle cx="26" cy="35" r="2" fill="#059669"/>
+      </svg>
+    </div>
+    <span class="tag">Heritage · Geometric</span>
+    <h3>Zellige Tile</h3>
+    <p>Hexagonal zellige pattern drawn from Morocco's iconic tile craft. Deeply cultural and precise — communicates tradition, structure, and craftsmanship.</p>
+    <div class="color-row">
+      <div class="swatch" style="background:#059669"></div>
+      <div class="swatch" style="background:#0891b2"></div>
+    </div>
+  </div>
+
+  <!-- Variant 6: Ascending Steps -->
+  <div class="card">
+    <div class="logo-wrap">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g6a" x1="20" y1="75" x2="80" y2="25" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#f59e0b"/>
+            <stop offset="100%" stop-color="#ef4444"/>
+          </linearGradient>
+          <linearGradient id="g6b" x1="20" y1="75" x2="80" y2="25" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#ef4444" stop-opacity="0.3"/>
+          </linearGradient>
+        </defs>
+        <!-- Step 1 (bottom) -->
+        <rect x="20" y="65" width="60" height="10" rx="3" fill="url(#g6a)" opacity="0.4"/>
+        <!-- Step 2 -->
+        <rect x="28" y="52" width="44" height="10" rx="3" fill="url(#g6a)" opacity="0.6"/>
+        <!-- Step 3 -->
+        <rect x="36" y="39" width="28" height="10" rx="3" fill="url(#g6a)" opacity="0.8"/>
+        <!-- Step 4 (top) -->
+        <rect x="42" y="26" width="16" height="10" rx="3" fill="url(#g6a)"/>
+        <!-- Glow dot at peak -->
+        <circle cx="50" cy="31" r="4" fill="#fbbf24" opacity="0.9"/>
+        <circle cx="50" cy="31" r="8" fill="#f59e0b" opacity="0.15"/>
+        <!-- Ascending arrow hint -->
+        <path d="M64 24 L70 18 L76 24" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.7"/>
+        <line x1="70" y1="18" x2="70" y2="32" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+      </svg>
+    </div>
+    <span class="tag">Progress · Motivational</span>
+    <h3>Ascending Steps</h3>
+    <p>Stacked steps rising toward a bright apex — a universal metaphor for academic progress and growth. Clear, bold, and instantly readable at any size.</p>
+    <div class="color-row">
+      <div class="swatch" style="background:#f59e0b"></div>
+      <div class="swatch" style="background:#ef4444"></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  SchoolMaroc · Logo Concepts · 2026 &nbsp;—&nbsp; Hover to preview · Click to select
+</footer>
+
+</body>
+</html>
