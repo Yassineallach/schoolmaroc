@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SchoolMaroc — SM Monogram Concepts</title>
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --border: #222;
+    --text: #f0f0f0;
+    --muted: #666;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    padding: 60px 40px;
+  }
+  header { text-align: center; margin-bottom: 64px; }
+  header p { font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  header h1 { font-size: 40px; font-weight: 700; letter-spacing: -0.03em; }
+  header span { color: var(--muted); font-weight: 300; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 1060px;
+    margin: 0 auto;
+  }
+
+  .card {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: transform 0.2s, border-color 0.2s;
+    cursor: pointer;
+  }
+  .card:hover { transform: translateY(-3px); border-color: #444; }
+
+  .logo-bg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 220px;
+    transition: opacity 0.2s;
+  }
+  .card:hover .logo-bg { opacity: 0.92; }
+  .logo-bg svg { width: 140px; height: 140px; }
+
+  .meta {
+    background: var(--surface);
+    padding: 20px 22px;
+    border-top: 1px solid var(--border);
+  }
+  .tag {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .meta h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .meta p { font-size: 12px; color: var(--muted); line-height: 1.65; }
+
+  footer { text-align: center; margin-top: 72px; font-size: 11px; color: var(--muted); letter-spacing: 0.12em; }
+</style>
+</head>
+<body>
+
+<header>
+  <p>Monogram Concepts</p>
+  <h1>SM <span>· SchoolMaroc</span></h1>
+</header>
+
+<div class="grid">
+
+  <!-- V1: Bold Block SM on Red -->
+  <div class="card">
+    <div class="logo-bg" style="background:#E8192C;">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- S: negative space cutout from a rounded rect -->
+        <!-- White filled S shape -->
+        <path d="
+          M18 28
+          Q18 18 30 18
+          L44 18
+          Q56 18 56 28
+          L56 36
+          Q56 44 44 44
+          L32 44
+          Q24 44 24 50
+          L24 56
+          Q24 62 32 62
+          L44 62
+          Q56 62 56 72
+          L56 72
+          Q56 82 44 82
+          L30 82
+          Q18 82 18 72
+          L18 64
+          L26 64
+          L26 72
+          Q26 74 30 74
+          L44 74
+          Q48 74 48 72
+          L48 68
+          Q48 62 40 62
+          L28 62
+          Q16 62 16 50
+          L16 44
+          Q16 36 28 36
+          L40 36
+          Q48 36 48 32
+          L48 28
+          Q48 26 44 26
+          L30 26
+          Q26 26 26 28
+          L26 36
+          L18 36
+          Z
+        " fill="white"/>
+        <!-- M -->
+        <path d="
+          M62 18
+          L62 82
+          L70 82
+          L70 36
+          L79 58
+          L84 58
+          L84 58
+          L84 58
+          L93 36
+          L93 82
+          L93 82
+          L93 18
+          Z
+        " fill="white" display="none"/>
+        <!-- Simpler SM using clean geometry -->
+        <!-- S letter -->
+        <text x="12" y="72" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="62" fill="white" letter-spacing="-4">SM</text>
+      </svg>
+    </div>
+    <div class="meta">
+      <div class="tag">Wordmark · Solid</div>
+      <h3>Red Block</h3>
+      <p>High-impact red ground with white knockout type. Maximum legibility, instant brand recall. Closest to the reference style.</p>
+    </div>
+  </div>
+
+  <!-- V2: Geometric S built from arcs (negative space on dark) -->
+  <div class="card">
+    <div class="logo-bg" style="background:#111;">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Geometric S from two half-circles -->
+        <!-- Top half-circle (open bottom) -->
+        <path d="M62 36 A18 18 0 0 0 26 36 L26 50 L62 50" stroke="white" stroke-width="10" stroke-linecap="butt" fill="none"/>
+        <!-- Bottom half-circle (open top) -->
+        <path d="M38 50 L74 50 L74 64 A18 18 0 0 1 38 64" stroke="white" stroke-width="10" stroke-linecap="butt" fill="none"/>
+        <!-- Connector dot center -->
+        <rect x="26" y="45" width="48" height="10" fill="#111"/>
+        <!-- Redraw clean S with paths -->
+        <!-- S top arc -->
+        <path d="M63 34 A19 14 0 1 0 25 34 L25 50" stroke="white" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M37 50 L75 50 L75 66 A19 14 0 1 1 37 66" stroke="white" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="meta">
+      <div class="tag">Letterform · Geometric</div>
+      <h3>Arc S</h3>
+      <p>The "S" deconstructed into two pure arcs — bold strokes, architectural precision. Works solo as an app icon.</p>
+    </div>
+  </div>
+
+  <!-- V3: Square badge SM cutout -->
+  <div class="card">
+    <div class="logo-bg" style="background:#1A3A6B;">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Rounded square badge -->
+        <rect x="8" y="8" width="84" height="84" rx="14" fill="#1A3A6B"/>
+        <!-- White SM text heavy -->
+        <text x="50" y="67" font-family="'Helvetica Neue', Arial Black, sans-serif" font-weight="900" font-size="46" fill="white" text-anchor="middle" letter-spacing="-3">SM</text>
+        <!-- Top accent line -->
+        <rect x="20" y="22" width="60" height="4" rx="2" fill="white" opacity="0.25"/>
+      </svg>
+    </div>
+    <div class="meta">
+      <div class="tag">Badge · Navy</div>
+      <h3>Navy Badge</h3>
+      <p>Rounded square containing a heavyweight SM — institutional and trustworthy. Deep navy reads as academic authority.</p>
+    </div>
+  </div>
+
+  <!-- V4: SM stacked with M as mountain shape -->
+  <div class="card">
+    <div class="logo-bg" style="background:#F5F0E8;">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- M as mountain silhouette -->
+        <polygon points="20,75 38,40 50,58 62,40 80,75" fill="#C8371A"/>
+        <!-- S letterform in dark -->
+        <text x="50" y="35" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="28" fill="#1A1A1A" text-anchor="middle">S</text>
+        <!-- Brand line -->
+        <rect x="20" y="78" width="60" height="2" rx="1" fill="#C8371A" opacity="0.4"/>
+        <!-- School label -->
+        <text x="50" y="90" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="400" font-size="7" fill="#888" text-anchor="middle" letter-spacing="2">SCHOOLMAROC</text>
+      </svg>
+    </div>
+    <div class="meta">
+      <div class="tag">Pictorial · Warm</div>
+      <h3>Mountain Monogram</h3>
+      <p>M rendered as Atlas Mountain peaks in terracotta, with S above. Cultural and literal — ties the identity directly to Morocco.</p>
+    </div>
+  </div>
+
+  <!-- V5: Interlocked S+M geometric rings -->
+  <div class="card">
+    <div class="logo-bg" style="background:#0F1F0F;">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="gv5" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#22C55E"/>
+            <stop offset="100%" stop-color="#16A34A"/>
+          </linearGradient>
+        </defs>
+        <!-- Outer circle -->
+        <circle cx="50" cy="50" r="38" stroke="url(#gv5)" stroke-width="3"/>
+        <!-- Inner negative circle cutout illusion -->
+        <circle cx="50" cy="50" r="26" stroke="url(#gv5)" stroke-width="2" opacity="0.4"/>
+        <!-- SM in center -->
+        <text x="50" y="57" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="22" fill="url(#gv5)" text-anchor="middle" letter-spacing="-1">SM</text>
+        <!-- 4 tick marks at compass points -->
+        <line x1="50" y1="8" x2="50" y2="16" stroke="url(#gv5)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="92" y1="50" x2="84" y2="50" stroke="url(#gv5)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="92" x2="50" y2="84" stroke="url(#gv5)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="8" y1="50" x2="16" y2="50" stroke="url(#gv5)" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="meta">
+      <div class="tag">Emblem · Circular</div>
+      <h3>Emerald Seal</h3>
+      <p>Circular emblem with compass ticks and concentric rings — conveys completeness and authority. Green palette references Morocco's flag.</p>
+    </div>
+  </div>
+
+  <!-- V6: Negative space S cut from bold square (closest to reference) -->
+  <div class="card">
+    <div class="logo-bg" style="background:#E8192C;">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <!-- Solid red square with white S as negative cutout -->
+        <rect x="0" y="0" width="100" height="100" fill="#E8192C"/>
+        <!-- White filled shape that IS the S (negative space style) -->
+        <!-- Top-left quadrant filled white (top of S) -->
+        <path d="
+          M 22 18
+          L 78 18
+          L 78 26
+          Q 78 42 62 42
+          L 38 42
+          Q 30 42 30 50
+          Q 30 58 38 58
+          L 62 58
+          Q 78 58 78 74
+          L 78 82
+          L 22 82
+          L 22 74
+          L 66 74
+          Q 70 74 70 70
+          Q 70 66 66 66
+          L 38 66
+          Q 22 66 22 50
+          Q 22 34 38 34
+          L 62 34
+          Q 70 34 70 30
+          Q 70 26 66 26
+          L 22 26
+          Z
+        " fill="white"/>
+      </svg>
+    </div>
+    <div class="meta">
+      <div class="tag">Negative Space · S Mark</div>
+      <h3>S Knockout</h3>
+      <p>Pure negative-space S cut from a red field — same visual language as the reference. Bold, minimal, unforgettable. Works as the primary app icon.</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>SchoolMaroc · SM Monogram Concepts · 2026</footer>
+
+</body>
+</html>
