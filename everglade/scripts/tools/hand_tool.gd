@@ -5,6 +5,7 @@ extends BaseTool
 
 var moving: Dictionary = {}
 var last := Vector2.ZERO
+var _moved := false
 
 
 func _init() -> void:
@@ -29,6 +30,7 @@ func press(screen: Vector2) -> bool:
 	glade.begin_change()
 	moving = glade.find(sel)
 	last = Vector2(g.x, g.z)
+	_moved = false
 	return true
 
 
@@ -41,6 +43,7 @@ func drag(screen: Vector2) -> void:
 	var p := Vector2(g.x, g.z)
 	var delta := p - last
 	last = p
+	_moved = true
 	var item: Dictionary = moving.item
 	match moving.type:
 		"props":
@@ -72,6 +75,9 @@ func release(_screen: Vector2) -> void:
 	var item: Dictionary = moving.item
 	var type: String = moving.type
 	moving = {}
+	if not _moved:
+		glade.undo_stack.pop_back() # nothing changed: drop the snapshot taken on press
+		return
 	if type != "props":
 		var v = glade.views.get(item.id)
 		if v and type != "buildings":

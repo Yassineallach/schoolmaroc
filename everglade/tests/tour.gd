@@ -80,6 +80,8 @@ var failures := 0
 
 func _tool_tests() -> void:
 	game.start_new("meadow")
+	game.life.enabled = false # animals wandering under a tap would (rightly) get petted instead
+	game.life.clear()
 	game.rig.focus_on(Vector3.ZERO, 30.0)
 	game.rig.yaw = 0.0
 	game.rig.snap()
@@ -119,7 +121,10 @@ func _tool_tests() -> void:
 	var before: int = b.windows.size()
 	var v: BuildingView = g.views[b.id]
 	var wp := v.global_transform * Vector3(0, Catalog.PLINTH + 1.3, -b.size.y * 0.5)
-	await _tap(game.rig.camera.unproject_position(wp))
+	var wsp := game.rig.camera.unproject_position(wp)
+	var wdbg := g.pick(game.rig.camera, wsp)
+	print("window tap at ", wsp, " hits ", wdbg.get("kind"), " id ", wdbg.get("id"), " want ", b.id, " over_ui ", game._over_ui(wsp))
+	await _tap(wsp)
 	_check("window tool changed windows", b.windows.size() != before)
 	game.set_tool("roof")
 	game.tools["roof"].set_option("roof", "hip")
@@ -159,7 +164,11 @@ func _tool_tests() -> void:
 	game.set_tool("hand")
 	var bb: Dictionary = g.data.buildings[0]
 	var cv: BuildingView = g.views[bb.id]
-	await _tap(game.rig.camera.unproject_position(cv.global_transform * Vector3(0, 1.5, 0)))
+	var ssp := game.rig.camera.unproject_position(cv.global_transform * Vector3(0, 1.5, 0))
+	var sdbg := g.pick(game.rig.camera, ssp)
+	var cr = game.life.pick(game.rig.camera.project_ray_origin(ssp), game.rig.camera.project_ray_normal(ssp))
+	print("select tap ", ssp, " hits ", sdbg.get("kind"), " ", sdbg.get("id"), " creature ", cr, " ui ", game._over_ui(ssp))
+	await _tap(ssp)
 	_check("tap selects building", game.selected_id == bb.id)
 	var floors_before: int = bb.floors
 	game._on_inspector_action("floors", 1)
@@ -187,6 +196,7 @@ func _tool_tests() -> void:
 	await _wait(60)
 	await _shot("15b_tool_test_result")
 	print("TOOL TESTS: %d failure(s)" % failures)
+	game.life.enabled = true
 
 
 func _run() -> void:

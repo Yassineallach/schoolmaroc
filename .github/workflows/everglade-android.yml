@@ -1,0 +1,82 @@
+name: Everglade Android build
+
+on:
+  push:
+    paths:
+      - "everglade/**"
+      - ".github/workflows/everglade-android.yml"
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: 4.7.2
+  GODOT_RELEASE: stable
+  HAS_RELEASE_KEY: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: everglade
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Download Godot and export templates
+        run: |
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_RELEASE}"
+          curl -sSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64.zip"
+          unzip -q godot.zip && mv Godot_v*_linux.x86_64 "$HOME/godot" && rm godot.zip
+          curl -sSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_export_templates.tpz"
+          dest="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}"
+          mkdir -p "$dest"
+          unzip -q -j templates.tpz "templates/android_*" "templates/version.txt" -d "$dest"
+          rm templates.tpz
+
+      - name: Configure Android SDK and keystores
+        run: |
+          keytool -genkeypair -keystore "$HOME/debug.keystore" -storepass android -alias androiddebugkey \
+            -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          mkdir -p "$HOME/.config/godot"
+          cat > "$HOME/.config/godot/editor_settings-4.7.tres" <<EOT
+          [gd_resource type="EditorSettings" format=3]
+          [resource]
+          export/android/android_sdk_path = "$ANDROID_SDK_ROOT"
+          export/android/java_sdk_path = "$JAVA_HOME"
+          export/android/debug_keystore = "$HOME/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          EOT
+          sed -i 's/^ *//' "$HOME/.config/godot/editor_settings-4.7.tres"
+
+      - name: Import project
+        run: $HOME/godot --headless --path . --import || true
+
+      - name: Smoke test (runs the game headless)
+        run: $HOME/godot --headless --path . --quit-after 600 2>&1 | tee run.log; ! grep -q "SCRIPT ERROR" run.log
+
+      - name: Export debug APK
+        run: |
+          mkdir -p build
+          $HOME/godot --headless --path . --export-debug "Android" build/Everglade-debug.apk
+          test -f build/Everglade-debug.apk
+
+      - name: Export signed release APK
+        if: env.HAS_RELEASE_KEY == 'true'
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
+          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          echo "$KS_B64" | base64 -d > "$HOME/release.keystore"
+          export GODOT_ANDROID_KEYSTORE_RELEASE_PATH="$HOME/release.keystore"
+          $HOME/godot --headless --path . --export-release "Android" build/Everglade-release.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Everglade-android
+          path: everglade/build/*.apk

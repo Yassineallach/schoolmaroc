@@ -124,7 +124,7 @@ static func _hamlet(glade: Glade) -> void:
 	# props
 	var placed := [
 		["well", Vector2(-1.8, 5.8), 0.3], ["lantern", Vector2(1.7, 10.0), 0.0], ["lantern", Vector2(-0.6, 14.5), 0.0],
-		["lantern", Vector2(-6.0, 10.5), 0.0], ["bench", Vector2(-6.5, 5.8), 2.6], ["haystack", Vector2(16.5, 13.0), 0.0],
+		["lantern", Vector2(-6.0, 10.5), 0.0], ["bench", Vector2(-5.0, 4.0), 2.4], ["haystack", Vector2(16.5, 13.0), 0.0],
 		["hay_bale", Vector2(13.0, 13.5), 0.4], ["cart", Vector2(6.2, 5.6), 2.2], ["barrel", Vector2(5.4, -0.2), 0.0],
 		["crate", Vector2(5.0, 0.7), 0.4], ["barrel", Vector2(-2.6, -8.2), 0.0], ["log_pile", Vector2(-8.4, -7.6), 1.1],
 		["banner", Vector2(3.8, -12.6), 0.0], ["scarecrow", Vector2(16.0, 9.0), 0.6], ["stump", Vector2(-12.0, -1.0), 0.0],

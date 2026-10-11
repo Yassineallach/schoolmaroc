@@ -5,7 +5,7 @@ extends Node3D
 
 enum Mode { MENU, BUILD, PHOTO }
 
-const TAP_TIME := 0.32
+const TAP_TIME := 0.45
 const TAP_MOVE := 16.0
 
 var mode := Mode.MENU
@@ -601,8 +601,10 @@ func _on_touch(e: InputEventScreenTouch) -> void:
 				_gesture = ""
 			return
 		if _touches.is_empty():
-			var quick := Time.get_ticks_msec() / 1000.0 - _press_time < TAP_TIME
-			var is_tap := quick and not _moved
+			var held := Time.get_ticks_msec() / 1000.0 - _press_time
+			# a still finger is a tap; drawing tools need it to be quick so
+			# a long press that never moved does not lose a stroke
+			var is_tap := not _moved and (held < TAP_TIME or (_gesture != "tool" and held < 1.0))
 			if _gesture == "tool":
 				if is_tap:
 					tool.cancel()

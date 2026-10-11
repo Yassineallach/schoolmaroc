@@ -365,6 +365,47 @@ func rebuild_all() -> void:
 			_make_view(type, item, false)
 	props.rebuild(data.props)
 	_paint_mask()
+	_rebuild_shore()
+
+
+## Reeds along pond banks and lily pads on open water, placed deterministically.
+func _rebuild_shore() -> void:
+	var reeds: Array[Transform3D] = []
+	var lilies: Array[Transform3D] = []
+	var lim := Terrain.PLAY_HALF
+	var step := 0.7
+	var x := -lim
+	while x <= lim:
+		var z := -lim
+		while z <= lim:
+			var hsh := absi(hash(Vector2i(int(x * 10), int(z * 10))))
+			var jx := x + (hsh % 100) / 100.0 * step
+			var jz := z + ((hsh / 100) % 100) / 100.0 * step
+			var h := terrain.height_at(jx, jz)
+			var depth := Terrain.WATER_LEVEL - h
+			var rot := Basis(Vector3.UP, (hsh % 628) / 100.0)
+			if depth > -0.12 and depth < 0.18 and hsh % 3 == 0:
+				reeds.append(Transform3D(rot.scaled(Vector3.ONE * (0.8 + (hsh % 50) / 100.0)), Vector3(jx, h - 0.05, jz)))
+			elif depth > 0.45 and hsh % 11 == 0:
+				lilies.append(Transform3D(rot.scaled(Vector3.ONE * (0.8 + (hsh % 40) / 100.0)), Vector3(jx, Terrain.WATER_LEVEL + 0.01, jz)))
+			z += step
+		x += step
+	for pair in [["ShoreReeds", "reeds", reeds], ["ShoreLilies", "lily_pad_a", lilies]]:
+		var mmi := get_node_or_null(pair[0]) as MultiMeshInstance3D
+		if mmi == null:
+			mmi = MultiMeshInstance3D.new()
+			mmi.name = pair[0]
+			mmi.material_override = ModelLib.props_material
+			mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			add_child(mmi)
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.mesh = ModelLib.merged(pair[1]).solid
+		var xfs: Array = pair[2]
+		mm.instance_count = xfs.size()
+		for i in xfs.size():
+			mm.set_instance_transform(i, xfs[i])
+		mmi.multimesh = mm
 
 
 func mark_interactions() -> void:
@@ -381,6 +422,7 @@ func terrain_edited() -> void:
 	for type in ["walls", "fences", "paths"]:
 		for item in data[type]:
 			_make_view(type, item, false)
+	_rebuild_shore()
 	mark_interactions()
 	changed.emit()
 
