@@ -1,0 +1,94 @@
+class_name PropBatch
+extends Node3D
+## Draws every placed prop (trees, flowers, lanterns, wells...) through one
+## MultiMesh per kind. Freshly placed props pop in as single instances first.
+
+const NO_SHADOW := ["flowers_pink", "flowers_white", "flowers_blue", "flowers_yellow", "flowers_red", "mushrooms", "grass_tuft"]
+
+var _mmis: Dictionary = {} # kind -> [solid MMI, glow MMI or null]
+var _hidden: Dictionary = {}
+var _props: Array = []
+
+
+static func prop_transform(p: Dictionary) -> Transform3D:
+	var basis := Basis(Vector3.UP, p.get("r", 0.0))
+	if p.has("n"):
+		var n: Vector3 = p.n
+		if n.y < 0.999:
+			var axis := Vector3.UP.cross(n).normalized()
+			basis = Basis(axis, Vector3.UP.angle_to(n)) * basis
+	basis = basis.scaled(Vector3.ONE * p.get("s", 1.0))
+	return Transform3D(basis, p.p)
+
+
+func rebuild(props: Array) -> void:
+	_props = props
+	var groups: Dictionary = {}
+	for p in props:
+		if _hidden.has(p.id):
+			continue
+		if not groups.has(p.kind):
+			groups[p.kind] = []
+		groups[p.kind].append(prop_transform(p))
+	for kind in _mmis.keys():
+		if not groups.has(kind):
+			for mmi in _mmis[kind]:
+				if mmi:
+					mmi.queue_free()
+			_mmis.erase(kind)
+	for kind in groups:
+		var m: Dictionary = ModelLib.merged(kind)
+		if not _mmis.has(kind):
+			var solid := _make_mmi(m.solid, ModelLib.props_material, not NO_SHADOW.has(kind))
+			var glow: MultiMeshInstance3D = null
+			if m.glow:
+				glow = _make_mmi(m.glow, ModelLib.glow_material, false)
+			_mmis[kind] = [solid, glow]
+		var xforms: Array = groups[kind]
+		for mmi in _mmis[kind]:
+			if mmi == null:
+				continue
+			var mm: MultiMesh = mmi.multimesh
+			mm.instance_count = xforms.size()
+			for i in xforms.size():
+				mm.set_instance_transform(i, xforms[i])
+
+
+func _make_mmi(mesh: Mesh, mat: Material, shadows: bool) -> MultiMeshInstance3D:
+	var mmi := MultiMeshInstance3D.new()
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = mesh
+	mmi.multimesh = mm
+	mmi.material_override = mat
+	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if shadows else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(mmi)
+	return mmi
+
+
+## Spawns a bouncy single instance for a new prop, then hands it back to the batch.
+func pop_in(p: Dictionary, delay := 0.0) -> void:
+	_hidden[p.id] = true
+	rebuild(_props)
+	var node := Node3D.new()
+	var m: Dictionary = ModelLib.merged(p.kind)
+	for pair in [[m.solid, ModelLib.props_material], [m.glow, ModelLib.glow_material]]:
+		if pair[0]:
+			var mi := MeshInstance3D.new()
+			mi.mesh = pair[0]
+			mi.material_override = pair[1]
+			node.add_child(mi)
+	add_child(node)
+	var xf := prop_transform(p)
+	node.transform = xf
+	var final_scale := xf.basis.get_scale()
+	node.scale = Vector3.ONE * 0.01
+	var tw := node.create_tween()
+	if delay > 0.0:
+		tw.tween_interval(delay)
+	tw.tween_property(node, "scale", final_scale * 1.12, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(node, "scale", final_scale, 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_callback(func():
+		_hidden.erase(p.id)
+		rebuild(_props)
+		node.queue_free())
