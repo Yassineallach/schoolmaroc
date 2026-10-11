@@ -126,5 +126,13 @@ func _bridge(deco: DecoMerge, pts: PackedVector2Array, terrain: Terrain, s0: flo
 		var dir := b3 - a3
 		var flat := Vector3(dir.x, 0, dir.z)
 		var basis := DecoMerge.along(flat) * Basis(Vector3.BACK, atan2(dir.y, flat.length()))
-		var w := clampf(width / 1.4, 0.8, 1.6)
+		var w := clampf(width / 1.5, 0.8, 1.8)
 		deco.add("bridge_plank", Transform3D(basis * Basis.from_scale(Vector3(dir.length(), 1, w)), a3))
+	# ornate lamps guard both ends of the bridge
+	for se in [s0, s1]:
+		var pe := Geo.point_at(pts, se)
+		var te := Geo.tangent_at(pts, se)
+		var side := Vector2(-te.y, te.x) * (width * 0.5 + 0.55)
+		for sgn in [-1.0, 1.0]:
+			var q: Vector2 = pe + side * sgn
+			deco.add("lantern", Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * 0.75), Vector3(q.x, terrain.height_at_v(q) - 0.05, q.y)))

@@ -349,6 +349,9 @@ def amb_day():
     wind = onepole(noise(d), 500) * (0.5 + 0.35 * np.sin(2 * np.pi * t / 11.0) + 0.15 * np.sin(2 * np.pi * t / 4.3))
     leaves = bandpass(noise(d), 2500, 7000) * (0.06 + 0.05 * np.sin(2 * np.pi * t / 6.0) ** 2)
     out = wind * 0.6 + leaves
+    # gusts sweeping over the meadow - this town lives on the wind
+    gust = onepole(noise(d), 900) * np.clip(np.sin(2 * np.pi * t / 7.5) * 1.4 - 0.4, 0, 1) ** 2 * 0.35
+    out += gust
     for i in range(14):
         at = rng.uniform(0.5, d - 1.5)
         place(out, sfx_chirp(rng.integers(0, 3)) * rng.uniform(0.05, 0.12), at)
@@ -369,9 +372,49 @@ def amb_night():
         gate = (np.sin(2 * np.pi * rate * t + k) > 0.3).astype(float)
         trill = (np.sin(2 * np.pi * 28 * t) > 0).astype(float)
         out += np.sin(2 * np.pi * f * t) * gate * trill * 0.05 * (0.6 + 0.4 * np.sin(2 * np.pi * t / (7 + k)))
+    # rice-paddy frogs: little croak trains
+    for i in range(22):
+        at = rng.uniform(0.2, d - 1.0)
+        for c in range(rng.integers(2, 5)):
+            dd = 0.06
+            tt = np.arange(int(dd * SR)) / SR
+            f0 = rng.uniform(380, 520)
+            croak = np.sign(np.sin(2 * np.pi * f0 * tt)) * np.sin(np.pi * tt / dd) ** 2
+            place(out, onepole(croak, 1600) * 0.05, at + c * 0.11)
     xf = int(1.0 * SR)
     out[:xf] = out[:xf] * np.linspace(0, 1, xf) + out[-xf:] * np.linspace(1, 0, xf)
     return out[: n - xf]
+
+
+def sfx_meow(variant):
+    d = 0.6 + 0.1 * variant
+    n = int(SR * d)
+    t = np.arange(n) / SR
+    f0 = (520 + 80 * variant) * np.interp(t, [0, d * 0.35, d], [0.85, 1.25, 0.8])
+    # "mi-a-u": formants glide from i to a to u
+    f1 = np.interp(t, [0, d * 0.3, d * 0.7, d], [400, 900, 800, 450])
+    src = formant_voice(f0, d, [(900, 500, 1.0), (1700, 700, 0.5), (3000, 900, 0.2)], 0.08)
+    shaped = src * (0.6 + 0.4 * np.sin(2 * np.pi * np.cumsum(f1) / SR * 0.0))
+    return shaped * np.interp(t, [0, 0.04, d * 0.6, d], [0, 1, 0.8, 0])
+
+
+def sfx_boing():
+    d = 0.4
+    n = int(SR * d)
+    t = np.arange(n) / SR
+    f = 220 * (1 + 1.4 * np.exp(-t * 9)) * (1 + 0.08 * np.sin(2 * np.pi * 14 * t))
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * env(n, 0.003, 0.12)
+
+
+def flute(freq, dur, vol=0.15):
+    """Breathy shakuhachi-like note with vibrato and air."""
+    n = int(SR * dur)
+    t = np.arange(n) / SR
+    vib = 1 + 0.006 * np.sin(2 * np.pi * 5.2 * t) * np.clip(t / 0.6, 0, 1)
+    tone = np.sin(2 * np.pi * np.cumsum(freq * vib) / SR) + 0.25 * np.sin(4 * np.pi * np.cumsum(freq * vib) / SR)
+    air = bandpass(noise(dur), freq * 0.8, freq * 3.0)[:n] * 0.35
+    env_ = np.interp(t, [0, 0.25, dur * 0.7, dur], [0, 1, 0.8, 0])
+    return (tone + air) * env_ * vol
 
 
 # ---------------------------------------------------------------------------
@@ -412,8 +455,13 @@ def music(seed, root, prog, tempo, bars, scale):
                 deg = scale[local.integers(0, len(scale))]
                 octave = 12 if local.random() < 0.6 else 24
                 note = midi(root + octave + deg)
-                place(out, pluck(note, 2.5, 0.9985, 0.6) * local.uniform(0.18, 0.3), b * bar + step * beat * 0.5)
+                place(out, pluck(note, 2.5, 0.9982, 0.85) * local.uniform(0.18, 0.3), b * bar + step * beat * 0.5)
             step += local.choice([1, 2, 2, 3])
+        if b % 8 == 4:
+            # a slow breathy flute phrase
+            for k in range(3):
+                deg = scale[local.integers(0, len(scale))]
+                place(out, flute(midi(root + 24 + deg), beat * 2.6, 0.11), b * bar + k * beat * 1.4)
         if b % 4 == 3:
             place(out, bell(midi(root + 36 + scale[local.integers(0, len(scale))]), 2.5, 1.2, 0.4) * 0.08, b * bar + bar * 0.75)
     # gentle reverb-ish smear (a few feedback taps)
@@ -435,7 +483,7 @@ def main():
         "place_wood": sfx_place_wood, "wood_tick": sfx_wood_tick, "place_path": sfx_place_path,
         "brush": sfx_brush, "build": sfx_build, "plant": sfx_plant, "erase": sfx_erase, "dig": sfx_dig,
         "rumble": sfx_rumble, "splash": sfx_splash, "undo": sfx_undo, "shutter": sfx_shutter,
-        "season": sfx_season, "heart": sfx_heart, "nope": sfx_nope,
+        "season": sfx_season, "heart": sfx_heart, "nope": sfx_nope, "boing_1": sfx_boing, "boing_2": sfx_boing,
     }
     for name, fn in simple.items():
         write(out_dir, name, fn(), 0.7)
@@ -444,12 +492,15 @@ def main():
         write(out_dir, f"quack_{v}", sfx_quack(v - 1), 0.6)
         write(out_dir, f"cluck_{v}", sfx_cluck(v - 1), 0.5)
         write(out_dir, f"chirp_{v}", sfx_chirp(v - 1), 0.4)
+        write(out_dir, f"meow_{v}", sfx_meow(v - 1), 0.55)
     write(out_dir, "amb_day", amb_day(), 0.5)
     write(out_dir, "amb_night", amb_night(), 0.4)
-    major_penta = [0, 2, 4, 7, 9]
-    write(out_dir, "music_morning", music(1, 60, [0, 5, 9 - 12, 7 - 12], 76, 24, major_penta), 0.55)
-    write(out_dir, "music_meadow", music(2, 57, [0, 5, 3, 7], 70, 24, [0, 3, 5, 7, 10]), 0.55)
-    write(out_dir, "music_evening", music(3, 55, [0, 9 - 12, 5, 7], 64, 20, major_penta), 0.5)
+    lydian = [0, 2, 4, 6, 7, 9, 11]   # airy, hopeful "wind town" colour
+    major = [0, 2, 4, 7, 9]
+    dorian = [0, 2, 3, 5, 7, 9, 10]   # gentle evening melancholy
+    write(out_dir, "music_morning", music(1, 62, [0, 2, 7, 5], 80, 24, lydian), 0.55)
+    write(out_dir, "music_meadow", music(2, 60, [0, 5, 9 - 12, 7], 72, 24, major), 0.55)
+    write(out_dir, "music_evening", music(3, 57, [0, 5, 3, 7], 62, 20, dorian), 0.5)
 
 
 if __name__ == "__main__":

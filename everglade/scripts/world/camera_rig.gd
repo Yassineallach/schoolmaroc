@@ -33,10 +33,32 @@ func _ready() -> void:
 	add_child(camera)
 	var attrs := CameraAttributesPractical.new()
 	camera.attributes = attrs
+	_add_outline()
 	_s_target = target
 	_s_yaw = yaw
 	_s_distance = distance
 	_apply()
+
+
+## Full-screen anime ink outline drawn from the depth buffer.
+var outline: MeshInstance3D
+
+
+func _add_outline() -> void:
+	outline = MeshInstance3D.new()
+	outline.name = "Outline"
+	var quad := QuadMesh.new()
+	quad.size = Vector2.ONE
+	outline.mesh = quad
+	var mat := ShaderMaterial.new()
+	mat.shader = load("res://shaders/outline.gdshader")
+	outline.material_override = mat
+	outline.extra_cull_margin = 16384.0
+	outline.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	outline.position = Vector3(0, 0, -1.0)
+	camera.add_child(outline)
+	Settings.changed.connect(func(): outline.visible = Settings.quality > 0)
+	outline.visible = Settings.quality > 0
 
 
 func base_pitch(dist: float) -> float:

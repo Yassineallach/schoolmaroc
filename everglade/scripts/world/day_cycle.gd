@@ -16,7 +16,9 @@ var night := 0.0
 var sun: DirectionalLight3D
 var moon: DirectionalLight3D
 var env: Environment
-var sky_mat: ProceduralSkyMaterial
+var sky_mat: ShaderMaterial
+var clouds: Node3D
+var cloud_mat: ShaderMaterial
 var world_env: WorldEnvironment
 var _season_leaf := Color(1, 1, 1, 0)
 var _season_ground := Color(1, 1, 1, 1)
@@ -42,20 +44,19 @@ func _ready() -> void:
 	moon.light_color = Color(0.55, 0.65, 0.95)
 	moon.shadow_enabled = false
 	add_child(moon)
-	sky_mat = ProceduralSkyMaterial.new()
-	sky_mat.sun_angle_max = 20.0
-	sky_mat.sun_curve = 0.1
+	sky_mat = ShaderMaterial.new()
+	sky_mat.shader = load("res://shaders/sky.gdshader")
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
 	sky.radiance_size = Sky.RADIANCE_SIZE_64
 	env = Environment.new()
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_sky_contribution = 0.75
-	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	# anime shadows: flat blue-violet ambient instead of sky-based GI
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color(0.62, 0.66, 0.92)
+	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	env.tonemap_exposure = 1.0
-	env.tonemap_white = 6.0
 	env.fog_enabled = true
 	env.fog_mode = Environment.FOG_MODE_DEPTH
 	env.fog_depth_begin = 38.0
@@ -67,12 +68,13 @@ func _ready() -> void:
 	env.glow_bloom = 0.08
 	env.glow_hdr_threshold = 1.1
 	env.adjustment_enabled = true
-	env.adjustment_saturation = 1.08
+	env.adjustment_saturation = 1.18
 	env.adjustment_contrast = 1.03
 	world_env = WorldEnvironment.new()
 	world_env.environment = env
 	add_child(world_env)
 	_build_particles()
+	_build_clouds()
 	Settings.changed.connect(func(): sun.shadow_enabled = Settings.shadows_enabled())
 	set_season(season)
 	_snow = _target_snow
@@ -116,6 +118,8 @@ func set_season(s: int) -> void:
 
 
 func _process(delta: float) -> void:
+	if clouds:
+		clouds.rotate_y(delta * 0.004)
 	if auto_advance:
 		set_time(time_of_day + delta / 240.0)
 	_season_leaf = _season_leaf.lerp(_target_leaf, minf(1.0, delta * 1.5))
@@ -148,23 +152,33 @@ func _apply() -> void:
 	sun.visible = day > 0.01
 	moon.light_energy = 0.32 * night
 	moon.visible = night > 0.01
-	var top_day := Color(0.36, 0.6, 0.88)
-	var hor_day := Color(0.78, 0.88, 0.95)
-	var top_gold := Color(0.42, 0.48, 0.75)
-	var hor_gold := Color(1.0, 0.68, 0.48)
-	var top_night := Color(0.04, 0.06, 0.16)
-	var hor_night := Color(0.12, 0.16, 0.3)
+	var top_day := Color(0.20, 0.50, 0.96)
+	var hor_day := Color(0.72, 0.89, 1.0)
+	var top_gold := Color(0.36, 0.38, 0.78)
+	var hor_gold := Color(1.0, 0.62, 0.46)
+	var top_night := Color(0.03, 0.05, 0.18)
+	var hor_night := Color(0.14, 0.18, 0.40)
 	var top := top_night.lerp(top_day, day).lerp(top_gold, golden * 0.7)
 	var hor := hor_night.lerp(hor_day, day).lerp(hor_gold, golden * 0.8)
 	if season == 3:
 		hor = hor.lerp(Color(0.85, 0.88, 0.92), 0.4 * day)
-	sky_mat.sky_top_color = top
-	sky_mat.sky_horizon_color = hor
-	sky_mat.ground_horizon_color = hor
-	sky_mat.ground_bottom_color = hor.darkened(0.3)
-	sky_mat.sun_angle_max = 30.0
-	env.fog_light_color = hor.lerp(Color(0.6, 0.7, 0.8), 0.2)
-	env.ambient_light_energy = lerpf(0.55, 1.0, day)
+	sky_mat.set_shader_parameter("top_color", top)
+	sky_mat.set_shader_parameter("horizon_color", hor)
+	sky_mat.set_shader_parameter("ground_color", hor.darkened(0.15))
+	sky_mat.set_shader_parameter("glow_color", Color(1.0, 0.95, 0.85).lerp(Color(1.0, 0.55, 0.45), golden))
+	sky_mat.set_shader_parameter("night", night)
+	sky_mat.set_shader_parameter("sunset", golden)
+	env.fog_light_color = hor.lerp(Color(0.7, 0.8, 0.95), 0.25)
+	# shadow tint: periwinkle by day, warm violet at golden hour, deep blue at night
+	var amb := Color(0.60, 0.65, 0.95).lerp(Color(0.72, 0.58, 0.82), golden).lerp(Color(0.22, 0.28, 0.55), night)
+	env.ambient_light_color = amb
+	env.ambient_light_energy = lerpf(0.75, 0.95, day)
+	if cloud_mat:
+		var lit := Color(1, 1, 1).lerp(Color(1.0, 0.78, 0.66), golden).lerp(Color(0.32, 0.38, 0.62), night)
+		var shade := Color(0.72, 0.80, 0.98).lerp(Color(0.70, 0.56, 0.78), golden).lerp(Color(0.16, 0.2, 0.38), night)
+		cloud_mat.set_shader_parameter("lit_color", lit)
+		cloud_mat.set_shader_parameter("shade_color", shade)
+		cloud_mat.set_shader_parameter("sun_dir", dir if night < 0.5 else Vector3(-dir.x, absf(dir.y) + 0.3, dir.z))
 	env.glow_intensity = lerpf(0.5, 1.1, night)
 	RenderingServer.global_shader_parameter_set("night", night)
 	Sfx.night = night
@@ -209,6 +223,33 @@ func _build_particles() -> void:
 	ff.emitting = false
 	add_child(ff)
 	_particles["fireflies"] = ff
+
+
+## A ring of big painted cumulus clouds drifting around the glade.
+func _build_clouds() -> void:
+	clouds = Node3D.new()
+	clouds.name = "Clouds"
+	add_child(clouds)
+	cloud_mat = ShaderMaterial.new()
+	cloud_mat.shader = load("res://shaders/cloud.gdshader")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 99
+	for kind in ["cloud_a", "cloud_b"]:
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.mesh = ModelLib.merged(kind).solid
+		mm.instance_count = 9
+		for i in mm.instance_count:
+			var a := rng.randf() * TAU
+			var r := rng.randf_range(110.0, 170.0)
+			var s := rng.randf_range(3.5, 7.0)
+			var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.8, 1.1), s))
+			mm.set_instance_transform(i, Transform3D(basis, Vector3(cos(a) * r, rng.randf_range(18.0, 50.0), sin(a) * r)))
+		var mmi := MultiMeshInstance3D.new()
+		mmi.multimesh = mm
+		mmi.material_override = cloud_mat
+		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		clouds.add_child(mmi)
 
 
 func _make_particles(col: Color, amount: int, dir: Vector3, size: float, round_flake: bool) -> CPUParticles3D:

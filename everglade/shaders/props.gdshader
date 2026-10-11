@@ -3,7 +3,9 @@
 //   1.0 solid, 0.0 foliage (sway + season tint), 0.25 evergreen (sway),
 //   0.5 petals/cloth (sway only).
 shader_type spatial;
-render_mode diffuse_lambert_wrap, specular_disabled;
+render_mode diffuse_lambert_wrap;
+
+#include "res://shaders/toon.gdshaderinc"
 
 global uniform float wind_strength;
 global uniform vec4 season_leaf : source_color;
@@ -39,6 +41,14 @@ void vertex() {
 }
 
 void fragment() {
+	// dissolve props that come too close to the camera (screen-door dither)
+	float cam_d = length(VERTEX);
+	if (cam_d < 4.0) {
+		float h = fract(sin(dot(floor(FRAGCOORD.xy), vec2(12.9898, 78.233))) * 43758.5453);
+		if (smoothstep(1.2, 4.0, cam_d) < h) {
+			discard;
+		}
+	}
 	vec3 col = COLOR.rgb;
 	// season tint only on deciduous foliage (alpha 0); evergreens (0.25) keep their colour
 	float foliage = 1.0 - smoothstep(0.08, 0.18, v_channel);
@@ -51,5 +61,5 @@ void fragment() {
 	col = mix(col, vec3(0.94, 0.96, 1.0), up * snow_amount);
 	ALBEDO = col;
 	ROUGHNESS = 0.9;
-	BACKLIGHT = vec3(0.25, 0.3, 0.1) * foliage;
+	BACKLIGHT = vec3(0.18, 0.22, 0.08) * foliage;
 }

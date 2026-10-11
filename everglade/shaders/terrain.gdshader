@@ -1,7 +1,9 @@
 // Meadow terrain: lush grass, painted paths (mask R = dirt, G = cobble,
 // B = trodden ground around structures), sandy pond banks and seasonal snow.
 shader_type spatial;
-render_mode diffuse_lambert_wrap, specular_disabled;
+render_mode diffuse_lambert_wrap;
+
+#include "res://shaders/toon.gdshaderinc"
 
 global uniform vec4 season_ground : source_color;
 global uniform float snow_amount;
@@ -11,11 +13,11 @@ uniform float terrain_origin = -32.0;
 uniform float terrain_size = 64.0;
 uniform float water_level = -0.35;
 uniform float play_half = 22.0;
-uniform vec4 grass_a : source_color = vec4(0.47, 0.66, 0.29, 1.0);
-uniform vec4 grass_b : source_color = vec4(0.58, 0.72, 0.32, 1.0);
-uniform vec4 dirt : source_color = vec4(0.66, 0.55, 0.40, 1.0);
-uniform vec4 cobble : source_color = vec4(0.70, 0.67, 0.61, 1.0);
-uniform vec4 sand : source_color = vec4(0.78, 0.72, 0.55, 1.0);
+uniform vec4 grass_a : source_color = vec4(0.40, 0.74, 0.30, 1.0);
+uniform vec4 grass_b : source_color = vec4(0.58, 0.84, 0.36, 1.0);
+uniform vec4 dirt : source_color = vec4(0.86, 0.72, 0.52, 1.0);
+uniform vec4 cobble : source_color = vec4(0.82, 0.80, 0.76, 1.0);
+uniform vec4 sand : source_color = vec4(0.94, 0.88, 0.68, 1.0);
 uniform vec4 under : source_color = vec4(0.40, 0.48, 0.30, 1.0);
 
 varying vec3 v_world;
@@ -81,8 +83,8 @@ void fragment() {
 	vec4 m = texture(mask_tex, muv);
 	float n = fbm(xz * 0.35);
 	float fine = noise(xz * 4.0);
-	vec3 g = mix(grass_a.rgb, grass_b.rgb, smoothstep(0.3, 0.75, n));
-	g *= 0.92 + fine * 0.12;
+	vec3 g = mix(grass_a.rgb, grass_b.rgb, smoothstep(0.42, 0.5, n) * 0.6 + smoothstep(0.6, 0.66, n) * 0.4);
+	g *= 0.96 + step(0.72, fine) * 0.06;
 	g *= season_ground.rgb;
 	// darker in hollows, sunnier on crests
 	g *= mix(0.86, 1.04, smoothstep(-1.0, 1.5, v_world.y));

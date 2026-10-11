@@ -127,7 +127,7 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 	var roof_col: Color = d.get("roof_col", Catalog.ROOF_COLORS[0])
 	var roof: String = d.get("roof", "gable")
 	var pitch: float = d.get("pitch", 1.0)
-	var stone_col := Color(0.76, 0.73, 0.68, 0.25)
+	var stone_col := Color(0.78, 0.74, 0.68, 0.25)
 	var wall_zone := 0.25 if style == "stone" else 0.0
 	var wcol := Color(wall_col.r, wall_col.g, wall_col.b, wall_zone)
 	if style == "stone":
@@ -152,18 +152,21 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 			roof_h = W * 0.5 * 0.95 * pitch
 			_hip_roof(mb, L, W, roof_h, roof_col)
 			perches.append(Vector3(0, eave + roof_h + 0.1, 0))
+
 		_:
 			roof_h = W * 0.5 * 1.05 * pitch
 			_gable_roof(mb, L, W, roof_h, roof_col, wcol)
 			perches.append(Vector3(-L * 0.3, eave + roof_h + 0.15, 0))
 			perches.append(Vector3(L * 0.3, eave + roof_h + 0.15, 0))
 	# style trims
-	if style == "timber":
+	if style == "windrise":
+		_windrise(mb, corners, floors, d, auto_doors)
+	elif style == "timber":
 		_timber(mb, corners, floors, d, auto_doors)
 	elif style == "plaster":
 		_quoins(mb, corners, Color(0.80, 0.77, 0.72, 1.0))
 	# floor band between storeys
-	if floors > 1 and style != "timber":
+	if floors > 1 and style != "timber" and style != "windrise":
 		for f in range(1, floors):
 			var y := PL + f * FH
 			_band(mb, corners, y, 0.14, 0.05, Color(wall_col.r * 0.9, wall_col.g * 0.88, wall_col.b * 0.85, 1.0))
@@ -252,12 +255,13 @@ func _band(mb: MeshBuilder, corners: Array, y: float, h: float, out: float, col:
 		mb.quad(ib + top, ia + top, a + top, b + top, col)
 
 
-func _quoins(mb: MeshBuilder, corners: Array, col: Color) -> void:
+func _quoins(mb: MeshBuilder, corners: Array, col: Color, top := -1.0) -> void:
+	var limit := eave - 0.2 if top < 0.0 else top - 0.1
 	for c in corners:
 		var v: Vector3 = c
 		var y := PL + 0.05
 		var k := 0
-		while y < eave - 0.2:
+		while y < limit:
 			var big := k % 2 == 0
 			var sx := 0.42 if big else 0.26
 			var sz := 0.26 if big else 0.42
@@ -342,8 +346,12 @@ func _gable_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color
 				mb.quad(e + dn, r + dn, r, e, fascia)
 			else:
 				mb.quad(r + dn, e + dn, e, r, fascia)
-	# ridge
+	# ridge with gold finials at both gable ends
 	mb.box(Transform3D(Basis(Vector3.RIGHT, PI / 4), Vector3(0, yr + 0.02, 0)), Vector3(x1 - x0 + 0.08, 0.2, 0.2), fascia)
+	var gold := Color(0.95, 0.74, 0.30, 1.0)
+	for xs in [x0 + 0.05, x1 - 0.05]:
+		mb.box(Transform3D(Basis.IDENTITY, Vector3(xs, yr + 0.22, 0)), Vector3(0.12, 0.42, 0.12), gold)
+		mb.box(Transform3D(Basis(Vector3.RIGHT, PI / 4), Vector3(xs, yr + 0.48, 0)), Vector3(0.1, 0.16, 0.16), gold)
 
 
 func _hip_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color) -> void:
@@ -423,6 +431,8 @@ func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNu
 	var stone_col := Color(0.76, 0.73, 0.68, 0.25)
 	var wcol := stone_col if style == "stone" else Color(wall_col.r, wall_col.g, wall_col.b, 0.0)
 	var segs := clampi(int(R * 9.0), 14, 30)
+	if style == "windrise":
+		_round_windrise(mb, R, floors, segs)
 	_cylinder(mb, R + 0.1, -1.6, PL, segs, stone_col)
 	_cylinder(mb, R, PL, eave, segs, wcol)
 	# ivy faces
@@ -451,7 +461,7 @@ func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNu
 		deco.add("banner", Transform3D(Basis.IDENTITY, Vector3(0, eave, 0)))
 		perches.append(Vector3(R * 0.7, eave + 1.0, 0))
 	else:
-		roof_h = R * 1.7 * pitch
+		roof_h = R * 2.1 * pitch
 		var ov := 0.4
 		var slope := roof_h / R
 		var ye := eave - ov * slope
@@ -550,6 +560,96 @@ func _annulus(mb: MeshBuilder, r0: float, r1: float, y: float, segs: int, col: C
 		var o0 := Vector3(cos(a0) * r1, y, sin(a0) * r1)
 		var o1 := Vector3(cos(a1) * r1, y, sin(a1) * r1)
 		mb.quad(i0, i1, o1, o0, col)
+
+
+# ---------------------------------------------------------------------------
+# Windrise style (fantasy-European town: stone base, plaster + timber above)
+# ---------------------------------------------------------------------------
+## Stone ground floor with quoins, white plaster upper storeys framed in dark
+## timber with braces, gold trim between storeys and carved eave brackets.
+func _windrise(mb: MeshBuilder, corners: Array, floors: int, d: Dictionary, doors: Array) -> void:
+	var stone := Color(0.88, 0.84, 0.76, 0.25)
+	var beam := Color(0.32, 0.22, 0.17, 0.5)
+	var gold := Color(0.95, 0.74, 0.30, 1.0)
+	var stone_top := PL + (FH if floors > 1 else 1.0)
+	var grown: Array = []
+	for c in corners:
+		var v: Vector3 = c
+		grown.append(v + Vector3(signf(v.x), 0, signf(v.z)) * 0.04)
+	_ring_walls(mb, grown, PL, stone_top, stone)
+	_band(mb, corners, stone_top, 0.12, 0.08, gold)
+	_quoins(mb, corners, Color(0.95, 0.92, 0.85, 1.0), stone_top)
+	# timber framing on the plaster above the stone
+	for i in 4:
+		var a: Vector3 = corners[i]
+		var b: Vector3 = corners[(i + 1) % 4]
+		var n := _side_normal(corners, i)
+		var l := a.distance_to(b)
+		var count := maxi(1, int(round(l / 1.25)))
+		var h := eave - stone_top
+		for k in count + 1:
+			var u := float(k) / count
+			var skip := false
+			for w in d.get("windows", []) + doors:
+				if w.side == i and w.get("f", 0) >= (1 if floors > 1 else 0) and absf(w.u - u) * l < 0.6 and k != 0 and k != count:
+					skip = true
+			if skip:
+				continue
+			var p := a.lerp(b, u) + n * 0.05
+			mb.box(Transform3D(DecoMerge.facing(n), p + Vector3.UP * (stone_top + h * 0.5)), Vector3(0.16, h, 0.09), beam)
+		# St Andrew's braces inside window-free bays, one per storey
+		var seg_w := l / count
+		var first_f := 1 if floors > 1 else 0
+		for f in range(first_f, floors):
+			var y0 := maxf(PL + f * FH, stone_top) + 0.1
+			var y1 := PL + (f + 1) * FH - 0.12
+			var fh := y1 - y0
+			if fh < 0.8:
+				continue
+			for k in count:
+				var busy := false
+				for w in d.get("windows", []) + doors:
+					if w.side == i and w.get("f", 0) == f and w.u > float(k) / count and w.u < float(k + 1) / count:
+						busy = true
+				if busy:
+					continue
+				var mid := a.lerp(b, (k + 0.5) / count) + n * 0.055 + Vector3.UP * ((y0 + y1) * 0.5)
+				var ang := atan2(fh, seg_w - 0.16) * (1.0 if (k + f) % 2 == 0 else -1.0)
+				var diag := sqrt((seg_w - 0.16) * (seg_w - 0.16) + fh * fh)
+				mb.box(Transform3D(DecoMerge.facing(n) * Basis(Vector3.BACK, ang), mid), Vector3(diag, 0.11, 0.07), beam)
+	for f in range(1, floors + 1):
+		var y := PL + f * FH
+		if y > stone_top + 0.3:
+			_band(mb, corners, y - (0.08 if f == floors else 0.0), 0.15, 0.06, beam)
+	# carved brackets under the eaves
+	for i in 4:
+		var a2: Vector3 = corners[i]
+		var b2: Vector3 = corners[(i + 1) % 4]
+		var n2 := _side_normal(corners, i)
+		var l2 := a2.distance_to(b2)
+		var nb := maxi(2, int(l2 / 1.2))
+		for k in nb + 1:
+			var p2 := a2.lerp(b2, float(k) / nb) + n2 * 0.18 + Vector3.UP * (eave - 0.12)
+			mb.box(Transform3D(DecoMerge.facing(n2) * Basis(Vector3.RIGHT, -0.5), p2), Vector3(0.1, 0.1, 0.42), beam)
+
+
+func _round_windrise(mb: MeshBuilder, R: float, floors: int, segs: int) -> void:
+	var stone := Color(0.88, 0.84, 0.76, 0.25)
+	var beam := Color(0.32, 0.22, 0.17, 0.5)
+	var gold := Color(0.95, 0.74, 0.30, 1.0)
+	var stone_top := PL + (FH if floors > 1 else 1.0)
+	_cylinder(mb, R + 0.04, PL, stone_top, segs, stone)
+	_cylinder(mb, R + 0.09, stone_top - 0.06, stone_top + 0.06, segs, gold)
+	for f in range(2, floors + 1):
+		var y := PL + f * FH
+		_cylinder(mb, R + 0.05, y - 0.07, y + 0.07, segs, beam)
+	var posts := maxi(6, int(TAU * R / 1.3))
+	for k in posts:
+		var a := TAU * (k + 0.5) / posts
+		var nn := Vector3(cos(a), 0, sin(a))
+		var h := eave - stone_top
+		if h > 0.5:
+			mb.box(Transform3D(DecoMerge.facing(nn), nn * (R + 0.04) + Vector3.UP * (stone_top + h * 0.5)), Vector3(0.14, h, 0.08), beam)
 
 
 # ---------------------------------------------------------------------------

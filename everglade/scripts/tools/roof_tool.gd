@@ -6,7 +6,7 @@ extends BaseTool
 func _init() -> void:
 	tool_id = "roof"
 	title = "Roofs"
-	options = {"roof": "gable", "color": 0, "pitch": 1.0}
+	options = {"roof": "gable", "color": 0, "pitch": 1.2}
 
 
 func option_defs() -> Array:

@@ -88,3 +88,7 @@ snow_amount={
 "type": "float",
 "value": 0.0
 }
+toon_rim={
+"type": "float",
+"value": 1.0
+}

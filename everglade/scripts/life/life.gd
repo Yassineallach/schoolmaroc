@@ -11,6 +11,10 @@ var ducks: Array = []
 var chickens: Array = []
 var birds: Array = []
 var butterflies: Array = []
+var cats: Array = []
+var kois: Array = []
+var slimes: Array = []
+var crystalflies: Array = []
 var _rng := RandomNumberGenerator.new()
 var _rebalance_in := 0.5
 var enabled := true
@@ -25,7 +29,7 @@ func setup(g: Glade, d: DayCycle) -> void:
 
 
 func clear() -> void:
-	for list in [sheep, ducks, chickens, birds, butterflies]:
+	for list in [sheep, ducks, chickens, birds, butterflies, cats, kois, slimes, crystalflies]:
 		for c in list:
 			c.queue_free()
 		list.clear()
@@ -91,6 +95,34 @@ func _rebalance() -> void:
 		if c:
 			c.home = b.c
 		return c)
+	# --- cats wandering between cottages
+	_balance(cats, mini(homes.size(), 3), func():
+		var b3: Dictionary = homes[_rng.randi() % homes.size()]
+		var c3 = _spawn_land("cat" if _rng.randf() < 0.6 else "cat_black", Cat, b3.c + Vector2(_rng.randf_range(-4, 4), _rng.randf_range(-4, 4)))
+		if c3:
+			c3.home = b3.c
+		return c3)
+	# --- koi in ponds
+	_balance(kois, clampi(cells / 18, 0, 8), func():
+		var spot2 = glade.random_water_point(_rng)
+		if spot2 == null:
+			return null
+		return _spawn("koi" if _rng.randf() < 0.6 else "koi_white", Koi, spot2))
+	for k in kois.duplicate():
+		if not glade.terrain.is_water(k.global_position.x, k.global_position.z):
+			kois.erase(k)
+			k.queue_free()
+	# --- slimes bouncing about the meadow edges
+	_balance(slimes, 4, func():
+		var a := _rng.randf() * TAU
+		var spot := Vector2(cos(a), sin(a)) * _rng.randf_range(10.0, 18.0)
+		return _spawn_land("slime" if _rng.randf() < 0.55 else "slime_blue", Slime, spot))
+	# --- glowing crystalflies drifting about at dusk and night
+	_balance(crystalflies, 7 if day.night > 0.35 else 0, func():
+		var home2 := Vector3(_rng.randf_range(-14, 14), 0, _rng.randf_range(-14, 14))
+		var cf := _spawn("crystalfly", Butterfly, Vector2(home2.x, home2.z)) as Butterfly
+		cf.home = home2
+		return cf)
 	# --- birds
 	var perches := glade.perches()
 	_balance(birds, 3 if perches.size() < 4 else 6, func():
@@ -143,7 +175,7 @@ func _spawn_land(kind: String, script_class, near := Vector2.INF) -> Creature:
 func pick(origin: Vector3, dir: Vector3) -> Creature:
 	var best: Creature = null
 	var best_t := INF
-	for list in [sheep, ducks, chickens, birds, butterflies]:
+	for list in [sheep, ducks, chickens, birds, butterflies, cats, kois, slimes, crystalflies]:
 		for c in list:
 			var center: Vector3 = c.global_position + Vector3.UP * 0.4 * c.scale.x
 			var r: float = c.pet_radius * c.scale.x + 0.25

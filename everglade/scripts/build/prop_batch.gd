@@ -8,6 +8,7 @@ const NO_SHADOW := ["flowers_pink", "flowers_white", "flowers_blue", "flowers_ye
 var _mmis: Dictionary = {} # kind -> [solid MMI, glow MMI or null]
 var _hidden: Dictionary = {}
 var _props: Array = []
+var _animated: Dictionary = {} # prop id -> Node3D (windmills...)
 
 
 static func prop_transform(p: Dictionary) -> Transform3D:
@@ -24,12 +25,21 @@ static func prop_transform(p: Dictionary) -> Transform3D:
 func rebuild(props: Array) -> void:
 	_props = props
 	var groups: Dictionary = {}
+	var live: Dictionary = {}
 	for p in props:
 		if _hidden.has(p.id):
+			continue
+		if Catalog.ANIMATED.has(p.kind):
+			live[p.id] = true
+			_sync_animated(p)
 			continue
 		if not groups.has(p.kind):
 			groups[p.kind] = []
 		groups[p.kind].append(prop_transform(p))
+	for id in _animated.keys():
+		if not live.has(id):
+			_animated[id].queue_free()
+			_animated.erase(id)
 	for kind in _mmis.keys():
 		if not groups.has(kind):
 			for mmi in _mmis[kind]:
@@ -52,6 +62,27 @@ func rebuild(props: Array) -> void:
 			mm.instance_count = xforms.size()
 			for i in xforms.size():
 				mm.set_instance_transform(i, xforms[i])
+
+
+func _sync_animated(p: Dictionary) -> void:
+	var node: Node3D = _animated.get(p.id)
+	if node == null or node.get_meta("kind", "") != p.kind:
+		if node:
+			node.queue_free()
+		node = ModelLib.instance(p.kind)
+		node.set_meta("kind", p.kind)
+		add_child(node)
+		_animated[p.id] = node
+	node.transform = prop_transform(p)
+
+
+func _process(delta: float) -> void:
+	var t := Time.get_ticks_msec() / 1000.0
+	var wind := 0.8 + 0.4 * sin(t * 0.21) * sin(t * 0.13)
+	for node in _animated.values():
+		var sails := node.find_child("Sails", true, false) as Node3D
+		if sails:
+			sails.rotation.z += delta * (0.5 + 0.4 * wind)
 
 
 func _make_mmi(mesh: Mesh, mat: Material, shadows: bool) -> MultiMeshInstance3D:

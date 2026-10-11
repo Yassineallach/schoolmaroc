@@ -13,7 +13,7 @@ var _preview_timer := 0.0
 func _init() -> void:
 	tool_id = "building"
 	title = "Buildings"
-	options = {"shape": "house", "floors": 1, "style": "plaster", "roof_color": 0, "wall_color": 0}
+	options = {"shape": "house", "floors": 2, "style": "windrise", "roof_color": 0, "wall_color": 0}
 
 
 func option_defs() -> Array:
@@ -22,6 +22,7 @@ func option_defs() -> Array:
 			{"id": "house", "label": "Cottage", "icon": "house"},
 			{"id": "tower", "label": "Tower", "icon": "tower"}]},
 		{"type": "choice", "key": "style", "items": [
+			{"id": "windrise", "label": "Windrise", "icon": "windrise"},
 			{"id": "plaster", "label": "Plaster", "icon": "plaster"},
 			{"id": "timber", "label": "Timber", "icon": "timber"},
 			{"id": "stone", "label": "Stone", "icon": "stone"}]},
@@ -77,8 +78,8 @@ func make_data(a: Vector3, b: Vector3) -> Dictionary:
 	var d := {
 		"floors": int(options.floors), "style": options.style,
 		"roof_col": Catalog.ROOF_COLORS[options.roof_color],
-		"wall_col": Catalog.WALL_COLORS[(int(options.roof_color) + 1) % Catalog.WALL_COLORS.size()],
-		"pitch": 1.0, "ivy": 0.0, "id": 0, "chimney": BuildingView.NO_CHIMNEY,
+		"wall_col": Catalog.WALL_COLORS[0] if options.style == "windrise" else Catalog.WALL_COLORS[(int(options.roof_color) + 1) % Catalog.WALL_COLORS.size()],
+		"pitch": 1.2, "ivy": 0.0, "id": 0, "chimney": BuildingView.NO_CHIMNEY,
 	}
 	if options.shape == "tower":
 		d.shape = "round"

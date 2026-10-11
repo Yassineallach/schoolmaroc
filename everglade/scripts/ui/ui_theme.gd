@@ -6,8 +6,9 @@ const CREAM := Color(0.985, 0.965, 0.92, 0.96)
 const CREAM_DARK := Color(0.93, 0.89, 0.80, 1.0)
 const INK := Color(0.30, 0.25, 0.22)
 const INK_SOFT := Color(0.45, 0.39, 0.34)
-const ACCENT := Color(0.86, 0.55, 0.36)
-const ACCENT_SOFT := Color(0.98, 0.86, 0.72)
+const ACCENT := Color(0.85, 0.66, 0.32)
+const GOLD := Color(0.86, 0.72, 0.44)
+const ACCENT_SOFT := Color(0.99, 0.93, 0.76)
 const SHADOW := Color(0.2, 0.15, 0.1, 0.18)
 
 static var _theme: Theme
@@ -73,6 +74,8 @@ static func panel_box(col := CREAM, radius := 22) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = col
 	sb.set_corner_radius_all(radius)
+	sb.border_color = Color(GOLD, 0.85)
+	sb.set_border_width_all(2)
 	sb.shadow_color = SHADOW
 	sb.shadow_size = 8
 	sb.shadow_offset = Vector2(0, 3)
@@ -88,7 +91,7 @@ static func button_box(col: Color, radius := 18) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = col
 	sb.set_corner_radius_all(radius)
-	sb.border_color = Color(0.85, 0.78, 0.66, 0.9)
+	sb.border_color = GOLD
 	sb.set_border_width_all(2)
 	sb.content_margin_left = 14
 	sb.content_margin_right = 14

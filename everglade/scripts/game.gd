@@ -72,6 +72,8 @@ func _ready() -> void:
 		if a.begins_with("--tour=") and ResourceLoader.exists("res://tests/tour.gd"):
 			var tour: Node = load("res://tests/tour.gd").new()
 			add_child(tour)
+		if a.begins_with("--closeup=") and ResourceLoader.exists("res://tests/closeup.gd"):
+			add_child(load("res://tests/closeup.gd").new())
 
 
 func _make_tools() -> void:
@@ -242,7 +244,7 @@ func _inspector_defs(f: Dictionary) -> Array:
 			var round_b: bool = item.shape == "round"
 			var roofs: Array = []
 			for r in (Catalog.ROUND_ROOFS if round_b else Catalog.RECT_ROOFS):
-				roofs.append({"id": r, "label": {"gable": "Gable", "hip": "Hipped", "flat": "Battlement", "cone": "Spire"}[r], "icon": r})
+				roofs.append({"id": r, "label": Catalog.ROOF_LABELS[r], "icon": r})
 			var styles: Array = []
 			for s in Catalog.STYLES:
 				if round_b and s == "timber":

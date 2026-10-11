@@ -4,7 +4,9 @@
 //   0.75 roof tiles   1.00 plain (trim, ridge, quoins)
 // UV is in metres: x along the surface, y up the surface.
 shader_type spatial;
-render_mode diffuse_lambert_wrap, specular_schlick_ggx;
+render_mode diffuse_lambert_wrap;
+
+#include "res://shaders/toon.gdshaderinc"
 
 global uniform float snow_amount;
 global uniform vec4 season_ground : source_color;
@@ -105,7 +107,7 @@ void fragment() {
 		col = tint * (0.85 + grain * 0.25) * mix(1.0, 0.75, plank);
 	} else if (zone < 0.875) {
 		vec2 tl = tiles(uv);
-		col = tint * tl.x * (0.88 + tl.y * 0.22);
+		col = tint * tl.x * (0.9 + tl.y * 0.16);
 		rough = 0.75;
 	} else {
 		col = tint * (0.95 + n * 0.08);

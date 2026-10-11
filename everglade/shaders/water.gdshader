@@ -10,8 +10,8 @@ uniform sampler2D height_tex : filter_linear, repeat_disable;
 uniform float terrain_origin = -32.0;
 uniform float terrain_size = 64.0;
 uniform float water_level = -0.35;
-uniform vec4 shallow : source_color = vec4(0.45, 0.72, 0.74, 1.0);
-uniform vec4 deep : source_color = vec4(0.16, 0.38, 0.52, 1.0);
+uniform vec4 shallow : source_color = vec4(0.42, 0.86, 0.90, 1.0);
+uniform vec4 deep : source_color = vec4(0.12, 0.46, 0.78, 1.0);
 
 varying vec3 v_world;
 
@@ -46,17 +46,22 @@ void fragment() {
 	float r1 = noise(xz * 1.6 + flow);
 	float r2 = noise(xz * 3.1 - flow * 1.7);
 	float ripple = r1 * 0.6 + r2 * 0.4;
-	vec3 col = mix(shallow.rgb, deep.rgb, smoothstep(0.0, 0.9, depth));
-	float foam = 1.0 - smoothstep(0.0, 0.07 + ripple * 0.06, depth);
-	foam *= 0.6 + 0.4 * sin(TIME * 1.5 + ripple * 6.0);
-	col = mix(col, vec3(0.95, 0.97, 0.96), clamp(foam, 0.0, 1.0) * 0.85);
+	// anime water: banded depth colours, crisp foam lines and sparkles
+	float band = floor(smoothstep(0.0, 1.0, depth) * 3.0) / 3.0;
+	vec3 col = mix(shallow.rgb, deep.rgb, band);
+	float foam_line = step(depth, 0.06 + ripple * 0.05);
+	float foam_ring = step(abs(depth - (0.16 + 0.04 * sin(TIME * 0.8 + ripple * 4.0))), 0.012);
+	float foam = clamp(foam_line + foam_ring * 0.8, 0.0, 1.0);
+	col = mix(col, vec3(1.0), foam * 0.9);
+	float glint = step(0.93, noise(xz * 6.0 + vec2(TIME * 0.3, -TIME * 0.2))) * step(0.6, r1);
+	col = mix(col, vec3(1.0), glint * (1.0 - night) * 0.9);
 	// frozen in deep winter
 	col = mix(col, vec3(0.80, 0.88, 0.94), snow_amount * 0.65);
 	ALBEDO = col;
 	ALPHA = clamp(smoothstep(-0.02, 0.25, depth) * 0.85 + foam * 0.3, 0.0, 0.95);
 	vec3 bump = normalize(vec3((r1 - 0.5) * 0.35, 1.0, (r2 - 0.5) * 0.35));
 	NORMAL = normalize((VIEW_MATRIX * vec4(bump, 0.0)).xyz);
-	ROUGHNESS = mix(0.06, 0.4, snow_amount);
-	SPECULAR = 0.7;
+	ROUGHNESS = mix(0.15, 0.5, snow_amount);
+	SPECULAR = 0.3;
 	EMISSION = col * night * 0.05;
 }

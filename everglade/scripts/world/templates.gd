@@ -6,7 +6,7 @@ extends RefCounted
 static func build(glade: Glade, template: String) -> void:
 	match template:
 		"hamlet":
-			glade.new_glade("meadow", "Little Hamlet")
+			glade.new_glade("meadow", "Windrise Town")
 			_hamlet(glade)
 		"hills":
 			glade.new_glade("hills", "Hillside Glade")
@@ -63,21 +63,21 @@ static func _hamlet(glade: Glade) -> void:
 	t.sculpt(Vector2(11, -11), 7.0, 0.8, "smooth")
 	t.flush()
 
-	# cottages and a tower
-	glade.add_building({"shape": "rect", "c": Vector2(2.0, -1.5), "size": Vector2(6.5, 4.4), "rot": 0.25,
-		"floors": 2, "style": "timber", "roof": "gable", "roof_col": Catalog.ROOF_COLORS[0],
-		"wall_col": Catalog.WALL_COLORS[0], "pitch": 1.05, "chimney": 0.28, "ivy": 0.5})
-	glade.add_building({"shape": "rect", "c": Vector2(-5.5, -6.0), "size": Vector2(5.0, 3.8), "rot": -0.45,
-		"floors": 1, "style": "plaster", "roof": "gable", "roof_col": Catalog.ROOF_COLORS[1],
-		"wall_col": Catalog.WALL_COLORS[1], "pitch": 1.2, "chimney": -0.25, "ivy": 0.7})
+	# timbered town houses over stone, a tall spire tower and an old watchtower
+	glade.add_building({"shape": "rect", "c": Vector2(2.0, -1.8), "size": Vector2(7.0, 4.6), "rot": 0.25,
+		"floors": 3, "style": "windrise", "roof": "gable", "roof_col": Catalog.ROOF_COLORS[0],
+		"wall_col": Catalog.WALL_COLORS[0], "pitch": 1.25, "chimney": 0.3, "ivy": 0.25})
+	glade.add_building({"shape": "rect", "c": Vector2(-5.5, -6.0), "size": Vector2(5.4, 4.0), "rot": -0.45,
+		"floors": 2, "style": "windrise", "roof": "gable", "roof_col": Catalog.ROOF_COLORS[1],
+		"wall_col": Catalog.WALL_COLORS[1], "pitch": 1.3, "chimney": -0.25, "ivy": 0.4})
 	glade.add_building({"shape": "round", "c": Vector2(10.0, -9.5), "r": 2.3, "rot": 0.0,
-		"floors": 3, "style": "stone", "roof": "cone", "roof_col": Catalog.ROOF_COLORS[2],
-		"wall_col": Catalog.WALL_COLORS[2], "pitch": 1.0, "chimney": BuildingView.NO_CHIMNEY, "ivy": 0.8})
-	glade.add_building({"shape": "rect", "c": Vector2(9.5, 2.0), "size": Vector2(4.6, 3.6), "rot": 1.25,
-		"floors": 1, "style": "stone", "roof": "hip", "roof_col": Catalog.ROOF_COLORS[3],
-		"wall_col": Catalog.WALL_COLORS[3], "pitch": 1.0, "chimney": BuildingView.NO_CHIMNEY, "ivy": 0.3})
-	glade.add_building({"shape": "round", "c": Vector2(-14.0, -12.5), "r": 1.6, "rot": 0.0,
-		"floors": 2, "style": "stone", "roof": "flat", "roof_col": Catalog.ROOF_COLORS[2],
+		"floors": 4, "style": "windrise", "roof": "cone", "roof_col": Catalog.ROOF_COLORS[0],
+		"wall_col": Catalog.WALL_COLORS[0], "pitch": 1.1, "chimney": BuildingView.NO_CHIMNEY, "ivy": 0.3})
+	glade.add_building({"shape": "rect", "c": Vector2(9.5, 2.0), "size": Vector2(4.8, 3.8), "rot": 1.25,
+		"floors": 2, "style": "windrise", "roof": "hip", "roof_col": Catalog.ROOF_COLORS[1],
+		"wall_col": Catalog.WALL_COLORS[0], "pitch": 1.1, "chimney": BuildingView.NO_CHIMNEY, "ivy": 0.2})
+	glade.add_building({"shape": "round", "c": Vector2(-14.0, -12.5), "r": 1.7, "rot": 0.0,
+		"floors": 3, "style": "stone", "roof": "flat", "roof_col": Catalog.ROOF_COLORS[2],
 		"wall_col": Catalog.WALL_COLORS[2], "pitch": 1.0, "chimney": BuildingView.NO_CHIMNEY, "ivy": 0.9})
 
 	# old castle wall curving along the north
@@ -102,6 +102,11 @@ static func _hamlet(glade: Glade) -> void:
 	var forest := [Vector2(-17, -3), Vector2(-18, 3), Vector2(-14, 14), Vector2(-19, 16), Vector2(16, -17),
 		Vector2(18, -4), Vector2(-8, -18), Vector2(-19, -17), Vector2(5, 17), Vector2(17, 18), Vector2(-3, 14),
 		Vector2(14, -2), Vector2(-11, 1), Vector2(6, -18), Vector2(19, 1)]
+	# the town's great oak and a few birches by the pond
+	for c in [Vector2(-11.0, -1.5)]:
+		glade.add_prop("tree_round_b", Vector3(c.x, t.height_at_v(c) - 0.03, c.y), 0.4, 1.1, false, false)
+	for c in [Vector2(-13.5, 6.0), Vector2(-6.0, 13.0), Vector2(-14.5, 10.5)]:
+		glade.add_prop("tree_birch", Vector3(c.x, t.height_at_v(c) - 0.03, c.y), rng.randf() * TAU, 1.0, false, false)
 	for c in forest:
 		for k in 3:
 			var p: Vector2 = c + Vector2(rng.randf_range(-2.5, 2.5), rng.randf_range(-2.5, 2.5))
@@ -123,12 +128,16 @@ static func _hamlet(glade: Glade) -> void:
 		glade.add_prop("rock_a" if rng.randf() < 0.5 else "rock_c", Vector3(c.x, t.height_at_v(c), c.y), rng.randf() * TAU, 1.0, true, false)
 	# props
 	var placed := [
-		["well", Vector2(-1.8, 5.8), 0.3], ["lantern", Vector2(1.7, 10.0), 0.0], ["lantern", Vector2(-0.6, 14.5), 0.0],
-		["lantern", Vector2(-6.0, 10.5), 0.0], ["bench", Vector2(-5.0, 4.0), 2.4], ["haystack", Vector2(16.5, 13.0), 0.0],
-		["hay_bale", Vector2(13.0, 13.5), 0.4], ["cart", Vector2(6.2, 5.6), 2.2], ["barrel", Vector2(5.4, -0.2), 0.0],
-		["crate", Vector2(5.0, 0.7), 0.4], ["barrel", Vector2(-2.6, -8.2), 0.0], ["log_pile", Vector2(-8.4, -7.6), 1.1],
-		["banner", Vector2(3.8, -12.6), 0.0], ["scarecrow", Vector2(16.0, 9.0), 0.6], ["stump", Vector2(-12.0, -1.0), 0.0],
-		["mushrooms", Vector2(-13.0, 0.0), 0.0], ["bench", Vector2(3.6, -9.0), 0.4],
+		["fountain", Vector2(-2.6, 5.6), 0.0], ["lantern", Vector2(-2.4, 15.0), 0.0], ["lantern", Vector2(1.4, 15.0), 0.0],
+		["paper_lantern", Vector2(1.9, 9.6), 0.0], ["lantern", Vector2(-0.6, 2.4), 0.0], ["lantern", Vector2(-6.0, 10.5), 0.0],
+		["market_stall", Vector2(3.6, 8.2), -1.2], ["market_stall", Vector2(-6.0, 6.0), 1.3], ["flower_cart", Vector2(-3.8, 11.8), 2.6],
+		["notice_board", Vector2(-3.2, 2.6), 0.6], ["signpost", Vector2(0.6, 12.6), 0.0], ["bench", Vector2(-5.0, 4.0), 2.4],
+		["barrel", Vector2(5.4, -0.2), 0.0], ["crate", Vector2(5.0, 0.9), 0.4], ["well", Vector2(-8.0, -1.6), 0.3],
+		["windmill", Vector2(15.5, 12.5), 2.3], ["windmill", Vector2(18.0, -3.5), 1.4], ["wind_shrine", Vector2(-15.5, 13.5), 0.0],
+		["haystack", Vector2(16.5, 15.5), 0.0], ["hay_bale", Vector2(13.0, 13.5), 0.4], ["cart", Vector2(6.2, 5.6), 2.2],
+		["scarecrow", Vector2(16.0, 9.0), 0.6], ["log_pile", Vector2(-8.4, -7.6), 1.1], ["stump", Vector2(-12.0, -4.5), 0.0],
+		["mushrooms", Vector2(-13.0, -4.0), 0.0], ["banner", Vector2(8.0, -6.6), 0.0], ["banner", Vector2(3.8, -12.6), 0.0],
+		["banner", Vector2(-2.6, -13.6), 0.0],
 	]
 	for item in placed:
 		var p3: Vector2 = item[1]

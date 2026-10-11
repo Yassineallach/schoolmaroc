@@ -138,6 +138,15 @@ func _draw() -> void:
 			rect(0.2, 0.42, 0.6, 0.48, STONE)
 			for x in [0.2, 0.42, 0.64]:
 				rect(x, 0.26, 0.16, 0.16, STONE)
+		"windrise":
+			rect(0.15, 0.15, 0.7, 0.7, PAPER)
+			rect(0.15, 0.58, 0.7, 0.27, STONE)
+			line([Vector2(0.15, 0.58), Vector2(0.85, 0.58)], Color(0.95, 0.74, 0.3), 0.06)
+			line([Vector2(0.5, 0.15), Vector2(0.5, 0.58)], WOOD.darkened(0.45), 0.06)
+			line([Vector2(0.15, 0.58), Vector2(0.5, 0.15)], WOOD.darkened(0.45), 0.05)
+		"grand":
+			rect(0.43, 0.6, 0.14, 0.3, WOOD)
+			circle(Vector2(0.5, 0.4), 0.34, LEAF)
 		"cone":
 			poly([Vector2(0.26, 0.6), Vector2(0.5, 0.08), Vector2(0.74, 0.6)], Color(0.45, 0.58, 0.8))
 			rect(0.32, 0.6, 0.36, 0.3, STONE)

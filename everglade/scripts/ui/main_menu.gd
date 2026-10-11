@@ -11,7 +11,7 @@ const TEMPLATES := [
 	{"id": "meadow", "label": "Meadow", "desc": "Soft rolling grass, a blank canvas.", "icon": "nature"},
 	{"id": "hills", "label": "Hills", "desc": "Hilly ground for terraces and stairs.", "icon": "terrain"},
 	{"id": "lake", "label": "Lakeside", "desc": "A pond waiting for bridges and ducks.", "icon": "water"},
-	{"id": "hamlet", "label": "Little Hamlet", "desc": "A finished village to explore and change.", "icon": "house"},
+	{"id": "hamlet", "label": "Windrise Town", "desc": "A finished fantasy town with windmills to explore.", "icon": "house"},
 ]
 
 var root: Control
