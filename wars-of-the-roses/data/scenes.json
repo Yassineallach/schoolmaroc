@@ -7,7 +7,8 @@
     "audio": "input/narration_main.wav",
     "narration_duration": 278.07,
     "duration": 282.5,
-    "note": "All cue times are seconds on the narration timeline, taken from word timestamps in transcript.json."
+    "note": "All cue times are seconds on the narration timeline, taken from word timestamps in transcript.json.",
+    "style": "Historical manuscript: aged parchment, iron-gall ink, vermilion rubric, gold leaf; engraved maps"
   },
   "chapters": [
     {
@@ -76,12 +77,12 @@
         "s01"
       ],
       "topic": "Hook: medieval England saw no ice creatures and no dragons",
-      "visual": "Ice & fire cold open: frost crystals creep in over a faint map of England; a frost creature with an ice crown opens burning blue eyes; a dragon sweeps in against a fire-lit sky and burns it away; both phrases are struck out in crimson",
+      "visual": "Manuscript page: an engraved map of England; in its margins a bestiary-style dragon (red wash, breathing flame) and an engraved frost king with an ice-horn crown and blue eyes; both are crossed out in red ink",
       "text": {
         "a": "لا كائنات جليدية",
         "b": "ولا تنانين"
       },
-      "animation": "frost dendrite growth, eye ignition, dragon flight with wing flaps and fire breath, rising embers, strike-through",
+      "animation": "map line-draw, illustrations inked top-to-bottom, eye colour, red-ink crosses",
       "transition": {
         "type": "fade-from-black",
         "dur": 0.8
@@ -107,7 +108,7 @@
         "s01"
       ],
       "topic": "A bloody struggle for power between two noble families over generations",
-      "visual": "Great hanging house banners unfurl (Lancaster crimson / red rose, York ivory / white rose) around a planted steel longsword; a row of figures whose colours flicker between houses on 'fickle loyalties'",
+      "visual": "Illustrated house banners (Lancaster crimson / red rose, York white / white rose) around an ink-drawn sword; a row of ink figures whose colour flickers between houses on 'fickle loyalties'",
       "text": {
         "a": "صراع دموي على السلطة",
         "b": "عائلتان نبيلتان",
@@ -115,7 +116,7 @@
         "york": "يورك",
         "c": "ولاءات متقلّبة"
       },
-      "animation": "banner unfurl with cloth wave, sword glint, word stagger, colour flicker",
+      "animation": "banner unfurl with cloth wave, word stagger, colour flicker",
       "transition": {
         "type": "dissolve",
         "dur": 0.6
@@ -147,14 +148,14 @@
         "s02"
       ],
       "topic": "The Wars of the Roses inspired much of the drama in Game of Thrones",
-      "visual": "Homage to the Game of Thrones opening titles: bronze clockwork map of Britain in perspective, towers rising on gears at York, Lancaster and London, turning gears and an astrolabe; metallic bronze title; a throne of swords rises for «صراع العروش»",
+      "visual": "Illuminated title page: gold and red border with a vine scroll of red and white roses, gold-leaf crown, rubricated title (حروب in ink, الوردتين in red), Latin subtitle, note on «صراع العروش»",
       "text": {
         "title": "حروب الوردتين",
         "latin": "THE WARS OF THE ROSES",
         "years": "1455 — 1487",
         "note": "الإلهام الواقعي لدراما «صراع العروش»"
       },
-      "animation": "perspective camera dolly, towers rising, astrolabe rotation, metallic glint, throne rise",
+      "animation": "border draws, roses bloom, word reveals",
       "transition": {
         "type": "dissolve",
         "dur": 0.8

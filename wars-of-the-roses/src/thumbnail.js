@@ -1,29 +1,16 @@
-/* YouTube thumbnail (1920x1080, exported as 1280x720): same design system as the film.
+/* YouTube thumbnail (1920x1080, exported as 1280x720) in the film's manuscript style.
    Rendered by: node scripts/render.mjs --thumbnail */
 (function () {
   const { W } = window;
   W.drawThumbnail = (ctx) => {
-    const t = 30;
-    W.background(ctx, t, { glow: '#2b1a15', glowA: 0.6 });
-    // crimson / ivory halves split by a blade of light
-    const gR = ctx.createLinearGradient(W.W / 2, 0, W.W, 0);
-    gR.addColorStop(0, W.rgba(W.C.crimson, 0.1)); gR.addColorStop(1, W.rgba(W.C.crimson, 0.55));
-    ctx.fillStyle = gR; ctx.fillRect(W.W / 2, 0, W.W / 2, W.H);
-    const gL = ctx.createLinearGradient(W.W / 2, 0, 0, 0);
-    gL.addColorStop(0, W.rgba(W.C.ivory, 0.02)); gL.addColorStop(1, W.rgba(W.C.ivory, 0.16));
-    ctx.fillStyle = gL; ctx.fillRect(0, 0, W.W / 2, W.H);
-    ctx.save();
-    ctx.strokeStyle = 'rgba(255,240,215,0.9)'; ctx.shadowColor = 'rgba(255,240,215,1)'; ctx.shadowBlur = 30; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(W.W / 2, 0); ctx.lineTo(W.W / 2, W.H); ctx.stroke();
-    ctx.restore();
-    W.rose(ctx, 1520, 400, 230, { kind: 'lancaster', spin: 0.2 });
-    W.rose(ctx, 400, 400, 230, { kind: 'york', spin: -0.2 });
-    // cracked crown at the centre
-    W.shatter(ctx, W.W / 2, 250, 190, 0.18, (lx, x, y) => W.crown(lx, x, y, 130, { color: W.C.gold, width: 5, fill: 0.3 }), 9);
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
-    ctx.fillRect(0, 640, W.W, 440);
-    W.text(ctx, 'حروب الوردتين', W.W / 2, 790, { size: 230, color: W.C.ivory, glow: 'rgba(0,0,0,0.9)', glowBlur: 30 });
-    W.text(ctx, 'الصراع الذي ألهم «صراع العروش»', W.W / 2, 960, { size: 64, fam: W.F.label, weight: 700, color: W.C.gold });
-    W.vignette(ctx, 0.7);
+    W.background(ctx, 0, {});
+    ctx.strokeStyle = W.C.gold; ctx.lineWidth = 8; ctx.strokeRect(60, 60, W.W - 120, W.H - 120);
+    ctx.strokeStyle = W.C.crimson; ctx.lineWidth = 3; ctx.strokeRect(84, 84, W.W - 168, W.H - 168);
+    W.rose(ctx, 380, 420, 230, { kind: 'york' });
+    W.rose(ctx, 1540, 420, 230, { kind: 'lancaster' });
+    W.crown(ctx, W.W / 2, 300, 120, { color: W.C.gold, width: 6, fill: 0.4 });
+    W.words(ctx, 'حروب الوردتين', W.W / 2, 690, 99, [0, 0], { size: 230, colors: [W.C.ivory, W.C.crimson] });
+    W.text(ctx, 'الصراع الذي ألهم «صراع العروش»', W.W / 2, 905, { size: 70, fam: W.F.title, weight: 700, color: W.C.ivory });
+    W.vignette(ctx, 0.8);
   };
 })();

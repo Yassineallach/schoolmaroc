@@ -1,8 +1,9 @@
 # حروب الوردتين — motion-graphics documentary
 
-A 4:42 Arabic documentary about the Wars of the Roses. Every frame is generated in code:
-vector maps, timelines, family trees, battle diagrams, heraldic symbols and kinetic Arabic
-typography drawn on an HTML Canvas. It uses no stock footage, photographs or AI images. The
+A 4:42 Arabic documentary about the Wars of the Roses, styled as a historical manuscript:
+aged parchment, iron-gall ink, red rubric and gold leaf. Every frame is generated in code:
+engraved maps, timelines, family trees, battle diagrams, bestiary illustrations, heraldic
+symbols and kinetic Arabic typography drawn on an HTML Canvas. It uses no stock footage, photographs or AI images. The
 narration is the supplied recording, used unedited as the master timeline.
 
 | | |
@@ -37,6 +38,7 @@ src/
   engine/         core.js (easing, timing, lines), background.js (atmosphere, frame, chapter cards)
   typography/     kinetic Arabic text: feathered RTL reveals, word stagger, rolling years
   components/     symbols.js (crown, roses, sword, shield, seal, castle, banner, sun…),
+                  bestiary.js (engraved dragon and frost king), got.js (banners, gears, misc.),
                   diagrams.js (family trees, formations, terrain, arrows)
   maps/           geo.js (simplified coastlines + places), map.js (projection, markers, routes)
   timelines/      timeline.js
@@ -125,7 +127,7 @@ formations. Where the narration simplifies, the graphics stay accurate without c
 #حروب_الوردتين #تاريخ #وثائقي #إنجلترا #صراع_العروش #تيودور
 
 **Thumbnail concept** (`output/thumbnail.png`)
-The frame splits down the middle along a blade of light: York's ivory rose on the left, Lancaster's
-crimson rose on the right. A gold crown, cracked into shards, sits on the dividing line. Below
-them is the title «حروب الوردتين» in large Amiri, with the kicker «الصراع الذي ألهم «صراع العروش»»
-in gold Kufi. Everything is drawn in the film's own symbol set.
+An illuminated parchment page: York's white rose on the left and Lancaster's red rose on the
+right, a gold-leaf crown between them, and the rubricated title «حروب الوردتين» (حروب in ink,
+الوردتين in red) above the kicker «الصراع الذي ألهم «صراع العروش»». Everything is drawn in the
+film's own manuscript style.
