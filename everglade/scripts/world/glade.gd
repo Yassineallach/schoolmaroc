@@ -403,7 +403,7 @@ func _rebuild_shore() -> void:
 		if mmi == null:
 			mmi = MultiMeshInstance3D.new()
 			mmi.name = pair[0]
-			mmi.material_override = ModelLib.props_material
+			mmi.material_override = ModelLib.grass_material
 			mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			add_child(mmi)
 		var mm := MultiMesh.new()

@@ -6,6 +6,7 @@ shader_type spatial;
 render_mode diffuse_lambert_wrap;
 
 #include "res://shaders/toon.gdshaderinc"
+#include "res://shaders/materials.gdshaderinc"
 
 global uniform float wind_strength;
 global uniform vec4 season_leaf : source_color;
@@ -14,10 +15,17 @@ global uniform float night;
 
 uniform float sway_scale = 1.0;
 uniform float pop = 1.0;   // grow-in animation for freshly placed props (0..1)
+uniform float detail_on = 1.0; // surface materials (off for tiny instanced grass)
 
 varying float v_channel;
 varying vec3 v_world_normal;
 varying float v_height;
+varying vec3 v_obj;
+varying vec3 v_objn;
+varying flat int v_layer;
+varying vec3 v_mv0;
+varying vec3 v_mv1;
+varying vec3 v_mv2;
 
 float hash12(vec2 p) {
 	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -28,6 +36,12 @@ float hash12(vec2 p) {
 void vertex() {
 	v_channel = COLOR.a;
 	v_height = VERTEX.y;
+	v_obj = VERTEX;
+	v_objn = NORMAL;
+	v_layer = int(clamp(floor(UV.x * 16.0), 0.0, 15.0));
+	v_mv0 = normalize(MODELVIEW_MATRIX[0].xyz);
+	v_mv1 = normalize(MODELVIEW_MATRIX[1].xyz);
+	v_mv2 = normalize(MODELVIEW_MATRIX[2].xyz);
 	vec3 world_origin = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
 	float sway_mask = 1.0 - step(0.75, COLOR.a);   // foliage & petals
 	float phase = hash12(world_origin.xz) * 6.2831;
@@ -59,7 +73,18 @@ void fragment() {
 	// snow on upward-facing surfaces
 	float up = smoothstep(0.35, 0.8, v_world_normal.y);
 	col = mix(col, vec3(0.94, 0.96, 1.0), up * snow_amount);
+	float rough = 0.9;
+	if (detail_on > 0.5) {
+		// textured surface material (stone, wood grain, bark, tiles...) with
+		// normal-mapped relief, triplanar in the prop's own space
+		vec3 on;
+		vec4 alb = mat_triplanar(v_obj * MAT_SCALE[v_layer], normalize(v_objn), float(v_layer), MAT_BUMP[v_layer], on);
+		col *= alb.rgb * 2.0;
+		rough = alb.a;
+		METALLIC = MAT_METAL[v_layer];
+		NORMAL = normalize(mat3(v_mv0, v_mv1, v_mv2) * on);
+	}
 	ALBEDO = col;
-	ROUGHNESS = 0.9;
+	ROUGHNESS = rough;
 	BACKLIGHT = vec3(0.18, 0.22, 0.08) * foliage;
 }

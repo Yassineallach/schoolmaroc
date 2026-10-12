@@ -129,6 +129,56 @@ def material(name, emissive=False):
     return mat
 
 
+# ---------------------------------------------------------------------------
+# Surface materials: every primitive carries a material slice index (see
+# tools/gen_materials.py) in UV.x, so the props shader can apply cut stone,
+# wood grain, bark, plaster, tiles, cloth, metal, moss or straw detail with
+# normal maps on top of the painted vertex colours.
+# ---------------------------------------------------------------------------
+M_PAINT, M_STONE, M_ROCK, M_WOOD, M_BARK, M_PLASTER, M_TILES, M_CLOTH = 0, 1, 2, 3, 4, 5, 6, 7
+M_METAL, M_MOSS, M_COBBLE, M_STRAW = 8, 9, 10, 11
+MAT_SLICES = 16.0
+STATE = {"auto": True, "bevel": True, "stone_as": None}
+
+
+def classify(color, alpha):
+    """Pick a surface material from the painted colour (palette first, then hue)."""
+    if not STATE["auto"]:
+        return M_PAINT
+    c = tuple(round(x, 3) for x in color[:3])
+    named = {
+        WOOD: M_WOOD, WOOD_DARK: M_WOOD, WOOD_LIGHT: M_WOOD,
+        BARK: M_BARK, BARK_DARK: M_BARK,
+        STONE: M_STONE, STONE_DARK: M_STONE, STONE_WARM: M_STONE,
+        IRON: M_METAL, GOLD: M_METAL,
+        HAY: M_STRAW, HAY_DARK: M_STRAW,
+        CLOTH_RED: M_CLOTH, CLOTH_BLUE: M_CLOTH, CLOTH_YELLOW: M_CLOTH, CLOTH_PINK: M_CLOTH,
+        WOOL: M_CLOTH, PAPER: M_CLOTH, WHITE: M_PLASTER,
+        MOSS: M_MOSS, LEAF: M_MOSS, LEAF_TOP: M_MOSS, LEAF_DARK: M_MOSS,
+        ROOF_SLATE: M_TILES, ROOF_RED: M_TILES, STONE_LIGHT: M_STONE, GOLD_DARK: M_METAL,
+        RUIN: M_STONE, RUIN_DARK: M_STONE,
+    }
+    named = {tuple(round(x, 3) for x in k): v for k, v in named.items()}
+    m = named.get(c)
+    if m is None:
+        if alpha < 0.4:
+            m = M_MOSS
+        else:
+            import colorsys
+            h, sat, v = colorsys.rgb_to_hsv(*c)
+            if sat < 0.13:
+                m = M_PLASTER if v > 0.9 else (M_METAL if v < 0.32 else M_STONE)
+            elif 0.03 < h < 0.12 and v < 0.72 and sat > 0.25:
+                m = M_WOOD
+            elif 0.1 < h < 0.17 and sat > 0.35 and v > 0.75:
+                m = M_STRAW if v < 0.97 else M_PAINT
+            else:
+                m = M_PAINT
+    if m == M_STONE and STATE["stone_as"] is not None:
+        m = STATE["stone_as"]
+    return m
+
+
 class Builder:
     """Accumulates coloured primitives into a single bmesh.
 
@@ -140,7 +190,7 @@ class Builder:
     def __init__(self):
         self.bm = bmesh.new()
         self.col = self.bm.loops.layers.color.new("Color")
-        self.uv = None
+        self.uv = self.bm.loops.layers.uv.new("UVMap")
         self.custom = {}
 
     def card(self, center, size, facing, roll, cell, color, alpha=FOLIAGE, normal=None, aspect=1.0):
@@ -170,7 +220,9 @@ class Builder:
             self.custom[vv] = n
         return face
 
-    def _finish(self, verts, color, alpha, matrix, jitter=0.0, smooth=True, grad=None, wgrad=None):
+    def _finish(self, verts, color, alpha, matrix, jitter=0.0, smooth=True, grad=None, wgrad=None, mat=None):
+        mid = classify(color, alpha) if mat is None else (mat if STATE["auto"] or mat != M_PAINT else M_PAINT)
+        muv = ((mid + 0.5) / MAT_SLICES, 0.5)
         verts = [v for v in verts if isinstance(v, bmesh.types.BMVert)]
         if jitter > 0.0:
             for v in verts:
@@ -200,26 +252,27 @@ class Builder:
                     c = lerp3(wgrad[1], wgrad[0], t)
                 k = rng.uniform(0.985, 1.015)
                 loop[self.col] = (min(c[0] * k, 1), min(c[1] * k, 1), min(c[2] * k, 1), alpha)
+                loop[self.uv].uv = muv
         return verts
 
-    def box(self, size, loc=(0, 0, 0), color=STONE, alpha=SOLID, rot=(0, 0, 0), smooth=False, jitter=0.0, grad=None, wgrad=None):
+    def box(self, size, loc=(0, 0, 0), color=STONE, alpha=SOLID, rot=(0, 0, 0), smooth=False, jitter=0.0, grad=None, wgrad=None, mat=None):
         ret = bmesh.ops.create_cube(self.bm, size=1.0)
-        return self._finish(ret["verts"], color, alpha, trs(loc, rot, size), jitter, smooth, grad, wgrad)
+        return self._finish(ret["verts"], color, alpha, trs(loc, rot, size), jitter, smooth, grad, wgrad, mat)
 
-    def cyl(self, r1, r2, depth, loc=(0, 0, 0), color=WOOD, alpha=SOLID, seg=8, rot=(0, 0, 0), smooth=True, jitter=0.0, grad=None, wgrad=None, scale=(1, 1, 1)):
+    def cyl(self, r1, r2, depth, loc=(0, 0, 0), color=WOOD, alpha=SOLID, seg=8, rot=(0, 0, 0), smooth=True, jitter=0.0, grad=None, wgrad=None, scale=(1, 1, 1), mat=None):
         ret = bmesh.ops.create_cone(self.bm, cap_ends=True, cap_tris=False, segments=seg,
                                     radius1=r1, radius2=r2, depth=depth)
         bmesh.ops.translate(self.bm, vec=(0, 0, depth * 0.5), verts=ret["verts"])
-        return self._finish(ret["verts"], color, alpha, trs(loc, rot, scale), jitter, smooth, grad, wgrad)
+        return self._finish(ret["verts"], color, alpha, trs(loc, rot, scale), jitter, smooth, grad, wgrad, mat)
 
-    def ball(self, radius, loc=(0, 0, 0), color=LEAF, alpha=SOLID, subdiv=2, scale=(1, 1, 1), rot=(0, 0, 0), jitter=0.0, smooth=True, grad=None, wgrad=None):
+    def ball(self, radius, loc=(0, 0, 0), color=LEAF, alpha=SOLID, subdiv=2, scale=(1, 1, 1), rot=(0, 0, 0), jitter=0.0, smooth=True, grad=None, wgrad=None, mat=None):
         ret = bmesh.ops.create_icosphere(self.bm, subdivisions=subdiv, radius=radius)
         if jitter:
             for v in ret["verts"]:
                 v.co *= 1.0 + rng.uniform(-jitter, jitter)
-        return self._finish(ret["verts"], color, alpha, trs(loc, rot, scale), 0.0, smooth, grad, wgrad)
+        return self._finish(ret["verts"], color, alpha, trs(loc, rot, scale), 0.0, smooth, grad, wgrad, mat)
 
-    def torus(self, major, minor, loc=(0, 0, 0), color=WOOD, alpha=SOLID, rot=(0, 0, 0), seg=16, ring=6):
+    def torus(self, major, minor, loc=(0, 0, 0), color=WOOD, alpha=SOLID, rot=(0, 0, 0), seg=16, ring=6, mat=None):
         verts = []
         rows = []
         for i in range(seg):
@@ -236,7 +289,7 @@ class Builder:
                 a, b = rows[i][j], rows[(i + 1) % seg][j]
                 c, d = rows[(i + 1) % seg][(j + 1) % ring], rows[i][(j + 1) % ring]
                 self.bm.faces.new((a, b, c, d))
-        return self._finish(verts, color, alpha, trs(loc, rot, (1, 1, 1)))
+        return self._finish(verts, color, alpha, trs(loc, rot, (1, 1, 1)), mat=mat)
 
     def to_object(self, name, parent=None, mat_name="VertexColor", emissive=False):
         mesh = bpy.data.meshes.new(name)
@@ -263,6 +316,14 @@ class Builder:
         mesh.materials.append(material(mat_name, emissive))
         obj = bpy.data.objects.new(name, mesh)
         bpy.context.scene.collection.objects.link(obj)
+        if STATE["bevel"] and normals is None and not emissive and mat_name == "VertexColor":
+            # chamfer hard edges so every block, beam and post catches a highlight
+            bev = obj.modifiers.new("Bevel", "BEVEL")
+            bev.width = 0.022
+            bev.segments = 2
+            bev.limit_method = "ANGLE"
+            bev.angle_limit = math.radians(35)
+            bev.use_clamp_overlap = True
         if parent is not None:
             obj.parent = parent
         return obj
@@ -1505,9 +1566,9 @@ def grass_tuft(seed):
 # ---------------------------------------------------------------------------
 # Ancient ruins (reference: meadow ruins with carved arch and rotunda)
 # ---------------------------------------------------------------------------
-RUIN = (0.80, 0.75, 0.64)
-RUIN_DARK = (0.50, 0.48, 0.44)
-RUIN_G = ((0.88, 0.83, 0.72), (0.54, 0.52, 0.48))
+RUIN = (0.90, 0.85, 0.74)
+RUIN_DARK = (0.62, 0.59, 0.54)
+RUIN_G = ((0.96, 0.91, 0.80), (0.66, 0.63, 0.57))
 
 
 def _blocks(b, x0, x1, z0, z1, y=0.0, depth=0.5, row=0.42, broken_top=None, seed=0):
@@ -2038,6 +2099,16 @@ def render_icon(path, size=512, transparent=False, ortho_scale=6.2):
     print("  rendered", path)
 
 
+CREATURES = {"sheep", "duck", "duckling", "chicken", "bird", "cat", "cat_black", "koi", "koi_white",
+             "butterfly", "crystalfly", "slime", "slime_blue"}
+NO_BEVEL = {"grass_tuft", "reeds", "lily_pad_a", "lily_pad_b", "cloud_a", "cloud_b", "flowers_pink", "flowers_white",
+            "flowers_blue", "flowers_yellow", "flowers_red", "flowers_lavender", "mushrooms", "windmill_sails"}
+# assets whose grey stone should read as natural rock / river cobbles
+ROCKY = {"rock_a": M_ROCK, "rock_b": M_ROCK, "rock_c": M_ROCK, "rock_big": M_ROCK, "karst_a": M_ROCK,
+         "karst_b": M_ROCK, "karst_c": M_ROCK, "cliff": M_ROCK, "stepping_stone": M_ROCK, "cobble_a": M_ROCK,
+         "cobble_b": M_ROCK, "ruin_slab": M_STONE}
+
+
 def main():
     argv = sys.argv
     args = argv[argv.index("--") + 1:] if "--" in argv else argv[1:]
@@ -2050,6 +2121,9 @@ def main():
         reset_scene()
         _materials.clear()
         rng.seed(zlib.crc32(name.encode()))
+        STATE["auto"] = name not in CREATURES
+        STATE["bevel"] = name not in NO_BEVEL and name not in CREATURES
+        STATE["stone_as"] = ROCKY.get(name)
         build()
         export(out_dir, name)
     if only is None or "icon" in only:

@@ -18,13 +18,13 @@ func setup(t: Terrain) -> void:
 		_flower_meshes.append(ModelLib.merged(k).solid)
 	for i in Terrain.CHUNKS * Terrain.CHUNKS:
 		var g := MultiMeshInstance3D.new()
-		g.material_override = ModelLib.props_material
+		g.material_override = ModelLib.grass_material
 		g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		g.visibility_range_end = 60.0
 		add_child(g)
 		_grass_mm.append(g)
 		var f := MultiMeshInstance3D.new()
-		f.material_override = ModelLib.props_material
+		f.material_override = ModelLib.grass_material
 		f.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(f)
 		_flower_mm.append(f)

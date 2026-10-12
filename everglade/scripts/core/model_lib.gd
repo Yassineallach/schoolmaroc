@@ -8,6 +8,9 @@ var props_material: ShaderMaterial
 var glow_material: ShaderMaterial
 var arch_material: ShaderMaterial
 var leaf_material: ShaderMaterial
+var grass_material: ShaderMaterial
+var surface_albedo: TextureLayered = load("res://assets/textures/mat_albedo.png")
+var surface_normal: TextureLayered = load("res://assets/textures/mat_normal.png")
 
 var _scenes: Dictionary = {}
 var _merged: Dictionary = {}
@@ -23,6 +26,16 @@ func _init() -> void:
 	leaf_material.set_shader_parameter("leaf_tex", load("res://assets/textures/leaves.png"))
 	arch_material = ShaderMaterial.new()
 	arch_material.shader = load("res://shaders/architecture.gdshader")
+	grass_material = props_material.duplicate() as ShaderMaterial
+	for m in [props_material, arch_material, grass_material]:
+		apply_surface_textures(m)
+	grass_material.set_shader_parameter("detail_on", 0.0)
+
+
+## Hooks a material up to the shared stone/wood/plaster/... texture arrays.
+func apply_surface_textures(m: ShaderMaterial) -> void:
+	m.set_shader_parameter("mat_albedo", surface_albedo)
+	m.set_shader_parameter("mat_normal", surface_normal)
 
 
 func has_model(kind: String) -> bool:

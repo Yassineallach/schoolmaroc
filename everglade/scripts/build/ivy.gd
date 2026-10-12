@@ -67,7 +67,7 @@ static func build(faces: Array, seed_value: int, density := 1.0) -> MultiMeshIns
 	var mmi := MultiMeshInstance3D.new()
 	mmi.name = "Ivy"
 	mmi.multimesh = mm
-	mmi.material_override = ModelLib.props_material
+	mmi.material_override = ModelLib.grass_material
 	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mm.visible_instance_count = 0
 	return mmi

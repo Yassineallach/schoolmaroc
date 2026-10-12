@@ -41,6 +41,7 @@ func _ready() -> void:
 	mask_tex = ImageTexture.create_from_image(mask_img)
 	height_img = Image.create(VERTS, VERTS, false, Image.FORMAT_RF)
 	height_tex = ImageTexture.create_from_image(height_img)
+	ModelLib.apply_surface_textures(material)
 	material.set_shader_parameter("mask_tex", mask_tex)
 	material.set_shader_parameter("terrain_origin", -HALF)
 	material.set_shader_parameter("terrain_size", HALF * 2.0)

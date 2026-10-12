@@ -75,6 +75,9 @@ GamingOnLinux patch coverage.
 | Props | Windmills (sails turn with the wind), tiered fountains, market stalls, flower carts, wind shrine with a floating crystal, iron street and plaza lamps, banners, signposts, notice boards, wine barrels, apple crates |
 | Nature | Painted top-lit canopies, a great oak, firs, birches, fruit bushes, cecilia, pinwheel and dandelion flowers |
 | Creatures | Bouncy slimes, glowing crystalflies at dusk, sheep, cats, ducks, chickens, sparrows, fish, butterflies, all with big glossy eyes |
+| Surface materials | 16 tileable materials made by `tools/gen_materials.py` (cut stone, rough rock, wood planks, bark, plaster, roof tiles, woven cloth, hammered metal, moss, cobbles, straw, meadow, dirt, flagstones, sand), each with detail albedo, normal map and roughness, packed in two texture arrays. Every Blender part carries its material id, so props get triplanar textures with normal-mapped relief; buildings and terrain use the same set |
+| Modelling detail | Every hard edge of every prop is bevelled (2 segments) so blocks, beams and posts catch highlights |
+| Lighting | Soft three-step cel bands, crisp shadow edges, roughness-driven highlights (sharp on metal and gold, broad on stone), rim light |
 | Painted foliage | Trees are built from hundreds of alpha-cut leaf cards (`tools/gen_textures.py` paints the leaf-cluster atlas) with spherical canopy normals, lit in three soft cel bands: bright sunlit crowns, deep cool undersides |
 | Meadow | Tall grass tufts tinted into golden drifts that match the painted ground; lavender and wildflower brushes |
 | Clouds | Hand-painted cumulus billboards (`clouds.png` atlas) in a low horizon bank and high puffs, tinted by the time of day |
@@ -123,6 +126,7 @@ everglade/
 ├── blender/build_assets.py  Blender script: models every prop + renders the icons
 ├── tools/gen_audio.py       synthesises all SFX, ambience and music
 ├── tools/gen_textures.py    paints the leaf-cluster, cloud and grass textures
+├── tools/gen_materials.py   generates the 16 surface materials (albedo/normal/roughness arrays)
 ├── tools/apksigner/         tiny apksigner stand-in (only for environments without the Android SDK)
 ├── tests/tour.gd            automated screenshot tour + 20 input-driven tool tests
 └── tests/showcase.gd        renders the three reference showcase glades
@@ -139,6 +143,7 @@ pip install numpy soundfile
 python tools/gen_audio.py assets/audio
 pip install pillow
 python tools/gen_textures.py assets/textures
+python tools/gen_materials.py assets/textures
 ```
 
 ### Android APK (local)
