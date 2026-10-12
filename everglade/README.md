@@ -79,7 +79,7 @@ GamingOnLinux patch coverage.
 | Modelling detail | Every hard edge of every prop is bevelled (2 segments) so blocks, beams and posts catch highlights |
 | Lighting | Soft three-step cel bands, crisp shadow edges, roughness-driven highlights (sharp on metal and gold, broad on stone), rim light |
 | Painted foliage | Trees are built from hundreds of alpha-cut leaf cards (`tools/gen_textures.py` paints the leaf-cluster atlas) with spherical canopy normals, lit in three soft cel bands: bright sunlit crowns, deep cool undersides |
-| Meadow | Tall grass tufts tinted into golden drifts that match the painted ground; lavender and wildflower brushes |
+| Meadow grass | A dense carpet of thin curved blades (`shaders/grass.gdshader`, procedural blade patches instanced per terrain chunk). Every blade takes its colour from the painted ground under its root, so the carpet melts into the terrain; dark roots, fresh green tips, rolling wind gusts that sweep across the meadow, sunlight glowing through the tips, a soft sheen, blades that thin up close and widen far away, mown short around houses and paths and shaggy in the wild golden drifts, and sheep, cats, chickens and slimes part the grass as they walk. Lavender and wildflower brushes on top |
 | Clouds | Hand-painted cumulus billboards (`clouds.png` atlas) in a low horizon bank and high puffs, tinted by the time of day |
 | Backdrops | Per-template scenery in the depth haze: karst peaks around the jade lake, grey cliffs behind the town, big trees on the surrounding hills |
 | Showcase glades | **Meadow Ruins** (carved arch, broken walls with pointed niches, pillars, fallen slabs, a broken-dome rotunda with glowing rings), **Town Plaza** (paved square, fountain, café tables, planters, stalls, ornate stone-pillar fence and gate, red-roofed timber houses with dormers, windmills with balconies and canvas sails, golden trees), **Jade Lake Village** (whitewashed houses with curved dark roofs and stepped horse-head gables, lattice windows, lantern doors, a flagstone causeway, bamboo rafts, tea terraces, blossom and ginkgo trees) |
@@ -176,6 +176,6 @@ three showcase glades from above and at eye level.
 ## 5. Performance notes (mobile)
 
 - Props are drawn through one MultiMesh per kind; each wall, building, fence and path is merged into 2–3 meshes.
-- Terrain is 64 chunks, and only edited chunks are rebuilt (a few per frame). Grass density follows the quality setting.
+- Terrain is 64 chunks, and only edited chunks are rebuilt (a few per frame). Grass is one MultiMesh of blade patches per chunk (1.2 / 2.2 / 3.4 patches per m² by quality, 36 blades each, 3 triangles per blade); blades sink into the ground beyond ~30 m where the matching terrain colour takes over.
 - Graphics presets *Battery / Balanced / Beautiful* change render scale (0.7/0.85/1.0), MSAA, shadows, grass density and depth of field.
 - Water and terrain shaders don't use screen or depth textures, so they work on the GL Compatibility renderer.

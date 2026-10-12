@@ -1,41 +1,74 @@
 class_name GrassField
 extends Node3D
-## Scatters swaying grass tufts and wild flowers over the meadow, avoiding
-## paths, water and building footprints. One MultiMesh per terrain chunk.
+## Lush meadow grass in the style of a hand-tended diorama: a dense carpet of
+## thin curved blades (procedural "patches" of blades instanced through one
+## MultiMesh per terrain chunk) plus taller wild tufts and dotted flowers.
+## Blades avoid paths, water and building footprints, grow shorter on
+## trodden ground and taller in the golden wild drifts. Colour, wind and
+## lighting live in shaders/grass.gdshader.
+
+const PATCH_BLADES := 36
+const PATCH_RADIUS := 0.5
+const TALL_BLADES := 16
+const MAX_PUSHERS := 8
 
 var terrain: Terrain
+var material: ShaderMaterial
 var _grass_mm: Array[MultiMeshInstance3D] = []
+var _tall_mm: Array[MultiMeshInstance3D] = []
 var _flower_mm: Array[MultiMeshInstance3D] = []
 var _dirty: Dictionary = {}
-var _grass_mesh: Mesh
+var _patch_mesh: ArrayMesh
+var _tall_mesh: ArrayMesh
 var _flower_meshes: Array[Mesh] = []
 
 
 func setup(t: Terrain) -> void:
 	terrain = t
-	_grass_mesh = ModelLib.merged("grass_tuft").solid
+	material = ShaderMaterial.new()
+	material.shader = load("res://shaders/grass.gdshader")
+	_patch_mesh = _make_patch(PATCH_BLADES, PATCH_RADIUS, Vector2(0.13, 0.28), 101)
+	_tall_mesh = _make_patch(TALL_BLADES, 0.22, Vector2(0.38, 0.7), 202)
 	for k in ["flowers_white", "flowers_yellow", "flowers_pink"]:
 		_flower_meshes.append(ModelLib.merged(k).solid)
 	for i in Terrain.CHUNKS * Terrain.CHUNKS:
-		var g := MultiMeshInstance3D.new()
-		g.material_override = ModelLib.grass_material
-		g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		g.visibility_range_end = 60.0
-		add_child(g)
+		var g := _new_mmi(material, 40.0)
 		_grass_mm.append(g)
-		var f := MultiMeshInstance3D.new()
-		f.material_override = ModelLib.grass_material
-		f.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		add_child(f)
+		_tall_mm.append(_new_mmi(material, 40.0))
+		var f := _new_mmi(ModelLib.grass_material, 0.0)
 		_flower_mm.append(f)
 	terrain.chunk_rebuilt.connect(func(cx, cz): _dirty[Vector2i(cx, cz)] = true)
 	Settings.changed.connect(refresh_all)
+
+
+func _new_mmi(mat: Material, range_end: float) -> MultiMeshInstance3D:
+	var m := MultiMeshInstance3D.new()
+	m.material_override = mat
+	m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	if range_end > 0.0:
+		m.visibility_range_end = range_end
+	add_child(m)
+	return m
 
 
 func refresh_all() -> void:
 	for cz in Terrain.CHUNKS:
 		for cx in Terrain.CHUNKS:
 			_dirty[Vector2i(cx, cz)] = true
+
+
+## World positions (xyz) and radii (w) of creatures that part the grass.
+func set_pushers(list: Array) -> void:
+	var arr: Array[Vector4] = []
+	for p in list:
+		if arr.size() >= MAX_PUSHERS:
+			break
+		arr.append(p)
+	var n := arr.size()
+	while arr.size() < MAX_PUSHERS:
+		arr.append(Vector4.ZERO)
+	material.set_shader_parameter("pushers", arr)
+	material.set_shader_parameter("pusher_count", n)
 
 
 func _process(_delta: float) -> void:
@@ -48,6 +81,68 @@ func _process(_delta: float) -> void:
 		budget -= 1
 
 
+## One clump of curved, tapered blades. Vertex COLOR carries per-blade data
+## for the shader: r = random, g = position along the blade (0 root, 1 tip).
+static func _make_patch(blades: int, radius: float, height: Vector2, seed_value: int) -> ArrayMesh:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	var verts := PackedVector3Array()
+	var norms := PackedVector3Array()
+	var cols := PackedColorArray()
+	var uvs := PackedVector2Array()
+	var uv2s := PackedVector2Array()
+	var idx := PackedInt32Array()
+	for b in blades:
+		var a := rng.randf() * TAU
+		# evenly spread (stratified rings) so overlapping patches form a carpet
+		var r := sqrt((b + rng.randf()) / blades) * radius
+		var root := Vector3(cos(a) * r, 0.0, sin(a) * r)
+		var face := rng.randf() * TAU
+		var side := Vector3(cos(face), 0.0, sin(face))
+		var lean_a := rng.randf() * TAU
+		var lean := Vector3(cos(lean_a), 0.0, sin(lean_a))
+		var h := rng.randf_range(height.x, height.y)
+		var lean_amt := rng.randf_range(0.15, 0.45) * h
+		var w0 := rng.randf_range(0.026, 0.042) * (1.0 + h * 0.5)
+		var rnd := rng.randf()
+		var n := side.cross(Vector3.UP).normalized() + Vector3.UP * 0.35
+		n = n.normalized()
+		var base := verts.size()
+		for t in [0.0, 0.55]:
+			var c: Vector3 = root + Vector3.UP * (h * t) + lean * (lean_amt * t * t)
+			var w: float = w0 * pow(1.0 - t, 0.6)
+			verts.append(c - side * w)
+			verts.append(c + side * w)
+			for k in 2:
+				norms.append(n)
+				cols.append(Color(rnd, t, h, 1.0))
+				# UV.x = signed half-width, UV2 = blade's side direction, so the
+				# shader can thin blades up close and widen them far away
+				uvs.append(Vector2(-w if k == 0 else w, t))
+				uv2s.append(Vector2(side.x, side.z))
+		verts.append(root + Vector3.UP * h + lean * lean_amt)
+		norms.append(n)
+		cols.append(Color(rnd, 1.0, h, 1.0))
+		uvs.append(Vector2(0.0, 1.0))
+		uv2s.append(Vector2(side.x, side.z))
+		# root pair 0/1, mid pair 2/3, tip 4
+		for tri in [[0, 1, 2], [1, 3, 2], [2, 3, 4]]:
+			for v in tri:
+				idx.append(base + v)
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = norms
+	arrays[Mesh.ARRAY_COLOR] = cols
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_TEX_UV2] = uv2s
+	arrays[Mesh.ARRAY_INDEX] = idx
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	mesh.custom_aabb = AABB(Vector3(-radius - 0.6, -0.2, -radius - 0.6), Vector3(radius * 2.0 + 1.2, height.y + 0.4, radius * 2.0 + 1.2))
+	return mesh
+
+
 func _build(cx: int, cz: int) -> void:
 	var size := Terrain.CHUNK_CELLS * Terrain.CELL
 	var x0 := -Terrain.HALF + cx * size
@@ -56,66 +151,54 @@ func _build(cx: int, cz: int) -> void:
 	rng.seed = hash(Vector2i(cx, cz))
 	var count := int(size * size * Settings.grass_density())
 	var grass_xf: Array[Transform3D] = []
-	var grass_col: PackedColorArray = []
-	var flower_xf: Array = [[], [], []]
+	var tall_xf: Array[Transform3D] = []
+	var flower_xf: Array[Transform3D] = []
 	for i in count:
 		var x := x0 + rng.randf() * size
 		var z := z0 + rng.randf() * size
 		var edge := maxf(absf(x), absf(z))
-		if edge > Terrain.PLAY_HALF + 6.0:
+		if edge > Terrain.PLAY_HALF + 4.0:
 			continue
 		var h := terrain.height_at(x, z)
 		if h < Terrain.WATER_LEVEL + 0.12:
 			continue
 		var m := terrain.mask_at(x, z)
-		if m.r > 0.25 or m.g > 0.25 or m.a > 0.25 or m.b > 0.55:
+		if m.r > 0.3 or m.g > 0.3 or m.a > 0.3 or m.b > 0.7:
 			continue
 		var n := terrain.normal_at(x, z)
-		if n.y < 0.7:
+		if n.y < 0.68:
 			continue
-		var s := rng.randf_range(0.7, 1.35) * (1.0 - m.b * 0.6)
-		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.9, 1.7), s))
-		var xf := Transform3D(basis, Vector3(x, h - 0.02, z))
-		if rng.randf() < 0.035:
-			flower_xf[rng.randi() % 3].append(xf.scaled_local(Vector3.ONE * 0.8))
-		else:
-			grass_xf.append(xf)
-			# same golden drifts as the terrain shader, plus per-tuft jitter
-			var gold := smoothstep(0.58, 0.7, _fbm(Vector2(x, z) * 0.09 + Vector2(11.0, 11.0)))
-			var c := Color(1, 1, 1).lerp(GOLD_TINT, gold * 0.85)
-			c = c * rng.randf_range(0.9, 1.08)
-			c.a = 1.0
-			grass_col.append(c)
+		var wild := smoothstep(0.58, 0.7, _fbm(Vector2(x, z) * 0.09 + Vector2(11.0, 11.0)))
+		# mown near buildings and path edges, shaggier in the wild drifts
+		var tall := (1.0 - m.b * 0.65) * (1.0 - maxf(m.r, maxf(m.g, m.a)) * 0.8) * (0.85 + wild * 0.5)
+		tall *= 0.8 + _noise(Vector2(x, z) * 0.6) * 0.45
+		var s := rng.randf_range(0.85, 1.2)
+		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * tall, s))
+		var xf := Transform3D(basis, Vector3(x, h - 0.03, z))
+		grass_xf.append(xf)
+		var r := rng.randf()
+		if r < 0.012:
+			flower_xf.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * 0.75), Vector3(x, h - 0.02, z)))
+		elif r < 0.02 + wild * 0.08 and m.b < 0.2:
+			tall_xf.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(1, rng.randf_range(0.8, 1.25), 1)), Vector3(x, h - 0.03, z)))
 	var idx := cz * Terrain.CHUNKS + cx
-	_grass_mm[idx].multimesh = _make_mm(_grass_mesh, grass_xf, grass_col)
-	# flowers: one chunk-level multimesh per colour would be 3x the nodes, so
-	# pick the colour by chunk hash and mix the rest into neighbouring chunks
-	var pick := (cx * 7 + cz * 3) % 3
-	var all: Array[Transform3D] = []
-	for a in flower_xf:
-		for t in a:
-			all.append(t)
-	_flower_mm[idx].multimesh = _make_mm(_flower_meshes[pick], all)
+	_grass_mm[idx].multimesh = _make_mm(_patch_mesh, grass_xf)
+	_tall_mm[idx].multimesh = _make_mm(_tall_mesh, tall_xf)
+	_flower_mm[idx].multimesh = _make_mm(_flower_meshes[(cx * 7 + cz * 3) % 3], flower_xf)
 
 
-func _make_mm(mesh: Mesh, xforms: Array[Transform3D], colors: PackedColorArray = PackedColorArray()) -> MultiMesh:
+func _make_mm(mesh: Mesh, xforms: Array[Transform3D]) -> MultiMesh:
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.use_colors = not colors.is_empty()
 	mm.mesh = mesh
 	mm.instance_count = xforms.size()
 	for i in xforms.size():
 		mm.set_instance_transform(i, xforms[i])
-		if mm.use_colors:
-			mm.set_instance_color(i, colors[i])
 	return mm
 
 
-# GDScript twin of the terrain shader's value noise so grass tints line up
-# with the golden patches painted on the ground.
-const GOLD_TINT := Color(1.45, 1.12, 0.62)
-
-
+# GDScript twin of the meadow shader's value noise so grass height follows
+# the golden wild drifts painted on the ground.
 static func _hash12(p: Vector2) -> float:
 	var p3 := Vector3(p.x, p.y, p.x) * 0.1031
 	p3 = Vector3(p3.x - floorf(p3.x), p3.y - floorf(p3.y), p3.z - floorf(p3.z))

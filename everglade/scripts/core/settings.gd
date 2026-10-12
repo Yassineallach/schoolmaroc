@@ -96,7 +96,7 @@ func mark_tip(key: String) -> void:
 
 ## Grass instances per square metre for the current quality level.
 func grass_density() -> float:
-	return [0.6, 1.3, 2.2][quality]
+	return [1.2, 2.2, 3.4][quality]
 
 
 func shadows_enabled() -> bool:

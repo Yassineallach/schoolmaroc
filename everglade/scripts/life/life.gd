@@ -39,6 +39,7 @@ func clear() -> void:
 func _process(delta: float) -> void:
 	if not enabled:
 		return
+	_update_grass_pushers()
 	if _rebalance_in > 0.0:
 		_rebalance_in -= delta
 		if _rebalance_in <= 0.0:
@@ -188,3 +189,16 @@ func pick(origin: Vector3, dir: Vector3) -> Creature:
 				best_t = t
 				best = c
 	return best
+
+
+## Sheep, chickens, cats and slimes part the meadow grass as they walk.
+func _update_grass_pushers() -> void:
+	if glade == null or glade.grass == null:
+		return
+	var list: Array = []
+	for group in [[sheep, 0.75], [slimes, 0.6], [cats, 0.45], [chickens, 0.4]]:
+		for c in group[0]:
+			if is_instance_valid(c) and c.is_inside_tree():
+				var p: Vector3 = c.global_position
+				list.append(Vector4(p.x, p.y, p.z, group[1]))
+	glade.grass.set_pushers(list)
