@@ -26,6 +26,7 @@ var _touches: Dictionary = {} # index -> position
 var _ignored: Dictionary = {} # touches that started on UI
 var _press_pos := Vector2.ZERO
 var _press_time := 0.0
+var _press_frame := 0
 var _gesture := "" # "", "tool", "pan", "orbit", "multi"
 var _moved := false
 var _multi_prev: Dictionary = {}
@@ -584,6 +585,7 @@ func _on_touch(e: InputEventScreenTouch) -> void:
 		if _touches.size() == 1:
 			_press_pos = e.position
 			_press_time = Time.get_ticks_msec() / 1000.0
+			_press_frame = Engine.get_process_frames()
 			_moved = false
 			_gesture = ""
 			if mode == Mode.BUILD and tool and tool.press(e.position):
@@ -610,7 +612,10 @@ func _on_touch(e: InputEventScreenTouch) -> void:
 			var held := Time.get_ticks_msec() / 1000.0 - _press_time
 			# a still finger is a tap; drawing tools need it to be quick so
 			# a long press that never moved does not lose a stroke
-			var is_tap := not _moved and (held < TAP_TIME or (_gesture != "tool" and held < 1.0))
+			# a release within a couple of frames is always a tap, even when a
+			# slow device stretches those frames past TAP_TIME
+			var quick := Engine.get_process_frames() - _press_frame <= 2
+			var is_tap := not _moved and (held < TAP_TIME or quick or (_gesture != "tool" and held < 1.0))
 			if _gesture == "tool":
 				if is_tap:
 					tool.cancel()
