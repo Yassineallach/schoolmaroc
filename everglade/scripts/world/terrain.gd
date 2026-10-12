@@ -84,8 +84,12 @@ func generate(template: String, seed_value: int) -> void:
 			relief = 2.2
 		"lake":
 			relief = 0.5
-		"empty":
+		"empty", "town":
 			relief = 0.25
+		"ruins":
+			relief = 0.9
+		"village":
+			relief = 0.45
 	for z in VERTS:
 		for x in VERTS:
 			var wx := -HALF + x * CELL
@@ -96,8 +100,12 @@ func generate(template: String, seed_value: int) -> void:
 			if template == "lake":
 				var d := Vector2(wx + 4.0, wz - 2.0).length() + noise.get_noise_2d(wx * 2.0, wz * 2.0) * 2.5
 				h -= (1.0 - smoothstep(4.0, 8.5, d)) * 1.6
+			if template == "village":
+				# a broad jade lake across the south of the glade
+				var dv := Vector2((wx - 1.0) * 0.62, wz - 8.5).length() + noise.get_noise_2d(wx * 1.5, wz * 1.5) * 2.0
+				h -= (1.0 - smoothstep(6.0, 10.5, dv)) * 1.8
 			h = maxf(h, MIN_H)
-			if template != "lake":
+			if template != "lake" and template != "village":
 				h = maxf(h, WATER_LEVEL + 0.3)
 			# wild rolling hills around the glade
 			var edge := maxf(absf(wx), absf(wz))

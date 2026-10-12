@@ -231,25 +231,33 @@ func _build_clouds() -> void:
 	clouds.name = "Clouds"
 	add_child(clouds)
 	cloud_mat = ShaderMaterial.new()
-	cloud_mat.shader = load("res://shaders/cloud.gdshader")
+	cloud_mat.shader = load("res://shaders/cloud_card.gdshader")
+	cloud_mat.set_shader_parameter("cloud_tex", load("res://assets/textures/clouds.png"))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 99
-	for kind in ["cloud_a", "cloud_b"]:
-		var mm := MultiMesh.new()
-		mm.transform_format = MultiMesh.TRANSFORM_3D
-		mm.mesh = ModelLib.merged(kind).solid
-		mm.instance_count = 9
-		for i in mm.instance_count:
-			var a := rng.randf() * TAU
-			var r := rng.randf_range(110.0, 170.0)
-			var s := rng.randf_range(3.5, 7.0)
-			var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.8, 1.1), s))
-			mm.set_instance_transform(i, Transform3D(basis, Vector3(cos(a) * r, rng.randf_range(18.0, 50.0), sin(a) * r)))
-		var mmi := MultiMeshInstance3D.new()
-		mmi.multimesh = mm
-		mmi.material_override = cloud_mat
-		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		clouds.add_child(mmi)
+	var quad := QuadMesh.new()
+	quad.size = Vector2(1.0, 0.62)
+	quad.center_offset = Vector3(0.0, 0.31, 0.0)
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_custom_data = true
+	mm.mesh = quad
+	mm.instance_count = 26
+	for i in mm.instance_count:
+		var a := rng.randf() * TAU
+		var low := i < 12
+		# a low bank of big cumulus near the horizon plus higher scattered puffs
+		var r := rng.randf_range(120.0, 165.0) if low else rng.randf_range(95.0, 150.0)
+		var y := rng.randf_range(4.0, 16.0) if low else rng.randf_range(26.0, 60.0)
+		var s := rng.randf_range(55.0, 85.0) if low else rng.randf_range(28.0, 48.0)
+		mm.set_instance_transform(i, Transform3D(Basis.from_scale(Vector3(s, s, s)), Vector3(cos(a) * r, y, sin(a) * r)))
+		mm.set_instance_custom_data(i, Color(float(i % 2), float((i / 2) % 2), 0.0, 0.0))
+	var mmi := MultiMeshInstance3D.new()
+	mmi.multimesh = mm
+	mmi.material_override = cloud_mat
+	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mmi.extra_cull_margin = 200.0
+	clouds.add_child(mmi)
 
 
 func _make_particles(col: Color, amount: int, dir: Vector3, size: float, round_flake: bool) -> CPUParticles3D:

@@ -26,7 +26,13 @@ func hint() -> String:
 
 func press(screen: Vector2) -> bool:
 	var g = ground(screen)
-	if g == null or glade.is_blocked(Vector2(g.x, g.z)):
+	if g == null:
+		return false
+	var floats: bool = Catalog.DECOR[options.kind].get("float", false)
+	if floats:
+		# rafts and boats sit on the water (or wherever the shore is)
+		g.y = maxf(g.y, Terrain.WATER_LEVEL - 0.04)
+	elif glade.is_blocked(Vector2(g.x, g.z)):
 		return false
 	glade.begin_change()
 	anchor = Vector2(g.x, g.z)

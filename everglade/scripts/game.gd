@@ -74,6 +74,8 @@ func _ready() -> void:
 			add_child(tour)
 		if a.begins_with("--closeup=") and ResourceLoader.exists("res://tests/closeup.gd"):
 			add_child(load("res://tests/closeup.gd").new())
+		if a.begins_with("--showcase=") and ResourceLoader.exists("res://tests/showcase.gd"):
+			add_child(load("res://tests/showcase.gd").new())
 
 
 func _make_tools() -> void:
@@ -247,7 +249,7 @@ func _inspector_defs(f: Dictionary) -> Array:
 				roofs.append({"id": r, "label": Catalog.ROOF_LABELS[r], "icon": r})
 			var styles: Array = []
 			for s in Catalog.STYLES:
-				if round_b and s == "timber":
+				if round_b and (s == "timber" or s == "lakeside"):
 					continue
 				styles.append({"id": s, "label": s.capitalize(), "icon": s})
 			var size_actions: Array = [
@@ -284,6 +286,8 @@ func _inspector_defs(f: Dictionary) -> Array:
 		"fences":
 			return [
 				{"type": "title", "text": "Fence"},
+				{"type": "choice", "key": "style", "items": [
+					{"id": "wood", "label": "Rustic", "icon": "fence"}, {"id": "ornate", "label": "Ornate", "icon": "fence_ornate"}]},
 				{"type": "actions", "items": [{"id": "delete", "icon": "trash", "label": "Remove"}]},
 				{"type": "label", "text": "Paths crossing a fence get a little gate."},
 			]
@@ -292,7 +296,7 @@ func _inspector_defs(f: Dictionary) -> Array:
 				{"type": "title", "text": "Path"},
 				{"type": "choice", "key": "style", "items": [
 					{"id": "dirt", "label": "Dirt", "icon": "path"}, {"id": "cobble", "label": "Cobbles", "icon": "cobble"},
-					{"id": "stones", "label": "Stepping", "icon": "stones"}]},
+					{"id": "paved", "label": "Paved", "icon": "paved"}, {"id": "stones", "label": "Stepping", "icon": "stones"}]},
 				{"type": "slider", "key": "w", "label": "Width", "min": 0.8, "max": 3.2, "step": 0.1},
 				{"type": "actions", "items": [{"id": "delete", "icon": "trash", "label": "Remove"}]},
 			]

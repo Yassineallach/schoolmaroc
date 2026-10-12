@@ -1292,32 +1292,58 @@ def market_stall():
 
 
 def windmill():
-    """Village windmill: stone tower, teal cap and slowly turning sails ("Sails")."""
+    """Town windmill: stone base, timbered white upper storey ringed by a
+    wooden balcony, a red conical cap and big canvas sails ("Sails")."""
     root = empty("Windmill")
     b = Builder()
     g = (STONE_LIGHT, STONE_DARK)
-    b.cyl(1.4, 1.0, 4.6, color=STONE_WARM, seg=16, grad=g)
-    b.cyl(1.5, 1.5, 0.3, color=STONE_DARK, seg=16)
-    for z in (1.6, 3.2):
-        b.torus(1.25 - z * 0.08, 0.06, loc=(0, 0, z), color=WOOD_DARK, seg=20, ring=4)
-    b.cyl(1.25, 0.1, 1.5, loc=(0, 0, 4.6), color=TEAL, seg=16, grad=(TEAL_LIGHT, TEAL_DARK))
-    b.ball(0.12, loc=(0, 0, 6.15), color=GOLD, subdiv=1)
-    b.box((0.7, 0.1, 1.1), loc=(0, -1.25, 0.6), color=WOOD)
-    b.box((0.45, 0.08, 0.6), loc=(0, -1.12, 2.6), color=(0.98, 0.9, 0.66))
-    b.cyl(0.18, 0.18, 0.9, loc=(0, -0.9, 4.8), rot=(math.pi / 2, 0, 0), color=WOOD_DARK, seg=8)
+    plaster = (0.97, 0.95, 0.89)
+    b.cyl(1.55, 1.2, 3.2, color=STONE_WARM, seg=18, grad=g)
+    b.cyl(1.65, 1.65, 0.3, color=STONE_DARK, seg=18)
+    b.cyl(1.2, 0.98, 2.5, loc=(0, 0, 3.2), color=plaster, seg=18, grad=(WHITE, (0.86, 0.84, 0.80)))
+    for k in range(8):
+        a = k / 8 * math.tau
+        b.box((0.1, 0.1, 2.5), loc=(math.cos(a) * 1.1, math.sin(a) * 1.1, 4.45), rot=(0, 0.08, a), color=WOOD_DARK)
+    b.torus(1.05, 0.06, loc=(0, 0, 5.1), color=WOOD_DARK, seg=20, ring=4)
+    # balcony deck on carved brackets with a turned railing
+    b.cyl(1.85, 1.85, 0.14, loc=(0, 0, 3.2), color=WOOD, seg=24, grad=(WOOD_LIGHT, WOOD_DARK))
+    for k in range(10):
+        a = k / 10 * math.tau
+        b.box((0.5, 0.1, 0.1), loc=(math.cos(a) * 1.45, math.sin(a) * 1.45, 3.0), rot=(0, -0.6, a), color=WOOD_DARK)
+    for k in range(28):
+        a = k / 28 * math.tau
+        b.box((0.05, 0.05, 0.62), loc=(math.cos(a) * 1.76, math.sin(a) * 1.76, 3.58), color=WOOD_DARK)
+    b.torus(1.76, 0.05, loc=(0, 0, 3.9), color=WOOD, seg=28, ring=4)
+    # red cap with a gold finial
+    b.cyl(1.4, 0.12, 1.9, loc=(0, 0, 5.65), color=ROOF_RED, seg=18, grad=((0.94, 0.52, 0.36), (0.60, 0.24, 0.18)))
+    b.cyl(1.42, 1.42, 0.1, loc=(0, 0, 5.62), color=(0.50, 0.20, 0.15), seg=18)
+    b.ball(0.13, loc=(0, 0, 7.62), color=GOLD, subdiv=1)
+    # door, windows and the balcony door
+    b.box((0.8, 0.12, 1.3), loc=(0, -1.38, 0.75), color=WOOD, grad=(WOOD_LIGHT, WOOD_DARK))
+    b.box((0.9, 0.1, 0.08), loc=(0, -1.4, 1.42), color=STONE_DARK)
+    b.box((0.42, 0.08, 0.55), loc=(0.8, -1.14, 2.2), color=(0.98, 0.9, 0.66))
+    b.box((0.55, 0.1, 0.95), loc=(0, -1.06, 3.75), color=WOOD_DARK)
+    b.box((0.4, 0.06, 0.45), loc=(-0.55, -0.92, 4.7), color=(0.98, 0.9, 0.66))
+    b.cyl(0.18, 0.18, 0.8, loc=(0, -1.2, 5.9), rot=(math.pi / 2, 0, 0), color=WOOD_DARK, seg=8)
     b.to_object("Tower", root)
-    p = empty("Sails", (0, -1.85, 4.8), root)
+    p = empty("Sails", (0, -1.6, 5.9), root)
     s = Builder()
-    s.ball(0.25, color=WOOD_DARK, subdiv=1)
+    s.ball(0.26, color=WOOD_DARK, subdiv=1)
+    canvas = (0.97, 0.94, 0.86)
     for i in range(4):
-        a = i / 4 * math.tau
+        a = i / 4 * math.tau + math.pi / 4
         ca, sa = math.cos(a), math.sin(a)
-        s.box((0.1, 0.08, 3.2), loc=(ca * 1.6, 0, sa * 1.6), rot=(0, -a + math.pi / 2, 0), color=WOOD_DARK)
-        for k in range(4):
-            r = 0.9 + k * 0.62
-            off = 0.32
-            s.box((0.55, 0.03, 0.55), loc=(ca * r - sa * off, -0.04, sa * r + ca * off), rot=(0, -a + math.pi / 2, 0),
-                  color=WHITE if k % 2 == 0 else (0.94, 0.92, 0.86), alpha=PETAL)
+        rot = (0, -a + math.pi / 2, 0)
+        s.box((0.12, 0.1, 4.0), loc=(ca * 2.05, 0, sa * 2.05), rot=rot, color=WOOD_DARK)
+        # lattice ribs across the sail frame
+        for k in range(6):
+            r = 0.75 + k * 0.62
+            s.box((0.06, 0.06, 1.05), loc=(ca * r - sa * 0.45, -0.02, sa * r + ca * 0.45), rot=(0, -a, 0), color=WOOD)
+        for off in (0.05, 0.92):
+            s.box((0.05, 0.05, 3.3), loc=(ca * 2.3 - sa * off, -0.02, sa * 2.3 + ca * off), rot=rot, color=WOOD)
+        # billowing canvas panel
+        s.box((0.84, 0.02, 3.1), loc=(ca * 2.3 - sa * 0.48, -0.07, sa * 2.3 + ca * 0.48), rot=rot, color=canvas, alpha=PETAL,
+              grad=(WHITE, (0.86, 0.82, 0.72)))
     s.to_object("SailsMesh", p)
 
 
@@ -1479,9 +1505,9 @@ def grass_tuft(seed):
 # ---------------------------------------------------------------------------
 # Ancient ruins (reference: meadow ruins with carved arch and rotunda)
 # ---------------------------------------------------------------------------
-RUIN = (0.84, 0.82, 0.74)
-RUIN_DARK = (0.56, 0.56, 0.54)
-RUIN_G = ((0.92, 0.90, 0.82), (0.58, 0.58, 0.58))
+RUIN = (0.80, 0.75, 0.64)
+RUIN_DARK = (0.50, 0.48, 0.44)
+RUIN_G = ((0.88, 0.83, 0.72), (0.54, 0.52, 0.48))
 
 
 def _blocks(b, x0, x1, z0, z1, y=0.0, depth=0.5, row=0.42, broken_top=None, seed=0):

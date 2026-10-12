@@ -13,8 +13,10 @@ uniform float terrain_origin = -32.0;
 uniform float terrain_size = 64.0;
 uniform float water_level = -0.35;
 uniform float play_half = 22.0;
-uniform vec4 grass_a : source_color = vec4(0.40, 0.74, 0.30, 1.0);
-uniform vec4 grass_b : source_color = vec4(0.58, 0.84, 0.36, 1.0);
+uniform vec4 grass_a : source_color = vec4(0.33, 0.58, 0.22, 1.0);
+uniform vec4 grass_b : source_color = vec4(0.55, 0.72, 0.26, 1.0);
+uniform vec4 grass_gold : source_color = vec4(0.70, 0.70, 0.30, 1.0);
+uniform vec4 paving : source_color = vec4(0.80, 0.77, 0.70, 1.0);
 uniform vec4 dirt : source_color = vec4(0.86, 0.72, 0.52, 1.0);
 uniform vec4 cobble : source_color = vec4(0.82, 0.80, 0.76, 1.0);
 uniform vec4 sand : source_color = vec4(0.94, 0.88, 0.68, 1.0);
@@ -84,6 +86,9 @@ void fragment() {
 	float n = fbm(xz * 0.35);
 	float fine = noise(xz * 4.0);
 	vec3 g = mix(grass_a.rgb, grass_b.rgb, smoothstep(0.42, 0.5, n) * 0.6 + smoothstep(0.6, 0.66, n) * 0.4);
+	// sun-bleached golden drifts through the meadow
+	float gold = smoothstep(0.58, 0.7, fbm(xz * 0.09 + 11.0));
+	g = mix(g, grass_gold.rgb, gold * 0.6);
 	g *= 0.96 + step(0.72, fine) * 0.06;
 	g *= season_ground.rgb;
 	// darker in hollows, sunnier on crests
@@ -102,6 +107,17 @@ void fragment() {
 	vec3 ccol = cobble.rgb * (0.82 + vor.y * 0.3);
 	ccol = mix(dirt.rgb * 0.7, ccol, smoothstep(0.03, 0.12, vor.x));
 	col = mix(col, ccol, cp);
+	// square flagstone paving (plazas, causeways)
+	float pp = smoothstep(0.35, 0.6, m.a + edge_n * 0.4);
+	vec2 fq = xz * 1.6;
+	fq.x += step(1.0, mod(floor(fq.y), 2.0)) * 0.5;
+	vec2 cell = floor(fq);
+	vec2 fr = fract(fq);
+	float joint = min(min(fr.x, 1.0 - fr.x), min(fr.y, 1.0 - fr.y));
+	vec3 pcol = paving.rgb * (0.84 + hash12(cell) * 0.24);
+	pcol *= mix(0.92, 1.04, noise(xz * 6.0));
+	pcol = mix(paving.rgb * 0.58, pcol, smoothstep(0.02, 0.07, joint));
+	col = mix(col, pcol, pp);
 	// sandy pond banks & wet underwater ground
 	float bank = 1.0 - smoothstep(water_level + 0.05, water_level + 0.45 + n * 0.2, v_world.y);
 	col = mix(col, sand.rgb * (0.9 + fine * 0.15), bank * 0.85);
@@ -115,7 +131,7 @@ void fragment() {
 	col *= mix(1.0, 0.82, smoothstep(play_half, play_half + 8.0, edge));
 	// snow blanket
 	float snow = snow_amount * smoothstep(0.4, 0.75, v_wnormal.y) * (1.0 - wet);
-	snow *= mix(1.0, 0.75, dp * 0.6 + cp * 0.6);
+	snow *= mix(1.0, 0.75, dp * 0.6 + cp * 0.6 + pp * 0.6);
 	col = mix(col, vec3(0.93, 0.95, 1.0) * (0.95 + fine * 0.05), snow);
 	ALBEDO = col;
 	ROUGHNESS = 0.95;

@@ -23,6 +23,7 @@ func option_defs() -> Array:
 			{"id": "tower", "label": "Tower", "icon": "tower"}]},
 		{"type": "choice", "key": "style", "items": [
 			{"id": "windrise", "label": "Windrise", "icon": "windrise"},
+			{"id": "lakeside", "label": "Lakeside", "icon": "lakeside"},
 			{"id": "plaster", "label": "Plaster", "icon": "plaster"},
 			{"id": "timber", "label": "Timber", "icon": "timber"},
 			{"id": "stone", "label": "Stone", "icon": "stone"}]},
@@ -81,12 +82,18 @@ func make_data(a: Vector3, b: Vector3) -> Dictionary:
 		"wall_col": Catalog.WALL_COLORS[0] if options.style == "windrise" else Catalog.WALL_COLORS[(int(options.roof_color) + 1) % Catalog.WALL_COLORS.size()],
 		"pitch": 1.2, "ivy": 0.0, "id": 0, "chimney": BuildingView.NO_CHIMNEY,
 	}
+	if options.style == "lakeside":
+		# whitewash under dark tiles unless another roof colour was picked
+		d.wall_col = Catalog.WALL_COLORS[0]
+		if int(options.roof_color) == 0:
+			d.roof_col = Catalog.ROOF_COLORS[5]
+		d.pitch = 0.9
 	if options.shape == "tower":
 		d.shape = "round"
 		d.c = a2
 		d.r = clampf(ab.length(), 1.3, 4.5) if ab.length() > 0.6 else 2.0
 		d.roof = "cone"
-		d.style = "stone" if options.style == "timber" else options.style
+		d.style = "stone" if options.style == "timber" else ("plaster" if options.style == "lakeside" else options.style)
 		d.floors = maxi(int(options.floors), 2)
 		d.rot = 0.0
 		return d
@@ -101,7 +108,7 @@ func make_data(a: Vector3, b: Vector3) -> Dictionary:
 		d.size = Vector2(length, clampf(length * 0.62, 3.2, 6.5))
 		d.rot = atan2(ab.y, ab.x)
 		d.c = a2 + ab.normalized() * length * 0.5
-	if int(options.floors) >= 1 and d.size.x > 4.5:
+	if int(options.floors) >= 1 and d.size.x > 4.5 and options.style != "lakeside":
 		d.chimney = 0.3
 	return d
 

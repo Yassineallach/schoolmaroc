@@ -152,6 +152,10 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 			roof_h = W * 0.5 * 0.95 * pitch
 			_hip_roof(mb, L, W, roof_h, roof_col)
 			perches.append(Vector3(0, eave + roof_h + 0.1, 0))
+		_ when style == "lakeside":
+			roof_h = W * 0.5 * 0.8 * pitch
+			_lakeside_roof(mb, L, W, roof_h, roof_col, wcol)
+			perches.append(Vector3(0, eave + roof_h + 0.2, 0))
 
 		_:
 			roof_h = W * 0.5 * 1.05 * pitch
@@ -165,18 +169,21 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 		_timber(mb, corners, floors, d, auto_doors)
 	elif style == "plaster":
 		_quoins(mb, corners, Color(0.80, 0.77, 0.72, 1.0))
+	elif style == "lakeside":
+		_lakeside(mb, corners, floors)
 	# floor band between storeys
-	if floors > 1 and style != "timber" and style != "windrise":
+	if floors > 1 and style != "timber" and style != "windrise" and style != "lakeside":
 		for f in range(1, floors):
 			var y := PL + f * FH
 			_band(mb, corners, y, 0.14, 0.05, Color(wall_col.r * 0.9, wall_col.g * 0.88, wall_col.b * 0.85, 1.0))
 	# openings
 	var doors_done: Array = []
 	for door in auto_doors:
-		_place_rect_door(deco, corners, door.side, door.u)
+		_place_rect_door(deco, corners, door.side, door.u, style)
 		doors_done.append(door)
-	var shutters := rng.randf() < 0.55 and style != "stone"
-	var boxes := rng.randf() < 0.6
+	var lake := style == "lakeside"
+	var shutters := rng.randf() < 0.55 and style != "stone" and not lake
+	var boxes := rng.randf() < 0.6 and not lake
 	for w in d.get("windows", []):
 		var side: int = w.side
 		var u: float = w.u
@@ -192,9 +199,9 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 			continue
 		match kind:
 			"door":
-				_place_rect_door(deco, corners, side, u)
+				_place_rect_door(deco, corners, side, u, style)
 			"dormer":
-				if roof == "gable" or roof == "hip":
+				if (roof == "gable" or roof == "hip") and not lake:
 					_place_dormer(deco, L, W, side, u)
 			_:
 				var a: Vector3 = corners[side]
@@ -202,7 +209,7 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 				var n := _side_normal(corners, side)
 				var p := a.lerp(b, u) + Vector3.UP * (PL + f * FH + 1.35)
 				var xf := Transform3D(DecoMerge.facing(n), p)
-				deco.add("window_frame", xf)
+				deco.add("window_lattice" if lake else "window_frame", xf)
 				if shutters:
 					deco.add("shutters", xf)
 				if boxes and f == 0:
@@ -633,6 +640,101 @@ func _windrise(mb: MeshBuilder, corners: Array, floors: int, d: Dictionary, door
 			mb.box(Transform3D(DecoMerge.facing(n2) * Basis(Vector3.RIGHT, -0.5), p2), Vector3(0.1, 0.1, 0.42), beam)
 
 
+## Lake-village style: whitewashed walls over a dark stone skirting, a timber
+## band under the eaves and slim dark posts at the corners.
+func _lakeside(mb: MeshBuilder, corners: Array, _floors: int) -> void:
+	var skirt := Color(0.46, 0.47, 0.50, 0.25)
+	var wood := Color(0.24, 0.17, 0.13, 0.5)
+	var grown: Array = []
+	for c in corners:
+		var v: Vector3 = c
+		grown.append(v + Vector3(signf(v.x), 0, signf(v.z)) * 0.05)
+	_ring_walls(mb, grown, PL, PL + 0.75, skirt)
+	_band(mb, corners, PL + 0.78, 0.08, 0.07, Color(0.36, 0.37, 0.40, 1.0))
+	_band(mb, corners, eave - 0.22, 0.32, 0.06, wood)
+	for c in corners:
+		var v2: Vector3 = c
+		mb.box(Transform3D(Basis.IDENTITY, v2 + Vector3(0, (PL + 0.75 + eave) * 0.5, 0)), Vector3(0.2, eave - PL - 0.75, 0.2), wood)
+
+
+## Dark-tiled roof with gently curved (concave) slopes and upturned corners,
+## flanked by stepped "horse-head" parapet gables.
+func _lakeside_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color, wall_col: Color) -> void:
+	var ov := 0.55
+	var zw := W / 2 + ov
+	var x0 := -L / 2 + 0.12
+	var x1 := L / 2 - 0.12
+	var ye := eave - 0.12
+	var yr := eave + rh
+	var tile := Color(roof_col.r, roof_col.g, roof_col.b, 0.75)
+	var under := Color(0.30, 0.22, 0.17, 0.5)
+	var fascia := Color(roof_col.r * 0.65, roof_col.g * 0.65, roof_col.b * 0.65, 1.0)
+	var nx := 8
+	var nt := 6
+	var th := 0.12
+	for side in [-1.0, 1.0]:
+		var grid: Array = []
+		for ix in nx + 1:
+			var row: Array = []
+			var x := lerpf(x0, x1, float(ix) / nx)
+			var ex := absf(float(ix) / nx * 2.0 - 1.0)
+			for it in nt + 1:
+				var t := float(it) / nt
+				var y := ye + (yr - ye) * pow(t, 1.9)
+				y += 0.6 * pow(ex, 3.0) * (1.0 - t) * (1.0 - t)
+				row.append(Vector3(x, y, side * zw * (1.0 - t)))
+			grid.append(row)
+		for ix in nx:
+			for it in nt:
+				var a: Vector3 = grid[ix][it]
+				var b: Vector3 = grid[ix + 1][it]
+				var c: Vector3 = grid[ix + 1][it + 1]
+				var e: Vector3 = grid[ix][it + 1]
+				var ua := Vector2(a.x - x0, zw * float(it) / nt * 1.15)
+				var ub := Vector2(b.x - x0, ua.y)
+				var uc := Vector2(b.x - x0, zw * float(it + 1) / nt * 1.15)
+				var ue := Vector2(a.x - x0, uc.y)
+				var dn := Vector3.DOWN * th
+				if side < 0:
+					mb.quad(b, a, e, c, tile, ub, ua, ue, uc)
+					mb.quad(a + dn, b + dn, c + dn, e + dn, under)
+				else:
+					mb.quad(a, b, c, e, tile, ua, ub, uc, ue)
+					mb.quad(b + dn, a + dn, e + dn, c + dn, under)
+			# eave fascia strip
+			var f0: Vector3 = grid[ix][0]
+			var f1: Vector3 = grid[ix + 1][0]
+			var d2 := Vector3.DOWN * th
+			if side < 0:
+				mb.quad(f1 + d2, f0 + d2, f0, f1, fascia)
+			else:
+				mb.quad(f0 + d2, f1 + d2, f1, f0, fascia)
+	# ridge beam with curled tips
+	mb.box(Transform3D(Basis.IDENTITY, Vector3(0, yr + 0.08, 0)), Vector3(x1 - x0, 0.2, 0.24), fascia)
+	for xs in [x0 + 0.1, x1 - 0.1]:
+		mb.box(Transform3D(Basis(Vector3.BACK, 0.6 * signf(xs)), Vector3(xs, yr + 0.26, 0)), Vector3(0.12, 0.36, 0.2), fascia)
+	# stepped horse-head gables (white walls with dark tiled caps)
+	var cap := Color(roof_col.r * 0.8, roof_col.g * 0.8, roof_col.b * 0.8, 1.0)
+	var steps := 3
+	for xs2 in [-L / 2, L / 2]:
+		for k in steps:
+			var z_out := (W / 2 + 0.06) * (1.0 - float(k) / steps)
+			var z_in := 0.0 if k == steps - 1 else (W / 2) * (1.0 - float(k + 1) / steps)
+			var t_in := 1.0 - z_in / zw
+			var top := ye + (yr - ye) * pow(t_in, 1.9) + 0.55
+			for zsgn in ([1.0] if k == steps - 1 else [-1.0, 1.0]):
+				var za: float = z_out * zsgn
+				var zb: float = -z_out if k == steps - 1 else z_in * zsgn
+				var zc: float = (za + zb) * 0.5
+				var zl := absf(za - zb)
+				mb.box(Transform3D(Basis.IDENTITY, Vector3(xs2, (eave - 0.3 + top) * 0.5, zc)), Vector3(0.3, top - eave + 0.3, zl), Color(wall_col.r, wall_col.g, wall_col.b, 0.0))
+				mb.box(Transform3D(Basis.IDENTITY, Vector3(xs2, top + 0.06, zc)), Vector3(0.46, 0.12, zl + 0.12), cap)
+				mb.box(Transform3D(Basis(Vector3.RIGHT, PI / 4), Vector3(xs2, top + 0.14, zc)), Vector3(0.12, 0.14, zl + 0.1), cap)
+				# horse-head tip curling up at the outer end
+				var tip_z: float = za + signf(za) * 0.06 if absf(za) > 0.01 else 0.0
+				mb.box(Transform3D(Basis(Vector3.RIGHT, -0.5 * signf(za)), Vector3(xs2, top + 0.2, tip_z)), Vector3(0.32, 0.12, 0.28), cap)
+
+
 func _round_windrise(mb: MeshBuilder, R: float, floors: int, segs: int) -> void:
 	var stone := Color(0.88, 0.84, 0.76, 0.25)
 	var beam := Color(0.32, 0.22, 0.17, 0.5)
@@ -655,13 +757,18 @@ func _round_windrise(mb: MeshBuilder, R: float, floors: int, segs: int) -> void:
 # ---------------------------------------------------------------------------
 # Openings on rectangular walls
 # ---------------------------------------------------------------------------
-func _place_rect_door(deco: DecoMerge, corners: Array, side: int, u: float) -> void:
+func _place_rect_door(deco: DecoMerge, corners: Array, side: int, u: float, style := "") -> void:
 	var a: Vector3 = corners[side]
 	var b: Vector3 = corners[(side + 1) % 4]
 	var n := _side_normal(corners, side)
 	var l := a.distance_to(b)
 	var uu := clampf(u, 0.6 / l, 1.0 - 0.6 / l) if l > 1.2 else 0.5
 	var p := a.lerp(b, uu)
+	if style == "lakeside":
+		# timber double door with red paper lanterns (they glow by night)
+		deco.add("door_wood", Transform3D(DecoMerge.facing(n), p + Vector3.UP * PL + n * 0.02))
+		deco.add("stair_step", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(1.4, 1.0, 1.4)), p + n * 0.3))
+		return
 	deco.add("door", Transform3D(DecoMerge.facing(n), p + Vector3.UP * PL + n * 0.02))
 	deco.add("stair_step", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(1.2, 1.0, 1.4)), p + n * 0.3))
 	var along := (b - a).normalized()

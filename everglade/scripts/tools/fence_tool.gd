@@ -6,8 +6,17 @@ extends StrokeTool
 func _init() -> void:
 	tool_id = "fence"
 	title = "Fences"
-	options = {"straight": false}
+	options = {"style": "wood", "straight": false}
 	min_length = 0.8
+
+
+func option_defs() -> Array:
+	return [
+		{"type": "choice", "key": "style", "items": [
+			{"id": "wood", "label": "Rustic", "icon": "fence"},
+			{"id": "ornate", "label": "Ornate", "icon": "fence_ornate"}]},
+		{"type": "toggle", "key": "straight", "label": "Straight", "icon": "ruler"},
+	]
 
 
 func hint() -> String:
@@ -18,12 +27,12 @@ func update_preview(pts: PackedVector2Array) -> void:
 	if preview == null:
 		preview = FenceView.new()
 		glade.add_child(preview)
-	(preview as FenceView).build({"id": 0, "pts": pts}, glade.terrain, [], true)
+	(preview as FenceView).build({"id": 0, "pts": pts, "style": options.style}, glade.terrain, [], true)
 
 
 func commit(pts: PackedVector2Array) -> void:
 	glade.begin_change()
-	glade.add_fence(pts)
+	glade.add_fence(pts, options.style)
 	Sfx.play("place_wood")
 	Settings.vibrate(14)
 

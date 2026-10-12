@@ -56,6 +56,7 @@ func _build(cx: int, cz: int) -> void:
 	rng.seed = hash(Vector2i(cx, cz))
 	var count := int(size * size * Settings.grass_density())
 	var grass_xf: Array[Transform3D] = []
+	var grass_col: PackedColorArray = []
 	var flower_xf: Array = [[], [], []]
 	for i in count:
 		var x := x0 + rng.randf() * size
@@ -67,20 +68,26 @@ func _build(cx: int, cz: int) -> void:
 		if h < Terrain.WATER_LEVEL + 0.12:
 			continue
 		var m := terrain.mask_at(x, z)
-		if m.r > 0.25 or m.g > 0.25 or m.b > 0.55:
+		if m.r > 0.25 or m.g > 0.25 or m.a > 0.25 or m.b > 0.55:
 			continue
 		var n := terrain.normal_at(x, z)
 		if n.y < 0.7:
 			continue
 		var s := rng.randf_range(0.7, 1.35) * (1.0 - m.b * 0.6)
-		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.8, 1.3), s))
+		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.9, 1.7), s))
 		var xf := Transform3D(basis, Vector3(x, h - 0.02, z))
 		if rng.randf() < 0.035:
 			flower_xf[rng.randi() % 3].append(xf.scaled_local(Vector3.ONE * 0.8))
 		else:
 			grass_xf.append(xf)
+			# same golden drifts as the terrain shader, plus per-tuft jitter
+			var gold := smoothstep(0.58, 0.7, _fbm(Vector2(x, z) * 0.09 + Vector2(11.0, 11.0)))
+			var c := Color(1, 1, 1).lerp(GOLD_TINT, gold * 0.85)
+			c = c * rng.randf_range(0.9, 1.08)
+			c.a = 1.0
+			grass_col.append(c)
 	var idx := cz * Terrain.CHUNKS + cx
-	_grass_mm[idx].multimesh = _make_mm(_grass_mesh, grass_xf)
+	_grass_mm[idx].multimesh = _make_mm(_grass_mesh, grass_xf, grass_col)
 	# flowers: one chunk-level multimesh per colour would be 3x the nodes, so
 	# pick the colour by chunk hash and mix the rest into neighbouring chunks
 	var pick := (cx * 7 + cz * 3) % 3
@@ -91,11 +98,46 @@ func _build(cx: int, cz: int) -> void:
 	_flower_mm[idx].multimesh = _make_mm(_flower_meshes[pick], all)
 
 
-func _make_mm(mesh: Mesh, xforms: Array[Transform3D]) -> MultiMesh:
+func _make_mm(mesh: Mesh, xforms: Array[Transform3D], colors: PackedColorArray = PackedColorArray()) -> MultiMesh:
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_colors = not colors.is_empty()
 	mm.mesh = mesh
 	mm.instance_count = xforms.size()
 	for i in xforms.size():
 		mm.set_instance_transform(i, xforms[i])
+		if mm.use_colors:
+			mm.set_instance_color(i, colors[i])
 	return mm
+
+
+# GDScript twin of the terrain shader's value noise so grass tints line up
+# with the golden patches painted on the ground.
+const GOLD_TINT := Color(1.45, 1.12, 0.62)
+
+
+static func _hash12(p: Vector2) -> float:
+	var p3 := Vector3(p.x, p.y, p.x) * 0.1031
+	p3 = Vector3(p3.x - floorf(p3.x), p3.y - floorf(p3.y), p3.z - floorf(p3.z))
+	p3 += Vector3.ONE * p3.dot(Vector3(p3.y, p3.z, p3.x) + Vector3.ONE * 33.33)
+	var v := (p3.x + p3.y) * p3.z
+	return v - floorf(v)
+
+
+static func _noise(p: Vector2) -> float:
+	var i := p.floor()
+	var f := p - i
+	var u := f * f * (Vector2(3, 3) - 2.0 * f)
+	var a := lerpf(_hash12(i), _hash12(i + Vector2(1, 0)), u.x)
+	var b := lerpf(_hash12(i + Vector2(0, 1)), _hash12(i + Vector2(1, 1)), u.x)
+	return lerpf(a, b, u.y)
+
+
+static func _fbm(p: Vector2) -> float:
+	var v := 0.0
+	var a := 0.5
+	for i in 4:
+		v += a * _noise(p)
+		p *= 2.1
+		a *= 0.5
+	return v

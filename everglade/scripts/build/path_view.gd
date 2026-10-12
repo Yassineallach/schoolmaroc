@@ -41,7 +41,10 @@ func build(d: Dictionary, terrain: Terrain) -> void:
 				j += 1
 			var s0 := maxf(0.0, total * i / n - 0.9)
 			var s1 := minf(total, total * (j - 1) / n + 0.9)
-			_bridge(deco, pts, terrain, s0, s1, width)
+			if style == "paved":
+				_causeway(deco, pts, terrain, s0, s1, width)
+			else:
+				_bridge(deco, pts, terrain, s0, s1, width)
 			i = j
 
 	# --- surface details
@@ -58,6 +61,18 @@ func build(d: Dictionary, terrain: Terrain) -> void:
 				var sc := width / 1.2 * rng.randf_range(0.8, 1.1)
 				deco.add("stepping_stone", Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(sc, 1, sc)), Vector3(q.x, y, q.y)))
 				s += rng.randf_range(0.75, 0.95) * clampf(width, 0.9, 1.5)
+		"paved":
+			# low kerb stones along both edges of the flagstones
+			while s < total:
+				var pk := Geo.point_at(pts, s)
+				if terrain.height_at_v(pk) > Terrain.WATER_LEVEL:
+					var tk := Geo.tangent_at(pts, s)
+					var nk := Vector2(-tk.y, tk.x)
+					for side_sign in [-1.0, 1.0]:
+						var qk: Vector2 = pk + nk * (width * 0.5 + 0.02) * side_sign
+						var basis_k := DecoMerge.along(Vector3(tk.x, 0, tk.y)) * Basis.from_scale(Vector3(1.4, 0.55, 0.7))
+						deco.add("cobble_a", Transform3D(basis_k, Vector3(qk.x, terrain.height_at_v(qk) + 0.01, qk.y)))
+				s += 0.42
 		"cobble":
 			# a border of chunky stones along both edges
 			while s < total:
@@ -136,3 +151,28 @@ func _bridge(deco: DecoMerge, pts: PackedVector2Array, terrain: Terrain, s0: flo
 		for sgn in [-1.0, 1.0]:
 			var q: Vector2 = pe + side * sgn
 			deco.add("lantern", Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * 0.75), Vector3(q.x, terrain.height_at_v(q) - 0.05, q.y)))
+
+
+## Flat stone causeway (lake-village style): slab piers marching across the
+## water with stone lanterns at both ends.
+func _causeway(deco: DecoMerge, pts: PackedVector2Array, terrain: Terrain, s0: float, s1: float, width: float) -> void:
+	var span := s1 - s0
+	if span < 0.5:
+		return
+	var y0 := maxf(terrain.height_at_v(Geo.point_at(pts, s0)), Terrain.WATER_LEVEL + 0.12)
+	var y1 := maxf(terrain.height_at_v(Geo.point_at(pts, s1)), Terrain.WATER_LEVEL + 0.12)
+	var segs := maxi(1, int(ceil(span / 1.2)))
+	var seg_len := span / segs
+	var w := clampf(width / 1.5, 0.7, 2.0)
+	for i in segs:
+		var pa := Geo.point_at(pts, s0 + seg_len * i)
+		var pb := Geo.point_at(pts, s0 + seg_len * (i + 1))
+		var y := lerpf(y0, y1, (i + 0.5) / segs) + 0.04
+		var d := pb - pa
+		var basis := DecoMerge.along(Vector3(d.x, 0, d.y)) * Basis.from_scale(Vector3(d.length() + 0.02, 1, w))
+		deco.add("bridge_slab", Transform3D(basis, Vector3(pa.x, y, pa.y)))
+	for se in [s0, s1]:
+		var pe := Geo.point_at(pts, se)
+		var te := Geo.tangent_at(pts, se)
+		var q: Vector2 = pe + Vector2(-te.y, te.x) * (width * 0.5 + 0.45)
+		deco.add("stone_lantern", Transform3D(Basis(Vector3.UP, atan2(te.x, te.y)).scaled(Vector3.ONE * 0.8), Vector3(q.x, terrain.height_at_v(q) - 0.03, q.y)))

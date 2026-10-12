@@ -18,6 +18,7 @@ func option_defs() -> Array:
 		{"type": "choice", "key": "style", "items": [
 			{"id": "dirt", "label": "Dirt", "icon": "path"},
 			{"id": "cobble", "label": "Cobbles", "icon": "cobble"},
+			{"id": "paved", "label": "Paved", "icon": "paved"},
 			{"id": "stones", "label": "Stepping", "icon": "stones"}]},
 		{"type": "slider", "key": "width", "label": "Width", "min": 0.8, "max": 3.2, "step": 0.1},
 		{"type": "toggle", "key": "straight", "label": "Straight", "icon": "ruler"},

@@ -13,6 +13,7 @@ const IVY_SECONDS := 900.0 # time for ivy to fully cover a wall
 var data: Dictionary = {}
 var terrain: Terrain
 var grass: GrassField
+var backdrop: Backdrop
 var water: Water
 var props: PropBatch
 var views: Dictionary = {}
@@ -38,6 +39,9 @@ func _ready() -> void:
 	grass.name = "Grass"
 	add_child(grass)
 	grass.setup(terrain)
+	backdrop = Backdrop.new()
+	backdrop.name = "Backdrop"
+	add_child(backdrop)
 	for r in ["walls", "fences", "paths", "buildings"]:
 		var n := Node3D.new()
 		n.name = r.capitalize()
@@ -79,6 +83,8 @@ func new_glade(template: String, name_text := "My Glade") -> void:
 	data.template = template
 	terrain.generate(template, data.seed)
 	terrain.flush()
+	backdrop.build(template, terrain)
+	water.set_palette(template)
 	data.terrain = terrain.get_heights()
 	undo_stack.clear()
 	redo_stack.clear()
@@ -95,6 +101,8 @@ func load_data(d: Dictionary) -> void:
 	else:
 		terrain.generate(data.get("template", "meadow"), data.get("seed", 1))
 	terrain.flush()
+	backdrop.build(data.get("template", "meadow"), terrain)
+	water.set_palette(data.get("template", "meadow"))
 	undo_stack.clear()
 	redo_stack.clear()
 	rebuild_all()
@@ -182,8 +190,8 @@ func add_wall(pts: PackedVector2Array, h: float, col: Color) -> Dictionary:
 	return w
 
 
-func add_fence(pts: PackedVector2Array) -> Dictionary:
-	var f := {"id": next_id(), "pts": pts}
+func add_fence(pts: PackedVector2Array, style := "wood") -> Dictionary:
+	var f := {"id": next_id(), "pts": pts, "style": style}
 	data.fences.append(f)
 	_make_view("fences", f, true)
 	_after_edit(Geo.v3(pts[0], terrain.height_at_v(pts[0])), "fence")
@@ -536,6 +544,8 @@ func _paint_mask() -> void:
 				terrain.paint_polyline(p.pts, p.w + 0.5, 0, 0.55)
 			"stones":
 				terrain.paint_polyline(p.pts, p.w * 0.7, 0, 0.45)
+			"paved":
+				terrain.paint_polyline(p.pts, p.w, 3, 1.0)
 			_:
 				terrain.paint_polyline(p.pts, p.w, 0, 1.0)
 	terrain.commit_mask()

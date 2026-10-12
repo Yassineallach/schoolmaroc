@@ -12,6 +12,9 @@ const TEMPLATES := [
 	{"id": "hills", "label": "Hills", "desc": "Hilly ground for terraces and stairs.", "icon": "terrain"},
 	{"id": "lake", "label": "Lakeside", "desc": "A pond waiting for bridges and ducks.", "icon": "water"},
 	{"id": "hamlet", "label": "Windrise Town", "desc": "A finished fantasy town with windmills to explore.", "icon": "house"},
+	{"id": "town", "label": "Town Plaza", "desc": "Paved square, fountain, cafés and golden trees.", "icon": "windrise"},
+	{"id": "ruins", "label": "Meadow Ruins", "desc": "Ancient arches and a glowing rotunda in tall grass.", "icon": "grand"},
+	{"id": "village", "label": "Jade Lake Village", "desc": "White houses, a stone causeway, rafts and peaks.", "icon": "lakeside"},
 ]
 
 var root: Control
@@ -139,9 +142,14 @@ func _clear_panel(title_text: String) -> void:
 
 func _show_templates() -> void:
 	_clear_panel("Choose a glade")
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 10)
+	grid.add_theme_constant_override("v_separation", 10)
+	_panel_box.add_child(grid)
 	for tpl in TEMPLATES:
 		var b := Button.new()
-		b.custom_minimum_size = Vector2(480, 88)
+		b.custom_minimum_size = Vector2(420, 94)
 		b.focus_mode = Control.FOCUS_NONE
 		var h := HBoxContainer.new()
 		h.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -166,14 +174,16 @@ func _show_templates() -> void:
 		v.add_child(l)
 		var d := Label.new()
 		d.text = tpl.desc
-		d.add_theme_font_size_override("font_size", 17)
+		d.add_theme_font_size_override("font_size", 15)
+		d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		d.custom_minimum_size.x = 320
 		d.add_theme_color_override("font_color", UITheme.INK_SOFT)
 		v.add_child(d)
 		var id: String = tpl.id
 		b.pressed.connect(func():
 			Sfx.play("build", -4.0)
 			new_glade.emit(id))
-		_panel_box.add_child(b)
+		grid.add_child(b)
 
 
 func _show_glades() -> void:

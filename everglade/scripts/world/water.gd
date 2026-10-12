@@ -18,3 +18,14 @@ func setup(terrain: Terrain) -> void:
 	mat.set_shader_parameter("terrain_size", Terrain.HALF * 2.0)
 	mat.set_shader_parameter("water_level", Terrain.WATER_LEVEL)
 	material_override = mat
+
+
+## Jade-green lake water for the lake village; clear blue everywhere else.
+func set_palette(template: String) -> void:
+	var mat := material_override as ShaderMaterial
+	if template == "village":
+		mat.set_shader_parameter("shallow", Color(0.50, 0.88, 0.76))
+		mat.set_shader_parameter("deep", Color(0.14, 0.52, 0.52))
+	else:
+		mat.set_shader_parameter("shallow", Color(0.42, 0.86, 0.90))
+		mat.set_shader_parameter("deep", Color(0.12, 0.46, 0.78))

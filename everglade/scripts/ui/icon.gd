@@ -101,11 +101,22 @@ func _draw() -> void:
 				poly([Vector2(x - 0.06, 0.88), Vector2(x - 0.06, 0.3), Vector2(x, 0.22), Vector2(x + 0.06, 0.3), Vector2(x + 0.06, 0.88)], WOOD)
 			rect(0.08, 0.42, 0.84, 0.08, WOOD)
 			rect(0.08, 0.64, 0.84, 0.08, WOOD)
+		"fence_ornate":
+			for x in [0.14, 0.86]:
+				rect(x - 0.08, 0.2, 0.16, 0.7, STONE)
+				rect(x - 0.1, 0.14, 0.2, 0.08, STONE)
+			rect(0.22, 0.3, 0.56, 0.06, WOOD)
+			rect(0.22, 0.78, 0.56, 0.06, WOOD)
+			circle(Vector2(0.5, 0.56), 0.13, WOOD, false)
 		"path":
 			poly([Vector2(0.32, 0.95), Vector2(0.4, 0.62), Vector2(0.6, 0.38), Vector2(0.56, 0.08), Vector2(0.68, 0.08), Vector2(0.76, 0.4), Vector2(0.58, 0.64), Vector2(0.56, 0.95)], DIRT)
 		"cobble":
 			for p in [Vector2(0.3, 0.3), Vector2(0.6, 0.28), Vector2(0.45, 0.52), Vector2(0.25, 0.7), Vector2(0.7, 0.62), Vector2(0.5, 0.82)]:
 				circle(p, 0.13, STONE)
+		"paved":
+			for r in 3:
+				for c in 3:
+					rect(0.1 + c * 0.27 + (0.06 if r == 1 else 0.0), 0.12 + r * 0.27, 0.23, 0.23, STONE)
 		"stones":
 			for p in [Vector2(0.3, 0.78), Vector2(0.55, 0.52), Vector2(0.38, 0.26), Vector2(0.7, 0.18)]:
 				circle(p, 0.11, STONE)
@@ -144,6 +155,15 @@ func _draw() -> void:
 			line([Vector2(0.15, 0.58), Vector2(0.85, 0.58)], Color(0.95, 0.74, 0.3), 0.06)
 			line([Vector2(0.5, 0.15), Vector2(0.5, 0.58)], WOOD.darkened(0.45), 0.06)
 			line([Vector2(0.15, 0.58), Vector2(0.5, 0.15)], WOOD.darkened(0.45), 0.05)
+		"lakeside":
+			rect(0.18, 0.4, 0.64, 0.5, PAPER)
+			rect(0.18, 0.78, 0.64, 0.12, STONE.darkened(0.3))
+			poly([Vector2(0.06, 0.44), Vector2(0.2, 0.36), Vector2(0.5, 0.22), Vector2(0.8, 0.36), Vector2(0.94, 0.44), Vector2(0.8, 0.42), Vector2(0.2, 0.42)], Color(0.3, 0.32, 0.38))
+			rect(0.08, 0.14, 0.1, 0.3, PAPER)
+			rect(0.82, 0.14, 0.1, 0.3, PAPER)
+			rect(0.06, 0.12, 0.14, 0.04, Color(0.3, 0.32, 0.38))
+			rect(0.8, 0.12, 0.14, 0.04, Color(0.3, 0.32, 0.38))
+			rect(0.42, 0.56, 0.16, 0.16, Color(0.36, 0.24, 0.16))
 		"grand":
 			rect(0.43, 0.6, 0.14, 0.3, WOOD)
 			circle(Vector2(0.5, 0.4), 0.34, LEAF)
@@ -154,6 +174,16 @@ func _draw() -> void:
 			rect(0.45, 0.6, 0.1, 0.3, WOOD)
 			circle(Vector2(0.5, 0.42), 0.28, LEAF)
 			circle(Vector2(0.38, 0.5), 0.12, LEAF.lightened(0.15), false)
+		"golden", "blossom":
+			var crown := Color(0.98, 0.78, 0.3) if icon == "golden" else Color(0.98, 0.84, 0.9)
+			rect(0.45, 0.6, 0.1, 0.3, WOOD)
+			circle(Vector2(0.5, 0.42), 0.28, crown)
+			circle(Vector2(0.38, 0.5), 0.12, crown.lightened(0.2), false)
+		"lavender":
+			for x in [0.3, 0.5, 0.7]:
+				line([Vector2(x, 0.92), Vector2(x, 0.4)], LEAF.darkened(0.2), 0.05)
+				for k in 4:
+					circle(Vector2(x, 0.2 + k * 0.08), 0.05, Color(0.62, 0.5, 0.9), false)
 		"pines":
 			rect(0.45, 0.72, 0.1, 0.2, WOOD)
 			poly([Vector2(0.2, 0.75), Vector2(0.5, 0.1), Vector2(0.8, 0.75)], Color(0.28, 0.5, 0.36))

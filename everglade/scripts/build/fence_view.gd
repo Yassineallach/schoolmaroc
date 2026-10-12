@@ -38,6 +38,10 @@ func build(d: Dictionary, terrain: Terrain, gates: Array = [], preview := false)
 		kept.append(b)
 		kept.sort()
 		posts = kept
+	var ornate: bool = d.get("style", "wood") == "ornate"
+	var post_kind := "fence_pillar" if ornate else "fence_post"
+	var rail_kind := "fence_ornate" if ornate else "fence_rail"
+	var gate_kind := "gate_ornate" if ornate else "gate"
 	var deco := DecoMerge.new()
 	var post_pos: Array[Vector3] = []
 	for s in posts:
@@ -45,9 +49,9 @@ func build(d: Dictionary, terrain: Terrain, gates: Array = [], preview := false)
 		var y := terrain.height_at_v(p) - 0.05
 		var pos := Vector3(p.x, y, p.y)
 		post_pos.append(pos)
-		var rot := Basis(Vector3.UP, hash(Vector2(p.x, p.y)) % 100 * 0.01)
-		deco.add("fence_post", Transform3D(rot, pos))
-		perches.append(pos + Vector3.UP * 1.05)
+		var rot := Basis(Vector3.UP, 0.0 if ornate else hash(Vector2(p.x, p.y)) % 100 * 0.01)
+		deco.add(post_kind, Transform3D(rot, pos))
+		perches.append(pos + Vector3.UP * (1.5 if ornate else 1.05))
 	for i in posts.size() - 1:
 		var a3 := post_pos[i]
 		var b3 := post_pos[i + 1]
@@ -64,12 +68,12 @@ func build(d: Dictionary, terrain: Terrain, gates: Array = [], preview := false)
 		var basis := DecoMerge.along(flat)
 		if is_gate:
 			var center := (a3 + b3) * 0.5
-			deco.add("gate", Transform3D(basis * Basis.from_scale(Vector3(seg_len, 1, 1)), center + Vector3.UP * 0.02))
+			deco.add(gate_kind, Transform3D(basis * Basis.from_scale(Vector3(seg_len, 1, 1)), center + Vector3.UP * 0.02))
 			continue
 		# rail: 1 m along +X starting at origin; tilt to follow slope
 		var slope := atan2(dir.y, seg_len)
 		var rb := basis * Basis(Vector3.BACK, slope)
-		deco.add("fence_rail", Transform3D(rb * Basis.from_scale(Vector3(dir.length(), 1, 1)), a3))
+		deco.add(rail_kind, Transform3D(rb * Basis.from_scale(Vector3(dir.length(), 1, 1)), a3))
 	deco.apply_to(self)
 	if preview:
 		return

@@ -9,18 +9,24 @@ const TREES := ["tree_round_a", "tree_round_c", "tree_round_b", "tree_birch", "t
 const BROADLEAF := ["tree_round_a", "tree_round_c", "tree_birch"]
 const GRAND := ["tree_round_b"]
 const PINES := ["tree_pine_a", "tree_pine_b", "tree_cedar"]
-const BUSHES := ["bush_a", "bush_b", "bush_berries"]
-const FLOWERS := ["flowers_pink", "flowers_white", "flowers_blue", "flowers_yellow", "flowers_red"]
-const ROCKS := ["rock_a", "rock_b", "rock_c", "mushrooms", "stump"]
+const GOLDEN := ["tree_golden", "tree_orange", "tree_golden", "bush_golden"]
+const BLOSSOM := ["tree_blossom", "tree_teal", "tree_blossom"]
+const BUSHES := ["bush_a", "bush_b", "bush_berries", "bush_golden"]
+const FLOWERS := ["flowers_pink", "flowers_white", "flowers_blue", "flowers_yellow", "flowers_red", "flowers_lavender"]
+const LAVENDER := ["flowers_lavender", "flowers_lavender", "flowers_white", "flowers_yellow"]
+const ROCKS := ["rock_a", "rock_b", "rock_c", "rock_big", "mushrooms", "stump"]
 
 ## Nature brush families: kinds, spacing (m), scale range.
 const NATURE := {
 	"forest": {"label": "Forest", "kinds": TREES, "spacing": 2.4, "scale": Vector2(0.8, 1.2)},
 	"broadleaf": {"label": "Leafy", "kinds": BROADLEAF, "spacing": 2.6, "scale": Vector2(0.85, 1.3)},
 	"grand": {"label": "Great oak", "kinds": GRAND, "spacing": 5.0, "scale": Vector2(0.9, 1.2)},
+	"golden": {"label": "Golden", "kinds": GOLDEN, "spacing": 2.8, "scale": Vector2(0.85, 1.25)},
+	"blossom": {"label": "Blossom", "kinds": BLOSSOM, "spacing": 2.8, "scale": Vector2(0.85, 1.2)},
 	"pines": {"label": "Firs", "kinds": PINES, "spacing": 2.2, "scale": Vector2(0.8, 1.3)},
 	"bushes": {"label": "Bushes", "kinds": BUSHES, "spacing": 1.1, "scale": Vector2(0.8, 1.3)},
 	"flowers": {"label": "Flowers", "kinds": FLOWERS, "spacing": 0.55, "scale": Vector2(0.8, 1.3)},
+	"lavender": {"label": "Lavender", "kinds": LAVENDER, "spacing": 0.5, "scale": Vector2(0.9, 1.4)},
 	"rocks": {"label": "Rocks", "kinds": ROCKS, "spacing": 1.2, "scale": Vector2(0.6, 1.4)},
 }
 
@@ -47,6 +53,17 @@ const DECOR := {
 	"log_pile": {"label": "Logs", "align": true},
 	"stump": {"label": "Stump", "align": true},
 	"mushrooms": {"label": "Mushrooms", "align": true},
+	"cafe_table": {"label": "Café table", "align": false},
+	"planter": {"label": "Planter", "align": false},
+	"ruin_arch": {"label": "Ruin arch", "align": false},
+	"ruin_wall": {"label": "Ruin wall", "align": false},
+	"ruin_pillar": {"label": "Ruin pillar", "align": false},
+	"ruin_slab": {"label": "Fallen slab", "align": true},
+	"rotunda": {"label": "Rotunda", "align": false},
+	"rock_big": {"label": "Boulder", "align": true},
+	"stone_lantern": {"label": "Stone lantern", "align": false},
+	"tea_terrace": {"label": "Tea terrace", "align": true},
+	"bamboo_raft": {"label": "Bamboo raft", "align": false, "float": true},
 }
 
 ## Props with moving parts, drawn as individual animated nodes.
@@ -54,7 +71,7 @@ const ANIMATED := ["windmill"]
 
 const ROOF_COLORS := [
 	Color(0.24, 0.56, 0.62), Color(0.86, 0.38, 0.26), Color(0.30, 0.44, 0.70),
-	Color(0.34, 0.60, 0.44), Color(0.56, 0.42, 0.72), Color(0.30, 0.32, 0.38),
+	Color(0.34, 0.60, 0.44), Color(0.56, 0.42, 0.72), Color(0.21, 0.23, 0.29),
 	Color(0.92, 0.70, 0.34), Color(0.64, 0.30, 0.22),
 ]
 
@@ -70,10 +87,10 @@ const STONE_COLORS := [
 
 const RECT_ROOFS := ["gable", "hip", "flat"]
 const ROUND_ROOFS := ["cone", "flat"]
-const STYLES := ["windrise", "plaster", "timber", "stone"]
+const STYLES := ["windrise", "lakeside", "plaster", "timber", "stone"]
 const ROOF_LABELS := {"gable": "Gable", "hip": "Hipped", "flat": "Battlement", "cone": "Spire"}
 
-const PATH_STYLES := ["dirt", "cobble", "stones"]
+const PATH_STYLES := ["dirt", "cobble", "paved", "stones"]
 
 
 static func pick(arr: Array, rng: RandomNumberGenerator) -> Variant:
