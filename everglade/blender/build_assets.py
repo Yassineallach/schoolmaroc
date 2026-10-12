@@ -140,6 +140,35 @@ class Builder:
     def __init__(self):
         self.bm = bmesh.new()
         self.col = self.bm.loops.layers.color.new("Color")
+        self.uv = None
+        self.custom = {}
+
+    def card(self, center, size, facing, roll, cell, color, alpha=FOLIAGE, normal=None, aspect=1.0):
+        """Textured leaf/cloud card. `cell` picks a quarter of a 2x2 atlas;
+        `normal` overrides the shading normal (spherical canopy normals)."""
+        if self.uv is None:
+            self.uv = self.bm.loops.layers.uv.new("UVMap")
+        f = Vector(facing).normalized()
+        up = Vector((0, 0, 1)) if abs(f.z) < 0.95 else Vector((1, 0, 0))
+        u = f.cross(up).normalized()
+        v = u.cross(f).normalized()
+        cr, sr = math.cos(roll), math.sin(roll)
+        u, v = u * cr + v * sr, v * cr - u * sr
+        c = Vector(center)
+        h = size * 0.5
+        corners = [c - u * h - v * h * aspect, c + u * h - v * h * aspect, c + u * h + v * h * aspect, c - u * h + v * h * aspect]
+        verts = [self.bm.verts.new(p) for p in corners]
+        face = self.bm.faces.new(verts)
+        face.smooth = True
+        cx, cy = (cell % 2) * 0.5, (cell // 2) * 0.5
+        uvs = [(cx, cy + 0.5), (cx + 0.5, cy + 0.5), (cx + 0.5, cy), (cx, cy)]
+        n = Vector(normal).normalized() if normal is not None else f
+        for loop, uvc in zip(face.loops, uvs):
+            loop[self.uv].uv = uvc
+            loop[self.col] = (color[0], color[1], color[2], alpha)
+        for vv in verts:
+            self.custom[vv] = n
+        return face
 
     def _finish(self, verts, color, alpha, matrix, jitter=0.0, smooth=True, grad=None, wgrad=None):
         verts = [v for v in verts if isinstance(v, bmesh.types.BMVert)]
@@ -211,10 +240,17 @@ class Builder:
 
     def to_object(self, name, parent=None, mat_name="VertexColor", emissive=False):
         mesh = bpy.data.meshes.new(name)
-        bmesh.ops.recalc_face_normals(self.bm, faces=self.bm.faces)
+        if not self.custom:
+            bmesh.ops.recalc_face_normals(self.bm, faces=self.bm.faces)
         self.bm.normal_update()
+        self.bm.verts.index_update()
+        normals = None
+        if self.custom:
+            normals = [tuple(self.custom.get(v, v.normal)) for v in self.bm.verts]
         self.bm.to_mesh(mesh)
         self.bm.free()
+        if normals is not None:
+            mesh.normals_split_custom_set_from_vertices(normals)
         # the glTF exporter only writes COLOR_0 for the active/default colour attribute
         if len(mesh.color_attributes) > 0:
             attr = mesh.color_attributes[0]
@@ -310,6 +346,46 @@ def canopy(b, center, radius, layers, top, mid, bottom, alpha=FOLIAGE, squash=0.
     return g_low, g_high
 
 
+def card_canopy(lb, center, radius, top, mid, bottom, alpha=FOLIAGE, squash=0.8, clumps=9, cards=10, seed=0, card_scale=1.0):
+    """Painted canopy made of leaf-cluster cards arranged in clumps over a dome.
+    Every card's shading normal points away from the canopy centre so the
+    whole crown lights like one soft painted mass with a bright top."""
+    local = random.Random(seed)
+    cx, cy, cz = center
+    z0 = cz - radius * squash
+    z1 = cz + radius * squash
+    centers = [(cx, cy, cz + radius * 0.35 * squash)]
+    for i in range(clumps):
+        # fibonacci-ish distribution over the upper 3/4 of a sphere
+        t = (i + 0.5) / clumps
+        incl = math.acos(1 - 1.6 * t)
+        az = i * 2.39996 + local.uniform(-0.3, 0.3)
+        r = radius * local.uniform(0.62, 0.78)
+        centers.append((cx + math.sin(incl) * math.cos(az) * r, cy + math.sin(incl) * math.sin(az) * r, cz + math.cos(incl) * r * squash))
+    for (px, py, pz) in centers:
+        cr = radius * local.uniform(0.42, 0.55)
+        for k in range(cards):
+            d = Vector((local.uniform(-1, 1), local.uniform(-1, 1), local.uniform(-0.6, 1))).normalized()
+            p = Vector((px, py, pz)) + d * cr * local.uniform(0.25, 0.8)
+            outward = (p - Vector((cx, cy, cz - radius * 0.35))).normalized()
+            n = (outward * 0.85 + Vector((0, 0, 0.35))).normalized()
+            t = min(max((p.z - z0) / max(z1 - z0, 1e-4), 0.0), 1.0)
+            col = lerp3(bottom, mid, min(t * 1.6, 1.0)) if t < 0.62 else lerp3(mid, top, (t - 0.62) / 0.38)
+            facing = (d * 0.6 + Vector((local.uniform(-1, 1), local.uniform(-1, 1), local.uniform(-1, 1))) * 0.4)
+            lb.card(p, cr * local.uniform(1.25, 1.65) * card_scale, facing, local.uniform(0, math.tau), local.randrange(4), col, alpha, n)
+    return centers
+
+
+def leafy(b, center, radius, top, mid, bottom, alpha=FOLIAGE, squash=0.8, clumps=9, cards=10, seed=0):
+    """Dark inner core (hides the sky between cards) + painted leaf cards."""
+    cx, cy, cz = center
+    core = lerp3(bottom, (0.05, 0.12, 0.12), 0.35)
+    b.ball(radius * 0.62, loc=(cx, cy, cz + radius * 0.1), color=core, alpha=alpha, subdiv=2, scale=(1, 1, squash))
+    lb = Builder()
+    card_canopy(lb, center, radius, top, mid, bottom, alpha, squash, clumps, cards, seed)
+    return lb
+
+
 def trunk(b, height, r0, r1, lean=(0.0, 0.0), color=BARK, segments=3, roots=True):
     """Gently curving trunk built from stacked tapered segments, with flared roots."""
     x = y = z = 0.0
@@ -339,19 +415,6 @@ def trunk(b, height, r0, r1, lean=(0.0, 0.0), color=BARK, segments=3, roots=True
 # ---------------------------------------------------------------------------
 # Trees & plants
 # ---------------------------------------------------------------------------
-def tree_round(seed, height=3.4, tint=(LEAF_TOP, LEAF, LEAF_DARK)):
-    rng.seed(seed)
-    b = Builder()
-    top = trunk(b, height * 0.55, 0.2, 0.12, lean=(rng.uniform(-0.15, 0.15), rng.uniform(-0.15, 0.15)))
-    for i in range(3):
-        a = rng.uniform(0, math.tau)
-        b.cyl(0.07, 0.03, 0.9, loc=(top[0] * 0.6, top[1] * 0.6, height * 0.4), rot=(0.75 * math.cos(a), 0.75 * math.sin(a), 0), color=BARK, seg=5)
-    canopy(b, (top[0], top[1], height * 0.72), height * 0.36, 3, *tint, clumps=7, seed=seed)
-    b.to_object("Tree")
-
-
-
-
 
 def tree_cedar(seed, height=4.8):
     """Sugi cedar: tall soft-tiered cone."""
@@ -369,17 +432,6 @@ def tree_cedar(seed, height=4.8):
     b.to_object("Tree")
 
 
-
-def bush(seed, size=0.7, tint=(LEAF_TOP, LEAF, LEAF_DARK)):
-    rng.seed(seed)
-    b = Builder()
-    for i in range(5):
-        a = i / 5 * math.tau + rng.uniform(-0.4, 0.4)
-        d = size * 0.35
-        b.ball(size * rng.uniform(0.45, 0.6), loc=(math.cos(a) * d, math.sin(a) * d, size * 0.42), color=tint[1], alpha=FOLIAGE,
-               subdiv=2, scale=(1, 1, 0.82), wgrad=(tint[0], tint[2], 0.0, size * 1.1))
-    b.ball(size * 0.5, loc=(0, 0, size * 0.7), color=tint[0], alpha=FOLIAGE, subdiv=2, scale=(1, 1, 0.8), wgrad=(tint[0], tint[2], 0.0, size * 1.1))
-    b.to_object("Bush")
 
 
 def bush_flowering(seed, petal, size=0.75):
@@ -415,18 +467,6 @@ def flowers(seed, petal):
         b.ball(0.07, loc=(math.cos(a) * 0.1, math.sin(a) * 0.1, 0.04), color=LEAF, alpha=FOLIAGE, subdiv=1, scale=(1.4, 0.5, 0.3), rot=(0, 0, a))
     b.to_object("Flowers")
 
-
-def grass_tuft(seed):
-    rng.seed(seed)
-    b = Builder()
-    for i in range(11):
-        a = rng.uniform(0, math.tau)
-        d = rng.uniform(0, 0.12)
-        h = rng.uniform(0.2, 0.42)
-        lean = rng.uniform(0.15, 0.5)
-        b.cyl(0.028, 0.0, h, loc=(math.cos(a) * d, math.sin(a) * d, 0), rot=(lean * math.cos(a + 1.57), lean * math.sin(a + 1.57), 0),
-              color=GRASS, alpha=EVERGREEN, seg=3, smooth=False, grad=(GRASS_TIP, GRASS_ROOT))
-    b.to_object("Grass")
 
 
 def reeds(seed):
@@ -793,44 +833,6 @@ STONE_LIGHT = (0.92, 0.89, 0.82)
 GREEN_CLOTH = (0.30, 0.66, 0.52)
 
 
-def tree_grand(seed, height=5.2):
-    """Grand old oak with a huge layered canopy (the village's landmark tree)."""
-    rng.seed(seed)
-    b = Builder()
-    top = trunk(b, height * 0.5, 0.42, 0.24, lean=(0.08, -0.05), color=BARK, segments=4)
-    for i in range(5):
-        a = i / 5 * math.tau + rng.uniform(-0.3, 0.3)
-        b.cyl(0.14, 0.05, height * 0.38, loc=(top[0] * 0.8, top[1] * 0.8, height * 0.42), rot=(0.95 * math.cos(a), 0.95 * math.sin(a), 0), color=BARK, seg=6)
-    canopy(b, (top[0], top[1], height * 0.72), height * 0.42, 4, LEAF_TOP, LEAF, LEAF_DARK, squash=0.72, clumps=10, seed=seed)
-    b.to_object("Tree")
-
-
-def tree_fir(seed, height=4.6):
-    """Tall painted fir: soft stacked boughs, bright tips, deep shadows."""
-    rng.seed(seed)
-    b = Builder()
-    b.cyl(0.17, 0.08, height * 0.35, color=BARK, seg=7)
-    tiers = 6
-    for i in range(tiers):
-        t = i / tiers
-        r = (1.0 - t * 0.8) * height * 0.24
-        z = height * (0.16 + t * 0.68)
-        b.cyl(r, r * 0.25, height * 0.2, loc=(0, 0, z), color=PINE, alpha=EVERGREEN, seg=10, jitter=0.02,
-              wgrad=(PINE_TOP, PINE_DARK, height * 0.15, height))
-        b.ball(r * 0.5, loc=(0, 0, z + height * 0.04), color=PINE, alpha=EVERGREEN, subdiv=1, scale=(1, 1, 0.5),
-               wgrad=(PINE_TOP, PINE_DARK, height * 0.15, height))
-    b.cyl(0.08, 0.0, height * 0.16, loc=(0, 0, height * 0.86), color=PINE_TOP, alpha=EVERGREEN, seg=8)
-    b.to_object("Tree")
-
-
-def tree_birch(seed, height=3.6):
-    rng.seed(seed)
-    b = Builder()
-    trunk(b, height * 0.75, 0.1, 0.06, lean=(rng.uniform(-0.1, 0.1), 0.05), color=(0.94, 0.93, 0.90), segments=3, roots=False)
-    for z in (0.5, 1.0, 1.6, 2.1):
-        b.cyl(0.105, 0.1, 0.05, loc=(0, 0, z), color=(0.25, 0.24, 0.26), seg=6)
-    canopy(b, (0.1, 0, height * 0.78), height * 0.26, 3, (0.80, 0.94, 0.46), (0.56, 0.82, 0.36), (0.28, 0.56, 0.30), squash=0.9, clumps=6, seed=seed)
-    b.to_object("Tree")
 
 
 def bush_fruit(seed, fruit=(1.0, 0.58, 0.18), size=0.8):
@@ -1365,6 +1367,471 @@ def flower_cart():
         w.to_object(name + "Mesh", p)
 
 
+# ---------------------------------------------------------------------------
+# Painted-card vegetation (reference: lush stylised fantasy meadows)
+# ---------------------------------------------------------------------------
+GOLD_LEAF = ((1.0, 0.92, 0.42), (0.98, 0.76, 0.22), (0.78, 0.50, 0.14))
+ORANGE_LEAF = ((1.0, 0.78, 0.44), (0.96, 0.56, 0.24), (0.70, 0.30, 0.16))
+BLOSSOM = ((1.0, 1.0, 0.98), (0.92, 0.96, 0.96), (0.62, 0.78, 0.80))
+GREEN_LEAF = (LEAF_TOP, LEAF, LEAF_DARK)
+TEAL_LEAF = ((0.56, 0.92, 0.80), (0.26, 0.70, 0.62), (0.10, 0.40, 0.42))
+
+
+def card_tree(seed, height, tint, alpha=FOLIAGE, crown=0.36, squash=0.8, clumps=9, cards=10, bark=BARK, lean=None, branches=3):
+    rng.seed(seed)
+    b = Builder()
+    ln = lean or (rng.uniform(-0.15, 0.15), rng.uniform(-0.15, 0.15))
+    top = trunk(b, height * 0.55, 0.06 + height * 0.04, 0.03 + height * 0.02, lean=ln, color=bark)
+    for i in range(branches):
+        a = i / branches * math.tau + rng.uniform(-0.4, 0.4)
+        b.cyl(0.06, 0.025, height * 0.32, loc=(top[0] * 0.7, top[1] * 0.7, height * 0.42), rot=(0.85 * math.cos(a), 0.85 * math.sin(a), 0), color=bark, seg=5)
+    lb = leafy(b, (top[0], top[1], height * 0.72), height * crown, *tint, alpha=alpha, squash=squash, clumps=clumps, cards=cards, seed=seed)
+    b.to_object("Tree")
+    lb.to_object("Leaves", mat_name="Leaves")
+
+
+def tree_round(seed, height=3.4, tint=GREEN_LEAF):
+    card_tree(seed, height, tint)
+
+
+def tree_grand(seed, height=5.6):
+    card_tree(seed, height, GREEN_LEAF, crown=0.44, squash=0.72, clumps=14, cards=12, branches=5, lean=(0.08, -0.05))
+
+
+def tree_birch(seed, height=3.8):
+    rng.seed(seed)
+    b = Builder()
+    trunk(b, height * 0.8, 0.1, 0.06, lean=(rng.uniform(-0.1, 0.1), 0.05), color=(0.94, 0.93, 0.90), segments=3, roots=False)
+    for z in (0.5, 1.0, 1.6, 2.1):
+        b.cyl(0.105, 0.1, 0.05, loc=(0, 0, z), color=(0.25, 0.24, 0.26), seg=6)
+    lb = leafy(b, (0.1, 0, height * 0.78), height * 0.26, (0.82, 0.96, 0.48), (0.56, 0.84, 0.36), (0.26, 0.56, 0.30), squash=1.0, clumps=6, cards=9, seed=seed)
+    b.to_object("Tree")
+    lb.to_object("Leaves", mat_name="Leaves")
+
+
+def tree_fir(seed, height=4.6):
+    """Painted conifer: tiers of drooping leaf cards around a cone."""
+    rng.seed(seed)
+    b = Builder()
+    b.cyl(0.16, 0.06, height * 0.95, color=BARK, seg=7)
+    b.cyl(height * 0.17, 0.02, height * 0.8, loc=(0, 0, height * 0.18), color=PINE_DARK, alpha=EVERGREEN, seg=8)
+    lb = Builder()
+    tiers = 6
+    for i in range(tiers):
+        t = i / (tiers - 1)
+        r = (1.0 - t * 0.8) * height * 0.24
+        z = height * (0.2 + t * 0.68)
+        n_cards = int(10 - t * 5)
+        for k in range(n_cards):
+            a = k / n_cards * math.tau + rng.uniform(-0.2, 0.2) + i
+            p = Vector((math.cos(a) * r * 0.75, math.sin(a) * r * 0.75, z))
+            n = (Vector((math.cos(a), math.sin(a), 0.6))).normalized()
+            col = lerp3(PINE_DARK, PINE_TOP, 0.25 + t * 0.75)
+            lb.card(p, r * 1.15, (math.cos(a), math.sin(a), -0.9), rng.uniform(-0.4, 0.4), rng.randrange(4), col, EVERGREEN, n, 0.75)
+    lb.card((0, 0, height * 0.95), height * 0.12, (0.3, 0.3, 1), 0.0, 1, PINE_TOP, EVERGREEN, (0, 0, 1))
+    b.to_object("Tree")
+    lb.to_object("Leaves", mat_name="Leaves")
+
+
+def bush(seed, size=0.7, tint=GREEN_LEAF, alpha=FOLIAGE):
+    rng.seed(seed)
+    b = Builder()
+    lb = leafy(b, (0, 0, size * 0.55), size * 0.75, *tint, alpha=alpha, squash=0.7, clumps=5, cards=6, seed=seed)
+    b.to_object("Bush")
+    lb.to_object("Leaves", mat_name="Leaves")
+
+
+def flower_lavender(seed):
+    """Tall lavender-purple flower spikes (meadow accent)."""
+    rng.seed(seed)
+    b = Builder()
+    for i in range(7):
+        a = rng.uniform(0, math.tau)
+        d = rng.uniform(0, 0.18)
+        x, y = math.cos(a) * d, math.sin(a) * d
+        h = rng.uniform(0.45, 0.75)
+        lean = rng.uniform(-0.15, 0.15)
+        b.cyl(0.012, 0.008, h, loc=(x, y, 0), rot=(lean, lean * 0.5, 0), color=GRASS, alpha=FOLIAGE, seg=4)
+        for k in range(7):
+            z = h * (0.6 + k * 0.06)
+            b.ball(0.028 - k * 0.002, loc=(x + lean * z * 0.5 * 0, y - lean * z, z), color=(0.70, 0.46, 0.96), alpha=PETAL, subdiv=1,
+                   scale=(1, 1, 1.3), grad=((0.86, 0.72, 1.0), (0.52, 0.30, 0.86)))
+    for i in range(5):
+        a = rng.uniform(0, math.tau)
+        b.ball(0.08, loc=(math.cos(a) * 0.1, math.sin(a) * 0.1, 0.04), color=LEAF, alpha=FOLIAGE, subdiv=1, scale=(1.5, 0.4, 0.3), rot=(0, 0, a))
+    b.to_object("Flowers")
+
+
+def grass_tuft(seed):
+    """Tall meadow grass: dark roots, sunlit tips."""
+    rng.seed(seed)
+    b = Builder()
+    for i in range(16):
+        a = rng.uniform(0, math.tau)
+        d = rng.uniform(0, 0.16)
+        h = rng.uniform(0.3, 0.62)
+        lean = rng.uniform(0.15, 0.55)
+        b.cyl(0.03, 0.0, h, loc=(math.cos(a) * d, math.sin(a) * d, 0), rot=(lean * math.cos(a + 1.57), lean * math.sin(a + 1.57), 0),
+              color=GRASS, alpha=EVERGREEN, seg=3, smooth=False, grad=(GRASS_TIP, GRASS_ROOT))
+    b.to_object("Grass")
+
+
+# ---------------------------------------------------------------------------
+# Ancient ruins (reference: meadow ruins with carved arch and rotunda)
+# ---------------------------------------------------------------------------
+RUIN = (0.84, 0.82, 0.74)
+RUIN_DARK = (0.56, 0.56, 0.54)
+RUIN_G = ((0.92, 0.90, 0.82), (0.58, 0.58, 0.58))
+
+
+def _blocks(b, x0, x1, z0, z1, y=0.0, depth=0.5, row=0.42, broken_top=None, seed=0):
+    """Dry-stone wall face made of individual offset blocks (chunky, readable)."""
+    local = random.Random(seed)
+    z = z0
+    r = 0
+    while z < z1 - 0.05:
+        x = x0 - (0.3 if r % 2 else 0.0)
+        while x < x1 - 0.05:
+            w = local.uniform(0.5, 0.85)
+            xa, xb = max(x, x0), min(x + w, x1)
+            top = z1 if broken_top is None else broken_top((xa + xb) * 0.5)
+            if xb - xa > 0.12 and z + row * 0.5 < top:
+                hgt = min(row, top - z)
+                b.box((xb - xa - 0.03, depth + local.uniform(-0.03, 0.04), hgt - 0.03), loc=((xa + xb) / 2, y, z + hgt / 2),
+                      color=lerp3(RUIN, RUIN_DARK, local.uniform(0, 0.35)), grad=RUIN_G)
+            x += w
+        z += row
+        r += 1
+
+
+def _moss(b, x, y, z, w, d=0.5, seed=0):
+    local = random.Random(seed)
+    for i in range(max(1, int(w / 0.35))):
+        b.ball(0.2, loc=(x - w / 2 + (i + 0.5) * w / max(1, int(w / 0.35)), y + local.uniform(-0.1, 0.1), z + 0.04), color=MOSS, alpha=FOLIAGE,
+               subdiv=1, scale=(1.3, d * 2.2, 0.38), grad=(LEAF_TOP, MOSS))
+
+
+def ruin_arch():
+    """Carved ceremonial archway with relief bands and mossy tops."""
+    b = Builder()
+    span, h = 2.6, 4.2
+    for s in (-1, 1):
+        x = s * (span / 2 + 0.45)
+        b.box((1.0, 1.0, 0.4), loc=(x, 0, 0.2), color=RUIN_DARK, grad=RUIN_G)
+        for k in range(6):
+            b.box((0.8, 0.8, 0.5), loc=(x, 0, 0.65 + k * 0.5), color=lerp3(RUIN, RUIN_DARK, (k % 3) * 0.12), grad=RUIN_G)
+        b.box((1.0, 1.0, 0.25), loc=(x, 0, 3.55), color=RUIN, grad=RUIN_G)
+    # arch voussoirs with a carved band
+    n = 13
+    for i in range(n):
+        a = i / (n - 1) * math.pi
+        r = span / 2 + 0.4
+        cx, cz = math.cos(a) * r, 3.65 + math.sin(a) * r
+        b.box((0.62, 0.8, 0.45), loc=(cx, 0, cz), rot=(0, -a + math.pi / 2, 0), color=RUIN, grad=RUIN_G)
+        b.box((0.3, 0.86, 0.12), loc=(math.cos(a) * (r - 0.05), 0, 3.65 + math.sin(a) * (r - 0.05)), rot=(0, -a + math.pi / 2, 0), color=STONE_LIGHT)
+        if i % 2 == 0:
+            b.ball(0.08, loc=(math.cos(a) * r, -0.42, 3.65 + math.sin(a) * r), color=STONE_LIGHT, subdiv=1)
+    b.box((0.5, 0.86, 0.6), loc=(0, 0, 3.65 + span / 2 + 0.5), color=STONE_LIGHT, grad=RUIN_G)
+    _moss(b, 0, 0, 3.65 + span / 2 + 0.85, 1.6, 0.45, 3)
+    _moss(b, -span / 2 - 0.45, 0, 3.7, 0.9, 0.5, 4)
+    b.to_object("Arch")
+
+
+def ruin_wall():
+    """Broken wall segment with a pointed-arch niche window and a stump pillar."""
+    b = Builder()
+    def top(x):
+        return 3.0 - abs(x - 0.4) * 0.6 - (0.9 if x > 2.2 else 0.0) + math.sin(x * 4.0) * 0.15
+    _blocks(b, -2.5, 3.0, 0.0, 3.2, depth=0.6, broken_top=top, seed=5)
+    # niche window (darker recess + pointed arch frame)
+    b.box((0.7, 0.2, 1.1), loc=(-0.6, -0.25, 1.5), color=(0.42, 0.44, 0.48))
+    for s in (-1, 1):
+        b.box((0.16, 0.25, 1.2), loc=(-0.6 + s * 0.45, -0.3, 1.5), color=STONE_LIGHT)
+        b.box((0.16, 0.25, 0.62), loc=(-0.6 + s * 0.22, -0.3, 2.26), rot=(0, s * 0.75, 0), color=STONE_LIGHT)
+    b.box((1.1, 0.3, 0.12), loc=(-0.6, -0.32, 0.9), color=STONE_LIGHT)
+    # pillar
+    for k in range(5):
+        b.box((0.6, 0.6, 0.5), loc=(-2.8, 0, 0.25 + k * 0.5), color=lerp3(RUIN, RUIN_DARK, (k % 2) * 0.15), grad=RUIN_G)
+    b.box((0.8, 0.8, 0.2), loc=(-2.8, 0, 2.6), color=STONE_LIGHT)
+    _moss(b, -2.8, 0, 2.7, 0.7, 0.4, 7)
+    _moss(b, 0.3, 0, 2.9, 1.6, 0.45, 8)
+    for i in range(5):
+        b.ball(rng.uniform(0.15, 0.3), loc=(rng.uniform(-2, 3), rng.uniform(-0.9, -0.4), 0.1), color=RUIN, subdiv=1, jitter=0.2, smooth=False)
+    b.to_object("Wall")
+
+
+def ruin_pillar():
+    """Free-standing pillar with a carved capital, slightly toppled."""
+    b = Builder()
+    b.box((0.9, 0.9, 0.3), loc=(0, 0, 0.15), color=RUIN_DARK, grad=RUIN_G)
+    for k in range(5):
+        b.box((0.62, 0.62, 0.55), loc=(0, 0, 0.55 + k * 0.55), rot=(0, 0, k * 0.04), color=lerp3(RUIN, RUIN_DARK, (k % 2) * 0.12), grad=RUIN_G)
+    b.box((0.9, 0.9, 0.18), loc=(0, 0, 3.05), color=STONE_LIGHT)
+    b.box((0.75, 0.75, 0.25), loc=(0, 0, 3.25), color=RUIN, grad=RUIN_G)
+    _moss(b, 0, 0, 3.4, 0.7, 0.4, 2)
+    b.to_object("Pillar")
+
+
+def ruin_slab():
+    """Fallen lintel resting on a broken post, overgrown with moss."""
+    b = Builder()
+    b.box((0.7, 0.7, 1.8), loc=(0.9, 0, 0.9), color=RUIN, grad=RUIN_G)
+    b.box((3.4, 1.0, 0.55), loc=(-0.2, 0, 1.25), rot=(0, 0.42, 0.1), color=RUIN, grad=RUIN_G)
+    _moss(b, -0.6, 0, 1.7, 1.8, 0.5, 4)
+    b.ball(0.6, loc=(-1.6, 0.1, 0.2), color=RUIN_DARK, subdiv=1, jitter=0.2, smooth=False)
+    b.to_object("Slab")
+
+
+def rotunda():
+    """Domed rotunda on columns with a broken dome and glowing rune rings."""
+    b = Builder()
+    g = RUIN_G
+    b.cyl(2.4, 2.5, 0.35, color=RUIN_DARK, seg=24, grad=g)
+    b.cyl(2.15, 2.2, 0.3, loc=(0, 0, 0.35), color=RUIN, seg=24, grad=g)
+    for tier, (z0, r, hgt) in enumerate(((0.65, 1.9, 2.4), (3.6, 1.5, 1.8))):
+        for i in range(8):
+            a = i / 8 * math.tau
+            x, y = math.cos(a) * r, math.sin(a) * r
+            b.cyl(0.2, 0.2, 0.18, loc=(x, y, z0), color=STONE_LIGHT, seg=8)
+            b.cyl(0.15, 0.13, hgt, loc=(x, y, z0 + 0.18), color=RUIN, seg=10, grad=g)
+            b.box((0.42, 0.42, 0.2), loc=(x, y, z0 + 0.18 + hgt), rot=(0, 0, a), color=STONE_LIGHT)
+        b.cyl(r + 0.35, r + 0.3, 0.42, loc=(0, 0, z0 + 0.38 + hgt), color=RUIN, seg=24, grad=g)
+        b.torus(r + 0.33, 0.06, loc=(0, 0, z0 + 0.8 + hgt), color=STONE_LIGHT, seg=28, ring=4)
+    # broken dome: partial shell built from ribs and panels (one sector missing)
+    for i in range(16):
+        a0 = i / 16 * math.tau
+        if 9 <= i <= 11:
+            continue
+        for k in range(5):
+            el0 = k / 5 * math.pi / 2
+            el1 = (k + 1) / 5 * math.pi / 2
+            r0, r1 = 1.85 * math.cos(el0), 1.85 * math.cos(el1)
+            z_0, z_1 = 6.2 + 1.85 * math.sin(el0), 6.2 + 1.85 * math.sin(el1)
+            a1 = a0 + math.tau / 16
+            mid = (a0 + a1) / 2
+            b.box((r0 * 0.42, 0.14, (z_1 - z_0) * 1.25), loc=(math.cos(mid) * (r0 + r1) / 2, math.sin(mid) * (r0 + r1) / 2, (z_0 + z_1) / 2),
+                  rot=(0, -(el0 + el1) / 2 + math.pi / 2, mid), color=lerp3(RUIN, RUIN_DARK, (k % 2) * 0.1))
+    b.cyl(0.3, 0.22, 0.4, loc=(0, 0, 8.0), color=STONE_LIGHT, seg=10)
+    b.ball(0.22, loc=(0, 0, 8.55), color=RUIN, subdiv=2)
+    _moss(b, 1.2, 0, 7.5, 1.0, 0.6, 5)
+    b.to_object("Rotunda")
+    gl = Builder()
+    for z, r in ((0.72, 1.4), (2.0, 1.0), (4.6, 0.8)):
+        gl.torus(r, 0.03, loc=(0, 0, z), color=CRYSTAL, seg=32, ring=4)
+        for k in range(6):
+            a = k / 6 * math.tau
+            gl.box((0.14, 0.02, 0.14), loc=(math.cos(a) * r, math.sin(a) * r, z), rot=(0, 0, a), color=CRYSTAL)
+    gl.cyl(0.08, 0.02, 5.0, loc=(0, 0, 0.7), color=(0.62, 0.92, 1.0), seg=8)
+    gl.to_object("Glow", mat_name="Glow", emissive=True)
+
+
+def rock_big(seed, size=1.4):
+    """Large flat-topped boulder (perch for birds)."""
+    rng.seed(seed)
+    b = Builder()
+    b.ball(size, loc=(0, 0, size * 0.25), color=STONE, subdiv=1, jitter=0.12, scale=(1.3, 1.0, 0.65), smooth=False,
+           grad=((0.86, 0.85, 0.80), (0.46, 0.50, 0.56)))
+    b.ball(size * 0.7, loc=(size * 0.2, 0, size * 0.6), color=MOSS, alpha=FOLIAGE, subdiv=2, scale=(1.3, 1.1, 0.22), grad=(LEAF_TOP, MOSS))
+    b.to_object("Rock")
+
+
+# ---------------------------------------------------------------------------
+# Town square pieces (reference: windmill town plaza)
+# ---------------------------------------------------------------------------
+def cafe_table():
+    b = Builder()
+    b.cyl(0.42, 0.42, 0.05, loc=(0, 0, 0.72), color=WOOD_LIGHT, seg=14, grad=(WOOD_LIGHT, WOOD))
+    b.cyl(0.05, 0.05, 0.72, color=IRON, seg=6)
+    b.cyl(0.25, 0.25, 0.03, color=IRON, seg=10)
+    for i in range(3):
+        a = i / 3 * math.tau + 0.4
+        x, y = math.cos(a) * 0.7, math.sin(a) * 0.7
+        b.cyl(0.2, 0.2, 0.05, loc=(x, y, 0.44), color=WOOD, seg=10)
+        for k in range(3):
+            ka = k / 3 * math.tau
+            b.cyl(0.02, 0.02, 0.44, loc=(x + math.cos(ka) * 0.13, y + math.sin(ka) * 0.13, 0), color=WOOD_DARK, seg=4)
+    b.cyl(0.04, 0.03, 0.12, loc=(0.1, 0.05, 0.77), color=(0.95, 0.95, 1.0), seg=8)
+    b.ball(0.06, loc=(-0.12, -0.05, 0.8), color=CLOTH_RED, subdiv=1)
+    b.to_object("Table")
+
+
+def planter():
+    b = Builder()
+    b.box((1.0, 0.5, 0.45), loc=(0, 0, 0.22), color=STONE_LIGHT, grad=(STONE_LIGHT, STONE))
+    b.box((1.1, 0.6, 0.08), loc=(0, 0, 0.47), color=STONE)
+    rng.seed(9)
+    cols = [CLOTH_RED, CLOTH_YELLOW, WHITE, (0.7, 0.5, 1.0)]
+    for i in range(12):
+        x, y = rng.uniform(-0.4, 0.4), rng.uniform(-0.18, 0.18)
+        b.ball(0.12, loc=(x, y, 0.6), color=LEAF, alpha=FOLIAGE, subdiv=1, grad=(LEAF_TOP, LEAF_DARK))
+        b.ball(0.06, loc=(x, y, 0.72), color=cols[i % 4], alpha=PETAL, subdiv=1)
+    b.to_object("Planter")
+
+
+def fence_pillar():
+    """Stone pillar post with a cap stone (ornamental town fence)."""
+    b = Builder()
+    b.box((0.38, 0.38, 1.25), loc=(0, 0, 0.62), color=STONE_LIGHT, grad=RUIN_G)
+    b.box((0.48, 0.48, 0.12), loc=(0, 0, 1.3), color=STONE)
+    b.cyl(0.24, 0.05, 0.22, loc=(0, 0, 1.36), color=STONE_LIGHT, seg=4, rot=(0, 0, math.pi / 4), smooth=False)
+    b.to_object("FencePost")
+
+
+def fence_ornate():
+    """1 m ornamental wooden railing with carved scroll arches, along +X."""
+    b = Builder()
+    b.box((1.0, 0.09, 0.1), loc=(0.5, 0, 1.0), color=WOOD, grad=(WOOD_LIGHT, WOOD_DARK))
+    b.box((1.0, 0.09, 0.1), loc=(0.5, 0, 0.2), color=WOOD, grad=(WOOD_LIGHT, WOOD_DARK))
+    for k in range(5):
+        a = k / 4 * math.pi
+        b.box((0.13, 0.06, 0.05), loc=(0.5 + math.cos(a) * 0.36, 0, 0.55 + math.sin(a) * 0.36), rot=(0, -a + math.pi / 2, 0), color=WOOD_DARK)
+    for x in (0.12, 0.88):
+        b.box((0.05, 0.06, 0.8), loc=(x, 0, 0.6), color=WOOD_DARK)
+    b.torus(0.12, 0.022, loc=(0.5, 0, 0.55), rot=(math.pi / 2, 0, 0), color=WOOD_DARK, seg=12, ring=4)
+    b.to_object("FenceRail")
+
+
+def gate_ornate():
+    root = empty("Gate")
+    for name, s in (("LeafL", -1), ("LeafR", 1)):
+        pivot = empty(name, (s * 0.5, 0, 0), root)
+        b = Builder()
+        for i in range(5):
+            b.box((0.085, 0.05, 1.5 - abs(i - 2) * 0.05), loc=(-s * (0.06 + i * 0.095), 0, 0.8), color=WOOD, grad=(WOOD_LIGHT, WOOD_DARK))
+        for z in (0.35, 1.25):
+            b.box((0.5, 0.06, 0.08), loc=(-s * 0.25, 0.02, z), color=WOOD_DARK)
+        b.box((0.06, 0.07, 0.4), loc=(-s * 0.46, -0.03, 0.85), color=IRON)
+        b.to_object(name + "Mesh", pivot)
+
+
+# ---------------------------------------------------------------------------
+# Lakeside village pieces (reference: white-walled village by a jade lake)
+# ---------------------------------------------------------------------------
+def window_lattice():
+    """Square dark-wood lattice window over glowing paper. Same footprint as window_frame."""
+    b = Builder()
+    w, h = 0.8, 0.9
+    b.box((w + 0.14, 0.1, h + 0.14), loc=(0, -0.04, 0), color=WOOD_DARK)
+    g = Builder()
+    g.box((w - 0.04, 0.01, h - 0.04), loc=(0, -0.1, 0), color=(0.98, 0.92, 0.78))
+    for i in range(1, 5):
+        b.box((0.025, 0.04, h), loc=(-w / 2 + i * w / 5, -0.11, 0), color=WOOD_DARK)
+        b.box((w, 0.04, 0.025), loc=(0, -0.11, -h / 2 + i * h / 5), color=WOOD_DARK)
+    b.to_object("Frame")
+    g.to_object("Glow", mat_name="Glow", emissive=True)
+
+
+def door_wood():
+    """Dark lacquered double door with a frame and two red lanterns. 1.0 x 2.0, faces -Y."""
+    b = Builder()
+    for x in (-0.25, 0.25):
+        b.box((0.48, 0.07, 1.95), loc=(x, -0.035, 0.98), color=(0.36, 0.22, 0.16), grad=((0.5, 0.32, 0.22), (0.26, 0.16, 0.12)))
+        for z in (0.5, 1.0, 1.5):
+            b.ball(0.025, loc=(x * 0.6, -0.08, z), color=GOLD, subdiv=1)
+    b.box((1.25, 0.14, 0.14), loc=(0, -0.07, 2.05), color=(0.26, 0.18, 0.14))
+    for s in (-1, 1):
+        b.box((0.12, 0.14, 2.05), loc=(s * 0.58, -0.07, 1.0), color=(0.26, 0.18, 0.14))
+    b.to_object("Door")
+    g = Builder()
+    for s in (-1, 1):
+        g.ball(0.13, loc=(s * 0.82, -0.25, 1.9), color=CLOTH_RED, subdiv=2, scale=(1, 1, 1.25))
+    g.to_object("Glow", mat_name="Glow", emissive=True)
+
+
+def bridge_slab():
+    """1 m segment of a flat stone causeway (no railings), along +X."""
+    b = Builder()
+    b.box((1.0, 1.7, 0.32), loc=(0.5, 0, -0.12), color=STONE_LIGHT, grad=RUIN_G)
+    for s in (-1, 1):
+        b.box((1.0, 0.12, 0.6), loc=(0.5, s * 0.82, -0.45), color=STONE, grad=RUIN_G)
+    b.box((0.04, 1.72, 0.33), loc=(0.98, 0, -0.12), color=RUIN_DARK)
+    b.to_object("Bridge")
+
+
+def bamboo_raft():
+    """Bamboo raft floating on the lake, with a basket."""
+    b = Builder()
+    for i in range(9):
+        y = -0.8 + i * 0.2
+        b.cyl(0.09, 0.09, 3.0, loc=(-1.5, y, 0.05), rot=(0, math.pi / 2, 0), color=(0.86, 0.80, 0.52), seg=8, grad=((0.92, 0.88, 0.62), (0.66, 0.56, 0.32)))
+    for x in (-1.0, 0.0, 1.0):
+        b.box((0.08, 1.9, 0.05), loc=(x, 0, 0.16), color=WOOD_DARK)
+    b.cyl(0.32, 0.36, 0.25, loc=(0.6, 0.2, 0.14), color=(0.78, 0.64, 0.36), seg=12)
+    b.cyl(0.035, 0.035, 2.4, loc=(-1.2, 0.3, 0.14), rot=(1.2, 0.0, 0.3), color=(0.75, 0.70, 0.44), seg=5)
+    b.to_object("Raft")
+
+
+def stone_lantern2():
+    """Squat stone lantern with a little pagoda cap."""
+    b = Builder()
+    b.box((0.5, 0.5, 0.2), loc=(0, 0, 0.1), color=STONE, grad=RUIN_G)
+    b.box((0.24, 0.24, 0.55), loc=(0, 0, 0.47), color=STONE_LIGHT)
+    b.box((0.44, 0.44, 0.1), loc=(0, 0, 0.78), color=STONE)
+    for i in range(4):
+        a = i / 4 * math.tau + math.pi / 4
+        b.box((0.07, 0.07, 0.32), loc=(math.cos(a) * 0.15, math.sin(a) * 0.15, 0.99), color=STONE_LIGHT)
+    b.cyl(0.42, 0.06, 0.25, loc=(0, 0, 1.15), color=STONE, seg=4, rot=(0, 0, math.pi / 4), smooth=False)
+    b.ball(0.06, loc=(0, 0, 1.45), color=STONE_LIGHT, subdiv=1)
+    b.to_object("Lantern")
+    g = Builder()
+    g.box((0.2, 0.2, 0.26), loc=(0, 0, 0.98), color=(1.0, 0.86, 0.55))
+    g.to_object("Glow", mat_name="Glow", emissive=True)
+
+
+def tea_terrace():
+    """Terraced tea field: stepped rows of round, neatly clipped bushes (4 x 4 m)."""
+    b = Builder()
+    lb = Builder()
+    for row in range(4):
+        z = row * 0.45
+        y = -1.6 + row * 1.05
+        b.box((4.2, 1.1, z + 0.4), loc=(0, y, (z + 0.4) / 2 - 0.2), color=(0.62, 0.48, 0.34), grad=((0.66, 0.54, 0.38), (0.48, 0.36, 0.28)))
+        b.box((4.2, 0.12, z + 0.45), loc=(0, y - 0.55, (z + 0.45) / 2 - 0.2), color=STONE, grad=RUIN_G)
+        for k in range(8):
+            x = -1.8 + k * 0.52
+            b.ball(0.3, loc=(x, y + 0.05, z + 0.38), color=(0.30, 0.66, 0.36), alpha=EVERGREEN, subdiv=2, scale=(1.05, 1.0, 0.75),
+                   grad=((0.54, 0.86, 0.42), (0.18, 0.46, 0.30)))
+    b.to_object("Terrace")
+
+
+def karst(seed, height=28.0):
+    """Towering karst peak for the backdrop: tiered rock with green ledges."""
+    rng.seed(seed)
+    b = Builder()
+    lb = Builder()
+    tiers = 6
+    for i in range(tiers):
+        t = i / tiers
+        r = height * (0.34 - 0.24 * t) * rng.uniform(0.9, 1.1)
+        z = height * t * 0.92
+        off = (rng.uniform(-1, 1) * r * 0.15, rng.uniform(-1, 1) * r * 0.15)
+        b.cyl(r, r * 0.82, height * 0.2, loc=(off[0], off[1], z), color=(0.56, 0.64, 0.70), seg=9, jitter=r * 0.06, smooth=False,
+              wgrad=((0.80, 0.86, 0.86), (0.36, 0.44, 0.52), 0, height))
+        # grassy ledge cap
+        b.cyl(r * 0.86, r * 0.6, height * 0.025, loc=(off[0], off[1], z + height * 0.19), color=(0.42, 0.70, 0.44), alpha=EVERGREEN, seg=9, jitter=r * 0.04,
+              smooth=False)
+        for k in range(3):
+            a = rng.uniform(0, math.tau)
+            p = (off[0] + math.cos(a) * r * 0.6, off[1] + math.sin(a) * r * 0.6, z + height * 0.215)
+            lb.card(p, r * 0.5, (math.cos(a), math.sin(a), 0.6), rng.uniform(0, 6), rng.randrange(4), (0.36, 0.66, 0.46), EVERGREEN, (math.cos(a), math.sin(a), 1))
+    b.ball(height * 0.09, loc=(0, 0, height * 1.05), color=(0.42, 0.70, 0.44), alpha=EVERGREEN, subdiv=1, scale=(1, 1, 0.5))
+    b.to_object("Karst")
+    lb.to_object("Leaves", mat_name="Leaves")
+
+
+def cliff(seed, width=16.0):
+    """Layered grey cliff wall with grassy top (town backdrop)."""
+    rng.seed(seed)
+    b = Builder()
+    for i in range(7):
+        x = -width / 2 + i * width / 6 + rng.uniform(-1, 1)
+        h = rng.uniform(7, 13)
+        b.box((rng.uniform(3, 5), rng.uniform(3, 4.5), h), loc=(x, rng.uniform(-0.8, 0.8), h / 2), rot=(rng.uniform(-0.08, 0.08), rng.uniform(-0.08, 0.08), rng.uniform(-0.3, 0.3)),
+              color=(0.66, 0.68, 0.70), jitter=0.3, wgrad=((0.86, 0.86, 0.84), (0.42, 0.46, 0.52), 0, 13))
+        b.box((rng.uniform(3.2, 5.2), rng.uniform(3.2, 4.7), 0.5), loc=(x, 0, h), color=(0.46, 0.74, 0.40), alpha=EVERGREEN, jitter=0.2)
+    b.to_object("Cliff")
+
+
 ASSETS = {
     # trees: names kept so saved glades and code keep working
     "tree_round_a": lambda: tree_round(1, 3.4),
@@ -1374,14 +1841,20 @@ ASSETS = {
     "tree_pine_b": lambda: tree_fir(5, 3.6),
     "tree_birch": lambda: tree_birch(6),
     "tree_cedar": lambda: tree_cedar(9, 5.4),
+    "tree_golden": lambda: card_tree(31, 3.8, GOLD_LEAF, alpha=PETAL, clumps=10),
+    "tree_orange": lambda: card_tree(32, 3.4, ORANGE_LEAF, alpha=PETAL, clumps=9),
+    "tree_blossom": lambda: card_tree(33, 3.6, BLOSSOM, alpha=PETAL, clumps=10, bark=BARK_DARK),
+    "tree_teal": lambda: card_tree(34, 4.0, TEAL_LEAF, alpha=EVERGREEN, clumps=10),
     "bush_a": lambda: bush(11, 0.7),
     "bush_b": lambda: bush_flowering(12, CLOTH_PINK, 0.6),
+    "bush_golden": lambda: bush(35, 0.8, ((0.98, 0.94, 0.52), (0.86, 0.80, 0.32), (0.52, 0.56, 0.20)), PETAL),
     "bush_berries": lambda: bush_fruit(13),
     "flowers_pink": lambda: flowers(14, CLOTH_PINK),
     "flowers_white": lambda: flower_cecilia(15),
     "flowers_blue": lambda: flower_windwheel(16),
     "flowers_yellow": lambda: flower_dandelion(17),
     "flowers_red": lambda: flowers(18, (1.0, 0.32, 0.28)),
+    "flowers_lavender": lambda: flower_lavender(36),
     "grass_tuft": lambda: grass_tuft(19),
     "reeds": lambda: reeds(20),
     "lily_pad_a": lambda: lily_pad(22),
@@ -1389,6 +1862,7 @@ ASSETS = {
     "rock_a": lambda: rock(24, 0.55),
     "rock_b": lambda: rock(25, 0.35, STONE_DARK),
     "rock_c": lambda: rock(26, 0.85),
+    "rock_big": lambda: rock_big(37),
     "cobble_a": lambda: cobble(27),
     "cobble_b": lambda: cobble(28),
     "stepping_stone": lambda: stepping_stone(29),
@@ -1447,6 +1921,30 @@ ASSETS = {
     "cloud_a": lambda: cloud(40),
     "cloud_b": lambda: cloud(41),
     "windmill_sails": windmill_sails,
+    # ancient ruins
+    "ruin_arch": ruin_arch,
+    "ruin_wall": ruin_wall,
+    "ruin_pillar": ruin_pillar,
+    "ruin_slab": ruin_slab,
+    "rotunda": rotunda,
+    # town square
+    "cafe_table": cafe_table,
+    "planter": planter,
+    "fence_pillar": fence_pillar,
+    "fence_ornate": fence_ornate,
+    "gate_ornate": gate_ornate,
+    # lakeside village
+    "window_lattice": window_lattice,
+    "door_wood": door_wood,
+    "bridge_slab": bridge_slab,
+    "bamboo_raft": bamboo_raft,
+    "stone_lantern": stone_lantern2,
+    "tea_terrace": tea_terrace,
+    # backdrops
+    "karst_a": lambda: karst(50, 30.0),
+    "karst_b": lambda: karst(51, 22.0),
+    "karst_c": lambda: karst(52, 38.0),
+    "cliff": lambda: cliff(53),
 }
 
 

@@ -7,6 +7,8 @@ var _solid := SurfaceTool.new()
 var _glow := SurfaceTool.new()
 var _has_solid := false
 var _has_glow := false
+var _leaves := SurfaceTool.new()
+var _has_leaves := false
 
 
 func add(kind: String, xf: Transform3D) -> void:
@@ -17,6 +19,9 @@ func add(kind: String, xf: Transform3D) -> void:
 	if m.glow:
 		_glow.append_from(m.glow, 0, xf)
 		_has_glow = true
+	if m.leaves:
+		_leaves.append_from(m.leaves, 0, xf)
+		_has_leaves = true
 
 
 func add_mesh(mesh: Mesh, xf: Transform3D) -> void:
@@ -35,7 +40,7 @@ func glow_mesh() -> ArrayMesh:
 
 ## Attaches MeshInstance3D children to `parent` (replacing old ones).
 func apply_to(parent: Node3D, solid_name := "Deco", glow_name := "DecoGlow") -> void:
-	for n in [solid_name, glow_name]:
+	for n in [solid_name, glow_name, solid_name + "Leaves"]:
 		var old := parent.get_node_or_null(n)
 		if old:
 			old.free()
@@ -46,6 +51,12 @@ func apply_to(parent: Node3D, solid_name := "Deco", glow_name := "DecoGlow") -> 
 		mi.mesh = s
 		mi.material_override = ModelLib.props_material
 		parent.add_child(mi)
+	if _has_leaves:
+		var li := MeshInstance3D.new()
+		li.name = solid_name + "Leaves"
+		li.mesh = _leaves.commit()
+		li.material_override = ModelLib.leaf_material
+		parent.add_child(li)
 	var g := glow_mesh()
 	if g:
 		var gi := MeshInstance3D.new()

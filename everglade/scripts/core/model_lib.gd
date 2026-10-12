@@ -7,6 +7,7 @@ const MODEL_DIR := "res://assets/models/"
 var props_material: ShaderMaterial
 var glow_material: ShaderMaterial
 var arch_material: ShaderMaterial
+var leaf_material: ShaderMaterial
 
 var _scenes: Dictionary = {}
 var _merged: Dictionary = {}
@@ -17,6 +18,9 @@ func _init() -> void:
 	props_material.shader = load("res://shaders/props.gdshader")
 	glow_material = ShaderMaterial.new()
 	glow_material.shader = load("res://shaders/glow.gdshader")
+	leaf_material = ShaderMaterial.new()
+	leaf_material.shader = load("res://shaders/foliage.gdshader")
+	leaf_material.set_shader_parameter("leaf_tex", load("res://assets/textures/leaves.png"))
 	arch_material = ShaderMaterial.new()
 	arch_material.shader = load("res://shaders/architecture.gdshader")
 
@@ -46,10 +50,20 @@ func instance(kind: String) -> Node3D:
 func _reskin(node: Node) -> void:
 	if node is MeshInstance3D:
 		var mi := node as MeshInstance3D
-		mi.material_override = glow_material if _is_glow(mi) else props_material
+		mi.material_override = glow_material if _is_glow(mi) else (leaf_material if _is_leaves(mi) else props_material)
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	for child in node.get_children():
 		_reskin(child)
+
+
+func _is_leaves(mi: MeshInstance3D) -> bool:
+	if mi.name.begins_with("Leaves"):
+		return true
+	if mi.mesh and mi.mesh.get_surface_count() > 0:
+		var mat := mi.mesh.surface_get_material(0)
+		if mat and mat.resource_name.begins_with("Leaves"):
+			return true
+	return false
 
 
 func _is_glow(mi: MeshInstance3D) -> bool:
@@ -70,8 +84,10 @@ func merged(kind: String) -> Dictionary:
 	var root := instance(kind)
 	var solid := SurfaceTool.new()
 	var glow := SurfaceTool.new()
+	var leaves := SurfaceTool.new()
 	var has_solid := false
 	var has_glow := false
+	var has_leaves := false
 	var stack: Array = [[root, Transform3D.IDENTITY]]
 	while not stack.is_empty():
 		var item: Array = stack.pop_back()
@@ -82,22 +98,30 @@ func merged(kind: String) -> Dictionary:
 				var cxf: Transform3D = xf * (child as Node3D).transform
 				if child is MeshInstance3D and (child as MeshInstance3D).mesh:
 					var mi := child as MeshInstance3D
-					var target := glow if _is_glow(mi) else solid
+					var target := glow if _is_glow(mi) else (leaves if _is_leaves(mi) else solid)
 					for s in mi.mesh.get_surface_count():
 						target.append_from(mi.mesh, s, cxf)
 					if target == glow:
 						has_glow = true
+					elif target == leaves:
+						has_leaves = true
 					else:
 						has_solid = true
 				stack.append([child, cxf])
 	root.free()
-	var result := {"solid": null, "glow": null, "aabb": AABB(Vector3(-0.5, 0, -0.5), Vector3.ONE)}
+	var result := {"solid": null, "glow": null, "leaves": null, "aabb": AABB(Vector3(-0.5, 0, -0.5), Vector3.ONE)}
 	if has_solid:
 		var m := solid.commit()
 		result.solid = m
 		result.aabb = m.get_aabb()
 	if has_glow:
 		result.glow = glow.commit()
+	if has_leaves:
+		result.leaves = leaves.commit()
+		if result.solid == null:
+			result.aabb = result.leaves.get_aabb()
+		else:
+			result.aabb = result.aabb.merge(result.leaves.get_aabb())
 	_merged[kind] = result
 	return result
 

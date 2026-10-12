@@ -147,7 +147,7 @@ func _apply() -> void:
 	var day := smoothstep(-0.12, 0.22, elevation)
 	var golden := smoothstep(0.45, 0.05, absf(elevation)) * smoothstep(-0.15, 0.05, elevation)
 	night = 1.0 - smoothstep(-0.18, 0.06, elevation)
-	sun.light_energy = 1.25 * day
+	sun.light_energy = 1.05 * day
 	sun.light_color = Color(1.0, 0.97, 0.9).lerp(Color(1.0, 0.62, 0.38), golden)
 	sun.visible = day > 0.01
 	moon.light_energy = 0.32 * night
@@ -172,7 +172,7 @@ func _apply() -> void:
 	# shadow tint: periwinkle by day, warm violet at golden hour, deep blue at night
 	var amb := Color(0.60, 0.65, 0.95).lerp(Color(0.72, 0.58, 0.82), golden).lerp(Color(0.22, 0.28, 0.55), night)
 	env.ambient_light_color = amb
-	env.ambient_light_energy = lerpf(0.75, 0.95, day)
+	env.ambient_light_energy = lerpf(0.7, 0.5, day)
 	if cloud_mat:
 		var lit := Color(1, 1, 1).lerp(Color(1.0, 0.78, 0.66), golden).lerp(Color(0.32, 0.38, 0.62), night)
 		var shade := Color(0.72, 0.80, 0.98).lerp(Color(0.70, 0.56, 0.78), golden).lerp(Color(0.16, 0.2, 0.38), night)
