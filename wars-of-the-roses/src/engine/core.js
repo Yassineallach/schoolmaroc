@@ -6,21 +6,26 @@
   W.H = 1080;
 
   // ---- visual identity -------------------------------------------------------------
+  // Manuscript theme: aged parchment, iron-gall ink, vermilion rubric, gold leaf.
+  // "ivory" is the foreground role (ink on parchment); York's white rose uses C.rose.
   W.C = {
-    bg: '#0d0c0b',
-    bgWarm: '#1c1712',
-    ivory: '#efe6d2',
-    ivoryDim: 'rgba(239,230,210,0.55)',
-    ivoryFaint: 'rgba(239,230,210,0.16)',
-    crimson: '#a3192a',
-    crimsonBright: '#cf2a3c',
-    crimsonDeep: '#5c0d16',
-    gold: '#c9a45c',
-    goldDim: 'rgba(201,164,92,0.55)',
-    mute: '#8a7f70',
-    land: '#1b1814',
-    landEdge: '#2a251f',
-    ink: '#0d0c0b',
+    bg: '#e9ddc2',
+    paper: '#e9ddc2',
+    paperDark: '#d6c39b',
+    bgWarm: '#dccaa3',
+    ivory: '#2a1f16',
+    ivoryDim: 'rgba(42,31,22,0.62)',
+    ivoryFaint: 'rgba(42,31,22,0.16)',
+    rose: '#f8f3e6',
+    crimson: '#9b1c1c',
+    crimsonBright: '#b3261e',
+    crimsonDeep: '#5e1010',
+    gold: '#a8782a',
+    goldDim: 'rgba(168,120,42,0.6)',
+    mute: '#8a7a63',
+    land: '#dccba3',
+    landEdge: '#c9b385',
+    ink: '#2a1f16',
   };
   W.F = {
     title: 'Amiri', // Naskh serif for headlines and names

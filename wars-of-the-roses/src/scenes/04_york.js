@@ -84,7 +84,7 @@
       const c = S.cues, T = S.text;
       W.sun(ctx, W.W / 2, 360, 230, t, { p: p(t, c.son - 0.3, 2.0, E.out), color: W.rgba(W.C.gold, 0.7) });
       const d = p(t, c.crowned, 1.0, E.out);
-      W.crown(ctx, W.W / 2, W.lerp(120, 360, d), 68, { p: p(t, c.claim, 1.2, E.inOut), color: W.C.ivory, width: 2.6, fill: 0.25, glow: 'rgba(255,240,215,0.45)' });
+      W.crown(ctx, W.W / 2, W.lerp(120, 360, d), 68, { p: p(t, c.claim, 1.2, E.inOut), color: W.C.gold, width: 3, fill: 0.35 });
       W.text(ctx, T.name, W.W / 2, 640, { size: 112, color: W.C.ivory, reveal: p(t, c.crowned + 0.3, 1.0), rise: 14 });
       W.year(ctx, T.year, W.W / 2, 785, t, c.crowned + 0.7, { size: 96, color: W.C.gold });
       W.text(ctx, T.sub, W.W / 2, 880, { size: 30, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: p(t, c.name, 0.7) });

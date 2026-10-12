@@ -9,94 +9,92 @@
     c.width = 960; c.height = 540;
     const x = c.getContext('2d');
     const r = W.rng(1455);
-    // soft blotches
-    for (let i = 0; i < 260; i++) {
-      const px = r() * 960, py = r() * 540, rad = 20 + r() * 120;
+    // tide-marks and stains
+    for (let i = 0; i < 140; i++) {
+      const px = r() * 960, py = r() * 540, rad = 15 + r() * 110;
       const g = x.createRadialGradient(px, py, 0, px, py, rad);
-      const v = r() > 0.5 ? 255 : 0;
-      g.addColorStop(0, `rgba(${v},${v * 0.92},${v * 0.8},${0.018 + r() * 0.02})`);
-      g.addColorStop(1, 'rgba(0,0,0,0)');
+      g.addColorStop(0, `rgba(120,80,30,${0.02 + r() * 0.035})`);
+      g.addColorStop(0.8, `rgba(120,80,30,${0.01 + r() * 0.02})`);
+      g.addColorStop(1, 'rgba(120,80,30,0)');
       x.fillStyle = g;
       x.fillRect(px - rad, py - rad, rad * 2, rad * 2);
     }
-    // fibres
-    x.strokeStyle = 'rgba(239,230,210,0.025)';
-    for (let i = 0; i < 900; i++) {
-      const px = r() * 960, py = r() * 540, a = r() * Math.PI, l = 4 + r() * 18;
+    // foxing spots
+    for (let i = 0; i < 70; i++) {
+      x.fillStyle = `rgba(110,60,20,${0.05 + r() * 0.12})`;
+      x.beginPath(); x.arc(r() * 960, r() * 540, 0.6 + r() * 2.2, 0, Math.PI * 2); x.fill();
+    }
+    // fibres and laid lines
+    x.strokeStyle = 'rgba(90,60,30,0.05)';
+    for (let i = 0; i < 1400; i++) {
+      const px = r() * 960, py = r() * 540, a = r() * Math.PI, l = 3 + r() * 14;
       x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a) * l, py + Math.sin(a) * l); x.stroke();
     }
+    x.strokeStyle = 'rgba(90,60,30,0.025)';
+    for (let y = 0; y < 540; y += 4) { x.beginPath(); x.moveTo(0, y); x.lineTo(960, y + (r() - 0.5) * 2); x.stroke(); }
     return c;
   }
 
-  /** o.glow: colour of the key light, o.lx/o.ly light position (0..1), o.dust density */
+  /** parchment page; o.glow is ignored in this theme (kept for scene compatibility) */
   W.background = (ctx, t, o = {}) => {
     if (!paper) paper = buildPaper();
-    ctx.fillStyle = W.C.bg;
-    ctx.fillRect(0, 0, W.W, W.H);
-    // key light drifting slowly
-    const lx = (o.lx == null ? 0.5 : o.lx) * W.W + Math.sin(t * 0.05) * 120;
-    const ly = (o.ly == null ? 0.42 : o.ly) * W.H + Math.cos(t * 0.04) * 60;
-    const g = ctx.createRadialGradient(lx, ly, 0, lx, ly, 1250);
-    g.addColorStop(0, W.rgba(o.glow || '#3a2c1e', o.glowA == null ? 0.55 : o.glowA));
-    g.addColorStop(0.55, W.rgba(o.glow || '#3a2c1e', 0.12));
-    g.addColorStop(1, 'rgba(0,0,0,0)');
+    const g = ctx.createRadialGradient(W.W * 0.5, W.H * 0.45, 100, W.W * 0.5, W.H * 0.5, W.W * 0.75);
+    g.addColorStop(0, '#efe4cb');
+    g.addColorStop(0.6, '#e6d7b7');
+    g.addColorStop(1, '#cfb88c');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W.W, W.H);
-    // paper texture with very slow drift
     ctx.save();
-    ctx.globalAlpha = 0.9;
-    ctx.globalCompositeOperation = 'screen';
-    const dx = (t * 3) % 960;
-    ctx.drawImage(paper, -dx * 2, 0, 1920, 1080);
-    ctx.drawImage(paper, 1920 - dx * 2, 0, 1920, 1080);
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.drawImage(paper, 0, 0, 1920, 1080);
     ctx.restore();
   };
 
+  /** a few specks of dust settling on the page */
   W.dust = (ctx, t, n = 40, a = 1) => {
     ctx.save();
-    for (let i = 0; i < n; i++) {
-      const sx = W.hash(i * 3.1) * W.W, sy = W.hash(i * 7.7) * W.H;
-      const sp = 6 + W.hash(i * 1.3) * 14;
-      const x = (sx + t * sp + Math.sin(t * 0.3 + i) * 30) % (W.W + 40) - 20;
-      const y = (sy - t * sp * 0.35 + W.H * 4) % (W.H + 40) - 20;
-      const tw = 0.5 + 0.5 * Math.sin(t * (0.6 + W.hash(i) * 0.8) + i);
-      ctx.fillStyle = `rgba(239,225,195,${(0.05 + 0.18 * tw) * a})`;
-      ctx.beginPath();
-      ctx.arc(x, y, 0.8 + W.hash(i * 9.1) * 1.6, 0, Math.PI * 2);
-      ctx.fill();
+    const m = Math.min(n, 14);
+    for (let i = 0; i < m; i++) {
+      const x = (W.hash(i * 3.1) * W.W + t * (4 + W.hash(i) * 6)) % W.W;
+      const y = (W.hash(i * 7.7) * W.H + t * 3) % W.H;
+      ctx.fillStyle = `rgba(60,40,20,${0.12 * a})`;
+      ctx.beginPath(); ctx.arc(x, y, 0.8 + W.hash(i * 9.1), 0, Math.PI * 2); ctx.fill();
     }
     ctx.restore();
   };
 
+  /** darkened, worn page edges */
   W.vignette = (ctx, strength = 0.75) => {
-    const g = ctx.createRadialGradient(W.W / 2, W.H / 2, W.H * 0.35, W.W / 2, W.H / 2, W.W * 0.72);
-    g.addColorStop(0, 'rgba(0,0,0,0)');
-    g.addColorStop(1, `rgba(0,0,0,${strength})`);
+    const g = ctx.createRadialGradient(W.W / 2, W.H / 2, W.H * 0.42, W.W / 2, W.H / 2, W.W * 0.66);
+    g.addColorStop(0, 'rgba(90,55,20,0)');
+    g.addColorStop(1, `rgba(90,55,20,${strength * 0.55})`);
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W.W, W.H);
   };
 
-  /** editorial frame: thin margins, chapter numeral + title (top right), years (top left) */
+  /** manuscript frame: ink rule + red rubric rule, gold corner fleurons, chapter header */
   W.frame = (ctx, t, ch, a = 1) => {
     if (a <= 0.001) return;
     ctx.save();
     ctx.globalAlpha *= a;
-    const m = 56;
-    ctx.strokeStyle = 'rgba(239,230,210,0.14)';
+    const m = 34;
+    ctx.strokeStyle = 'rgba(42,31,22,0.55)';
+    ctx.lineWidth = 1.6;
+    ctx.strokeRect(m, m, W.W - 2 * m, W.H - 2 * m);
+    ctx.strokeStyle = W.rgba(W.C.crimson, 0.55);
     ctx.lineWidth = 1;
-    // corner ticks
-    const tk = 26;
-    for (const [x, y, sx, sy] of [[m, m, 1, 1], [W.W - m, m, -1, 1], [m, W.H - m, 1, -1], [W.W - m, W.H - m, -1, -1]]) {
-      ctx.beginPath(); ctx.moveTo(x, y + sy * tk); ctx.lineTo(x, y); ctx.lineTo(x + sx * tk, y); ctx.stroke();
+    ctx.strokeRect(m + 8, m + 8, W.W - 2 * m - 16, W.H - 2 * m - 16);
+    for (const [x, y] of [[m + 4, m + 4], [W.W - m - 4, m + 4], [m + 4, W.H - m - 4], [W.W - m - 4, W.H - m - 4]]) {
+      W.diamond(ctx, x, y, 9, W.C.gold);
+      W.diamond(ctx, x, y, 4, W.C.crimson);
     }
     if (ch) {
       const hp = W.clamp(ch.p == null ? 1 : ch.p);
-      W.text(ctx, ch.title, W.W - m - 40, m + 8, { size: 26, fam: W.F.label, weight: 500, color: W.rgba(W.C.ivory, 0.6), align: 'right', alpha: hp });
-      const tw = W.measure(ctx, ch.title, { size: 26, fam: W.F.label, weight: 500 });
-      W.text(ctx, ch.num, W.W - m - 40 - tw - 26, m + 9, { size: 22, fam: W.F.latin, weight: 600, color: W.rgba(W.C.gold, 0.8), align: 'right', dir: 'ltr', alpha: hp });
-      if (ch.years) W.text(ctx, ch.years, m + 40, m + 9, { size: 20, fam: W.F.latin, weight: 400, color: W.rgba(W.C.ivory, 0.45), align: 'left', dir: 'ltr', alpha: hp, tracking: 3 });
-      ctx.strokeStyle = `rgba(239,230,210,${0.12 * hp})`;
-      ctx.beginPath(); ctx.moveTo(m + 40, m + 34); ctx.lineTo(W.W - m - 40, m + 34); ctx.stroke();
+      const y = m + 36;
+      W.text(ctx, ch.title, W.W - m - 50, y, { size: 26, fam: W.F.title, weight: 700, color: W.rgba(W.C.ivory, 0.75), align: 'right', alpha: hp });
+      const tw = W.measure(ctx, ch.title, { size: 26, fam: W.F.title, weight: 700 });
+      W.text(ctx, ch.num, W.W - m - 50 - tw - 24, y + 1, { size: 22, fam: W.F.latin, weight: 600, color: W.C.crimson, align: 'right', dir: 'ltr', alpha: hp });
+      if (ch.years) W.text(ctx, ch.years, m + 50, y + 1, { size: 20, fam: W.F.latin, weight: 400, color: W.rgba(W.C.ivory, 0.6), align: 'left', dir: 'ltr', alpha: hp, tracking: 3 });
     }
     ctx.restore();
   };
@@ -107,12 +105,12 @@
     if (e <= 0) return;
     ctx.save();
     ctx.globalAlpha *= e;
-    ctx.fillStyle = 'rgba(8,7,6,0.55)';
+    ctx.fillStyle = 'rgba(233,221,194,0.9)';
     ctx.fillRect(0, 0, W.W, W.H);
     const lp = W.p(t, t0, 1.2, W.E.inOut);
     W.hairline(ctx, W.W / 2, W.H / 2 + 6, 720, lp, W.rgba(W.C.gold, 0.6));
     W.diamond(ctx, W.W / 2, W.H / 2 + 6, 6 * lp, W.C.gold);
-    W.text(ctx, num, W.W / 2, W.H / 2 - 120, { size: 30, fam: W.F.latin, weight: 600, color: W.C.gold, dir: 'ltr', tracking: 10, alpha: W.p(t, t0 + 0.1, 0.6) });
+    W.text(ctx, num, W.W / 2, W.H / 2 - 120, { size: 30, fam: W.F.latin, weight: 600, color: W.C.crimson, dir: 'ltr', tracking: 10, alpha: W.p(t, t0 + 0.1, 0.6) });
     W.text(ctx, title, W.W / 2, W.H / 2 - 50, { size: 92, color: W.C.ivory, reveal: W.p(t, t0 + 0.2, 1.0), rise: 14 });
     if (sub) W.text(ctx, sub, W.W / 2, W.H / 2 + 60, { size: 30, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: W.p(t, t0 + 0.5, 0.8) });
     ctx.restore();

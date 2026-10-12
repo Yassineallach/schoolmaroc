@@ -81,23 +81,29 @@
     P.bezierCurveTo(70, 150, 80, 200, 120, 230);
     P.bezierCurveTo(260, 270, 470, 330, 520, 560);
     P.closePath();
-    const g = ctx.createLinearGradient(0, -300, 0, 560);
-    g.addColorStop(0, '#1a2a36'); g.addColorStop(0.5, '#0a1218'); g.addColorStop(1, '#05080b');
-    ctx.fillStyle = g;
+    if (o.fill) ctx.fillStyle = o.fill;
+    else {
+      const g = ctx.createLinearGradient(0, -300, 0, 560);
+      g.addColorStop(0, '#1a2a36'); g.addColorStop(0.5, '#0a1218'); g.addColorStop(1, '#05080b');
+      ctx.fillStyle = g;
+    }
     ctx.fill(P);
-    ctx.shadowColor = 'rgba(140,210,255,0.8)';
+    ctx.shadowColor = o.rim ? 'transparent' : 'rgba(140,210,255,0.8)';
     ctx.shadowBlur = 30 / s;
-    ctx.strokeStyle = 'rgba(170,225,255,0.55)';
-    ctx.lineWidth = 2.5 / s;
+    ctx.strokeStyle = o.rim || 'rgba(170,225,255,0.55)';
+    ctx.lineWidth = (o.rim ? 3 : 2.5) / s;
     ctx.stroke(P);
     ctx.shadowBlur = 0;
     // cheekbone highlights
-    ctx.strokeStyle = 'rgba(170,225,255,0.18)';
+    ctx.strokeStyle = o.rim ? W.rgba('#2a1f16', 0.5) : 'rgba(170,225,255,0.18)';
     ctx.lineWidth = 2 / s;
     ctx.beginPath(); ctx.moveTo(-80, 20); ctx.quadraticCurveTo(-55, 55, -30, 70); ctx.moveTo(80, 20); ctx.quadraticCurveTo(55, 55, 30, 70); ctx.stroke();
     // eyes
     const e = o.eyes == null ? 1 : o.eyes;
-    if (e > 0) {
+    if (e > 0 && o.inkEyes) {
+      ctx.fillStyle = W.rgba('#1f4f8a', e);
+      for (const ex of [-40, 40]) { ctx.beginPath(); ctx.ellipse(ex, -8, 16, 7, 0, 0, Math.PI * 2); ctx.fill(); }
+    } else if (e > 0) {
       ctx.globalCompositeOperation = 'lighter';
       for (const ex of [-40, 40]) {
         const fl = 0.9 + 0.1 * Math.sin(t * 13 + ex);
@@ -147,10 +153,10 @@
         P.quadraticCurveTo(cx, cy, b[0], b[1]);
       }
       P.closePath();
-      ctx.fillStyle = far ? '#160805' : body;
+      ctx.fillStyle = far ? (o.farColor || '#160805') : body;
       ctx.fill(P);
       ctx.strokeStyle = rim; ctx.lineWidth = 2.2 / s; ctx.stroke(P);
-      ctx.strokeStyle = 'rgba(255,150,80,0.4)'; ctx.lineWidth = 3.5 / s;
+      ctx.strokeStyle = o.bone || 'rgba(255,150,80,0.4)'; ctx.lineWidth = (o.bone ? 1.6 : 3.5) / s;
       ctx.beginPath();
       ctx.moveTo(sh[0], sh[1]); ctx.lineTo(wr[0], wr[1]);
       for (const f of tips) { ctx.moveTo(wr[0], wr[1]); ctx.lineTo(f[0], f[1]); }
@@ -187,7 +193,7 @@
     ctx.strokeStyle = rim; ctx.lineWidth = 2 / s; ctx.stroke(P);
     wing(flap, false);
     // ember eye
-    ctx.fillStyle = '#ffb347'; ctx.beginPath(); ctx.arc(205, -72, 3.2, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = o.eye || '#ffb347'; ctx.beginPath(); ctx.arc(205, -72, 3.2, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
     // mouth position in screen space (for fire breath)
     const m = [x + (o.flip ? -1 : 1) * 248 * s, y - 56 * s];
@@ -265,6 +271,9 @@
       ctx.fillStyle = W.mixColor('#000000', col, Math.min(1, shade));
       ctx.fill();
     }
+    // ink outline
+    ctx.strokeStyle = 'rgba(42,31,22,0.7)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x - w / 2, y); ctx.lineTo(x - w / 2, y + hh); ctx.lineTo(x, y + hh + 70 * drop); ctx.lineTo(x + w / 2, y + hh); ctx.lineTo(x + w / 2, y); ctx.stroke();
     // gold trim
     ctx.strokeStyle = W.rgba(B.light, 0.85);
     ctx.lineWidth = 3;

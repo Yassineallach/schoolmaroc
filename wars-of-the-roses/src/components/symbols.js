@@ -50,9 +50,9 @@
     const bloom = o.bloom == null ? 1 : o.bloom;
     if (bloom <= 0) return;
     const kind = o.kind || 'york';
-    const outer = kind === 'york' ? W.C.ivory : W.C.crimson;
-    const inner = kind === 'lancaster' ? W.C.crimsonBright : W.C.ivory;
-    const edge = kind === 'york' ? 'rgba(80,66,50,0.55)' : 'rgba(30,0,4,0.6)';
+    const outer = kind === 'york' ? W.C.rose : W.C.crimson;
+    const inner = kind === 'lancaster' ? W.C.crimsonBright : W.C.rose;
+    const edge = 'rgba(42,31,22,0.75)';
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate((o.spin || 0) - Math.PI / 2);

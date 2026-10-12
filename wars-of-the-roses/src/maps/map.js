@@ -39,13 +39,13 @@
     ctx.save();
     ctx.globalAlpha *= a;
     // engraved sea hatching
-    ctx.strokeStyle = 'rgba(239,230,210,0.035)';
+    ctx.strokeStyle = 'rgba(42,31,22,0.06)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     for (let y = 4; y < W.H; y += 9) { ctx.moveTo(0, y); ctx.lineTo(W.W, y); }
     ctx.stroke();
     // graticule
-    ctx.strokeStyle = 'rgba(239,230,210,0.05)';
+    ctx.strokeStyle = 'rgba(42,31,22,0.10)';
     ctx.setLineDash([2, 6]);
     ctx.beginPath();
     for (let lon = -12; lon <= 10; lon += 2) { const [x1, y1] = W.proj(view, [lon, 44]); const [x2, y2] = W.proj(view, [lon, 61]); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); }
@@ -64,16 +64,16 @@
       ctx.globalAlpha *= ma;
       // coastal ripple lines in the sea (engraving)
       if (fillA > 0) {
-        for (const [w, al] of [[22, 0.03], [12, 0.045], [5, 0.07]]) {
+        for (const [w, al] of [[22, 0.05], [12, 0.07], [5, 0.1]]) {
           path(ctx, view, pts);
-          ctx.strokeStyle = `rgba(239,230,210,${al * fillA})`;
+          ctx.strokeStyle = `rgba(42,31,22,${al * fillA})`;
           ctx.lineWidth = w;
           ctx.stroke();
         }
         path(ctx, view, pts);
         const g = ctx.createLinearGradient(0, 0, 0, W.H);
-        g.addColorStop(0, '#221e19');
-        g.addColorStop(1, '#17140f');
+        g.addColorStop(0, '#dccaa0');
+        g.addColorStop(1, '#d2bd90');
         ctx.fillStyle = g;
         ctx.globalAlpha *= fillA;
         ctx.fill();
@@ -82,7 +82,7 @@
       // coastline line-draw
       const scr = pts.map((ll) => W.proj(view, ll));
       scr.push(scr[0]);
-      W.strokePoly(ctx, scr, reveal, { color: 'rgba(239,230,210,0.72)', width: 1.6 });
+      W.strokePoly(ctx, scr, reveal, { color: 'rgba(42,31,22,0.88)', width: 1.8 });
       ctx.restore();
     }
     if (o.tint) {
@@ -106,7 +106,7 @@
         ctx.globalAlpha *= fillA * 0.5;
         path(ctx, view, W.GEO[b], false);
         ctx.setLineDash([3, 7]);
-        ctx.strokeStyle = 'rgba(239,230,210,0.35)';
+        ctx.strokeStyle = 'rgba(42,31,22,0.35)';
         ctx.lineWidth = 1.2;
         ctx.stroke();
         ctx.restore();
@@ -115,7 +115,7 @@
     if (o.regionLabels) {
       const lab = (txt, ll, al) => {
         const [x, y] = W.proj(view, ll);
-        W.text(ctx, txt, x, y, { size: 30, fam: W.F.label, weight: 400, color: 'rgba(239,230,210,0.32)', alpha: al * fillA });
+        W.text(ctx, txt, x, y, { size: 30, fam: W.F.label, weight: 400, color: 'rgba(42,31,22,0.5)', alpha: al * fillA });
       };
       lab('إنجلترا', [-1.2, 52.25], 1);
       lab('ويلز', [-3.7, 52.3], 0.8);

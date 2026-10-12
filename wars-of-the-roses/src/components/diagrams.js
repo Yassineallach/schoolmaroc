@@ -87,7 +87,7 @@
   W.terrain = (ctx, t, seed = 3, a = 1) => {
     ctx.save();
     ctx.globalAlpha *= a;
-    ctx.strokeStyle = 'rgba(239,230,210,0.06)';
+    ctx.strokeStyle = 'rgba(42,31,22,0.06)';
     ctx.lineWidth = 1.2;
     for (let k = 0; k < 14; k++) {
       ctx.beginPath();
