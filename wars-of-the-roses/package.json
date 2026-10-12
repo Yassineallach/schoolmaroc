@@ -1,0 +1,16 @@
+{
+  "name": "wars-of-the-roses-documentary",
+  "private": true,
+  "type": "module",
+  "description": "Programmatic Arabic motion-graphics documentary rendered with Canvas + Playwright + FFmpeg",
+  "scripts": {
+    "analyze": "python3 scripts/analyze_audio.py",
+    "preview": "node scripts/render.mjs --preview",
+    "render": "node scripts/render.mjs",
+    "thumbnail": "node scripts/render.mjs --thumbnail",
+    "validate": "python3 scripts/validate_video.py output/final_video.mp4 --expect 282.5"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}

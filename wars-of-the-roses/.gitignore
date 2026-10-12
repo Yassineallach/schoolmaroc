@@ -1,0 +1,5 @@
+output/*.mp4
+output/build/
+output/stills/
+output/*.sheet.png
+node_modules/

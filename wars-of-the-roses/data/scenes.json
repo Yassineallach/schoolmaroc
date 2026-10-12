@@ -1,0 +1,337 @@
+{
+  "meta": {
+    "title": "حروب الوردتين",
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "audio": "input/narration_main.wav",
+    "narration_duration": 278.07,
+    "duration": 282.5,
+    "note": "All cue times are seconds on the narration timeline, taken from word timestamps in transcript.json."
+  },
+  "chapters": [
+    { "id": "I", "num": "I", "title": "الجذور", "years": "1377 — 1422", "start": 30.0, "end": 87.4 },
+    { "id": "II", "num": "II", "title": "الملك الضعيف", "years": "1422 — 1455", "start": 87.4, "end": 140.1 },
+    { "id": "III", "num": "III", "title": "صعود يورك", "years": "1455 — 1461", "start": 140.1, "end": 168.75 },
+    { "id": "IV", "num": "IV", "title": "صانع الملوك", "years": "1464 — 1471", "start": 168.75, "end": 200.85 },
+    { "id": "V", "num": "V", "title": "ريتشارد الثالث", "years": "1483 — 1485", "start": 200.85, "end": 229.2 },
+    { "id": "VI", "num": "VI", "title": "الوردة الموحّدة", "years": "1485 — 1486", "start": 229.2, "end": 262.0 },
+    { "id": "E", "num": "·", "title": "خاتمة", "years": "", "start": 262.0, "end": 278.07 }
+  ],
+  "scenes": [
+    {
+      "id": "opening_myth", "start": 0.0, "end": 7.5, "narration": ["s01"],
+      "topic": "Hook: medieval England saw no ice creatures and no dragons",
+      "visual": "Line-drawn ice crystal and dragon wing materialise in darkness, then are struck out and crumble into ash",
+      "text": { "a": "لا كائنات جليدية", "b": "ولا تنانين" },
+      "animation": "stroke-draw symbols, word reveals, crimson strike, particle disintegration",
+      "transition": { "type": "fade-from-black", "dur": 0.8 },
+      "camera": { "z": [1.06, 1.0] },
+      "cues": { "crystal": 3.84, "wing": 5.82, "strike": 6.68, "ash": 7.0 }
+    },
+    {
+      "id": "two_houses", "start": 7.5, "end": 19.3, "narration": ["s01"],
+      "topic": "A bloody struggle for power between two noble families over generations",
+      "visual": "Split composition: Lancaster crimson (right) vs York ivory (left) divided by a blade of light; lineage threads multiply; allegiance nodes flicker between colours",
+      "text": { "a": "صراع دموي على السلطة", "b": "عائلتان نبيلتان", "lan": "لانكاستر", "york": "يورك", "c": "ولاءات متقلّبة" },
+      "animation": "split wipe, rose bloom, lineage strands growing, nodes switching colour",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.04], "x": [0, 0] },
+      "cues": { "split": 8.08, "blood": 8.56, "families": 10.72, "generations": 12.3, "people": 14.42, "allegiance": 17.64 }
+    },
+    {
+      "id": "title", "start": 19.3, "end": 30.0, "narration": ["s02"],
+      "topic": "The Wars of the Roses inspired much of the drama in Game of Thrones",
+      "visual": "Main title: crown above two roses; title in large Naskh; Latin subtitle; ornaments",
+      "text": { "title": "حروب الوردتين", "latin": "THE WARS OF THE ROSES", "years": "1455 — 1487", "note": "الإلهام الواقعي لدراما «صراع العروش»" },
+      "animation": "hairlines extend, title mask reveal, crown stroke-draw, roses bloom",
+      "transition": { "type": "dissolve", "dur": 0.8 },
+      "camera": { "z": [1.0, 1.03] },
+      "cues": { "familiar": 19.62, "title": 24.56, "drama": 27.32, "got": 28.76 }
+    },
+    {
+      "id": "edward3", "start": 30.0, "end": 36.2, "narration": ["s03"], "chapter": "I",
+      "topic": "Roots of the war: death of Edward III in 1377",
+      "visual": "Chapter card, then a large crown over Edward III's name with 1377 rolling into place",
+      "text": { "name": "إدوارد الثالث", "sub": "ملك إنجلترا 1327 — 1377", "year": "1377" },
+      "animation": "chapter card, crown draw, digit roll",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.05] },
+      "cues": { "card": 30.0, "name": 32.36, "year": 33.82, "death": 34.6 }
+    },
+    {
+      "id": "succession_tree", "start": 36.2, "end": 58.9, "narration": ["s04", "s05"], "chapter": "I",
+      "topic": "Eldest son died first; grandson Richard II (10) inherited over three living sons; Lancaster from 3rd son, York from 4th son",
+      "visual": "Animated family tree of Edward III's sons; Richard II takes the crown; branches of John of Gaunt (crimson) and Edmund of Langley (ivory) light up",
+      "text": {
+        "e3": "إدوارد الثالث", "bp": "الأمير الأسود", "bpSub": "الابن الأول · ت 1376", "li": "ليونيل", "liSub": "الابن الثاني · ت 1368",
+        "jg": "جون أوف غونت", "jgSub": "الابن الثالث", "el": "إدموند لانغلي", "elSub": "الابن الرابع", "tw": "توماس", "twSub": "الابن الخامس",
+        "r2": "ريتشارد الثاني", "r2Sub": "10 سنوات · 1377", "living": "ثلاثة أبناء أحياء", "lan": "آل لانكاستر", "york": "آل يورك"
+      },
+      "animation": "nodes pop in, elbow connectors draw, crown moves to the grandson, branch colour floods",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.0] },
+      "cues": { "e3": 36.2, "sons": 36.66, "bpDead": 37.84, "grandson": 39.38, "age": 40.7, "r2": 41.86, "crown": 43.06, "bypass": 44.04, "three": 45.66, "gen": 47.3, "disputes": 49.36, "branches": 51.5, "lan": 53.32, "york": 56.32 }
+    },
+    {
+      "id": "roses", "start": 58.9, "end": 66.4, "narration": ["s06"], "chapter": "I",
+      "topic": "The war's name comes from the two family emblems: white rose of York, red rose of Lancaster",
+      "visual": "Two heraldic roses bloom on either side of a vertical rule",
+      "text": { "w": "الوردة البيضاء", "wSub": "آل يورك", "r": "الوردة الحمراء", "rSub": "آل لانكاستر" },
+      "animation": "petal bloom, labels mask in",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.04, 1.0] },
+      "cues": { "name": 59.32, "white": 62.1, "red": 64.02 }
+    },
+    {
+      "id": "henry4", "start": 66.4, "end": 75.2, "narration": ["s07"], "chapter": "I",
+      "topic": "Lancaster seizes the throne first: Henry IV deposes his cousin Richard II in 1399",
+      "visual": "Crown passes from an ivory Richard II node to a crimson Henry IV node; timeline begins 1377 → 1399",
+      "text": { "r2": "ريتشارد الثاني", "h4": "هنري الرابع", "h4Sub": "أول ملوك لانكاستر", "deposed": "خُلع", "ev1": "وفاة إدوارد الثالث", "ev2": "هنري الرابع يخلع ريتشارد الثاني" },
+      "animation": "crown arc transfer, timeline extension, marker pop",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.0], "x": [20, -20] },
+      "cues": { "seize": 66.72, "h4": 70.1, "r2": 71.62, "year": 72.94 }
+    },
+    {
+      "id": "henry6_infant", "start": 75.2, "end": 87.4, "narration": ["s08"], "chapter": "I",
+      "topic": "Lancastrian rule stable until 1422, when Henry V died on campaign leaving infant Henry VI as king",
+      "visual": "Timeline continues to 1422; broken sword for Henry V; an oversized crown above a tiny infant node",
+      "text": { "ev": "وفاة هنري الخامس في حملة عسكرية", "h5": "هنري الخامس", "h6": "هنري السادس", "h6Sub": "ملكٌ لم يُكمل عامه الأول" },
+      "animation": "timeline pan, sword fracture, scale contrast",
+      "transition": { "type": "match", "dur": 0.4 },
+      "camera": { "z": [1.0, 1.04] },
+      "cues": { "unrest": 75.5, "stable": 77.08, "year": 78.96, "h5": 81.28, "campaign": 83.28, "infant": 84.58, "h6": 85.78 }
+    },
+    {
+      "id": "weak_king", "start": 87.4, "end": 94.8, "narration": ["s09"], "chapter": "II",
+      "topic": "Henry VI weak and dominated by advisers; married to Margaret of Anjou for French support",
+      "visual": "Henry node with puppet-string lines from adviser nodes above; Margaret joins via a marriage line from France (fleur-de-lis)",
+      "text": { "h6": "هنري السادس", "weak": "ضعيف الشخصية", "adv": "المستشارون", "m": "مارغريت أنجو", "mSub": "زواج 1445 · دعم فرنسا" },
+      "animation": "string tension, rings draw",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.03] },
+      "cues": { "card": 87.4, "henry": 87.86, "weak": 88.2, "adv": 89.38, "persuade": 91.2, "m": 92.32, "france": 94.06 }
+    },
+    {
+      "id": "margaret", "start": 94.8, "end": 102.45, "narration": ["s10"], "chapter": "II",
+      "topic": "Margaret: beautiful, ambitious, ruthless towards anyone threatening her power, above all Richard Duke of York",
+      "visual": "Kinetic triptych of adjectives; a crimson queen's crown; an ivory node for Richard of York appears under tension",
+      "text": { "m": "مارغريت أنجو", "w1": "جميلة", "w2": "طموحة", "w3": "قاسية", "ry": "ريتشارد، دوق يورك" },
+      "animation": "word stagger, tension line vibrates",
+      "transition": { "type": "dissolve", "dur": 0.5 },
+      "camera": { "z": [1.03, 1.0] },
+      "cues": { "m": 95.36, "w1": 95.96, "w2": 96.64, "w3": 97.24, "threat": 98.32, "ry": 101.24 }
+    },
+    {
+      "id": "court", "start": 102.45, "end": 111.9, "narration": ["s11"], "chapter": "II",
+      "topic": "Richard was a trusted adviser and loyal commander, but the queen pushed him out in favour of Suffolk and Somerset",
+      "visual": "Concentric court rings around the king; York's node moves from inner ring to outer; Suffolk and Somerset take the inner seats",
+      "text": { "king": "الملك", "ry": "يورك", "role": "مستشار مقرّب · قائد مخلص", "suf": "دوق سوفولك", "som": "دوق سومرست", "out": "أُبعد" },
+      "animation": "orbital motion, node displacement",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.04] },
+      "cues": { "adviser": 103.32, "commander": 105.16, "push": 107.2, "favour": 108.56, "suf": 110.06, "som": 111.16 }
+    },
+    {
+      "id": "ireland", "start": 111.9, "end": 127.45, "narration": ["s12", "s13"], "chapter": "II",
+      "topic": "York criticised the conduct of the French war, was removed from court and sent to Ireland; amid corruption and defeats he returned with an army",
+      "visual": "Map of the British Isles and northern France: France pulses (losses), York's marker travels London → Dublin, unrest pulses over England, return route Dublin → Wales → London",
+      "text": { "fr": "الحرب ضد فرنسا", "frSub": "خسائر متتالية", "exile": "إلى إيرلندا · 1449", "anger": "غضب شعبي", "ret": "العودة بجيش · 1450", "som": "هدف: اعتقال سومرست" },
+      "animation": "map reveal, camera glide, animated dashed routes",
+      "transition": { "type": "dissolve", "dur": 0.7 },
+      "camera": { "z": [1.0, 1.0] },
+      "cues": { "crit": 112.18, "fr": 114.86, "removed": 115.7, "ireland": 117.22, "corrupt": 119.32, "anger": 121.32, "ret": 123.02, "army": 124.72, "som": 126.14 }
+    },
+    {
+      "id": "protector", "start": 127.45, "end": 140.1, "narration": ["s14", "s15"], "chapter": "II",
+      "topic": "Failed at first; after the king's mental collapse York became Protector; within a year Henry recovered and York was dismissed, his reforms undone",
+      "visual": "Henry's crown fractures; an ivory shield rises with 'Protector of the Realm 1454'; then the crown re-forms, the shield dims and the list of reforms is struck through",
+      "text": { "fail": "محاولة فاشلة · 1452", "broke": "انهيار الملك العقلي · 1453", "prot": "حامي المملكة", "protSub": "1454", "rec": "الملك يستعيد وعيه", "r1": "إصلاح المجلس", "r2": "إبعاد سومرست", "r3": "ضبط الخزانة", "undo": "إلغاء الإصلاحات" },
+      "animation": "crown shatter into shards, shield draw, shards reassemble, strike-throughs",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.03] },
+      "cues": { "fail": 127.7, "broke": 129.48, "prot": 131.5, "year": 132.8, "rec": 135.16, "queen": 136.62, "removed": 137.66, "undo": 138.74 }
+    },
+    {
+      "id": "st_albans", "start": 140.1, "end": 148.6, "narration": ["s16", "s17"], "chapter": "III",
+      "topic": "York raised a new army (first battle, St Albans 1455); could not take the crown but was made heir (Act of Accord, 1460)",
+      "visual": "Chapter card; map marker at St Albans with the first armed clash; then a throne crown out of reach and a red royal seal stamping 'heir'",
+      "text": { "sa": "سانت ألبانز", "saSub": "1455 · بداية الصراع المسلح", "reach": "العرش بعيد المنال", "acc": "قانون التسوية · 1460", "heir": "يورك وأبناؤه ورثةً للعرش" },
+      "animation": "battle marker pulse, crown hover, seal stamp",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.0] },
+      "cues": { "card": 140.1, "army": 141.34, "noThrone": 143.02, "forced": 145.62, "heir": 147.08 }
+    },
+    {
+      "id": "wakefield", "start": 148.6, "end": 155.5, "narration": ["s18"], "chapter": "III",
+      "topic": "York's tragic end: killed in battle against the queen's supporters; his head set on a spike",
+      "visual": "Abstract battle diagram at Wakefield (Dec 1460): crimson formations close on a smaller ivory block, which breaks; then a lone vertical spike with a paper crown at Micklegate Bar, York",
+      "text": { "bt": "معركة ويكفيلد", "btSub": "30 ديسمبر 1460", "lan": "أنصار الملكة", "york": "يورك", "mick": "بوابة ميكلغيت · يورك" },
+      "animation": "formations converge, ivory block scatters, slow vertical rise",
+      "transition": { "type": "cut", "dur": 0 },
+      "camera": { "z": [1.0, 1.05] },
+      "cues": { "tragic": 149.3, "killed": 151.5, "battle": 151.98, "queen": 152.7, "head": 153.92 }
+    },
+    {
+      "id": "edward4", "start": 155.5, "end": 160.6, "narration": ["s19"], "chapter": "III",
+      "topic": "His young son inherited the claim and was crowned Edward IV",
+      "visual": "Sun in splendour (Edward's badge) radiates; ivory crown descends onto the name Edward IV; 1461",
+      "text": { "name": "إدوارد الرابع", "sub": "أول ملوك يورك", "year": "1461" },
+      "animation": "rays unfold, crown descent, digit roll",
+      "transition": { "type": "dissolve", "dur": 0.5 },
+      "camera": { "z": [1.05, 1.0] },
+      "cues": { "son": 156.0, "claim": 156.84, "crowned": 158.26, "name": 159.5 }
+    },
+    {
+      "id": "towton", "start": 160.6, "end": 168.75, "narration": ["s20"], "chapter": "III",
+      "topic": "Edward won great victories over Lancaster; Henry VI captured; Margaret fled abroad with her son Edward",
+      "visual": "Map of England: Towton 1461 battle marker; Henry VI marker moves to London (Tower, 1465); Margaret and prince route out across the sea into exile",
+      "text": { "tow": "توتون", "towSub": "1461 · أكبر معارك الحرب", "h6": "أسر هنري السادس", "h6Sub": "1465 · برج لندن", "exile": "مارغريت وابنها إدوارد إلى المنفى" },
+      "animation": "map pan north → south, routes",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.0] },
+      "cues": { "vic": 161.26, "lan": 163.34, "h6": 164.34, "fled": 166.24, "exile": 167.96 }
+    },
+    {
+      "id": "marriage", "start": 168.75, "end": 178.6, "narration": ["s21"], "chapter": "IV",
+      "topic": "Edward's fatal mistake: he abandoned a planned French royal match and secretly married the widow of a minor noble",
+      "visual": "Chapter card; Edward node with a dashed line to a French princess (fleur-de-lis) that is cut; a solid ring-line to Elizabeth Woodville, 1464",
+      "text": { "e4": "إدوارد الرابع", "fp": "أميرة فرنسية", "fpSub": "زواج سياسي مقرّر", "ew": "إليزابيث وودفيل", "ewSub": "أرملة نبيل بسيط", "secret": "زواج سرّي · 1464", "err": "خطأ سياسي قاتل" },
+      "animation": "line cut with spark, rings draw",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.03] },
+      "cues": { "card": 168.75, "err": 170.4, "cancel": 172.78, "fp": 174.5, "secret": 175.88, "widow": 177.06 }
+    },
+    {
+      "id": "warwick", "start": 178.6, "end": 189.45, "narration": ["s22"], "chapter": "IV",
+      "topic": "The marriage angered Edward's strongest ally Warwick, who turned against him, joined Lancaster and won over Edward's jealous brother George",
+      "visual": "Split field York (left) / Lancaster (right); Warwick's link to Edward snaps; Warwick crosses to the crimson side, George follows",
+      "text": { "e4": "إدوارد الرابع", "wa": "ريتشارد نيفيل، إيرل وارويك", "waSub": "«صانع الملوك»", "lan": "آل لانكاستر", "york": "آل يورك", "g": "جورج، دوق كلارنس", "gSub": "شقيق الملك" },
+      "animation": "link snap, node migration across the divide, colour change",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.0] },
+      "cues": { "anger": 178.86, "wa": 181.44, "turn": 182.82, "ally": 183.7, "g": 185.76, "gName": 187.7 }
+    },
+    {
+      "id": "readeption", "start": 189.45, "end": 200.85, "narration": ["s23"], "chapter": "IV",
+      "topic": "Warwick briefly restored Henry VI (1470); Edward quickly regained power; Prince Edward killed in battle; Henry died in captivity",
+      "visual": "Crown flips to crimson '1470'; map: Barnet (Apr 1471) and Tewkesbury (May 1471) markers; Henry VI's node fades in the Tower",
+      "text": { "rest": "عودة هنري السادس · 1470", "bar": "بارنت", "barSub": "أبريل 1471", "tew": "توكسبري", "tewSub": "مايو 1471 · مقتل الأمير إدوارد", "h6": "وفاة هنري السادس في الأسر", "h6Sub": "مايو 1471" },
+      "animation": "crown colour flip, map markers, node fade",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.0] },
+      "cues": { "rest": 189.72, "back": 193.74, "prince": 195.86, "h6": 198.0 }
+    },
+    {
+      "id": "calm_1483", "start": 200.85, "end": 209.5, "narration": ["s24"], "chapter": "V",
+      "topic": "Edward IV's reign continued in relative peace; after his death in 1483 blood flowed again",
+      "visual": "Chapter card; a long, quiet timeline 1471 → 1483; at 1483 crimson ink bleeds across the line",
+      "text": { "peace": "سلام نسبي", "death": "وفاة إدوارد الرابع", "blood": "عادت الدماء لتُراق" },
+      "animation": "slow line, ink bleed blooms",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.0], "x": [30, -30] },
+      "cues": { "card": 200.85, "peace": 202.64, "death": 204.58, "year": 205.32, "blood": 208.0 }
+    },
+    {
+      "id": "usurpation", "start": 209.5, "end": 221.5, "narration": ["s25"], "chapter": "V",
+      "topic": "Edward's 12-year-old son was the rightful heir; his uncle Richard III declared him illegitimate because of the secret marriage, took the throne and confined the boys in the Tower",
+      "visual": "Edward V node with crown; Richard III node; a crimson 'illegitimate' seal stamps over Edward V; crown slides to Richard; two small nodes enclosed by a tower outline",
+      "text": { "e5": "إدوارد الخامس", "e5Sub": "12 عامًا · الوريث الشرعي", "r3": "ريتشارد الثالث", "r3Sub": "عمّه", "illeg": "غير شرعي", "reason": "بسبب زواج أبيه السرّي", "tower": "برج لندن · 1483" },
+      "animation": "stamp impact, crown slide, tower draw",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.03] },
+      "cues": { "son": 209.9, "heir": 211.5, "r3": 213.48, "illeg": 214.72, "reason": 216.5, "took": 218.12, "jail": 219.8 }
+    },
+    {
+      "id": "princes", "start": 221.5, "end": 229.2, "narration": ["s26"], "chapter": "V",
+      "topic": "The princes vanished; their fate is unknown to this day; Richard's power seemed stable for a while",
+      "visual": "Large tower silhouette at night; two lit windows go dark; text 'fate unknown'; a steady crown with a faint tremor",
+      "text": { "a": "أميرا البرج", "b": "مصيرهما مجهول حتى اليوم", "c": "استقرار مؤقت" },
+      "animation": "window lights fade, slow push-in",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.07] },
+      "cues": { "vanish": 221.76, "unknown": 223.46, "today": 225.18, "stable": 226.38 }
+    },
+    {
+      "id": "channel", "start": 229.2, "end": 233.2, "narration": ["s27"], "chapter": "VI",
+      "topic": "Two years later, danger came from across the English Channel",
+      "visual": "Chapter card; wide map of the Channel; a crimson glow rises over Brittany/France",
+      "text": { "danger": "الخطر من وراء القناة" },
+      "animation": "map glide, glow pulse",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.0] },
+      "cues": { "card": 229.2, "danger": 230.72, "channel": 231.9 }
+    },
+    {
+      "id": "tudor", "start": 233.2, "end": 245.0, "narration": ["s28", "s29"], "chapter": "VI",
+      "topic": "Henry Tudor, of Lancastrian descent, raised in exile; exploited divisions inside York and gathered support",
+      "visual": "Lineage thread from John of Gaunt down to Henry Tudor; exile label; then an ivory York rose cracks in two and ivory nodes drift to Henry's side",
+      "text": { "ht": "هنري تيودور", "htSub": "من سلالة جون أوف غونت · لانكاستر", "jg": "جون أوف غونت", "exile": "نشأ في المنفى", "split": "انقسام آل يورك", "sup": "حشد الدعم" },
+      "animation": "lineage dotted draw, rose split, node migration",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.02] },
+      "cues": { "ht": 233.7, "desc": 234.76, "lan": 236.0, "exile": 236.96, "split": 240.44, "york": 242.08, "sup": 242.74 }
+    },
+    {
+      "id": "landing", "start": 245.0, "end": 250.3, "narration": ["s30"], "chapter": "VI",
+      "topic": "He led an army from France across the Channel in 1485",
+      "visual": "Map: route Harfleur → Milford Haven (7 Aug 1485) → Bosworth",
+      "text": { "dep": "هارفلور", "land": "ميلفورد هافن", "landSub": "7 أغسطس 1485", "bos": "بوسورث" },
+      "animation": "camera follows route head",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.0] },
+      "cues": { "army": 245.1, "fr": 245.9, "cross": 246.72, "year": 247.86 }
+    },
+    {
+      "id": "bosworth", "start": 250.3, "end": 253.0, "narration": ["s30"], "chapter": "VI",
+      "topic": "Henry defeated Richard III's forces quickly (Bosworth Field, 22 Aug 1485)",
+      "visual": "Abstract battle diagram: formations meet, Richard's ivory crown falls and turns to dust",
+      "text": { "bt": "معركة بوسورث", "btSub": "22 أغسطس 1485", "r3": "ريتشارد الثالث", "ht": "هنري تيودور" },
+      "animation": "fast convergence, crown fall",
+      "transition": { "type": "cut", "dur": 0 },
+      "camera": { "z": [1.04, 1.0] },
+      "cues": { "defeat": 250.42, "r3": 251.28, "quick": 252.22 }
+    },
+    {
+      "id": "tudor_rose", "start": 253.0, "end": 262.0, "narration": ["s30"], "chapter": "VI",
+      "topic": "Henry married Elizabeth of York, sister of the vanished princes, uniting the red and white roses and ending nearly a century of war",
+      "visual": "Two nodes join with rings; red and white roses glide together and merge into the Tudor rose; '1399 — 1485' compresses",
+      "text": { "h7": "هنري السابع", "eliz": "إليزابيث يورك", "elizSub": "شقيقة الأميرين", "wed": "1486", "tudor": "وردة تيودور", "end": "نهاية قرنٍ تقريبًا من الحروب" },
+      "animation": "rings, rose merge morph, title",
+      "transition": { "type": "dissolve", "dur": 0.4 },
+      "camera": { "z": [1.0, 1.03] },
+      "cues": { "wed": 253.4, "eliz": 254.02, "sister": 255.56, "unite": 257.58, "roses": 258.06, "end": 259.88 }
+    },
+    {
+      "id": "decisive", "start": 262.0, "end": 268.2, "narration": ["s31"], "chapter": "E",
+      "topic": "We imagine historical wars as decisive conflicts with clear winners and losers",
+      "visual": "A crisp binary: one bold block rises (winner), one sinks (loser), clean rule between them",
+      "text": { "w": "منتصر", "l": "مهزوم", "q": "صراعات حاسمة؟" },
+      "animation": "precise geometric motion",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.0] },
+      "cues": { "imagine": 262.32, "decisive": 265.02, "win": 266.12, "lose": 266.76 }
+    },
+    {
+      "id": "seasons", "start": 268.2, "end": 278.07, "narration": ["s32"], "chapter": "E",
+      "topic": "But the Wars of the Roses show victory is relative, alliances shifting, and even royal power fleeting like the seasons",
+      "visual": "The binary blocks tilt and dissolve; three statements appear; a crown dissolves into drifting petals",
+      "text": { "a": "النصر نسبي", "b": "التحالفات متقلّبة", "c": "وسلطة الملوك زائلة كالفصول" },
+      "animation": "dissolution into particles, word reveals",
+      "transition": { "type": "dissolve", "dur": 0.6 },
+      "camera": { "z": [1.0, 1.05] },
+      "cues": { "wotr": 268.82, "story": 270.36, "relative": 272.58, "alliances": 273.74, "power": 275.76, "seasons": 277.12 }
+    },
+    {
+      "id": "endcard", "start": 278.07, "end": 282.5, "narration": [],
+      "topic": "End card",
+      "visual": "Tudor rose, title and dates; fade to black",
+      "text": { "title": "حروب الوردتين", "years": "1455 — 1487" },
+      "animation": "slow fade",
+      "transition": { "type": "dissolve", "dur": 0.8 },
+      "camera": { "z": [1.0, 1.02] },
+      "cues": { "in": 278.07, "out": 281.3 }
+    }
+  ]
+}

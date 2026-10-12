@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8">
+  <title>حروب الوردتين — renderer</title>
+  <link rel="stylesheet" href="fonts/fonts.css">
+  <style>
+    html, body { margin: 0; background: #000; overflow: hidden; }
+    canvas { display: block; width: 1920px; height: 1080px; }
+    #ui { display: none; }
+    body.dev canvas { width: 100vw; height: 56.25vw; max-height: calc(100vh - 48px); max-width: calc((100vh - 48px) * 1.7778); margin: 0 auto; }
+    body.dev #ui { display: flex; gap: 12px; align-items: center; padding: 8px 16px; color: #ddd; font: 14px monospace; }
+    body.dev #bar { flex: 1; }
+    /* invisible text so the browser loads every face before the first frame */
+    #warm { position: absolute; opacity: 0; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <canvas id="c" width="1920" height="1080"></canvas>
+  <div id="ui"><button id="play">▶︎/❚❚</button><input id="bar" type="range" min="0" step="0.01" value="0"><span id="lab"></span></div>
+  <div id="warm"><span style="font-family:Amiri;font-weight:700">ا</span><span style="font-family:Amiri">ا</span><span style="font-family:'Reem Kufi'">ا</span><span style="font-family:Cinzel">A1</span></div>
+
+  <script src="engine/core.js"></script>
+  <script src="engine/background.js"></script>
+  <script src="typography/typography.js"></script>
+  <script src="components/symbols.js"></script>
+  <script src="components/diagrams.js"></script>
+  <script src="maps/geo.js"></script>
+  <script src="maps/map.js"></script>
+  <script src="timelines/timeline.js"></script>
+  <script src="main.js"></script>
+  <script src="scenes/01_opening.js"></script>
+  <script src="scenes/02_roots.js"></script>
+  <script src="scenes/03_weak_king.js"></script>
+  <script src="scenes/04_york.js"></script>
+  <script src="scenes/05_kingmaker.js"></script>
+  <script src="scenes/06_richard.js"></script>
+  <script src="scenes/07_tudor.js"></script>
+  <script src="scenes/08_epilogue.js"></script>
+  <script src="thumbnail.js"></script>
+  <script>W.boot();</script>
+</body>
+</html>
