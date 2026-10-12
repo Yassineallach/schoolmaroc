@@ -30,16 +30,16 @@
       W.drawMap(ctx, t, view, { reveal: p(t, 0.2, 3.4, E.inOut), borders: true, regionLabels: true });
       W.text(ctx, 'إنجلترا في العصور الوسطى', W.W / 2, 985, { size: 38, color: W.C.crimson, reveal: p(t, 1.2, 1.2) });
       // bestiary drawings in the margins of the map
-      const fx = 1540, fy = 470, dx = 450, dy = 470;
-      inked(ctx, fx, fy, 520, 640, p(t, c.crystal - 0.3, 1.4), () =>
-        W.frostCreature(ctx, fx, fy - 60, 0.42, t, { fill: 'rgba(80,120,170,0.38)', rim: '#2a1f16', eyes: p(t, c.crystal + 0.4, 0.5), inkEyes: true }));
-      W.text(ctx, T.a, fx, fy + 280, { size: 50, color: W.C.ivory, reveal: p(t, c.crystal + 0.1, 0.8) });
-      inked(ctx, dx, dy, 760, 560, p(t, c.wing - 0.25, 1.1), () =>
-        W.dragon(ctx, dx + 40, dy + 80, 0.75, t, { flap: 0.7 + Math.sin(t * 2) * 0.15, color: 'rgba(155,28,28,0.55)', farColor: 'rgba(155,28,28,0.35)', rim: '#2a1f16', bone: 'rgba(42,31,22,0.55)', eye: '#2a1f16' }));
-      W.text(ctx, T.b, dx, dy + 280, { size: 50, color: W.C.ivory, reveal: p(t, c.wing + 0.1, 0.8) });
+      const fx = 1545, fy = 400, dx = 430, dy = 430;
+      inked(ctx, fx, fy + 60, 520, 640, p(t, c.crystal - 0.4, 1.4), () =>
+        W.frostKing(ctx, fx, fy, 0.6, t, { eyes: p(t, c.crystal + 0.5, 0.6) }));
+      W.text(ctx, T.a, fx, 760, { size: 50, color: W.C.ivory, reveal: p(t, c.crystal + 0.1, 0.8) });
+      inked(ctx, dx, dy, 700, 620, p(t, c.wing - 0.3, 1.1), () =>
+        W.bestiaryDragon(ctx, dx + 40, dy + 110, 0.56, t, { flap: 0.15 + 0.12 * Math.sin(t * 2.2), fire: p(t, c.wing + 0.4, 0.6) }));
+      W.text(ctx, T.b, dx, 760, { size: 50, color: W.C.ivory, reveal: p(t, c.wing + 0.1, 0.8) });
       // refuted in red ink
-      redCross(ctx, fx, fy - 30, 170, (t - c.strike) / 0.9);
-      redCross(ctx, dx, dy, 190, (t - c.strike - 0.2) / 0.9);
+      redCross(ctx, fx, fy + 40, 175, (t - c.strike) / 0.9);
+      redCross(ctx, dx, dy, 200, (t - c.strike - 0.2) / 0.9);
     },
   });
 
