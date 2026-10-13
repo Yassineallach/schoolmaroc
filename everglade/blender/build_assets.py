@@ -1105,27 +1105,75 @@ def bridge_plank():
 
 
 def window_frame():
-    """Arched window with leaded stained glass and a stone surround.
-    0.8 wide x 1.1 tall, back on the wall plane (y=0), facing -Y."""
+    """Deep-set arched window: a 20 cm surround of individual stones (jambs,
+    voussoirs with a keystone, projecting sill), a timber frame set back in
+    the reveal, and leaded glass that reads as a dark interior by day and
+    glows at night. 0.8 x 1.1 opening centred on the origin, wall plane y=0,
+    facing -Y."""
     b = Builder()
     w, h = 0.8, 1.1
-    b.box((w + 0.2, 0.14, 0.09), loc=(0, -0.07, -h / 2 - 0.03), color=STONE_LIGHT)
-    for s in (-1, 1):
-        b.box((0.09, 0.08, h * 0.8), loc=(s * w / 2, -0.04, -h * 0.1), color=WOOD_DARK)
-    for i in range(9):
-        a = i / 8 * math.pi
-        b.box((0.13, 0.09, 0.1), loc=(math.cos(a) * w / 2, -0.045, h * 0.3 + math.sin(a) * w * 0.45), rot=(0, -a + math.pi / 2, 0), color=STONE_LIGHT)
-    b.box((0.03, 0.06, h * 0.95), loc=(0, -0.03, 0.0), color=IRON)
-    for z in (-0.2, 0.15):
-        b.box((w, 0.06, 0.03), loc=(0, -0.03, z), color=IRON)
-    b.box((0.06, 0.08, 0.1), loc=(0, -0.08, h * 0.3 + w * 0.47), color=GOLD)
+    D = 0.2
+    zs = h * 0.3          # springing line of the arch
+    r = w / 2
+    local = random.Random(77)
+
+    def stone_col():
+        k = local.uniform(0.9, 1.06)
+        return (STONE_LIGHT[0] * k, STONE_LIGHT[1] * k, STONE_LIGHT[2] * k * local.uniform(0.97, 1.02))
+    # jamb stones, alternating long and short
+    for side in (-1, 1):
+        z = -h / 2
+        k = 0
+        while z < zs - 0.02:
+            ht = min(0.24 if k % 2 == 0 else 0.2, zs - z)
+            wide = 0.22 if k % 2 == 0 else 0.15
+            b.box((wide, D, ht - 0.02), loc=(side * (r + wide / 2), -D / 2, z + ht / 2), color=stone_col(), mat=M_STONE)
+            z += ht
+            k += 1
+    # voussoirs around the arch, keystone on top
+    n = 9
+    for i in range(n):
+        a0 = math.pi * i / n + 0.012
+        a1 = math.pi * (i + 1) / n - 0.012
+        am = (a0 + a1) / 2
+        key = i == n // 2
+        depth = 0.22 if key else 0.17
+        rc = r + depth / 2
+        chord = 2 * rc * math.sin((a1 - a0) / 2)
+        b.box((chord + 0.02, D + (0.02 if key else 0.0), depth), loc=(math.cos(am) * rc, -D / 2 - (0.01 if key else 0.0), zs + math.sin(am) * rc),
+              rot=(0, -(am - math.pi / 2), 0), color=stone_col(), mat=M_STONE)
+    # projecting sill
+    b.box((w + 0.42, D + 0.1, 0.08), loc=(0, -(D + 0.1) / 2, -h / 2 - 0.04), color=stone_col(), mat=M_STONE)
+    # reveal lining (darker, in shadow) so the opening reads as deep
+    shade = (STONE_LIGHT[0] * 0.62, STONE_LIGHT[1] * 0.62, STONE_LIGHT[2] * 0.66)
+    for side in (-1, 1):
+        b.box((0.02, D, zs + h / 2), loc=(side * (r - 0.01), -D / 2, (zs - h / 2) / 2), color=shade, mat=M_STONE)
+    # timber casement set back in the reveal
+    fz = (zs - h / 2) / 2
+    for side in (-1, 1):
+        b.box((0.06, 0.05, zs + h / 2), loc=(side * (r - 0.05), -0.05, fz), color=WOOD_DARK)
+    b.box((w - 0.04, 0.05, 0.06), loc=(0, -0.05, -h / 2 + 0.03), color=WOOD_DARK)
+    for i in range(10):
+        a = (i + 0.5) / 10 * math.pi
+        b.box((0.08, 0.05, 0.06), loc=(math.cos(a) * (r - 0.05), -0.05, zs + math.sin(a) * (r - 0.05)), rot=(0, -(a - math.pi / 2), 0), color=WOOD_DARK)
+    b.box((0.035, 0.04, zs + h / 2 + r - 0.1), loc=(0, -0.045, (zs + r - h / 2) / 2 - 0.05), color=WOOD_DARK)
+    b.box((w - 0.08, 0.04, 0.035), loc=(0, -0.045, -0.05), color=WOOD_DARK)
+    # leaded diamond panes
+    for k in range(-3, 4):
+        x = k * 0.11
+        b.box((0.012, 0.02, h + 0.2), loc=(x, -0.03, 0.05), rot=(0, 0.6, 0), color=IRON, mat=M_METAL)
+        b.box((0.012, 0.02, h + 0.2), loc=(x, -0.03, 0.05), rot=(0, -0.6, 0), color=IRON, mat=M_METAL)
     b.to_object("Frame")
+    # glass: alpha 0.5 marks window glass (dark interior by day, glow by night)
     g = Builder()
-    g.box((w - 0.06, 0.01, h * 0.8), loc=(0, -0.012, -h * 0.1), color=(0.98, 0.90, 0.66))
-    for i in range(6):
-        a = (i + 0.5) / 6 * math.pi
-        g.box((0.14, 0.01, 0.12), loc=(math.cos(a) * w * 0.33, -0.012, h * 0.3 + math.sin(a) * w * 0.3), color=(0.62, 0.86, 0.96))
-    g.box((w * 0.7, 0.01, w * 0.25), loc=(0, -0.012, h * 0.37), color=(0.98, 0.86, 0.6))
+    g.box((w - 0.08, 0.01, zs + h / 2), loc=(0, -0.02, fz), color=(0.98, 0.88, 0.62), alpha=PETAL)
+    for i in range(8):
+        a0 = math.pi * i / 8
+        a1 = math.pi * (i + 1) / 8
+        am = (a0 + a1) / 2
+        rr = (r - 0.04) * 0.5
+        g.box((2 * rr * math.sin((a1 - a0) / 2) * 2.2, 0.01, r - 0.04), loc=(math.cos(am) * rr, -0.02, zs + math.sin(am) * rr), rot=(0, -(am - math.pi / 2), 0),
+              color=(0.98, 0.88, 0.62), alpha=PETAL)
     g.to_object("Glow", mat_name="Glow", emissive=True)
 
 
@@ -1155,21 +1203,60 @@ def flower_box():
 
 
 def door():
-    """Arched double wooden door with iron straps, under a stone arch. 1.0 x 2.0, faces -Y."""
+    """Arched plank door set back inside dressed jamb stones under a
+    voussoir arch, with iron straps and a ring pull. 1.0 x 2.0, faces -Y."""
     b = Builder()
-    for x in (-0.25, 0.25):
-        b.box((0.48, 0.07, 1.75), loc=(x, -0.035, 0.875), color=WOOD, grad=(WOOD_LIGHT, WOOD))
-    for i in range(9):
-        a = i / 8 * math.pi
-        b.box((0.2, 0.07, 0.2), loc=(math.cos(a) * 0.4, -0.035, 1.75 + math.sin(a) * 0.25), color=WOOD)
-        b.box((0.2, 0.12, 0.16), loc=(math.cos(a) * 0.58, -0.06, 1.75 + math.sin(a) * 0.42), rot=(0, -a + math.pi / 2, 0), color=STONE_LIGHT)
-    for s in (-1, 1):
-        b.box((0.14, 0.12, 1.75), loc=(s * 0.58, -0.06, 0.875), color=STONE_LIGHT)
-    for z in (0.4, 1.3):
-        b.box((0.95, 0.09, 0.07), loc=(0, -0.08, z), color=IRON)
-    for s in (-1, 1):
-        b.torus(0.06, 0.012, loc=(s * 0.08, -0.1, 0.95), rot=(math.pi / 2, 0, 0), color=GOLD, seg=10, ring=4)
-    b.box((0.2, 0.1, 0.12), loc=(0, -0.12, 2.2), color=GOLD)
+    local = random.Random(31)
+    D = 0.22
+    hw = 0.5
+    spring = 1.6
+
+    def stone_col():
+        k = local.uniform(0.9, 1.06)
+        return (STONE_LIGHT[0] * k, STONE_LIGHT[1] * k, STONE_LIGHT[2] * k)
+    # individual vertical planks, each a slightly different tone and length
+    planks = 8
+    pw = 2 * hw / planks
+    for i in range(planks):
+        x = -hw + pw * (i + 0.5)
+        top = spring + math.sqrt(max(0.0, hw * hw - x * x)) - 0.02
+        k = local.uniform(0.86, 1.1)
+        c = (WOOD[0] * k, WOOD[1] * k, WOOD[2] * k)
+        b.box((pw - 0.012, 0.06, top), loc=(x, -0.05, top / 2), color=c, mat=M_WOOD,
+              grad=((WOOD_LIGHT[0] * k, WOOD_LIGHT[1] * k, WOOD_LIGHT[2] * k), c))
+    # iron straps with nail heads, ring pull
+    for z in (0.35, 1.2):
+        b.box((2 * hw - 0.04, 0.02, 0.06), loc=(0, -0.085, z), color=IRON, mat=M_METAL)
+        for i in range(planks):
+            b.ball(0.012, loc=(-hw + pw * (i + 0.5), -0.098, z), color=IRON, subdiv=1, mat=M_METAL)
+    b.torus(0.055, 0.01, loc=(0.24, -0.1, 0.95), rot=(math.pi / 2, 0, 0), color=IRON, seg=12, ring=4, mat=M_METAL)
+    # jamb stones
+    for side in (-1, 1):
+        z = 0.0
+        k = 0
+        while z < spring - 0.02:
+            ht = min(0.3 if k % 2 == 0 else 0.24, spring - z)
+            wide = 0.26 if k % 2 == 0 else 0.18
+            b.box((wide, D, ht - 0.02), loc=(side * (hw + wide / 2), -D / 2, z + ht / 2), color=stone_col(), mat=M_STONE)
+            z += ht
+            k += 1
+    # voussoirs with keystone
+    n = 9
+    for i in range(n):
+        a0 = math.pi * i / n + 0.012
+        a1 = math.pi * (i + 1) / n - 0.012
+        am = (a0 + a1) / 2
+        key = i == n // 2
+        depth = 0.28 if key else 0.22
+        rc = hw + depth / 2
+        chord = 2 * rc * math.sin((a1 - a0) / 2)
+        b.box((chord + 0.02, D + (0.02 if key else 0.0), depth), loc=(math.cos(am) * rc, -D / 2 - (0.01 if key else 0.0), spring + math.sin(am) * rc),
+              rot=(0, -(am - math.pi / 2), 0), color=stone_col(), mat=M_STONE)
+    # shadowed reveal lining and a worn threshold stone
+    shade = (STONE_LIGHT[0] * 0.6, STONE_LIGHT[1] * 0.6, STONE_LIGHT[2] * 0.64)
+    for side in (-1, 1):
+        b.box((0.02, D - 0.08, spring), loc=(side * (hw - 0.01), -(D - 0.08) / 2 - 0.08, spring / 2), color=shade, mat=M_STONE)
+    b.box((2 * hw + 0.5, D + 0.12, 0.07), loc=(0, -(D + 0.12) / 2, 0.035), color=STONE_DARK, mat=M_STONE)
     b.to_object("Door")
 
 

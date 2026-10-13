@@ -40,7 +40,7 @@ func _ready() -> void:
 	_apply()
 
 
-## Full-screen anime ink outline drawn from the depth buffer.
+## Full-screen contact shading (soft occlusion in creases) from the depth buffer.
 var outline: MeshInstance3D
 
 
@@ -51,7 +51,7 @@ func _add_outline() -> void:
 	quad.size = Vector2.ONE
 	outline.mesh = quad
 	var mat := ShaderMaterial.new()
-	mat.shader = load("res://shaders/outline.gdshader")
+	mat.shader = load("res://shaders/contact_ao.gdshader")
 	outline.material_override = mat
 	outline.extra_cull_margin = 16384.0
 	outline.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

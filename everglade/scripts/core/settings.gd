@@ -10,6 +10,8 @@ var sfx_volume := 0.9
 var ambience_volume := 0.7
 var haptics := true
 var quality := 1 # 0 low, 1 medium, 2 high
+var fog := 0.22 # 0 clear .. 1 thick
+var fog_height := 0.35 # 0 hugs the ground .. 1 fills the valley
 var invert_rotate := false
 var show_tips := true
 var tips_seen: Dictionary = {}
@@ -43,6 +45,8 @@ func load_settings() -> void:
 	show_tips = cfg.get_value("controls", "show_tips", show_tips)
 	tips_seen = cfg.get_value("controls", "tips_seen", tips_seen)
 	quality = cfg.get_value("graphics", "quality", quality)
+	fog = cfg.get_value("graphics", "fog", fog)
+	fog_height = cfg.get_value("graphics", "fog_height", fog_height)
 
 
 func save_settings() -> void:
@@ -55,6 +59,8 @@ func save_settings() -> void:
 	cfg.set_value("controls", "show_tips", show_tips)
 	cfg.set_value("controls", "tips_seen", tips_seen)
 	cfg.set_value("graphics", "quality", quality)
+	cfg.set_value("graphics", "fog", fog)
+	cfg.set_value("graphics", "fog_height", fog_height)
 	cfg.save(PATH)
 
 

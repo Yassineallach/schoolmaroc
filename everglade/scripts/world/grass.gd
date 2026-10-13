@@ -21,6 +21,7 @@ var _dirty: Dictionary = {}
 var _patch_mesh: ArrayMesh
 var _tall_mesh: ArrayMesh
 var _flower_meshes: Array[Mesh] = []
+var _density := 0.0
 
 
 func setup(t: Terrain) -> void:
@@ -38,7 +39,12 @@ func setup(t: Terrain) -> void:
 		var f := _new_mmi(ModelLib.grass_material, 0.0)
 		_flower_mm.append(f)
 	terrain.chunk_rebuilt.connect(func(cx, cz): _dirty[Vector2i(cx, cz)] = true)
-	Settings.changed.connect(refresh_all)
+	Settings.changed.connect(func():
+		# only a new grass density needs the meadow rebuilt
+		if not is_equal_approx(Settings.grass_density(), _density):
+			_density = Settings.grass_density()
+			refresh_all())
+	_density = Settings.grass_density()
 
 
 func _new_mmi(mat: Material, range_end: float) -> MultiMeshInstance3D:
@@ -177,7 +183,9 @@ func _build(cx: int, cz: int) -> void:
 		var xf := Transform3D(basis, Vector3(x, h - 0.03, z))
 		grass_xf.append(xf)
 		var r := rng.randf()
-		if r < 0.012:
+		# wildflowers grow in loose drifts rather than evenly sprinkled
+		var drift := smoothstep(0.5, 0.72, _noise(Vector2(x, z) * 0.32 + Vector2(5.0, 9.0)))
+		if r < 0.002 + drift * 0.05:
 			flower_xf.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * 0.75), Vector3(x, h - 0.02, z)))
 		elif r < 0.02 + wild * 0.08 and m.b < 0.2:
 			tall_xf.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(1, rng.randf_range(0.8, 1.25), 1)), Vector3(x, h - 0.03, z)))

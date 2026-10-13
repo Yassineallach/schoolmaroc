@@ -52,30 +52,33 @@ func _ready() -> void:
 	env = Environment.new()
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
-	# anime shadows: flat blue-violet ambient instead of sky-based GI
+	# soft natural fill: a gentle sky-tinted ambient keeps shade readable
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.62, 0.66, 0.92)
-	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
-	env.tonemap_exposure = 1.0
+	env.ambient_light_color = Color(0.70, 0.75, 0.84)
+	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	env.tonemap_exposure = 1.12
+	env.tonemap_white = 6.0
+	# exponential height fog: thin over the glade, thicker in the distance
+	# and close to the ground (density/height follow the player's settings)
 	env.fog_enabled = true
-	env.fog_mode = Environment.FOG_MODE_DEPTH
-	env.fog_depth_begin = 38.0
-	env.fog_depth_end = 110.0
-	env.fog_depth_curve = 1.4
-	env.fog_sky_affect = 0.4
+	env.fog_mode = Environment.FOG_MODE_EXPONENTIAL
+	env.fog_sky_affect = 0.35
+	_apply_fog_settings()
 	env.glow_enabled = true
 	env.glow_intensity = 0.6
 	env.glow_bloom = 0.08
 	env.glow_hdr_threshold = 1.1
 	env.adjustment_enabled = true
-	env.adjustment_saturation = 1.18
-	env.adjustment_contrast = 1.03
+	env.adjustment_saturation = 1.06
+	env.adjustment_contrast = 1.08
 	world_env = WorldEnvironment.new()
 	world_env.environment = env
 	add_child(world_env)
 	_build_particles()
 	_build_clouds()
-	Settings.changed.connect(func(): sun.shadow_enabled = Settings.shadows_enabled())
+	Settings.changed.connect(func():
+		sun.shadow_enabled = Settings.shadows_enabled()
+		_apply_fog_settings())
 	set_season(season)
 	_snow = _target_snow
 	_season_leaf = _target_leaf
@@ -147,13 +150,13 @@ func _apply() -> void:
 	var day := smoothstep(-0.12, 0.22, elevation)
 	var golden := smoothstep(0.45, 0.05, absf(elevation)) * smoothstep(-0.15, 0.05, elevation)
 	night = 1.0 - smoothstep(-0.18, 0.06, elevation)
-	sun.light_energy = 1.05 * day
-	sun.light_color = Color(1.0, 0.97, 0.9).lerp(Color(1.0, 0.62, 0.38), golden)
+	sun.light_energy = 1.55 * day
+	sun.light_color = Color(1.0, 0.96, 0.88).lerp(Color(1.0, 0.68, 0.44), golden)
 	sun.visible = day > 0.01
 	moon.light_energy = 0.32 * night
 	moon.visible = night > 0.01
-	var top_day := Color(0.20, 0.50, 0.96)
-	var hor_day := Color(0.72, 0.89, 1.0)
+	var top_day := Color(0.36, 0.58, 0.86)
+	var hor_day := Color(0.80, 0.87, 0.92)
 	var top_gold := Color(0.36, 0.38, 0.78)
 	var hor_gold := Color(1.0, 0.62, 0.46)
 	var top_night := Color(0.03, 0.05, 0.18)
@@ -169,10 +172,10 @@ func _apply() -> void:
 	sky_mat.set_shader_parameter("night", night)
 	sky_mat.set_shader_parameter("sunset", golden)
 	env.fog_light_color = hor.lerp(Color(0.7, 0.8, 0.95), 0.25)
-	# shadow tint: periwinkle by day, warm violet at golden hour, deep blue at night
-	var amb := Color(0.60, 0.65, 0.95).lerp(Color(0.72, 0.58, 0.82), golden).lerp(Color(0.22, 0.28, 0.55), night)
+	# fill light: cool sky by day, warm at golden hour, deep blue at night
+	var amb := Color(0.70, 0.76, 0.86).lerp(Color(0.84, 0.72, 0.66), golden).lerp(Color(0.26, 0.32, 0.55), night)
 	env.ambient_light_color = amb
-	env.ambient_light_energy = lerpf(0.7, 0.5, day)
+	env.ambient_light_energy = lerpf(0.55, 0.62, day)
 	if cloud_mat:
 		var lit := Color(1, 1, 1).lerp(Color(1.0, 0.78, 0.66), golden).lerp(Color(0.32, 0.38, 0.62), night)
 		var shade := Color(0.72, 0.80, 0.98).lerp(Color(0.70, 0.56, 0.78), golden).lerp(Color(0.16, 0.2, 0.38), night)
@@ -301,3 +304,12 @@ func _make_particles(col: Color, amount: int, dir: Vector3, size: float, round_f
 ## Normalised daylight factor for UI (sun icon etc).
 func is_night() -> bool:
 	return night > 0.5
+
+
+## Fog density and how tightly it hugs the ground (Settings.fog / fog_height).
+func _apply_fog_settings() -> void:
+	var amount: float = Settings.fog
+	env.fog_density = lerpf(0.0008, 0.03, amount * amount)
+	env.fog_height = lerpf(-2.0, 6.0, Settings.fog_height)
+	env.fog_height_density = lerpf(0.0, 0.2, amount * amount)
+	env.fog_aerial_perspective = 0.25

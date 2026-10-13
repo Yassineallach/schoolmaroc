@@ -64,8 +64,10 @@ void fragment() {
 	float is_stone = step(0.125, zone) * (1.0 - step(0.375, zone));
 	float is_wood = step(0.375, zone) * (1.0 - step(0.625, zone));
 	float is_tiles = step(0.625, zone) * (1.0 - step(0.875, zone));
-	float layer = is_plaster * 5.0 + is_stone * 1.0 + is_wood * 3.0 + is_tiles * 6.0;
-	float sc = is_plaster * 0.55 + is_stone * 0.52 + is_wood * 1.0 + is_tiles * 0.57 + step(0.875, zone) * 0.5;
+	float is_plain = step(0.875, zone);
+	// plain = individually modelled stones and trims: fine weathered grain
+	float layer = is_plaster * 5.0 + is_stone * 1.0 + is_wood * 3.0 + is_tiles * 6.0 + is_plain * 5.0;
+	float sc = is_plaster * 0.55 + is_stone * 0.52 + is_wood * 1.0 + is_tiles * 0.57 + is_plain * 1.3;
 	float flip = mix(1.0, -1.0, is_tiles); // tile lips face down the slope
 	vec2 tuv = vec2(uv.x, uv.y * flip) * sc;
 	// cotangent frame from screen derivatives (meshes carry no tangents)
@@ -80,7 +82,7 @@ void fragment() {
 	vec3 B = dp2perp * du1.y + dp1perp * du2.y;
 	float invmax = inversesqrt(max(max(dot(T, T), dot(B, B)), 1e-12));
 	vec4 alb = texture(mat_albedo, vec3(tuv, layer));
-	vec3 tn = mat_tangent_normal(tuv, layer, mix(0.6, 1.0, is_stone + is_tiles));
+	vec3 tn = mat_tangent_normal(tuv, layer, mix(0.6, 1.0, is_stone + is_tiles) * mix(1.0, 0.55, is_plain));
 	tn.y *= flip;
 	NORMAL = normalize(mat3(T * invmax, B * invmax, nn) * tn);
 	vec3 col = tint * alb.rgb * 2.0;

@@ -52,7 +52,9 @@ void fragment() {
 	if (!FRONT_FACING) {
 		NORMAL = -NORMAL;
 	}
-	vec3 col = COLOR.rgb * mix(0.5, 1.12, tex.r);
+	// natural, slightly muted greens (no fluorescent canopies)
+	vec3 base_c = mix(vec3(dot(COLOR.rgb, vec3(0.3, 0.59, 0.11))), COLOR.rgb, 0.78) * 0.92;
+	vec3 col = base_c * mix(0.5, 1.12, tex.r);
 	// painted occlusion: crowns bright, undersides deep and cool
 	float ny = v_world_normal.y;
 	col *= mix(vec3(0.26, 0.34, 0.48), vec3(1.08, 1.06, 0.95), smoothstep(-0.35, 0.85, ny));

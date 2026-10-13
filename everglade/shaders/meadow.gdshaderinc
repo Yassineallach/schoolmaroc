@@ -3,9 +3,9 @@
 // ground beneath it (lush greens, sunlit lime patches, golden drifts).
 global uniform vec4 season_ground : source_color;
 
-const vec3 GRASS_A = vec3(0.33, 0.58, 0.22);
-const vec3 GRASS_B = vec3(0.55, 0.72, 0.26);
-const vec3 GRASS_GOLD = vec3(0.70, 0.70, 0.30);
+const vec3 GRASS_A = vec3(0.32, 0.50, 0.23);
+const vec3 GRASS_B = vec3(0.48, 0.61, 0.29);
+const vec3 GRASS_GOLD = vec3(0.64, 0.62, 0.35);
 // the ground under the grass carpet is shaded like the blade roots, which
 // gives the meadow depth (dark between blades, bright tips)
 const float GRASS_ROOT_SHADE = 0.8;

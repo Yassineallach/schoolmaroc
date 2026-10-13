@@ -69,20 +69,23 @@ const DECOR := {
 ## Props with moving parts, drawn as individual animated nodes.
 const ANIMATED := ["windmill"]
 
+# muted, natural palette: slate, terracotta, warm brown, moss, ochre...
 const ROOF_COLORS := [
-	Color(0.24, 0.56, 0.62), Color(0.86, 0.38, 0.26), Color(0.30, 0.44, 0.70),
-	Color(0.34, 0.60, 0.44), Color(0.56, 0.42, 0.72), Color(0.21, 0.23, 0.29),
-	Color(0.92, 0.70, 0.34), Color(0.64, 0.30, 0.22),
+	Color(0.40, 0.46, 0.50), Color(0.64, 0.34, 0.26), Color(0.50, 0.38, 0.28),
+	Color(0.44, 0.50, 0.40), Color(0.50, 0.44, 0.50), Color(0.21, 0.23, 0.27),
+	Color(0.70, 0.56, 0.34), Color(0.54, 0.30, 0.22),
 ]
 
+# warm off-white, cream, pale grey, blush, sage and ochre limewash
 const WALL_COLORS := [
-	Color(0.98, 0.96, 0.90), Color(1.0, 0.92, 0.80), Color(0.92, 0.96, 1.0),
-	Color(1.0, 0.90, 0.88), Color(0.92, 0.96, 0.86), Color(0.88, 0.80, 0.68),
+	Color(0.93, 0.90, 0.84), Color(0.92, 0.86, 0.74), Color(0.86, 0.86, 0.84),
+	Color(0.92, 0.84, 0.80), Color(0.86, 0.88, 0.80), Color(0.84, 0.74, 0.58),
 ]
 
+# pale limestone, warm sandstone, light grey, weathered dark, honey stone
 const STONE_COLORS := [
-	Color(0.88, 0.85, 0.78), Color(0.92, 0.84, 0.72), Color(0.74, 0.76, 0.80),
-	Color(0.86, 0.76, 0.66), Color(0.78, 0.82, 0.72),
+	Color(0.79, 0.75, 0.65), Color(0.73, 0.65, 0.52), Color(0.66, 0.65, 0.62),
+	Color(0.47, 0.46, 0.43), Color(0.76, 0.69, 0.56),
 ]
 
 const RECT_ROOFS := ["gable", "hip", "flat"]

@@ -51,6 +51,10 @@ func _ready() -> void:
 	rig.height_probe = glade.ceiling_at
 	add_child(rig)
 	day.follow = rig.camera
+	var night_lights := NightLights.new()
+	night_lights.name = "NightLights"
+	add_child(night_lights)
+	night_lights.setup(glade, rig, day)
 	life = Life.new()
 	life.name = "Life"
 	add_child(life)

@@ -17,11 +17,15 @@ void fragment() {
 	vec3 world = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	float seed = hash11(floor(world.x * 3.0) + floor(world.z * 3.0) * 57.0);
 	float f = 1.0 + flicker * 0.08 * sin(TIME * (6.0 + seed * 5.0) + seed * 40.0);
-	// paper by day (shoji, lanterns), warm glow at night
-	vec3 day = COLOR.rgb * 0.95;
+	// paper by day (shoji, lanterns), warm glow at night; window glass
+	// (vertex alpha 0.5) shows a dark interior with a faint sky sheen by day
+	float glass = step(0.25, COLOR.a) * (1.0 - step(0.75, COLOR.a));
+	float fres = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 3.0);
+	vec3 dark = mix(vec3(0.07, 0.08, 0.1), vec3(0.42, 0.5, 0.6), 0.12 + fres * 0.5);
+	vec3 day = mix(COLOR.rgb * 0.95, dark, glass);
 	vec3 lit = COLOR.rgb * vec3(1.0, 0.82, 0.55);
 	ALBEDO = mix(day, lit * 0.6, night);
-	EMISSION = lit * night * 2.4 * f + COLOR.rgb * 0.08 * (1.0 - night);
-	ROUGHNESS = 0.2;
-	SPECULAR = 0.6;
+	EMISSION = lit * night * 2.4 * f + COLOR.rgb * 0.08 * (1.0 - night) * (1.0 - glass);
+	ROUGHNESS = mix(0.2, 0.35, glass);
+	SPECULAR = mix(0.6, 0.08, glass);
 }

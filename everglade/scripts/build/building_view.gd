@@ -18,6 +18,9 @@ var perches: Array[Vector3] = []
 var eave := 3.0
 var roof_h := 2.0
 var _deco_root: Node3D
+var _preview := false
+var _rng := RandomNumberGenerator.new()
+const LIMESTONE := Color(0.80, 0.76, 0.67)
 
 
 static func local_basis(rot: float) -> Basis:
@@ -69,6 +72,8 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 	for c in get_children():
 		c.free()
 	perches.clear()
+	_preview = preview
+	_rng.seed = int(d.get("seed", 1)) * 31 + 7
 	var c: Vector2 = d.c
 	var base: float = d.get("base", 0.0)
 	transform = Transform3D(local_basis(d.get("rot", 0.0)), Vector3(c.x, base, c.y))
@@ -136,10 +141,19 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 	# foundation plinth (slightly proud of the walls)
 	var fl := L + 0.16
 	var fw := W + 0.16
-	_ring_walls(mb, [Vector3(-fl / 2, 0, -fw / 2), Vector3(fl / 2, 0, -fw / 2), Vector3(fl / 2, 0, fw / 2), Vector3(-fl / 2, 0, fw / 2)], -1.6, PL, stone_col)
+	var plinth := [Vector3(-fl / 2, 0, -fw / 2), Vector3(fl / 2, 0, -fw / 2), Vector3(fl / 2, 0, fw / 2), Vector3(-fl / 2, 0, fw / 2)]
+	if _preview:
+		_ring_walls(mb, plinth, -1.6, PL, stone_col)
+	else:
+		_ring_walls(mb, plinth, -1.6, PL, Masonry.mortar_color(LIMESTONE))
+		_masonry_rect(mb, plinth, -0.35, PL, LIMESTONE.darkened(0.06), [])
 	mb.quad(Vector3(-fl / 2, PL, fw / 2), Vector3(fl / 2, PL, fw / 2), Vector3(fl / 2, PL, -fw / 2), Vector3(-fl / 2, PL, -fw / 2), stone_col)
-	# main walls
-	_ring_walls(mb, corners, PL, eave, wcol)
+	# main walls (whole stone houses are laid stone by stone)
+	if style == "stone" and not _preview:
+		_ring_walls(mb, corners, PL, eave, Masonry.mortar_color(LIMESTONE))
+		_masonry_rect(mb, corners, PL, eave, LIMESTONE, _openings(d, auto_doors, corners))
+	else:
+		_ring_walls(mb, corners, PL, eave, wcol)
 	for i in 4:
 		faces.append({"a": corners[(i + 1) % 4] + Vector3.UP * 0.0, "b": corners[i], "n": _side_normal(corners, i), "h": eave * 0.9})
 	# roof
@@ -210,7 +224,9 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 				var p := a.lerp(b, u) + Vector3.UP * (PL + f * FH + 1.35)
 				var xf := Transform3D(DecoMerge.facing(n), p)
 				deco.add("window_lattice" if lake else "window_frame", xf)
-				if shutters:
+				# laid-stone storeys keep their deep stone surrounds bare
+				var in_stone := style == "stone" or (style == "windrise" and f == 0 and floors > 1)
+				if shutters and not (in_stone and not _preview):
 					deco.add("shutters", xf)
 				if boxes and f == 0:
 					deco.add("flower_box", xf)
@@ -336,6 +352,10 @@ func _gable_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color
 			Vector2(0, 0), Vector2(x1 - x0, 0), Vector2(x1 - x0, slant), Vector2(0, slant))
 	mb.quad(Vector3(x0, ye, zw), Vector3(x1, ye, zw), Vector3(x1, yr, 0), Vector3(x0, yr, 0), tile,
 			Vector2(0, 0), Vector2(x1 - x0, 0), Vector2(x1 - x0, slant), Vector2(0, slant))
+	if not _preview:
+		var tc := Color(roof_col.r, roof_col.g, roof_col.b, 1.0)
+		Roofing.slope(mb, Vector3(x0, yr, 0), Vector3(x1, yr, 0), Vector3(x0, ye, -zw), Vector3(x1, ye, -zw), tc, _rng)
+		Roofing.slope(mb, Vector3(x0, yr, 0), Vector3(x1, yr, 0), Vector3(x0, ye, zw), Vector3(x1, ye, zw), tc, _rng)
 	# undersides
 	var dn := Vector3.DOWN * th
 	mb.quad(Vector3(x0, ye, -zw) + dn, Vector3(x1, ye, -zw) + dn, Vector3(x1, yr, 0) + dn, Vector3(x0, yr, 0) + dn, under)
@@ -385,6 +405,12 @@ func _hip_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color) 
 	var sz := 2.0 * zw
 	mb.tri(e2, e1, r1, tile, Vector2(0, 0), Vector2(sz, 0), Vector2(zw, slant))
 	mb.tri(e0, e3, r0, tile, Vector2(0, 0), Vector2(sz, 0), Vector2(zw, slant))
+	if not _preview:
+		var tc := Color(roof_col.r, roof_col.g, roof_col.b, 1.0)
+		Roofing.slope(mb, r0, r1, e0, e1, tc, _rng)
+		Roofing.slope(mb, r0, r1, e3, e2, tc, _rng)
+		Roofing.slope(mb, r1, r1, e1, e2, tc, _rng)
+		Roofing.slope(mb, r0, r0, e0, e3, tc, _rng)
 	var dn := Vector3.DOWN * 0.14
 	mb.quad(e0 + dn, e1 + dn, e2 + dn, e3 + dn, under)
 	var ring := [e0, e1, e2, e3]
@@ -439,9 +465,17 @@ func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNu
 	var wcol := stone_col if style == "stone" else Color(wall_col.r, wall_col.g, wall_col.b, 0.0)
 	var segs := clampi(int(R * 9.0), 14, 30)
 	if style == "windrise":
-		_round_windrise(mb, R, floors, segs)
-	_cylinder(mb, R + 0.1, -1.6, PL, segs, stone_col)
-	_cylinder(mb, R, PL, eave, segs, wcol)
+		_round_windrise(mb, R, floors, segs, d, auto_doors)
+	if _preview:
+		_cylinder(mb, R + 0.1, -1.6, PL, segs, stone_col)
+	else:
+		_cylinder(mb, R + 0.1, -1.6, PL, segs, Masonry.mortar_color(LIMESTONE))
+		_masonry_round(mb, R + 0.1, -0.35, PL, LIMESTONE.darkened(0.06), [])
+	if style == "stone" and not _preview:
+		_cylinder(mb, R, PL, eave, segs, Masonry.mortar_color(LIMESTONE))
+		_masonry_round(mb, R, PL, eave, LIMESTONE, _round_openings(d, auto_doors, R))
+	else:
+		_cylinder(mb, R, PL, eave, segs, wcol)
 	# ivy faces
 	var chunk := maxi(1, segs / 6)
 	var i := 0
@@ -488,6 +522,8 @@ func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNu
 			mb.tri(p1, p0, apex, tile, Vector2(-u1, 0), Vector2(-u0, 0), Vector2(-(u0 + u1) * 0.5, slant))
 			mb.tri(p0 + Vector3.DOWN * 0.14, p1 + Vector3.DOWN * 0.14, apex + Vector3.DOWN * 0.14, Color(0.42, 0.30, 0.22, 0.5))
 			mb.quad(p1 + Vector3.DOWN * 0.14, p0 + Vector3.DOWN * 0.14, p0, p1, fascia)
+		if not _preview:
+			Roofing.cone(mb, apex, ye, rr, Color(roof_col.r, roof_col.g, roof_col.b, 1.0), _rng)
 		deco.add("weathervane", Transform3D(Basis.IDENTITY, apex + Vector3.DOWN * 0.1))
 		perches.append(apex + Vector3.UP * 0.9)
 	# doors from paths
@@ -583,9 +619,13 @@ func _windrise(mb: MeshBuilder, corners: Array, floors: int, d: Dictionary, door
 	for c in corners:
 		var v: Vector3 = c
 		grown.append(v + Vector3(signf(v.x), 0, signf(v.z)) * 0.04)
-	_ring_walls(mb, grown, PL, stone_top, stone)
+	if _preview:
+		_ring_walls(mb, grown, PL, stone_top, stone)
+		_quoins(mb, corners, Color(0.95, 0.92, 0.85, 1.0), stone_top)
+	else:
+		_ring_walls(mb, grown, PL, stone_top, Masonry.mortar_color(LIMESTONE))
+		_masonry_rect(mb, grown, PL, stone_top - 0.04, LIMESTONE, _openings(d, doors, corners))
 	_band(mb, corners, stone_top, 0.12, 0.08, gold)
-	_quoins(mb, corners, Color(0.95, 0.92, 0.85, 1.0), stone_top)
 	# timber framing on the plaster above the stone
 	for i in 4:
 		var a: Vector3 = corners[i]
@@ -735,12 +775,16 @@ func _lakeside_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Co
 				mb.box(Transform3D(Basis(Vector3.RIGHT, -0.5 * signf(za)), Vector3(xs2, top + 0.2, tip_z)), Vector3(0.32, 0.12, 0.28), cap)
 
 
-func _round_windrise(mb: MeshBuilder, R: float, floors: int, segs: int) -> void:
+func _round_windrise(mb: MeshBuilder, R: float, floors: int, segs: int, d: Dictionary = {}, auto_doors: Array = []) -> void:
 	var stone := Color(0.88, 0.84, 0.76, 0.25)
 	var beam := Color(0.32, 0.22, 0.17, 0.5)
 	var gold := Color(0.95, 0.74, 0.30, 1.0)
 	var stone_top := PL + (FH if floors > 1 else 1.0)
-	_cylinder(mb, R + 0.04, PL, stone_top, segs, stone)
+	if _preview:
+		_cylinder(mb, R + 0.04, PL, stone_top, segs, stone)
+	else:
+		_cylinder(mb, R + 0.04, PL, stone_top, segs, Masonry.mortar_color(LIMESTONE))
+		_masonry_round(mb, R + 0.04, PL, stone_top - 0.04, LIMESTONE, _round_openings(d, auto_doors, R))
 	_cylinder(mb, R + 0.09, stone_top - 0.06, stone_top + 0.06, segs, gold)
 	for f in range(2, floors + 1):
 		var y := PL + f * FH
@@ -880,3 +924,77 @@ func locate(world: Vector3) -> Dictionary:
 		out.u = clampf((lp.x + L / 2) / L, 0.0, 1.0)
 		out.x = lp.x
 	return out
+
+
+# ---------------------------------------------------------------------------
+# Individually laid stonework
+# ---------------------------------------------------------------------------
+## Opening rectangles per side (s along the side, absolute y) for windows
+## and doors, so no stone is laid across them.
+func _openings(d: Dictionary, doors: Array, corners: Array) -> Array:
+	var holes: Array = [[], [], [], []]
+	for w in d.get("windows", []) + doors:
+		var side: int = w.side
+		if side < 0 or side > 3:
+			continue
+		var l := _side_len(corners, side)
+		var s: float = w.u * l
+		var kind: String = w.get("kind", "door" if not w.has("f") else "window")
+		if kind == "dormer":
+			continue
+		if kind == "door":
+			holes[side].append(Rect2(s - 0.64, PL - 0.2, 1.28, 2.55))
+		else:
+			var y: float = PL + int(w.get("f", 0)) * FH + 1.35
+			holes[side].append(Rect2(s - 0.5, y - 0.62, 1.0, 1.42))
+	return holes
+
+
+func _round_openings(d: Dictionary, doors: Array, R: float) -> Array:
+	var holes: Array = []
+	var circ := TAU * R
+	for w in d.get("windows", []) + doors:
+		var kind: String = w.get("kind", "door" if not w.has("f") else "window")
+		var s: float = fposmod(w.u, 1.0) * circ
+		var rect: Rect2
+		if kind == "door":
+			rect = Rect2(s - 0.66, PL - 0.2, 1.32, 2.6)
+		else:
+			var y: float = PL + int(w.get("f", 0)) * FH + 1.35
+			rect = Rect2(s - 0.4, y - 0.62, 0.8, 1.42)
+		holes.append(rect)
+		holes.append(Rect2(rect.position + Vector2(circ, 0), rect.size))
+		holes.append(Rect2(rect.position - Vector2(circ, 0), rect.size))
+	return holes
+
+
+static func _hits(holes: Array, s0: float, s1: float, y0: float, y1: float) -> bool:
+	var r := Rect2(s0, y0, s1 - s0, y1 - y0)
+	for h in holes:
+		if (h as Rect2).intersects(r):
+			return true
+	return false
+
+
+func _masonry_rect(mb: MeshBuilder, corners: Array, y0: float, y1: float, col: Color, holes: Array) -> void:
+	for i in 4:
+		var a: Vector3 = corners[i]
+		var b: Vector3 = corners[(i + 1) % 4]
+		var n := _side_normal(corners, i)
+		var dir := (b - a).normalized()
+		var l := a.distance_to(b)
+		var side_holes: Array = holes[i] if i < holes.size() else []
+		var surf := func(s: float) -> Dictionary:
+			return {"p": Vector3(a.x, 0.0, a.z) + dir * s, "n": n, "g": y0, "low": y0 - 0.01, "top": y1}
+		# run a little past both corners so the faces interlock
+		Masonry.lay(mb, surf, -Masonry.DEPTH, l + Masonry.DEPTH, 0.0, y1 - y0, col, _rng,
+				func(s0, s1, ya, yb): return _hits(side_holes, s0, s1, ya, yb))
+
+
+func _masonry_round(mb: MeshBuilder, R: float, y0: float, y1: float, col: Color, holes: Array) -> void:
+	var surf := func(s: float) -> Dictionary:
+		var ang := s / R
+		var n := Vector3(cos(ang), 0.0, sin(ang))
+		return {"p": n * R, "n": n, "g": y0, "low": y0 - 0.01, "top": y1}
+	Masonry.lay(mb, surf, 0.0, TAU * R, 0.0, y1 - y0, col, _rng,
+			func(s0, s1, ya, yb): return _hits(holes, s0, s1, ya, yb))

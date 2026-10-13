@@ -47,4 +47,14 @@ func _run() -> void:
 	for i in 30:
 		await get_tree().process_frame
 	await _shot("b_house")
+	# freehand stone wall with a path arch through it
+	var wall := g.add_wall(PackedVector2Array([Vector2(-8, -9), Vector2(-2, -10.5), Vector2(4, -10)]), 3.0, Catalog.STONE_COLORS[0])
+	g.add_path(PackedVector2Array([Vector2(-1.5, -4), Vector2(-1.8, -16)]), 1.4, "dirt")
+	g.rebuild_all()
+	game.rig.focus_on(Vector3(-2, 1.2, -10), 7.0)
+	game.rig.yaw = deg_to_rad(15)
+	game.rig.snap()
+	for i in 40:
+		await get_tree().process_frame
+	await _shot("c_wall")
 	get_tree().quit()

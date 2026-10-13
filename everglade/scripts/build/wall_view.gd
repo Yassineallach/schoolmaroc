@@ -25,8 +25,13 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 	var col: Color = d.get("col", Catalog.STONE_COLORS[0])
 	var thick := clampf(0.5 + h * 0.05, 0.55, 0.95)
 	var total := Geo.length(pts)
-	var stone := Color(col.r, col.g, col.b, 0.25)
-	var cap := Color(col.r * 0.9, col.g * 0.9, col.b * 0.9, 0.25)
+	# finished walls: a recessed mortar core faced with individual stones;
+	# previews (while drawing) stay a light flat stone volume
+	var masonry := not preview
+	var stone := Masonry.mortar_color(col) if masonry else Color(col.r, col.g, col.b, 0.25)
+	var cap := stone if masonry else Color(col.r * 0.9, col.g * 0.9, col.b * 0.9, 0.25)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(d.get("id", 1)) * 7919 + 13
 
 	# ---- sample positions (uniform + exact opening edges)
 	var s_list: Array[float] = []
@@ -74,10 +79,11 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 				else:
 					low = smooth_g[i] + spring + sqrt(maxf(0.0, r * r - dd * dd))
 					arch = true
-		samples.append({"s": s, "p": Vector3(p.x, 0, p.y), "n": nrm, "low": low, "top": top, "hole": hole, "arch": arch, "g": g})
+		samples.append({"s": s, "p": Vector3(p.x, 0, p.y), "n": nrm, "low": low, "top": top, "hole": hole, "arch": arch, "g": g, "base": smooth_g[i]})
 
 	var mb := MeshBuilder.new()
-	var ht := thick * 0.5
+	# the stones stand proud of the core by Masonry.DEPTH on each side
+	var ht := thick * 0.5 - (Masonry.DEPTH if masonry else 0.0)
 	for i in samples.size() - 1:
 		var A: Dictionary = samples[i]
 		var B: Dictionary = samples[i + 1]
@@ -115,10 +121,13 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 		var b_t: Vector3 = S.p - S.n * ht + Vector3.UP * S.top
 		if next_open:
 			mb.quad(f_l, b_l, b_t, f_t, stone, Vector2(0, S.low), Vector2(thick, S.low), Vector2(thick, S.top), Vector2(0, S.top))
-			_pillar(mb, S, thick, h, col)
+			_pillar(mb, S, thick, h, col, masonry, rng)
 		if prev_open:
 			mb.quad(b_l, f_l, f_t, b_t, stone, Vector2(0, S.low), Vector2(thick, S.low), Vector2(thick, S.top), Vector2(0, S.top))
-			_pillar(mb, S, thick, h, col)
+			_pillar(mb, S, thick, h, col, masonry, rng)
+
+	if masonry:
+		_lay_stones(mb, samples, openings, total, h, thick, ht, col, rng)
 
 	# battlements on tall walls
 	if tall:
@@ -131,7 +140,13 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 				var t2 := Geo.tangent_at(pts, k)
 				var basis := DecoMerge.along(Vector3(t2.x, 0, t2.y))
 				var top: float = S.top
-				mb.box(Transform3D(basis, S.p + Vector3.UP * (top + 0.25)), Vector3(0.55, 0.5, thick + 0.06), stone)
+				if masonry:
+					# merlon of two bevelled blocks on the coping
+					var y0 := top + 0.13
+					mb.bevel_box(Transform3D(basis, S.p + Vector3.UP * (y0 + 0.14)), Vector3(0.58, 0.27, thick + 0.04), 0.035, Masonry.stone_color(col, rng))
+					mb.bevel_box(Transform3D(basis, S.p + Vector3.UP * (y0 + 0.42)), Vector3(0.54, 0.27, thick), 0.035, Masonry.stone_color(col, rng))
+				else:
+					mb.box(Transform3D(basis, S.p + Vector3.UP * (top + 0.25)), Vector3(0.55, 0.5, thick + 0.06), stone)
 				perches.append(S.p + Vector3.UP * (top + 0.5))
 			k += step
 	else:
@@ -196,13 +211,19 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 	add_child(body)
 
 
-func _pillar(mb: MeshBuilder, S: Dictionary, thick: float, h: float, col: Color) -> void:
+func _pillar(mb: MeshBuilder, S: Dictionary, thick: float, h: float, col: Color, masonry := false, rng: RandomNumberGenerator = null) -> void:
 	if h < 1.0:
 		return
 	var c := Color(col.r * 0.95, col.g * 0.95, col.b * 0.95, 1.0)
 	var basis := DecoMerge.facing(S.n)
 	var top: float = S.top
 	var low: float = S.low
+	if masonry:
+		Masonry.quoins(mb, S.p, S.n, low, top, thick, col, rng)
+		mb.bevel_box(Transform3D(basis, S.p + Vector3.UP * (top + 0.08)), Vector3(thick + 0.22, 0.16, thick + 0.22), 0.04, Masonry.stone_color(col, rng))
+		if h < 2.0:
+			mb.bevel_box(Transform3D(basis, S.p + Vector3.UP * (top + 0.29)), Vector3(0.32, 0.26, 0.32), 0.05, Masonry.stone_color(col, rng))
+		return
 	mb.box(Transform3D(basis, S.p + Vector3.UP * (top + 0.08)), Vector3(thick + 0.2, 0.16, thick + 0.2), c)
 	if h < 2.0:
 		mb.box(Transform3D(basis, S.p + Vector3.UP * (top + 0.28)), Vector3(0.32, 0.26, 0.32), c)
@@ -230,3 +251,87 @@ func play_build_anim() -> void:
 	material.set_shader_parameter("build_progress", 0.0)
 	var tw := create_tween()
 	tw.tween_method(func(v): material.set_shader_parameter("build_progress", v), 0.0, 1.0, 0.6).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+
+## Interpolates the wall's sample line at arclength `s`.
+func _sample_at(samples: Array, s: float) -> Dictionary:
+	var lo := 0
+	var hi := samples.size() - 1
+	if s <= samples[0].s:
+		hi = 1
+	elif s >= samples[hi].s:
+		lo = hi - 1
+	else:
+		while hi - lo > 1:
+			var mid := (lo + hi) / 2
+			if samples[mid].s <= s:
+				lo = mid
+			else:
+				hi = mid
+	var A: Dictionary = samples[lo]
+	var B: Dictionary = samples[hi]
+	var span: float = B.s - A.s
+	var t := clampf((s - A.s) / span, 0.0, 1.0) if span > 1e-5 else 0.0
+	var hole: bool = A.hole or B.hole
+	return {
+		"p": A.p.lerp(B.p, t),
+		"n": A.n.lerp(B.n, t).normalized(),
+		"base": lerpf(A.base, B.base, t),
+		"low": 1e6 if hole else maxf(A.low, B.low),
+		"top": minf(A.top, B.top),
+	}
+
+
+## Faces both sides of the wall with stone courses, arches with voussoirs
+## and the top with coping stones.
+func _lay_stones(mb: MeshBuilder, samples: Array, openings: Array, total: float, h: float, thick: float, ht: float, col: Color, rng: RandomNumberGenerator) -> void:
+	var arches: Array = []
+	for o in openings:
+		var r: float = o.w * 0.5
+		var spring := minf(1.7, h - 0.45 - r)
+		if spring < 0.9:
+			continue
+		var c := _sample_at(samples, o.s)
+		arches.append({"s": o.s, "r": r, "y": c.base + spring, "c": c})
+	var front := func(s: float) -> Dictionary:
+		var k := _sample_at(samples, s)
+		return {"p": k.p + k.n * ht, "n": k.n, "g": k.base, "low": k.low, "top": k.top}
+	var back := func(s: float) -> Dictionary:
+		var k := _sample_at(samples, total - s)
+		return {"p": k.p - k.n * ht, "n": -k.n, "g": k.base, "low": k.low, "top": k.top}
+	var band := func(s0: float, s1: float, y0: float, y1: float, mirrored: bool) -> bool:
+		for a in arches:
+			var a0: float = (total - s1 if mirrored else s0) - a.s
+			var a1: float = (total - s0 if mirrored else s1) - a.s
+			var b0: float = y0 - a.y
+			var b1: float = y1 - a.y
+			if b1 < -0.05:
+				continue
+			var dx := maxf(maxf(a0, 0.0), -a1)
+			var dy := maxf(maxf(b0, 0.0), -b1)
+			var dmin := sqrt(dx * dx + dy * dy)
+			var fx := maxf(absf(a0), absf(a1))
+			var fy := maxf(absf(b0), absf(b1))
+			var dmax := sqrt(fx * fx + fy * fy)
+			if dmax > a.r - 0.06 and dmin < a.r + 0.36:
+				return true
+		return false
+	Masonry.lay(mb, front, 0.0, total, -0.35, h + 0.1, col, rng, func(s0, s1, y0, y1): return band.call(s0, s1, y0, y1, false))
+	Masonry.lay(mb, back, 0.0, total, -0.35, h + 0.1, col, rng, func(s0, s1, y0, y1): return band.call(s0, s1, y0, y1, true))
+	for a in arches:
+		var t := Geo.tangent_at(data.pts, a.s)
+		Masonry.voussoirs(mb, a.c.p + Vector3.UP * a.y, Vector3(t.x, 0, t.y), a.c.n, a.r, ht, col, rng)
+		# dressed jamb stones up both sides of the opening
+		for side in [-1.0, 1.0]:
+			var j := _sample_at(samples, a.s + side * (a.r + 0.17))
+			Masonry.quoins(mb, j.p, j.n, j.base - 0.3, a.y, thick - 0.1, col, rng)
+	# coping stones along the top
+	var s := 0.0
+	while s < total - 0.05:
+		var seg := rng.randf_range(0.42, 0.66)
+		var e := minf(s + seg, total)
+		var ka := _sample_at(samples, s)
+		var kb := _sample_at(samples, e)
+		if ka.low < 1e5 and kb.low < 1e5:
+			Masonry.coping(mb, ka.p + Vector3.UP * ka.top, kb.p + Vector3.UP * kb.top, thick, col, rng)
+		s = e
