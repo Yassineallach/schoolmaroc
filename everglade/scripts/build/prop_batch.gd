@@ -49,13 +49,15 @@ func rebuild(props: Array) -> void:
 	for kind in groups:
 		var m: Dictionary = ModelLib.merged(kind)
 		if not _mmis.has(kind):
-			var solid := _make_mmi(m.solid, ModelLib.props_material, not NO_SHADOW.has(kind))
+			var solid: MultiMeshInstance3D = null
+			if m.solid:
+				solid = _make_mmi(m.solid, ModelLib.props_material, not NO_SHADOW.has(kind))
 			var glow: MultiMeshInstance3D = null
 			if m.glow:
 				glow = _make_mmi(m.glow, ModelLib.glow_material, false)
 			var leaves: MultiMeshInstance3D = null
 			if m.leaves:
-				leaves = _make_mmi(m.leaves, ModelLib.leaf_material, true)
+				leaves = _make_mmi(m.leaves, m.get("leaf_mat", ModelLib.leaf_material), true)
 			_mmis[kind] = [solid, glow, leaves]
 		var xforms: Array = groups[kind]
 		for mmi in _mmis[kind]:
@@ -106,7 +108,7 @@ func pop_in(p: Dictionary, delay := 0.0) -> void:
 	rebuild(_props)
 	var node := Node3D.new()
 	var m: Dictionary = ModelLib.merged(p.kind)
-	for pair in [[m.solid, ModelLib.props_material], [m.glow, ModelLib.glow_material], [m.leaves, ModelLib.leaf_material]]:
+	for pair in [[m.solid, ModelLib.props_material], [m.glow, ModelLib.glow_material], [m.leaves, m.get("leaf_mat", ModelLib.leaf_material)]]:
 		if pair[0]:
 			var mi := MeshInstance3D.new()
 			mi.mesh = pair[0]

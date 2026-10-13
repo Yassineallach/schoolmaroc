@@ -154,7 +154,7 @@ func _place(placed: Dictionary, kinds: Array, rng: RandomNumberGenerator, p: Vec
 func _commit(kind: String, xforms: Array) -> void:
 	if xforms.is_empty() or not ModelLib.has_model(kind):
 		return
-	var m := ModelLib.merged(kind)
+	var m := ModelLib.merged(kind, true)
 	for part in ["solid", "leaves"]:
 		if m[part] == null:
 			continue
@@ -166,7 +166,7 @@ func _commit(kind: String, xforms: Array) -> void:
 			mm.set_instance_transform(i, xforms[i])
 		var mmi := MultiMeshInstance3D.new()
 		mmi.multimesh = mm
-		mmi.material_override = ModelLib.leaf_material if part == "leaves" else ModelLib.props_material
+		mmi.material_override = m.leaf_mat if part == "leaves" else ModelLib.props_material
 		# the near belt casts shadows onto the glade's edge; that's all we need
 		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		_forest.add_child(mmi)

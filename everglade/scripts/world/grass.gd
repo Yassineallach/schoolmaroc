@@ -11,6 +11,10 @@ const PATCH_BLADES := 36
 const PATCH_RADIUS := 0.5
 const TALL_BLADES := 16
 const MAX_PUSHERS := 8
+## Hand-modelled grass clumps (Quaternius Stylized Nature, CC0), converted by
+## tools/import_quaternius.py so their vertex colours carry the same
+## random/along-the-blade data as the procedural blades.
+const CLUMPS := ["q_grass_short", "q_grass_tall", "q_grass_wispy", "q_grass_wide"]
 
 var terrain: Terrain
 var material: ShaderMaterial
@@ -28,8 +32,12 @@ func setup(t: Terrain) -> void:
 	terrain = t
 	material = ShaderMaterial.new()
 	material.shader = load("res://shaders/grass.gdshader")
-	_patch_mesh = _make_patch(PATCH_BLADES, PATCH_RADIUS, Vector2(0.13, 0.28), 101)
-	_tall_mesh = _make_patch(TALL_BLADES, 0.22, Vector2(0.38, 0.7), 202)
+	_patch_mesh = _clump_patch(CLUMPS, 7, 0.42, 101)
+	if _patch_mesh == null:
+		_patch_mesh = _make_patch(PATCH_BLADES, PATCH_RADIUS, Vector2(0.13, 0.28), 101)
+	_tall_mesh = _clump_patch(["q_grass_wild"], 2, 0.16, 202)
+	if _tall_mesh == null:
+		_tall_mesh = _make_patch(TALL_BLADES, 0.22, Vector2(0.38, 0.7), 202)
 	for k in ["flowers_white", "flowers_yellow", "flowers_pink"]:
 		_flower_meshes.append(ModelLib.merged(k).solid)
 	for i in Terrain.CHUNKS * Terrain.CHUNKS:
@@ -85,6 +93,45 @@ func _process(_delta: float) -> void:
 		_dirty.erase(key)
 		_build(key.x, key.y)
 		budget -= 1
+
+
+## A patch made of several modelled grass clumps scattered in a disc, or
+## null when the models are missing (procedural blades are used instead).
+static func _clump_patch(kinds: Array, count: int, radius: float, seed_value: int) -> ArrayMesh:
+	var meshes: Array[Mesh] = []
+	for k in kinds:
+		var path := "res://assets/models/%s.glb" % k
+		if not ResourceLoader.exists(path):
+			return null
+		var scene := (load(path) as PackedScene).instantiate()
+		var mi := _first_mesh(scene)
+		if mi:
+			meshes.append(mi.mesh)
+		scene.free()
+	if meshes.is_empty():
+		return null
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	var st := SurfaceTool.new()
+	for i in count:
+		var a := rng.randf() * TAU
+		var r := sqrt((i + rng.randf()) / count) * radius
+		var s := rng.randf_range(0.8, 1.2)
+		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.85, 1.2), s))
+		st.append_from(meshes[i % meshes.size()], 0, Transform3D(basis, Vector3(cos(a) * r, 0.0, sin(a) * r)))
+	var mesh := st.commit()
+	mesh.custom_aabb = AABB(Vector3(-1.2, -0.2, -1.2), Vector3(2.4, 1.4, 2.4))
+	return mesh
+
+
+static func _first_mesh(n: Node) -> MeshInstance3D:
+	if n is MeshInstance3D:
+		return n
+	for c in n.get_children():
+		var m := _first_mesh(c)
+		if m:
+			return m
+	return null
 
 
 ## One clump of curved, tapered blades. Vertex COLOR carries per-blade data

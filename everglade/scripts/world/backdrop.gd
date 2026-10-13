@@ -51,13 +51,13 @@ func _woods(rng: RandomNumberGenerator, count: int, kinds: Array) -> void:
 func _add(kind: String, pos: Vector3, rot: float, s: float) -> void:
 	if not ModelLib.has_model(kind):
 		return
-	var m := ModelLib.merged(kind)
+	var m := ModelLib.merged(kind, true)
 	for part in ["solid", "leaves"]:
 		if m[part] == null:
 			continue
 		var mi := MeshInstance3D.new()
 		mi.mesh = m[part]
-		mi.material_override = ModelLib.leaf_material if part == "leaves" else ModelLib.props_material
+		mi.material_override = m.leaf_mat if part == "leaves" else ModelLib.props_material
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		mi.transform = Transform3D(Basis(Vector3.UP, rot).scaled(Vector3.ONE * s), pos)
 		add_child(mi)
