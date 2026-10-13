@@ -28,6 +28,7 @@ var base := PackedFloat32Array()      # layer 1
 var patches: Array = []               # layer 2 (shared with Glade.data.patches)
 var pads: Array = []                  # layer 3: [poly, target, margin]
 const PATCH_MAX_H := 7.0
+const EDGE_LEVEL := 0.0   # ground height at the terrain border (meets the landscape)
 var material: ShaderMaterial
 var mask_img: Image
 var mask_tex: ImageTexture
@@ -120,10 +121,11 @@ func generate(template: String, seed_value: int) -> void:
 			h = maxf(h, MIN_H)
 			if template != "lake" and template != "village":
 				h = maxf(h, WATER_LEVEL + 0.3)
-			# wild rolling hills around the glade
+			# the meadow runs on past the plot and settles to the landscape's
+			# level at the border (no rim, no island)
 			var edge := maxf(absf(wx), absf(wz))
-			var ring := smoothstep(PLAY_HALF - 1.0, HALF - 2.0, edge)
-			h = lerpf(h, maxf(h, 0.0) + 2.5 + hills.get_noise_2d(wx * 0.6, wz * 0.6) * 2.0 + ring * 3.0, ring)
+			var ring := smoothstep(PLAY_HALF + 1.0, HALF - 0.5, edge)
+			h = lerpf(h, Landscape.outer_height(wx, wz), ring)
 			base[z * VERTS + x] = h
 	mask_img.fill(Color(0, 0, 0, 0))
 	mask_tex.update(mask_img)

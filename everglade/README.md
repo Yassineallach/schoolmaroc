@@ -86,6 +86,20 @@ The shader shows layered rock beds (warm and cool strata with ledge shadows) on 
 grassy lip and creeping moss; `Glade._rebuild_scree()` scatters boulders at cliff feet. The heightfield is
 192×192 cells (≈33 cm) for crisp cliffs.
 
+## 1d. The world around the glade
+
+Tiny Glade's buildable area is a fixed square (the developer confirmed the square shown around the glade
+is the whole map); it is drawn as a soft white line while you build, trees grow right up to it, and the
+countryside carries on beyond it into the haze, so it never feels like an island. Everglade matches this:
+
+- `scripts/world/landscape.gd`: an endless ground ring continues the terrain without a seam (the terrain
+  settles to the same level at its border) and swells into rolling hills toward a hazy horizon, with the
+  same painted meadow colours (`shaders/outer_ground.gdshader`) and a darker woodland floor.
+- A dense **forest belt** hugs the plot (the glade is a clearing in the woods) and thins into copses and
+  lone trees over the far meadows: ~1,000 trees in one MultiMesh per kind.
+- A constant soft aerial haze swallows the distance; template scenery (karst peaks, cliffs) stands in it.
+- The **plot boundary** is a white line on the ground, shown only while a build tool is active.
+
 ## 1b. Art direction: a handcrafted miniature
 
 | Element | Implementation |

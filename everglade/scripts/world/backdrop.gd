@@ -19,20 +19,18 @@ func build(template: String, t: Terrain) -> void:
 		"village":
 			for i in 14:
 				var a := TAU * i / 14.0 + rng.randf_range(-0.12, 0.12)
-				var r := rng.randf_range(44.0, 70.0)
+				var r := rng.randf_range(70.0, 140.0)
 				var kind: String = ["karst_a", "karst_b", "karst_c"][rng.randi() % 3]
-				_add(kind, Vector3(cos(a) * r, rng.randf_range(-6.0, -2.0), sin(a) * r), rng.randf() * TAU, rng.randf_range(1.0, 1.6))
-			_woods(rng, 30, ["tree_teal", "tree_blossom", "tree_pine_a", "tree_golden"])
+				var kp := Vector2(cos(a), sin(a)) * r
+				_add(kind, Vector3(kp.x, Landscape.outer_height(kp.x, kp.y) - 3.0, kp.y), rng.randf() * TAU, rng.randf_range(1.4, 2.4))
 		"town", "hamlet":
 			for i in 6:
 				var a2 := -2.4 + i * 0.32 + rng.randf_range(-0.05, 0.05)
-				var r2 := rng.randf_range(44.0, 52.0)
-				_add("cliff", Vector3(cos(a2) * r2, rng.randf_range(-1.0, 1.0), sin(a2) * r2), -a2 + PI / 2, rng.randf_range(1.1, 1.5))
-			_woods(rng, 40, ["tree_golden", "tree_orange", "tree_round_a", "tree_pine_a"])
-		"ruins", "meadow":
-			_woods(rng, 46, ["tree_round_a", "tree_round_c", "tree_golden", "tree_pine_b"])
+				var r2 := rng.randf_range(75.0, 90.0)
+				var cp := Vector2(cos(a2), sin(a2)) * r2
+				_add("cliff", Vector3(cp.x, Landscape.outer_height(cp.x, cp.y) - 1.0, cp.y), -a2 + PI / 2, rng.randf_range(1.6, 2.2))
 		_:
-			_woods(rng, 30, ["tree_round_a", "tree_pine_a", "tree_round_c"])
+			pass
 
 
 func _woods(rng: RandomNumberGenerator, count: int, kinds: Array) -> void:

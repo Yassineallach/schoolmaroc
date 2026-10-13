@@ -14,6 +14,8 @@ var data: Dictionary = {}
 var terrain: Terrain
 var grass: GrassField
 var backdrop: Backdrop
+var landscape: Landscape
+var boundary: MeshInstance3D
 var water: Water
 var props: PropBatch
 var views: Dictionary = {}
@@ -42,6 +44,9 @@ func _ready() -> void:
 	backdrop = Backdrop.new()
 	backdrop.name = "Backdrop"
 	add_child(backdrop)
+	landscape = Landscape.new()
+	landscape.name = "Landscape"
+	add_child(landscape)
 	for r in ["walls", "fences", "paths", "buildings"]:
 		var n := Node3D.new()
 		n.name = r.capitalize()
@@ -85,6 +90,7 @@ func new_glade(template: String, name_text := "My Glade") -> void:
 	terrain.patches = data.patches
 	terrain.flush()
 	backdrop.build(template, terrain)
+	landscape.build(template, terrain)
 	water.set_palette(template)
 	data.terrain = terrain.get_heights()
 	undo_stack.clear()
@@ -105,6 +111,7 @@ func load_data(d: Dictionary) -> void:
 		terrain.patches = data.patches
 	terrain.flush()
 	backdrop.build(data.get("template", "meadow"), terrain)
+	landscape.build(data.get("template", "meadow"), terrain)
 	water.set_palette(data.get("template", "meadow"))
 	undo_stack.clear()
 	redo_stack.clear()
@@ -568,6 +575,11 @@ func terrain_edited() -> void:
 			_make_view(type, item, false)
 	_rebuild_shore()
 	_rebuild_scree()
+	if boundary:
+		var was := boundary.visible
+		boundary.free()
+		boundary = null
+		show_boundary(was)
 	mark_interactions()
 	changed.emit()
 
@@ -863,3 +875,39 @@ func crosses_obstacle(a: Vector2, b: Vector2) -> bool:
 		if not Geo.intersections(seg, closed).is_empty():
 			return true
 	return false
+
+
+## The plot's edge, drawn as a soft white line on the ground while building
+## (like Tiny Glade's boundary); hidden in Explore and photo mode.
+func show_boundary(on: bool) -> void:
+	if on and boundary == null:
+		var mb := MeshBuilder.new()
+		var h := Terrain.PLAY_HALF
+		var corners := [Vector2(-h, -h), Vector2(h, -h), Vector2(h, h), Vector2(-h, h)]
+		var col := Color(1, 1, 1, 1)
+		for i in 4:
+			var a: Vector2 = corners[i]
+			var b: Vector2 = corners[(i + 1) % 4]
+			var steps := int(a.distance_to(b) / 0.5)
+			var dir := (b - a).normalized()
+			var nrm := Vector2(-dir.y, dir.x) * 0.06
+			for k in steps:
+				var p0 := a.lerp(b, float(k) / steps)
+				var p1 := a.lerp(b, float(k + 1) / steps)
+				var y0 := terrain.height_at_v(p0) + 0.06
+				var y1 := terrain.height_at_v(p1) + 0.06
+				mb.quad(Vector3(p0.x - nrm.x, y0, p0.y - nrm.y), Vector3(p1.x - nrm.x, y1, p1.y - nrm.y),
+						Vector3(p1.x + nrm.x, y1, p1.y + nrm.y), Vector3(p0.x + nrm.x, y0, p0.y + nrm.y), col)
+		boundary = MeshInstance3D.new()
+		boundary.name = "Boundary"
+		boundary.mesh = mb.commit()
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.albedo_color = Color(1.0, 1.0, 0.97, 0.75)
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		boundary.material_override = mat
+		boundary.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(boundary)
+	if boundary:
+		boundary.visible = on

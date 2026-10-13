@@ -107,9 +107,10 @@ void fragment() {
 	col = mix(col, rock, steep);
 	tn = mix(tn, normalize(tr + vec3(0.0, (ledge - 0.5) * 0.6, 0.0)), steep);
 	rough = mix(rough, a_r.a, steep);
-	// soft vignette into the surrounding wilds
+	// woodland floor under the forest belt (matches the outer landscape)
 	float edge = max(abs(xz.x), abs(xz.y));
-	col *= mix(1.0, 0.82, smoothstep(play_half, play_half + 8.0, edge));
+	float wood = smoothstep(play_half + 1.0, play_half + 5.0, edge) * (0.55 + noise(xz * 0.07) * 0.45);
+	col = mix(col, col * vec3(0.62, 0.7, 0.62), wood);
 	// snow blanket
 	float snow = snow_amount * smoothstep(0.4, 0.75, v_wnormal.y) * (1.0 - wet);
 	snow *= mix(1.0, 0.75, dp * 0.6 + cp * 0.6 + pp * 0.6);

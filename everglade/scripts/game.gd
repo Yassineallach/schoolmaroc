@@ -135,6 +135,7 @@ func enter_menu(first := false) -> void:
 	photo_ui.visible = false
 	life.clear()
 	GladeTemplates.build(glade, "hamlet")
+	glade.show_boundary(false)
 	current_id = ""
 	day.season = 1
 	day.time_of_day = 0.36
@@ -190,6 +191,7 @@ func enter_photo() -> void:
 	if tool:
 		tool.cancel()
 	hud.visible = false
+	glade.show_boundary(false)
 	photo_ui.open(day.time_of_day)
 	rig.photo_mode = true
 	hud.show_hint("", "")
@@ -197,6 +199,8 @@ func enter_photo() -> void:
 
 func exit_photo() -> void:
 	mode = Mode.BUILD
+	if tool:
+		glade.show_boundary(tool.tool_id != "hand")
 	photo_ui.visible = false
 	hud.visible = true
 	rig.photo_mode = false
@@ -225,6 +229,7 @@ func set_tool(id: String) -> void:
 	tool = tools[id]
 	tool.activate()
 	hud.set_tool(id, tool)
+	glade.show_boundary(id != "hand")
 	if id != "hand":
 		select(-1)
 

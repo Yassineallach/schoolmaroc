@@ -309,7 +309,8 @@ func is_night() -> bool:
 ## Fog density and how tightly it hugs the ground (Settings.fog / fog_height).
 func _apply_fog_settings() -> void:
 	var amount: float = Settings.fog
-	env.fog_density = lerpf(0.0008, 0.03, amount * amount)
+	# a soft aerial haze always swallows the far landscape
+	env.fog_density = lerpf(0.0045, 0.03, amount * amount)
 	env.fog_height = lerpf(-2.0, 6.0, Settings.fog_height)
 	env.fog_height_density = lerpf(0.0, 0.2, amount * amount)
 	env.fog_aerial_perspective = 0.25
