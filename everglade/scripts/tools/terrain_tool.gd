@@ -1,10 +1,24 @@
 class_name TerrainTool
 extends BaseTool
-## Sculpt hills and hollows. Hold to keep shaping.
+## Paint the land the Tiny Glade way: drag (or tap) on the meadow to paint a
+## patch of raised ground. Press on an existing patch and drag up/down to
+## change its height (drag it to the ground to remove it) and left/right to
+## morph it between a rocky cliff and a soft grassy hill. "Stack" paints new
+## patches on top of the ground you start on, building terraces.
 
-var held := false
-var at := Vector2.ZERO
-var flatten_to := 0.0
+const PAINT_SPACING := 0.45
+const ADJUST_HEIGHT_PER_PX := 0.018
+const ADJUST_FALL_PER_PX := 0.004
+
+var _mode := ""            # "", "paint", "adjust"
+var _patch: Dictionary = {}
+var _old_bounds := Rect2()
+var _start_screen := Vector2.ZERO
+var _start_h := 0.0
+var _start_fall := 0.0
+var _moved := false
+var _pending := false
+var _since := 0.0
 var _brush: MeshInstance3D
 var _sound_t := 0.0
 
@@ -12,71 +26,119 @@ var _sound_t := 0.0
 func _init() -> void:
 	tool_id = "terrain"
 	title = "Terrain"
-	options = {"mode": "raise", "size": 3.0, "strength": 1.0}
+	options = {"shape": "hill", "size": 2.2, "stack": false}
 
 
 func option_defs() -> Array:
 	return [
-		{"type": "choice", "key": "mode", "items": [
-			{"id": "raise", "label": "Raise", "icon": "raise"},
-			{"id": "lower", "label": "Lower", "icon": "lower"},
-			{"id": "smooth", "label": "Smooth", "icon": "smooth"},
-			{"id": "flatten", "label": "Flatten", "icon": "flatten"}]},
-		{"type": "slider", "key": "size", "label": "Brush", "min": 1.0, "max": 7.0, "step": 0.1},
-		{"type": "slider", "key": "strength", "label": "Strength", "min": 0.2, "max": 2.0, "step": 0.1},
+		{"type": "choice", "key": "shape", "items": [
+			{"id": "hill", "label": "Hill", "icon": "raise"},
+			{"id": "cliff", "label": "Cliff", "icon": "cliff"}]},
+		{"type": "slider", "key": "size", "label": "Brush", "min": 0.8, "max": 6.0, "step": 0.1},
+		{"type": "toggle", "key": "stack", "label": "Stack", "icon": "stack"},
 	]
 
 
 func hint() -> String:
-	return "Press and hold to sculpt the land."
+	return "Paint land on the meadow. Press a hill and drag up/down for height, left/right for cliff ↔ hill."
 
 
-func mode() -> String:
-	return options.mode
+func _default_height() -> float:
+	return 1.4 if options.shape == "hill" else 2.0
+
+
+func _default_fall() -> float:
+	return 0.75 if options.shape == "hill" else 0.08
 
 
 func press(screen: Vector2) -> bool:
 	var g = ground(screen)
 	if g == null:
 		return false
+	var at := Vector2(g.x, g.z)
 	glade.begin_change()
-	held = true
-	at = Vector2(g.x, g.z)
-	flatten_to = g.y
+	_start_screen = screen
+	_moved = false
+	var hit: Dictionary = {} if options.stack else glade.terrain.patch_at(at)
+	if not hit.is_empty():
+		_mode = "adjust"
+		_patch = hit
+		_start_h = float(hit.h)
+		_start_fall = float(hit.get("fall", 0.6))
+	else:
+		_mode = "paint"
+		_patch = glade.add_terrain_patch(PackedVector2Array([at]), options.size, _default_height(), _default_fall(), options.stack)
+	_old_bounds = Terrain.patch_bounds(_patch)
+	_show_brush(at)
+	Sfx.play("rumble", -10.0, 0.2)
 	return true
 
 
 func drag(screen: Vector2) -> void:
+	if _mode == "":
+		return
+	if screen.distance_to(_start_screen) > 10.0:
+		_moved = true
+	if _mode == "adjust":
+		var d := screen - _start_screen
+		_patch.h = clampf(_start_h - d.y * ADJUST_HEIGHT_PER_PX, 0.0, Terrain.PATCH_MAX_H)
+		_patch.fall = clampf(_start_fall + d.x * ADJUST_FALL_PER_PX, 0.0, 1.0)
+		_pending = true
+		return
 	var g = ground(screen)
-	if g != null:
-		at = Vector2(g.x, g.z)
+	if g == null:
+		return
+	var at := Vector2(g.x, g.z)
+	var pts: PackedVector2Array = _patch.pts
+	if at.distance_to(pts[pts.size() - 1]) >= PAINT_SPACING:
+		pts.append(glade.terrain.clamp_to_play(at))
+		_patch.pts = pts
+		_pending = true
+	_show_brush(at)
 
 
 func process_hold(delta: float) -> void:
-	if not held:
+	if _mode == "":
 		return
-	var rate := 2.2 if mode() in ["raise", "lower", "dig"] else 1.0
-	glade.terrain.sculpt(at, options.size, delta * rate * options.strength, mode(), flatten_to)
-	_show_brush()
-	_sound_t -= delta
-	if _sound_t <= 0.0:
-		_sound_t = 0.25
-		Sfx.play("dig" if mode() == "dig" else "rumble", -12.0, 0.2)
+	_since += delta
+	# reshape the ground at most ~12 times a second while dragging
+	if _pending and _since > 0.08:
+		_since = 0.0
+		_pending = false
+		var nb := Terrain.patch_bounds(_patch)
+		glade.update_terrain_patch(_patch, _old_bounds)
+		_old_bounds = nb
+		_sound_t -= delta
+		if _sound_t <= 0.0:
+			_sound_t = 0.22
+			Sfx.play("rumble", -14.0, 0.2)
 
 
 func release(_screen: Vector2) -> void:
-	if held:
-		held = false
-		glade.terrain_edited()
+	if _mode == "":
+		return
+	if _pending:
+		glade.update_terrain_patch(_patch, _old_bounds)
+		_pending = false
+	if _mode == "adjust" and float(_patch.h) < 0.12:
+		glade.remove_terrain_patch(_patch)
+	_mode = ""
+	_patch = {}
 	if _brush:
 		_brush.visible = false
+	glade.terrain_edited()
+	Settings.vibrate(15)
 
 
 func cancel() -> void:
 	release(Vector2.ZERO)
 
 
-func _show_brush() -> void:
+func tap(_screen: Vector2) -> void:
+	pass # press already painted a round patch
+
+
+func _show_brush(at: Vector2) -> void:
 	if _brush == null:
 		_brush = MeshInstance3D.new()
 		var torus := TorusMesh.new()
@@ -92,6 +154,6 @@ func _show_brush() -> void:
 		mat.no_depth_test = true
 		_brush.material_override = mat
 		glade.add_child(_brush)
-	_brush.visible = true
+	_brush.visible = _mode == "paint"
 	_brush.global_position = Vector3(at.x, glade.terrain.height_at_v(at) + 0.1, at.y)
 	_brush.scale = Vector3(options.size, 1, options.size)

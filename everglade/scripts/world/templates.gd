@@ -19,6 +19,12 @@ static func _build(glade: Glade, template: String) -> void:
 			_hamlet(glade)
 		"hills":
 			glade.new_glade("hills", "Hillside Glade")
+			# rolling hills, a rocky plateau with a terrace and a cliff ridge
+			glade.add_terrain_patch(PackedVector2Array([Vector2(-14, -6), Vector2(-9, -12), Vector2(-2, -15)]), 3.6, 1.6, 0.85)
+			glade.add_terrain_patch(PackedVector2Array([Vector2(8, 6), Vector2(13, 11)]), 3.2, 2.4, 0.12)
+			glade.add_terrain_patch(PackedVector2Array([Vector2(10.5, 8.5)]), 1.8, 1.4, 0.15, true)
+			glade.add_terrain_patch(PackedVector2Array([Vector2(-12, 10)]), 4.0, 1.0, 1.0)
+			glade.add_terrain_patch(PackedVector2Array([Vector2(12, -11), Vector2(16, -6)]), 2.4, 2.0, 0.35)
 			_sprinkle_nature(glade, 18, 1)
 		"town":
 			glade.new_glade("town", "Town Plaza")
@@ -75,8 +81,7 @@ static func _hamlet(glade: Glade) -> void:
 	t.sculpt(Vector2(-9.5, 8.5), 3.0, 1.0, "dig")
 	t.sculpt(Vector2(-9.5, 8.5), 6.0, 0.6, "smooth")
 	# a gentle hill behind the tower
-	t.sculpt(Vector2(11, -11), 6.0, 1.4, "raise")
-	t.sculpt(Vector2(11, -11), 7.0, 0.8, "smooth")
+	glade.add_terrain_patch(PackedVector2Array([Vector2(9.5, -12.0), Vector2(13.0, -10.5)]), 3.4, 1.3, 0.8)
 	t.flush()
 
 	# timbered town houses over stone, a tall spire tower and an old watchtower
@@ -187,8 +192,9 @@ static func _town(glade: Glade) -> void:
 	var t := glade.terrain
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 501
-	t.sculpt(Vector2(-14, -14), 7.0, 1.6, "raise")
-	t.sculpt(Vector2(-14, -14), 8.0, 0.8, "smooth")
+	# a rocky bluff behind the town with a grassy shoulder
+	glade.add_terrain_patch(PackedVector2Array([Vector2(-17, -12), Vector2(-14, -15), Vector2(-10, -17)]), 3.2, 1.2, 0.85)
+	glade.add_terrain_patch(PackedVector2Array([Vector2(-16, -15.5), Vector2(-13, -17.5)]), 2.0, 1.6, 0.1, true)
 	t.flush()
 	var red: Color = Catalog.ROOF_COLORS[1]
 	var teal: Color = Catalog.ROOF_COLORS[0]
@@ -251,8 +257,9 @@ static func _ruins(glade: Glade) -> void:
 	var t := glade.terrain
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 733
-	t.sculpt(Vector2(9.0, -9.0), 6.0, 1.3, "raise")
-	t.sculpt(Vector2(9.0, -9.0), 7.0, 0.8, "smooth")
+	# the rotunda crowns a low rocky knoll
+	glade.add_terrain_patch(PackedVector2Array([Vector2(9.0, -9.0)]), 4.2, 1.2, 0.3)
+	glade.add_terrain_patch(PackedVector2Array([Vector2(-15.0, 9.0), Vector2(-11.0, 14.0)]), 3.0, 0.9, 0.85)
 	t.flush()
 	var placed := [
 		["ruin_arch", Vector2(0.0, -2.0), 0.0, 1.15], ["ruin_wall", Vector2(-5.6, -2.6), -0.12, 1.0],
@@ -287,10 +294,12 @@ static func _village(glade: Glade) -> void:
 	var t := glade.terrain
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 919
-	t.sculpt(Vector2(-14.0, -12.0), 7.0, 2.2, "raise")
-	t.sculpt(Vector2(-14.0, -12.0), 8.0, 0.8, "smooth")
-	t.sculpt(Vector2(15.0, -13.0), 6.0, 1.8, "raise")
-	t.sculpt(Vector2(15.0, -13.0), 7.0, 0.8, "smooth")
+	# stacked tea terraces climbing both hillsides
+	glade.add_terrain_patch(PackedVector2Array([Vector2(-18, -9), Vector2(-14, -12), Vector2(-9, -16)]), 3.6, 0.8, 0.12)
+	glade.add_terrain_patch(PackedVector2Array([Vector2(-17.5, -12), Vector2(-14, -15.5)]), 2.6, 0.8, 0.12, true)
+	glade.add_terrain_patch(PackedVector2Array([Vector2(-16.8, -15), Vector2(-15, -17)]), 1.6, 0.8, 0.12, true)
+	glade.add_terrain_patch(PackedVector2Array([Vector2(13, -10), Vector2(17, -14)]), 3.4, 0.9, 0.12)
+	glade.add_terrain_patch(PackedVector2Array([Vector2(15, -12.5), Vector2(17.5, -15)]), 2.0, 0.9, 0.12, true)
 	t.flush()
 	var dark: Color = Catalog.ROOF_COLORS[5]
 	var houses := [

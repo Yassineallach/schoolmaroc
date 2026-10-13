@@ -77,4 +77,23 @@ func _run() -> void:
 	for i in 40:
 		await get_tree().process_frame
 	await _shot("e_plaster")
+	# painted terrain: a soft hill, a rocky cliff plateau with a stacked terrace
+	game.start_new("meadow")
+	g = game.glade
+	game.life.enabled = false
+	game.life.clear()
+	g.add_terrain_patch(PackedVector2Array([Vector2(-14, 10), Vector2(-10, 14)]), 2.6, 1.4, 0.85)
+	g.add_terrain_patch(PackedVector2Array([Vector2(-6, 13), Vector2(-1, 15)]), 2.4, 2.2, 0.08)
+	g.add_terrain_patch(PackedVector2Array([Vector2(-3.5, 14.2)]), 1.4, 1.2, 0.1, true)
+	g.terrain_edited()
+	g.add_terrain_patch(PackedVector2Array([Vector2(-9, 6), Vector2(-4, 7)]), 1.6, 0.9, 0.3)
+	g.add_path(PackedVector2Array([Vector2(-12, 3), Vector2(-6, 9.5), Vector2(-3.5, 14.2)]), 1.3, "dirt")
+	g.rebuild_all()
+	game.hud.visible = false
+	game.rig.focus_on(Vector3(-7, 1.0, 11), 16.0)
+	game.rig.yaw = deg_to_rad(20)
+	game.rig.snap()
+	for i in 50:
+		await get_tree().process_frame
+	await _shot("f_terrain")
 	get_tree().quit()

@@ -48,7 +48,10 @@ void fragment() {
 	float pp = smoothstep(0.35, 0.6, m.a + edge_n * 0.4);
 	float bank = (1.0 - smoothstep(water_level + 0.05, water_level + 0.45 + n * 0.2, v_world.y)) * 0.85;
 	float wet = (1.0 - smoothstep(water_level - 0.2, water_level + 0.02, v_world.y)) * 0.7;
-	float steep = (1.0 - smoothstep(0.55, 0.8, v_wnormal.y)) * 0.7;
+	// cliffs: steep faces show layered rock; a ragged grassy lip hangs over
+	// the top edge and moss creeps into the ledges
+	float lip = (noise(xz * 3.0) - 0.5) * 0.12;
+	float steep = 1.0 - smoothstep(0.5 + lip, 0.72 + lip, v_wnormal.y);
 	// --- textured layers (all fetched unconditionally: no divergent derivatives)
 	vec3 tg = vec3(0.0);
 	vec3 td = vec3(0.0);
@@ -62,6 +65,22 @@ void fragment() {
 	vec4 a_c = ground_mat(xz, 10.0, 0.62, 1.0, tc, 1.0);
 	vec4 a_p = ground_mat(xz, 14.0, 0.42, 1.0, tp, 1.0);
 	vec4 a_s = ground_mat(xz, 15.0, 0.5, 0.7, ts, 1.0);
+	// rock projected onto the cliff face itself (along the face, up the face)
+	vec2 hn = normalize(v_wnormal.xz + vec2(1e-4));
+	vec2 face_uv = vec2(dot(xz, vec2(-hn.y, hn.x)), v_world.y);
+	vec3 tr = vec3(0.0);
+	vec4 a_r = ground_mat(face_uv, 2.0, 0.42, 1.0, tr, 1.0);
+	// horizontal strata: alternating warm and cool beds with crisp ledges
+	float bed = v_world.y * 2.6 + noise(xz * 0.6) * 0.7;
+	float strata = fract(bed);
+	float bed_id = floor(bed);
+	float ledge = smoothstep(0.82, 0.95, strata);
+	// each bed a slightly different warm grey, lit along its upper edge
+	vec3 rock = mix(vec3(0.60, 0.56, 0.49), vec3(0.73, 0.69, 0.61), hash12(vec2(bed_id, 3.0)));
+	rock *= mix(vec3(1.0), a_r.rgb * 2.0, 0.45);
+	rock *= 1.0 - ledge * 0.38;
+	rock *= 1.0 + smoothstep(0.0, 0.12, strata) * (1.0 - smoothstep(0.12, 0.3, strata)) * 0.12;
+	rock = mix(rock, vec3(0.36, 0.46, 0.22) * season_ground.rgb, smoothstep(0.55, 0.8, noise(xz * 1.3 + v_world.y)) * 0.35);
 	// --- colours
 	vec3 g = meadow_base(xz, v_world.y) * a_g.rgb * 2.0;
 	// beneath the grass carpet the ground takes the blades' root shade;
@@ -85,8 +104,9 @@ void fragment() {
 	col = mix(col, sand.rgb * a_s.rgb * 2.0, bank);
 	tn = mix(tn, ts, bank);
 	col = mix(col, under.rgb * 0.8, wet);
-	col = mix(col, dcol * 0.85, steep);
-	tn = mix(tn, td, steep);
+	col = mix(col, rock, steep);
+	tn = mix(tn, normalize(tr + vec3(0.0, (ledge - 0.5) * 0.6, 0.0)), steep);
+	rough = mix(rough, a_r.a, steep);
 	// soft vignette into the surrounding wilds
 	float edge = max(abs(xz.x), abs(xz.y));
 	col *= mix(1.0, 0.82, smoothstep(play_half, play_half + 8.0, edge));

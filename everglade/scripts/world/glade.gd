@@ -73,7 +73,7 @@ func _ready() -> void:
 static func empty_data(name_text := "My Glade") -> Dictionary:
 	return {
 		"version": 1, "name": name_text, "season": 1, "time": 0.38, "next_id": 1,
-		"walls": [], "fences": [], "paths": [], "buildings": [], "props": [],
+		"walls": [], "fences": [], "paths": [], "buildings": [], "props": [], "patches": [],
 		"template": "meadow", "seed": randi() % 100000,
 	}
 
@@ -82,6 +82,7 @@ func new_glade(template: String, name_text := "My Glade") -> void:
 	data = empty_data(name_text)
 	data.template = template
 	terrain.generate(template, data.seed)
+	terrain.patches = data.patches
 	terrain.flush()
 	backdrop.build(template, terrain)
 	water.set_palette(template)
@@ -93,13 +94,15 @@ func new_glade(template: String, name_text := "My Glade") -> void:
 
 func load_data(d: Dictionary) -> void:
 	data = d
-	for key in ["walls", "fences", "paths", "buildings", "props"]:
+	for key in ["walls", "fences", "paths", "buildings", "props", "patches"]:
 		if not data.has(key):
 			data[key] = []
 	if data.has("terrain"):
+		terrain.patches = data.patches
 		terrain.set_heights(data.terrain)
 	else:
 		terrain.generate(data.get("template", "meadow"), data.get("seed", 1))
+		terrain.patches = data.patches
 	terrain.flush()
 	backdrop.build(data.get("template", "meadow"), terrain)
 	water.set_palette(data.get("template", "meadow"))
@@ -158,6 +161,9 @@ func _restore(d: Dictionary) -> void:
 	data = d
 	data.time = keep_time
 	data.season = keep_season
+	if not data.has("patches"):
+		data.patches = []
+	terrain.patches = data.patches
 	terrain.set_heights(d.terrain)
 	terrain.flush()
 	rebuild_all()
@@ -233,8 +239,105 @@ func settle_building(b: Dictionary) -> void:
 	var target := terrain.average_height(poly)
 	target = maxf(target, Terrain.WATER_LEVEL + 0.15)
 	b.base = target
-	terrain.flatten_polygon(poly, target, 1.4)
+	if batch:
+		terrain.flatten_polygon(poly, target, 1.4)
+		return
+	sync_pads()
 	terrain.flush()
+
+
+## Rebuilds the flat pads under every building (they sit on top of the
+## terrain patches) and recomposes the ground.
+func sync_pads() -> void:
+	terrain.clear_pads()
+	for b in data.buildings:
+		if b.has("base"):
+			terrain.pads.append([BuildingView.footprint(b), float(b.base), 1.4])
+	terrain.compose()
+
+
+# ---------------------------------------------------------------------------
+# Terrain patches (painted hills, cliffs and terraces)
+# ---------------------------------------------------------------------------
+## Paints a new terrain patch. `stack` starts it on top of the ground under
+## the first point (terraces); otherwise it rises from the base meadow.
+func add_terrain_patch(pts: PackedVector2Array, radius: float, height: float, fall: float, stack := false) -> Dictionary:
+	var floor_h := terrain.height_without(pts[0], -1) if stack else terrain.base_height_at(pts[0])
+	floor_h = maxf(floor_h, Terrain.WATER_LEVEL + 0.3)
+	var p := {"id": next_id(), "pts": pts, "r": radius, "h": height, "fall": fall, "floor": floor_h}
+	data.patches.append(p)
+	terrain.compose_rect(Terrain.patch_bounds(p))
+	return p
+
+
+## Re-shapes a patch after its stroke, height or falloff changed (old bounds
+## are passed so the ground it left is restored).
+func update_terrain_patch(p: Dictionary, old_bounds := Rect2()) -> void:
+	var r := Terrain.patch_bounds(p)
+	if old_bounds.has_area():
+		r = r.merge(old_bounds)
+	terrain.compose_rect(r)
+
+
+func remove_terrain_patch(p: Dictionary) -> void:
+	var r := Terrain.patch_bounds(p)
+	data.patches.erase(p)
+	terrain.compose_rect(r)
+
+
+## Scree and boulders at the foot of cliffs, rebuilt with the patches.
+func _rebuild_scree() -> void:
+	var old := get_node_or_null("Scree")
+	if old:
+		old.free()
+	var deco := DecoMerge.new()
+	var any := false
+	for p in data.patches:
+		var fall := float(p.get("fall", 0.6))
+		if fall > 0.45:
+			continue
+		var rng := RandomNumberGenerator.new()
+		rng.seed = int(p.id) * 131
+		var pts: PackedVector2Array = p.pts
+		var w := Terrain.patch_slope(p)
+		var reach := float(p.r) + w * 0.5 + 0.25
+		var samples: Array[Vector2] = []
+		if pts.size() == 1:
+			var n := int(TAU * reach / 1.1)
+			for k in n:
+				var a := TAU * k / n + rng.randf() * 0.3
+				samples.append(pts[0] + Vector2(cos(a), sin(a)) * reach)
+		else:
+			var total := Geo.length(pts)
+			var s := 0.0
+			while s <= total:
+				var c := Geo.point_at(pts, s)
+				var t := Geo.tangent_at(pts, s)
+				var nrm := Vector2(-t.y, t.x)
+				samples.append(c + nrm * reach)
+				samples.append(c - nrm * reach)
+				s += 1.1
+			for e in [0, 1]:
+				var end: Vector2 = pts[0] if e == 0 else pts[pts.size() - 1]
+				var dir := (pts[0] - pts[1]).normalized() if e == 0 else (pts[pts.size() - 1] - pts[pts.size() - 2]).normalized()
+				for k in 5:
+					var a := atan2(dir.y, dir.x) + (k - 2) * 0.55
+					samples.append(end + Vector2(cos(a), sin(a)) * reach)
+		for q in samples:
+			if rng.randf() > 0.6 or not terrain.in_play_area(q, 0.3):
+				continue
+			if is_blocked(q):
+				continue
+			var kind := "rock_a" if rng.randf() < 0.4 else ("rock_b" if rng.randf() < 0.5 else "rock_c")
+			var sc := rng.randf_range(0.45, 1.0) * lerpf(1.0, 0.6, fall * 2.0)
+			var y := terrain.height_at_v(q) - 0.06
+			deco.add(kind, Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * sc), Vector3(q.x, y, q.y)))
+			any = true
+	if any:
+		var node := Node3D.new()
+		node.name = "Scree"
+		add_child(node)
+		deco.apply_to(node)
 
 
 func add_prop(kind: String, pos: Vector3, rot: float, scale_value: float, align := false, pop := true) -> Dictionary:
@@ -380,6 +483,9 @@ var batch := false
 func rebuild_all() -> void:
 	if batch:
 		return
+	sync_pads()
+	terrain.flush()
+	_rebuild_scree()
 	for id in views:
 		views[id].free()
 	views.clear()
@@ -439,6 +545,19 @@ func mark_interactions() -> void:
 
 ## Re-snaps everything that sits on the ground after a sculpt stroke.
 func terrain_edited() -> void:
+	# buildings ride up and down with the ground they stand on
+	terrain.clear_pads()
+	terrain.compose()
+	var moved: Array = []
+	for b in data.buildings:
+		var target := maxf(terrain.average_height(BuildingView.footprint(b)), Terrain.WATER_LEVEL + 0.15)
+		if absf(target - float(b.get("base", target))) > 0.05:
+			b.base = target
+			moved.append(b)
+	sync_pads()
+	terrain.flush()
+	for b in moved:
+		_make_view("buildings", b, false)
 	for p in data.props:
 		var pos: Vector3 = p.p
 		pos.y = terrain.height_at(pos.x, pos.z)
@@ -448,6 +567,7 @@ func terrain_edited() -> void:
 		for item in data[type]:
 			_make_view(type, item, false)
 	_rebuild_shore()
+	_rebuild_scree()
 	mark_interactions()
 	changed.emit()
 

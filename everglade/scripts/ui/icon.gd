@@ -217,6 +217,15 @@ func _draw() -> void:
 			if icon == "raise":
 				line([Vector2(0.5, 0.25), Vector2(0.5, 0.05)], INK, 0.06)
 				line([Vector2(0.4, 0.14), Vector2(0.5, 0.05), Vector2(0.6, 0.14)], INK, 0.06)
+		"cliff":
+			poly([Vector2(0.05, 0.9), Vector2(0.05, 0.62), Vector2(0.3, 0.62), Vector2(0.36, 0.3), Vector2(0.78, 0.3), Vector2(0.84, 0.62), Vector2(0.95, 0.62), Vector2(0.95, 0.9)], STONE)
+			rect(0.34, 0.24, 0.46, 0.08, LEAF)
+			rect(0.05, 0.56, 0.25, 0.07, LEAF)
+			line([Vector2(0.45, 0.45), Vector2(0.7, 0.45)], STONE.darkened(0.3), 0.03)
+		"stack":
+			rect(0.15, 0.62, 0.7, 0.26, LEAF.darkened(0.15))
+			rect(0.28, 0.38, 0.44, 0.24, LEAF)
+			rect(0.4, 0.16, 0.2, 0.22, LEAF.lightened(0.15))
 		"lower":
 			poly([Vector2(0.05, 0.4), Vector2(0.3, 0.4), Vector2(0.5, 0.75), Vector2(0.7, 0.4), Vector2(0.95, 0.4), Vector2(0.95, 0.9), Vector2(0.05, 0.9)], LEAF)
 			line([Vector2(0.5, 0.08), Vector2(0.5, 0.3)], INK, 0.06)

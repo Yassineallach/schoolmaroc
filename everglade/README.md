@@ -51,7 +51,7 @@ GamingOnLinux patch coverage.
 | Paths & stepping stones | Dirt/cobble paths; stepping stones over water | Dirt, cobble (Voronoi stones + border cobbles), paved flagstones with kerbs, and stepping-stone styles |
 | Bridges | A path over water becomes a bridge | Arched wooden bridge along each water crossing |
 | Stairs on slopes | Steps appear on steep paths | Stone steps on slopes > 0.55 |
-| Terrain | Raise/lower land, hills | `TerrainTool`: raise, lower, smooth, flatten (hold to sculpt) |
+| Terrain | Paint land on a flat meadow, then drag it up/down (height) and sideways (smooth hill ↔ rocky cliff); Ctrl stacks a layer on top; can't dig below the meadow except with water; right-click a chunk for height/falloff | `TerrainTool` + `Terrain` patches: paint a stroke (or tap) to raise a patch; press a patch and drag up/down for height (drag to the ground removes it) and left/right for falloff; **Hill** / **Cliff** presets; **Stack** builds terraces on top of the ground you start on. Steep patches get layered rock faces with a grassy lip and scree boulders at their feet; gentle ones are grassy hills. Houses ride up with the ground. Only the pond tool digs below the meadow |
 | Ponds | Dig and water fills it | `WaterTool`: dig or fill; depth-tinted water, foamy shores, reeds along banks and lily pads |
 | Forest & flower brushes | Paint trees, bushes, flowers | `NatureTool`: forest, leafy, great oak, golden, blossom, firs, bushes, flowers, lavender, rocks, with a brush size |
 | Decorations | Lanterns, wells, carts, haystacks… | `DecorTool`: 32 props with 3D thumbnails (windmills, fountains, stalls, café tables, ruins, rotunda, stone lanterns, tea terraces, bamboo rafts that float…); drag to rotate while placing |
@@ -62,6 +62,29 @@ GamingOnLinux patch coverage.
 | Photo mode | Hide UI, frame shots | Tilt-shift depth of field, free orbit/tilt, shutter saves to *Pictures/Everglade* |
 | Undo/redo, many glades | | 40-step undo/redo, autosave, glade gallery with thumbnails, 7 starting templates |
 | Soft piano/strings soundtrack | Sparse, calm music | Three generated pieces (plucked harp over pads) with long gaps; day birdsong and night crickets |
+
+## 1c. Terrain model (how Tiny Glade's land works, and how Everglade matches it)
+
+Research (developer interviews, the v1.13 "2x terrain height" patch notes, Steam guides and player
+reports): Tiny Glade has **no free sculpt brush**. The ground is a gentle meadow at a fixed base level;
+you *paint* a patch of land, then hover it and drag to set its **height** and drag sideways to set its
+**slope** (sharp = rocky cliff faces, soft = grassy hill). Patches can be stacked (Ctrl) into terraces, are
+editable later as "terrain chunks" with height and falloff, and lowering one to the meadow removes it.
+Nothing goes below the base except water/ponds. Rendering-wise the game ray-marches its scene for GI and
+draws dense GPU grass over the land.
+
+Everglade's `Terrain` composes three layers every edit:
+
+1. **Base**: the template's almost-flat meadow (and ponds dug with the water tool).
+2. **Patches** (`data.patches`): each is a painted stroke + radius, a height, a falloff and the floor it
+   started from. A signed-distance profile turns it into a plateau: at falloff 0 a steep face with a soft
+   lip and ragged edges, at falloff 1 a long smootherstep shoulder. Patches combine with `max`, so
+   stacked ones build terraces.
+3. **Pads**: flat ground under buildings, applied on top so houses stay level on hills.
+
+The shader shows layered rock beds (warm and cool strata with ledge shadows) on steep faces, a ragged
+grassy lip and creeping moss; `Glade._rebuild_scree()` scatters boulders at cliff feet. The heightfield is
+192×192 cells (≈33 cm) for crisp cliffs.
 
 ## 1b. Art direction: a handcrafted miniature
 
