@@ -5,7 +5,7 @@ extends Node3D
 ## paths and grass around them and fade gradually into the dark (mobile
 ## friendly: a handful of real lights, no matter how many lamps exist).
 
-const POOL := 6
+const POOL := 8
 # light height above the prop origin and reach, per lamp kind
 const SOURCES := {
 	"lantern": [2.45, 6.5], "paper_lantern": [2.1, 6.0], "stone_lantern": [1.0, 4.0],
@@ -64,6 +64,13 @@ func _assign() -> void:
 			continue
 		var pos: Vector3 = p.p
 		found.append([pos.distance_squared_to(focus), pos + Vector3.UP * src[0] * p.get("s", 1.0), src[1]])
+	# wall lanterns beside doors and archways on walls and houses
+	for v in glade.views.values():
+		if not is_instance_valid(v) or not ("lamps" in v):
+			continue
+		for lp in v.lamps:
+			var wp: Vector3 = (v as Node3D).transform * lp
+			found.append([wp.distance_squared_to(focus), wp, 5.0])
 	found.sort_custom(func(a, b): return a[0] < b[0])
 	for i in _lights.size():
 		var l := _lights[i]

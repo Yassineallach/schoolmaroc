@@ -13,8 +13,9 @@ var data: Dictionary
 var body: StaticBody3D
 var arch_mi: MeshInstance3D
 var material: ShaderMaterial
-var ivy: MultiMeshInstance3D
+var ivy: Node3D
 var perches: Array[Vector3] = []
+var lamps: Array[Vector3] = []   # local positions of wall lanterns (lit at night)
 var eave := 3.0
 var roof_h := 2.0
 var _deco_root: Node3D
@@ -72,6 +73,7 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 	for c in get_children():
 		c.free()
 	perches.clear()
+	lamps.clear()
 	_preview = preview
 	_rng.seed = int(d.get("seed", 1)) * 31 + 7
 	var c: Vector2 = d.c
@@ -106,7 +108,7 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 	if preview:
 		return
 	_add_smoke(d)
-	ivy = Ivy.build(faces, seed_value * 13 + 5, 0.9)
+	ivy = Ivy.build(faces, seed_value * 13 + 5, 1.4)
 	add_child(ivy)
 	Ivy.set_growth(ivy, d.get("ivy", 0.0))
 	body = StaticBody3D.new()
@@ -154,6 +156,12 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 		_masonry_rect(mb, corners, PL, eave, LIMESTONE, _openings(d, auto_doors, corners))
 	else:
 		_ring_walls(mb, corners, PL, eave, wcol)
+		if style == "plaster" and not _preview:
+			# worn lime render: stone patches and stone string courses
+			var bands: Array = []
+			for f in range(1, floors):
+				bands.append(PL + f * FH)
+			_masonry_rect(mb, corners, PL, eave - 0.1, LIMESTONE, _openings(d, auto_doors, corners), true, bands)
 	for i in 4:
 		faces.append({"a": corners[(i + 1) % 4] + Vector3.UP * 0.0, "b": corners[i], "n": _side_normal(corners, i), "h": eave * 0.9})
 	# roof
@@ -186,7 +194,7 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 	elif style == "lakeside":
 		_lakeside(mb, corners, floors)
 	# floor band between storeys
-	if floors > 1 and style != "timber" and style != "windrise" and style != "lakeside":
+	if floors > 1 and style != "timber" and style != "windrise" and style != "lakeside" and not (style == "plaster" and not _preview):
 		for f in range(1, floors):
 			var y := PL + f * FH
 			_band(mb, corners, y, 0.14, 0.05, Color(wall_col.r * 0.9, wall_col.g * 0.88, wall_col.b * 0.85, 1.0))
@@ -476,6 +484,11 @@ func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNu
 		_masonry_round(mb, R, PL, eave, LIMESTONE, _round_openings(d, auto_doors, R))
 	else:
 		_cylinder(mb, R, PL, eave, segs, wcol)
+		if style == "plaster" and not _preview:
+			var rbands: Array = []
+			for f in range(1, floors):
+				rbands.append(PL + f * FH)
+			_masonry_round(mb, R, PL, eave - 0.1, LIMESTONE, _round_openings(d, auto_doors, R), true, rbands)
 	# ivy faces
 	var chunk := maxi(1, segs / 6)
 	var i := 0
@@ -552,6 +565,7 @@ func _place_round_opening(deco: DecoMerge, R: float, u: float, f: int, kind: Str
 		deco.add("stair_step", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(1.2, 1.0, 1.4)), n * (R + 0.25) + Vector3.UP * 0.0))
 		var side := n.cross(Vector3.UP).normalized()
 		deco.add("wall_lantern", Transform3D(Basis.looking_at(n, Vector3.UP), p + side * 0.8 + Vector3.UP * (PL + 2.0)))
+		lamps.append(p + side * 0.8 + Vector3.UP * (PL + 1.9) + n * 0.3)
 		return
 	var xf := Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(0.75, 1, 1)), p + Vector3.UP * (PL + f * FH + 1.35))
 	deco.add("window_frame", xf)
@@ -818,6 +832,7 @@ func _place_rect_door(deco: DecoMerge, corners: Array, side: int, u: float, styl
 	var along := (b - a).normalized()
 	var side_off := 0.85 if uu * l + 0.85 < l - 0.2 else -0.85
 	deco.add("wall_lantern", Transform3D(Basis.looking_at(n, Vector3.UP), p + along * side_off + Vector3.UP * (PL + 2.0) + n * 0.02))
+	lamps.append(p + along * side_off + Vector3.UP * (PL + 1.9) + n * 0.3)
 
 
 func _place_dormer(deco: DecoMerge, L: float, W: float, side: int, u: float) -> void:
@@ -976,7 +991,28 @@ static func _hits(holes: Array, s0: float, s1: float, y0: float, y1: float) -> b
 	return false
 
 
-func _masonry_rect(mb: MeshBuilder, corners: Array, y0: float, y1: float, col: Color, holes: Array) -> void:
+## Veto for plastered walls: stones only show in worn patches and along the
+## band courses between storeys.
+func _patch_veto(length: float, y0: float, y1: float, bands: Array) -> Callable:
+	var patches: Array = []
+	var count := int(length * (y1 - y0) / 9.0 + _rng.randf() * 1.5)
+	for i in count:
+		patches.append(Vector4(_rng.randf_range(0.4, length - 0.4), _rng.randf_range(y0 + 0.3, y1 - 0.4), _rng.randf_range(0.3, 0.7), _rng.randf_range(0.22, 0.45)))
+	return func(s0: float, s1: float, ya: float, yb: float) -> bool:
+		var ym := (ya + yb) * 0.5
+		for b in bands:
+			if absf(ym - b) < 0.13:
+				return false
+		var sm := (s0 + s1) * 0.5
+		for p in patches:
+			var dx: float = (sm - p.x) / p.z
+			var dy: float = (ym - p.y) / p.w
+			if dx * dx + dy * dy < 1.0:
+				return false
+		return true
+
+
+func _masonry_rect(mb: MeshBuilder, corners: Array, y0: float, y1: float, col: Color, holes: Array, patchy := false, bands: Array = []) -> void:
 	for i in 4:
 		var a: Vector3 = corners[i]
 		var b: Vector3 = corners[(i + 1) % 4]
@@ -988,13 +1024,15 @@ func _masonry_rect(mb: MeshBuilder, corners: Array, y0: float, y1: float, col: C
 			return {"p": Vector3(a.x, 0.0, a.z) + dir * s, "n": n, "g": y0, "low": y0 - 0.01, "top": y1}
 		# run a little past both corners so the faces interlock
 		Masonry.lay(mb, surf, -Masonry.DEPTH, l + Masonry.DEPTH, 0.0, y1 - y0, col, _rng,
-				func(s0, s1, ya, yb): return _hits(side_holes, s0, s1, ya, yb))
+				func(s0, s1, ya, yb): return _hits(side_holes, s0, s1, ya, yb),
+				_patch_veto(l, y0, y1, bands) if patchy else Callable())
 
 
-func _masonry_round(mb: MeshBuilder, R: float, y0: float, y1: float, col: Color, holes: Array) -> void:
+func _masonry_round(mb: MeshBuilder, R: float, y0: float, y1: float, col: Color, holes: Array, patchy := false, bands: Array = []) -> void:
 	var surf := func(s: float) -> Dictionary:
 		var ang := s / R
 		var n := Vector3(cos(ang), 0.0, sin(ang))
 		return {"p": n * R, "n": n, "g": y0, "low": y0 - 0.01, "top": y1}
 	Masonry.lay(mb, surf, 0.0, TAU * R, 0.0, y1 - y0, col, _rng,
-			func(s0, s1, ya, yb): return _hits(holes, s0, s1, ya, yb))
+			func(s0, s1, ya, yb): return _hits(holes, s0, s1, ya, yb),
+			_patch_veto(TAU * R, y0, y1, bands) if patchy else Callable())

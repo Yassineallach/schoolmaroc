@@ -26,6 +26,12 @@ static func stone_color(base: Color, rng: RandomNumberGenerator) -> Color:
 	return Color(clampf(base.r * k * (1.0 + t * 0.035), 0, 1), clampf(base.g * k, 0, 1), clampf(base.b * k * (1.0 - t * 0.045), 0, 1), 1.0)
 
 
+## Warm lime render laid over the stonework of "rendered" walls.
+static func plaster_color(base: Color) -> Color:
+	var p := base.lerp(Color(0.99, 0.89, 0.66), 0.85)
+	return Color(p.r, p.g, p.b, 0.0)
+
+
 static func mortar_color(base: Color) -> Color:
 	var m := base * 0.72
 	var l := m.get_luminance()
@@ -66,7 +72,7 @@ static func stone(mb: MeshBuilder, o: Vector3, u: Vector3, v: Vector3, n: Vector
 ## baseline height, low/top = absolute limits of the wall at s.
 ## `skip(s0, s1, y0, y1)` vetoes stones (openings, voussoir bands).
 static func lay(mb: MeshBuilder, surf: Callable, s_from: float, s_to: float, y_from: float, y_to: float,
-		base: Color, rng: RandomNumberGenerator, skip := Callable()) -> void:
+		base: Color, rng: RandomNumberGenerator, skip := Callable(), veto := Callable()) -> void:
 	var y := y_from
 	var row := 0
 	while y < y_to - 0.04:
@@ -79,6 +85,11 @@ static func lay(mb: MeshBuilder, surf: Callable, s_from: float, s_to: float, y_f
 			s += sw
 			if s1 - s0 < 0.12:
 				continue
+			# cheap whole-stone rejection (e.g. outside a worn patch of render)
+			if veto.is_valid():
+				var gg := gmid_offset(surf, s0, s1)
+				if veto.call(s0, s1, gg + y, gg + y + rh):
+					continue
 			# trim stones that run into an opening so jambs stay fully faced
 			var gmid: float = surf.call((s0 + s1) * 0.5).g + y
 			var probe := gmid + rh * 0.5
@@ -130,6 +141,10 @@ static func lay(mb: MeshBuilder, surf: Callable, s_from: float, s_to: float, y_f
 			stone(mb, o, u, v, n, w, y1 - y0, DEPTH * rng.randf_range(0.75, 1.2), stone_color(base, rng), rng, Vector2(s0, y0))
 		y += rh
 		row += 1
+
+
+static func gmid_offset(surf: Callable, s0: float, s1: float) -> float:
+	return surf.call((s0 + s1) * 0.5).g
 
 
 static func _blocked(k: Dictionary, y: float) -> bool:

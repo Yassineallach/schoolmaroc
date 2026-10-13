@@ -283,10 +283,12 @@ func _inspector_defs(f: Dictionary) -> Array:
 		"walls":
 			return [
 				{"type": "title", "text": "Wall"},
+				{"type": "choice", "key": "style", "items": [
+					{"id": "rendered", "label": "Rendered", "icon": "wall_rendered"}, {"id": "stone", "label": "Coursed", "icon": "wall"}]},
 				{"type": "slider", "key": "h", "label": "Height", "min": 0.8, "max": 7.0, "step": 0.1},
 				{"type": "colors", "key": "col", "colors": Catalog.STONE_COLORS},
 				{"type": "actions", "items": [{"id": "ivy", "icon": "ivy", "label": "Ivy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
-				{"type": "label", "text": "Draw a path through a wall to open an archway."},
+				{"type": "label", "text": "Paths through a wall open an archway; a path ending at it adds a door."},
 			]
 		"fences":
 			return [

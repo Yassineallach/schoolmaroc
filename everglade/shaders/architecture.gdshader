@@ -82,10 +82,11 @@ void fragment() {
 	vec3 B = dp2perp * du1.y + dp1perp * du2.y;
 	float invmax = inversesqrt(max(max(dot(T, T), dot(B, B)), 1e-12));
 	vec4 alb = texture(mat_albedo, vec3(tuv, layer));
-	vec3 tn = mat_tangent_normal(tuv, layer, mix(0.6, 1.0, is_stone + is_tiles) * mix(1.0, 0.55, is_plain));
+	// lime render stays smooth and soft; stone and tiles keep their relief
+	vec3 tn = mat_tangent_normal(tuv, layer, mix(0.6, 1.0, is_stone + is_tiles) * mix(1.0, 0.55, is_plain) * mix(1.0, 0.45, is_plaster));
 	tn.y *= flip;
 	NORMAL = normalize(mat3(T * invmax, B * invmax, nn) * tn);
-	vec3 col = tint * alb.rgb * 2.0;
+	vec3 col = tint * mix(vec3(1.0), alb.rgb * 2.0, mix(1.0, 0.55, is_plaster));
 	float rough = alb.a;
 	// plaster gathers grime near the ground
 	float dirt = 1.0 - smoothstep(0.0, 0.9, v_world.y - base_height);

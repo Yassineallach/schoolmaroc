@@ -8,9 +8,10 @@ const SPACING := 0.25
 var data: Dictionary
 var body: StaticBody3D
 var mesh_instance: MeshInstance3D
-var ivy: MultiMeshInstance3D
+var ivy: Node3D
 var material: ShaderMaterial
 var perches: Array[Vector3] = []
+var lamps: Array[Vector3] = []   # world positions of wall lanterns (lit at night)
 
 
 func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := false) -> void:
@@ -18,6 +19,10 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 	for c in get_children():
 		c.free()
 	perches.clear()
+	lamps.clear()
+	# doors (paths ending at the wall) are separate from pass-through openings
+	var doors: Array = openings.filter(func(o): return o.has("door"))
+	openings = openings.filter(func(o): return not o.has("door"))
 	var pts: PackedVector2Array = d.pts
 	if pts.size() < 2 or Geo.length(pts) < 0.3:
 		return
@@ -28,7 +33,12 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 	# finished walls: a recessed mortar core faced with individual stones;
 	# previews (while drawing) stay a light flat stone volume
 	var masonry := not preview
+	# "rendered": warm lime plaster over the stonework, with quoins, a stone
+	# course under the battlements and worn patches where stones show through
+	var rendered: bool = d.get("style", "stone") == "rendered"
 	var stone := Masonry.mortar_color(col) if masonry else Color(col.r, col.g, col.b, 0.25)
+	if masonry and rendered:
+		stone = Masonry.plaster_color(col)
 	var cap := stone if masonry else Color(col.r * 0.9, col.g * 0.9, col.b * 0.9, 0.25)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(d.get("id", 1)) * 7919 + 13
@@ -83,7 +93,9 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 
 	var mb := MeshBuilder.new()
 	# the stones stand proud of the core by Masonry.DEPTH on each side
-	var ht := thick * 0.5 - (Masonry.DEPTH if masonry else 0.0)
+	var ht := thick * 0.5 - (Masonry.DEPTH if masonry and not rendered else 0.0)
+	if masonry and rendered:
+		ht = thick * 0.5 - 0.025
 	for i in samples.size() - 1:
 		var A: Dictionary = samples[i]
 		var B: Dictionary = samples[i + 1]
@@ -127,12 +139,12 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 			_pillar(mb, S, thick, h, col, masonry, rng)
 
 	if masonry:
-		_lay_stones(mb, samples, openings, total, h, thick, ht, col, rng)
+		_lay_stones(mb, samples, openings, doors, total, h, thick, ht, col, rng, rendered)
 
 	# battlements on tall walls
 	if tall:
-		var step := 1.05
-		var k := 0.4
+		var step := 1.3 if masonry else 1.05
+		var k := 0.45
 		while k < total - 0.3:
 			var idx := _nearest(samples, k)
 			var S: Dictionary = samples[idx]
@@ -141,10 +153,13 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 				var basis := DecoMerge.along(Vector3(t2.x, 0, t2.y))
 				var top: float = S.top
 				if masonry:
-					# merlon of two bevelled blocks on the coping
+					# chunky, soft-edged merlon blocks on the coping, each a
+					# little different in size and set
 					var y0 := top + 0.13
-					mb.bevel_box(Transform3D(basis, S.p + Vector3.UP * (y0 + 0.14)), Vector3(0.58, 0.27, thick + 0.04), 0.035, Masonry.stone_color(col, rng))
-					mb.bevel_box(Transform3D(basis, S.p + Vector3.UP * (y0 + 0.42)), Vector3(0.54, 0.27, thick), 0.035, Masonry.stone_color(col, rng))
+					var mh := rng.randf_range(0.5, 0.62)
+					var mw := rng.randf_range(0.66, 0.78)
+					var tw := Basis(Vector3.UP, rng.randf_range(-0.04, 0.04))
+					mb.bevel_box(Transform3D(basis * tw, S.p + Vector3.UP * (y0 + mh * 0.5)), Vector3(mw, mh, thick + 0.08), 0.075, Masonry.stone_color(col, rng))
 				else:
 					mb.box(Transform3D(basis, S.p + Vector3.UP * (top + 0.25)), Vector3(0.55, 0.5, thick + 0.06), stone)
 				perches.append(S.p + Vector3.UP * (top + 0.5))
@@ -171,8 +186,18 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 	material.set_shader_parameter("base_height", min_g)
 	material.set_shader_parameter("top_height", max_t + 0.6)
 
-	# lanterns flanking archways, ivy, collision
+	# lanterns flanking archways, doors where paths end, ivy, collision
 	var deco := DecoMerge.new()
+	for o in doors:
+		var side: float = o.door
+		var ds := _sample_at(samples, o.s)
+		var dn: Vector3 = ds.n * side
+		var face: Vector3 = ds.p + dn * (thick * 0.5 - 0.02)
+		deco.add("door", Transform3D(DecoMerge.facing(dn), face + Vector3.UP * (terrain.height_at(face.x, face.z) - 0.04)))
+		var t4 := Geo.tangent_at(pts, o.s)
+		var lp: Vector3 = face + Vector3(t4.x, 0, t4.y) * 0.95 + dn * 0.05
+		deco.add("wall_lantern", Transform3D(Basis.looking_at(dn, Vector3.UP), lp + Vector3.UP * (terrain.height_at(lp.x, lp.z) + 2.0)))
+		lamps.append(lp + Vector3.UP * (terrain.height_at(lp.x, lp.z) + 1.9) + dn * 0.25)
 	for o in openings:
 		var r: float = o.w * 0.5
 		var spring2 := minf(1.7, h - 0.45 - r)
@@ -183,6 +208,7 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 		var nrm3 := Vector3(-t3.y, 0, t3.x)
 		var y := terrain.height_at_v(p) + 1.9
 		deco.add("wall_lantern", Transform3D(Basis.looking_at(nrm3, Vector3.UP), Vector3(p.x, y, p.y) + nrm3 * ht))
+		lamps.append(Vector3(p.x, y - 0.1, p.y) + nrm3 * (ht + 0.25))
 	deco.apply_to(self)
 
 	if preview:
@@ -197,7 +223,7 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 			faces.append({"a": A2.p + A2.n * ht + Vector3.UP * A2.g, "b": B2.p + B2.n * ht + Vector3.UP * B2.g, "n": A2.n, "h": h})
 			faces.append({"a": B2.p - B2.n * ht + Vector3.UP * B2.g, "b": A2.p - A2.n * ht + Vector3.UP * A2.g, "n": -A2.n, "h": h})
 		seg = j
-	ivy = Ivy.build(faces, int(d.id) * 31 + 7, 0.8)
+	ivy = Ivy.build(faces, int(d.id) * 31 + 7, 1.7)
 	add_child(ivy)
 	Ivy.set_growth(ivy, d.get("ivy", 0.0))
 
@@ -284,7 +310,7 @@ func _sample_at(samples: Array, s: float) -> Dictionary:
 
 ## Faces both sides of the wall with stone courses, arches with voussoirs
 ## and the top with coping stones.
-func _lay_stones(mb: MeshBuilder, samples: Array, openings: Array, total: float, h: float, thick: float, ht: float, col: Color, rng: RandomNumberGenerator) -> void:
+func _lay_stones(mb: MeshBuilder, samples: Array, openings: Array, doors: Array, total: float, h: float, thick: float, ht: float, col: Color, rng: RandomNumberGenerator, rendered := false) -> void:
 	var arches: Array = []
 	for o in openings:
 		var r: float = o.w * 0.5
@@ -299,7 +325,22 @@ func _lay_stones(mb: MeshBuilder, samples: Array, openings: Array, total: float,
 	var back := func(s: float) -> Dictionary:
 		var k := _sample_at(samples, total - s)
 		return {"p": k.p - k.n * ht, "n": -k.n, "g": k.base, "low": k.low, "top": k.top}
+	# worn patches in the render, where the stonework shows through
+	var patches: Array = [[], []]
+	if rendered:
+		for face in 2:
+			var count := int(total * h / 7.0 + rng.randf() * 2.0)
+			for i in count:
+				patches[face].append(Vector4(rng.randf_range(0.6, total - 0.6), rng.randf_range(0.3, h - 0.6), rng.randf_range(0.35, 0.85), rng.randf_range(0.25, 0.55)))
 	var band := func(s0: float, s1: float, y0: float, y1: float, mirrored: bool) -> bool:
+		var fs0: float = total - s1 if mirrored else s0
+		var fs1: float = total - s0 if mirrored else s1
+		# keep doorways clear on the face they open from
+		for o in doors:
+			if (o.door < 0.0) == mirrored and fs1 > o.s - 0.72 and fs0 < o.s + 0.72:
+				var dk := _sample_at(samples, o.s)
+				if y0 < dk.base + 2.45:
+					return true
 		for a in arches:
 			var a0: float = (total - s1 if mirrored else s0) - a.s
 			var a1: float = (total - s0 if mirrored else s1) - a.s
@@ -316,8 +357,25 @@ func _lay_stones(mb: MeshBuilder, samples: Array, openings: Array, total: float,
 			if dmax > a.r - 0.06 and dmin < a.r + 0.36:
 				return true
 		return false
-	Masonry.lay(mb, front, 0.0, total, -0.35, h + 0.1, col, rng, func(s0, s1, y0, y1): return band.call(s0, s1, y0, y1, false))
-	Masonry.lay(mb, back, 0.0, total, -0.35, h + 0.1, col, rng, func(s0, s1, y0, y1): return band.call(s0, s1, y0, y1, true))
+	# rendered walls only show stones in the top course and worn patches
+	var veto := Callable()
+	if rendered:
+		veto = func(s0: float, s1: float, y0: float, y1: float, mirrored: bool) -> bool:
+			var sm: float = total - (s0 + s1) * 0.5 if mirrored else (s0 + s1) * 0.5
+			var k := _sample_at(samples, sm)
+			if k.top - y1 < 0.34:
+				return false
+			var rel: float = (y0 + y1) * 0.5 - k.base
+			for p in patches[1 if mirrored else 0]:
+				var dx: float = (sm - p.x) / p.z
+				var dy: float = (rel - p.y) / p.w
+				if dx * dx + dy * dy < 1.0:
+					return false
+			return true
+	var veto_f := func(s0, s1, y0, y1): return veto.call(s0, s1, y0, y1, false) if veto.is_valid() else false
+	var veto_b := func(s0, s1, y0, y1): return veto.call(s0, s1, y0, y1, true) if veto.is_valid() else false
+	Masonry.lay(mb, front, 0.0, total, -0.35, h + 0.1, col, rng, func(s0, s1, y0, y1): return band.call(s0, s1, y0, y1, false), veto_f if rendered else Callable())
+	Masonry.lay(mb, back, 0.0, total, -0.35, h + 0.1, col, rng, func(s0, s1, y0, y1): return band.call(s0, s1, y0, y1, true), veto_b if rendered else Callable())
 	for a in arches:
 		var t := Geo.tangent_at(data.pts, a.s)
 		Masonry.voussoirs(mb, a.c.p + Vector3.UP * a.y, Vector3(t.x, 0, t.y), a.c.n, a.r, ht, col, rng)

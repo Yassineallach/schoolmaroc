@@ -151,7 +151,7 @@ func _apply() -> void:
 	var golden := smoothstep(0.45, 0.05, absf(elevation)) * smoothstep(-0.15, 0.05, elevation)
 	night = 1.0 - smoothstep(-0.18, 0.06, elevation)
 	sun.light_energy = 1.55 * day
-	sun.light_color = Color(1.0, 0.96, 0.88).lerp(Color(1.0, 0.68, 0.44), golden)
+	sun.light_color = Color(1.0, 0.93, 0.8).lerp(Color(1.0, 0.68, 0.44), golden)
 	sun.visible = day > 0.01
 	moon.light_energy = 0.32 * night
 	moon.visible = night > 0.01
@@ -173,7 +173,7 @@ func _apply() -> void:
 	sky_mat.set_shader_parameter("sunset", golden)
 	env.fog_light_color = hor.lerp(Color(0.7, 0.8, 0.95), 0.25)
 	# fill light: cool sky by day, warm at golden hour, deep blue at night
-	var amb := Color(0.70, 0.76, 0.86).lerp(Color(0.84, 0.72, 0.66), golden).lerp(Color(0.26, 0.32, 0.55), night)
+	var amb := Color(0.78, 0.79, 0.82).lerp(Color(0.86, 0.74, 0.66), golden).lerp(Color(0.24, 0.30, 0.52), night)
 	env.ambient_light_color = amb
 	env.ambient_light_energy = lerpf(0.55, 0.62, day)
 	if cloud_mat:

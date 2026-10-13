@@ -182,8 +182,8 @@ func list_of(type: String) -> Array:
 # ---------------------------------------------------------------------------
 # Adding pieces
 # ---------------------------------------------------------------------------
-func add_wall(pts: PackedVector2Array, h: float, col: Color) -> Dictionary:
-	var w := {"id": next_id(), "pts": pts, "h": h, "col": col, "ivy": 0.0}
+func add_wall(pts: PackedVector2Array, h: float, col: Color, style := "rendered") -> Dictionary:
+	var w := {"id": next_id(), "pts": pts, "h": h, "col": col, "ivy": 0.0, "style": style}
 	data.walls.append(w)
 	_make_view("walls", w, true)
 	_after_edit(Geo.v3(pts[pts.size() / 2], terrain.height_at_v(pts[pts.size() / 2])), "wall")
@@ -468,9 +468,28 @@ func _compute_interactions() -> void:
 		var ppts: PackedVector2Array = path.pts
 		var pw: float = path.get("w", 1.4)
 		for wall in data.walls:
-			for hit in Geo.intersections(ppts, wall.pts):
+			var hits := Geo.intersections(ppts, wall.pts)
+			for hit in hits:
 				var w := pw / maxf(0.5, hit.sin) + 0.5
 				_add_opening(wall.id, {"s": snappedf(hit.sb, 0.01), "w": snappedf(clampf(w, 1.2, 4.5), 0.01)})
+			# a path that runs up to a wall (without passing through) gets a
+			# door on that face of the wall
+			if float(wall.get("h", 2.4)) >= 2.3:
+				var wlen := Geo.length(wall.pts)
+				for end in [ppts[0], ppts[ppts.size() - 1]]:
+					var c := Geo.closest(wall.pts, end)
+					if c.x > 1.1 or c.y < 0.9 or c.y > wlen - 0.9:
+						continue
+					var near_hit := false
+					for hit in hits:
+						if absf(hit.sb - c.y) < 2.0:
+							near_hit = true
+					if near_hit:
+						continue
+					var t := Geo.tangent_at(wall.pts, c.y)
+					var wp := Geo.point_at(wall.pts, c.y)
+					var side := 1.0 if (end - wp).dot(Vector2(-t.y, t.x)) >= 0.0 else -1.0
+					_add_opening(wall.id, {"s": snappedf(c.y, 0.01), "door": side})
 		for fence in data.fences:
 			for hit in Geo.intersections(ppts, fence.pts):
 				_add_opening(fence.id, {"s": snappedf(hit.sb, 0.01), "w": snappedf(clampf(pw, 1.0, 2.4), 0.01)})

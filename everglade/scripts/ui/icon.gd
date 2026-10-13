@@ -86,6 +86,13 @@ func _draw() -> void:
 			rect(0.12, 0.18, 0.18, 0.12, STONE)
 			rect(0.42, 0.18, 0.18, 0.12, STONE)
 			rect(0.72, 0.18, 0.18, 0.12, STONE)
+		"wall_rendered":
+			rect(0.1, 0.3, 0.8, 0.6, Color(0.93, 0.88, 0.76))
+			for p in [Vector2(0.1, 0.3), Vector2(0.1, 0.5), Vector2(0.1, 0.7), Vector2(0.75, 0.4), Vector2(0.75, 0.6)]:
+				rect(p.x, p.y, 0.15, 0.17, STONE)
+			rect(0.4, 0.62, 0.16, 0.12, STONE)
+			for x in [0.1, 0.42, 0.74]:
+				rect(x, 0.12, 0.16, 0.18, STONE)
 		"building", "house":
 			rect(0.22, 0.48, 0.56, 0.4, PAPER)
 			poly([Vector2(0.12, 0.52), Vector2(0.5, 0.16), Vector2(0.88, 0.52)], ROOF)

@@ -6,11 +6,14 @@ extends StrokeTool
 func _init() -> void:
 	tool_id = "wall"
 	title = "Walls"
-	options = {"height": 2.4, "straight": false, "color": 0}
+	options = {"height": 2.4, "straight": false, "color": 0, "style": "rendered"}
 
 
 func option_defs() -> Array:
 	return [
+		{"type": "choice", "key": "style", "items": [
+			{"id": "rendered", "label": "Rendered", "icon": "wall_rendered"},
+			{"id": "stone", "label": "Coursed", "icon": "wall"}]},
 		{"type": "slider", "key": "height", "label": "Height", "min": 0.8, "max": 7.0, "step": 0.1},
 		{"type": "colors", "key": "color", "colors": Catalog.STONE_COLORS},
 		{"type": "toggle", "key": "straight", "label": "Straight", "icon": "ruler"},
@@ -18,20 +21,20 @@ func option_defs() -> Array:
 
 
 func hint() -> String:
-	return "Drag to draw a wall. Paths drawn through walls carve archways."
+	return "Drag to draw a wall. Paths through walls carve archways; paths that end at a wall get a door."
 
 
 func update_preview(pts: PackedVector2Array) -> void:
 	if preview == null:
 		preview = WallView.new()
 		glade.add_child(preview)
-	var d := {"id": 0, "pts": pts, "h": options.height, "col": Catalog.STONE_COLORS[options.color]}
+	var d := {"id": 0, "pts": pts, "h": options.height, "col": Catalog.STONE_COLORS[options.color], "style": options.style}
 	(preview as WallView).build(d, glade.terrain, [], true)
 
 
 func commit(pts: PackedVector2Array) -> void:
 	glade.begin_change()
-	glade.add_wall(pts, options.height, Catalog.STONE_COLORS[options.color])
+	glade.add_wall(pts, options.height, Catalog.STONE_COLORS[options.color], options.style)
 	Sfx.play("place_stone")
 	Settings.vibrate(18)
 

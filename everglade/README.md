@@ -44,7 +44,7 @@ GamingOnLinux patch coverage.
 | Floors / height | Drag to make buildings taller | Inspector floor stepper (1–6) |
 | Roof shapes & colours | Gable, hip, flat; steepness; palette | `RoofTool` and inspector: gable/hip/battlement/spire, pitch slider, 8 colours |
 | Windows tool | Click walls for windows; at floor level they become doors; on roofs, dormers | `DetailsTool`: tap a wall for a window, tap low for a door, tap the roof for a dormer, tap again to remove |
-| Doors from paths | A path reaching a house makes a door | Automatic door, step and wall lantern where a path meets a wall |
+| Doors from paths | A path reaching a house makes a door | Automatic door, step and wall lantern where a path meets a house, and an arched door in a stone surround where a path ends at a freehand wall |
 | Chimneys | Chimneys on roofs, smoking | Chimney mode, plus smoke particles |
 | Timber framing, styles | Varied facades | Plaster (with quoins), timber frame (beams + braces), stone |
 | Ivy | Ivy creeps over walls over time | Ivy grows over ~15 min and is saved per wall/building (toggle in the inspector) |
@@ -68,12 +68,15 @@ GamingOnLinux patch coverage.
 | Element | Implementation |
 |---|---|
 | Stonework | `scripts/build/masonry.gd`: walls, towers, foundations and stone storeys are faced with **individually modelled stones**: bevelled, slightly pillowed blocks laid in courses over a recessed mortar core. Course heights, stone lengths, protrusion, tilt and colour vary within believable limits; stones are clipped to the wall's real outline (terrain, tops, path openings) and trimmed against windows and doors, so the facing follows the structure. Arches get radial **voussoirs with a keystone** and dressed jamb stones, wall tops get **coping stones**, wall ends get alternating **quoins**, battlements are bevelled merlons |
+| Rendered walls | The default wall style: warm lime render over the stonework, with quoin stones at the ends, a stone course under big soft-edged merlons, voussoir arches and dressed jambs, and **worn patches** where stones show through. Plastered houses and towers get the same worn patches plus stone string courses between storeys. (Walls can also be fully *coursed* stone.) |
+| Doors from paths | A path that ends against a wall (without passing through) gets an **arched plank door** with a lantern on that face of the wall; a path through a wall still opens an archway |
+| Ivy | `scripts/build/ivy.gd`: real climbing vines: woody stems that wander upwards with momentum and branch, heart-shaped leaves in several greens alternating along them; vines favour corners and wall ends and grow from the root up over time |
 | Roofs | `scripts/build/roofing.gd`: **individual overlapping tiles** in staggered courses on gable, hipped and conical roofs; each lower lip is lifted so every course casts a fine shadow line, with tonal variation and the odd weathered or mossy tile |
 | Windows & doors | Deep-set windows in a 20 cm surround of separate stones (jambs, voussoirs, keystone, projecting sill), a timber casement set back in a shadowed reveal, leaded panes; glass reads as a dark interior by day and glows at night. Doors are individual planks of varied tone under a voussoir arch, with iron straps and a worn threshold |
 | Lighting | `shaders/toon.gdshaderinc`: soft wrapped sunlight with gentle terminators and soft shadow edges, a restrained roughness-driven highlight (matte stone, a small glint on iron); cool sky fill keeps shade readable; filmic tone mapping; warm golden hour, blue night |
 | Contact shadows | `shaders/contact_ao.gdshader`: full-screen depth-based contact shading. Opposite sample pairs at two radii detect concave creases only (flat and sloped surfaces cancel), so stone joints, wall bases, eaves, window reveals and grass roots darken softly without halos |
 | Fog | Exponential height fog that thins over the glade and thickens with distance and near the ground; **Fog** and **Fog height** sliders in Settings |
-| Night | `scripts/world/night_lights.gd`: a pool of warm, flickering point lights follows the lanterns nearest the camera, lighting nearby walls and paths; glowing windows; fireflies |
+| Night | `scripts/world/night_lights.gd`: a pool of warm, flickering point lights follows the lamps nearest the camera (street lamps, stone lanterns and the wall lanterns beside doors and archways), lighting nearby walls and paths; glowing windows; fireflies |
 | Palette | Restrained and natural: limestone, sandstone and weathered grey stone, warm off-white limewash, honey-brown wood, slate, terracotta and muted red roofs, soft meadow greens; colour contrast reserved for small details |
 | Sky | `shaders/sky.gdshader`: soft gradient sky, sun halo, stars; painted cumulus billboards |
 | Buildings | **Windrise** style: stone ground floor with quoins and gold trim, white plaster and timber braces above, carved eave brackets, steep gable/hip roofs with gold ridge finials, spire towers with golden wing finials |
