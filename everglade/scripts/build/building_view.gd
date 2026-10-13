@@ -116,7 +116,18 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 	body.set_meta("kind", "building")
 	body.set_meta("id", d.id)
 	var cs := CollisionShape3D.new()
-	cs.shape = arch_mi.mesh.create_trimesh_shape()
+	# a simple volume is plenty for picking and for keeping the camera out
+	# (a trimesh of every stone and tile would be slow to build)
+	if d.shape == "round":
+		var cyl := CylinderShape3D.new()
+		cyl.radius = float(d.r) + 0.15
+		cyl.height = eave + roof_h + 0.3
+		cs.shape = cyl
+	else:
+		var box := BoxShape3D.new()
+		box.size = Vector3(d.size.x + 0.3, eave + roof_h + 0.3, d.size.y + 0.3)
+		cs.shape = box
+	cs.position = Vector3(0, (eave + roof_h + 0.3) * 0.5 - 0.15, 0)
 	body.add_child(cs)
 	add_child(body)
 	for i in perches.size():
@@ -230,10 +241,13 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 				var b: Vector3 = corners[(side + 1) % 4]
 				var n := _side_normal(corners, side)
 				var p := a.lerp(b, u) + Vector3.UP * (PL + f * FH + 1.35)
+				# laid-stone storeys keep their deep stone surrounds bare, and sit
+				# the window on the stone face (windrise stone is set 4 cm proud)
+				var in_stone := style == "stone" or (style == "windrise" and f == 0 and floors > 1)
+				if in_stone and style == "windrise" and not _preview:
+					p += n * 0.05
 				var xf := Transform3D(DecoMerge.facing(n), p)
 				deco.add("window_lattice" if lake else "window_frame", xf)
-				# laid-stone storeys keep their deep stone surrounds bare
-				var in_stone := style == "stone" or (style == "windrise" and f == 0 and floors > 1)
 				if shutters and not (in_stone and not _preview):
 					deco.add("shutters", xf)
 				if boxes and f == 0:

@@ -74,6 +74,7 @@ GamingOnLinux patch coverage.
 | Roofs | `scripts/build/roofing.gd`: **individual overlapping tiles** in staggered courses on gable, hipped and conical roofs; each lower lip is lifted so every course casts a fine shadow line, with tonal variation and the odd weathered or mossy tile |
 | Windows & doors | Deep-set windows in a 20 cm surround of separate stones (jambs, voussoirs, keystone, projecting sill), a timber casement set back in a shadowed reveal, leaded panes; glass reads as a dark interior by day and glows at night. Doors are individual planks of varied tone under a voussoir arch, with iron straps and a worn threshold |
 | Lighting | `shaders/toon.gdshaderinc`: soft wrapped sunlight with gentle terminators and soft shadow edges, a restrained roughness-driven highlight (matte stone, a small glint on iron); cool sky fill keeps shade readable; filmic tone mapping; warm golden hour, blue night |
+| Bounce light | `bounce_light()` in `shaders/materials.gdshaderinc`: a cheap stand-in for global illumination. Warm light bounced off sunlit ground fills walls that face sideways or down (strongest near the ground) and a faint cool sky bounce lifts upward faces, so shade is coloured and soft rather than grey |
 | Contact shadows | `shaders/contact_ao.gdshader`: full-screen depth-based contact shading. Opposite sample pairs at two radii detect concave creases only (flat and sloped surfaces cancel), so stone joints, wall bases, eaves, window reveals and grass roots darken softly without halos |
 | Fog | Exponential height fog that thins over the glade and thickens with distance and near the ground; **Fog** and **Fog height** sliders in Settings |
 | Night | `scripts/world/night_lights.gd`: a pool of warm, flickering point lights follows the lamps nearest the camera (street lamps, stone lanterns and the wall lanterns beside doors and archways), lighting nearby walls and paths; glowing windows; fireflies |
@@ -186,6 +187,7 @@ three showcase glades from above and at eye level.
 ## 5. Performance notes (mobile)
 
 - Props are drawn through one MultiMesh per kind; each wall, building, fence and path is merged into 2–3 meshes.
+- Procedural construction is built once: templates record everything and build each view a single time; buildings and walls use simple collision volumes instead of trimeshes of every stone; edge bevels are applied only to blocks (a window is ~1.8k triangles). A full Town Plaza builds in about a second on a desktop CPU (`-- --profile` prints timings).
 - Terrain is 64 chunks, and only edited chunks are rebuilt (a few per frame). Grass is one MultiMesh of blade patches per chunk (1.2 / 2.2 / 3.4 patches per m² by quality, 36 blades each, 3 triangles per blade); blades sink into the ground beyond ~30 m where the matching terrain colour takes over.
 - Graphics presets *Battery / Balanced / Beautiful* change render scale (0.7/0.85/1.0), MSAA, shadows, grass density and depth of field.
 - Water and terrain shaders don't use screen or depth textures, so they work on the GL Compatibility renderer.

@@ -257,7 +257,17 @@ class Builder:
 
     def box(self, size, loc=(0, 0, 0), color=STONE, alpha=SOLID, rot=(0, 0, 0), smooth=False, jitter=0.0, grad=None, wgrad=None, mat=None):
         ret = bmesh.ops.create_cube(self.bm, size=1.0)
-        return self._finish(ret["verts"], color, alpha, trs(loc, rot, size), jitter, smooth, grad, wgrad, mat)
+        verts = self._finish(ret["verts"], color, alpha, trs(loc, rot, size), jitter, smooth, grad, wgrad, mat)
+        # soften the edges of solid blocks (stones, planks, beams) so they
+        # catch highlights; tiny parts get a single chamfer, thin ones none
+        sz = sorted(size if not isinstance(size, (int, float)) else (size, size, size))
+        if STATE["bevel"] and sz[0] >= 0.025:
+            width = min(0.022, sz[0] * 0.22)
+            segs = 2 if sz[1] >= 0.3 else 1
+            edges = list({e for v in verts for e in v.link_edges})
+            bmesh.ops.bevel(self.bm, geom=edges, offset=width, offset_type="OFFSET", segments=segs,
+                            profile=0.5, affect="EDGES", clamp_overlap=True)
+        return verts
 
     def cyl(self, r1, r2, depth, loc=(0, 0, 0), color=WOOD, alpha=SOLID, seg=8, rot=(0, 0, 0), smooth=True, jitter=0.0, grad=None, wgrad=None, scale=(1, 1, 1), mat=None):
         ret = bmesh.ops.create_cone(self.bm, cap_ends=True, cap_tris=False, segments=seg,
@@ -316,14 +326,7 @@ class Builder:
         mesh.materials.append(material(mat_name, emissive))
         obj = bpy.data.objects.new(name, mesh)
         bpy.context.scene.collection.objects.link(obj)
-        if STATE["bevel"] and normals is None and not emissive and mat_name == "VertexColor":
-            # chamfer hard edges so every block, beam and post catches a highlight
-            bev = obj.modifiers.new("Bevel", "BEVEL")
-            bev.width = 0.022
-            bev.segments = 2
-            bev.limit_method = "ANGLE"
-            bev.angle_limit = math.radians(35)
-            bev.use_clamp_overlap = True
+        # (edge bevels are applied per box in Builder.box)
         if parent is not None:
             obj.parent = parent
         return obj

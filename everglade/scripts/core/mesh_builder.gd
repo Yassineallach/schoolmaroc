@@ -109,54 +109,46 @@ func tri_facing(a: Vector3, b: Vector3, c: Vector3, n: Vector3, col: Color) -> v
 func bevel_box(xf: Transform3D, size: Vector3, bevel: float, col: Color) -> void:
 	var h := size * 0.5
 	var b := minf(bevel, minf(h.x, minf(h.y, h.z)) * 0.45)
-	var basis := xf.basis
-	var nb := basis.inverse().transposed()
-	# point on face `axis` (0..2) with sign `s`, at signs (t1, t2) of the other axes
-	var pt := func(axis: int, s: float, t1: float, t2: float) -> Vector3:
-		var o := Vector3.ZERO
-		var a1 := (axis + 1) % 3
-		var a2 := (axis + 2) % 3
-		o[axis] = s * h[axis]
-		o[a1] = t1 * (h[a1] - b)
-		o[a2] = t2 * (h[a2] - b)
-		return xf * o
-	var wn := func(v: Vector3) -> Vector3:
-		return (nb * v).normalized()
+	var nb := xf.basis.inverse().transposed()
+	var inner := h - Vector3(b, b, b)
+	# the 6 face rectangles
 	for axis in 3:
 		for s in [-1.0, 1.0]:
 			var n := Vector3.ZERO
 			n[axis] = s
-			var w: Vector3 = wn.call(n)
-			quad_facing(pt.call(axis, s, -1.0, -1.0), pt.call(axis, s, 1.0, -1.0), pt.call(axis, s, 1.0, 1.0), pt.call(axis, s, -1.0, 1.0), w, col)
-	# 12 edge chamfers: faces (a, sa) and (c, sc) meet along the third axis
+			quad_facing(_bp(xf, h, inner, axis, s, -1.0, -1.0), _bp(xf, h, inner, axis, s, 1.0, -1.0),
+					_bp(xf, h, inner, axis, s, 1.0, 1.0), _bp(xf, h, inner, axis, s, -1.0, 1.0), (nb * n).normalized(), col)
+	# 12 edge chamfers between face `a` and face `c`
 	for a in 3:
 		var c := (a + 1) % 3
-		var e := (a + 2) % 3
 		for sa in [-1.0, 1.0]:
 			for sc in [-1.0, 1.0]:
 				var na := Vector3.ZERO
 				na[a] = sa
-				na[c] = sc
-				var w2: Vector3 = wn.call(na)
-				var na_only := Vector3.ZERO
-				na_only[a] = sa
-				var nc_only := Vector3.ZERO
-				nc_only[c] = sc
-				var p := []
-				for se in [-1.0, 1.0]:
-					# on face a: other axes are (a+1)=c and (a+2)=e
-					var on_a: Vector3 = pt.call(a, sa, sc, se)
-					# on face c: other axes are (c+1)=e and (c+2)=a
-					var on_c: Vector3 = pt.call(c, sc, se, sa)
-					p.append([on_a, on_c])
-				quad_facing(p[0][0], p[1][0], p[1][1], p[0][1], w2, col,
-						wn.call(na_only.lerp(na, 0.6)), wn.call(na_only.lerp(na, 0.6)), wn.call(nc_only.lerp(na, 0.6)), wn.call(nc_only.lerp(na, 0.6)))
+				var nc := Vector3.ZERO
+				nc[c] = sc
+				var nac := (nb * (na + nc)).normalized()
+				var n1 := (nb * (na + (na + nc) * 0.6)).normalized()
+				var n2 := (nb * (nc + (na + nc) * 0.6)).normalized()
+				quad_facing(_bp(xf, h, inner, a, sa, sc, -1.0), _bp(xf, h, inner, a, sa, sc, 1.0),
+						_bp(xf, h, inner, c, sc, 1.0, sa), _bp(xf, h, inner, c, sc, -1.0, sa), nac, col, n1, n1, n2, n2)
 	# 8 corner triangles
 	for sx in [-1.0, 1.0]:
 		for sy in [-1.0, 1.0]:
 			for sz in [-1.0, 1.0]:
-				var sgn := Vector3(sx, sy, sz)
-				tri_facing(pt.call(0, sx, sy, sz), pt.call(1, sy, sz, sx), pt.call(2, sz, sx, sy), wn.call(sgn), col)
+				tri_facing(_bp(xf, h, inner, 0, sx, sy, sz), _bp(xf, h, inner, 1, sy, sz, sx), _bp(xf, h, inner, 2, sz, sx, sy),
+						(nb * Vector3(sx, sy, sz)).normalized(), col)
+
+
+## Point on face `axis` (sign `s`) at signs (t1, t2) of the next two axes.
+static func _bp(xf: Transform3D, h: Vector3, inner: Vector3, axis: int, s: float, t1: float, t2: float) -> Vector3:
+	var o := Vector3.ZERO
+	var a1 := (axis + 1) % 3
+	var a2 := (axis + 2) % 3
+	o[axis] = s * h[axis]
+	o[a1] = t1 * inner[a1]
+	o[a2] = t2 * inner[a2]
+	return xf * o
 
 
 func commit(mesh: ArrayMesh = null) -> ArrayMesh:

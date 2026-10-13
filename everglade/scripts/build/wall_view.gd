@@ -232,7 +232,7 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 	body.set_meta("kind", "wall")
 	body.set_meta("id", d.id)
 	var cs := CollisionShape3D.new()
-	cs.shape = mesh_instance.mesh.create_trimesh_shape()
+	cs.shape = _collision_shell(samples, thick * 0.5 + 0.04)
 	body.add_child(cs)
 	add_child(body)
 
@@ -393,3 +393,39 @@ func _lay_stones(mb: MeshBuilder, samples: Array, openings: Array, doors: Array,
 		if ka.low < 1e5 and kb.low < 1e5:
 			Masonry.coping(mb, ka.p + Vector3.UP * ka.top, kb.p + Vector3.UP * kb.top, thick, col, rng)
 		s = e
+
+
+## A light collision shell (both faces and the top of the wall, following
+## its outline) instead of a trimesh of every individual stone.
+func _collision_shell(samples: Array, half: float) -> ConcavePolygonShape3D:
+	var faces := PackedVector3Array()
+	var step := maxi(1, int(0.6 / SPACING))
+	var i := 0
+	while i < samples.size() - 1:
+		var j := mini(i + step, samples.size() - 1)
+		var A: Dictionary = samples[i]
+		var B: Dictionary = samples[j]
+		i = j
+		if A.hole or B.hole:
+			continue
+		var top_a := maxf(A.top + 0.7, A.low)
+		var top_b := maxf(B.top + 0.7, B.low)
+		var quads := [
+			[A.p + A.n * half, B.p + B.n * half],
+			[A.p - A.n * half, B.p - B.n * half],
+		]
+		for q in quads:
+			var a0: Vector3 = q[0] + Vector3.UP * A.low
+			var b0: Vector3 = q[1] + Vector3.UP * B.low
+			var a1: Vector3 = q[0] + Vector3.UP * top_a
+			var b1: Vector3 = q[1] + Vector3.UP * top_b
+			faces.append_array([a0, b0, b1, a0, b1, a1])
+		var fa: Vector3 = A.p + A.n * half + Vector3.UP * top_a
+		var fb: Vector3 = B.p + B.n * half + Vector3.UP * top_b
+		var ba: Vector3 = A.p - A.n * half + Vector3.UP * top_a
+		var bb: Vector3 = B.p - B.n * half + Vector3.UP * top_b
+		faces.append_array([fa, fb, bb, fa, bb, ba])
+	var shape := ConcavePolygonShape3D.new()
+	shape.backface_collision = true
+	shape.set_faces(faces)
+	return shape

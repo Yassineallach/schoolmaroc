@@ -38,3 +38,17 @@ vec4 mat_triplanar(vec3 p, vec3 n, float layer, float bump, out vec3 nrm) {
 	nrm = normalize(tx.zyx * w.x + ty.xzy * w.y + tz.xyz * w.z);
 	return alb;
 }
+
+// Fake global illumination: warm light bounced off the sunlit ground and
+// nearby stone fills surfaces that face sideways or down (strongest low on
+// walls, gone at night), plus a faint cool sky bounce on upward faces, so
+// shade is coloured and soft instead of grey.
+global uniform float night;
+vec3 bounce_light(vec3 albedo, vec3 world_n, float height_above_ground) {
+	float day = 1.0 - night;
+	float side_down = clamp(0.6 - world_n.y * 0.7, 0.0, 1.0);
+	float near_ground = mix(1.0, 0.55, smoothstep(0.0, 4.0, height_above_ground));
+	vec3 ground = vec3(0.30, 0.24, 0.13) * side_down * near_ground;
+	vec3 sky = vec3(0.05, 0.07, 0.1) * clamp(world_n.y, 0.0, 1.0);
+	return albedo * (ground + sky) * day;
+}

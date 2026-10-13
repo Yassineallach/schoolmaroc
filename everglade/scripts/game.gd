@@ -79,6 +79,8 @@ func _ready() -> void:
 			add_child(tour)
 		if a.begins_with("--closeup=") and ResourceLoader.exists("res://tests/closeup.gd"):
 			add_child(load("res://tests/closeup.gd").new())
+		if a == "--profile" and ResourceLoader.exists("res://tests/profile.gd"):
+			add_child(load("res://tests/profile.gd").new())
 		if a.begins_with("--showcase=") and ResourceLoader.exists("res://tests/showcase.gd"):
 			add_child(load("res://tests/showcase.gd").new())
 

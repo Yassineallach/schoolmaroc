@@ -106,4 +106,5 @@ void fragment() {
 	col = mix(col, vec3(0.93, 0.95, 1.0), up * snow_amount);
 	ALBEDO = col;
 	ROUGHNESS = rough;
+	EMISSION = bounce_light(col, normalize(v_wnormal), v_world.y - base_height);
 }

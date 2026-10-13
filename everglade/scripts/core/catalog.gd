@@ -78,8 +78,8 @@ const ROOF_COLORS := [
 
 # warm off-white, cream, pale grey, blush, sage and ochre limewash
 const WALL_COLORS := [
-	Color(0.93, 0.90, 0.84), Color(0.92, 0.86, 0.74), Color(0.86, 0.86, 0.84),
-	Color(0.92, 0.84, 0.80), Color(0.86, 0.88, 0.80), Color(0.84, 0.74, 0.58),
+	Color(0.96, 0.91, 0.80), Color(0.95, 0.86, 0.68), Color(0.89, 0.87, 0.82),
+	Color(0.94, 0.84, 0.76), Color(0.88, 0.89, 0.78), Color(0.88, 0.76, 0.56),
 ]
 
 # pale limestone, warm sandstone, light grey, weathered dark, honey stone

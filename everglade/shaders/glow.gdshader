@@ -21,7 +21,7 @@ void fragment() {
 	// (vertex alpha 0.5) shows a dark interior with a faint sky sheen by day
 	float glass = step(0.25, COLOR.a) * (1.0 - step(0.75, COLOR.a));
 	float fres = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 3.0);
-	vec3 dark = mix(vec3(0.07, 0.08, 0.1), vec3(0.42, 0.5, 0.6), 0.12 + fres * 0.5);
+	vec3 dark = mix(vec3(0.06, 0.065, 0.08), vec3(0.42, 0.5, 0.6), 0.06 + fres * 0.18);
 	vec3 day = mix(COLOR.rgb * 0.95, dark, glass);
 	vec3 lit = COLOR.rgb * vec3(1.0, 0.82, 0.55);
 	ALBEDO = mix(day, lit * 0.6, night);

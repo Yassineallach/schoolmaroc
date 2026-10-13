@@ -11,7 +11,6 @@ render_mode diffuse_lambert_wrap;
 global uniform float wind_strength;
 global uniform vec4 season_leaf : source_color;
 global uniform float snow_amount;
-global uniform float night;
 
 uniform float sway_scale = 1.0;
 uniform float pop = 1.0;   // grow-in animation for freshly placed props (0..1)
@@ -86,5 +85,6 @@ void fragment() {
 	}
 	ALBEDO = col;
 	ROUGHNESS = rough;
+	EMISSION = bounce_light(col, v_world_normal, v_height);
 	BACKLIGHT = vec3(0.18, 0.22, 0.08) * foliage;
 }

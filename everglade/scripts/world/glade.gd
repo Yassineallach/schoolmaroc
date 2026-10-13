@@ -185,6 +185,8 @@ func list_of(type: String) -> Array:
 func add_wall(pts: PackedVector2Array, h: float, col: Color, style := "rendered") -> Dictionary:
 	var w := {"id": next_id(), "pts": pts, "h": h, "col": col, "ivy": 0.0, "style": style}
 	data.walls.append(w)
+	if batch:
+		return w
 	_make_view("walls", w, true)
 	_after_edit(Geo.v3(pts[pts.size() / 2], terrain.height_at_v(pts[pts.size() / 2])), "wall")
 	return w
@@ -193,6 +195,8 @@ func add_wall(pts: PackedVector2Array, h: float, col: Color, style := "rendered"
 func add_fence(pts: PackedVector2Array, style := "wood") -> Dictionary:
 	var f := {"id": next_id(), "pts": pts, "style": style}
 	data.fences.append(f)
+	if batch:
+		return f
 	_make_view("fences", f, true)
 	_after_edit(Geo.v3(pts[0], terrain.height_at_v(pts[0])), "fence")
 	return f
@@ -201,6 +205,8 @@ func add_fence(pts: PackedVector2Array, style := "wood") -> Dictionary:
 func add_path(pts: PackedVector2Array, width: float, style: String) -> Dictionary:
 	var p := {"id": next_id(), "pts": pts, "w": width, "style": style}
 	data.paths.append(p)
+	if batch:
+		return p
 	_make_view("paths", p, false)
 	_after_edit(Geo.v3(pts[0], terrain.height_at_v(pts[0])), "path")
 	return p
@@ -214,6 +220,8 @@ func add_building(b: Dictionary) -> Dictionary:
 		b.windows = BuildingView.default_windows(b)
 	settle_building(b)
 	data.buildings.append(b)
+	if batch:
+		return b
 	_make_view("buildings", b, true)
 	_after_edit(Vector3(b.c.x, b.base, b.c.y), "building")
 	return b
@@ -234,6 +242,8 @@ func add_prop(kind: String, pos: Vector3, rot: float, scale_value: float, align 
 	if align:
 		p.n = terrain.normal_at(pos.x, pos.z).lerp(Vector3.UP, 0.4).normalized()
 	data.props.append(p)
+	if batch:
+		return p
 	if pop:
 		props.pop_in(p)
 	else:
@@ -362,7 +372,14 @@ func _make_view(type: String, item: Dictionary, animate: bool) -> Node3D:
 	return v
 
 
+## While true (templates), add_* only records data; one rebuild_all() at the
+## end builds every view once instead of after each addition.
+var batch := false
+
+
 func rebuild_all() -> void:
+	if batch:
+		return
 	for id in views:
 		views[id].free()
 	views.clear()

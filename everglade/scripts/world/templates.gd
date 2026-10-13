@@ -4,6 +4,15 @@ extends RefCounted
 
 
 static func build(glade: Glade, template: String) -> void:
+	glade.batch = true
+	_build(glade, template)
+	glade.batch = false
+	glade.rebuild_all()
+	glade.undo_stack.clear()
+	glade.redo_stack.clear()
+
+
+static func _build(glade: Glade, template: String) -> void:
 	match template:
 		"hamlet":
 			glade.new_glade("meadow", "Windrise Town")
@@ -26,8 +35,6 @@ static func build(glade: Glade, template: String) -> void:
 		_:
 			glade.new_glade("meadow", "Meadow Glade")
 			_sprinkle_nature(glade, 10, 3)
-	glade.undo_stack.clear()
-	glade.redo_stack.clear()
 
 
 static func _sprinkle_nature(glade: Glade, trees: int, seed_value: int) -> void:
