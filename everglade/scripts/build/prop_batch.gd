@@ -3,7 +3,7 @@ extends Node3D
 ## Draws every placed prop (trees, flowers, lanterns, wells...) through one
 ## MultiMesh per kind. Freshly placed props pop in as single instances first.
 
-const NO_SHADOW := ["flowers_pink", "flowers_white", "flowers_blue", "flowers_yellow", "flowers_red", "mushrooms", "grass_tuft"]
+const NO_SHADOW := ["flowers_pink", "flowers_white", "flowers_blue", "flowers_yellow", "flowers_red", "mushrooms", "grass_tuft", "fern", "plant_leafy", "wheat"]
 
 var _mmis: Dictionary = {} # kind -> [solid MMI, glow MMI or null]
 var _hidden: Dictionary = {}
@@ -58,7 +58,10 @@ func rebuild(props: Array) -> void:
 			var leaves: MultiMeshInstance3D = null
 			if m.leaves:
 				leaves = _make_mmi(m.leaves, m.get("leaf_mat", ModelLib.leaf_material), true)
-			_mmis[kind] = [solid, glow, leaves]
+			var parts: Array = [solid, glow, leaves]
+			for pair in m.tex:
+				parts.append(_make_mmi(pair[0], pair[1], not NO_SHADOW.has(kind)))
+			_mmis[kind] = parts
 		var xforms: Array = groups[kind]
 		for mmi in _mmis[kind]:
 			if mmi == null:
@@ -108,7 +111,7 @@ func pop_in(p: Dictionary, delay := 0.0) -> void:
 	rebuild(_props)
 	var node := Node3D.new()
 	var m: Dictionary = ModelLib.merged(p.kind)
-	for pair in [[m.solid, ModelLib.props_material], [m.glow, ModelLib.glow_material], [m.leaves, m.get("leaf_mat", ModelLib.leaf_material)]]:
+	for pair in [[m.solid, ModelLib.props_material], [m.glow, ModelLib.glow_material], [m.leaves, m.get("leaf_mat", ModelLib.leaf_material)]] + m.tex:
 		if pair[0]:
 			var mi := MeshInstance3D.new()
 			mi.mesh = pair[0]

@@ -15,6 +15,7 @@ var cats: Array = []
 var kois: Array = []
 var slimes: Array = []
 var crystalflies: Array = []
+var wildlife: Array = []
 var _rng := RandomNumberGenerator.new()
 var _rebalance_in := 0.5
 var enabled := true
@@ -29,7 +30,7 @@ func setup(g: Glade, d: DayCycle) -> void:
 
 
 func clear() -> void:
-	for list in [sheep, ducks, chickens, birds, butterflies, cats, kois, slimes, crystalflies]:
+	for list in [sheep, ducks, chickens, birds, butterflies, cats, kois, slimes, crystalflies, wildlife]:
 		for c in list:
 			c.queue_free()
 		list.clear()
@@ -51,6 +52,31 @@ func _rebalance() -> void:
 	_balance(sheep, 5, func(): return _spawn_land("sheep", Sheep))
 	for s in sheep:
 		s.flock = sheep
+	# --- wildlife: a pair of deer and a fox near the meadow's edge, and a
+	# donkey and an alpaca that keep to the cottages once there are homes
+	var homes0: Array = glade.list_of("buildings")
+	var kinds: Array = ["q_deer", "q_deer", "q_fox"]
+	if not homes0.is_empty():
+		kinds.append_array(["q_donkey", "q_alpaca"])
+	while wildlife.size() > kinds.size():
+		wildlife.pop_back().queue_free()
+	while wildlife.size() < kinds.size():
+		var kind: String = kinds[wildlife.size()]
+		if not ModelLib.has_model(kind):
+			break
+		var centre := Vector2.ZERO
+		if kind == "q_donkey" or kind == "q_alpaca":
+			var hb: Dictionary = homes0[_rng.randi() % homes0.size()]
+			centre = hb.c + Vector2(_rng.randf_range(-5, 5), _rng.randf_range(-5, 5))
+		else:
+			var a0 := _rng.randf() * TAU
+			centre = Vector2(cos(a0), sin(a0)) * _rng.randf_range(11.0, 16.0)
+		var w := _spawn_land(kind, Wildlife, centre) as Wildlife
+		if w == null:
+			break
+		w.roam_center = centre
+		w.roam_radius = 5.0 if kind == "q_fox" else 6.0
+		wildlife.append(w)
 	# --- ducks: families on big enough ponds
 	var cells := glade.water_cells()
 	var families := clampi(cells / 40, 0, 3)
@@ -176,7 +202,7 @@ func _spawn_land(kind: String, script_class, near := Vector2.INF) -> Creature:
 func pick(origin: Vector3, dir: Vector3) -> Creature:
 	var best: Creature = null
 	var best_t := INF
-	for list in [sheep, ducks, chickens, birds, butterflies, cats, kois, slimes, crystalflies]:
+	for list in [sheep, ducks, chickens, birds, butterflies, cats, kois, slimes, crystalflies, wildlife]:
 		for c in list:
 			var center: Vector3 = c.global_position + Vector3.UP * 0.4 * c.scale.x
 			var r: float = c.pet_radius * c.scale.x + 0.25
@@ -196,7 +222,7 @@ func _update_grass_pushers() -> void:
 	if glade == null or glade.grass == null:
 		return
 	var list: Array = []
-	for group in [[sheep, 0.75], [slimes, 0.6], [cats, 0.45], [chickens, 0.4]]:
+	for group in [[sheep, 0.75], [slimes, 0.6], [cats, 0.45], [chickens, 0.4], [wildlife, 0.7]]:
 		for c in group[0]:
 			if is_instance_valid(c) and c.is_inside_tree():
 				var p: Vector3 = c.global_position

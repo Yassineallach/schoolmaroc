@@ -39,12 +39,12 @@ func setup(t: Terrain) -> void:
 	if _tall_mesh == null:
 		_tall_mesh = _make_patch(TALL_BLADES, 0.22, Vector2(0.38, 0.7), 202)
 	for k in ["flowers_white", "flowers_yellow", "flowers_pink"]:
-		_flower_meshes.append(ModelLib.merged(k).solid)
+		_flower_meshes.append(ModelLib.combined(k, ModelLib.grass_material))
 	for i in Terrain.CHUNKS * Terrain.CHUNKS:
 		var g := _new_mmi(material, 40.0)
 		_grass_mm.append(g)
 		_tall_mm.append(_new_mmi(material, 40.0))
-		var f := _new_mmi(ModelLib.grass_material, 0.0)
+		var f := _new_mmi(null, 0.0)
 		_flower_mm.append(f)
 	terrain.chunk_rebuilt.connect(func(cx, cz): _dirty[Vector2i(cx, cz)] = true)
 	Settings.changed.connect(func():

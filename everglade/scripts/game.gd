@@ -81,6 +81,8 @@ func _ready() -> void:
 			add_child(load("res://tests/closeup.gd").new())
 		if a == "--profile" and ResourceLoader.exists("res://tests/profile.gd"):
 			add_child(load("res://tests/profile.gd").new())
+		if a.begins_with("--kitview=") and ResourceLoader.exists("res://tests/kitview.gd"):
+			add_child(load("res://tests/kitview.gd").new())
 		if a.begins_with("--showcase=") and ResourceLoader.exists("res://tests/showcase.gd"):
 			add_child(load("res://tests/showcase.gd").new())
 

@@ -7,7 +7,7 @@ var _solid := SurfaceTool.new()
 var _glow := SurfaceTool.new()
 var _has_solid := false
 var _has_glow := false
-var _leaves: Dictionary = {} # leaf material -> SurfaceTool
+var _leaves: Dictionary = {} # leaf or kit-texture material -> SurfaceTool
 
 
 func add(kind: String, xf: Transform3D) -> void:
@@ -23,6 +23,10 @@ func add(kind: String, xf: Transform3D) -> void:
 		if not _leaves.has(mat):
 			_leaves[mat] = SurfaceTool.new()
 		(_leaves[mat] as SurfaceTool).append_from(m.leaves, 0, xf)
+	for pair in m.tex:
+		if not _leaves.has(pair[1]):
+			_leaves[pair[1]] = SurfaceTool.new()
+		(_leaves[pair[1]] as SurfaceTool).append_from(pair[0], 0, xf)
 
 
 func add_mesh(mesh: Mesh, xf: Transform3D) -> void:

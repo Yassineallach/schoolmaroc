@@ -4,6 +4,7 @@ extends Node
 
 const MODEL_DIR := "res://assets/models/"
 const FOLIAGE_DIR := "res://assets/textures/foliage/"
+const KIT_TEX_DIR := "res://assets/textures/qkit/"
 
 ## Trees, bushes and grass from Quaternius' Stylized Nature MegaKit (CC0),
 ## converted by tools/import_quaternius.sh, stand in for the original
@@ -15,6 +16,16 @@ const ALIAS := {
 	"tree_birch": "q_tree_birch", "tree_blossom": "q_tree_blossom", "tree_golden": "q_tree_golden",
 	"tree_orange": "q_tree_orange", "tree_teal": "q_tree_teal", "tree_pine_a": "q_tree_pine_a",
 	"tree_pine_b": "q_tree_pine_b", "tree_cedar": "q_tree_cedar", "bush_a": "q_bush_a", "bush_golden": "q_bush_golden",
+	# textured kit models (tools/import_quaternius_tex.py): Medieval Village
+	# MegaKit details and props, Nature MegaKit flowers, bushes and stones
+	"door": "q_door", "window_frame": "q_window_frame", "shutters": "q_shutters", "chimney": "q_chimney",
+	"fence_ornate": "q_fence_ornate", "fence_rail": "q_fence_rail", "fence_post": "q_fence_post",
+	"cart": "q_cart", "crate": "q_crate", "flowers_white": "q_flowers_white", "flowers_pink": "q_flowers_pink",
+	"flowers_blue": "q_flowers_blue", "flowers_yellow": "q_flowers_yellow", "flowers_red": "q_flowers_red",
+	"bush_b": "q_bush_b", "bush_berries": "q_bush_berries", "mushrooms": "q_mushrooms",
+	"stepping_stone": "q_stepping_stone", "cobble_a": "q_cobble_a", "cobble_b": "q_cobble_b",
+	# kit-only ground plants (no procedural original)
+	"fern": "q_fern", "plant_leafy": "q_plant", "wheat": "q_wheat",
 }
 ## leaf material name suffix -> texture file (where they differ)
 const LEAF_FILES := {"Leaves_Pine": "Leaf_Pine"}
@@ -29,6 +40,9 @@ var surface_normal: TextureLayered = load("res://assets/textures/mat_normal.png"
 
 var _scenes: Dictionary = {}
 var _leaf_mats: Dictionary = {}
+var _tex_mats: Dictionary = {}
+var _tex_shader: Shader = load("res://shaders/props_tex.gdshader")
+var _cut_shader: Shader = load("res://shaders/props_cut.gdshader")
 var _merged: Dictionary = {}
 
 
@@ -80,6 +94,29 @@ func leaf_material_for(tex: String) -> ShaderMaterial:
 	return _leaf_mats[tex]
 
 
+## Material for a kit model surface named "Tex__<file>" or "Cut__<file>"
+## (painted texture; Cut = alpha-cut and double sided), null otherwise.
+func kit_material_for(mat_name: String) -> ShaderMaterial:
+	if not (mat_name.begins_with("Tex__") or mat_name.begins_with("Cut__")):
+		return null
+	if not _tex_mats.has(mat_name):
+		var m := ShaderMaterial.new()
+		m.shader = _cut_shader if mat_name.begins_with("Cut__") else _tex_shader
+		var path := KIT_TEX_DIR + mat_name.substr(5)
+		if ResourceLoader.exists(path):
+			m.set_shader_parameter("albedo_tex", load(path))
+		_tex_mats[mat_name] = m
+	return _tex_mats[mat_name]
+
+
+static func _mat_name(mi: MeshInstance3D) -> String:
+	if mi.mesh and mi.mesh.get_surface_count() > 0:
+		var mat := mi.mesh.surface_get_material(0)
+		if mat:
+			return mat.resource_name
+	return ""
+
+
 static func _leaf_tex_of(mi: MeshInstance3D) -> String:
 	if mi.mesh and mi.mesh.get_surface_count() > 0:
 		var mat := mi.mesh.surface_get_material(0)
@@ -109,7 +146,11 @@ func instance(kind: String, raw := false) -> Node3D:
 func _reskin(node: Node) -> void:
 	if node is MeshInstance3D:
 		var mi := node as MeshInstance3D
-		mi.material_override = glow_material if _is_glow(mi) else (leaf_material_for(_leaf_tex_of(mi)) if _is_leaves(mi) else props_material)
+		var kit := kit_material_for(_mat_name(mi))
+		if kit:
+			mi.material_override = kit
+		else:
+			mi.material_override = glow_material if _is_glow(mi) else (leaf_material_for(_leaf_tex_of(mi)) if _is_leaves(mi) else props_material)
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	for child in node.get_children():
 		_reskin(child)
@@ -149,6 +190,7 @@ func merged(kind: String, raw := false) -> Dictionary:
 	var has_solid := false
 	var has_glow := false
 	var has_leaves := false
+	var kit: Dictionary = {} # kit material -> SurfaceTool
 	var stack: Array = [[root, Transform3D.IDENTITY]]
 	while not stack.is_empty():
 		var item: Array = stack.pop_back()
@@ -159,6 +201,14 @@ func merged(kind: String, raw := false) -> Dictionary:
 				var cxf: Transform3D = xf * (child as Node3D).transform
 				if child is MeshInstance3D and (child as MeshInstance3D).mesh:
 					var mi := child as MeshInstance3D
+					var km := kit_material_for(_mat_name(mi))
+					if km:
+						if not kit.has(km):
+							kit[km] = SurfaceTool.new()
+						for s in mi.mesh.get_surface_count():
+							(kit[km] as SurfaceTool).append_from(mi.mesh, s, cxf)
+						stack.append([child, cxf])
+						continue
 					var target := glow if _is_glow(mi) else (leaves if _is_leaves(mi) else solid)
 					for s in mi.mesh.get_surface_count():
 						target.append_from(mi.mesh, s, cxf)
@@ -172,22 +222,49 @@ func merged(kind: String, raw := false) -> Dictionary:
 						has_solid = true
 				stack.append([child, cxf])
 	root.free()
-	var result := {"solid": null, "glow": null, "leaves": null, "aabb": AABB(Vector3(-0.5, 0, -0.5), Vector3.ONE)}
+	var result := {"solid": null, "glow": null, "leaves": null, "tex": [], "aabb": AABB(Vector3(-0.5, 0, -0.5), Vector3.ONE)}
+	var have_aabb := false
 	result.leaf_mat = leaf_material_for(leaf_tex)
 	if has_solid:
 		var m := solid.commit()
 		result.solid = m
 		result.aabb = m.get_aabb()
+		have_aabb = true
+	for km in kit:
+		var km_mesh := (kit[km] as SurfaceTool).commit()
+		result.tex.append([km_mesh, km])
+		result.aabb = result.aabb.merge(km_mesh.get_aabb()) if have_aabb else km_mesh.get_aabb()
+		have_aabb = true
 	if has_glow:
 		result.glow = glow.commit()
 	if has_leaves:
 		result.leaves = leaves.commit()
-		if result.solid == null:
+		if not have_aabb:
 			result.aabb = result.leaves.get_aabb()
 		else:
 			result.aabb = result.aabb.merge(result.leaves.get_aabb())
 	_merged[key] = result
 	return result
+
+
+## Every part of a model as one multi-surface mesh with its materials set
+## (for MultiMeshes drawn without a material override, e.g. meadow flowers).
+## `solid_mat` draws the plain vertex-coloured parts.
+func combined(kind: String, solid_mat: Material = null) -> ArrayMesh:
+	var m := merged(kind)
+	var out := ArrayMesh.new()
+	var parts: Array = []
+	if m.solid:
+		parts.append([m.solid, solid_mat if solid_mat else props_material])
+	if m.leaves:
+		parts.append([m.leaves, m.leaf_mat])
+	parts.append_array(m.tex)
+	for part in parts:
+		var src: ArrayMesh = part[0]
+		for s in src.get_surface_count():
+			out.add_surface_from_arrays(src.surface_get_primitive_type(s), src.surface_get_arrays(s))
+			out.surface_set_material(out.get_surface_count() - 1, part[1])
+	return out
 
 
 ## Footprint radius used for picking/erasing props.

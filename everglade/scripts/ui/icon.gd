@@ -204,6 +204,10 @@ func _draw() -> void:
 				var a := TAU * i / 5.0
 				circle(Vector2(0.5, 0.35) + Vector2(cos(a), sin(a)) * 0.13, 0.1, Color(0.96, 0.62, 0.74))
 			circle(Vector2(0.5, 0.35), 0.08, SUN)
+		"ferns":
+			for k in 5:
+				var a := lerpf(-1.1, 1.1, k / 4.0)
+				line([Vector2(0.5, 0.9), Vector2(0.5 + sin(a) * 0.36, 0.9 - cos(a) * 0.62)], LEAF.darkened(0.05 * k), 0.07)
 		"rocks":
 			poly([Vector2(0.1, 0.85), Vector2(0.2, 0.5), Vector2(0.45, 0.35), Vector2(0.7, 0.45), Vector2(0.88, 0.85)], STONE)
 			poly([Vector2(0.22, 0.52), Vector2(0.45, 0.36), Vector2(0.62, 0.42), Vector2(0.4, 0.5)], LEAF, false)
