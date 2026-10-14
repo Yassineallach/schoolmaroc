@@ -19,7 +19,7 @@ const ALIAS := {
 	# textured kit models (tools/import_quaternius_tex.py): Medieval Village
 	# MegaKit details and props, Nature MegaKit flowers, bushes and stones
 	"door": "q_door", "window_frame": "q_window_frame", "shutters": "q_shutters", "chimney": "q_chimney",
-	"fence_ornate": "q_fence_ornate", "fence_rail": "q_fence_rail", "fence_post": "q_fence_post",
+	"fence_ornate": "q_fence_ornate", "fence_rail": "q_fence_rail",
 	"cart": "q_cart", "crate": "q_crate", "flowers_white": "q_flowers_white", "flowers_pink": "q_flowers_pink",
 	"flowers_blue": "q_flowers_blue", "flowers_yellow": "q_flowers_yellow", "flowers_red": "q_flowers_red",
 	"bush_b": "q_bush_b", "bush_berries": "q_bush_berries", "mushrooms": "q_mushrooms",

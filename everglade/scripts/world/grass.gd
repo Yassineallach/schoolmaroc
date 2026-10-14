@@ -14,7 +14,7 @@ const MAX_PUSHERS := 8
 ## Hand-modelled grass clumps (Quaternius Stylized Nature, CC0), converted by
 ## tools/import_quaternius.py so their vertex colours carry the same
 ## random/along-the-blade data as the procedural blades.
-const CLUMPS := ["q_grass_short", "q_grass_tall", "q_grass_wispy", "q_grass_wide"]
+const CLUMPS := ["q_grass_short", "q_grass_tall", "q_grass_wispy"]
 
 var terrain: Terrain
 var material: ShaderMaterial
@@ -32,7 +32,7 @@ func setup(t: Terrain) -> void:
 	terrain = t
 	material = ShaderMaterial.new()
 	material.shader = load("res://shaders/grass.gdshader")
-	_patch_mesh = _clump_patch(CLUMPS, 7, 0.42, 101)
+	_patch_mesh = _clump_patch(CLUMPS, 3, 0.36, 101)
 	if _patch_mesh == null:
 		_patch_mesh = _make_patch(PATCH_BLADES, PATCH_RADIUS, Vector2(0.13, 0.28), 101)
 	_tall_mesh = _clump_patch(["q_grass_wild"], 2, 0.16, 202)

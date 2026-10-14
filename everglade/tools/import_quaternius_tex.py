@@ -16,7 +16,7 @@ wall openings, shutters beside windows, fence rails between posts);
 "h=<metres>" scales it uniformly to a height.
 
   /tmp/bvenv/bin/python tools/import_quaternius_tex.py -- <nature glTF> <village glTF> assets/models \
-      QM/Door_1_Round:fit=door:q_door [rot=90] [part=rails|post] ...
+      QM/Door_1_Round:fit=door:q_door [rot=90] [part=rails|post] [dec=0.3] ...
 """
 import bpy, bmesh, sys, os, math
 from mathutils import Vector, Matrix
@@ -170,6 +170,13 @@ for job in jobs:
             iron = "Metal" in mname
             recolour(o, 1.0, (0.2, 0.21, 0.24) if iron else (tuple(mat.diffuse_color[:3]) if mat else (0.8, 0.8, 0.8)))
             set_material(o, "VertexColor")
+    if "dec" in opts:
+        # fine ironwork is far denser than a phone needs for a fence segment
+        for o in meshes():
+            d = o.modifiers.new("dec", "DECIMATE")
+            d.ratio = float(opts["dec"])
+            bpy.context.view_layer.objects.active = o
+            bpy.ops.object.modifier_apply(modifier="dec")
     rot = math.radians(float(opts.get("rot", "0")))
     for o in meshes():
         o.matrix_world = Matrix.Rotation(rot, 4, "Z") @ o.matrix_world

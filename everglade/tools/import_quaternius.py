@@ -28,6 +28,7 @@ PALETTES = {
 BARK = ((0.52, 0.38, 0.28), (0.30, 0.21, 0.16))
 BIRCH_BARK = ((0.92, 0.90, 0.86), (0.62, 0.60, 0.58))
 M_BARK = 4
+MAX_BLADES = 10
 
 def lerp(a, b, t):
     return tuple(a[i] + (b[i] - a[i]) * t for i in range(3))
@@ -101,6 +102,32 @@ for job in jobs:
             bark_objs.append(o)
     if kind == "grass":
         g = join(leaf_objs + bark_objs, "Grass")
+        # thousands of these are drawn across the meadow: keep a handful of
+        # blades per clump and only a few segments per blade (phone budget)
+        bm = bmesh.new(); bm.from_mesh(g.data)
+        bm.faces.ensure_lookup_table()
+        seen, islands = set(), []
+        for f in bm.faces:
+            if f.index in seen:
+                continue
+            stack, isl = [f], []
+            while stack:
+                x = stack.pop()
+                if x.index in seen:
+                    continue
+                seen.add(x.index); isl.append(x)
+                for e in x.edges:
+                    stack.extend(e.link_faces)
+            islands.append(isl)
+        rnd_keep = random.Random(3)
+        rnd_keep.shuffle(islands)
+        drop = [f for isl in islands[MAX_BLADES:] for f in isl]
+        bmesh.ops.delete(bm, geom=drop, context="FACES")
+        bm.to_mesh(g.data); bm.free()
+        dec = g.modifiers.new("dec", "DECIMATE")
+        dec.ratio = 0.3
+        bpy.context.view_layer.objects.active = g
+        bpy.ops.object.modifier_apply(modifier="dec")
         zs = [v.co.z for v in g.data.vertices]
         z0, z1 = min(zs), max(zs)
         # random per connected blade
@@ -150,6 +177,13 @@ for job in jobs:
             me.normals_split_custom_set_from_vertices(normals)
             material(leaves, "Leaves__" + (tex or "Leaves_NormalTree"))
         if trunk:
+            # trunks mostly hide inside the crowns: halve the dense ones
+            # (gently, so twisted trunks keep their shape)
+            if sum(len(p.vertices) - 2 for p in trunk.data.polygons) > 2000:
+                dec = trunk.modifiers.new("dec", "DECIMATE")
+                dec.ratio = 0.5
+                bpy.context.view_layer.objects.active = trunk
+                bpy.ops.object.modifier_apply(modifier="dec")
             b = BIRCH_BARK if "Birch" in name else BARK
             zs = [v.co.z for v in trunk.data.vertices]
             z0, z1 = min(zs), max(zs)

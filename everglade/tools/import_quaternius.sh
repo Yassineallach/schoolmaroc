@@ -37,9 +37,8 @@ $BLENDER_PY tools/import_quaternius_tex.py -- "$MEGAKIT" "$VILLAGE" assets/model
   QM/Window_Wide_Round1:fit=window_frame:q_window_frame \
   QM/WindowShutters_Wide_Round_Open:fit=shutters:q_shutters \
   QM/Prop_Chimney:fit=chimney:q_chimney \
-  QM/Prop_MetalFence_Ornament:fit=fence_ornate:q_fence_ornate \
+  QM/Prop_MetalFence_Ornament:fit=fence_ornate:q_fence_ornate:dec=0.25 \
   QM/Prop_WoodenFence_Single:fit=fence_rail:q_fence_rail:part=rails \
-  QM/Prop_WoodenFence_Single:fit=fence_post:q_fence_post:part=post \
   QM/Prop_Wagon:fit=cart:q_cart \
   QM/Prop_Crate:fit=crate:q_crate \
   QN/Flower_1_Group:h=0.5:q_flowers_white \
