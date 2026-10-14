@@ -233,6 +233,23 @@ plants, props, fences and animals.
 - Graphics presets *Battery / Balanced / Beautiful* change render scale (0.7/0.85/1.0), MSAA, shadows, grass density and depth of field.
 - Water and terrain shaders don't use screen or depth textures, so they work on the GL Compatibility renderer.
 
+## 5b. Wall patterns
+
+Every wall (bare or rendered) has a facing pattern, chosen in the Walls tool or the inspector
+(`scripts/build/masonry.gd`):
+
+| Pattern | Look |
+|---|---|
+| Hand-laid (default) | Tiny Glade-like: cushioned stones, big at the foot and smaller higher up, warm and cool stones mixed, moss creeping up from the ground |
+| Rounded | Quaternius' painted rounded stones laid in the hand-laid courses, tinted by the wall colour |
+| Fieldstone | Uncoursed polygonal rubble (Voronoi cells), cushioned faces |
+| Coursed | The original even courses of bevelled stones |
+| Brick | Flemish bond, darker fired headers |
+| Ashlar | Large dressed blocks with fine joints |
+
+Arch voussoirs, quoins at wall ends and the coping stay the same for every pattern.
+`-- --wallstyles=/tmp/walls` renders one wall in each pattern.
+
 ## 6. Credits
 
 All third-party models are CC0 (public domain) by [Quaternius](https://quaternius.com); the licence
@@ -243,6 +260,8 @@ texts are in `assets/third_party/`.
   and wheat (*Ferns* nature brush).
 - **Medieval Village MegaKit** (Standard): arched windows, doors, shutters, chimneys, wooden and iron
   fences, the cart and the crate.
+- **Medieval Village MegaKit** rounded stones (`Prop_Brick1-4`, simplified to ~30 triangles each) also
+  build the *Rounded* wall pattern.
 - **Ultimate Animated Animals**: the deer, fox, donkey and alpaca that wander the glade, with their own
   walk, idle and grazing animations.
 

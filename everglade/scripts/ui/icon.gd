@@ -86,6 +86,31 @@ func _draw() -> void:
 			rect(0.12, 0.18, 0.18, 0.12, STONE)
 			rect(0.42, 0.18, 0.18, 0.12, STONE)
 			rect(0.72, 0.18, 0.18, 0.12, STONE)
+		"wall_glade":
+			# hand-laid: rounded stones, big at the foot
+			for st in [[0.1, 0.66, 0.36, 0.24], [0.5, 0.68, 0.4, 0.22], [0.12, 0.44, 0.26, 0.18], [0.42, 0.45, 0.22, 0.18],
+					[0.68, 0.44, 0.22, 0.2], [0.16, 0.24, 0.3, 0.16], [0.5, 0.24, 0.34, 0.16]]:
+				circle(Vector2(st[0] + st[2] * 0.5, st[1] + st[3] * 0.5), minf(st[2], st[3]) * 0.62, STONE)
+		"wall_kit":
+			for st in [[0.1, 0.64, 0.4, 0.24], [0.52, 0.64, 0.38, 0.24], [0.1, 0.38, 0.26, 0.22], [0.38, 0.38, 0.3, 0.22],
+					[0.7, 0.38, 0.2, 0.22], [0.1, 0.14, 0.36, 0.2], [0.48, 0.14, 0.42, 0.2]]:
+				rect(st[0], st[1], st[2], st[3], Color(0.82, 0.74, 0.6))
+		"wall_rubble":
+			poly([Vector2(0.1, 0.9), Vector2(0.12, 0.6), Vector2(0.38, 0.55), Vector2(0.46, 0.9)], STONE)
+			poly([Vector2(0.5, 0.9), Vector2(0.44, 0.6), Vector2(0.7, 0.5), Vector2(0.9, 0.62), Vector2(0.88, 0.9)], STONE)
+			poly([Vector2(0.12, 0.54), Vector2(0.14, 0.2), Vector2(0.42, 0.24), Vector2(0.38, 0.5)], STONE)
+			poly([Vector2(0.44, 0.52), Vector2(0.46, 0.18), Vector2(0.88, 0.16), Vector2(0.88, 0.56), Vector2(0.7, 0.46)], STONE)
+		"wall_brick":
+			for row in 5:
+				for c in 3:
+					var ox := 0.0 if row % 2 == 0 else 0.13
+					rect(clampf(0.1 + c * 0.27 - ox, 0.1, 0.9), 0.14 + row * 0.15, 0.25 if (c > 0 or row % 2 == 0) else 0.12, 0.13, Color(0.78, 0.45, 0.34))
+		"wall_ashlar":
+			rect(0.1, 0.62, 0.48, 0.28, STONE)
+			rect(0.6, 0.62, 0.3, 0.28, STONE)
+			rect(0.1, 0.32, 0.3, 0.28, STONE)
+			rect(0.42, 0.32, 0.48, 0.28, STONE)
+			rect(0.1, 0.12, 0.8, 0.18, STONE)
 		"wall_rendered":
 			rect(0.1, 0.3, 0.8, 0.6, Color(0.93, 0.88, 0.76))
 			for p in [Vector2(0.1, 0.3), Vector2(0.1, 0.5), Vector2(0.1, 0.7), Vector2(0.75, 0.4), Vector2(0.75, 0.6)]:

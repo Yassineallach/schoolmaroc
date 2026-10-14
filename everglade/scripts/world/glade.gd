@@ -195,8 +195,8 @@ func list_of(type: String) -> Array:
 # ---------------------------------------------------------------------------
 # Adding pieces
 # ---------------------------------------------------------------------------
-func add_wall(pts: PackedVector2Array, h: float, col: Color, style := "rendered") -> Dictionary:
-	var w := {"id": next_id(), "pts": pts, "h": h, "col": col, "ivy": 0.0, "style": style}
+func add_wall(pts: PackedVector2Array, h: float, col: Color, style := "rendered", pattern := "classic") -> Dictionary:
+	var w := {"id": next_id(), "pts": pts, "h": h, "col": col, "ivy": 0.0, "style": style, "pattern": pattern}
 	data.walls.append(w)
 	if batch:
 		return w

@@ -92,6 +92,12 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 		samples.append({"s": s, "p": Vector3(p.x, 0, p.y), "n": nrm, "low": low, "top": top, "hole": hole, "arch": arch, "g": g, "base": smooth_g[i]})
 
 	var mb := MeshBuilder.new()
+	# facing pattern (Masonry.PATTERNS); the Quaternius "kit" stones collect
+	# into their own textured mesh
+	Masonry.pattern = d.get("pattern", "classic")
+	Masonry.kit_st = SurfaceTool.new() if Masonry.pattern == "kit" and masonry else null
+	if Masonry.kit_st:
+		Masonry.kit_st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	# the stones stand proud of the core by Masonry.DEPTH on each side
 	var ht := thick * 0.5 - (Masonry.DEPTH if masonry and not rendered else 0.0)
 	if masonry and rendered:
@@ -178,6 +184,14 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 	mesh_instance.mesh = mb.commit()
 	mesh_instance.material_override = material
 	add_child(mesh_instance)
+	if Masonry.kit_st != null:
+		var km := MeshInstance3D.new()
+		km.name = "KitStones"
+		km.mesh = Masonry.kit_st.commit()
+		km.material_override = ModelLib.kit_material_for("Tex__T_RockTrim_BaseColor.png")
+		add_child(km)
+	Masonry.kit_st = null
+	Masonry.pattern = "classic"
 	var min_g := INF
 	var max_t := -INF
 	for S in samples:

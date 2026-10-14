@@ -70,3 +70,9 @@ for f in glob.glob('assets/textures/qkit/*.png'):
         im.resize((1024, 1024), Image.LANCZOS).save(f)
 "
 cp "$VILLAGE/../License_Standard.txt" assets/third_party/QUATERNIUS_MEDIEVAL_VILLAGE_MEGAKIT_LICENSE.txt
+
+# Rounded wall stones (the "Rounded" wall pattern), simplified for phones
+$BLENDER_PY tools/import_quaternius_tex.py -- "$MEGAKIT" "$VILLAGE" assets/models \
+  QM/Prop_Brick1:h=1.0:q_stone_1:dec=0.3 QM/Prop_Brick2:h=1.0:q_stone_2:dec=0.3 \
+  QM/Prop_Brick3:h=1.0:q_stone_3:dec=0.3 QM/Prop_Brick4:h=1.0:q_stone_4:dec=0.3
+rm -f assets/textures/qkit_list.txt

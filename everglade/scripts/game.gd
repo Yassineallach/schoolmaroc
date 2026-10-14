@@ -83,6 +83,8 @@ func _ready() -> void:
 			add_child(load("res://tests/profile.gd").new())
 		if a.begins_with("--soak") and ResourceLoader.exists("res://tests/soak.gd"):
 			add_child(load("res://tests/soak.gd").new())
+		if a.begins_with("--wallstyles=") and ResourceLoader.exists("res://tests/wallstyles.gd"):
+			add_child(load("res://tests/wallstyles.gd").new())
 		if a.begins_with("--kitview=") and ResourceLoader.exists("res://tests/kitview.gd"):
 			add_child(load("res://tests/kitview.gd").new())
 		if a.begins_with("--showcase=") and ResourceLoader.exists("res://tests/showcase.gd"):
@@ -295,7 +297,11 @@ func _inspector_defs(f: Dictionary) -> Array:
 			return [
 				{"type": "title", "text": "Wall"},
 				{"type": "choice", "key": "style", "items": [
-					{"id": "rendered", "label": "Rendered", "icon": "wall_rendered"}, {"id": "stone", "label": "Coursed", "icon": "wall"}]},
+					{"id": "rendered", "label": "Rendered", "icon": "wall_rendered"}, {"id": "stone", "label": "Bare stone", "icon": "wall"}]},
+				{"type": "choice", "key": "pattern", "items": [
+					{"id": "glade", "label": "Hand-laid", "icon": "wall_glade"}, {"id": "kit", "label": "Rounded", "icon": "wall_kit"},
+					{"id": "rubble", "label": "Fieldstone", "icon": "wall_rubble"}, {"id": "classic", "label": "Coursed", "icon": "wall"},
+					{"id": "brick", "label": "Brick", "icon": "wall_brick"}, {"id": "ashlar", "label": "Ashlar", "icon": "wall_ashlar"}]},
 				{"type": "slider", "key": "h", "label": "Height", "min": 0.8, "max": 7.0, "step": 0.1},
 				{"type": "colors", "key": "col", "colors": Catalog.STONE_COLORS},
 				{"type": "actions", "items": [{"id": "ivy", "icon": "ivy", "label": "Ivy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
@@ -339,6 +345,7 @@ func _inspector_values(f: Dictionary) -> Dictionary:
 		v.wall_col = _closest_index(Catalog.WALL_COLORS, item.wall_col)
 	if f.type == "walls":
 		v.col = _closest_index(Catalog.STONE_COLORS, item.get("col", Catalog.STONE_COLORS[0]))
+		v.pattern = item.get("pattern", "classic")
 	return v
 
 
@@ -380,6 +387,8 @@ func _on_inspector_action(action: String, value: Variant) -> void:
 			item.wall_col = Catalog.WALL_COLORS[value]
 		"style":
 			item.style = value
+		"pattern":
+			item.pattern = value
 		"col":
 			item.col = Catalog.STONE_COLORS[value]
 		"h":
