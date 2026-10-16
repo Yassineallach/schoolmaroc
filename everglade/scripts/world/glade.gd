@@ -362,6 +362,39 @@ func add_prop(kind: String, pos: Vector3, rot: float, scale_value: float, align 
 	return p
 
 
+## Copies a piece a little to the side (Tiny Glade's clone) and returns the
+## copy's id, or -1.
+func clone(id: int, offset := Vector2(1.6, 1.6)) -> int:
+	var f := find(id)
+	if f.is_empty():
+		return -1
+	var src: Dictionary = f.item
+	match f.type:
+		"props":
+			var pp: Vector3 = src.p + Vector3(offset.x, 0, offset.y)
+			pp.y = terrain.height_at(pp.x, pp.z) - 0.03
+			var p := add_prop(src.kind, pp, src.get("r", 0.0), src.get("s", 1.0), src.has("n"))
+			return p.id
+		"buildings":
+			var b: Dictionary = src.duplicate(true)
+			var size: Vector2 = b.get("size", Vector2(b.get("r", 2.0) * 2.0, b.get("r", 2.0) * 2.0))
+			b.c = (src.c as Vector2) + offset.normalized() * (maxf(size.x, size.y) + 1.0)
+			b.erase("seed")
+			return add_building(b).id
+		_:
+			var item: Dictionary = src.duplicate(true)
+			var pts: PackedVector2Array = item.pts
+			for i in pts.size():
+				pts[i] += offset
+			item.pts = pts
+			item.id = next_id()
+			data[f.type].append(item)
+			_make_view(f.type, item, true)
+			mark_interactions()
+			changed.emit()
+			return item.id
+
+
 func remove(id: int) -> void:
 	var f := find(id)
 	if f.is_empty():

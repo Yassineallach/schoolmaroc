@@ -1,7 +1,12 @@
 class_name DetailsTool
 extends BaseTool
 ## Tap walls of houses to add windows (doors at ground level), tap roofs for
-## dormers, or switch to chimney mode. Tap an existing window to remove it.
+## dormers, or switch to chimney mode. Tap an existing window to remove it,
+## or drag it along the wall: up to another storey, round a corner onto the
+## next side, or down to the ground where it turns into a door.
+
+var _grab: Dictionary = {}   # {b, w} while dragging a window
+var _moved := false
 
 
 func _init() -> void:
@@ -19,7 +24,80 @@ func option_defs() -> Array:
 
 
 func hint() -> String:
-	return "Tap a cottage wall to add a window. Low taps make doors, roof taps add dormers."
+	return "Tap a cottage wall to add a window; drag one to move it (to the ground for a door). Roof taps add dormers."
+
+
+func press(screen: Vector2) -> bool:
+	if options.mode == "chimney" or options.mode == "dormer":
+		return false
+	var hit := pick(screen, 8)
+	if hit.is_empty() or hit.kind != "building":
+		return false
+	var f := glade.find(hit.id)
+	var view: BuildingView = glade.views.get(hit.id)
+	if f.is_empty() or view == null:
+		return false
+	var b: Dictionary = f.item
+	var loc := view.locate(hit.point)
+	if loc.zone == "roof":
+		return false
+	var span: float = TAU * b.r if b.shape == "round" else (b.size.x if loc.side % 2 == 0 else b.size.y)
+	for w in b.windows:
+		if w.get("kind", "window") == "dormer" or w.side != loc.side or w.f != loc.f:
+			continue
+		var du: float = absf(w.u - loc.u)
+		if b.shape == "round":
+			du = minf(du, 1.0 - du)
+		if du * span < 0.6:
+			glade.begin_change()
+			_grab = {"b": b, "w": w}
+			_moved = false
+			return true
+	return false
+
+
+func drag(screen: Vector2) -> void:
+	if _grab.is_empty():
+		return
+	var hit := pick(screen, 8)
+	var b: Dictionary = _grab.b
+	if hit.is_empty() or hit.kind != "building" or hit.id != b.id:
+		return
+	var view: BuildingView = glade.views.get(b.id)
+	if view == null:
+		return
+	var loc := view.locate(hit.point)
+	if loc.zone == "roof":
+		return
+	var w: Dictionary = _grab.w
+	var door: bool = loc.y < Catalog.PLINTH + 0.9 and loc.f == 0
+	var kind := "door" if door else "window"
+	var nf: int = 0 if door else loc.f
+	if w.side == loc.side and w.f == nf and w.kind == kind and absf(w.u - loc.u) < 0.02:
+		return
+	w.side = loc.side
+	w.u = clampf(loc.u, 0.05, 0.95) if b.shape != "round" else loc.u
+	w.f = nf
+	if w.kind != kind:
+		Sfx.play("place_wood", -10.0)
+	w.kind = kind
+	_moved = true
+	glade.refresh(b.id)
+
+
+func release(_screen: Vector2) -> void:
+	if _grab.is_empty():
+		return
+	_grab = {}
+	if not _moved:
+		glade.undo_stack.pop_back()
+		return
+	Sfx.play("place_wood", -4.0)
+	Settings.vibrate(10)
+
+
+func cancel() -> void:
+	release(Vector2.ZERO)
 
 
 func tap(screen: Vector2) -> void:

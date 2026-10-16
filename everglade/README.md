@@ -141,6 +141,12 @@ countryside carries on beyond it into the haze, so it never feels like an island
 
 - **One finger on a build tool:** draw, paint or place. A tap places single items.
 - **One finger in Explore:** tap to select and edit, tap animals to pet them, drag the selected piece to move it, drag elsewhere to pan.
+- **Edit handles (Tiny Glade-style direct editing)** on the selected piece:
+  - walls, fences, paths: white dots along the base reshape the line (neighbouring points follow softly); a gold dot on top of a wall pulls its height.
+  - houses: gold dot on the wall top = floors, gold dot over the roof = roof pitch, green dots = stretch that side (the far side stays put), blue dot = turn. Towers get a green radius dot.
+  - props: blue dot turns them.
+  - **Copy** in the inspector duplicates any piece next to itself; **Eraser** rubbed over a wall cuts it.
+- **Windows tool:** tap a wall to add a window, drag an existing window along the wall (up a storey, round a corner) or down to the ground to turn it into a door.
 - **Two fingers:** pan, pinch to zoom (zooming in lowers the camera toward eye level), twist to rotate.
 - **Back button:** deselect → back to Explore → main menu.
 
@@ -248,7 +254,8 @@ Every wall (bare or rendered) has a facing pattern, chosen in the Walls tool or 
 | Ashlar | Large dressed blocks with fine joints |
 
 Arch voussoirs, quoins at wall ends and the coping stay the same for every pattern.
-`-- --wallstyles=/tmp/walls` renders one wall in each pattern.
+`-- --wallstyles=/tmp/walls` renders one wall in each pattern; `-- --handles=/tmp/h` drives the edit
+handles like a finger and prints PASS/FAIL.
 
 ## 6. Credits
 

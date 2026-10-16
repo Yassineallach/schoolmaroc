@@ -86,6 +86,11 @@ func _draw() -> void:
 			rect(0.12, 0.18, 0.18, 0.12, STONE)
 			rect(0.42, 0.18, 0.18, 0.12, STONE)
 			rect(0.72, 0.18, 0.18, 0.12, STONE)
+		"clone":
+			rect(0.34, 0.12, 0.5, 0.56, PAPER)
+			rect(0.16, 0.32, 0.5, 0.56, PAPER)
+			line([Vector2(0.41, 0.48), Vector2(0.41, 0.72)], INK, 0.06)
+			line([Vector2(0.29, 0.6), Vector2(0.53, 0.6)], INK, 0.06)
 		"wall_glade":
 			# hand-laid: rounded stones, big at the foot
 			for st in [[0.1, 0.66, 0.36, 0.24], [0.5, 0.68, 0.4, 0.22], [0.12, 0.44, 0.26, 0.18], [0.42, 0.45, 0.22, 0.18],

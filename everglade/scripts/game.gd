@@ -85,6 +85,8 @@ func _ready() -> void:
 			add_child(load("res://tests/soak.gd").new())
 		if a.begins_with("--wallstyles=") and ResourceLoader.exists("res://tests/wallstyles.gd"):
 			add_child(load("res://tests/wallstyles.gd").new())
+		if a.begins_with("--handles=") and ResourceLoader.exists("res://tests/handles.gd"):
+			add_child(load("res://tests/handles.gd").new())
 		if a.begins_with("--kitview=") and ResourceLoader.exists("res://tests/kitview.gd"):
 			add_child(load("res://tests/kitview.gd").new())
 		if a.begins_with("--showcase=") and ResourceLoader.exists("res://tests/showcase.gd"):
@@ -281,6 +283,7 @@ func _inspector_defs(f: Dictionary) -> Array:
 			if not round_b:
 				extra.append({"id": "chimney", "icon": "chimney", "label": "Chimney"})
 			extra.append({"id": "ivy", "icon": "ivy", "label": "Ivy"})
+			extra.append({"id": "clone", "icon": "clone", "label": "Copy"})
 			extra.append({"id": "delete", "icon": "trash", "label": "Remove"})
 			return [
 				{"type": "title", "text": "Tower" if round_b else "Cottage"},
@@ -304,15 +307,15 @@ func _inspector_defs(f: Dictionary) -> Array:
 					{"id": "brick", "label": "Brick", "icon": "wall_brick"}, {"id": "ashlar", "label": "Ashlar", "icon": "wall_ashlar"}]},
 				{"type": "slider", "key": "h", "label": "Height", "min": 0.8, "max": 7.0, "step": 0.1},
 				{"type": "colors", "key": "col", "colors": Catalog.STONE_COLORS},
-				{"type": "actions", "items": [{"id": "ivy", "icon": "ivy", "label": "Ivy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
-				{"type": "label", "text": "Paths through a wall open an archway; a path ending at it adds a door."},
+				{"type": "actions", "items": [{"id": "ivy", "icon": "ivy", "label": "Ivy"}, {"id": "clone", "icon": "clone", "label": "Copy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
+				{"type": "label", "text": "Pull the dots to reshape it and the top handle for height. Paths through a wall open an archway; a path ending at it adds a door."},
 			]
 		"fences":
 			return [
 				{"type": "title", "text": "Fence"},
 				{"type": "choice", "key": "style", "items": [
 					{"id": "wood", "label": "Rustic", "icon": "fence"}, {"id": "ornate", "label": "Ornate", "icon": "fence_ornate"}]},
-				{"type": "actions", "items": [{"id": "delete", "icon": "trash", "label": "Remove"}]},
+				{"type": "actions", "items": [{"id": "clone", "icon": "clone", "label": "Copy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
 				{"type": "label", "text": "Paths crossing a fence get a little gate."},
 			]
 		"paths":
@@ -322,7 +325,7 @@ func _inspector_defs(f: Dictionary) -> Array:
 					{"id": "dirt", "label": "Dirt", "icon": "path"}, {"id": "cobble", "label": "Cobbles", "icon": "cobble"},
 					{"id": "paved", "label": "Paved", "icon": "paved"}, {"id": "stones", "label": "Stepping", "icon": "stones"}]},
 				{"type": "slider", "key": "w", "label": "Width", "min": 0.8, "max": 3.2, "step": 0.1},
-				{"type": "actions", "items": [{"id": "delete", "icon": "trash", "label": "Remove"}]},
+				{"type": "actions", "items": [{"id": "clone", "icon": "clone", "label": "Copy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
 			]
 		"props":
 			return [
@@ -330,8 +333,8 @@ func _inspector_defs(f: Dictionary) -> Array:
 				{"type": "actions", "items": [
 					{"id": "rotl", "icon": "rotl", "label": "Turn"}, {"id": "rotr", "icon": "rotr", "label": "Turn"},
 					{"id": "bigger", "icon": "plus", "label": "Bigger"}, {"id": "smaller", "icon": "minus", "label": "Smaller"},
-					{"id": "delete", "icon": "trash", "label": "Remove"}]},
-				{"type": "label", "text": "Drag it to move it around."},
+					{"id": "clone", "icon": "clone", "label": "Copy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
+				{"type": "label", "text": "Drag it to move it; pull the blue handle to turn it."},
 			]
 	return []
 
@@ -373,6 +376,16 @@ func _on_inspector_action(action: String, value: Variant) -> void:
 			glade.remove(selected_id)
 			Sfx.play("erase")
 			select(-1)
+			return
+		"clone":
+			var copy := glade.clone(selected_id)
+			if copy >= 0:
+				Sfx.play("place_stone", -4.0)
+				Settings.vibrate(12)
+				select(copy)
+			else:
+				glade.undo_stack.pop_back()
+			_update_undo()
 			return
 		"floors":
 			item.floors = clampi(item.floors + int(value), 1, 6)
