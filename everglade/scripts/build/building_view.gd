@@ -19,6 +19,9 @@ var lamps: Array[Vector3] = []   # local positions of wall lanterns (lit at nigh
 var eave := 3.0
 var roof_h := 2.0
 var _deco_root: Node3D
+## Footprints (in this house's local XZ) of houses joined onto it; set by the
+## Glade before build(). Windows and doors buried inside them are left out.
+var joins: Array = []
 var _preview := false
 var _rng := RandomNumberGenerator.new()
 const LIMESTONE := Color(0.80, 0.76, 0.67)
@@ -81,6 +84,8 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 	transform = Transform3D(local_basis(d.get("rot", 0.0)), Vector3(c.x, base, c.y))
 	var floors: int = clampi(d.get("floors", 1), 1, 8)
 	eave = PL + floors * FH
+	if d.get("roof_only", false):
+		eave = float(d.get("eave", 2.4))
 	var mb := MeshBuilder.new()
 	var deco := DecoMerge.new()
 	var seed_value: int = d.get("seed", 1)
@@ -151,6 +156,10 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 	if style == "stone":
 		wcol = Color(stone_col.r * 1.05, stone_col.g * 1.05, stone_col.b * 1.05, 0.25)
 	var corners := [Vector3(-L / 2, 0, -W / 2), Vector3(L / 2, 0, -W / 2), Vector3(L / 2, 0, W / 2), Vector3(-L / 2, 0, W / 2)]
+	if d.get("roof_only", false):
+		# a roof laid over a ring of the player's own walls
+		_rect_roof(mb, d, L, W, roof, pitch, roof_col, Color(stone_col.r, stone_col.g, stone_col.b, 0.25), stone_col, "stone")
+		return
 	# foundation plinth (slightly proud of the walls)
 	var fl := L + 0.16
 	var fw := W + 0.16
@@ -176,25 +185,7 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 	for i in 4:
 		faces.append({"a": corners[(i + 1) % 4] + Vector3.UP * 0.0, "b": corners[i], "n": _side_normal(corners, i), "h": eave * 0.9})
 	# roof
-	roof_h = 0.0
-	match roof:
-		"flat":
-			_flat_rect_roof(mb, L, W, stone_col if style == "stone" else Color(0.74, 0.71, 0.66, 0.25))
-			perches.append(Vector3(0, eave + 0.9, -W / 2))
-		"hip":
-			roof_h = W * 0.5 * 0.95 * pitch
-			_hip_roof(mb, L, W, roof_h, roof_col)
-			perches.append(Vector3(0, eave + roof_h + 0.1, 0))
-		_ when style == "lakeside":
-			roof_h = W * 0.5 * 0.8 * pitch
-			_lakeside_roof(mb, L, W, roof_h, roof_col, wcol)
-			perches.append(Vector3(0, eave + roof_h + 0.2, 0))
-
-		_:
-			roof_h = W * 0.5 * 1.05 * pitch
-			_gable_roof(mb, L, W, roof_h, roof_col, wcol)
-			perches.append(Vector3(-L * 0.3, eave + roof_h + 0.15, 0))
-			perches.append(Vector3(L * 0.3, eave + roof_h + 0.15, 0))
+	_rect_roof(mb, d, L, W, roof, pitch, roof_col, wcol, stone_col, style)
 	# style trims
 	if style == "windrise":
 		_windrise(mb, corners, floors, d, auto_doors)
@@ -209,14 +200,19 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 		for f in range(1, floors):
 			var y := PL + f * FH
 			_band(mb, corners, y, 0.14, 0.05, Color(wall_col.r * 0.9, wall_col.g * 0.88, wall_col.b * 0.85, 1.0))
-	# openings
+	# openings (none where another house is joined on)
 	var doors_done: Array = []
 	for door in auto_doors:
+		if _in_join(_side_point(corners, door.side, door.u)):
+			continue
 		_place_rect_door(deco, corners, door.side, door.u, style)
 		doors_done.append(door)
 	var lake := style == "lakeside"
 	var shutters := rng.randf() < 0.55 and style != "stone" and not lake
 	var boxes := rng.randf() < 0.6 and not lake
+	# windows and doors placed side by side merge into wide windows,
+	# galleries and double doors
+	var groups: Dictionary = {}   # "side:f:kind" -> [u...]
 	for w in d.get("windows", []):
 		var side: int = w.side
 		var u: float = w.u
@@ -224,34 +220,64 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 		var kind: String = w.get("kind", "window")
 		if f >= floors and kind != "dormer":
 			continue
+		if kind != "dormer" and _in_join(_side_point(corners, side, u)):
+			continue
 		var blocked := false
 		for dd in doors_done:
 			if dd.side == side and f == 0 and absf(dd.u - u) * _side_len(corners, side) < 1.0:
 				blocked = true
 		if blocked:
 			continue
-		match kind:
-			"door":
-				_place_rect_door(deco, corners, side, u, style)
-			"dormer":
-				if (roof == "gable" or roof == "hip") and not lake:
-					_place_dormer(deco, L, W, side, u)
-			_:
+		if kind == "dormer":
+			if (roof == "gable" or roof == "hip") and not lake:
+				_place_dormer(deco, L, W, side, u)
+			continue
+		var key := "%d:%d:%s" % [side, f, kind]
+		if not groups.has(key):
+			groups[key] = []
+		groups[key].append(u)
+	for key in groups:
+		var parts: PackedStringArray = (key as String).split(":")
+		var side := int(parts[0])
+		var f := int(parts[1])
+		var kind := parts[2]
+		var us: Array = groups[key]
+		us.sort()
+		var len_side := _side_len(corners, side)
+		var reach := 1.85 if kind == "window" else 1.75
+		var i := 0
+		while i < us.size():
+			var j := i
+			while j + 1 < us.size() and (float(us[j + 1]) - float(us[j])) * len_side < reach:
+				j += 1
+			var u0: float = us[i]
+			var u1: float = us[j]
+			var uc := (u0 + u1) * 0.5
+			var extra := (u1 - u0) * len_side
+			if kind == "door":
+				_place_rect_door(deco, corners, side, uc, style, (extra + 1.5) / 1.5)
+			else:
 				var a: Vector3 = corners[side]
 				var b: Vector3 = corners[(side + 1) % 4]
 				var n := _side_normal(corners, side)
-				var p := a.lerp(b, u) + Vector3.UP * (PL + f * FH + 1.35)
+				var p := a.lerp(b, uc) + Vector3.UP * (PL + f * FH + 1.35)
+				# under the eaves, keep the window head clear of the roof overhang
+				if side % 2 == 0 and roof != "flat" and roof_h > 0.0:
+					var slope_k := roof_h / (W * 0.5)
+					p.y = minf(p.y, eave - 0.34 * slope_k - 1.0)
 				# laid-stone storeys keep their deep stone surrounds bare, and sit
 				# the window on the stone face (windrise stone is set 4 cm proud)
 				var in_stone := style == "stone" or (style == "windrise" and f == 0 and floors > 1)
 				if in_stone and style == "windrise" and not _preview:
 					p += n * 0.05
-				var xf := Transform3D(DecoMerge.facing(n), p)
+				var sx := (extra + 1.4) / 1.4
+				var xf := Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, 1, 1)), p)
 				deco.add("window_lattice" if lake else "window_frame", xf)
-				if shutters and not (in_stone and not _preview):
+				if shutters and j == i and not (in_stone and not _preview):
 					deco.add("shutters", xf)
 				if boxes and f == 0:
 					deco.add("flower_box", xf)
+			i = j + 1
 	# chimney
 	var ch: float = d.get("chimney", NO_CHIMNEY)
 	if ch > NO_CHIMNEY + 1.0:
@@ -263,6 +289,31 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 		set_meta("smoke_at", Vector3(cx, y_roof - 0.5 + 1.25 * sy + 0.1, cz))
 	elif has_meta("smoke_at"):
 		remove_meta("smoke_at")
+
+
+
+
+func _rect_roof(mb: MeshBuilder, d: Dictionary, L: float, W: float, roof: String, pitch: float, roof_col: Color,
+		wcol: Color, stone_col: Color, style: String) -> void:
+	var curve: float = d.get("curve", 0.0)
+	roof_h = 0.0
+	match roof:
+		"flat":
+			_flat_rect_roof(mb, L, W, stone_col if style == "stone" else Color(0.74, 0.71, 0.66, 0.25))
+			perches.append(Vector3(0, eave + 0.9, -W / 2))
+		"hip":
+			roof_h = W * 0.5 * 0.95 * pitch
+			_hip_roof(mb, L, W, roof_h, roof_col, curve)
+			perches.append(Vector3(0, eave + roof_h + 0.1, 0))
+		_ when style == "lakeside":
+			roof_h = W * 0.5 * 0.8 * pitch
+			_lakeside_roof(mb, L, W, roof_h, roof_col, wcol)
+			perches.append(Vector3(0, eave + roof_h + 0.2, 0))
+		_:
+			roof_h = W * 0.5 * 1.05 * pitch
+			_gable_roof(mb, L, W, roof_h, roof_col, wcol, curve)
+			perches.append(Vector3(-L * 0.3, eave + roof_h + 0.15, 0))
+			perches.append(Vector3(L * 0.3, eave + roof_h + 0.15, 0))
 
 
 func _side_len(corners: Array, side: int) -> float:
@@ -350,7 +401,45 @@ func _timber(mb: MeshBuilder, corners: Array, floors: int, d: Dictionary, doors:
 				mb.box(Transform3D(basis, mid), Vector3(0.12, 1.5, 0.07), beam)
 
 
-func _gable_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color, wall_col: Color) -> void:
+## Height offset of a roof profile at t (0 eave .. 1 ridge): positive curve
+## bulges the slopes into a rounded roof, negative sags them into a flared,
+## swept roof. Zero is the straight slope.
+## `t0` is where the wall line meets the slope: the curve only starts inside
+## it, so the roof keeps its height above the walls and window heads.
+static func _bow(t: float, rh: float, curve: float, t0 := 0.0) -> float:
+	var u := clampf((t - t0) / maxf(1.0 - t0, 0.01), 0.0, 1.0)
+	return rh * curve * 0.32 * sin(PI * u)
+
+
+## One roof face from the eave edge (el, er) up to the ridge edge (rl, rr),
+## cut into bands that follow the curve; tiles, underside and all.
+func _roof_face(mb: MeshBuilder, el: Vector3, er: Vector3, rl: Vector3, rr: Vector3, rh: float, curve: float,
+		tile: Color, under: Color, tc: Color, t0 := 0.0) -> void:
+	var bands := 1 if absf(curve) < 0.02 else 4
+	var dn := Vector3.DOWN * 0.14
+	for k in bands:
+		var ta := float(k) / bands
+		var tb := float(k + 1) / bands
+		var a0 := el.lerp(rl, ta) + Vector3.UP * _bow(ta, rh, curve, t0)
+		var b0 := er.lerp(rr, ta) + Vector3.UP * _bow(ta, rh, curve, t0)
+		var a1 := el.lerp(rl, tb) + Vector3.UP * _bow(tb, rh, curve, t0)
+		var b1 := er.lerp(rr, tb) + Vector3.UP * _bow(tb, rh, curve, t0)
+		var w0 := a0.distance_to(b0)
+		var sl := ((a0 + b0) * 0.5).distance_to((a1 + b1) * 0.5)
+		var up := (b0 - a0).cross(a1 - a0)
+		if up.length_squared() < 1e-8:
+			up = (b1 - a1).cross(a1 - a0)
+		up = up.normalized()
+		if up.y < 0.0:
+			up = -up
+		mb.quad_facing(a0, b0, b1, a1, up, tile, up, up, up, up,
+				Vector2(0, 0), Vector2(w0, 0), Vector2(w0, sl), Vector2(0, sl))
+		mb.quad_facing(a0 + dn, b0 + dn, b1 + dn, a1 + dn, -up, under)
+		if not _preview:
+			Roofing.slope(mb, a1, b1, a0, b0, tc, _rng)
+
+
+func _gable_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color, wall_col: Color, curve := 0.0) -> void:
 	var ov := 0.38
 	var ovx := 0.32
 	var slope := rh / (W * 0.5)
@@ -362,39 +451,50 @@ func _gable_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color
 	var tile := Color(roof_col.r, roof_col.g, roof_col.b, 0.75)
 	var under := Color(0.42, 0.30, 0.22, 0.5)
 	var fascia := Color(roof_col.r * 0.7, roof_col.g * 0.7, roof_col.b * 0.7, 1.0)
-	var slant := sqrt(zw * zw + (yr - ye) * (yr - ye))
-	var th := 0.14
-	# gable triangles (walls)
-	mb.tri(Vector3(L / 2, eave, W / 2), Vector3(L / 2, eave, -W / 2), Vector3(L / 2, yr, 0), wall_col,
-			Vector2(0, eave), Vector2(W, eave), Vector2(W / 2, yr))
-	mb.tri(Vector3(-L / 2, eave, -W / 2), Vector3(-L / 2, eave, W / 2), Vector3(-L / 2, yr, 0), wall_col,
-			Vector2(0, eave), Vector2(W, eave), Vector2(W / 2, yr))
+	var tc := Color(roof_col.r, roof_col.g, roof_col.b, 1.0)
+	var span := yr - ye
+	var tw := ov / zw   # where the wall line meets the slope
+	# gable end walls: follow the (possibly curved) roof profile
+	var steps := 1 if absf(curve) < 0.02 else 6
+	for xs in [L / 2, -L / 2]:
+		var prof: Array = []
+		for side in [-1.0, 1.0]:
+			for k in steps + 1:
+				var t := float(k) / steps
+				var z: float = side * (W / 2) * (1.0 - t)
+				# the roof surface above the wall plane (eave at the wall, not the overhang)
+				var tq := 1.0 - (W / 2) * (1.0 - t) / zw
+				var y := ye + span * tq + _bow(tq, rh, curve, tw)
+				prof.append(Vector3(xs, maxf(y, eave), z))
+		var foot := Vector3(xs, eave, 0)
+		var pts: Array = [Vector3(xs, eave, -W / 2)]
+		for k in steps + 1:
+			pts.append(prof[k])
+		for k in range(steps, -1, -1):
+			pts.append(prof[steps + 1 + k])
+		pts.append(Vector3(xs, eave, W / 2))
+		for i in pts.size() - 1:
+			var pa: Vector3 = pts[i]
+			var pb: Vector3 = pts[i + 1]
+			var facing := Vector3(signf(xs), 0, 0)
+			mb.tri_facing(foot, pa, pb, facing, wall_col)
 	# slopes (front z<0, back z>0)
-	mb.quad(Vector3(x1, ye, -zw), Vector3(x0, ye, -zw), Vector3(x0, yr, 0), Vector3(x1, yr, 0), tile,
-			Vector2(0, 0), Vector2(x1 - x0, 0), Vector2(x1 - x0, slant), Vector2(0, slant))
-	mb.quad(Vector3(x0, ye, zw), Vector3(x1, ye, zw), Vector3(x1, yr, 0), Vector3(x0, yr, 0), tile,
-			Vector2(0, 0), Vector2(x1 - x0, 0), Vector2(x1 - x0, slant), Vector2(0, slant))
-	if not _preview:
-		var tc := Color(roof_col.r, roof_col.g, roof_col.b, 1.0)
-		Roofing.slope(mb, Vector3(x0, yr, 0), Vector3(x1, yr, 0), Vector3(x0, ye, -zw), Vector3(x1, ye, -zw), tc, _rng)
-		Roofing.slope(mb, Vector3(x0, yr, 0), Vector3(x1, yr, 0), Vector3(x0, ye, zw), Vector3(x1, ye, zw), tc, _rng)
-	# undersides
-	var dn := Vector3.DOWN * th
-	mb.quad(Vector3(x0, ye, -zw) + dn, Vector3(x1, ye, -zw) + dn, Vector3(x1, yr, 0) + dn, Vector3(x0, yr, 0) + dn, under)
-	mb.quad(Vector3(x1, ye, zw) + dn, Vector3(x0, ye, zw) + dn, Vector3(x0, yr, 0) + dn, Vector3(x1, yr, 0) + dn, under)
+	_roof_face(mb, Vector3(x0, ye, -zw), Vector3(x1, ye, -zw), Vector3(x0, yr, 0), Vector3(x1, yr, 0), rh, curve, tile, under, tc, tw)
+	_roof_face(mb, Vector3(x1, ye, zw), Vector3(x0, ye, zw), Vector3(x1, yr, 0), Vector3(x0, yr, 0), rh, curve, tile, under, tc, tw)
+	var dn := Vector3.DOWN * 0.14
 	# eave fascia
 	mb.quad(Vector3(x1, ye, -zw) + dn, Vector3(x0, ye, -zw) + dn, Vector3(x0, ye, -zw), Vector3(x1, ye, -zw), fascia)
 	mb.quad(Vector3(x0, ye, zw) + dn, Vector3(x1, ye, zw) + dn, Vector3(x1, ye, zw), Vector3(x0, ye, zw), fascia)
-	# barge boards along the gable rakes
+	# barge boards along the gable rakes, following the curve
+	var bands := 1 if absf(curve) < 0.02 else 4
 	for xs in [x0, x1]:
-		var sgn := 1.0 if xs > 0 else -1.0
 		for zs in [-zw, zw]:
-			var e := Vector3(xs, ye, zs)
-			var r := Vector3(xs, yr, 0)
-			if (sgn > 0) == (zs > 0):
-				mb.quad(e + dn, r + dn, r, e, fascia)
-			else:
-				mb.quad(r + dn, e + dn, e, r, fascia)
+			for k in bands:
+				var t0 := float(k) / bands
+				var t1 := float(k + 1) / bands
+				var e := Vector3(xs, ye, zs).lerp(Vector3(xs, yr, 0), t0) + Vector3.UP * _bow(t0, rh, curve, tw)
+				var r := Vector3(xs, ye, zs).lerp(Vector3(xs, yr, 0), t1) + Vector3.UP * _bow(t1, rh, curve, tw)
+				mb.quad_facing(e + dn, r + dn, r, e, Vector3(signf(xs), 0, 0), fascia)
 	# ridge with gold finials at both gable ends
 	mb.box(Transform3D(Basis(Vector3.RIGHT, PI / 4), Vector3(0, yr + 0.02, 0)), Vector3(x1 - x0 + 0.08, 0.2, 0.2), fascia)
 	var gold := Color(0.95, 0.74, 0.30, 1.0)
@@ -403,7 +503,7 @@ func _gable_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color
 		mb.box(Transform3D(Basis(Vector3.RIGHT, PI / 4), Vector3(xs, yr + 0.48, 0)), Vector3(0.1, 0.16, 0.16), gold)
 
 
-func _hip_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color) -> void:
+func _hip_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color, curve := 0.0) -> void:
 	var ov := 0.38
 	var slope := rh / (W * 0.5)
 	var ye := eave - ov * slope
@@ -414,27 +514,19 @@ func _hip_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color) 
 	var tile := Color(roof_col.r, roof_col.g, roof_col.b, 0.75)
 	var under := Color(0.42, 0.30, 0.22, 0.5)
 	var fascia := Color(roof_col.r * 0.7, roof_col.g * 0.7, roof_col.b * 0.7, 1.0)
+	var tc := Color(roof_col.r, roof_col.g, roof_col.b, 1.0)
 	var e0 := Vector3(-xw, ye, -zw)
 	var e1 := Vector3(xw, ye, -zw)
 	var e2 := Vector3(xw, ye, zw)
 	var e3 := Vector3(-xw, ye, zw)
 	var r0 := Vector3(-rx, yr, 0)
 	var r1 := Vector3(rx, yr, 0)
-	var slant := sqrt(zw * zw + (yr - ye) * (yr - ye))
-	var sx := 2.0 * xw
-	mb.quad(e1, e0, r0, r1, tile, Vector2(0, 0), Vector2(sx, 0), Vector2(xw + rx, slant), Vector2(xw - rx, slant))
-	mb.quad(e3, e2, r1, r0, tile, Vector2(0, 0), Vector2(sx, 0), Vector2(xw + rx, slant), Vector2(xw - rx, slant))
-	var sz := 2.0 * zw
-	mb.tri(e2, e1, r1, tile, Vector2(0, 0), Vector2(sz, 0), Vector2(zw, slant))
-	mb.tri(e0, e3, r0, tile, Vector2(0, 0), Vector2(sz, 0), Vector2(zw, slant))
-	if not _preview:
-		var tc := Color(roof_col.r, roof_col.g, roof_col.b, 1.0)
-		Roofing.slope(mb, r0, r1, e0, e1, tc, _rng)
-		Roofing.slope(mb, r0, r1, e3, e2, tc, _rng)
-		Roofing.slope(mb, r1, r1, e1, e2, tc, _rng)
-		Roofing.slope(mb, r0, r0, e0, e3, tc, _rng)
+	var tw := ov / zw
+	_roof_face(mb, e0, e1, r0, r1, rh, curve, tile, under, tc, tw)
+	_roof_face(mb, e2, e3, r1, r0, rh, curve, tile, under, tc, tw)
+	_roof_face(mb, e1, e2, r1, r1, rh, curve, tile, under, tc, tw)
+	_roof_face(mb, e3, e0, r0, r0, rh, curve, tile, under, tc, tw)
 	var dn := Vector3.DOWN * 0.14
-	mb.quad(e0 + dn, e1 + dn, e2 + dn, e3 + dn, under)
 	var ring := [e0, e1, e2, e3]
 	for i in 4:
 		var a: Vector3 = ring[i]
@@ -486,6 +578,11 @@ func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNu
 	var stone_col := Color(0.76, 0.73, 0.68, 0.25)
 	var wcol := stone_col if style == "stone" else Color(wall_col.r, wall_col.g, wall_col.b, 0.0)
 	var segs := clampi(int(R * 9.0), 14, 30)
+	var ro: bool = d.get("roof_only", false)
+	if ro:
+		# a spire laid over a round ring of the player's own walls
+		_round_roof(mb, deco, R, roof, pitch, roof_col, stone_col, segs)
+		return
 	if style == "windrise":
 		_round_windrise(mb, R, floors, segs, d, auto_doors)
 	if _preview:
@@ -513,6 +610,26 @@ func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNu
 		var pb := Vector3(cos(a1), 0, sin(a1)) * R
 		faces.append({"a": pb, "b": pa, "n": ((pa + pb) * 0.5).normalized(), "h": eave * 0.9})
 		i += chunk
+	_round_roof(mb, deco, R, roof, pitch, roof_col, stone_col, segs)
+	# doors from paths
+	for door in auto_doors:
+		_place_round_opening(deco, R, door.u, 0, "door", rng)
+	var boxes := rng.randf() < 0.4
+	for w in d.get("windows", []):
+		var f: int = w.f
+		if f >= floors:
+			continue
+		var kind: String = w.get("kind", "window")
+		var skip := false
+		for door in auto_doors:
+			if f == 0 and absf(angle_difference(door.u * TAU, w.u * TAU)) * R < 1.0:
+				skip = true
+		if not skip:
+			_place_round_opening(deco, R, w.u, f, kind, rng, boxes)
+
+
+func _round_roof(mb: MeshBuilder, deco: DecoMerge, R: float, roof: String, pitch: float, roof_col: Color,
+		stone_col: Color, segs: int) -> void:
 	roof_h = 0.0
 	if roof == "flat":
 		_cylinder(mb, R + 0.18, eave - 0.3, eave + 0.55, segs, stone_col)
@@ -553,21 +670,6 @@ func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNu
 			Roofing.cone(mb, apex, ye, rr, Color(roof_col.r, roof_col.g, roof_col.b, 1.0), _rng)
 		deco.add("weathervane", Transform3D(Basis.IDENTITY, apex + Vector3.DOWN * 0.1))
 		perches.append(apex + Vector3.UP * 0.9)
-	# doors from paths
-	for door in auto_doors:
-		_place_round_opening(deco, R, door.u, 0, "door", rng)
-	var boxes := rng.randf() < 0.4
-	for w in d.get("windows", []):
-		var f: int = w.f
-		if f >= floors:
-			continue
-		var kind: String = w.get("kind", "window")
-		var skip := false
-		for door in auto_doors:
-			if f == 0 and absf(angle_difference(door.u * TAU, w.u * TAU)) * R < 1.0:
-				skip = true
-		if not skip:
-			_place_round_opening(deco, R, w.u, f, kind, rng, boxes)
 
 
 func _place_round_opening(deco: DecoMerge, R: float, u: float, f: int, kind: String, rng: RandomNumberGenerator, boxes := false) -> void:
@@ -829,7 +931,21 @@ func _round_windrise(mb: MeshBuilder, R: float, floors: int, segs: int, d: Dicti
 # ---------------------------------------------------------------------------
 # Openings on rectangular walls
 # ---------------------------------------------------------------------------
-func _place_rect_door(deco: DecoMerge, corners: Array, side: int, u: float, style := "") -> void:
+func _side_point(corners: Array, side: int, u: float) -> Vector3:
+	var a: Vector3 = corners[side]
+	var b: Vector3 = corners[(side + 1) % 4]
+	return a.lerp(b, u) + _side_normal(corners, side) * 0.3
+
+
+## True when a point (local space) lies inside a house joined onto this one.
+func _in_join(p: Vector3) -> bool:
+	for poly in joins:
+		if Geometry2D.is_point_in_polygon(Vector2(p.x, p.z), poly):
+			return true
+	return false
+
+
+func _place_rect_door(deco: DecoMerge, corners: Array, side: int, u: float, style := "", sx := 1.0) -> void:
 	var a: Vector3 = corners[side]
 	var b: Vector3 = corners[(side + 1) % 4]
 	var n := _side_normal(corners, side)
@@ -838,13 +954,13 @@ func _place_rect_door(deco: DecoMerge, corners: Array, side: int, u: float, styl
 	var p := a.lerp(b, uu)
 	if style == "lakeside":
 		# timber double door with red paper lanterns (they glow by night)
-		deco.add("door_wood", Transform3D(DecoMerge.facing(n), p + Vector3.UP * PL + n * 0.02))
+		deco.add("door_wood", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, 1, 1)), p + Vector3.UP * PL + n * 0.02))
 		deco.add("stair_step", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(1.4, 1.0, 1.4)), p + n * 0.3))
 		return
-	deco.add("door", Transform3D(DecoMerge.facing(n), p + Vector3.UP * PL + n * 0.02))
-	deco.add("stair_step", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(1.2, 1.0, 1.4)), p + n * 0.3))
+	deco.add("door", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, 1, 1)), p + Vector3.UP * PL + n * 0.02))
+	deco.add("stair_step", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(1.2 * sx, 1.0, 1.4)), p + n * 0.3))
 	var along := (b - a).normalized()
-	var side_off := 0.85 if uu * l + 0.85 < l - 0.2 else -0.85
+	var side_off := 0.85 * sx if uu * l + 0.85 * sx < l - 0.2 else -0.85 * sx
 	deco.add("wall_lantern", Transform3D(Basis.looking_at(n, Vector3.UP), p + along * side_off + Vector3.UP * (PL + 2.0) + n * 0.02))
 	lamps.append(p + along * side_off + Vector3.UP * (PL + 1.9) + n * 0.3)
 

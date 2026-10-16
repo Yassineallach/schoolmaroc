@@ -141,12 +141,25 @@ countryside carries on beyond it into the haze, so it never feels like an island
 
 - **One finger on a build tool:** draw, paint or place. A tap places single items.
 - **One finger in Explore:** tap to select and edit, tap animals to pet them, drag the selected piece to move it, drag elsewhere to pan.
-- **Edit handles (Tiny Glade-style direct editing)** on the selected piece:
-  - walls, fences, paths: white dots along the base reshape the line (neighbouring points follow softly); a gold dot on top of a wall pulls its height.
-  - houses: gold dot on the wall top = floors, gold dot over the roof = roof pitch, green dots = stretch that side (the far side stays put), blue dot = turn. Towers get a green radius dot.
+- **Edit handles (Tiny Glade-style direct editing)** on the selected piece (with a mouse they already
+  show when you hover over a piece):
+  - walls, fences, paths: white dots along the base reshape the line (neighbouring points follow softly);
+    a gold dot on top of a wall pulls its height. The inspector adds **More / Fewer points**,
+    **Straighten** and **Cut** (then tap where the scissors should go: the piece splits in two).
+  - houses: gold dot on the wall top = floors, gold dot over the roof = pull up/down for pitch and
+    sideways to round the roof out or flare it, green dots = stretch that side (the far side stays put),
+    blue dot = turn. Towers get a green radius dot. Roofs laid on walls get an eave-height dot.
   - props: blue dot turns them.
   - **Copy** in the inspector duplicates any piece next to itself; **Eraser** rubbed over a wall cuts it.
-- **Windows tool:** tap a wall to add a window, drag an existing window along the wall (up a storey, round a corner) or down to the ground to turn it into a door.
+- **Joined houses:** draw or drag a house into another and it squares up to it (within 12°), shares
+  its ground floor, and the windows and doors buried inside the other house disappear; the roofs meet
+  in a valley.
+- **Roofs tool:** tap a house to restyle its roof, or tap inside a ring of your own walls (one wall
+  drawn back to its start, or several walls whose ends meet) to roof it over: rectangular rings get a
+  gable/hip/flat roof fitted to them, round rings a spire.
+- **Windows tool:** tap a wall to add a window, drag an existing window along the wall (up a storey,
+  round a corner) or down to the ground to turn it into a door. Windows placed side by side merge into
+  a wide window or a gallery; doors side by side into a wide double door.
 - **Two fingers:** pan, pinch to zoom (zooming in lowers the camera toward eye level), twist to rotate.
 - **Back button:** deselect → back to Explore → main menu.
 
@@ -255,7 +268,8 @@ Every wall (bare or rendered) has a facing pattern, chosen in the Walls tool or 
 
 Arch voussoirs, quoins at wall ends and the coping stay the same for every pattern.
 `-- --wallstyles=/tmp/walls` renders one wall in each pattern; `-- --handles=/tmp/h` drives the edit
-handles like a finger and prints PASS/FAIL.
+handles, cuts, joins and roofs-on-walls like a finger and prints PASS/FAIL; `-- --editview=/tmp/e`
+stages joined houses, rounded/flared roofs, merged windows and roofs on walls for screenshots.
 
 ## 6. Credits
 

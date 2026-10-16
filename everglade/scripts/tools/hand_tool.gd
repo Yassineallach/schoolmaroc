@@ -7,7 +7,10 @@ extends BaseTool
 ##  - houses: pull the wall-top handle for floors, the roof handle for the
 ##    roof's pitch, the side handles to stretch the house (the far side stays
 ##    put) and the ring handle to turn it. Towers get a radius handle.
+##  - roofs: the roof handle drags up/down for pitch and sideways to round
+##    the roof out or flare it; roofs laid on walls get an eave handle.
 ##  - props: a ring handle turns them.
+## With a mouse, hovering a piece already shows its handles.
 ## Dragging the selected piece anywhere else moves it.
 
 const HANDLE_PX := 38.0         # touch radius of a handle on screen
@@ -25,6 +28,11 @@ var _for_id := -2
 var _drag: Dictionary = {}      # active handle drag
 var _pending := false
 var _since := 0.0
+## id of a wall/fence/path waiting to be cut where the player taps next
+var cut_id := -1
+## desktop: the piece under the mouse shows its handles before it is selected
+var _hover_id := -1
+var _hover_t := 0.0
 
 
 func _init() -> void:
@@ -38,6 +46,8 @@ func hint() -> String:
 
 func deactivate() -> void:
 	cancel()
+	cut_id = -1
+	_hover_id = -1
 	_clear_handles()
 	_for_id = -2
 
@@ -47,6 +57,13 @@ func deactivate() -> void:
 # ---------------------------------------------------------------------------
 func press(screen: Vector2) -> bool:
 	var sel: int = game.selected_id
+	if sel < 0 and _hover_id >= 0:
+		# grabbing a handle of the hovered piece selects it on the way
+		_sync_handles()
+		if not _handle_at(screen).is_empty():
+			game.select(_hover_id)
+			sel = _hover_id
+			_for_id = -2
 	if sel < 0:
 		return false
 	_sync_handles()
@@ -56,6 +73,18 @@ func press(screen: Vector2) -> bool:
 		if f.is_empty():
 			return false
 		glade.begin_change()
+		if h.kind == "pt":
+			# bend a finely sampled copy so the reshape stays smooth
+			var dense := Geo.resample(f.item.pts, 0.5)
+			if dense.size() > (f.item.pts as PackedVector2Array).size():
+				var hp := Vector2(h.pos.x, h.pos.z)
+				var bi := 0
+				for k in dense.size():
+					if dense[k].distance_to(hp) < dense[bi].distance_to(hp):
+						bi = k
+				f.item.pts = dense
+				h = h.duplicate()
+				h.i = bi
 		_drag = {"h": h, "f": f, "start": screen, "item0": f.item.duplicate(true)}
 		_moved = false
 		Sfx.play("click", -8.0)
@@ -150,6 +179,22 @@ func cancel() -> void:
 
 
 func tap(screen: Vector2) -> void:
+	if cut_id >= 0:
+		var target := cut_id
+		cut_id = -1
+		var g = ground(screen)
+		if g != null:
+			glade.begin_change()
+			var other := glade.split_line(target, Vector2(g.x, g.z))
+			if other >= 0:
+				Sfx.play("erase", -2.0)
+				Settings.vibrate(14)
+				game.select(target)
+				_for_id = -2
+				return
+			glade.undo_stack.pop_back()
+		Sfx.play("nope", -8.0)
+		return
 	var hit := pick(screen)
 	if hit.is_empty() or hit.kind == "terrain":
 		game.select(-1)
@@ -163,6 +208,7 @@ func _process(delta: float) -> void:
 		if _handle_root and _handle_root.visible:
 			_handle_root.visible = false
 		return
+	_update_hover(delta)
 	_sync_handles()
 	if _pending:
 		_since += delta
@@ -183,8 +229,25 @@ func _process(delta: float) -> void:
 # ---------------------------------------------------------------------------
 # Handles
 # ---------------------------------------------------------------------------
+## Desktop only: show the handles of whatever is under the mouse.
+func _update_hover(delta: float) -> void:
+	if DisplayServer.is_touchscreen_available() or game.selected_id >= 0 or not _drag.is_empty() or not moving.is_empty():
+		_hover_id = -1
+		return
+	_hover_t -= delta
+	if _hover_t > 0.0:
+		return
+	_hover_t = 0.12
+	var hit := pick(get_viewport().get_mouse_position())
+	var id: int = -1 if hit.is_empty() or hit.kind == "terrain" else int(hit.get("id", -1))
+	# keep showing while the mouse travels to one of the handles
+	if id < 0 and _hover_id >= 0 and not _handle_at(get_viewport().get_mouse_position(), 70.0).is_empty():
+		return
+	_hover_id = id
+
+
 func _sync_handles() -> void:
-	var sel: int = game.selected_id
+	var sel: int = game.selected_id if game.selected_id >= 0 else _hover_id
 	if sel == _for_id and _handle_root and _handle_root.visible == (sel >= 0):
 		return
 	_for_id = sel
@@ -207,7 +270,8 @@ func _place_handles(type: String, item: Dictionary) -> void:
 	match type:
 		"walls", "fences", "paths":
 			var pts: PackedVector2Array = item.pts
-			var step := maxi(1, int(ceil(float(pts.size() - 1) / (LINE_HANDLES - 1))))
+			var knots: int = clampi(int(item.get("knots", LINE_HANDLES)), 2, 25)
+			var step := maxi(1, int(ceil(float(pts.size() - 1) / (knots - 1))))
 			var idx := range(0, pts.size(), step)
 			if idx[idx.size() - 1] != pts.size() - 1:
 				idx.append(pts.size() - 1)
@@ -224,7 +288,7 @@ func _place_handles(type: String, item: Dictionary) -> void:
 			var c3 := Vector3(item.c.x, base, item.c.y)
 			if item.shape == "round":
 				var r: float = item.r
-				_handles.append({"kind": "floors", "pos": c3 + Vector3(r + 0.1, eave, 0)})
+				_handles.append({"kind": "eave" if item.get("roof_only", false) else "floors", "pos": c3 + Vector3(r + 0.1, eave, 0)})
 				_handles.append({"kind": "radius", "pos": c3 + Vector3(0, 0.3, r + 0.2)})
 				if roof_h > 0.3:
 					_handles.append({"kind": "pitch", "pos": c3 + Vector3.UP * (eave + roof_h + 0.3)})
@@ -234,7 +298,7 @@ func _place_handles(type: String, item: Dictionary) -> void:
 				var az := Vector2(-sin(rot), cos(rot))
 				var s: Vector2 = item.size
 				var front: Vector2 = item.c - az * (s.y * 0.5 + 0.1)
-				_handles.append({"kind": "floors", "pos": Geo.v3(front, base + eave)})
+				_handles.append({"kind": "eave" if item.get("roof_only", false) else "floors", "pos": Geo.v3(front, base + eave)})
 				if roof_h > 0.3:
 					_handles.append({"kind": "pitch", "pos": c3 + Vector3.UP * (eave + roof_h + 0.3)})
 				_handles.append({"kind": "size_x", "pos": Geo.v3(item.c + ax * (s.x * 0.5 + 0.2), base + 0.4)})
@@ -283,7 +347,7 @@ static var _mats: Dictionary = {}
 static func _handle_material(kind: String) -> Material:
 	var col := Color(1.0, 0.98, 0.92)          # reshape points
 	match kind:
-		"wall_h", "floors", "pitch":
+		"wall_h", "floors", "pitch", "eave":
 			col = Color(1.0, 0.78, 0.3)        # heights
 		"size_x", "size_z", "radius":
 			col = Color(0.55, 0.85, 0.55)      # stretch
@@ -299,10 +363,10 @@ static func _handle_material(kind: String) -> Material:
 	return _mats[col]
 
 
-func _handle_at(screen: Vector2) -> Dictionary:
+func _handle_at(screen: Vector2, radius := HANDLE_PX) -> Dictionary:
 	var cam := camera()
 	var best: Dictionary = {}
-	var best_d := HANDLE_PX
+	var best_d := radius
 	for h in _handles:
 		if cam.is_position_behind(h.pos):
 			continue
@@ -326,7 +390,8 @@ func _drag_handle(screen: Vector2) -> void:
 			var g = ground(screen)
 			if g == null:
 				return
-			item.pts = _soft_move(item0.pts, h.i, Vector2(g.x, g.z) - (item0.pts as PackedVector2Array)[h.i])
+			item.pts = _soft_move(item0.pts, h.i, Vector2(g.x, g.z) - (item0.pts as PackedVector2Array)[h.i],
+					clampi(int(item.get("knots", LINE_HANDLES)), 2, 25))
 		"wall_h":
 			item.h = snappedf(clampf(float(item0.get("h", 2.4)) + dy * 0.012, 0.8, 7.0), 0.1)
 		"floors":
@@ -340,7 +405,14 @@ func _drag_handle(screen: Vector2) -> void:
 						if w.f >= old and w.get("kind", "window") == "window":
 							item.windows.append(w)
 		"pitch":
+			# up/down: steeper or flatter; left/right: rounder or more flared
+			var dx: float = screen.x - (_drag.start as Vector2).x
 			item.pitch = clampf(float(item0.get("pitch", 1.2)) + dy * 0.006, 0.5, 1.8)
+			item.curve = clampf(float(item0.get("curve", 0.0)) + dx * 0.006, -1.0, 1.0)
+			if absf(item.curve) < 0.06:
+				item.curve = 0.0
+		"eave":
+			item.eave = clampf(float(item0.get("eave", 2.4)) + dy * 0.012, 0.8, 9.0)
 		"size_x", "size_z":
 			var g2 = ground(screen)
 			if g2 == null:
@@ -390,10 +462,10 @@ func _drag_handle(screen: Vector2) -> void:
 
 ## Moves point i by `d`, dragging neighbours along with a smooth falloff so
 ## the line bends instead of kinking.
-static func _soft_move(src: PackedVector2Array, i: int, d: Vector2) -> PackedVector2Array:
+static func _soft_move(src: PackedVector2Array, i: int, d: Vector2, knots := LINE_HANDLES) -> PackedVector2Array:
 	var pts := src.duplicate()
 	var n := pts.size()
-	var reach := maxf(2.0, float(n - 1) / (LINE_HANDLES - 1))
+	var reach := maxf(2.0, float(n - 1) / (knots - 1))
 	for j in n:
 		var k := absf(j - i) / reach
 		if k >= 1.0:

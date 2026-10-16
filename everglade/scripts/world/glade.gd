@@ -236,15 +236,25 @@ func add_building(b: Dictionary) -> Dictionary:
 	if batch:
 		return b
 	_make_view("buildings", b, true)
+	for o in joined_with(b):
+		if views.has(o.id):
+			_make_view("buildings", o, false)
 	_after_edit(Vector3(b.c.x, b.base, b.c.y), "building")
 	return b
 
 
 ## Levels the terrain under a building and stores its base height.
 func settle_building(b: Dictionary) -> void:
+	if b.get("roof_only", false):
+		return   # sits on the player's walls; its base was set when it was made
+	_glue(b)
 	var poly := BuildingView.footprint(b)
 	var target := terrain.average_height(poly)
 	target = maxf(target, Terrain.WATER_LEVEL + 0.15)
+	# a house joined onto another shares its ground floor level
+	var host := _join_host(b)
+	if not host.is_empty() and host.has("base"):
+		target = host.base
 	b.base = target
 	if batch:
 		terrain.flatten_polygon(poly, target, 1.4)
@@ -253,12 +263,198 @@ func settle_building(b: Dictionary) -> void:
 	terrain.flush()
 
 
+# ---------------------------------------------------------------------------
+# Wall rings (for roofs over the player's own walls)
+# ---------------------------------------------------------------------------
+const RING_SNAP := 1.3
+
+
+## The ring of walls enclosing p: one wall drawn back to its start, or a
+## chain of walls whose ends meet. Returns {poly, walls, h} or {}.
+func wall_ring_at(p: Vector2) -> Dictionary:
+	for w0 in data.walls:
+		var pts: PackedVector2Array = (w0.pts as PackedVector2Array).duplicate()
+		if pts.size() < 2:
+			continue
+		var used: Array = [w0]
+		var guard := 0
+		while pts[0].distance_to(pts[pts.size() - 1]) > RING_SNAP and guard < 8:
+			guard += 1
+			var tail: Vector2 = pts[pts.size() - 1]
+			var best: Dictionary = {}
+			var best_d := RING_SNAP
+			var flip := false
+			for w in data.walls:
+				if used.has(w):
+					continue
+				var wp: PackedVector2Array = w.pts
+				var d0 := wp[0].distance_to(tail)
+				var d1 := wp[wp.size() - 1].distance_to(tail)
+				if d0 < best_d:
+					best_d = d0
+					best = w
+					flip = false
+				if d1 < best_d:
+					best_d = d1
+					best = w
+					flip = true
+			if best.is_empty():
+				break
+			used.append(best)
+			var add: PackedVector2Array = (best.pts as PackedVector2Array).duplicate()
+			if flip:
+				add.reverse()
+			pts.append_array(add)
+		if pts.size() < 3 or pts[0].distance_to(pts[pts.size() - 1]) > RING_SNAP:
+			continue
+		if Geometry2D.is_point_in_polygon(p, pts):
+			var h := INF
+			for w in used:
+				h = minf(h, float(w.get("h", 2.4)))
+			return {"poly": pts, "walls": used, "h": h}
+	return {}
+
+
+## A roof (gable, hip, flat or spire) fitted over the wall ring enclosing p.
+func add_roof_over_walls(p: Vector2, roof: String, pitch: float, roof_col: Color) -> Dictionary:
+	var ring := wall_ring_at(p)
+	if ring.is_empty():
+		return {}
+	var poly: PackedVector2Array = ring.poly
+	var hull := Geometry2D.convex_hull(poly)
+	# smallest rectangle around the ring (rotating calipers over hull edges)
+	var best := {"area": INF}
+	for i in hull.size() - 1:
+		var e := hull[i + 1] - hull[i]
+		if e.length() < 0.05:
+			continue
+		var ang := e.angle()
+		var ax := Vector2(cos(ang), sin(ang))
+		var az := Vector2(-sin(ang), cos(ang))
+		var lo := Vector2(INF, INF)
+		var hi := -lo
+		for q in hull:
+			var l := Vector2(q.dot(ax), q.dot(az))
+			lo = lo.min(l)
+			hi = hi.max(l)
+		var sz := hi - lo
+		if sz.x * sz.y < best.area:
+			var mid := (lo + hi) * 0.5
+			best = {"area": sz.x * sz.y, "size": sz, "rot": ang, "c": ax * mid.x + az * mid.y}
+	var area := absf(_poly_area(poly))
+	var centroid := Vector2.ZERO
+	for q in poly:
+		centroid += q
+	centroid /= poly.size()
+	var size: Vector2 = best.size
+	var rot: float = best.rot
+	if size.y > size.x:
+		size = Vector2(size.y, size.x)
+		rot += PI * 0.5
+	var fill: float = area / maxf(best.area, 0.01)
+	var b := {"roof_only": true, "eave": float(ring.h) - 0.05, "floors": 1, "style": "stone", "windows": [],
+			"pitch": pitch, "roof_col": roof_col, "ivy": 0.0, "id": 0, "chimney": BuildingView.NO_CHIMNEY,
+			"wall_col": Catalog.WALL_COLORS[0]}
+	b.base = terrain.average_height(poly)
+	if roof == "cone" or (fill < 0.84 and size.y / size.x > 0.75):
+		var r := 0.0
+		for q in poly:
+			r += q.distance_to(centroid)
+		b.shape = "round"
+		b.c = centroid
+		b.r = r / poly.size() + 0.1
+		b.rot = 0.0
+		b.roof = "flat" if roof == "flat" else "cone"
+	else:
+		b.shape = "rect"
+		b.c = best.c
+		b.size = size + Vector2(0.3, 0.3)
+		b.rot = rot
+		b.roof = roof
+	return add_building(b)
+
+
+static func _poly_area(poly: PackedVector2Array) -> float:
+	var a := 0.0
+	for i in poly.size():
+		var j := (i + 1) % poly.size()
+		a += poly[i].x * poly[j].y - poly[j].x * poly[i].y
+	return a * 0.5
+
+
+# ---------------------------------------------------------------------------
+# Joined houses (Tiny Glade "glue")
+# ---------------------------------------------------------------------------
+## Other houses whose footprint overlaps b's (roofs on walls don't join).
+func joined_with(b: Dictionary) -> Array:
+	var out: Array = []
+	if b.get("roof_only", false) or not b.has("c"):
+		return out
+	var poly := Geometry2D.offset_polygon(BuildingView.footprint(b), 0.2)
+	if poly.is_empty():
+		return out
+	for o in data.buildings:
+		if o == b or o.get("roof_only", false) or not o.has("c"):
+			continue
+		if not Geometry2D.intersect_polygons(poly[0], BuildingView.footprint(o)).is_empty():
+			out.append(o)
+	return out
+
+
+## The biggest house b is joined onto, if any.
+func _join_host(b: Dictionary) -> Dictionary:
+	var best: Dictionary = {}
+	var best_a := _footprint_area(b)
+	for o in joined_with(b):
+		var a := _footprint_area(o)
+		if a > best_a:
+			best_a = a
+			best = o
+	return best
+
+
+static func _footprint_area(b: Dictionary) -> float:
+	return PI * b.r * b.r if b.shape == "round" else b.size.x * b.size.y
+
+
+## A house pushed against a bigger one squares up to it (within 12°).
+func _glue(b: Dictionary) -> void:
+	if b.shape != "rect":
+		return
+	var host := _join_host(b)
+	if host.is_empty() or host.shape != "rect":
+		return
+	var hr: float = host.get("rot", 0.0)
+	var r: float = b.get("rot", 0.0)
+	var quarter := PI * 0.5
+	var k := roundf((r - hr) / quarter)
+	if absf((r - hr) - k * quarter) < deg_to_rad(12.0):
+		b.rot = hr + k * quarter
+
+
+## Footprints of the houses joined onto b, in b's local XZ (for its view).
+func join_polys(b: Dictionary) -> Array:
+	var out: Array = []
+	if b.get("roof_only", false):
+		return out
+	var inv := Basis(Vector3.UP, float(b.get("rot", 0.0)))
+	for o in joined_with(b):
+		var local := PackedVector2Array()
+		for q in BuildingView.footprint(o):
+			var d: Vector2 = q - (b.c as Vector2)
+			var l := inv * Vector3(d.x, 0, d.y)
+			local.append(Vector2(l.x, l.z))
+		var grown := Geometry2D.offset_polygon(local, 0.05)
+		out.append(grown[0] if not grown.is_empty() else local)
+	return out
+
+
 ## Rebuilds the flat pads under every building (they sit on top of the
 ## terrain patches) and recomposes the ground.
 func sync_pads() -> void:
 	terrain.clear_pads()
 	for b in data.buildings:
-		if b.has("base"):
+		if b.has("base") and not b.get("roof_only", false):
 			terrain.pads.append([BuildingView.footprint(b), float(b.base), 1.4])
 	terrain.compose()
 
@@ -395,11 +591,50 @@ func clone(id: int, offset := Vector2(1.6, 1.6)) -> int:
 			return item.id
 
 
+## Cuts a wall, fence or path in two at the point nearest p (Tiny Glade's
+## scissors). Returns the new piece's id, or -1 when too close to an end.
+func split_line(id: int, p: Vector2) -> int:
+	var f := find(id)
+	if f.is_empty() or not f.type in ["walls", "fences", "paths"]:
+		return -1
+	var pts := Geo.resample(f.item.pts, 0.25)
+	var bi := 0
+	for k in pts.size():
+		if pts[k].distance_to(p) < pts[bi].distance_to(p):
+			bi = k
+	var a := pts.slice(0, bi + 1)
+	var b := pts.slice(bi)
+	if Geo.length(a) < 0.8 or Geo.length(b) < 0.8:
+		return -1
+	# leave a small gap where the scissors went through
+	var gap := 0.25
+	a = Geo.resample(a, 0.5)
+	b = Geo.resample(b, 0.5)
+	if a.size() >= 2:
+		a[a.size() - 1] = a[a.size() - 1] - (a[a.size() - 1] - a[a.size() - 2]).normalized() * gap
+	if b.size() >= 2:
+		b[0] = b[0] + (b[1] - b[0]).normalized() * gap
+	f.item.pts = a
+	var other: Dictionary = f.item.duplicate(true)
+	other.id = next_id()
+	other.pts = b
+	data[f.type].append(other)
+	_make_view(f.type, f.item, false)
+	_make_view(f.type, other, false)
+	mark_interactions()
+	changed.emit()
+	return other.id
+
+
 func remove(id: int) -> void:
 	var f := find(id)
 	if f.is_empty():
 		return
+	var neighbours: Array = joined_with(f.item) if f.type == "buildings" else []
 	data[f.type].erase(f.item)
+	for o in neighbours:
+		if views.has(o.id):
+			_make_view("buildings", o, false)
 	if views.has(id):
 		views[id].queue_free()
 		views.erase(id)
@@ -471,9 +706,18 @@ func refresh(id: int, animate := false) -> void:
 	if f.type == "props":
 		props.rebuild(data.props)
 	else:
+		var neighbours: Array = []
 		if f.type == "buildings":
+			neighbours = joined_with(f.item)
 			settle_building(f.item)
+			for o in joined_with(f.item):
+				if not neighbours.has(o):
+					neighbours.append(o)
 		_make_view(f.type, f.item, animate)
+		# houses joined before or after the edit hide or show their buried windows
+		for o in neighbours:
+			if views.has(o.id):
+				_make_view("buildings", o, false)
 		mark_interactions()
 	changed.emit()
 
@@ -508,6 +752,7 @@ func _make_view(type: String, item: Dictionary, animate: bool) -> Node3D:
 		"buildings":
 			v = BuildingView.new()
 			_roots.buildings.add_child(v)
+			v.joins = join_polys(item)
 			v.build(item, _openings.get(item.id, []))
 	views[item.id] = v
 	if animate and v.has_method("play_build_anim"):

@@ -87,6 +87,8 @@ func _ready() -> void:
 			add_child(load("res://tests/wallstyles.gd").new())
 		if a.begins_with("--handles=") and ResourceLoader.exists("res://tests/handles.gd"):
 			add_child(load("res://tests/handles.gd").new())
+		if a.begins_with("--editview=") and ResourceLoader.exists("res://tests/editview.gd"):
+			add_child(load("res://tests/editview.gd").new())
 		if a.begins_with("--kitview=") and ResourceLoader.exists("res://tests/kitview.gd"):
 			add_child(load("res://tests/kitview.gd").new())
 		if a.begins_with("--showcase=") and ResourceLoader.exists("res://tests/showcase.gd"):
@@ -307,6 +309,7 @@ func _inspector_defs(f: Dictionary) -> Array:
 					{"id": "brick", "label": "Brick", "icon": "wall_brick"}, {"id": "ashlar", "label": "Ashlar", "icon": "wall_ashlar"}]},
 				{"type": "slider", "key": "h", "label": "Height", "min": 0.8, "max": 7.0, "step": 0.1},
 				{"type": "colors", "key": "col", "colors": Catalog.STONE_COLORS},
+				{"type": "actions", "items": [{"id": "more_pts", "icon": "plus", "label": "More points"}, {"id": "fewer_pts", "icon": "minus", "label": "Fewer points"}, {"id": "straighten", "icon": "ruler", "label": "Straighten"}, {"id": "cut", "icon": "cut", "label": "Cut"}]},
 				{"type": "actions", "items": [{"id": "ivy", "icon": "ivy", "label": "Ivy"}, {"id": "clone", "icon": "clone", "label": "Copy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
 				{"type": "label", "text": "Pull the dots to reshape it and the top handle for height. Paths through a wall open an archway; a path ending at it adds a door."},
 			]
@@ -315,8 +318,9 @@ func _inspector_defs(f: Dictionary) -> Array:
 				{"type": "title", "text": "Fence"},
 				{"type": "choice", "key": "style", "items": [
 					{"id": "wood", "label": "Rustic", "icon": "fence"}, {"id": "ornate", "label": "Ornate", "icon": "fence_ornate"}]},
+				{"type": "actions", "items": [{"id": "more_pts", "icon": "plus", "label": "More points"}, {"id": "fewer_pts", "icon": "minus", "label": "Fewer points"}, {"id": "straighten", "icon": "ruler", "label": "Straighten"}, {"id": "cut", "icon": "cut", "label": "Cut"}]},
 				{"type": "actions", "items": [{"id": "clone", "icon": "clone", "label": "Copy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
-				{"type": "label", "text": "Paths crossing a fence get a little gate."},
+				{"type": "label", "text": "Pull the dots to reshape it. Paths crossing a fence get a little gate."},
 			]
 		"paths":
 			return [
@@ -325,6 +329,7 @@ func _inspector_defs(f: Dictionary) -> Array:
 					{"id": "dirt", "label": "Dirt", "icon": "path"}, {"id": "cobble", "label": "Cobbles", "icon": "cobble"},
 					{"id": "paved", "label": "Paved", "icon": "paved"}, {"id": "stones", "label": "Stepping", "icon": "stones"}]},
 				{"type": "slider", "key": "w", "label": "Width", "min": 0.8, "max": 3.2, "step": 0.1},
+				{"type": "actions", "items": [{"id": "more_pts", "icon": "plus", "label": "More points"}, {"id": "fewer_pts", "icon": "minus", "label": "Fewer points"}, {"id": "straighten", "icon": "ruler", "label": "Straighten"}, {"id": "cut", "icon": "cut", "label": "Cut"}]},
 				{"type": "actions", "items": [{"id": "clone", "icon": "clone", "label": "Copy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
 			]
 		"props":
@@ -377,6 +382,20 @@ func _on_inspector_action(action: String, value: Variant) -> void:
 			Sfx.play("erase")
 			select(-1)
 			return
+		"cut":
+			glade.undo_stack.pop_back()
+			(tools["hand"] as HandTool).cut_id = selected_id
+			hud.toast("Tap the spot to cut")
+			return
+		"more_pts", "fewer_pts":
+			var k: int = item.get("knots", HandTool.LINE_HANDLES)
+			item.knots = clampi(k + (3 if action == "more_pts" else -3), 3, 24)
+			(tools["hand"] as HandTool)._for_id = -2
+			_update_undo()
+			return
+		"straighten":
+			var pts: PackedVector2Array = item.pts
+			item.pts = Geo.resample(PackedVector2Array([pts[0], pts[pts.size() - 1]]), 1.0)
 		"clone":
 			var copy := glade.clone(selected_id)
 			if copy >= 0:

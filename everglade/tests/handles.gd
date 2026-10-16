@@ -122,5 +122,71 @@ func _run() -> void:
 	game.do_undo()
 	await _frames(3)
 	_check("undo removes the copy", g.data.buildings.size() == n0 and g.undo_stack.size() == undo0 - 1)
+	# --- roof curve: drag the roof handle sideways
+	house = g.find(house.id).item
+	game.select(house.id)
+	await _frames(5)
+	await _pull("pitch", Vector2(110, 0))
+	house = g.find(house.id).item
+	_check("sideways roof drag rounds the roof (curve %.2f)" % house.get("curve", 0.0), absf(house.get("curve", 0.0)) > 0.3)
+	await _focus(Geo.v3(house.c, house.base + 3.0), 16.0)
+	await _shot("4_curved_roof")
+	# --- wall points, straighten, cut
+	wall = g.data.walls[0]
+	game.select(wall.id)
+	game._on_inspector_action("more_pts", true)
+	wall = g.find(wall.id).item
+	_check("more points adds reshape dots", int(wall.get("knots", 9)) == 12)
+	game._on_inspector_action("straighten", true)
+	wall = g.find(wall.id).item
+	var pts: PackedVector2Array = wall.pts
+	var chord := pts[0].distance_to(pts[pts.size() - 1])
+	_check("straighten makes the wall straight", absf(Geo.length(pts) - chord) < 0.05)
+	var n_walls: int = g.data.walls.size()
+	game._on_inspector_action("cut", true)
+	var cut_at := pts[0].lerp(pts[pts.size() - 1], 0.5)
+	(game.tool as HandTool).tap(game.rig.camera.unproject_position(Geo.v3(cut_at, g.terrain.height_at_v(cut_at))))
+	await _frames(3)
+	_check("cut splits the wall in two", g.data.walls.size() == n_walls + 1)
+	# --- joined houses: a small house pushed into a big one squares up to it
+	game.select(-1)
+	var big: Dictionary = house
+	var rot0: float = big.get("rot", 0.0)
+	var ax := Vector2(cos(rot0), sin(rot0))
+	var az := Vector2(-sin(rot0), cos(rot0))
+	var small := g.add_building({"shape": "rect", "c": (big.c as Vector2) + az * (big.size.y * 0.5 + 1.6), "size": Vector2(4.0, 3.6),
+			"rot": rot0 + PI * 0.5 + 0.12, "floors": 1, "style": big.style, "roof": "gable", "pitch": 1.1,
+			"roof_col": big.roof_col, "wall_col": big.wall_col, "chimney": BuildingView.NO_CHIMNEY})
+	await _frames(3)
+	var drot := wrapf(float(small.rot) - rot0, -PI, PI)
+	_check("joined house squares up to its neighbour", absf(absf(drot) - PI * 0.5) < 0.001)
+	_check("joined house shares the ground floor level", absf(float(small.base) - float(big.base)) < 0.001)
+	var sv: BuildingView = g.views.get(small.id)
+	_check("joined house knows its neighbour's footprint", sv != null and sv.joins.size() >= 1)
+	await _focus(Geo.v3(small.c, small.base + 2.5), 15.0)
+	await _shot("5_joined_houses")
+	# --- windows side by side merge (no errors, wide frame)
+	small.windows = [{"side": 1, "u": 0.4, "f": 0, "kind": "window"}, {"side": 1, "u": 0.62, "f": 0, "kind": "window"}]
+	g.refresh(small.id)
+	await _frames(3)
+	_check("side-by-side windows build", g.views.has(small.id))
+	# --- roof over a ring of walls
+	var ring := PackedVector2Array()
+	var rc := Vector2(-14, 12)
+	for k in 25:
+		var a := TAU * k / 24.0
+		ring.append(rc + Vector2(cos(a), sin(a)) * 3.2)
+	var rw := g.add_wall(ring, 3.0, Catalog.STONE_COLORS[0], "stone", "glade")
+	await _frames(3)
+	var nb: int = g.data.buildings.size()
+	var roof := g.add_roof_over_walls(rc, "gable", 1.1, Catalog.ROOF_COLORS[1])
+	_check("roof tool roofs over a ring of walls", not roof.is_empty() and g.data.buildings.size() == nb + 1 and roof.get("roof_only", false))
+	_check("a round ring gets a spire", not roof.is_empty() and roof.shape == "round")
+	var sq := PackedVector2Array([Vector2(8, 14), Vector2(14, 14), Vector2(14, 18), Vector2(8, 18), Vector2(8, 14)])
+	g.add_wall(Geo.resample(sq, 1.0), 2.6, Catalog.STONE_COLORS[1], "stone", "classic")
+	var roof2 := g.add_roof_over_walls(Vector2(11, 16), "gable", 1.1, Catalog.ROOF_COLORS[0])
+	_check("a square ring gets a gable roof", not roof2.is_empty() and roof2.shape == "rect")
+	await _focus(Vector3(-2, 2.5, 15), 26.0)
+	await _shot("6_roofs_on_walls")
 	print("handles: %d failures" % fails)
 	get_tree().quit()

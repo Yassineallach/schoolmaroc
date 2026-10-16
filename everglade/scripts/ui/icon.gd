@@ -86,6 +86,11 @@ func _draw() -> void:
 			rect(0.12, 0.18, 0.18, 0.12, STONE)
 			rect(0.42, 0.18, 0.18, 0.12, STONE)
 			rect(0.72, 0.18, 0.18, 0.12, STONE)
+		"cut":
+			circle(Vector2(0.28, 0.74), 0.13, PAPER)
+			circle(Vector2(0.72, 0.74), 0.13, PAPER)
+			line([Vector2(0.36, 0.64), Vector2(0.7, 0.14)], INK, 0.07)
+			line([Vector2(0.64, 0.64), Vector2(0.3, 0.14)], INK, 0.07)
 		"clone":
 			rect(0.34, 0.12, 0.5, 0.56, PAPER)
 			rect(0.16, 0.32, 0.5, 0.56, PAPER)
