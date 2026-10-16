@@ -371,7 +371,13 @@ func add_roof_over_walls(p: Vector2, roof: String, pitch: float, roof_col: Color
 		b.size = size + Vector2(0.3, 0.3)
 		b.rot = rot
 		b.roof = roof
-	return add_building(b)
+	var made := add_building(b)
+	# the walls under the roof drop their battlements so the eaves sit snugly
+	for w in ring.walls:
+		w.roofed = made.id
+		if not batch:
+			_make_view("walls", w, false)
+	return made
 
 
 static func _poly_area(poly: PackedVector2Array) -> float:
@@ -632,6 +638,13 @@ func remove(id: int) -> void:
 		return
 	var neighbours: Array = joined_with(f.item) if f.type == "buildings" else []
 	data[f.type].erase(f.item)
+	if f.type == "buildings" and f.item.get("roof_only", false):
+		# the walls it sat on grow their battlements back
+		for w in data.walls:
+			if int(w.get("roofed", -1)) == id:
+				w.erase("roofed")
+				if views.has(w.id):
+					_make_view("walls", w, false)
 	for o in neighbours:
 		if views.has(o.id):
 			_make_view("buildings", o, false)

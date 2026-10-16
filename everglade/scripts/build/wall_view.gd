@@ -1,6 +1,7 @@
 class_name WallView
 extends Node3D
-## Freehand stone wall. Follows the terrain, grows battlements when tall and
+## Freehand stone wall. Follows the terrain, grows battlements when tall (unless
+## a roof is laid on it) and
 ## opens into arches (or simple gaps when low) wherever a path crosses it.
 
 const SPACING := 0.25
@@ -54,7 +55,8 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 				s_list.append(e)
 	s_list.sort()
 
-	var tall := h >= 3.2
+	# a roof laid over the wall replaces its battlements (Tiny Glade does the same)
+	var tall := h >= 3.2 and int(d.get("roofed", -1)) < 0
 	var samples: Array = []
 	var ground_raw: Array[float] = []
 	for s in s_list:

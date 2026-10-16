@@ -176,12 +176,16 @@ func _run() -> void:
 	for k in 25:
 		var a := TAU * k / 24.0
 		ring.append(rc + Vector2(cos(a), sin(a)) * 3.2)
-	var rw := g.add_wall(ring, 3.0, Catalog.STONE_COLORS[0], "stone", "glade")
+	var rw := g.add_wall(ring, 3.6, Catalog.STONE_COLORS[0], "stone", "glade")
 	await _frames(3)
 	var nb: int = g.data.buildings.size()
 	var roof := g.add_roof_over_walls(rc, "gable", 1.1, Catalog.ROOF_COLORS[1])
 	_check("roof tool roofs over a ring of walls", not roof.is_empty() and g.data.buildings.size() == nb + 1 and roof.get("roof_only", false))
 	_check("a round ring gets a spire", not roof.is_empty() and roof.shape == "round")
+	_check("roofed walls drop their battlements", int(g.find(rw.id).item.get("roofed", -1)) == roof.id)
+	g.remove(roof.id)
+	_check("removing the roof brings the battlements back", int(g.find(rw.id).item.get("roofed", -1)) < 0)
+	roof = g.add_roof_over_walls(rc, "gable", 1.1, Catalog.ROOF_COLORS[1])
 	var sq := PackedVector2Array([Vector2(8, 14), Vector2(14, 14), Vector2(14, 18), Vector2(8, 18), Vector2(8, 14)])
 	g.add_wall(Geo.resample(sq, 1.0), 2.6, Catalog.STONE_COLORS[1], "stone", "classic")
 	var roof2 := g.add_roof_over_walls(Vector2(11, 16), "gable", 1.1, Catalog.ROOF_COLORS[0])

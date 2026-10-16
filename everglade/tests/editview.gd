@@ -61,10 +61,10 @@ func _run() -> void:
 	for k in 25:
 		var a := TAU * k / 24.0
 		ring.append(Vector2(-10, 14) + Vector2(cos(a), sin(a)) * 3.0)
-	g.add_wall(ring, 3.0, Catalog.STONE_COLORS[0], "stone", "glade")
+	g.add_wall(ring, 3.6, Catalog.STONE_COLORS[0], "stone", "glade")
 	g.add_roof_over_walls(Vector2(-10, 14), "gable", 1.1, Catalog.ROOF_COLORS[2])
 	var sq := PackedVector2Array([Vector2(6, 11), Vector2(14, 11), Vector2(14, 16.5), Vector2(6, 16.5), Vector2(6, 11)])
-	g.add_wall(Geo.resample(sq, 1.0), 2.6, Catalog.STONE_COLORS[1], "rendered", "glade")
+	g.add_wall(Geo.resample(sq, 1.0), 3.6, Catalog.STONE_COLORS[1], "rendered", "glade")
 	g.add_roof_over_walls(Vector2(10, 13.5), "gable", 1.1, Catalog.ROOF_COLORS[0])
 	await _shot("1_joined", Vector3(0.5, 0, 1.5), 17.0, 35.0, -0.05)
 	await _shot("2_curved_roofs", Vector3(0, 0, 0), 34.0, 0.0, -0.08)
