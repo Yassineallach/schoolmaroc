@@ -3,10 +3,13 @@ extends Node3D
 ## The world around the glade, so it never looks like an island:
 ##  * an endless ground ring that continues the terrain without a seam and
 ##    swells into soft hills toward the horizon, fading into haze
-##  * a dense forest belt right up to the plot's edge (as in Tiny Glade, the
-##    buildable square is a clearing in the woods), thinning into scattered
-##    copses and lone trees over the far meadows
-## Trees are drawn through one MultiMesh per kind (and per part).
+##  * a compact forest of real trees all around, as in Tiny Glade, where the
+##    buildable square is a clearing in deep woods: packed mixed trees from
+##    the clearing's edge, then the cheapest trees (firs) further out,
+##    fading into the haze over the hills.
+## To stay fast, trees are batched per kind into map tiles: tiles out of
+## view are culled, far tiles stop drawing inside the fog, nothing casts
+## shadows, and the forest is shallower on the Battery graphics preset.
 
 const RADIUS := 420.0
 const RINGS := 26
@@ -102,6 +105,11 @@ func _ground_y(x: float, z: float) -> float:
 	return outer_height(x, z)
 
 
+const TILE := 26.0            # forest batching tile (metres)
+## Forest depth beyond the clearing's edge for Battery / Balanced / Beautiful.
+const DEPTH := [26.0, 36.0, 46.0]
+
+
 func _plant_forest(template: String) -> void:
 	var kinds: Array = ["tree_round_a", "tree_round_c", "tree_pine_a", "tree_pine_b", "tree_round_a", "tree_birch"]
 	match template:
@@ -111,62 +119,70 @@ func _plant_forest(template: String) -> void:
 			kinds = ["tree_teal", "tree_blossom", "tree_pine_a", "tree_golden", "tree_teal", "tree_round_c"]
 		"ruins":
 			kinds = ["tree_round_a", "tree_round_c", "tree_golden", "tree_pine_b", "tree_round_a", "tree_birch"]
+	var far_kinds: Array = ["tree_pine_a", "tree_pine_b", "tree_pine_a", kinds[0]]
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(template) & 0xFFFF
-	var placed: Dictionary = {}
-	for k in kinds:
-		placed[k] = []
+	var placed: Dictionary = {}   # kind -> {tile key -> [xforms]}
 	var edge := Terrain.PLAY_HALF + 1.2
-	# --- dense belt hugging the plot (a clearing in the woods)
-	var tries := 0
-	var count := 0
-	while count < 950 and tries < 9000:
-		tries += 1
-		var p := Vector2(rng.randf_range(-95.0, 95.0), rng.randf_range(-95.0, 95.0))
-		var d := maxf(absf(p.x), absf(p.y))
-		if d < edge:
-			continue
-		# density: thick near the clearing, thinning with distance, with glades
-		var dens := 1.0 - smoothstep(edge + 10.0, 95.0, d) * 0.8
-		dens *= 0.55 + (Landscape._noise.get_noise_2d(p.x * 3.0, p.y * 3.0) * 0.5 + 0.5) * 0.9
-		if rng.randf() > dens:
-			continue
-		_place(placed, kinds, rng, p, rng.randf_range(1.0, 1.6) * lerpf(1.0, 1.5, smoothstep(edge, 60.0, d)))
-		count += 1
-	# --- copses and lone trees on the far meadows
-	for c in 40:
-		var a := rng.randf() * TAU
-		var r := rng.randf_range(100.0, 300.0)
-		var centre := Vector2(cos(a), sin(a)) * r
-		for k in rng.randi_range(1, 7):
-			var p2 := centre + Vector2(rng.randf_range(-12, 12), rng.randf_range(-12, 12))
-			_place(placed, kinds, rng, p2, rng.randf_range(1.8, 2.8))
+	var depth: float = DEPTH[clampi(Settings.quality, 0, 2)]
+	var near := edge + depth
+	# --- packed mixed woods from the clearing's edge (jittered grid)
+	_fill(placed, kinds, rng, edge, near, 2.25, Vector2(1.15, 1.65), 0.95)
+	# --- the deep woods: firs (the cheapest trees), bigger, into the haze
+	_fill(placed, far_kinds, rng, near - 1.0, near + 34.0, 3.3, Vector2(1.6, 2.3), 0.9)
 	for kind in placed:
-		_commit(kind, placed[kind])
+		_commit_tiles(kind, placed[kind], near)
 
 
-func _place(placed: Dictionary, kinds: Array, rng: RandomNumberGenerator, p: Vector2, s: float) -> void:
-	var kind: String = kinds[rng.randi() % kinds.size()]
-	var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.9, 1.15), s))
-	placed[kind].append(Transform3D(basis, Vector3(p.x, _ground_y(p.x, p.y) - 0.1, p.y)))
+## Packs trees on a jittered grid over the square band inner..outer.
+func _fill(placed: Dictionary, kinds: Array, rng: RandomNumberGenerator, inner: float, outer: float,
+		step: float, scale_range: Vector2, keep: float) -> void:
+	var x := -outer
+	while x <= outer:
+		var z := -outer
+		while z <= outer:
+			var p := Vector2(x, z) + Vector2(rng.randf_range(-0.38, 0.38), rng.randf_range(-0.38, 0.38)) * step
+			z += step
+			var d := maxf(absf(p.x), absf(p.y))
+			if d < inner or d > outer or rng.randf() > keep:
+				continue
+			# the front rows step up from smaller trees so the edge reads as a wall of woods
+			var front := 1.0 - smoothstep(inner, inner + 3.5, d)
+			var s := rng.randf_range(scale_range.x, scale_range.y) * lerpf(1.0, 0.82, front)
+			var kind: String = kinds[rng.randi() % kinds.size()]
+			var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.9, 1.15), s))
+			var key := Vector2i(floori(p.x / TILE), floori(p.y / TILE))
+			if not placed.has(kind):
+				placed[kind] = {}
+			if not placed[kind].has(key):
+				placed[kind][key] = []
+			placed[kind][key].append(Transform3D(basis, Vector3(p.x, _ground_y(p.x, p.y) - 0.1, p.y)))
+		x += step
 
 
-func _commit(kind: String, xforms: Array) -> void:
-	if xforms.is_empty() or not ModelLib.has_model(kind):
+## One MultiMesh per kind, part and tile: tiles cull off screen, and tiles
+## deep in the woods stop drawing where the fog has swallowed them.
+func _commit_tiles(kind: String, tiles: Dictionary, near: float) -> void:
+	if not ModelLib.has_model(kind):
 		return
 	var m := ModelLib.merged(kind, true)
-	for part in ["solid", "leaves"]:
-		if m[part] == null:
-			continue
-		var mm := MultiMesh.new()
-		mm.transform_format = MultiMesh.TRANSFORM_3D
-		mm.mesh = m[part]
-		mm.instance_count = xforms.size()
-		for i in xforms.size():
-			mm.set_instance_transform(i, xforms[i])
-		var mmi := MultiMeshInstance3D.new()
-		mmi.multimesh = mm
-		mmi.material_override = m.leaf_mat if part == "leaves" else ModelLib.props_material
-		# the near belt casts shadows onto the glade's edge; that's all we need
-		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		_forest.add_child(mmi)
+	for key in tiles:
+		var xforms: Array = tiles[key]
+		var centre := (Vector2(key) + Vector2(0.5, 0.5)) * TILE
+		var far := maxf(absf(centre.x), absf(centre.y)) > near
+		for part in ["solid", "leaves"]:
+			if m[part] == null:
+				continue
+			var mm := MultiMesh.new()
+			mm.transform_format = MultiMesh.TRANSFORM_3D
+			mm.mesh = m[part]
+			mm.instance_count = xforms.size()
+			for i in xforms.size():
+				mm.set_instance_transform(i, xforms[i])
+			var mmi := MultiMeshInstance3D.new()
+			mmi.multimesh = mm
+			mmi.material_override = m.leaf_mat if part == "leaves" else ModelLib.props_material
+			mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			# trunks hide under the canopy from afar; far tiles fade into the fog
+			mmi.visibility_range_end = (110.0 if far else 160.0) if part == "leaves" else (80.0 if far else 120.0)
+			_forest.add_child(mmi)
