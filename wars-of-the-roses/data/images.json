@@ -190,5 +190,21 @@
       640
     ],
     "note": "Richard II, 19th-c. engraving, supplied by the user"
+  },
+  "p_henry4": {
+    "file": "input/images/p_henry4.jpg",
+    "blend": "source-over",
+    "face": [
+      183,
+      100,
+      78
+    ],
+    "bust": [
+      185,
+      150,
+      120,
+      150
+    ],
+    "note": "Henry IV, 15th-c. manuscript illumination, supplied by the user"
   }
 }

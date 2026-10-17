@@ -140,7 +140,7 @@
       const dep = p(t, c.r2 + 0.3, 1.4, E.inOut);
       const nodes = {
         r2: { x: 1300, y: 430, label: T.r2, sub: dep > 0.5 ? T.deposed : null, subColor: W.C.crimsonBright, t: 66.5, r: 18, portrait: 'p_richard2', pr: 70, dead: dep > 0.6, color: W.mixColor(W.C.ivory, W.C.mute, dep), alpha: 1 - dep * 0.35 },
-        h4: { x: 620, y: 430, label: T.h4, sub: T.h4Sub, subColor: W.C.crimsonBright, t: c.h4, r: 18, color: W.C.crimsonBright, halo: dep > 0.6 ? W.C.crimson : null },
+        h4: { x: 620, y: 430, label: T.h4, sub: T.h4Sub, subColor: W.C.crimsonBright, t: c.h4, r: 18, portrait: 'p_henry4', pr: 70, color: W.C.crimsonBright, halo: dep > 0.6 ? W.C.crimson : null },
       };
       W.tree(ctx, t, nodes, [{ a: 'r2', b: 'h4', t: c.r2, style: 'marriage', color: W.rgba(W.C.ivory, 0.4) }]);
       W.text(ctx, 'ابنا عمّ', 960, 405, { size: 24, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: p(t, c.r2 + 0.4, 0.6) });
@@ -160,13 +160,16 @@
       TL(t, [...tlEvents(prev.ev1, prev.ev2), { year: 1422, t: c.year, label: T.ev, color: W.C.crimsonBright, size: 26 }], 0);
       // three Lancastrian kings
       const kings = [
-        { x: 1400, name: 'هنري الرابع', yrs: '1399 — 1413', t: c.unrest },
-        { x: 960, name: T.h5, yrs: '1413 — 1422', t: c.stable },
+        { x: 1400, name: 'هنري الرابع', yrs: '1399 — 1413', t: c.unrest, key: 'p_henry4' },
+        { x: 960, name: T.h5, yrs: '1413 — 1422', t: c.stable, key: 'p_henry5' },
       ];
       kings.forEach((k, i) => {
         const shake = i === 0 ? Math.sin(t * 14) * 4 * (p(t, c.unrest, 0.3) - p(t, c.stable, 0.6)) : 0;
         const dead = i === 1 ? p(t, c.h5, 1.0) : 0;
-        W.crown(ctx, k.x + shake, 330, 46, { p: p(t, k.t, 1.1, E.inOut), color: W.mixColor(W.C.crimsonBright, W.C.mute, dead * 0.7), width: 2.3, fill: 0.2 });
+        if (W.hasPortrait(k.key)) {
+          W.portrait(ctx, k.key, k.x + shake, 320, 62, { p: p(t, k.t, 1.0), dead: dead > 0.5 });
+          W.crown(ctx, k.x + shake, 232, 24, { p: p(t, k.t + 0.3, 0.8) });
+        } else W.crown(ctx, k.x + shake, 330, 46, { p: p(t, k.t, 1.1, E.inOut), color: W.mixColor(W.C.crimsonBright, W.C.mute, dead * 0.7), width: 2.3, fill: 0.2 });
         W.text(ctx, k.name, k.x, 430, { size: 40, color: W.C.ivory, reveal: p(t, k.t + 0.2, 0.8), alpha: 1 - dead * 0.35 });
         W.text(ctx, k.yrs, k.x, 480, { size: 22, fam: W.F.latin, weight: 400, color: W.C.ivoryDim, dir: 'ltr', alpha: p(t, k.t + 0.5, 0.8) });
       });
