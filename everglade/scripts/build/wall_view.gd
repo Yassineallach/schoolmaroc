@@ -13,6 +13,7 @@ var ivy: Node3D
 var material: ShaderMaterial
 var perches: Array[Vector3] = []
 var lamps: Array[Vector3] = []   # world positions of wall lanterns (lit at night)
+var flag_anchors: Array[Vector3] = []   # banner tips the Glade strings bunting between
 
 
 func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := false) -> void:
@@ -21,6 +22,7 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 		c.free()
 	perches.clear()
 	lamps.clear()
+	flag_anchors.clear()
 	# doors (paths ending at the wall) are separate from pass-through openings
 	var doors: Array = openings.filter(func(o): return o.has("door"))
 	openings = openings.filter(func(o): return not o.has("door"))
@@ -225,6 +227,17 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 		var y := terrain.height_at_v(p) + 1.9
 		deco.add("wall_lantern", Transform3D(Basis.looking_at(nrm3, Vector3.UP), Vector3(p.x, y, p.y) + nrm3 * ht))
 		lamps.append(Vector3(p.x, y - 0.1, p.y) + nrm3 * (ht + 0.25))
+	# lanterns and banners the player hung on the wall (Details tool)
+	for o in d.get("orn", []):
+		var os := _sample_at(samples, float(o.s))
+		var on: Vector3 = os.n * float(o.get("side", 1.0))
+		var op: Vector3 = os.p + on * ht + Vector3.UP * (terrain.height_at(os.p.x, os.p.z) + float(o.get("y", 2.0)))
+		if o.get("kind", "") == "lantern":
+			deco.add("wall_lantern", Transform3D(Basis.looking_at(on, Vector3.UP), op))
+			lamps.append(op + on * 0.28 + Vector3.DOWN * 0.1)
+		else:
+			deco.add_mesh(Ornaments.banner(int(o.get("pat", 0))), Transform3D(DecoMerge.facing(on), op))
+			flag_anchors.append(op + on * 0.62)
 	deco.apply_to(self)
 
 	if preview:

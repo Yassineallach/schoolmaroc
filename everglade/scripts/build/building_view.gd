@@ -16,6 +16,10 @@ var material: ShaderMaterial
 var ivy: Node3D
 var perches: Array[Vector3] = []
 var lamps: Array[Vector3] = []   # local positions of wall lanterns (lit at night)
+## World-space anchors the Glade strings lines between: clothesline brackets
+## ([point, outward normal]) and flag / banner tips (bunting).
+var line_anchors: Array = []
+var flag_anchors: Array[Vector3] = []
 var eave := 3.0
 var roof_h := 2.0
 var _deco_root: Node3D
@@ -77,6 +81,8 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 		c.free()
 	perches.clear()
 	lamps.clear()
+	line_anchors.clear()
+	flag_anchors.clear()
 	_preview = preview
 	_rng.seed = int(d.get("seed", 1)) * 31 + 7
 	var c: Vector2 = d.c
@@ -137,6 +143,11 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 	add_child(body)
 	for i in perches.size():
 		perches[i] = transform * perches[i]
+	for i in flag_anchors.size():
+		flag_anchors[i] = transform * flag_anchors[i]
+	for a in line_anchors:
+		a[0] = transform * a[0]
+		a[1] = transform.basis * a[1]
 
 
 # ---------------------------------------------------------------------------
@@ -212,12 +223,19 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 	var boxes := rng.randf() < 0.6 and not lake
 	# windows and doors placed side by side merge into wide windows,
 	# galleries and double doors
-	var groups: Dictionary = {}   # "side:f:kind" -> [u...]
+	var groups: Dictionary = {}   # "side:f:kind:type" -> [window...]
 	for w in d.get("windows", []):
 		var side: int = w.side
 		var u: float = w.u
 		var f: int = w.f
 		var kind: String = w.get("kind", "window")
+		if kind == "trapdoor":
+			# a hatch in a flat roof
+			if roof == "flat":
+				var tx := clampf(float(w.get("x", 0.0)), -L / 2 + 0.6, L / 2 - 0.6)
+				var tz := clampf(float(w.get("z", 0.0)), -W / 2 + 0.6, W / 2 - 0.6)
+				deco.add("trapdoor", Transform3D(Basis.IDENTITY, Vector3(tx, eave + 0.02, tz)))
+			continue
 		if f >= floors and kind != "dormer":
 			continue
 		if kind != "dormer" and _in_join(_side_point(corners, side, u)):
@@ -232,28 +250,33 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 			if (roof == "gable" or roof == "hip") and not lake:
 				_place_dormer(deco, L, W, side, u)
 			continue
-		var key := "%d:%d:%s" % [side, f, kind]
+		var key := "%d:%d:%s:%s" % [side, f, kind, w.get("wt", "plain")]
 		if not groups.has(key):
 			groups[key] = []
-		groups[key].append(u)
+		groups[key].append(w)
 	for key in groups:
 		var parts: PackedStringArray = (key as String).split(":")
 		var side := int(parts[0])
 		var f := int(parts[1])
 		var kind := parts[2]
-		var us: Array = groups[key]
-		us.sort()
+		var wt := parts[3]
+		var ws: Array = groups[key]
+		ws.sort_custom(func(a, b): return float(a.u) < float(b.u))
 		var len_side := _side_len(corners, side)
-		var reach := 1.85 if kind == "window" else 1.75
+		# only plain windows (and doors) merge into wide ones
+		var reach := (1.85 if kind == "window" else 1.75) if wt == "plain" else 0.0
 		var i := 0
-		while i < us.size():
+		while i < ws.size():
 			var j := i
-			while j + 1 < us.size() and (float(us[j + 1]) - float(us[j])) * len_side < reach:
+			while j + 1 < ws.size() and (float(ws[j + 1].u) - float(ws[j].u)) * len_side < reach:
 				j += 1
-			var u0: float = us[i]
-			var u1: float = us[j]
+			var u0: float = ws[i].u
+			var u1: float = ws[j].u
 			var uc := (u0 + u1) * 0.5
 			var extra := (u1 - u0) * len_side
+			var trim := -1
+			for k in range(i, j + 1):
+				trim = maxi(trim, int(ws[k].get("deco", -1)))
 			if kind == "door":
 				_place_rect_door(deco, corners, side, uc, style, (extra + 1.5) / 1.5)
 			else:
@@ -270,13 +293,21 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 				var in_stone := style == "stone" or (style == "windrise" and f == 0 and floors > 1)
 				if in_stone and style == "windrise" and not _preview:
 					p += n * 0.05
+				if wt != "plain":
+					_fancy_window(deco, wt, Transform3D(DecoMerge.facing(n), p))
+					i = j + 1
+					continue
 				var sx := (extra + 1.4) / 1.4
 				var xf := Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, 1, 1)), p)
 				deco.add("window_lattice" if lake else "window_frame", xf)
-				if shutters and j == i and not (in_stone and not _preview):
-					deco.add("shutters", xf)
-				if boxes and f == 0:
-					deco.add("flower_box", xf)
+				if trim < 0:
+					# windows placed before decorations were chosen keep the house's look
+					if shutters and j == i and not (in_stone and not _preview):
+						deco.add("shutters", xf)
+					if boxes and f == 0:
+						deco.add("flower_box", xf)
+				else:
+					_window_trim(deco, trim, xf, p, n, j == i)
 			i = j + 1
 	# chimney
 	var ch: float = d.get("chimney", NO_CHIMNEY)
@@ -289,6 +320,7 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 		set_meta("smoke_at", Vector3(cx, y_roof - 0.5 + 1.25 * sy + 0.1, cz))
 	elif has_meta("smoke_at"):
 		remove_meta("smoke_at")
+	_place_extras(deco, d, false)
 
 
 
@@ -616,6 +648,11 @@ func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNu
 		_place_round_opening(deco, R, door.u, 0, "door", rng)
 	var boxes := rng.randf() < 0.4
 	for w in d.get("windows", []):
+		if w.get("kind", "") == "trapdoor":
+			if roof == "flat":
+				var tp := Vector2(float(w.get("x", 0.0)), float(w.get("z", 0.0))).limit_length(maxf(0.0, R - 0.7))
+				deco.add("trapdoor", Transform3D(Basis.IDENTITY, Vector3(tp.x, eave + 0.02, tp.y)))
+			continue
 		var f: int = w.f
 		if f >= floors:
 			continue
@@ -625,7 +662,8 @@ func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNu
 			if f == 0 and absf(angle_difference(door.u * TAU, w.u * TAU)) * R < 1.0:
 				skip = true
 		if not skip:
-			_place_round_opening(deco, R, w.u, f, kind, rng, boxes)
+			_place_round_opening(deco, R, w.u, f, kind, rng, boxes, w)
+	_place_extras(deco, d, true)
 
 
 func _round_roof(mb: MeshBuilder, deco: DecoMerge, R: float, roof: String, pitch: float, roof_col: Color,
@@ -643,7 +681,8 @@ func _round_roof(mb: MeshBuilder, deco: DecoMerge, R: float, roof: String, pitch
 		# inner parapet face & top rim
 		_cylinder_inner(mb, R - 0.12, eave, eave + 0.55, segs, stone_col)
 		_annulus(mb, R - 0.12, R + 0.18, eave + 0.55, segs, Color(stone_col.r, stone_col.g, stone_col.b, 1.0))
-		deco.add("banner", Transform3D(Basis.IDENTITY, Vector3(0, eave, 0)))
+		if not _has_top_flag():
+			deco.add("banner", Transform3D(Basis.IDENTITY, Vector3(0, eave, 0)))
 		perches.append(Vector3(R * 0.7, eave + 1.0, 0))
 	else:
 		roof_h = R * 2.1 * pitch
@@ -668,11 +707,12 @@ func _round_roof(mb: MeshBuilder, deco: DecoMerge, R: float, roof: String, pitch
 			mb.quad(p1 + Vector3.DOWN * 0.14, p0 + Vector3.DOWN * 0.14, p0, p1, fascia)
 		if not _preview:
 			Roofing.cone(mb, apex, ye, rr, Color(roof_col.r, roof_col.g, roof_col.b, 1.0), _rng)
-		deco.add("weathervane", Transform3D(Basis.IDENTITY, apex + Vector3.DOWN * 0.1))
+		if not _has_top_flag():
+			deco.add("weathervane", Transform3D(Basis.IDENTITY, apex + Vector3.DOWN * 0.1))
 		perches.append(apex + Vector3.UP * 0.9)
 
 
-func _place_round_opening(deco: DecoMerge, R: float, u: float, f: int, kind: String, rng: RandomNumberGenerator, boxes := false) -> void:
+func _place_round_opening(deco: DecoMerge, R: float, u: float, f: int, kind: String, rng: RandomNumberGenerator, boxes := false, w: Dictionary = {}) -> void:
 	var a := u * TAU
 	var n := Vector3(cos(a), 0, sin(a))
 	var p := n * (R - 0.02)
@@ -683,10 +723,99 @@ func _place_round_opening(deco: DecoMerge, R: float, u: float, f: int, kind: Str
 		deco.add("wall_lantern", Transform3D(Basis.looking_at(n, Vector3.UP), p + side * 0.8 + Vector3.UP * (PL + 2.0)))
 		lamps.append(p + side * 0.8 + Vector3.UP * (PL + 1.9) + n * 0.3)
 		return
+	var wt: String = w.get("wt", "plain")
+	if wt != "plain":
+		_fancy_window(deco, wt, Transform3D(DecoMerge.facing(n), p + Vector3.UP * (PL + f * FH + 1.35)))
+		return
 	var xf := Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(0.75, 1, 1)), p + Vector3.UP * (PL + f * FH + 1.35))
 	deco.add("window_frame", xf)
-	if boxes and f == 0:
-		deco.add("flower_box", xf)
+	var trim := int(w.get("deco", -1))
+	if trim < 0:
+		if boxes and f == 0:
+			deco.add("flower_box", xf)
+	else:
+		_window_trim(deco, trim, xf, xf.origin, n, true)
+
+
+## Arched, round and arrow-slit windows (Ornaments) with glowing glass.
+func _fancy_window(deco: DecoMerge, wt: String, xf: Transform3D) -> void:
+	var m := Ornaments.window(wt)
+	deco.add_mesh(m.solid, xf)
+	deco.add_glow_mesh(m.glow, xf)
+
+
+## The decoration a plain window was given (tap it again to change):
+## 0 none, 1 flower box, 2 clothesline bracket, 3 shutters.
+func _window_trim(deco: DecoMerge, trim: int, xf: Transform3D, p: Vector3, n: Vector3, single: bool) -> void:
+	match trim:
+		1:
+			deco.add("flower_box", xf)
+		2:
+			# an iron arm over the window that a washing line is tied to
+			var arm := p + Vector3.UP * 0.98 + n * 0.22
+			var mb := MeshBuilder.new()
+			mb.box(Transform3D(DecoMerge.facing(n), Vector3.ZERO), Vector3(0.04, 0.04, 0.46), Ornaments.IRON)
+			Ornaments._layer(mb, 0, Ornaments.M_METAL)
+			deco.add_mesh(mb.commit(), Transform3D(Basis.IDENTITY, arm))
+			line_anchors.append([arm + n * 0.22, n])
+		3:
+			if single:
+				deco.add("shutters", xf)
+
+
+## Point and outward normal on the wall at (side, u) and height y (local).
+func _wall_spot(side: int, u: float, y: float) -> Array:
+	if data.shape == "round":
+		var R: float = data.r
+		var n := Vector3(cos(u * TAU), 0, sin(u * TAU))
+		return [n * R + Vector3.UP * y, n]
+	var L: float = data.size.x
+	var W: float = data.size.y
+	var corners := [Vector3(-L / 2, 0, -W / 2), Vector3(L / 2, 0, -W / 2), Vector3(L / 2, 0, W / 2), Vector3(-L / 2, 0, W / 2)]
+	var a: Vector3 = corners[side % 4]
+	var b: Vector3 = corners[(side + 1) % 4]
+	return [a.lerp(b, clampf(u, 0.05, 0.95)) + Vector3.UP * y, _side_normal(corners, side % 4)]
+
+
+func _has_top_flag() -> bool:
+	for fl in data.get("flags", []):
+		if fl.get("at", "") == "top":
+			return true
+	return false
+
+
+## Flags flying from the roof, banners hanging from the walls and lanterns
+## the player put up with the Details tool.
+func _place_extras(deco: DecoMerge, d: Dictionary, round_b: bool) -> void:
+	for fl in d.get("flags", []):
+		var pat := int(fl.get("pat", 0))
+		if fl.get("at", "") == "top":
+			var top := Vector3(0, eave, 0)
+			var roof: String = d.get("roof", "gable" if not round_b else "cone")
+			if round_b:
+				top.y = eave + (roof_h - 0.15 if roof != "flat" else 0.0)
+			else:
+				var L: float = d.size.x
+				var W: float = d.size.y
+				var x := (float(fl.get("u", 0.5)) - 0.5) * L
+				if roof == "flat":
+					top = Vector3(clampf(x, -L / 2 + 0.5, L / 2 - 0.5), eave, clampf(float(fl.get("z", 0.0)), -W / 2 + 0.5, W / 2 - 0.5))
+				else:
+					var ridge := maxf(0.0, L / 2 - W / 2 * 0.95) if roof == "hip" else L / 2 - 0.2
+					top = Vector3(clampf(x, -ridge, ridge), eave + roof_h - 0.12, 0)
+			deco.add_mesh(Ornaments.flag(pat), Transform3D(Basis(Vector3.UP, float(fl.get("r", 0.6))), top))
+			flag_anchors.append(top + Vector3.UP * 2.0)
+			perches.append(top + Vector3.UP * 2.25)
+		else:
+			var spot := _wall_spot(int(fl.get("side", 0)), float(fl.get("u", 0.5)), float(fl.get("y", 3.0)))
+			var p: Vector3 = spot[0] + spot[1] * 0.02
+			deco.add_mesh(Ornaments.banner(pat), Transform3D(DecoMerge.facing(spot[1]), p))
+			flag_anchors.append(p + spot[1] * 0.62)
+	for lt in d.get("lanterns", []):
+		var spot := _wall_spot(int(lt.get("side", 0)), float(lt.get("u", 0.5)), float(lt.get("y", 2.2)))
+		var n: Vector3 = spot[1]
+		deco.add("wall_lantern", Transform3D(Basis.looking_at(n, Vector3.UP), spot[0] + n * 0.02))
+		lamps.append(spot[0] + n * 0.3 + Vector3.DOWN * 0.1)
 
 
 func _cylinder(mb: MeshBuilder, r: float, y0: float, y1: float, segs: int, col: Color) -> void:
@@ -1085,13 +1214,13 @@ func _openings(d: Dictionary, doors: Array, corners: Array) -> Array:
 		var l := _side_len(corners, side)
 		var s: float = w.u * l
 		var kind: String = w.get("kind", "door" if not w.has("f") else "window")
-		if kind == "dormer":
+		if kind == "dormer" or kind == "trapdoor":
 			continue
 		if kind == "door":
 			holes[side].append(Rect2(s - 0.64, PL - 0.2, 1.28, 2.55))
 		else:
 			var y: float = PL + int(w.get("f", 0)) * FH + 1.35
-			holes[side].append(Rect2(s - 0.5, y - 0.62, 1.0, 1.42))
+			holes[side].append(_window_hole(w.get("wt", "plain"), s, y))
 	return holes
 
 
@@ -1100,17 +1229,31 @@ func _round_openings(d: Dictionary, doors: Array, R: float) -> Array:
 	var circ := TAU * R
 	for w in d.get("windows", []) + doors:
 		var kind: String = w.get("kind", "door" if not w.has("f") else "window")
+		if kind == "trapdoor" or kind == "dormer":
+			continue
 		var s: float = fposmod(w.u, 1.0) * circ
 		var rect: Rect2
 		if kind == "door":
 			rect = Rect2(s - 0.66, PL - 0.2, 1.32, 2.6)
 		else:
 			var y: float = PL + int(w.get("f", 0)) * FH + 1.35
-			rect = Rect2(s - 0.4, y - 0.62, 0.8, 1.42)
+			rect = Rect2(s - 0.4, y - 0.62, 0.8, 1.42) if w.get("wt", "plain") == "plain" else _window_hole(w.wt, s, y)
 		holes.append(rect)
 		holes.append(Rect2(rect.position + Vector2(circ, 0), rect.size))
 		holes.append(Rect2(rect.position - Vector2(circ, 0), rect.size))
 	return holes
+
+
+## The stone-free rectangle a window of type `wt` needs, centred at s, y.
+static func _window_hole(wt: String, s: float, y: float) -> Rect2:
+	match wt:
+		"arched":
+			return Rect2(s - 0.58, y - 0.66, 1.16, 1.75)
+		"round":
+			return Rect2(s - 0.55, y - 0.3, 1.1, 1.1)
+		"slit":
+			return Rect2(s - 0.22, y - 0.6, 0.44, 1.5)
+	return Rect2(s - 0.5, y - 0.62, 1.0, 1.42)
 
 
 static func _hits(holes: Array, s0: float, s1: float, y0: float, y1: float) -> bool:

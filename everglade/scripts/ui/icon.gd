@@ -163,7 +163,7 @@ func _draw() -> void:
 			for p in [Vector2(0.3, 0.78), Vector2(0.55, 0.52), Vector2(0.38, 0.26), Vector2(0.7, 0.18)]:
 				circle(p, 0.11, STONE)
 			line([Vector2(0.05, 0.6), Vector2(0.95, 0.4)], WATER, 0.06)
-		"details", "window":
+		"details", "window", "win_plain":
 			rect(0.22, 0.14, 0.56, 0.72, SUN)
 			line([Vector2(0.5, 0.14), Vector2(0.5, 0.86)])
 			line([Vector2(0.22, 0.48), Vector2(0.78, 0.48)])
@@ -369,5 +369,41 @@ func _draw() -> void:
 			circle(Vector2(0.5, 0.57), 0.17, WATER)
 		"play":
 			poly([Vector2(0.3, 0.2), Vector2(0.8, 0.5), Vector2(0.3, 0.8)], ROOF)
+		"win_arched":
+			poly([Vector2(0.28, 0.86), Vector2(0.28, 0.42), Vector2(0.34, 0.24), Vector2(0.5, 0.16), Vector2(0.66, 0.24), Vector2(0.72, 0.42), Vector2(0.72, 0.86)], SUN)
+			line([Vector2(0.5, 0.16), Vector2(0.5, 0.86)])
+			rect(0.2, 0.84, 0.6, 0.08, STONE)
+		"win_round":
+			circle(Vector2(0.5, 0.5), 0.3, SUN)
+			line([Vector2(0.2, 0.5), Vector2(0.8, 0.5)])
+			line([Vector2(0.5, 0.2), Vector2(0.5, 0.8)])
+		"win_slit":
+			rect(0.3, 0.1, 0.4, 0.8, STONE)
+			rect(0.46, 0.18, 0.08, 0.64, INK, false)
+			rect(0.38, 0.44, 0.24, 0.06, INK, false)
+		"flag":
+			rect(0.24, 0.1, 0.06, 0.82, WOOD)
+			poly([Vector2(0.3, 0.14), Vector2(0.84, 0.2), Vector2(0.78, 0.36), Vector2(0.86, 0.5), Vector2(0.3, 0.46)], ROOF)
+			rect(0.3, 0.26, 0.54, 0.07, SUN, false)
+		"banner_wall":
+			rect(0.1, 0.1, 0.12, 0.82, STONE)
+			rect(0.22, 0.16, 0.5, 0.05, INK, false)
+			poly([Vector2(0.32, 0.2), Vector2(0.7, 0.2), Vector2(0.7, 0.86), Vector2(0.51, 0.72), Vector2(0.32, 0.86)], Color(0.35, 0.45, 0.75))
+			circle(Vector2(0.51, 0.42), 0.09, SUN)
+		"wall_lantern":
+			rect(0.1, 0.1, 0.12, 0.82, STONE)
+			line([Vector2(0.22, 0.3), Vector2(0.55, 0.3), Vector2(0.55, 0.38)], INK, 0.05)
+			rect(0.44, 0.38, 0.22, 0.3, SUN)
+			poly([Vector2(0.42, 0.38), Vector2(0.55, 0.3), Vector2(0.68, 0.38)], INK)
+		"trapdoor":
+			poly([Vector2(0.1, 0.7), Vector2(0.5, 0.45), Vector2(0.9, 0.7), Vector2(0.5, 0.95)], STONE)
+			poly([Vector2(0.32, 0.7), Vector2(0.5, 0.59), Vector2(0.68, 0.7), Vector2(0.5, 0.81)], WOOD)
+		"laundry":
+			line([Vector2(0.05, 0.25), Vector2(0.5, 0.35), Vector2(0.95, 0.25)], INK, 0.04)
+			rect(0.16, 0.3, 0.22, 0.32, Color(0.72, 0.82, 0.9))
+			rect(0.56, 0.32, 0.24, 0.4, Color(0.9, 0.74, 0.72))
+		"hammer":
+			rect(0.46, 0.35, 0.09, 0.58, WOOD)
+			poly([Vector2(0.22, 0.14), Vector2(0.78, 0.14), Vector2(0.78, 0.36), Vector2(0.22, 0.36)], STONE)
 		_:
 			circle(Vector2(0.5, 0.5), 0.3, STONE)

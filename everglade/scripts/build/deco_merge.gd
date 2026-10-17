@@ -35,6 +35,13 @@ func add_mesh(mesh: Mesh, xf: Transform3D) -> void:
 		_has_solid = true
 
 
+## Window glass and lamp panes that glow at night (glow.gdshader).
+func add_glow_mesh(mesh: Mesh, xf: Transform3D) -> void:
+	for s in mesh.get_surface_count():
+		_glow.append_from(mesh, s, xf)
+		_has_glow = true
+
+
 func solid_mesh() -> ArrayMesh:
 	return _solid.commit() if _has_solid else null
 

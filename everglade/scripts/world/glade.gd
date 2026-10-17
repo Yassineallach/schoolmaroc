@@ -27,6 +27,8 @@ var _roots: Dictionary = {}
 var _interactions_dirty := false
 var _ivy_clock := 0.0
 var _openings: Dictionary = {}
+var _links_dirty := false
+var _links: Node3D
 
 
 func _ready() -> void:
@@ -651,6 +653,7 @@ func remove(id: int) -> void:
 	if views.has(id):
 		views[id].queue_free()
 		views.erase(id)
+		_links_dirty = true
 	if f.type == "props":
 		props.rebuild(data.props)
 	else:
@@ -684,6 +687,7 @@ func erase_lines_near(center: Vector2, radius: float) -> int:
 			if views.has(item.id):
 				views[item.id].queue_free()
 				views.erase(item.id)
+				_links_dirty = true
 			for piece in pieces:
 				var copy: Dictionary = item.duplicate(true)
 				copy.id = next_id()
@@ -768,6 +772,7 @@ func _make_view(type: String, item: Dictionary, animate: bool) -> Node3D:
 			v.joins = join_polys(item)
 			v.build(item, _openings.get(item.id, []))
 	views[item.id] = v
+	_links_dirty = true
 	if animate and v.has_method("play_build_anim"):
 		v.play_build_anim()
 	return v
@@ -795,6 +800,85 @@ func rebuild_all() -> void:
 	props.rebuild(data.props)
 	_paint_mask()
 	_rebuild_shore()
+
+
+## Washing lines between facing clothesline windows (even across a lane to
+## the next house) and bunting between nearby flags and banners.
+func _rebuild_links() -> void:
+	if _links == null:
+		_links = Node3D.new()
+		_links.name = "Links"
+		add_child(_links)
+	for c in _links.get_children():
+		c.free()
+	var lines: Array = []
+	var flags: Array = []
+	for id in views:
+		var v = views[id]
+		if not is_instance_valid(v):
+			continue
+		if "line_anchors" in v:
+			for a in v.line_anchors:
+				lines.append([a[0], a[1], id])
+		if "flag_anchors" in v:
+			for p in v.flag_anchors:
+				flags.append(p)
+	var mb := SurfaceTool.new()
+	var any := false
+	# washing lines: closest facing pairs first, each window used once
+	var cands: Array = []
+	for i in lines.size():
+		for j in range(i + 1, lines.size()):
+			var a: Vector3 = lines[i][0]
+			var b: Vector3 = lines[j][0]
+			var dv := b - a
+			var dist := dv.length()
+			if dist < 1.2 or dist > 10.0 or absf(dv.y) > dist * 0.5:
+				continue
+			var dn := dv / dist
+			if (lines[i][1] as Vector3).dot(dn) < 0.25 or (lines[j][1] as Vector3).dot(-dn) < 0.25:
+				continue
+			cands.append([dist, i, j])
+	cands.sort_custom(func(x, y): return x[0] < y[0])
+	var used: Dictionary = {}
+	for c in cands:
+		if used.has(c[1]) or used.has(c[2]):
+			continue
+		used[c[1]] = true
+		used[c[2]] = true
+		var a: Vector3 = lines[c[1]][0]
+		var b: Vector3 = lines[c[2]][0]
+		mb.append_from(Ornaments.laundry(a, b, hash(Vector2i(int(a.x * 10), int(b.z * 10)))), 0, Transform3D.IDENTITY)
+		any = true
+	# bunting: every flag strings to its nearest neighbours
+	var links: Dictionary = {}
+	var count: Dictionary = {}
+	for i in flags.size():
+		var near: Array = []
+		for j in flags.size():
+			if i == j:
+				continue
+			var dist := (flags[i] as Vector3).distance_to(flags[j])
+			if dist > 1.4 and dist < 9.0:
+				near.append([dist, j])
+		near.sort_custom(func(x, y): return x[0] < y[0])
+		for k in mini(2, near.size()):
+			var j: int = near[k][1]
+			var key := Vector2i(mini(i, j), maxi(i, j))
+			if links.has(key) or count.get(i, 0) >= 2 or count.get(j, 0) >= 2:
+				continue
+			links[key] = true
+			count[i] = count.get(i, 0) + 1
+			count[j] = count.get(j, 0) + 1
+			mb.append_from(Ornaments.bunting(flags[i], flags[j], key.x * 131 + key.y), 0, Transform3D.IDENTITY)
+			any = true
+	if not any:
+		return
+	var mi := MeshInstance3D.new()
+	mi.mesh = mb.commit()
+	mi.material_override = ModelLib.props_material
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_links.add_child(mi)
 
 
 ## Reeds along pond banks and lily pads on open water, placed deterministically.
@@ -890,6 +974,9 @@ func _process(delta: float) -> void:
 			if not views.has(item.id):
 				_make_view("paths", item, false)
 		_paint_mask()
+	if _links_dirty:
+		_links_dirty = false
+		_rebuild_links()
 	_ivy_clock += delta
 	if _ivy_clock > 2.0:
 		var step := _ivy_clock / IVY_SECONDS
