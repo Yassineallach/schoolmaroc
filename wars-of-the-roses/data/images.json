@@ -33,5 +33,10 @@
     "file": "input/images/crown.png",
     "blend": "source-over",
     "note": "Crown of Princess Blanche (c.1370-80) photo supplied by the user; background and cushion removed"
+  },
+  "sword": {
+    "file": "input/images/sword.png",
+    "blend": "source-over",
+    "note": "engraved sword supplied by the user; baked-in checkerboard removed"
   }
 }

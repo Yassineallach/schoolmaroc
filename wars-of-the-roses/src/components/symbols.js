@@ -147,7 +147,25 @@
   };
 
   // ---- sword ---------------------------------------------------------------------
-  W.sword = (ctx, x, y, s, o = {}) =>
+  W.sword = (ctx, x, y, s, o = {}) => {
+    const rec = W.IMG && W.IMG.sword;
+    if (rec) {
+      // engraved sword image (pommel up, point down in the file); rot = 0 means point up, as before
+      const p = o.p == null ? 1 : W.clamp(o.p);
+      if (p <= 0) return;
+      const h = 2.25 * s, w = h * (rec.img.width / rec.img.height);
+      ctx.save();
+      ctx.globalAlpha *= W.clamp(p * 1.3);
+      ctx.translate(x, y - 0.05 * s);
+      ctx.rotate((o.rot || 0) + Math.PI);
+      ctx.beginPath(); ctx.rect(-w / 2 - 4, -h / 2 - 4, w + 8, (h + 8) * W.E.inOut(p)); ctx.clip();
+      ctx.drawImage(rec.img, -w / 2, -h / 2, w, h);
+      ctx.restore();
+      return;
+    }
+    return W.swordDrawn(ctx, x, y, s, o);
+  };
+  W.swordDrawn = (ctx, x, y, s, o = {}) =>
     stroked(ctx, x, y, s, o, (P) => {
       P.moveTo(0, -1.15); P.lineTo(0.07, -1.0); P.lineTo(0.07, 0.42); P.lineTo(-0.07, 0.42); P.lineTo(-0.07, -1.0); P.closePath();
       P.moveTo(-0.38, 0.42); P.lineTo(0.38, 0.42); P.lineTo(0.38, 0.5); P.lineTo(-0.38, 0.5); P.closePath();
