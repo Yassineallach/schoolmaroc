@@ -174,5 +174,21 @@
       440
     ],
     "note": "Thomas of Woodstock, manuscript illumination with his swan badge, supplied by the user"
+  },
+  "p_richard2": {
+    "file": "input/images/p_richard2.jpg",
+    "blend": "source-over",
+    "face": [
+      600,
+      700,
+      360
+    ],
+    "bust": [
+      600,
+      780,
+      520,
+      640
+    ],
+    "note": "Richard II, 19th-c. engraving, supplied by the user"
   }
 }

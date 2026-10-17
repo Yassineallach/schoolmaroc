@@ -43,7 +43,7 @@
         jg: { x: X.jg, y: yS, label: T.jg, sub: T.jgSub, t: c.sons + 0.3, portrait: 'p_gaunt', color: W.mixColor(W.C.ivory, W.C.crimsonBright, lanP), halo: t > c.three ? (lanP > 0 ? W.C.crimson : W.C.ivory) : null },
         el: { x: X.el, y: yS, label: T.el, sub: T.elSub, t: c.sons + 0.45, portrait: 'p_langley', color: W.C.ivory, halo: t > c.three ? W.C.ivory : null },
         tw: { x: X.tw, y: yS, label: T.tw, sub: T.twSub, t: c.sons + 0.6, portrait: 'p_woodstock', alpha: relevant('tw'), halo: t > c.three && t < c.disputes ? W.C.ivory : null },
-        r2: { x: X.bp, y: 770, label: T.r2, sub: T.r2Sub, t: c.grandson, r: 13, color: W.C.ivory, alpha: relevant('r2') },
+        r2: { x: X.bp, y: 770, label: T.r2, sub: T.r2Sub, t: c.grandson, r: 13, portrait: 'p_richard2', pr: 40, color: W.C.ivory, alpha: relevant('r2') },
         lan: { x: X.jg, y: 830, t: c.branches, r: 0.01, alpha: 0 },
         york: { x: X.el, y: 830, t: c.branches + 0.3, r: 0.01, alpha: 0 },
       };
@@ -139,13 +139,13 @@
       W.text(ctx, 'آل لانكاستر يستولون على العرش', W.W / 2, 175, { size: 34, fam: W.F.label, weight: 500, color: W.C.gold, reveal: p(t, c.seize, 1.0) });
       const dep = p(t, c.r2 + 0.3, 1.4, E.inOut);
       const nodes = {
-        r2: { x: 1300, y: 430, label: T.r2, sub: dep > 0.5 ? T.deposed : null, subColor: W.C.crimsonBright, t: 66.5, r: 18, color: W.mixColor(W.C.ivory, W.C.mute, dep), alpha: 1 - dep * 0.35 },
+        r2: { x: 1300, y: 430, label: T.r2, sub: dep > 0.5 ? T.deposed : null, subColor: W.C.crimsonBright, t: 66.5, r: 18, portrait: 'p_richard2', pr: 70, dead: dep > 0.6, color: W.mixColor(W.C.ivory, W.C.mute, dep), alpha: 1 - dep * 0.35 },
         h4: { x: 620, y: 430, label: T.h4, sub: T.h4Sub, subColor: W.C.crimsonBright, t: c.h4, r: 18, color: W.C.crimsonBright, halo: dep > 0.6 ? W.C.crimson : null },
       };
       W.tree(ctx, t, nodes, [{ a: 'r2', b: 'h4', t: c.r2, style: 'marriage', color: W.rgba(W.C.ivory, 0.4) }]);
       W.text(ctx, 'ابنا عمّ', 960, 405, { size: 24, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: p(t, c.r2 + 0.4, 0.6) });
       // crown transfer
-      const x = W.lerp(1300, 620, dep), y = 345 - Math.sin(dep * Math.PI) * 110;
+      const x = W.lerp(1300, 620, dep), y = 300 - Math.sin(dep * Math.PI) * 110;
       W.crown(ctx, x, y, 40, { p: p(t, 66.6, 1.2), color: W.mixColor(W.C.gold, W.C.crimsonBright, dep), width: 2.4, fill: 0.25, glow: 'rgba(201,164,92,0.35)' });
       TL(t, tlEvents(T.ev1, T.ev2), 66.9);
     },
