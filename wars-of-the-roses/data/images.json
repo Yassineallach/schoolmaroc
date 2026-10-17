@@ -18,5 +18,10 @@
     "file": "input/images/rose_tudor.png",
     "blend": "source-over",
     "note": "Tudor Rose badge (transparent PNG) supplied by the user"
+  },
+  "rose_lancaster": {
+    "file": "input/images/rose_lancaster.png",
+    "blend": "source-over",
+    "note": "Red Rose of Lancaster badge (transparent PNG) supplied by the user"
   }
 }
