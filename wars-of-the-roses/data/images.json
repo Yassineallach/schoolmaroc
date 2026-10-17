@@ -94,5 +94,21 @@
       320
     ],
     "note": "Edward III, late 16th-c. panel (National Portrait Gallery), supplied by the user"
+  },
+  "p_blackprince": {
+    "file": "input/images/p_blackprince.webp",
+    "blend": "source-over",
+    "face": [
+      690,
+      285,
+      235
+    ],
+    "bust": [
+      690,
+      380,
+      330,
+      400
+    ],
+    "note": "Edward the Black Prince, 19th-c. engraving, supplied by the user"
   }
 }
