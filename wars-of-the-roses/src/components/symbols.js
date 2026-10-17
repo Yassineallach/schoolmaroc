@@ -74,7 +74,7 @@
     // real heraldic artwork when supplied (rose_york / rose_lancaster / rose_tudor)
     const rec = W.IMG && W.IMG['rose_' + kind];
     if (rec) {
-      const d = 2.2 * s * (0.55 + 0.45 * W.E.outBack(W.clamp(bloom)));
+      const d = 2.05 * s * (0.55 + 0.45 * W.E.out(W.clamp(bloom)));
       ctx.save();
       ctx.globalAlpha *= (o.alpha == null ? 1 : o.alpha) * W.clamp(bloom * 1.6);
       ctx.translate(x, y);

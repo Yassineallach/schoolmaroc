@@ -258,7 +258,7 @@
       ctx.rotate(sway);
       ctx.beginPath(); ctx.rect(-iw / 2 - 10, -10, iw + 20, (ih + 20) * W.E.out(drop)); ctx.clip();
       ctx.drawImage(rec.img, -iw / 2, 0, iw, ih);
-      if (o.sigil && drop > 0.5) W.rose(ctx, 0, ih * 0.42, Math.min(w * 0.34, iw * 0.34), { kind: o.sigil, bloom: W.clamp((drop - 0.5) * 2) });
+      if (o.sigil && drop > 0.5) W.rose(ctx, 0, ih * 0.38, iw * 0.27, { kind: o.sigil, bloom: W.clamp((drop - 0.5) * 2) });
       ctx.restore();
       return;
     }
