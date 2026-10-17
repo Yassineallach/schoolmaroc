@@ -48,5 +48,10 @@
     "file": "input/images/banner_york.png",
     "blend": "source-over",
     "note": "same banner, red cloth recoloured to cream for York; rose added in code"
+  },
+  "tower": {
+    "file": "input/images/tower.png",
+    "blend": "multiply",
+    "note": "Tower of London photo supplied by the user, converted to a sepia ink engraving look; sky removed"
   }
 }

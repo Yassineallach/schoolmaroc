@@ -82,10 +82,12 @@
       W.crown(ctx, W.lerp(ex, rx, cm), ey - 70 - Math.sin(cm * Math.PI) * 90, 36, { p: p(t, c.son, 1.0), color: W.C.gold, width: 2.2, fill: 0.25, glow: 'rgba(201,164,92,0.4)' });
       // the boys in the Tower
       const tx = 1300, ty = 560;
-      W.castle(ctx, tx, ty, 120, { p: jail, color: W.C.ivoryDim, width: 2, fill: 0.08 });
-      for (const [dx, dy] of [[-0.15, -0.38], [0.15, -0.38]]) {
-        W.node(ctx, W.lerp(ex + dx * 400, tx + dx * 120, jail), W.lerp(ey, ty + dy * 120, jail), 6, { p: p(t, c.jail - 0.2, 0.6), color: W.C.ivory, width: 1.5 });
-      }
+      const box = W.castle(ctx, tx, ty, 120, { p: Math.max(jail, 0.001), color: W.C.ivoryDim, width: 2, fill: 0.08 });
+      const targets = box ? W.TOWER_WINDOWS.map(([u, v]) => [box.left + u * box.w, box.top + v * box.h]) : [[tx - 18, ty - 46], [tx + 18, ty - 46]];
+      targets.forEach(([gx, gy], i) => {
+        const dx = i ? 0.15 : -0.15;
+        W.node(ctx, W.lerp(ex + dx * 400, gx, jail), W.lerp(ey, gy, jail), 6, { p: p(t, c.jail - 0.2, 0.6), color: W.C.gold, width: 1.5 });
+      });
       W.text(ctx, T.tower, tx, ty + 170, { size: 30, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: p(t, c.jail + 0.6, 0.8) });
     },
   });
@@ -97,14 +99,15 @@
     draw(ctx, t, S) {
       const c = S.cues, T = S.text;
       const s = 260, cx = 960, cy = 600;
-      W.castle(ctx, cx, cy, s, { color: W.rgba(W.C.ivory, 0.8), width: 2.2, fill: 0.1 });
+      const box = W.castle(ctx, cx, cy, s, { color: W.rgba(W.C.ivory, 0.8), width: 2.2, fill: 0.1 });
       // two lit windows go dark
       const dark = p(t, c.vanish, 2.0, E.inOut);
-      for (const dx of [-0.15, 0.15]) {
-        const x = cx + dx * s, y = cy - 0.36 * s;
-        const fl = 0.85 + 0.15 * Math.sin(t * 9 + dx * 40);
+      const wins = box ? W.TOWER_WINDOWS.map(([u, v]) => [box.left + u * box.w, box.top + v * box.h]) : [[cx - 0.15 * s, cy - 0.36 * s], [cx + 0.15 * s, cy - 0.36 * s]];
+      for (const [x, y] of wins) {
+        const dx = x;
+        const fl = 0.85 + 0.15 * Math.sin(t * 9 + dx * 0.4);
         ctx.fillStyle = W.rgba(W.C.gold, 0.9 * (1 - dark) * fl);
-        ctx.beginPath(); ctx.ellipse(x, y + 4, 11, 22, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(x, y + 4, box ? 7 : 11, box ? 12 : 22, 0, 0, Math.PI * 2); ctx.fill();
       }
       W.text(ctx, T.a, W.W / 2, 190, { size: 54, color: W.C.ivory, reveal: p(t, c.vanish - 0.2, 0.9), alpha: 1 - p(t, c.stable - 0.3, 0.6) });
       W.text(ctx, T.b, W.W / 2, 930, { size: 48, color: W.C.ivory, reveal: p(t, c.unknown, 1.0), alpha: 1 - p(t, c.stable - 0.3, 0.6) });

@@ -225,7 +225,27 @@
   };
 
   // ---- castle / tower silhouette --------------------------------------------------
-  W.castle = (ctx, x, y, s, o = {}) =>
+  // window positions (fraction of the image) for the princes' lights
+  W.TOWER_WINDOWS = [[0.475, 0.52], [0.505, 0.52]];
+  W.castle = (ctx, x, y, s, o = {}) => {
+    const rec = W.IMG && W.IMG.tower;
+    if (rec) {
+      const p = o.p == null ? 1 : W.clamp(o.p);
+      if (p <= 0) return null;
+      const w = 2.9 * s, h = w * (rec.img.height / rec.img.width);
+      const left = x - w / 2, top = y + 1.0 * s - h;
+      ctx.save();
+      ctx.globalAlpha *= W.clamp(p * 1.3);
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.beginPath(); ctx.rect(left - 4, top + h * (1 - W.E.inOut(p)) - 4, w + 8, h + 8); ctx.clip();
+      ctx.drawImage(rec.img, left, top, w, h);
+      ctx.restore();
+      return { left, top, w, h };
+    }
+    W.castleDrawn(ctx, x, y, s, o);
+    return null;
+  };
+  W.castleDrawn = (ctx, x, y, s, o = {}) =>
     stroked(ctx, x, y, s, o, (P) => {
       const crenel = (x0, x1, yTop, n) => {
         const w = (x1 - x0) / (n * 2 - 1);
