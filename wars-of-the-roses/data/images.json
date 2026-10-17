@@ -78,5 +78,21 @@
     "file": "input/images/shield.png",
     "blend": "source-over",
     "note": "black iron heater shield supplied by the user (white background removed)"
+  },
+  "p_edward3": {
+    "file": "input/images/p_edward3.webp",
+    "blend": "source-over",
+    "face": [
+      282,
+      215,
+      175
+    ],
+    "bust": [
+      275,
+      300,
+      240,
+      320
+    ],
+    "note": "Edward III, late 16th-c. panel (National Portrait Gallery), supplied by the user"
   }
 }

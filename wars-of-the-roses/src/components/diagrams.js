@@ -13,7 +13,8 @@
       if (!A || !B) continue;
       const p = W.p(t, e.t, e.dur || 0.9, W.E.inOut);
       if (p <= 0) continue;
-      const ra = (A.r || 14) + 4, rb = (B.r || 14) + 4;
+      const rad = (N) => (W.hasPortrait(N.portrait) ? (N.pr || Math.max((N.r || 14) * 2.7, 38)) * 1.12 : (N.r || 14)) + 4;
+      const ra = rad(A), rb = rad(B);
       let pts;
       if (e.style === 'straight' || e.style === 'dash' || e.style === 'marriage') {
         const ang = Math.atan2(B.y - A.y, B.x - A.x);
@@ -38,10 +39,12 @@
       const a = n.alpha == null ? 1 : n.alpha;
       ctx.save();
       ctx.globalAlpha *= a;
-      W.node(ctx, n.x, n.y, n.r || 14, { p, color: n.color, dead: n.dead, crown: n.crown, crownColor: n.crownColor, halo: n.halo, filled: n.filled });
+      const pr = W.hasPortrait(n.portrait) ? (n.pr || Math.max((n.r || 14) * 2.7, 38)) : 0;
+      W.node(ctx, n.x, n.y, n.r || 14, { p, color: n.color, dead: n.dead, crown: n.crown, crownColor: n.crownColor, halo: n.halo, filled: n.filled, portrait: n.portrait, pr: n.pr });
       const lp = W.p(t, n.t + 0.2, 0.7);
       const below = n.labelPos !== 'above';
-      const ly = below ? n.y + (n.r || 14) + (n.labelGap || 36) : n.y - (n.r || 14) - (n.crown ? 70 : 34);
+      const rr = pr ? pr * 1.12 : (n.r || 14);
+      const ly = below ? n.y + rr + (n.labelGap || 36) : n.y - rr - (n.crown ? 70 : 34);
       if (n.label) W.text(ctx, n.label, n.x, ly, { size: n.labelSize || 32, fam: W.F.title, weight: 700, color: n.labelColor || W.C.ivory, alpha: lp, reveal: lp });
       if (n.sub) W.text(ctx, n.sub, n.x, ly + (below ? 36 : -36) * (n.labelSize ? n.labelSize / 32 : 1), { size: n.subSize || 22, fam: W.F.label, weight: 400, color: n.subColor || W.C.ivoryDim, alpha: W.p(t, n.t + 0.45, 0.7) });
       ctx.restore();

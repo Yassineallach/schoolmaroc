@@ -231,3 +231,45 @@
     return true;
   };
 })();
+
+/* Portrait medallions. Each portrait record in data/images.json carries
+   face: [cx, cy, r]  (circle crop in source pixels) and bust: [cx, cy, rx, ry] (oval crop). */
+(function () {
+  const { W } = window;
+  W.hasPortrait = (key) => !!(key && W.IMG && W.IMG[key]);
+  /** o.shape 'circle'|'oval', o.ry for oval, o.dead (sepia/grey), o.p (0..1 appear), o.ring colour */
+  W.portrait = (ctx, key, x, y, r, o = {}) => {
+    const rec = W.IMG && W.IMG[key];
+    if (!rec) return false;
+    const p = o.p == null ? 1 : W.clamp(o.p);
+    if (p <= 0) return true;
+    const oval = o.shape === 'oval';
+    const rx = r, ry = oval ? (o.ry || r * 1.3) : r;
+    const [fx, fy, fr, fry] = oval && rec.bust ? [rec.bust[0], rec.bust[1], rec.bust[2], rec.bust[3]] : [rec.face[0], rec.face[1], rec.face[2], rec.face[2]];
+    const sc = Math.max(rx / fr, ry / fry);
+    const grow = 0.85 + 0.15 * W.E.outBack(p);
+    ctx.save();
+    ctx.globalAlpha *= W.clamp(p * 1.5) * (o.alpha == null ? 1 : o.alpha);
+    ctx.translate(x, y);
+    ctx.scale(grow, grow);
+    // soft shadow + gold mount
+    ctx.save();
+    ctx.shadowColor = 'rgba(40,25,10,0.35)'; ctx.shadowBlur = r * 0.25; ctx.shadowOffsetY = r * 0.06;
+    ctx.beginPath(); ctx.ellipse(0, 0, rx + r * 0.12, ry + r * 0.12, 0, 0, Math.PI * 2);
+    ctx.fillStyle = W.C.gold; ctx.fill();
+    ctx.restore();
+    ctx.save();
+    ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); ctx.clip();
+    if (o.dead) ctx.filter = 'grayscale(0.85) sepia(0.35) brightness(0.92)';
+    ctx.drawImage(rec.img, -fx * sc, -fy * sc, rec.img.width * sc, rec.img.height * sc);
+    ctx.filter = 'none';
+    ctx.restore();
+    ctx.lineWidth = Math.max(1.5, r * 0.04);
+    ctx.strokeStyle = o.ring || W.C.ink;
+    ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = W.rgba(W.C.ink, 0.6); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(0, 0, rx + r * 0.12, ry + r * 0.12, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+    return true;
+  };
+})();

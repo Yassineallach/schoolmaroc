@@ -441,6 +441,12 @@
   W.node = (ctx, x, y, r, o = {}) => {
     const p = o.p == null ? 1 : o.p;
     if (p <= 0) return;
+    if (W.hasPortrait(o.portrait)) {
+      const R = o.pr || Math.max(r * 2.7, 38);
+      W.portrait(ctx, o.portrait, x, y, R, { p, dead: o.dead, alpha: o.alpha, ring: o.color && o.color.startsWith('#') ? o.color : null });
+      if (o.crown) W.crown(ctx, x, y - R * 1.45, R * 0.42, { p: o.crown === true ? 1 : o.crown });
+      return;
+    }
     const sc = 0.6 + 0.4 * W.E.outBack(W.clamp(p));
     ctx.save();
     ctx.globalAlpha *= W.clamp(p * 1.6) * (o.alpha == null ? 1 : o.alpha);

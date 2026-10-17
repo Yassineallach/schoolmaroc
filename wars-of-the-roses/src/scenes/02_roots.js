@@ -10,9 +10,11 @@
       const c = S.cues, T = S.text;
       const death = p(t, c.death, 1.6, E.inOut);
       const col = W.mixColor(W.C.gold, W.C.mute, death);
-      W.crown(ctx, W.W / 2, 330 + death * 14, 120, { p: p(t, 31.4, 1.8, E.inOut), color: col, width: 2.6, fill: 0.16 * (1 - death * 0.6), glow: death < 0.5 ? 'rgba(201,164,92,0.35)' : null });
-      W.text(ctx, T.name, W.W / 2, 590, { size: 104, color: W.C.ivory, reveal: p(t, c.name - 0.1, 1.1), rise: 14 });
-      W.year(ctx, T.year, W.W / 2, 760, t, c.year, { size: 150, color: W.C.gold });
+      if (W.hasPortrait('p_edward3')) {
+        W.portrait(ctx, 'p_edward3', W.W / 2, 300, 170, { shape: 'oval', ry: 215, p: p(t, 31.2, 1.6), dead: death > 0.5 });
+      } else W.crown(ctx, W.W / 2, 330 + death * 14, 120, { p: p(t, 31.4, 1.8, E.inOut), color: col, width: 2.6, fill: 0.16 * (1 - death * 0.6), glow: death < 0.5 ? 'rgba(201,164,92,0.35)' : null });
+      W.text(ctx, T.name, W.W / 2, 610, { size: 96, color: W.C.ivory, reveal: p(t, c.name - 0.1, 1.1), rise: 14 });
+      W.year(ctx, T.year, W.W / 2, 760, t, c.year, { size: 130, color: W.C.gold });
       W.text(ctx, T.sub, W.W / 2, 880, { size: 30, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: p(t, c.death, 0.9) });
       W.dagger(ctx, W.W / 2 + W.measure(ctx, T.name, { size: 104 }) / 2 + 60, 585, 26, { p: p(t, c.death + 0.2, 0.8), color: W.C.ivoryDim, width: 2 });
     },
@@ -35,7 +37,7 @@
       const yS = 490;
       const lanP = p(t, c.lan, 1.0), yorkP = p(t, c.york, 1.0);
       const nodes = {
-        e3: { x: 960, y: 250, label: null, t: c.e3, r: 18, color: W.C.gold, alpha: 1 - p(t, c.disputes, 1.2) * 0.5, labelGap: 30 },
+        e3: { x: 960, y: 250, label: null, portrait: 'p_edward3', pr: 48, t: c.e3, r: 18, color: W.C.gold, alpha: 1 - p(t, c.disputes, 1.2) * 0.5, labelGap: 30 },
         bp: { x: X.bp, y: yS, label: T.bp, sub: T.bpSub, t: c.sons, dead: t > c.bpDead + 0.3, alpha: (t > c.bpDead ? 0.55 : 1) * relevant('bp'), color: W.C.ivoryDim },
         li: { x: X.li, y: yS, label: T.li, sub: T.liSub, t: c.sons + 0.15, dead: true, alpha: 0.45 * relevant('li'), color: W.C.ivoryDim },
         jg: { x: X.jg, y: yS, label: T.jg, sub: T.jgSub, t: c.sons + 0.3, color: W.mixColor(W.C.ivory, W.C.crimsonBright, lanP), halo: t > c.three ? (lanP > 0 ? W.C.crimson : W.C.ivory) : null },
@@ -50,7 +52,7 @@
         { a: 'bp', b: 'r2', t: c.grandson - 0.3, alpha: relevant('r2') },
       ];
       W.tree(ctx, t, nodes, edges);
-      W.text(ctx, T.e3, 990, 250, { size: 36, color: W.C.ivory, align: 'left', alpha: p(t, c.e3 + 0.2, 0.7) * nodes.e3.alpha });
+      W.text(ctx, T.e3, W.hasPortrait('p_edward3') ? 1030 : 990, 250, { size: 36, color: W.C.ivory, align: 'left', alpha: p(t, c.e3 + 0.2, 0.7) * nodes.e3.alpha });
 
       // the crown passes from Edward III to his grandson, skipping a generation
       const cp = p(t, c.crown, 1.4, E.inOut);
