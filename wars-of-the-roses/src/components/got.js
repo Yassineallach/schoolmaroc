@@ -245,6 +245,21 @@
     const a = o.alpha == null ? 1 : o.alpha;
     const drop = o.drop == null ? 1 : o.drop; // unfurl 0..1
     if (a <= 0 || drop <= 0) return;
+    const rec = W.IMG && W.IMG[o.sigil === 'york' ? 'banner_york' : 'banner_lancaster'];
+    if (rec) {
+      // real banner image: unrolls from the rod, sways gently; the sigil rose is placed on it
+      const iw = w * 1.15, ih = iw * (rec.img.height / rec.img.width);
+      const sway = Math.sin(t * 1.1 + (o.phase || 0)) * 0.012;
+      ctx.save();
+      ctx.globalAlpha *= a;
+      ctx.translate(x, y - ih * 0.1);
+      ctx.rotate(sway);
+      ctx.beginPath(); ctx.rect(-iw / 2 - 10, -10, iw + 20, (ih + 20) * W.E.out(drop)); ctx.clip();
+      ctx.drawImage(rec.img, -iw / 2, 0, iw, ih);
+      if (o.sigil && drop > 0.5) W.rose(ctx, 0, ih * 0.47, w * 0.34, { kind: o.sigil, bloom: W.clamp((drop - 0.5) * 2) });
+      ctx.restore();
+      return;
+    }
     const hh = h * W.E.out(drop);
     const col = o.color || W.C.crimson;
     ctx.save();
