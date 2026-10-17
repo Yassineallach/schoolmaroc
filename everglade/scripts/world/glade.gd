@@ -812,12 +812,125 @@ func rebuild_all() -> void:
 	views.clear()
 	_openings.clear()
 	_compute_interactions()
+	# doors already there when a glade loads don't strew new clutter
+	_door_clutter(false)
 	for type in ["walls", "fences", "paths", "buildings", "stairs"]:
 		for item in data.get(type, []):
 			_make_view(type, item, false)
 	props.rebuild(data.props)
 	_paint_mask()
 	_rebuild_shore()
+
+
+# ---------------------------------------------------------------------------
+# Clutter by doors
+# ---------------------------------------------------------------------------
+## Every new door (made with a path or the door tool) strews a little
+## clutter beside it, once (Tiny Glade's clutter). With spawn = false the
+## doors are only noted.
+func _door_clutter(spawn: bool) -> void:
+	var seen: Dictionary = data.get("clutter_seen", {})
+	data.clutter_seen = seen
+	for b in data.buildings:
+		for door in _doors_of(b):
+			var key := _door_key(b, door)
+			if seen.has(key):
+				continue
+			seen[key] = true
+			if spawn:
+				_spawn_clutter(b, door, key, hash(key))
+	if spawn:
+		props.rebuild(data.props)
+
+
+func _doors_of(b: Dictionary) -> Array:
+	var out: Array = []
+	for o in _openings.get(b.id, []):
+		if not o.get("arch", false):
+			out.append(o)
+	for w in b.get("windows", []):
+		if w.get("kind", "") == "door":
+			out.append(w)
+	return out
+
+
+func _door_key(b: Dictionary, door: Dictionary) -> String:
+	return "%d:%d:%d" % [b.id, int(door.get("side", 0)), int(round(float(door.get("u", 0.5)) * 50.0))]
+
+
+## Ground point in front of a door and the wall's outward normal.
+func door_spot(b: Dictionary, side: int, u: float) -> Array:
+	var basis := BuildingView.local_basis(b.get("rot", 0.0))
+	var origin := Vector3(b.c.x, b.get("base", 0.0), b.c.y)
+	var lp: Vector3
+	var n: Vector3
+	if b.shape == "round":
+		n = Vector3(cos(u * TAU), 0, sin(u * TAU))
+		lp = n * float(b.r)
+	else:
+		var L: float = b.size.x
+		var W: float = b.size.y
+		var corners := [Vector3(-L / 2, 0, -W / 2), Vector3(L / 2, 0, -W / 2), Vector3(L / 2, 0, W / 2), Vector3(-L / 2, 0, W / 2)]
+		var a: Vector3 = corners[side % 4]
+		var c: Vector3 = corners[(side + 1) % 4]
+		lp = a.lerp(c, clampf(u, 0.05, 0.95))
+		n = (c - a).cross(Vector3.UP).normalized()
+		if n.dot(lp) < 0.0:
+			n = -n
+	return [origin + basis * lp, basis * n]
+
+
+func _spawn_clutter(b: Dictionary, door: Dictionary, key: String, seed_value: int) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	var spot := door_spot(b, int(door.get("side", 0)), float(door.get("u", 0.5)))
+	var p0: Vector3 = spot[0]
+	var n: Vector3 = spot[1]
+	var along := n.cross(Vector3.UP).normalized()
+	var count := rng.randi_range(1, 2)
+	var sides := [1.0, -1.0] if rng.randf() < 0.5 else [-1.0, 1.0]
+	for i in count:
+		var q3: Vector3 = p0 + along * float(sides[i]) * rng.randf_range(1.0, 1.5) + n * rng.randf_range(0.45, 0.8)
+		var q := Vector2(q3.x, q3.z)
+		if is_blocked(q) or _on_path(q, 0.35):
+			continue
+		var kind: String = Clutter.DOORSTEP[rng.randi() % Clutter.DOORSTEP.size()]
+		var face := atan2(n.x, n.z) + rng.randf_range(-0.6, 0.6)
+		var pr := add_prop(kind, Vector3(q.x, terrain.height_at_v(q) - 0.02, q.y), face, rng.randf_range(0.85, 1.05),
+				Catalog.DECOR.get(kind, {}).get("align", false))
+		pr.clutter = key
+
+
+## Clears a door's clutter and strews a new lot (tap a door with the door tool).
+func reroll_clutter(b: Dictionary, door: Dictionary) -> void:
+	var key := _door_key(b, door)
+	for p in data.props.duplicate():
+		if p.get("clutter", "") == key:
+			data.props.erase(p)
+	_spawn_clutter(b, door, key, randi())
+	props.rebuild(data.props)
+	changed.emit()
+
+
+## The door (path-made or placed) nearest (side, u) on house b, if any.
+func door_near(b: Dictionary, side: int, u: float, gap: float) -> Dictionary:
+	var span: float = TAU * float(b.get("r", 1.0)) if b.shape == "round" else (b.size.x if side % 2 == 0 else b.size.y)
+	for door in _doors_of(b):
+		if int(door.get("side", 0)) != side and b.shape != "round":
+			continue
+		var du: float = absf(float(door.u) - u)
+		if b.shape == "round":
+			du = minf(du, 1.0 - du)
+		if du * span < gap:
+			return door
+	return {}
+
+
+func _on_path(q: Vector2, margin: float) -> bool:
+	for path in data.paths:
+		if Geo.closest(path.pts, q).x < float(path.get("w", 1.4)) * 0.5 + margin:
+			return true
+	return false
 
 
 ## Washing lines between facing clothesline windows (even across a lane to
@@ -990,6 +1103,8 @@ func terrain_edited() -> void:
 	for b in moved:
 		_make_view("buildings", b, false)
 	for p in data.props:
+		if p.get("on", false):
+			continue
 		var pos: Vector3 = p.p
 		pos.y = terrain.height_at(pos.x, pos.z)
 		p.p = pos
@@ -1023,6 +1138,7 @@ func _process(delta: float) -> void:
 			if not views.has(item.id):
 				_make_view("paths", item, false)
 		_paint_mask()
+		_door_clutter(true)
 	if _links_dirty:
 		_links_dirty = false
 		_rebuild_links()

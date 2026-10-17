@@ -195,6 +195,12 @@ func _tap_building(hit: Dictionary, mode: String) -> void:
 			else:
 				var kind := "door" if mode == "door" or (loc.y < Catalog.PLINTH + 0.9 and loc.f == 0) else "window"
 				var f_idx: int = 0 if kind == "door" else loc.f
+				var door := glade.door_near(b, loc.side, loc.u, 0.9) if kind == "door" else {}
+				if not door.is_empty():
+					# tapping a door again shuffles the clutter beside it
+					glade.reroll_clutter(b, door)
+					Sfx.play("plant", -4.0)
+					return
 				_tap_window(b, {"side": loc.side, "u": loc.u, "f": f_idx, "kind": kind, "wt": options.wt})
 	if not ok:
 		glade.undo_stack.pop_back()

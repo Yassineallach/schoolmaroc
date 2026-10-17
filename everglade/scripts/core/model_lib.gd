@@ -76,7 +76,7 @@ func resolve(kind: String, raw := false) -> String:
 
 
 func has_model(kind: String) -> bool:
-	return ResourceLoader.exists(MODEL_DIR + resolve(kind) + ".glb")
+	return Clutter.KINDS.has(kind) or ResourceLoader.exists(MODEL_DIR + resolve(kind) + ".glb")
 
 
 ## Foliage material for one leaf-mask texture ("" = the painted atlas).
@@ -134,6 +134,11 @@ func _scene(kind: String) -> PackedScene:
 ## Instantiates the model as a node tree with stylised materials applied.
 ## Animated props/creatures use this to reach their named child pivots.
 func instance(kind: String, raw := false) -> Node3D:
+	if Clutter.KINDS.has(kind):
+		var mi := MeshInstance3D.new()
+		mi.mesh = merged(kind).solid
+		mi.material_override = props_material
+		return mi
 	var packed := _scene(resolve(kind, raw))
 	if packed == null:
 		push_warning("Missing model: " + kind)
@@ -182,6 +187,11 @@ func merged(kind: String, raw := false) -> Dictionary:
 	var key := resolve(kind, raw)
 	if _merged.has(key):
 		return _merged[key]
+	if Clutter.KINDS.has(kind):
+		var cm := Clutter.build(kind)
+		var cr := {"solid": cm, "glow": null, "leaves": null, "tex": [], "aabb": cm.get_aabb(), "leaf_mat": leaf_material}
+		_merged[key] = cr
+		return cr
 	var root := instance(key, true)
 	var leaf_tex := ""
 	var solid := SurfaceTool.new()
