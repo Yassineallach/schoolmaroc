@@ -274,6 +274,19 @@
     const p = o.p == null ? 1 : o.p;
     if (p <= 0) return;
     const sc = 1 + (1 - W.E.outBack(W.clamp(p))) * 0.5;
+    const rec = W.IMG && W.IMG[o.emblem === false ? 'seal_red' : 'seal'];
+    if (rec) {
+      // stamped in: drops from slightly larger with a little rotation, casts a soft shadow
+      ctx.save();
+      ctx.globalAlpha *= W.clamp(p * 2);
+      ctx.translate(x, y);
+      ctx.rotate((1 - W.clamp(p)) * -0.3 + (o.emblem === false ? -0.12 : 0));
+      ctx.scale(sc, sc);
+      ctx.shadowColor = 'rgba(40,20,10,0.45)'; ctx.shadowBlur = 0.25 * s; ctx.shadowOffsetY = 0.08 * s;
+      ctx.drawImage(rec.img, -s, -s, 2 * s, 2 * s);
+      ctx.restore();
+      return;
+    }
     ctx.save();
     ctx.translate(x, y);
     ctx.scale(sc, sc);

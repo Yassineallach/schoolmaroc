@@ -53,5 +53,15 @@
     "file": "input/images/tower.png",
     "blend": "multiply",
     "note": "Tower of London photo supplied by the user, converted to a sepia ink engraving look; sky removed"
+  },
+  "seal": {
+    "file": "input/images/seal.png",
+    "blend": "source-over",
+    "note": "metal seal with gilded crown supplied by the user (disc cut out)"
+  },
+  "seal_red": {
+    "file": "input/images/seal_red.png",
+    "blend": "source-over",
+    "note": "same seal tinted as red wax, used for the 'illegitimate' stamp"
   }
 }
