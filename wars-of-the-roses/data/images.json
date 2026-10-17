@@ -302,5 +302,21 @@
       470
     ],
     "note": "Elizabeth Woodville, 16th-c. panel, supplied by the user"
+  },
+  "p_warwick": {
+    "file": "input/images/p_warwick.jpg",
+    "blend": "source-over",
+    "face": [
+      188,
+      125,
+      62
+    ],
+    "bust": [
+      190,
+      170,
+      95,
+      120
+    ],
+    "note": "Richard Neville, Earl of Warwick, later portrait, supplied by the user"
   }
 }

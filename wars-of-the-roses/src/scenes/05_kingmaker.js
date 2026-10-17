@@ -74,16 +74,17 @@
       W.strokePoly(ctx, [[linkEnd, 520], [wx - 30, wy]], 1, { color: W.rgba(W.C.ivory, 0.75 * (1 - snap)), width: 2.5 });
       W.strokePoly(ctx, [[wx + 30, wy], [1610, 520]], p(t, c.ally, 0.9, E.inOut), { color: W.rgba(W.C.crimsonBright, 0.8), width: 2.5 });
       const wcol = W.mixColor(W.C.ivory, W.C.crimsonBright, mv);
-      W.node(ctx, wx, wy, 17, { p: p(t, c.wa - 0.8, 0.8), color: wcol, halo: t > c.wa && t < c.turn ? W.C.ivory : null });
-      W.text(ctx, T.wa, wx, wy + 62, { size: 36, color: W.C.ivory, reveal: p(t, c.wa, 0.8) });
-      W.text(ctx, T.waSub, wx, wy + 104, { size: 26, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.wa + 0.4, 0.7) });
+      W.node(ctx, wx, wy, 17, { p: p(t, c.wa - 0.8, 0.8), color: wcol, halo: t > c.wa && t < c.turn ? W.C.ivory : null, portrait: 'p_warwick', pr: 52 });
+      const wq = W.hasPortrait('p_warwick') ? 36 : 0;
+      W.text(ctx, T.wa, wx, wy + 62 + wq, { size: 36, color: W.C.ivory, reveal: p(t, c.wa, 0.8) });
+      W.text(ctx, T.waSub, wx, wy + 104 + wq, { size: 26, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.wa + 0.4, 0.7) });
       // George, the jealous brother, follows
       const gm = p(t, c.gName - 0.2, 1.6, E.inOut);
       const gx = W.lerp(520, 1180, gm), gy = 800;
       W.node(ctx, gx, gy, 14, { p: p(t, c.g - 0.3, 0.8), color: W.mixColor(W.C.ivory, W.C.crimsonBright, gm * 0.5) });
       W.text(ctx, T.g, gx, gy + 54, { size: 32, color: W.C.ivory, alpha: p(t, c.g, 0.7) });
       W.text(ctx, T.gSub, gx, gy + 94, { size: 24, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: p(t, c.g + 0.3, 0.7) });
-      W.strokePoly(ctx, [[wx, wy + 130], [gx, gy - 30]], p(t, c.g, 1.0, E.inOut), { color: W.rgba(W.C.crimsonBright, 0.6), width: 1.6, dash: [5, 7], dashOffset: -t * 20 });
+      W.strokePoly(ctx, [[wx, wy + 130 + wq], [gx, gy - 30]], p(t, c.g, 1.0, E.inOut), { color: W.rgba(W.C.crimsonBright, 0.6), width: 1.6, dash: [5, 7], dashOffset: -t * 20 });
     },
   });
 
