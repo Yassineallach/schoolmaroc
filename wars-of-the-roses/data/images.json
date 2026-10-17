@@ -63,5 +63,10 @@
     "file": "input/images/seal_red.png",
     "blend": "source-over",
     "note": "same seal tinted as red wax, used for the 'illegitimate' stamp"
+  },
+  "rose_en_soleil": {
+    "file": "input/images/rose_en_soleil.png",
+    "blend": "source-over",
+    "note": "Edward IV's badge, the white rose en soleil (transparent PNG) supplied by the user"
   }
 }
