@@ -80,7 +80,7 @@ class Openings:
 
     def hits(self, u0, u1, z0, z1, pad=0.06):
         for (u, oz, w, h, kind) in self.items:
-            top = oz + h + (w * 0.5 if kind == "round" else w * 0.78 if kind == "pointed" else 0.0)
+            top = oz + h + (w * 0.5 if kind == "round" else w * 0.87 if kind == "pointed" else 0.0)
             if u1 > u - w / 2 - pad and u0 < u + w / 2 + pad and z1 > oz - pad and z0 < top + pad:
                 return True
         return False
@@ -114,7 +114,7 @@ def opening_outline(w, h, kind, steps=16):
             pts.append((math.cos(a) * r, h + math.sin(a) * r))
     elif kind == "pointed":
         half = w / 2
-        R, c = half * 1.7, half * 0.7
+        R, c = half * 2.0, half * 1.0
         for i in range(1, steps):
             x = half - w * i / steps
             cx = -c if x >= 0 else c
@@ -549,7 +549,7 @@ def cottage(ox, oy):
         lay_stones(sp, list(stone_face(sp, -half - 0.05, half + 0.05, 0.0, plinth + 0.05, None, None)), place, proud=0.06)
         z = plinth + 0.05
         k = 0
-        while z < g - 0.2:
+        while z + 0.32 <= g - 0.05:
             h = 0.32
             for sgn in (-1, 1):
                 w = 0.5 if k % 2 == 0 else 0.32
@@ -608,8 +608,8 @@ def chapel(ox, oy):
     ops = Openings()
     doors = [-1.6, 1.6]
     for u in doors:
-        ops.add(u, 0.25, 1.12, 1.548, "pointed")
-    ops.add(0.0, 1.1, 0.8, 0.58, "pointed")
+        ops.add(u, 0.25, 1.12, 1.43, "pointed")
+    ops.add(0.0, 1.1, 0.8, 0.51, "pointed")
     cuts = [(face_matrix(front, u, z), opening_outline(w, h, k), 1.0) for (u, z, w, h, k) in ops.items]
     parts += walls("chap", W, D, 0.0, g, T, MORTAR, M_STONE, {"front": cuts}, lin("#D8C8A6"), M_STONE)
     sp = Piece("chap_stone")
@@ -658,8 +658,13 @@ def tower(ox, oy):
     R = 1.7
     H = 6.0
     parts = []
+    core = Piece("tower_core")
+    core.cyl(R - 0.1, H, (0, 0, H / 2), color=MORTAR, mat=M_STONE, seg=40)
+    core = core.to_object()
+    # the window cut right through, so it sits back in the wall
+    cut_openings(core, [(Matrix.Translation((0, -R, 2.1)), opening_outline(0.8, 0.51, "pointed"), 0.9)], lin("#D8C8A6"), M_STONE)
+    parts.append(core)
     sp = Piece("tower")
-    sp.cyl(R - 0.1, H, (0, 0, H / 2), color=MORTAR, mat=M_STONE, seg=32)
     z = 0.0
     row = 0
     while z < H - 0.05:
@@ -676,7 +681,7 @@ def tower(ox, oy):
         row += 1
     parts.append(sp.to_object())
     loc = (0, -R + 0.05, 2.1)
-    parts.append(place_piece(bw.window_tg_gothic, loc, 0.0, 0.0, dy=-0.02))
+    parts.append(place_piece(bw.window_tg_gothic, (0, -(R + 0.02), 2.1), 0.0, 0.2))
     rp = Piece("tower_roof")
     cone_roof(rp, 0, 0, R, H, 3.6, SLATE)
     parts.append(rp.to_object())

@@ -18,8 +18,8 @@ const DEPTH := 0.34
 const ARC_STEPS := 12
 ## Pointed arches: arcs of radius K_R * half-width centred K_C * half-width
 ## off the middle (the lancet the tg_* gothic models are built on).
-const K_R := 1.7
-const K_C := 0.7
+const K_R := 2.0
+const K_C := 1.0
 const BACK := Color(0.10, 0.08, 0.065, 1.0)
 
 ## Openings of the tg_* door and window models (origin = bottom centre of
@@ -28,11 +28,11 @@ const BACK := Color(0.10, 0.08, 0.065, 1.0)
 const MODELS := {
 	"tg_door": {"w": 1.40, "h": 2.36, "arch": FLAT},
 	"tg_door_arch": {"w": 1.40, "h": 1.64, "arch": ROUND},
-	"tg_door_gothic": {"w": 1.12, "h": 1.548, "arch": POINTED},
+	"tg_door_gothic": {"w": 1.12, "h": 1.43, "arch": POINTED},
 	"tg_door_double": {"w": 2.20, "h": 2.50, "arch": FLAT},
 	"tg_window": {"w": 0.96, "h": 1.08, "arch": FLAT},
 	"tg_window_arch": {"w": 0.96, "h": 1.04, "arch": ROUND},
-	"tg_window_gothic": {"w": 0.80, "h": 0.58, "arch": POINTED},
+	"tg_window_gothic": {"w": 0.80, "h": 0.51, "arch": POINTED},
 	"tg_window_lattice": {"w": 0.90, "h": 1.14, "arch": FLAT},
 }
 

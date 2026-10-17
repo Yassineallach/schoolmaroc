@@ -534,7 +534,7 @@ def door_tg_gothic():
     p = Piece("door_tg_gothic")
     W, H = 1.1, 2.4
     half = W / 2
-    R = W * 0.85                      # arc radius: a gently pointed lancet
+    R = W * 1.0                       # arc radius: an equilateral (pointed) arch
     c = R - half                      # arc centres sit this far off-centre
     top = math.sqrt(R * R - c * c)    # rise of the point above the springing
     hs = H - top
@@ -585,7 +585,7 @@ def window_tg_gothic():
     p = Piece("window_tg_gothic")
     W, H = 0.7, 1.15
     half = W / 2
-    R = W * 0.85
+    R = W * 1.0
     c = R - half
     top = math.sqrt(R * R - c * c)
     hs = H - top

@@ -1,26 +1,32 @@
 class_name Roofing
 extends RefCounted
-## Individually laid roof tiles. Courses run from the eave up to the ridge,
-## each tile overlapping the one below with its lower lip lifted off the roof
-## so every course casts a thin shadow line. Tiles are staggered by half a
-## tile per course and vary slightly in width, lift and colour (the odd
-## darker, weathered or mossy tile) for a handmade look.
+## Individually laid roof tiles, as Tiny Glade lays them: chunky, rounded
+## little slabs in staggered courses from the eave up to the ridge, each
+## overlapping the one below with its lower edge kicked up off the roof (so
+## every course casts a soft shadow line), every tile a touch wonky and its
+## own shade. Ridges and hips are capped with round ridge tiles.
 
-const COURSE := 0.2      # exposed length of each course along the slope
-const TILE_LEN := 0.27
-const TILE_W := 0.25
-const LIFT := 0.035
+const COURSE := 0.235    # exposed length of each course along the slope
+const TILE_LEN := 0.33
+const TILE_W := 0.3
+const LIFT := 0.05
+const THICK := 0.05
 
 
 static func tile_color(base: Color, rng: RandomNumberGenerator) -> Color:
-	var k := rng.randf_range(0.86, 1.08)
+	var k := rng.randf_range(0.82, 1.12)
 	var c := Color(base.r * k, base.g * k, base.b * k, 1.0)
+	# a patchwork of shades: some tiles warmer, some cooler
 	var r := rng.randf()
-	if r < 0.06:
-		c = c.darkened(0.18)
-	elif r < 0.09:
+	if r < 0.22:
+		c = c.lerp(Color(c.r * 1.1, c.g * 0.97, c.b * 0.88), 0.7)
+	elif r < 0.4:
+		c = c.lerp(Color(c.r * 0.9, c.g * 1.0, c.b * 1.1), 0.7)
+	elif r < 0.46:
+		c = c.darkened(0.2)
+	elif r < 0.49:
 		c = c.lerp(Color(0.42, 0.48, 0.30), 0.35)
-	return c
+	return Color(minf(c.r, 1.0), minf(c.g, 1.0), minf(c.b, 1.0), 1.0)
 
 
 ## Tiles over a planar quad slope given by its ridge edge (rl, rr) and eave
@@ -59,22 +65,61 @@ static func slope(mb: MeshBuilder, rl: Vector3, rr: Vector3, el: Vector3, er: Ve
 			_tile(mb, left + along * (x0 + 0.008), along, up_dir, n, x1 - x0 - 0.016, LIFT * rng.randf_range(0.7, 1.2), tile_color(base, rng))
 
 
+## One chunky tile: a soft-edged slab from its kicked-up lower edge at o
+## (width w along `along`) up the slope by up_dir.
 static func _tile(mb: MeshBuilder, o: Vector3, along: Vector3, up_dir: Vector3, n: Vector3, w: float, lift: float, col: Color) -> void:
-	var bl := o + n * lift
-	var br := o + along * w + n * lift
-	var tl := o + up_dir + n * 0.006
-	var tr := o + along * w + up_dir + n * 0.006
-	var top_n := up_dir.normalized().cross(along).normalized()
-	if top_n.dot(n) < 0.0:
-		top_n = -top_n
-	mb.quad_facing(bl, br, tr, tl, top_n, col)
-	# lifted lower lip and its two small cheeks
-	var pl := o
-	var pr := o + along * w
-	var lip_n := (-up_dir.normalized() + n * 0.3).normalized()
-	mb.quad_facing(pl, pr, br, bl, lip_n, col.darkened(0.08))
-	mb.tri_facing(pl, bl, tl, -along, col.darkened(0.12))
-	mb.tri_facing(pr, br, tr, along, col.darkened(0.12))
+	var low := o + along * (w * 0.5) + n * (lift + THICK * 0.5)
+	var high := o + along * (w * 0.5) + up_dir + n * (THICK * 0.5 + 0.004)
+	var y := high - low
+	var len := y.length()
+	if len < 0.02:
+		return
+	y /= len
+	var x := (along - y * along.dot(y)).normalized()
+	var z := x.cross(y)
+	if z.dot(n) < 0.0:
+		z = -z
+		x = -x
+	mb.bevel_box(Transform3D(Basis(x, y, z), (low + high) * 0.5), Vector3(w, len, THICK), 0.02, col)
+
+
+## Round ridge tiles capping a ridge or hip from a to b.
+static func ridge(mb: MeshBuilder, a: Vector3, b: Vector3, base: Color, rng: RandomNumberGenerator, r := 0.12) -> void:
+	var d := b - a
+	var L := d.length()
+	if L < 0.05:
+		return
+	var ax := d / L
+	var side := ax.cross(Vector3.UP)
+	if side.length_squared() < 1e-6:
+		side = Vector3.RIGHT
+	side = side.normalized()
+	var up := side.cross(ax).normalized()
+	if up.y < 0.0:
+		up = -up
+	var count := maxi(1, int(round(L / 0.34)))
+	const SEG := 8
+	for k in count:
+		var c0 := a + d * (float(k) / count) + ax * 0.012
+		var c1 := a + d * (float(k + 1) / count) - ax * 0.012
+		var col := tile_color(base, rng).darkened(0.06)
+		var rr := r * rng.randf_range(0.95, 1.05)
+		var prev0 := Vector3.ZERO
+		var prev1 := Vector3.ZERO
+		var prev_n := Vector3.ZERO
+		for i in SEG + 1:
+			var t := PI * i / SEG
+			var nn := side * cos(t) + up * sin(t)
+			var p0 := c0 + nn * rr
+			var p1 := c1 + nn * rr
+			if i > 0:
+				mb.quad_facing(prev0, prev1, p1, p0, (prev_n + nn).normalized(), col, prev_n, prev_n, nn, nn)
+				# end caps
+				mb.tri_facing(c0, prev0, p0, -ax, col.darkened(0.1))
+				mb.tri_facing(c1, prev1, p1, ax, col.darkened(0.1))
+			prev0 = p0
+			prev1 = p1
+			prev_n = nn
 
 
 ## Tiles over a cone from the apex down to the eave ring.
@@ -102,9 +147,8 @@ static func cone(mb: MeshBuilder, apex: Vector3, ring_y: float, radius: float, b
 			var n := (mid * (apex.y - ring_y) / slant + Vector3.UP * radius / slant).normalized()
 			var lift := LIFT * rng.randf_range(0.7, 1.2)
 			var col := tile_color(base, rng)
-			var bl := ring_c + d0 * r_low + Vector3.UP * (y_low - ring_y) + n * lift
-			var br := ring_c + d1 * r_low + Vector3.UP * (y_low - ring_y) + n * lift
-			var tl := ring_c + d0 * r_up + Vector3.UP * (y_up - ring_y) + n * 0.006
-			var tr := ring_c + d1 * r_up + Vector3.UP * (y_up - ring_y) + n * 0.006
-			mb.quad_facing(bl, br, tr, tl, n, col)
-			mb.quad_facing(bl - n * lift, br - n * lift, br, bl, (mid + n * 0.3).normalized(), col.darkened(0.08))
+			var o := ring_c + d0 * r_low + Vector3.UP * (y_low - ring_y)
+			var o_up := ring_c + mid * r_up * cos(PI * 0.46 / count) + Vector3.UP * (y_up - ring_y)
+			var w := (d1 - d0).length() * r_low
+			var along := (d1 - d0).normalized()
+			_tile(mb, o, along, o_up - (o + along * w * 0.5), n, w, lift, col)

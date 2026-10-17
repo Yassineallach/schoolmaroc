@@ -94,7 +94,7 @@ const ANIMATED := ["windmill"]
 
 # muted, natural palette: slate, terracotta, warm brown, moss, ochre...
 const ROOF_COLORS := [
-	Color(0.40, 0.46, 0.50), Color(0.64, 0.34, 0.26), Color(0.50, 0.38, 0.28),
+	Color(0.37, 0.49, 0.54), Color(0.72, 0.41, 0.29), Color(0.50, 0.38, 0.28),
 	Color(0.44, 0.50, 0.40), Color(0.50, 0.44, 0.50), Color(0.21, 0.23, 0.27),
 	Color(0.70, 0.56, 0.34), Color(0.54, 0.30, 0.22),
 ]

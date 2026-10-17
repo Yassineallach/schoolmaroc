@@ -36,7 +36,12 @@ var lift := 0.0
 ## houses, one list round towers).
 var _cut: Array = []
 var _clear: Array = []
-const LIMESTONE := Color(0.80, 0.76, 0.67)
+## Jettied timber houses: how far the upper storeys stand out over the
+## ground floor (0 = flush), and where the jetty starts.
+var _jet := 0.0
+var _jet_y := 0.0
+# Tiny Glade's pale sandy stone (#D8C8A6)
+const LIMESTONE := Color(0.84, 0.78, 0.65)
 
 
 static func local_basis(rot: float) -> Basis:
@@ -157,7 +162,7 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 		cs.shape = cyl
 	else:
 		var box := BoxShape3D.new()
-		box.size = Vector3(d.size.x + 0.3, eave + roof_h + 0.3, d.size.y + 0.3)
+		box.size = Vector3(d.size.x + 0.3 + 2.0 * _jet, eave + roof_h + 0.3, d.size.y + 0.3 + 2.0 * _jet)
 		cs.shape = box
 	cs.position = Vector3(0, (eave + roof_h + 0.3) * 0.5 - 0.15, 0)
 	body.add_child(cs)
@@ -193,7 +198,11 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 		_rect_roof(mb, d, L, W, roof, pitch, roof_col, Color(stone_col.r, stone_col.g, stone_col.b, 0.25), stone_col, "stone")
 		return
 	# roof
-	_rect_roof(mb, d, L, W, roof, pitch, roof_col, wcol, stone_col, style)
+	# timber houses carry their upper storeys out over the ground floor on a
+	# row of beam ends (a jetty), as in Tiny Glade
+	_jet = 0.22 if style == "timber" and floors > 1 and not _preview else 0.0
+	_jet_y = PL + FH
+	_rect_roof(mb, d, L + 2.0 * _jet, W + 2.0 * _jet, roof, pitch, roof_col, wcol, stone_col, style)
 	# openings (none where another house is joined on), planned before the
 	# walls so the walls can be laid round them
 	_cut = [[], [], [], []]
@@ -299,6 +308,8 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 				# stone is set 4 cm proud, so its windows sit in that face
 				var in_stone := style == "stone" or (style == "windrise" and f == 0 and floors > 1)
 				var p := a.lerp(b, uc) + Vector3.UP * y
+				if _jet > 0.0 and y >= _jet_y:
+					p += n * _jet
 				if style == "windrise" and in_stone:
 					p += n * 0.04
 				var hl := WallCut.hole_for(model, uc * len_side, y, sx)
@@ -342,7 +353,21 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 			wall_y0 = PL + (FH if floors > 1 else 1.0) - 0.04
 		elif style == "lakeside":
 			wall_y0 = PL + 0.7
-		_ring_walls(mb, corners, wall_y0, eave, wcol, true)
+		if _jet > 0.0:
+			var up := _at_storey(corners, _jet_y)
+			_ring_walls(mb, corners, wall_y0, _jet_y, wcol, true)
+			_ring_walls(mb, up, _jet_y, eave, wcol, true, _jet)
+			# the jetty's underside between the two wall lines
+			var soffit := _wood(Color(0.56, 0.42, 0.27, 0.5))
+			for i in 4:
+				var a0: Vector3 = corners[i]
+				var b0: Vector3 = corners[(i + 1) % 4]
+				var a1: Vector3 = up[i]
+				var b1: Vector3 = up[(i + 1) % 4]
+				var yv := Vector3.UP * _jet_y
+				mb.quad_facing(a0 + yv, b0 + yv, b1 + yv, a1 + yv, Vector3.DOWN, soffit)
+		else:
+			_ring_walls(mb, corners, wall_y0, eave, wcol, true)
 		if style == "plaster" and not _preview:
 			# worn lime render: stone patches and stone string courses
 			var bands: Array = []
@@ -379,8 +404,8 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 			cx = L * 0.22
 			y_roof = eave + roof_h * (1.0 - cx / (L * 0.5))
 		var sy := 1.0 + roof_h * 0.45
-		deco.add("chimney", Transform3D(Basis.from_scale(Vector3(1, sy, 1)), Vector3(cx, y_roof - 0.5, cz)))
-		set_meta("smoke_at", Vector3(cx, y_roof - 0.5 + 1.25 * sy + 0.1, cz))
+		_stone_chimney(mb, Vector3(cx, y_roof - 0.5, cz), 1.25 * sy)
+		set_meta("smoke_at", Vector3(cx, y_roof - 0.5 + 1.25 * sy + 0.35, cz))
 	elif has_meta("smoke_at"):
 		remove_meta("smoke_at")
 	_place_extras(deco, d, false)
@@ -500,32 +525,47 @@ func _timber(mb: MeshBuilder, corners: Array, floors: int, d: Dictionary, doors:
 	var t := 0.16
 	for f in floors + 1:
 		var y := PL + f * FH
-		_band(mb, corners, y + (0.08 if f == 0 else 0.0), 0.16, 0.04, beam)
+		_band(mb, _at_storey(corners, y), y + (0.08 if f == 0 else 0.0), 0.16, 0.04, beam)
+	# posts storey by storey (a jettied upper storey has its own wall line)
+	var runs: Array = [[PL, eave, corners, 0.0]]
+	if _jet > 0.0:
+		runs = [[PL, _jet_y, corners, 0.0], [_jet_y, eave, _at_storey(corners, _jet_y), _jet]]
+	for run in runs:
+		var y0: float = run[0]
+		var y1: float = run[1]
+		var cs: Array = run[2]
+		var off: float = run[3]
+		for i in 4:
+			var a: Vector3 = cs[i]
+			var b: Vector3 = cs[(i + 1) % 4]
+			var n := _side_normal(cs, i)
+			var l := a.distance_to(b)
+			var count := maxi(1, int(l / 1.3))
+			for k in count + 1:
+				var u := float(k) / count
+				# openings bring their own posts (see _timber_surround)
+				var skip := false
+				for hl in (_cut[i] if _cut.size() == 4 else []):
+					if absf(hl.s + off - u * l) < hl.w * 0.5 + 0.35 and hl.y < y1 and WallCut.top(hl) > y0:
+						skip = true
+				if skip and k != 0 and k != count:
+					continue
+				var p := a.lerp(b, u) + n * 0.04
+				var h := y1 - y0
+				mb.box(Transform3D(DecoMerge.facing(n), p + Vector3.UP * (y0 + h * 0.5)), Vector3(t, h, 0.08), beam)
+	var up := _at_storey(corners, eave)
 	for i in 4:
-		var a: Vector3 = corners[i]
-		var b: Vector3 = corners[(i + 1) % 4]
-		var n := _side_normal(corners, i)
+		var a: Vector3 = up[i]
+		var b: Vector3 = up[(i + 1) % 4]
+		var n := _side_normal(up, i)
 		var l := a.distance_to(b)
-		var count := maxi(1, int(l / 1.3))
-		for k in count + 1:
-			var u := float(k) / count
-			# openings bring their own posts (see _timber_surround)
-			var skip := false
-			for hl in (_cut[i] if _cut.size() == 4 else []):
-				if absf(hl.s - u * l) < hl.w * 0.5 + 0.35:
-					skip = true
-			if skip and k != 0 and k != count:
-				continue
-			var p := a.lerp(b, u) + n * 0.04
-			var h := eave - PL
-			mb.box(Transform3D(DecoMerge.facing(n), p + Vector3.UP * (PL + h * 0.5)), Vector3(t, h, 0.08), beam)
 		# diagonal braces on the upper storeys at both ends of each side
 		for f in range(1, floors):
 			var y0 := PL + f * FH
 			for end in [0.0, 1.0]:
 				var near := false
 				for hl in (_cut[i] if _cut.size() == 4 else []):
-					if absf(hl.s - end * l) < hl.w * 0.5 + 1.3 and hl.y > y0 - 0.5 and hl.y < y0 + FH:
+					if absf(hl.s + _jet - end * l) < hl.w * 0.5 + 1.3 and hl.y > y0 - 0.5 and hl.y < y0 + FH:
 						near = true
 				if near:
 					continue
@@ -630,12 +670,11 @@ func _gable_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color
 				var e := Vector3(xs, ye, zs).lerp(Vector3(xs, yr, 0), t0) + Vector3.UP * _bow(t0, rh, curve, tw)
 				var r := Vector3(xs, ye, zs).lerp(Vector3(xs, yr, 0), t1) + Vector3.UP * _bow(t1, rh, curve, tw)
 				mb.quad_facing(e + dn, r + dn, r, e, Vector3(signf(xs), 0, 0), fascia)
-	# ridge with gold finials at both gable ends
-	mb.box(Transform3D(Basis(Vector3.RIGHT, PI / 4), Vector3(0, yr + 0.02, 0)), Vector3(x1 - x0 + 0.08, 0.2, 0.2), fascia)
-	var gold := Color(0.95, 0.74, 0.30, 1.0)
-	for xs in [x0 + 0.05, x1 - 0.05]:
-		mb.box(Transform3D(Basis.IDENTITY, Vector3(xs, yr + 0.22, 0)), Vector3(0.12, 0.42, 0.12), gold)
-		mb.box(Transform3D(Basis(Vector3.RIGHT, PI / 4), Vector3(xs, yr + 0.48, 0)), Vector3(0.1, 0.16, 0.16), gold)
+	# round ridge tiles along the ridge
+	if _preview:
+		mb.box(Transform3D(Basis(Vector3.RIGHT, PI / 4), Vector3(0, yr + 0.02, 0)), Vector3(x1 - x0 + 0.08, 0.2, 0.2), fascia)
+	else:
+		Roofing.ridge(mb, Vector3(x0 - 0.02, yr + 0.03, 0), Vector3(x1 + 0.02, yr + 0.03, 0), tc, _rng, 0.13)
 
 
 func _hip_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color, curve := 0.0) -> void:
@@ -667,8 +706,23 @@ func _hip_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Color, 
 		var a: Vector3 = ring[i]
 		var b: Vector3 = ring[(i + 1) % 4]
 		mb.quad(b + dn, a + dn, a, b, fascia)
+	if _preview:
+		if rx > 0.01:
+			mb.box(Transform3D(Basis(Vector3.RIGHT, PI / 4), Vector3(0, yr + 0.02, 0)), Vector3(rx * 2.0 + 0.1, 0.2, 0.2), fascia)
+		return
+	# round ridge tiles along the ridge and down the four hips
 	if rx > 0.01:
-		mb.box(Transform3D(Basis(Vector3.RIGHT, PI / 4), Vector3(0, yr + 0.02, 0)), Vector3(rx * 2.0 + 0.1, 0.2, 0.2), fascia)
+		Roofing.ridge(mb, Vector3(-rx, yr + 0.03, 0), Vector3(rx, yr + 0.03, 0), tc, _rng, 0.13)
+	for pair in [[e0, r0], [e3, r0], [e1, r1], [e2, r1]]:
+		var e: Vector3 = pair[0]
+		var r: Vector3 = pair[1]
+		var steps := 1 if absf(curve) < 0.02 else 4
+		for k in steps:
+			var ta := float(k) / steps
+			var tb := float(k + 1) / steps
+			var pa := e.lerp(r, ta) + Vector3.UP * (_bow(ta, rh, curve, tw) + 0.03)
+			var pb := e.lerp(r, tb) + Vector3.UP * (_bow(tb, rh, curve, tw) + 0.03)
+			Roofing.ridge(mb, pa, pb, tc, _rng, 0.11)
 
 
 func _flat_rect_roof(mb: MeshBuilder, L: float, W: float, col: Color) -> void:
@@ -712,6 +766,45 @@ const TIMBER := Color(0.56, 0.42, 0.27, 0.5)   # #8E6A44
 const SURROUND_STONE := 0.2
 
 
+## The wall line of the storey at height y: upper storeys of a jettied
+## timber house stand out by _jet all round.
+func _at_storey(corners: Array, y: float) -> Array:
+	if _jet <= 0.0 or y < _jet_y - 0.01:
+		return corners
+	var out: Array = []
+	for c in corners:
+		var v: Vector3 = c
+		out.append(v + Vector3(signf(v.x), 0, signf(v.z)) * _jet)
+	return out
+
+
+## A stone chimney stack from `at` up `h`: courses of rounded blocks, a
+## capping slab and a dark pot.
+func _stone_chimney(mb: MeshBuilder, at: Vector3, h: float) -> void:
+	if _preview:
+		mb.box(Transform3D(Basis.IDENTITY, at + Vector3.UP * h * 0.5), Vector3(0.62, h, 0.5), Color(LIMESTONE.r, LIMESTONE.g, LIMESTONE.b, 0.25))
+		return
+	var stone := Color(LIMESTONE.r, LIMESTONE.g, LIMESTONE.b, 0.25)
+	mb.box(Transform3D(Basis.IDENTITY, at + Vector3.UP * h * 0.5), Vector3(0.54, h, 0.42), Masonry.mortar_color(LIMESTONE))
+	var y := 0.0
+	var k := 0
+	while y < h - 0.05:
+		var ch := minf(0.2 * _rng.randf_range(0.9, 1.1), h - y)
+		var off := (0.035 if k % 2 == 0 else -0.035)
+		# two blocks per course, joints alternating
+		var split := 0.31 + off * 2.0
+		for part in [[-0.31, split - 0.31], [split - 0.31, 0.31]]:
+			var x0: float = part[0]
+			var x1: float = part[1]
+			var c := Masonry.stone_color(stone, _rng)
+			mb.bevel_box(Transform3D(Basis(Vector3.UP, _rng.randf_range(-0.04, 0.04)), at + Vector3((x0 + x1) * 0.5, y + ch * 0.5, 0)),
+					Vector3(x1 - x0 - 0.02, ch - 0.02, 0.5 + _rng.randf_range(-0.02, 0.02)), 0.04, c)
+		y += ch
+		k += 1
+	mb.bevel_box(Transform3D(Basis.IDENTITY, at + Vector3.UP * (h + 0.05)), Vector3(0.78, 0.1, 0.66), 0.03, Masonry.stone_color(stone, _rng))
+	mb.bevel_box(Transform3D(Basis.IDENTITY, at + Vector3.UP * (h + 0.2)), Vector3(0.3, 0.22, 0.28), 0.04, Color(0.43, 0.38, 0.35, 0.25))
+
+
 ## How wide a style's opening surrounds are (stonework keeps clear of them).
 static func _surround_w(style: String) -> float:
 	match style:
@@ -734,18 +827,26 @@ func _details_rect(mb: MeshBuilder, d: Dictionary, corners: Array, style: String
 		var at := WallCut.flat_at(a, b)
 		var nrm := WallCut.flat_nrm(n)
 		var l := a.distance_to(b)
-		for hl in _cut[i]:
+		for hl0 in _cut[i]:
+			var hl: Dictionary = hl0
+			var at2 := at
+			if _jet > 0.0 and hl.y >= _jet_y:
+				# on the jettied storey's wall line
+				var up := _at_storey(corners, _jet_y)
+				at2 = WallCut.flat_at(up[i], up[(i + 1) % 4])
+				hl = hl.duplicate()
+				hl.s += _jet
 			var kind := style
 			if style == "windrise":
 				kind = "stone" if hl.y < stone_top else "timber"
 			match kind:
 				"stone", "plaster":
 					if hl.get("model", "") != "tg_door_gothic":
-						_stone_surround(mb, at, nrm, hl, LIMESTONE)
+						_stone_surround(mb, at2, nrm, hl, LIMESTONE)
 				"wood", "boards":
-					_board_surround(mb, at, nrm, hl, beam)
+					_board_surround(mb, at2, nrm, hl, beam)
 				"timber":
-					_timber_surround(mb, at, nrm, hl, beam, floors)
+					_timber_surround(mb, at2, nrm, hl, beam, floors)
 		# beam ends under the upper storeys of timber houses (a jettied look)
 		if style in ["timber", "windrise", "wood", "boards"]:
 			for f in range(1, floors):
@@ -761,12 +862,13 @@ func _details_rect(mb: MeshBuilder, d: Dictionary, corners: Array, style: String
 		var eave_side := roof == "hip" or ((i % 2 == 0) != turned)
 		if not eave_side:
 			continue
-		var a: Vector3 = corners[i]
-		var b: Vector3 = corners[(i + 1) % 4]
+		var top_cs := _at_storey(corners, eave)
+		var a: Vector3 = top_cs[i]
+		var b: Vector3 = top_cs[(i + 1) % 4]
 		var n := _side_normal(corners, i)
 		var l := a.distance_to(b)
 		var dir := (b - a) / l
-		var depth := (L if turned else W) * 0.5
+		var depth := (L if turned else W) * 0.5 + _jet
 		var slope := roof_h / maxf(depth, 0.1)
 		# rafter ends poking out under the overhang (windrise has its carved
 		# brackets there instead)
@@ -789,7 +891,7 @@ func _details_rect(mb: MeshBuilder, d: Dictionary, corners: Array, style: String
 			var s := lerpf(0.3, l - 0.3, float(k) / nb)
 			var busy := false
 			for hl in _cut[i]:
-				if absf(hl.s - s) < hl.w * 0.5 + 0.35 and WallCut.top(hl) > eave - 1.0:
+				if absf(hl.s + _jet - s) < hl.w * 0.5 + 0.35 and WallCut.top(hl) > eave - 1.0:
 					busy = true
 			if busy:
 				continue
@@ -2005,6 +2107,7 @@ func _masonry_rect(mb: MeshBuilder, corners: Array, y0: float, y1: float, col: C
 		var surf := func(s: float) -> Dictionary:
 			return {"p": Vector3(a.x, 0.0, a.z) + dir * s, "n": n, "g": y0, "low": y0 - 0.01, "top": y1}
 		# run a little past both corners so the faces interlock
+		Masonry.pattern = "glade"   # pillowy hand-laid stones, big at the foot
 		Masonry.lay(mb, surf, -Masonry.DEPTH, l + Masonry.DEPTH, 0.0, y1 - y0, col, _rng,
 				func(s0, s1, ya, yb): return _hits(side_holes, s0, s1, ya, yb),
 				_patch_veto(l, y0, y1, bands) if patchy else Callable())
@@ -2015,6 +2118,7 @@ func _masonry_round(mb: MeshBuilder, R: float, y0: float, y1: float, col: Color,
 		var ang := s / R
 		var n := Vector3(cos(ang), 0.0, sin(ang))
 		return {"p": n * R, "n": n, "g": y0, "low": y0 - 0.01, "top": y1}
+	Masonry.pattern = "glade"
 	Masonry.lay(mb, surf, 0.0, TAU * R, 0.0, y1 - y0, col, _rng,
 			func(s0, s1, ya, yb): return _hits(holes, s0, s1, ya, yb),
 			_patch_veto(TAU * R, y0, y1, bands) if patchy else Callable())
