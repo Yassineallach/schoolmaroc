@@ -62,8 +62,8 @@
       W.node(ctx, 400, 520, 18, { p: sp, color: W.C.ivory, crown: 1, crownColor: W.C.ivory });
       W.text(ctx, T.e4, 400, 582, { size: 38, color: W.C.ivory, alpha: sp });
       // Lancastrian camp
-      W.node(ctx, 1640, 520, 16, { p: p(t, c.ally - 0.4, 0.8), color: W.C.crimsonBright, crown: 1, crownColor: W.C.gold });
-      W.text(ctx, 'مارغريت أنجو', 1640, 582, { size: 34, color: W.C.crimsonBright, alpha: p(t, c.ally - 0.2, 0.7) });
+      W.node(ctx, 1640, 520, 16, { p: p(t, c.ally - 0.4, 0.8), color: W.C.crimsonBright, crown: W.hasPortrait('p_margaret') ? 0 : 1, crownColor: W.C.gold, portrait: 'p_margaret', pr: 52 });
+      W.text(ctx, 'مارغريت أنجو', 1640, W.hasPortrait('p_margaret') ? 618 : 582, { size: 34, color: W.C.crimsonBright, alpha: p(t, c.ally - 0.2, 0.7) });
       // Warwick: link snaps, then crosses over
       const mv = p(t, c.turn + 0.4, 1.8, E.inOut);
       const wx = W.lerp(760, 1180, mv), wy = 520 - Math.sin(mv * Math.PI) * 60;

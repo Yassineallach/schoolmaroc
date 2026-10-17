@@ -238,5 +238,21 @@
       460
     ],
     "note": "Henry VI enthroned, 15th-c. illumination (Royal Collection / BL), supplied by the user"
+  },
+  "p_margaret": {
+    "file": "input/images/p_margaret.jpg",
+    "blend": "source-over",
+    "face": [
+      488,
+      420,
+      215
+    ],
+    "bust": [
+      488,
+      520,
+      300,
+      380
+    ],
+    "note": "Margaret of Anjou, 19th-c. engraving, supplied by the user"
   }
 }

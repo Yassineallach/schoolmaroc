@@ -58,10 +58,11 @@
       W.text(ctx, T.weak, hx, hy + 112 + hp6, { size: 28, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.weak + 1.6, 0.8) });
       // Margaret of Anjou, from France
       const mx = 1480, my = 600;
-      W.fleur(ctx, mx, my - 110, 40, { p: p(t, c.m - 0.3, 1.2, E.inOut), color: W.C.gold, width: 2, fill: 0.15 });
-      W.node(ctx, mx, my, 16, { p: p(t, c.m, 0.8), color: W.C.crimsonBright });
-      W.text(ctx, T.m, mx, my + 62, { size: 46, color: W.C.ivory, reveal: p(t, c.m + 0.1, 0.8) });
-      W.text(ctx, T.mSub, mx, my + 112, { size: 26, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.france - 0.4, 0.8) });
+      W.fleur(ctx, mx, my - 110 - (W.hasPortrait('p_margaret') ? 40 : 0), 40, { p: p(t, c.m - 0.3, 1.2, E.inOut), color: W.C.gold, width: 2, fill: 0.15 });
+      W.node(ctx, mx, my, 16, { p: p(t, c.m, 0.8), color: W.C.crimsonBright, portrait: 'p_margaret', pr: 58 });
+      const mp = W.hasPortrait('p_margaret') ? 40 : 0;
+      W.text(ctx, T.m, mx, my + 62 + mp, { size: 46, color: W.C.ivory, reveal: p(t, c.m + 0.1, 0.8) });
+      W.text(ctx, T.mSub, mx, my + 112 + mp, { size: 26, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.france - 0.4, 0.8) });
       const lp = p(t, c.m + 0.3, 1.0, E.inOut);
       W.strokePoly(ctx, [[hx + 30, hy], [mx - 30, my]], lp, { color: W.rgba(W.C.gold, 0.6), width: 1.5, dash: [3, 6] });
       W.rings(ctx, (hx + mx) / 2, my - 4, 26, { p: p(t, c.m + 0.8, 1.0), color: W.C.gold, width: 2 });
@@ -73,9 +74,10 @@
     bg: () => ({ glow: '#331617', glowA: 0.55 }),
     draw(ctx, t, S) {
       const c = S.cues, T = S.text;
-      W.crown(ctx, W.W / 2, 255, 62, { p: p(t, 95.0, 1.4, E.inOut), color: W.C.crimsonBright, width: 2.4, fill: 0.2, glow: 'rgba(207,42,60,0.4)' });
-      W.text(ctx, T.m, W.W / 2, 420, { size: 100, color: W.C.ivory, reveal: p(t, c.m, 1.0), rise: 12 });
-      W.words(ctx, `${T.w1} · ${T.w2} · ${T.w3}`, W.W / 2, 560, t, [c.w1, c.w2 - 0.2, c.w2, c.w3 - 0.2, c.w3], {
+      const hasM = W.portrait(ctx, 'p_margaret', W.W / 2, 245, 118, { shape: 'oval', ry: 150, p: p(t, 95.0, 1.4) });
+      if (!hasM) W.crown(ctx, W.W / 2, 255, 62, { p: p(t, 95.0, 1.4, E.inOut), color: W.C.crimsonBright, width: 2.4, fill: 0.2, glow: 'rgba(207,42,60,0.4)' });
+      W.text(ctx, T.m, W.W / 2, hasM ? 480 : 420, { size: 100, color: W.C.ivory, reveal: p(t, c.m, 1.0), rise: 12 });
+      W.words(ctx, `${T.w1} · ${T.w2} · ${T.w3}`, W.W / 2, hasM ? 600 : 560, t, [c.w1, c.w2 - 0.2, c.w2, c.w3 - 0.2, c.w3], {
         size: 60, fam: W.F.title, colors: [W.C.ivory, W.C.gold, W.C.ivory, W.C.gold, W.C.crimsonBright],
       });
       // anyone threatening her power
@@ -85,14 +87,14 @@
         const isYork = i === 2;
         const dim = isYork ? 0 : p(t, c.ry - 0.6, 0.8);
         W.alpha(ctx, 1 - dim * 0.8, () => {
-          W.strokePoly(ctx, [[W.W / 2, 300], [x, 800]], tp, { color: W.rgba(W.C.crimsonBright, 0.28), width: 1.2, dash: [4, 6], dashOffset: -t * 20 });
+          W.strokePoly(ctx, [[W.W / 2, hasM ? 660 : 300], [x, 800]], tp, { color: W.rgba(W.C.crimsonBright, 0.28), width: 1.2, dash: [4, 6], dashOffset: -t * 20 });
           W.node(ctx, x, 830, isYork ? 16 : 10, { p: tp, color: isYork ? W.C.ivory : W.C.ivoryDim, halo: isYork && t > c.ry ? W.C.ivory : null });
         });
       });
       // tension line queen -> York vibrates
       const yp = p(t, c.ry, 0.6);
       if (yp > 0) {
-        const pts = []; for (let k = 0; k <= 50; k++) { const u = k / 50; pts.push([960 + Math.sin(u * 30 - t * 18) * 5 * Math.sin(u * Math.PI) * yp, W.lerp(300, 800, u)]); }
+        const pts = []; for (let k = 0; k <= 50; k++) { const u = k / 50; pts.push([960 + Math.sin(u * 30 - t * 18) * 5 * Math.sin(u * Math.PI) * yp, W.lerp(hasM ? 660 : 300, 800, u)]); }
         W.strokePoly(ctx, pts, yp, { color: W.rgba(W.C.crimsonBright, 0.9), width: 2 });
       }
       W.text(ctx, T.ry, W.W / 2, 905, { size: 46, color: W.C.ivory, reveal: p(t, c.ry + 0.1, 0.8) });
