@@ -439,6 +439,22 @@ func _draw() -> void:
 			circle(Vector2(0.32, 0.66), 0.1, STONE)
 			circle(Vector2(0.62, 0.78), 0.08, STONE)
 			circle(Vector2(0.75, 0.56), 0.04, SUN, false)
+		"worn":
+			rect(0.1, 0.1, 0.8, 0.8, DIRT, false)
+			for p in [Vector2(0.28, 0.25), Vector2(0.62, 0.3), Vector2(0.4, 0.55), Vector2(0.72, 0.68), Vector2(0.25, 0.78)]:
+				circle(p, 0.11, STONE)
+		"setts":
+			for r in 3:
+				for c in 3:
+					rect(0.1 + c * 0.27 + (0.12 if r == 1 else 0.0), 0.12 + r * 0.27, 0.22, 0.22, STONE)
+		"meadow":
+			for k in 5:
+				line([Vector2(0.15 + k * 0.17, 0.92), Vector2(0.18 + k * 0.17, 0.45)], LEAF, 0.05)
+				circle(Vector2(0.18 + k * 0.17, 0.4), 0.07, [ROOF, SUN, WATER, PAPER, ROOF][k])
+		"grain":
+			for k in 4:
+				line([Vector2(0.2 + k * 0.2, 0.92), Vector2(0.22 + k * 0.2, 0.3)], SUN.darkened(0.2), 0.05)
+				poly([Vector2(0.17 + k * 0.2, 0.32), Vector2(0.22 + k * 0.2, 0.1), Vector2(0.27 + k * 0.2, 0.32)], SUN)
 		"hammer":
 			rect(0.46, 0.35, 0.09, 0.58, WOOD)
 			poly([Vector2(0.22, 0.14), Vector2(0.78, 0.14), Vector2(0.78, 0.36), Vector2(0.22, 0.36)], STONE)

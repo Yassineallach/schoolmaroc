@@ -73,6 +73,45 @@ func build(d: Dictionary, terrain: Terrain) -> void:
 						var basis_k := DecoMerge.along(Vector3(tk.x, 0, tk.y)) * Basis.from_scale(Vector3(1.4, 0.55, 0.7))
 						deco.add("cobble_a", Transform3D(basis_k, Vector3(qk.x, terrain.height_at_v(qk) + 0.01, qk.y)))
 				s += 0.42
+		"worn":
+			# loose cobbles across the path, many missing, earth between
+			while s < total:
+				var pw := Geo.point_at(pts, s)
+				var tw := Geo.tangent_at(pts, s)
+				var nw := Vector2(-tw.y, tw.x)
+				var across := maxi(2, int(width / 0.34))
+				for k in across:
+					if rng.randf() < 0.45:
+						continue
+					var qw: Vector2 = pw + nw * (((k + 0.5) / across - 0.5) * width + rng.randf_range(-0.06, 0.06))
+					if terrain.height_at_v(qw) <= Terrain.WATER_LEVEL:
+						continue
+					deco.add("cobble_a" if rng.randf() < 0.5 else "cobble_b",
+							Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(1, 0.6, 1) * rng.randf_range(0.65, 0.95)), Vector3(qw.x, terrain.height_at_v(qw) - 0.02, qw.y)))
+				s += 0.34
+		"setts":
+			# square stone setts laid in courses across the path
+			var sett := MeshBuilder.new()
+			sett.bevel_box(Transform3D(Basis.IDENTITY, Vector3.ZERO), Vector3(0.26, 0.1, 0.26), 0.025, Color(0.68, 0.65, 0.6))
+			Ornaments._layer(sett, 0, Ornaments.M_STONE)
+			var sett_mesh := sett.commit()
+			var row := 0
+			while s < total:
+				var ps := Geo.point_at(pts, s)
+				var ts := Geo.tangent_at(pts, s)
+				var ns := Vector2(-ts.y, ts.x)
+				var basis_s := DecoMerge.along(Vector3(ts.x, 0, ts.y))
+				var across2 := maxi(2, int(width / 0.3))
+				for k in across2:
+					var off := ((k + 0.5 + (0.5 if row % 2 == 1 else 0.0)) / across2 - 0.5) * width
+					if absf(off) > width * 0.5 - 0.08:
+						continue
+					var qs: Vector2 = ps + ns * off
+					if terrain.height_at_v(qs) <= Terrain.WATER_LEVEL:
+						continue
+					deco.add_mesh(sett_mesh, Transform3D(basis_s * Basis(Vector3.UP, rng.randf_range(-0.06, 0.06)), Vector3(qs.x, terrain.height_at_v(qs) + 0.02, qs.y)))
+				s += 0.29
+				row += 1
 		"cobble":
 			# a border of chunky stones along both edges
 			while s < total:

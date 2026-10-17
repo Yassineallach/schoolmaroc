@@ -663,9 +663,11 @@ func remove(id: int) -> void:
 	changed.emit()
 
 
-func remove_props_near(center: Vector2, radius: float) -> int:
+func remove_props_near(center: Vector2, radius: float, kinds: Array = []) -> int:
 	var removed := 0
 	for p in data.props.duplicate():
+		if not kinds.is_empty() and not kinds.has(p.kind):
+			continue
 		var pp: Vector3 = p.p
 		if Vector2(pp.x, pp.z).distance_to(center) < radius + ModelLib.radius(p.kind) * 0.5:
 			data.props.erase(p)
@@ -677,9 +679,11 @@ func remove_props_near(center: Vector2, radius: float) -> int:
 
 
 ## Erases parts of walls/fences/paths inside the circle (splitting them).
-func erase_lines_near(center: Vector2, radius: float) -> int:
+func erase_lines_near(center: Vector2, radius: float, types: Array = ["walls", "fences", "paths", "stairs"]) -> int:
 	var count := 0
 	for type in ["walls", "fences", "paths"]:
+		if not types.has(type):
+			continue
 		for item in data[type].duplicate():
 			var pts: PackedVector2Array = item.pts
 			if Geo.closest(pts, center).x > radius:
@@ -698,7 +702,7 @@ func erase_lines_near(center: Vector2, radius: float) -> int:
 				_make_view(type, copy, false)
 			count += 1
 	# stairs go as a whole
-	for st in data.get("stairs", []).duplicate():
+	for st in (data.get("stairs", []) if types.has("stairs") else []).duplicate():
 		if Geo.closest(st.pts, center).x <= radius:
 			data.stairs.erase(st)
 			if views.has(st.id):
@@ -1066,8 +1070,7 @@ func _compute_interactions() -> void:
 			for hit in Geo.intersections(ppts, fence.pts):
 				_add_opening(fence.id, {"s": snappedf(hit.sb, 0.01), "w": snappedf(clampf(pw, 1.0, 2.4), 0.01)})
 		for b in data.buildings:
-			var door := _door_for(b, ppts)
-			if not door.is_empty():
+			for door in _doors_for(b, ppts, pw):
 				_add_opening(b.id, door)
 	# merge overlapping openings on walls
 	for id in _openings:
@@ -1092,32 +1095,47 @@ func _add_opening(id: int, o: Dictionary) -> void:
 	_openings[id].append(o)
 
 
-func _door_for(b: Dictionary, pts: PackedVector2Array) -> Dictionary:
+## Openings a path makes in a house: a door where it arrives, a wide
+## archway when the path is broad, a tunnel (arches on both faces) where it
+## runs right through, with an iron water gate if the passage is flooded.
+func _doors_for(b: Dictionary, pts: PackedVector2Array, pw: float) -> Array:
 	var poly := BuildingView.footprint(b)
 	var closed := poly.duplicate()
 	closed.append(poly[0])
 	var hits := Geo.intersections(pts, closed)
-	var point := Vector2.INF
-	if not hits.is_empty():
-		point = hits[0].point
-	else:
+	var points: Array = []
+	for hit in hits:
+		points.append(hit.point)
+	if points.is_empty():
 		# path ends right against the wall?
 		for end in [pts[0], pts[pts.size() - 1]]:
 			var d := INF
 			for i in poly.size():
 				d = minf(d, Geo.dist_to_segment(end, poly[i], poly[(i + 1) % poly.size()]))
 			if d < 0.9:
-				point = end
+				points.append(end)
 				break
-	if point == Vector2.INF:
-		return {}
+	if points.is_empty():
+		return []
+	var through := points.size() >= 2
 	var tmp := BuildingView.new()
 	tmp.data = b
 	tmp.transform = Transform3D(BuildingView.local_basis(b.get("rot", 0.0)), Vector3(b.c.x, b.base, b.c.y))
 	tmp.eave = Catalog.PLINTH + b.floors * Catalog.FLOOR_H
-	var loc := tmp.locate(Vector3(point.x, b.base + 0.5, point.y))
+	var out: Array = []
+	for point in points:
+		var loc := tmp.locate(Vector3(point.x, b.base + 0.5, point.y))
+		var o := {"side": loc.side, "u": snappedf(loc.u, 0.001), "s": 0.0}
+		if (through or pw >= 2.0) and float(b.get("lift", 0.0)) < 0.3 and b.floors * Catalog.FLOOR_H > 2.4:
+			o.arch = true
+			o.aw = snappedf(pw + 0.4, 0.1)
+			if terrain.height_at_v(point) < Terrain.WATER_LEVEL - 0.05:
+				o.grate = true
+		out.append(o)
+		if not through:
+			break
 	tmp.free()
-	return {"side": loc.side, "u": snappedf(loc.u, 0.001), "s": 0.0}
+	return out
 
 
 func _paint_mask() -> void:
@@ -1133,6 +1151,13 @@ func _paint_mask() -> void:
 			"cobble":
 				terrain.paint_polyline(p.pts, p.w, 1, 1.0)
 				terrain.paint_polyline(p.pts, p.w + 0.5, 0, 0.55)
+			"worn":
+				# run-down cobbles: earth showing between the stones
+				terrain.paint_polyline(p.pts, p.w + 0.3, 0, 1.0)
+				terrain.paint_polyline(p.pts, p.w * 0.7, 1, 0.55)
+			"setts":
+				terrain.paint_polyline(p.pts, p.w, 3, 0.8)
+				terrain.paint_polyline(p.pts, p.w * 0.6, 1, 0.4)
 			"stones":
 				terrain.paint_polyline(p.pts, p.w * 0.7, 0, 0.45)
 			"paved":

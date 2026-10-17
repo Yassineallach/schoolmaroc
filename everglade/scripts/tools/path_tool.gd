@@ -18,6 +18,8 @@ func option_defs() -> Array:
 		{"type": "choice", "key": "style", "items": [
 			{"id": "dirt", "label": "Dirt", "icon": "path"},
 			{"id": "cobble", "label": "Cobbles", "icon": "cobble"},
+			{"id": "worn", "label": "Worn cobbles", "icon": "worn"},
+			{"id": "setts", "label": "Setts", "icon": "setts"},
 			{"id": "paved", "label": "Paved", "icon": "paved"},
 			{"id": "stones", "label": "Stepping", "icon": "stones"}]},
 		{"type": "slider", "key": "width", "label": "Width", "min": 0.8, "max": 3.2, "step": 0.1},
@@ -26,7 +28,39 @@ func option_defs() -> Array:
 
 
 func hint() -> String:
-	return "Drag to lay a path. Lead it into houses for doors, across ponds for bridges."
+	return "Drag to lay a path. Lead it into houses for doors (wide ones make arches, right through makes a tunnel), across ponds for bridges. Hold Ctrl to rub paths out."
+
+
+var _erasing := false
+
+
+func press(screen: Vector2) -> bool:
+	if Input.is_key_pressed(KEY_CTRL):
+		var g = ground(screen)
+		if g == null:
+			return false
+		glade.begin_change()
+		_erasing = true
+		glade.erase_lines_near(Vector2(g.x, g.z), options.width * 0.6, ["paths"])
+		return true
+	return super.press(screen)
+
+
+func drag(screen: Vector2) -> void:
+	if _erasing:
+		var g = ground(screen)
+		if g != null:
+			glade.erase_lines_near(Vector2(g.x, g.z), options.width * 0.6, ["paths"])
+		return
+	super.drag(screen)
+
+
+func release(screen: Vector2) -> void:
+	if _erasing:
+		_erasing = false
+		Sfx.play("erase", -6.0)
+		return
+	super.release(screen)
 
 
 func update_preview(pts: PackedVector2Array) -> void:

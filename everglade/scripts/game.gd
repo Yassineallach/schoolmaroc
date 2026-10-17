@@ -339,6 +339,7 @@ func _inspector_defs(f: Dictionary) -> Array:
 				{"type": "title", "text": "Path"},
 				{"type": "choice", "key": "style", "items": [
 					{"id": "dirt", "label": "Dirt", "icon": "path"}, {"id": "cobble", "label": "Cobbles", "icon": "cobble"},
+					{"id": "worn", "label": "Worn", "icon": "worn"}, {"id": "setts", "label": "Setts", "icon": "setts"},
 					{"id": "paved", "label": "Paved", "icon": "paved"}, {"id": "stones", "label": "Stepping", "icon": "stones"}]},
 				{"type": "slider", "key": "w", "label": "Width", "min": 0.8, "max": 3.2, "step": 0.1},
 				{"type": "actions", "items": [{"id": "more_pts", "icon": "plus", "label": "More points"}, {"id": "fewer_pts", "icon": "minus", "label": "Fewer points"}, {"id": "straighten", "icon": "ruler", "label": "Straighten"}, {"id": "cut", "icon": "cut", "label": "Cut"}]},

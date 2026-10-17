@@ -15,6 +15,8 @@ const FLOWERS := ["flowers_pink", "flowers_white", "flowers_blue", "flowers_yell
 const LAVENDER := ["flowers_lavender", "flowers_lavender", "flowers_white", "flowers_yellow"]
 const FERNS := ["fern", "fern", "plant_leafy", "wheat"]
 const ROCKS := ["rock_a", "rock_b", "rock_c", "rock_big", "mushrooms", "stump"]
+const MEADOW := ["flowers_red", "flowers_yellow", "flowers_blue", "flowers_white", "flowers_pink", "wheat"]
+const GRAIN := ["wheat", "wheat", "wheat", "flowers_red"]
 
 ## Nature brush families: kinds, spacing (m), scale range.
 const NATURE := {
@@ -27,6 +29,8 @@ const NATURE := {
 	"flowers": {"label": "Flowers", "kinds": FLOWERS, "spacing": 0.55, "scale": Vector2(0.8, 1.3)},
 	"lavender": {"label": "Lavender", "kinds": LAVENDER, "spacing": 0.5, "scale": Vector2(0.9, 1.4)},
 	"ferns": {"label": "Ferns", "kinds": FERNS, "spacing": 0.7, "scale": Vector2(0.8, 1.3)},
+	"meadow": {"label": "Meadow", "kinds": MEADOW, "spacing": 0.45, "scale": Vector2(0.8, 1.3)},
+	"grain": {"label": "Grain", "kinds": GRAIN, "spacing": 0.4, "scale": Vector2(0.9, 1.3)},
 	"rocks": {"label": "Rocks", "kinds": ROCKS, "spacing": 1.2, "scale": Vector2(0.6, 1.4)},
 }
 

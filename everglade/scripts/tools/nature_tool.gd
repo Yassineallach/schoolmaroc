@@ -1,6 +1,12 @@
 class_name NatureTool
 extends BaseTool
-## Paint forests, bushes, flowers and rocks with a soft brush.
+## Paint forests, bushes, flowers, meadow, grain and rocks with a soft
+## brush, as in Tiny Glade: painting over flowers again makes them fuller
+## and turns some into bushes; flowers painted on water become lilies and a
+## tree planted in a pond gets lily pads round it. Hold Ctrl to rub plants
+## of the chosen kind away.
+
+const BLOOMS := ["flowers", "lavender", "meadow", "grain", "ferns"]
 
 var painting := false
 var _last := Vector2.INF
@@ -26,7 +32,7 @@ func option_defs() -> Array:
 
 
 func hint() -> String:
-	return "Drag to paint nature. Tap to place a single plant."
+	return "Drag to paint nature; paint flowers again to thicken them into bushes, or onto water for lilies. Tap for a single plant. Ctrl rubs plants out."
 
 
 func press(screen: Vector2) -> bool:
@@ -73,6 +79,10 @@ func tap(screen: Vector2) -> void:
 func _paint_at(c: Vector2) -> void:
 	_show_brush(c)
 	var fam: Dictionary = Catalog.NATURE[options.family]
+	if Input.is_key_pressed(KEY_CTRL):
+		if glade.remove_props_near(c, options.size, fam.kinds) > 0:
+			Sfx.play("erase", -10.0, 0.2)
+		return
 	var spacing: float = fam.spacing
 	if _last != Vector2.INF and _last.distance_to(c) < spacing * 0.6:
 		return
@@ -89,16 +99,18 @@ func _place(fam: Dictionary, p: Vector2, force: bool) -> void:
 	var t := glade.terrain
 	if not t.in_play_area(p, 0.3):
 		return
+	var kinds: Array = fam.kinds
+	var spacing: float = fam.spacing
 	if t.height_at_v(p) < Terrain.WATER_LEVEL + 0.05:
+		_place_wet(fam, p, force)
 		return
 	if glade.is_blocked(p):
 		return
-	var kinds: Array = fam.kinds
-	var spacing: float = fam.spacing
 	if not force:
 		for other in glade.data.props:
 			var op: Vector3 = other.p
 			if kinds.has(other.kind) and Vector2(op.x, op.z).distance_to(p) < spacing:
+				_thicken(other)
 				return
 	var kind: String = kinds[_rng.randi() % kinds.size()]
 	var sr: Vector2 = fam.scale
@@ -106,6 +118,55 @@ func _place(fam: Dictionary, p: Vector2, force: bool) -> void:
 	glade.add_prop(kind, pos, _rng.randf() * TAU, _rng.randf_range(sr.x, sr.y), options.family in ["rocks", "flowers"])
 	Sfx.play("plant", -6.0, 0.25)
 	Settings.vibrate(6)
+
+
+## Painting over flowers again: they grow fuller, and the fullest become
+## little flowering bushes.
+func _thicken(other: Dictionary) -> void:
+	if not options.family in BLOOMS or _rng.randf() > 0.25:
+		return
+	var s: float = other.get("s", 1.0)
+	if s < 1.5:
+		other.s = s * 1.15
+	elif options.family != "grain" and not String(other.kind).begins_with("bush"):
+		other.kind = "bush_berries" if _rng.randf() < 0.5 else "bush_b"
+		other.s = _rng.randf_range(0.5, 0.7)
+	else:
+		return
+	glade.props.rebuild(glade.data.props)
+	Sfx.play("plant", -10.0, 0.3)
+
+
+## On water, flowers become lilies; trees stand in the pond with lily pads
+## floating round them.
+func _place_wet(fam: Dictionary, p: Vector2, force: bool) -> void:
+	var t := glade.terrain
+	var water_y := Terrain.WATER_LEVEL + 0.01
+	if options.family in BLOOMS:
+		if not force:
+			for other in glade.data.props:
+				var op: Vector3 = other.p
+				if String(other.kind).begins_with("lily") and Vector2(op.x, op.z).distance_to(p) < 0.7:
+					return
+		glade.add_prop("lily_pad_a" if _rng.randf() < 0.6 else "lily_pad_b", Vector3(p.x, water_y, p.y), _rng.randf() * TAU, _rng.randf_range(0.8, 1.3))
+		Sfx.play("splash", -14.0, 0.3)
+		return
+	if options.family in ["forest", "broadleaf", "golden", "blossom", "grand"]:
+		if t.height_at_v(p) < Terrain.WATER_LEVEL - 1.2:
+			return
+		if not force:
+			for other in glade.data.props:
+				var op2: Vector3 = other.p
+				if (fam.kinds as Array).has(other.kind) and Vector2(op2.x, op2.z).distance_to(p) < fam.spacing:
+					return
+		var kind: String = fam.kinds[_rng.randi() % fam.kinds.size()]
+		glade.add_prop(kind, Vector3(p.x, t.height_at_v(p) - 0.03, p.y), _rng.randf() * TAU, _rng.randf_range(fam.scale.x, fam.scale.y))
+		for k in 3:
+			var a := _rng.randf() * TAU
+			var q := p + Vector2(cos(a), sin(a)) * _rng.randf_range(0.9, 1.8)
+			if t.height_at_v(q) < Terrain.WATER_LEVEL - 0.05:
+				glade.add_prop("lily_pad_a" if k % 2 == 0 else "lily_pad_b", Vector3(q.x, water_y, q.y), _rng.randf() * TAU, _rng.randf_range(0.8, 1.2))
+		Sfx.play("plant", -6.0, 0.25)
 
 
 func _show_brush(c: Vector2) -> void:

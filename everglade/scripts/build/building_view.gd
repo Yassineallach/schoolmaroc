@@ -229,7 +229,11 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 	for door in auto_doors:
 		if _in_join(_side_point(corners, door.side, door.u)):
 			continue
-		_place_rect_door(deco, corners, door.side, door.u, style)
+		if door.get("arch", false):
+			_place_arch(deco, _side_point(corners, door.side, clampf(door.u, 0.1, 0.9)) + _side_normal(corners, door.side) * 0.02,
+					_side_normal(corners, door.side), door)
+		else:
+			_place_rect_door(deco, corners, door.side, door.u, style)
 		doors_done.append(door)
 	var lake := style == "lakeside"
 	var shutters := rng.randf() < 0.55 and style != "stone" and not lake
@@ -705,7 +709,11 @@ func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNu
 	_round_roof(mb, deco, R, roof, pitch, roof_col, stone_col, segs)
 	# doors from paths
 	for door in auto_doors:
-		_place_round_opening(deco, R, door.u, 0, "door", rng)
+		if door.get("arch", false):
+			var an := Vector3(cos(door.u * TAU), 0, sin(door.u * TAU))
+			_place_arch(deco, an * (R + 0.02), an, door)
+		else:
+			_place_round_opening(deco, R, door.u, 0, "door", rng)
 	var boxes := rng.randf() < 0.4
 	for w in d.get("windows", []):
 		if w.get("kind", "") == "trapdoor":
@@ -834,6 +842,23 @@ func _greenery(deco: DecoMerge, d: Dictionary, auto_doors: Array) -> void:
 		if absf(q2.x) < L / 2 - 0.01 and absf(q2.y) < W / 2 - 0.01:
 			q2 = Vector2(q2.x, signf(q2.y) * W / 2) if absf(q2.y) / W > absf(q2.x) / L else Vector2(signf(q2.x) * L / 2, q2.y)
 		deco.add_mesh(Ornaments.nest(), Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(q2.x * 0.92, eave - 0.06, q2.y * 0.92)))
+
+
+## Height of an archway `w` wide that fits under the eaves.
+func arch_height(w: float) -> float:
+	var span := w if w <= 2.8 else (w - 0.5) * 0.5
+	return clampf(maxf(2.3, span * 0.5 + 1.6), 1.6, eave - 0.35)
+
+
+## An archway where a wide path enters (or a tunnel where it runs right
+## through); a water gate when the passage floor is under water.
+func _place_arch(deco: DecoMerge, p: Vector3, n: Vector3, door: Dictionary) -> void:
+	var w: float = clampf(float(door.get("aw", 2.0)), 1.4, 5.0)
+	deco.add_mesh(Ornaments.portal(snappedf(w, 0.1), snappedf(arch_height(w), 0.1), door.get("grate", false)),
+			Transform3D(DecoMerge.facing(n), Vector3(p.x, -lift, p.z)))
+	var side := n.cross(Vector3.UP).normalized()
+	deco.add("wall_lantern", Transform3D(Basis.looking_at(n, Vector3.UP), p + side * (w * 0.5 + 0.55) + Vector3.UP * 2.0))
+	lamps.append(p + side * (w * 0.5 + 0.55) + Vector3.UP * 1.9 + n * 0.3)
 
 
 ## A flight of steps from a raised house's door down to the ground.
@@ -1503,7 +1528,10 @@ func _openings(d: Dictionary, doors: Array, corners: Array) -> Array:
 		var kind: String = w.get("kind", "door" if not w.has("f") else "window")
 		if kind == "dormer" or kind == "trapdoor":
 			continue
-		if kind == "door":
+		if w.get("arch", false):
+			var aw: float = clampf(float(w.get("aw", 2.0)), 1.4, 5.0)
+			holes[side].append(Rect2(s - aw * 0.5 - 0.35, -2.0, aw + 0.7, arch_height(aw) + 2.3))
+		elif kind == "door":
 			holes[side].append(Rect2(s - 0.64, PL - 0.2, 1.28, 2.55))
 		else:
 			var y: float = PL + int(w.get("f", 0)) * FH + 1.35
@@ -1520,7 +1548,10 @@ func _round_openings(d: Dictionary, doors: Array, R: float) -> Array:
 			continue
 		var s: float = fposmod(w.u, 1.0) * circ
 		var rect: Rect2
-		if kind == "door":
+		if w.get("arch", false):
+			var aw2: float = clampf(float(w.get("aw", 2.0)), 1.4, 5.0)
+			rect = Rect2(s - aw2 * 0.5 - 0.35, -2.0, aw2 + 0.7, arch_height(aw2) + 2.3)
+		elif kind == "door":
 			rect = Rect2(s - 0.66, PL - 0.2, 1.32, 2.6)
 		else:
 			var y: float = PL + int(w.get("f", 0)) * FH + 1.35

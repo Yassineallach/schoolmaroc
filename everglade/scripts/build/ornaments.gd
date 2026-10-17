@@ -132,6 +132,69 @@ static func bunting(a: Vector3, b: Vector3, seed_value: int) -> ArrayMesh:
 	return mb.commit()
 
 
+## A stone archway (origin at the middle of its foot, +Z out of the wall):
+## voussoirs round a dark passage, doubled with a centre pier when wide.
+## `grate` fills the opening with iron bars (a water gate).
+static func portal(w: float, h: float, grate := false) -> ArrayMesh:
+	var key := "portal%.2f_%.2f_%s" % [w, h, grate]
+	if _cache.has(key):
+		return _cache[key]
+	var mb := MeshBuilder.new()
+	var spans: Array = [[0.0, w]]
+	if w > 2.8:
+		var half := (w - 0.5) * 0.5
+		spans = [[-(half + 0.5) * 0.5, half], [(half + 0.5) * 0.5, half]]
+		_box(mb, Transform3D(Basis.IDENTITY, Vector3(0, (h - half * 0.5) * 0.5, 0.08)), Vector3(0.5, h - half * 0.5, 0.3), STONE, M_STONE)
+	for sp in spans:
+		var cx: float = sp[0]
+		var sw: float = sp[1]
+		var r := sw * 0.5
+		var spring := maxf(0.6, h - r)
+		var t := 0.22
+		var dark := Color(0.06, 0.055, 0.05)
+		# the dark passage: a rectangle and a fan up into the arch
+		var n := Vector3(0, 0, 1)
+		var z := 0.02
+		var start := mb.verts.size()
+		mb.quad_facing(Vector3(cx - r, 0, z), Vector3(cx + r, 0, z), Vector3(cx + r, spring, z), Vector3(cx - r, spring, z), n, dark)
+		for i in 12:
+			var a0 := PI * i / 12.0
+			var a1 := PI * (i + 1) / 12.0
+			mb.tri_facing(Vector3(cx, spring, z), Vector3(cx + cos(a0) * r, spring + sin(a0) * r, z), Vector3(cx + cos(a1) * r, spring + sin(a1) * r, z), n, dark)
+		_layer(mb, start, M_PAINT)
+		# jamb blocks, alternating long and short
+		var y := 0.0
+		var k := 0
+		while y < spring - 0.05:
+			var bh := minf(0.42, spring - y)
+			var bw := 0.32 if k % 2 == 0 else 0.22
+			for sgn in [-1.0, 1.0]:
+				_box(mb, Transform3D(Basis.IDENTITY, Vector3(cx + sgn * (r + bw * 0.5), y + bh * 0.5, 0.06)), Vector3(bw, bh - 0.02, 0.2), STONE.darkened(0.03 * (k % 3)), M_STONE)
+			y += bh
+			k += 1
+		# voussoirs and keystone
+		var segs := maxi(7, int(r * 7.0)) | 1
+		for i in segs:
+			var a0 := PI * float(i) / segs
+			var a1 := PI * float(i + 1) / segs
+			var am := (a0 + a1) * 0.5
+			var rr := r + t * 0.5
+			var key_stone := i == segs / 2
+			var size := Vector3(rr * (a1 - a0) * 1.04, t * (1.35 if key_stone else 1.0), 0.22 if not key_stone else 0.28)
+			_box(mb, Transform3D(Basis(Vector3(0, 0, 1), am - PI * 0.5), Vector3(cx + cos(am) * rr, spring + sin(am) * rr, 0.07)), size, STONE.lightened(0.04 if key_stone else 0.0), M_STONE)
+		if grate:
+			var bars := maxi(3, int(sw / 0.2))
+			for b in bars:
+				var bx := cx - r + sw * (b + 0.5) / bars
+				var top := spring + sqrt(maxf(0.0, r * r - (bx - cx) * (bx - cx)))
+				_box(mb, Transform3D(Basis.IDENTITY, Vector3(bx, top * 0.5, 0.1)), Vector3(0.04, top, 0.04), IRON, M_METAL)
+			for yy in [spring * 0.35, spring * 0.75]:
+				_box(mb, Transform3D(Basis.IDENTITY, Vector3(cx, yy, 0.1)), Vector3(sw, 0.05, 0.05), IRON, M_METAL)
+	var m := mb.commit()
+	_cache[key] = m
+	return m
+
+
 ## A twiggy bird nest with three pale blue eggs (origin at its base).
 static func nest() -> ArrayMesh:
 	if _cache.has("nest"):

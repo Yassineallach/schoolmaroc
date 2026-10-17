@@ -49,7 +49,9 @@ func drag(screen: Vector2) -> void:
 func process_hold(delta: float) -> void:
 	if not held:
 		return
-	if options.mode == "dig":
+	# Ctrl turns the pond brush into its eraser (fills the water back in)
+	var mode: String = "fill" if Input.is_key_pressed(KEY_CTRL) else options.mode
+	if mode == "dig":
 		glade.terrain.sculpt(at, options.size, delta * 2.2 * options.strength, "dig")
 	else:
 		glade.terrain.sculpt(at, options.size, delta * options.strength, "flatten", 0.05)
