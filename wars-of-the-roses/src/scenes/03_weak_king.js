@@ -88,16 +88,16 @@
         const dim = isYork ? 0 : p(t, c.ry - 0.6, 0.8);
         W.alpha(ctx, 1 - dim * 0.8, () => {
           W.strokePoly(ctx, [[W.W / 2, hasM ? 660 : 300], [x, 800]], tp, { color: W.rgba(W.C.crimsonBright, 0.28), width: 1.2, dash: [4, 6], dashOffset: -t * 20 });
-          W.node(ctx, x, 830, isYork ? 16 : 10, { p: tp, color: isYork ? W.C.ivory : W.C.ivoryDim, halo: isYork && t > c.ry ? W.C.ivory : null });
+          W.node(ctx, x, 820, isYork ? 16 : 10, { p: tp, color: isYork ? W.C.ivory : W.C.ivoryDim, halo: isYork && t > c.ry ? W.C.ivory : null, portrait: isYork && t > c.ry - 0.3 ? 'p_york' : null, pr: 48 });
         });
       });
       // tension line queen -> York vibrates
       const yp = p(t, c.ry, 0.6);
       if (yp > 0) {
-        const pts = []; for (let k = 0; k <= 50; k++) { const u = k / 50; pts.push([960 + Math.sin(u * 30 - t * 18) * 5 * Math.sin(u * Math.PI) * yp, W.lerp(hasM ? 660 : 300, 800, u)]); }
+        const pts = []; for (let k = 0; k <= 50; k++) { const u = k / 50; pts.push([960 + Math.sin(u * 30 - t * 18) * 5 * Math.sin(u * Math.PI) * yp, W.lerp(hasM ? 660 : 300, W.hasPortrait('p_york') ? 762 : 800, u)]); }
         W.strokePoly(ctx, pts, yp, { color: W.rgba(W.C.crimsonBright, 0.9), width: 2 });
       }
-      W.text(ctx, T.ry, W.W / 2, 905, { size: 46, color: W.C.ivory, reveal: p(t, c.ry + 0.1, 0.8) });
+      W.text(ctx, T.ry, W.W / 2, W.hasPortrait('p_york') ? 922 : 905, { size: 46, color: W.C.ivory, reveal: p(t, c.ry + 0.1, 0.8) });
     },
   });
 
@@ -122,10 +122,11 @@
       const ang = W.lerp(-0.4, Math.PI * 0.95, mv) + rot * (1 - mv);
       const rr = W.lerp(r1, r2 + 60, mv);
       const yx = cx + Math.cos(ang) * rr, yy = cy + Math.sin(ang) * rr;
-      W.node(ctx, yx, yy, 15, { p: p(t, 102.9, 0.8), color: W.C.ivory, halo: mv < 0.2 ? W.C.ivory : null });
-      W.text(ctx, T.ry, yx, yy + 48, { size: 40, color: W.C.ivory, alpha: p(t, 103.0, 0.8) });
-      W.text(ctx, T.role, yx, yy + 92, { size: 24, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.adviser, 0.8) * (1 - p(t, c.push, 0.6)) });
-      W.text(ctx, T.out, yx, yy + 92, { size: 30, fam: W.F.label, weight: 500, color: W.C.crimsonBright, alpha: p(t, c.push + 1.2, 0.6) });
+      W.node(ctx, yx, yy, 15, { p: p(t, 102.9, 0.8), color: W.C.ivory, halo: mv < 0.2 ? W.C.ivory : null, portrait: 'p_york', pr: 44 });
+      const yo = W.hasPortrait('p_york') ? 34 : 0;
+      W.text(ctx, T.ry, yx, yy + 48 + yo, { size: 40, color: W.C.ivory, alpha: p(t, 103.0, 0.8) });
+      W.text(ctx, T.role, yx, yy + 92 + yo, { size: 24, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.adviser, 0.8) * (1 - p(t, c.push, 0.6)) });
+      W.text(ctx, T.out, yx, yy + 92 + yo, { size: 30, fam: W.F.label, weight: 500, color: W.C.crimsonBright, alpha: p(t, c.push + 1.2, 0.6) });
       // queen's favourites take the inner seats
       for (const [cue, a0, label] of [[c.suf, -0.55, T.suf], [c.som, 0.55, T.som]]) {
         const q = p(t, cue - 0.3, 1.0, E.out);

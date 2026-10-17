@@ -254,5 +254,21 @@
       380
     ],
     "note": "Margaret of Anjou, 19th-c. engraving, supplied by the user"
+  },
+  "p_york": {
+    "file": "input/images/p_york.jpg",
+    "blend": "source-over",
+    "face": [
+      905,
+      428,
+      165
+    ],
+    "bust": [
+      895,
+      580,
+      310,
+      390
+    ],
+    "note": "Richard, Duke of York, 15th-c. illumination, supplied by the user"
   }
 }
