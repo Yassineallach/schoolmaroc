@@ -80,11 +80,12 @@
       W.text(ctx, T.waSub, wx, wy + 104 + wq, { size: 26, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.wa + 0.4, 0.7) });
       // George, the jealous brother, follows
       const gm = p(t, c.gName - 0.2, 1.6, E.inOut);
-      const gx = W.lerp(520, 1180, gm), gy = 800;
-      W.node(ctx, gx, gy, 14, { p: p(t, c.g - 0.3, 0.8), color: W.mixColor(W.C.ivory, W.C.crimsonBright, gm * 0.5) });
-      W.text(ctx, T.g, gx, gy + 54, { size: 32, color: W.C.ivory, alpha: p(t, c.g, 0.7) });
-      W.text(ctx, T.gSub, gx, gy + 94, { size: 24, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: p(t, c.g + 0.3, 0.7) });
-      W.strokePoly(ctx, [[wx, wy + 130 + wq], [gx, gy - 30]], p(t, c.g, 1.0, E.inOut), { color: W.rgba(W.C.crimsonBright, 0.6), width: 1.6, dash: [5, 7], dashOffset: -t * 20 });
+      const gx = W.lerp(520, 1180, gm), gy = W.hasPortrait('p_clarence') ? 770 : 800;
+      W.node(ctx, gx, gy, 14, { p: p(t, c.g - 0.3, 0.8), color: W.mixColor(W.C.ivory, W.C.crimsonBright, gm * 0.5), portrait: 'p_clarence', pr: 46 });
+      const gq = W.hasPortrait('p_clarence') ? 34 : 0;
+      W.text(ctx, T.g, gx, gy + 54 + gq, { size: 32, color: W.C.ivory, alpha: p(t, c.g, 0.7) });
+      W.text(ctx, T.gSub, gx, gy + 94 + gq, { size: 24, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: p(t, c.g + 0.3, 0.7) });
+      W.strokePoly(ctx, [[wx, wy + 130 + wq], [gx, gy - (W.hasPortrait('p_clarence') ? 58 : 30)]], p(t, c.g, 1.0, E.inOut), { color: W.rgba(W.C.crimsonBright, 0.6), width: 1.6, dash: [5, 7], dashOffset: -t * 20 });
     },
   });
 

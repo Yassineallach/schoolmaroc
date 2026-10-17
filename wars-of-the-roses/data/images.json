@@ -318,5 +318,21 @@
       120
     ],
     "note": "Richard Neville, Earl of Warwick, later portrait, supplied by the user"
+  },
+  "p_clarence": {
+    "file": "input/images/p_clarence.jpg",
+    "blend": "source-over",
+    "face": [
+      598,
+      232,
+      175
+    ],
+    "bust": [
+      600,
+      360,
+      300,
+      370
+    ],
+    "note": "George, Duke of Clarence, later panel, supplied by the user"
   }
 }
