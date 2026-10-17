@@ -19,6 +19,7 @@ What the screenshots show:
     projecting course of bricks runs under the top.
 
     python blender/build_bricks.py render <out.png>
+    python blender/build_bricks.py export assets/models   # tg_window_tracery
 """
 
 import math
@@ -410,9 +411,36 @@ def close(out):
     bh.stage(out, (0.0, -2.0, 2.6), 9.0, res=(1600, 1000), yaw=-12, pitch=10, lens=50)
 
 
+def export(out_dir):
+    """tg_window_tracery for the game: origin at the bottom centre of its wall
+    opening on the face, the frame set back into it (as build_wood's)."""
+    bw.reset()
+    surf = 0.14
+    obj = tracery_window(0.8, 0.85).to_object()
+    for o in [obj] + list(obj.children):
+        if o.name.startswith("Glow"):
+            continue
+        for ca in o.data.color_attributes:
+            for item in ca.data:
+                c = item.color
+                item.color = (bw._to_srgb(c[0]), bw._to_srgb(c[1]), bw._to_srgb(c[2]), c[3])
+    obj.location = (0.0, surf, 0.0)
+    bpy.ops.object.select_all(action="DESELECT")
+    for o in bpy.context.scene.objects:
+        o.select_set(True)
+    path = os.path.join(out_dir, "tg_window_tracery.glb")
+    bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", use_selection=True, export_apply=True,
+                              export_yup=True, export_normals=True, export_vertex_color="ACTIVE",
+                              export_all_vertex_colors=False, export_materials="EXPORT",
+                              export_image_format="NONE", export_animations=False)
+    print("exported", path)
+
+
 if __name__ == "__main__":
     args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
     if args and args[0] == "render":
         render(args[1])
     elif args and args[0] == "close":
         close(args[1])
+    elif args and args[0] == "export":
+        export(os.path.abspath(args[1]))

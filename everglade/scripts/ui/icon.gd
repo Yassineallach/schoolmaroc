@@ -377,6 +377,11 @@ func _draw() -> void:
 			poly([Vector2(0.3, 0.86), Vector2(0.3, 0.46), Vector2(0.36, 0.28), Vector2(0.5, 0.1), Vector2(0.64, 0.28), Vector2(0.7, 0.46), Vector2(0.7, 0.86)], SUN)
 			line([Vector2(0.5, 0.16), Vector2(0.5, 0.86)])
 			rect(0.22, 0.84, 0.56, 0.08, STONE)
+		"win_tracery":
+			poly([Vector2(0.26, 0.88), Vector2(0.26, 0.48), Vector2(0.33, 0.27), Vector2(0.5, 0.08), Vector2(0.67, 0.27), Vector2(0.74, 0.48), Vector2(0.74, 0.88)], STONE)
+			poly([Vector2(0.33, 0.84), Vector2(0.33, 0.56), Vector2(0.39, 0.45), Vector2(0.45, 0.56), Vector2(0.45, 0.84)], SUN)
+			poly([Vector2(0.55, 0.84), Vector2(0.55, 0.56), Vector2(0.61, 0.45), Vector2(0.67, 0.56), Vector2(0.67, 0.84)], SUN)
+			circle(Vector2(0.5, 0.32), 0.07, SUN)
 		"win_lattice":
 			rect(0.24, 0.14, 0.52, 0.7, SUN)
 			for seg in [[0.24, 0.32, 0.42, 0.14], [0.24, 0.58, 0.68, 0.14], [0.24, 0.84, 0.76, 0.32], [0.5, 0.84, 0.76, 0.58]]:

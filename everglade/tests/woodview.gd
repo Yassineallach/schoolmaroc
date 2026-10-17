@@ -40,7 +40,7 @@ func _run() -> void:
 	game.life.clear()
 	var g := game.glade
 	_house(Vector2(-16, 0), "plaster", 2, "plain")
-	_house(Vector2(-8, 0), "stone", 2, "gothic")
+	_house(Vector2(-8, 0), "stone", 2, "tracery")
 	_house(Vector2(0, 0), "timber", 2, "plain")
 	_house(Vector2(8, 0), "wood", 1, "arched")
 	_house(Vector2(16, 0), "windrise", 2, "plain")
@@ -50,8 +50,8 @@ func _run() -> void:
 			{"side": 0, "u": 0.8, "f": 2, "kind": "window"}]})
 	game.hud.visible = false
 	var i := 0
-	for shot in [[-8.0, 26.0, 198.0], [20.0, 24.0, 160.0]]:
-		game.rig.focus_on(Vector3(shot[0], 2.2, -1.0), shot[1])
+	for shot in [[-16.0, 11.0, 198.0], [-8.0, 11.0, 198.0], [24.0, 12.0, 205.0]]:
+		game.rig.focus_on(Vector3(shot[0], 2.2, -2.0), shot[1])
 		game.rig.yaw = deg_to_rad(shot[2])
 		game.rig.snap()
 		for k in 30:

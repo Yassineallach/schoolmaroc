@@ -43,6 +43,7 @@ func option_defs() -> Array:
 			{"id": "lattice", "label": "Leaded", "icon": "win_lattice"},
 			{"id": "arched", "label": "Arched", "icon": "win_arched"},
 			{"id": "gothic", "label": "Pointed", "icon": "win_gothic"},
+			{"id": "tracery", "label": "Tracery", "icon": "win_tracery"},
 			{"id": "round", "label": "Round", "icon": "win_round"},
 			{"id": "slit", "label": "Arrow slit", "icon": "win_slit"}]})
 	return defs

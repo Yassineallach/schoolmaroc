@@ -34,6 +34,7 @@ const MODELS := {
 	"tg_window_arch": {"w": 0.96, "h": 1.04, "arch": ROUND},
 	"tg_window_gothic": {"w": 0.80, "h": 0.51, "arch": POINTED},
 	"tg_window_lattice": {"w": 0.90, "h": 1.14, "arch": FLAT},
+	"tg_window_tracery": {"w": 0.96, "h": 0.83, "arch": POINTED},
 }
 
 

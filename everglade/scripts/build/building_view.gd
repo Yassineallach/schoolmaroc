@@ -40,8 +40,12 @@ var _clear: Array = []
 ## ground floor (0 = flush), and where the jetty starts.
 var _jet := 0.0
 var _jet_y := 0.0
-# Tiny Glade's pale sandy stone (#D8C8A6)
-const LIMESTONE := Color(0.84, 0.78, 0.65)
+# Tiny Glade's stone: cool grey, washed with lichen per block (Masonry
+# "broken"); dressed stone (window and door surrounds) is paler; quoins and
+# the bricks showing through worn plaster are a creamy yellow
+const LIMESTONE := Color(0.72, 0.70, 0.70)
+const DRESSED := Color(0.84, 0.82, 0.75)
+const CREAM_BRICK := Color(0.85, 0.78, 0.56)
 
 
 static func local_basis(rot: float) -> Basis:
@@ -383,7 +387,7 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 	elif style == "timber":
 		_timber(mb, corners, floors, d, auto_doors)
 	elif style == "plaster":
-		_quoins(mb, corners, Color(0.80, 0.77, 0.72, 1.0))
+		_quoins(mb, corners, CREAM_BRICK)
 	elif style == "lakeside":
 		_lakeside(mb, corners, floors)
 	# floor band between storeys
@@ -504,19 +508,25 @@ func _band(mb: MeshBuilder, corners: Array, y: float, h: float, out: float, col:
 		mb.quad(ib + top, ia + top, a + top, b + top, col)
 
 
+## Quoin piers up each corner: small blocks, long and short in turn,
+## wrapping round the corner (Tiny Glade's plastered towers).
 func _quoins(mb: MeshBuilder, corners: Array, col: Color, top := -1.0) -> void:
 	var limit := eave - 0.2 if top < 0.0 else top - 0.1
+	var stone := Color(col.r, col.g, col.b, 0.25)
 	for c in corners:
 		var v: Vector3 = c
-		var y := PL + 0.05
+		var y := PL + 0.02
 		var k := 0
-		while y < limit:
+		while y < limit - 0.08:
+			var h := minf(_rng.randf_range(0.13, 0.17), limit - y)
 			var big := k % 2 == 0
-			var sx := 0.42 if big else 0.26
-			var sz := 0.26 if big else 0.42
-			var center := v + Vector3(-signf(v.x) * (sx * 0.5 - 0.04), y + 0.16, -signf(v.z) * (sz * 0.5 - 0.04))
-			mb.box(Transform3D(Basis.IDENTITY, center), Vector3(sx, 0.3, sz), col)
-			y += 0.34
+			var sx := _rng.randf_range(0.36, 0.44) if big else _rng.randf_range(0.2, 0.26)
+			var sz := _rng.randf_range(0.2, 0.26) if big else _rng.randf_range(0.36, 0.44)
+			var center := v + Vector3(-signf(v.x) * (sx * 0.5 - 0.05), y + h * 0.5, -signf(v.z) * (sz * 0.5 - 0.05))
+			center += Vector3(_rng.randf_range(-0.01, 0.01), 0, _rng.randf_range(-0.01, 0.01))
+			mb.bevel_box(Transform3D(Basis(Vector3.UP, _rng.randf_range(-0.03, 0.03)), center), Vector3(sx - 0.02, h - 0.022, sz - 0.02), 0.025,
+					Masonry.stone_color(stone, _rng) if not _preview else stone)
+			y += h
 			k += 1
 
 
@@ -842,7 +852,7 @@ func _details_rect(mb: MeshBuilder, d: Dictionary, corners: Array, style: String
 			match kind:
 				"stone", "plaster":
 					if hl.get("model", "") != "tg_door_gothic":
-						_stone_surround(mb, at2, nrm, hl, LIMESTONE)
+						_stone_surround(mb, at2, nrm, hl, DRESSED)
 				"wood", "boards":
 					_board_surround(mb, at2, nrm, hl, beam)
 				"timber":
@@ -854,6 +864,28 @@ func _details_rect(mb: MeshBuilder, d: Dictionary, corners: Array, style: String
 				if style == "windrise" and y < stone_top + 0.1:
 					continue
 				_beam_ends(mb, at, n, l, y - 0.1, beam, _cut[i])
+	# plastered houses: two projecting courses of cream brick under the top
+	if style == "plaster":
+		for i in 4:
+			var a: Vector3 = corners[i]
+			var b: Vector3 = corners[(i + 1) % 4]
+			var n := _side_normal(corners, i)
+			var l := a.distance_to(b)
+			var dir := (b - a) / l
+			for row in 2:
+				var y := eave - 0.42 + row * 0.14
+				var out := 0.05 + row * 0.04
+				var s := -out
+				while s < l + out - 0.05:
+					var w := minf(_rng.randf_range(0.26, 0.36), l + out - s)
+					var busy := false
+					for hl in _cut[i]:
+						if absf(hl.s - (s + w * 0.5)) < hl.w * 0.5 + 0.25 and WallCut.top(hl) > y - 0.3:
+							busy = true
+					if not busy and w > 0.08:
+						mb.bevel_box(Transform3D(DecoMerge.facing(n), a + dir * (s + w * 0.5) + n * (out - 0.06) + Vector3.UP * (y + 0.065)),
+								Vector3(w - 0.025, 0.12, 0.12 + out), 0.025, Masonry.stone_color(Color(CREAM_BRICK.r, CREAM_BRICK.g, CREAM_BRICK.b, 0.25), _rng))
+					s += w
 	# under the eaves: rafter ends and knee brackets on the eave sides
 	if roof == "flat" or style == "lakeside":
 		return
@@ -1930,6 +1962,8 @@ static func _window_model(wt: String, style: String) -> String:
 			return "tg_window_gothic"
 		"lattice":
 			return "tg_window_lattice"
+		"tracery":
+			return "tg_window_tracery"
 		"round", "slit":
 			return ""
 	return "tg_window_lattice" if style in ["stone", "timber", "windrise", "lakeside"] else "tg_window"
@@ -2107,8 +2141,9 @@ func _masonry_rect(mb: MeshBuilder, corners: Array, y0: float, y1: float, col: C
 		var surf := func(s: float) -> Dictionary:
 			return {"p": Vector3(a.x, 0.0, a.z) + dir * s, "n": n, "g": y0, "low": y0 - 0.01, "top": y1}
 		# run a little past both corners so the faces interlock
-		Masonry.pattern = "glade"   # pillowy hand-laid stones, big at the foot
-		Masonry.lay(mb, surf, -Masonry.DEPTH, l + Masonry.DEPTH, 0.0, y1 - y0, col, _rng,
+		# broken-course stonework; under worn plaster, small cream bricks
+		Masonry.pattern = "peel" if patchy else "broken"
+		Masonry.lay(mb, surf, -Masonry.DEPTH, l + Masonry.DEPTH, 0.0, y1 - y0, CREAM_BRICK if patchy else col, _rng,
 				func(s0, s1, ya, yb): return _hits(side_holes, s0, s1, ya, yb),
 				_patch_veto(l, y0, y1, bands) if patchy else Callable())
 
@@ -2118,7 +2153,7 @@ func _masonry_round(mb: MeshBuilder, R: float, y0: float, y1: float, col: Color,
 		var ang := s / R
 		var n := Vector3(cos(ang), 0.0, sin(ang))
 		return {"p": n * R, "n": n, "g": y0, "low": y0 - 0.01, "top": y1}
-	Masonry.pattern = "glade"
-	Masonry.lay(mb, surf, 0.0, TAU * R, 0.0, y1 - y0, col, _rng,
+	Masonry.pattern = "peel" if patchy else "broken"
+	Masonry.lay(mb, surf, 0.0, TAU * R, 0.0, y1 - y0, CREAM_BRICK if patchy else col, _rng,
 			func(s0, s1, ya, yb): return _hits(holes, s0, s1, ya, yb),
 			_patch_veto(TAU * R, y0, y1, bands) if patchy else Callable())

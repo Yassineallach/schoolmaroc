@@ -18,8 +18,11 @@ const LEN := Vector2(0.3, 0.68)
 ## Facing pattern used by lay(): "classic" (current coursed stones),
 ## "glade" (pillowy, irregular hand-laid stones, big at the foot),
 ## "ashlar" (large dressed blocks, fine joints), "brick" (Flemish bond),
-## "rubble" (uncoursed polygonal fieldstone).
-const PATTERNS := ["classic", "glade", "kit", "rubble", "brick", "ashlar"]
+## "rubble" (uncoursed polygonal fieldstone), "broken" (Tiny Glade's
+## broken-course stonework: flat-faced blocks of mixed sizes, courses that
+## never run straight for long, grey stone washed with lichen), "peel"
+## (small cream bricks showing where plaster has worn away).
+const PATTERNS := ["classic", "glade", "kit", "rubble", "brick", "ashlar", "broken", "peel"]
 static var pattern := "classic"
 ## "kit" pattern: Quaternius rounded stones (Medieval Village MegaKit, CC0)
 ## gathered while laying, tinted per stone, and drawn with their painted
@@ -140,8 +143,11 @@ static func _tri_n(mb: MeshBuilder, a: Vector3, b: Vector3, c: Vector3, na: Vect
 static func lay(mb: MeshBuilder, surf: Callable, s_from: float, s_to: float, y_from: float, y_to: float,
 		base: Color, rng: RandomNumberGenerator, skip := Callable(), veto := Callable()) -> void:
 	match pattern:
-		"brick":
+		"brick", "peel":
 			lay_brick(mb, surf, s_from, s_to, y_from, y_to, base, rng, skip, veto)
+			return
+		"broken":
+			lay_broken(mb, surf, s_from, s_to, y_from, y_to, base, rng, skip, veto)
 			return
 		"rubble":
 			lay_rubble(mb, surf, s_from, s_to, y_from, y_to, base, rng, skip, veto)
@@ -334,7 +340,8 @@ static func lay_brick(mb: MeshBuilder, surf: Callable, s_from: float, s_to: floa
 	const STRETCH := 0.4
 	const HEADER := 0.19
 	const BJ := 0.016
-	var brick := Color(0.66, 0.36, 0.26).lerp(base, 0.25)
+	var peel := pattern == "peel"
+	var brick := base if peel else Color(0.66, 0.36, 0.26).lerp(base, 0.25)
 	var y := y_from
 	var row := 0
 	while y < y_to - 0.05:
@@ -365,11 +372,122 @@ static func lay_brick(mb: MeshBuilder, surf: Callable, s_from: float, s_to: floa
 			var k2 := rng.randf_range(0.85, 1.1)
 			var col := Color(brick.r * k2, brick.g * k2, brick.b * k2, 1.0)
 			if header:
-				col = col.darkened(rng.randf_range(0.12, 0.3))
+				col = col.darkened(rng.randf_range(0.04, 0.1) if peel else rng.randf_range(0.12, 0.3))
 			stone(mb, p0 + Vector3.UP * y0, u, Vector3.UP, c.n, p0.distance_to(p1), y1 - y0, 0.035 * rng.randf_range(0.8, 1.15),
 					col, rng, Vector2(s0, y0), 0.0, 0.014)
 		y += CH
 		row += 1
+
+
+## Tiny Glade's broken-course stonework (its stone towers), packed the way
+## the stones go up: always into the lowest gap, each block as wide as fits
+## (0.28-0.7 m) and one of a few heights, now and then one and a half or two
+## courses tall, often matching a neighbour's top so courses still read.
+## Blocks are flat-faced with only eased edges, set a little proud or back
+## and out of square; near an opening smaller stones are tried so the
+## coursing runs right up to the frame. Joints are thin.
+static func lay_broken(mb: MeshBuilder, surf: Callable, s_from: float, s_to: float, y_from: float, y_to: float,
+		base: Color, rng: RandomNumberGenerator, skip := Callable(), veto := Callable()) -> void:
+	const CELL := 0.05
+	const BJ := 0.02
+	var n := maxi(1, int(ceil((s_to - s_from) / CELL)))
+	var sky := PackedFloat32Array()
+	sky.resize(n)
+	sky.fill(y_from)
+	var heights := [0.2, 0.24, 0.28, 0.24, 0.32, 0.46]
+	var guard := 0
+	while guard < 40000:
+		guard += 1
+		var lo := INF
+		var i0 := 0
+		for k in n:
+			if sky[k] < lo - 1e-5:
+				lo = sky[k]
+				i0 = k
+		if lo >= y_to - 0.03:
+			break
+		var i1 := i0
+		while i1 < n and absf(sky[i1] - lo) < 1e-5:
+			i1 += 1
+		if i1 - i0 < 3:
+			# too narrow for a stone: mortar takes it up to its lower neighbour
+			var top := INF
+			if i0 > 0:
+				top = sky[i0 - 1]
+			if i1 < n:
+				top = minf(top, sky[i1])
+			if top == INF:
+				top = lo + 0.1
+			for k in range(i0, i1):
+				sky[k] = maxf(lo + 0.02, top)
+			continue
+		var wc := clampi(int(round(rng.randf_range(0.28, 0.7) / CELL)), 1, i1 - i0)
+		if (i1 - i0) - wc > 0 and (i1 - i0) - wc < 4:
+			wc = i1 - i0
+		var h: float = heights[rng.randi() % heights.size()]
+		for t in [sky[i0 - 1] if i0 > 0 else -1.0, sky[i1] if i1 < n else -1.0]:
+			if t > 0.0 and t - lo > 0.12 and t - lo < 0.5 and rng.randf() < 0.55:
+				h = t - lo
+		h = minf(h, y_to - lo)
+		if y_to - (lo + h) < 0.12:
+			h = y_to - lo
+		# near an opening (or outside a worn patch) try smaller stones
+		var fit := Vector2(-1, -1)
+		for opt: Vector2 in [Vector2(wc, h), Vector2(maxi(4, wc * 2 / 3), h), Vector2(maxi(4, wc / 2), h),
+				Vector2(maxi(4, wc / 2), minf(h, 0.18)), Vector2(4, minf(h, 0.15))]:
+			var oc := mini(int(opt.x), i1 - i0)
+			var a0 := s_from + i0 * CELL
+			var a1 := a0 + oc * CELL
+			var g := gmid_offset(surf, a0, a1)
+			var y0 := g + lo
+			var y1: float = g + lo + opt.y
+			if skip.is_valid() and skip.call(a0, a1, y0, y1):
+				continue
+			if veto.is_valid() and veto.call(a0, a1, y0, y1):
+				continue
+			fit = Vector2(oc, opt.y)
+			break
+		if fit.x < 0.0:
+			sky[i0] = lo + CELL
+			continue
+		wc = int(fit.x)
+		h = fit.y
+		for k in range(i0, i0 + wc):
+			sky[k] = lo + h
+		var s0 := s_from + i0 * CELL
+		var s1 := s0 + wc * CELL
+		var a: Dictionary = surf.call(s0)
+		var c: Dictionary = surf.call((s0 + s1) * 0.5)
+		var e: Dictionary = surf.call(s1)
+		var gy: float = c.g + lo
+		var yb := maxf(gy, maxf(a.low, e.low)) + BJ * 0.5
+		var yt := minf(gy + h, minf(a.top, e.top)) - BJ * 0.5
+		if yt - yb < 0.07 or _blocked(a, (yb + yt) * 0.5) or _blocked(e, (yb + yt) * 0.5):
+			continue
+		var p0: Vector3 = a.p
+		var p1: Vector3 = e.p
+		var chord := p1 - p0
+		var w := chord.length() - BJ
+		if w < 0.1:
+			continue
+		var u := chord.normalized()
+		var v := (Vector3.UP + u * rng.randf_range(-0.02, 0.02)).normalized()
+		var o := p0 + u * (BJ * 0.5) + Vector3.UP * yb
+		var depth := DEPTH * rng.randf_range(0.8, 1.45)
+		stone(mb, o, u, v, c.n, w, yt - yb, depth, broken_color(base, rng), rng, Vector2(s0, yb), 0.0, 0.026)
+
+
+## Grey stone, many blocks washed ochre or olive by lichen and sun.
+static func broken_color(base: Color, rng: RandomNumberGenerator) -> Color:
+	var k := rng.randf_range(0.88, 1.08)
+	var c := Color(base.r * k, base.g * k, base.b * k, 1.0)
+	var lichen := [Color(0.74, 0.73, 0.52), Color(0.79, 0.75, 0.53), Color(0.68, 0.69, 0.50), Color(0.76, 0.70, 0.48)]
+	var amt := pow(rng.randf(), 1.6) * 0.8
+	var t: Color = lichen[rng.randi() % lichen.size()]
+	c = c.lerp(Color(t.r * k, t.g * k, t.b * k, 1.0), amt)
+	if rng.randf() < 0.08:
+		c = c.darkened(0.12)
+	return Color(clampf(c.r, 0, 1), clampf(c.g, 0, 1), clampf(c.b, 0, 1), 1.0)
 
 
 ## Uncoursed polygonal rubble: a jittered grid of seeds cut into Voronoi
