@@ -34,10 +34,11 @@
       }
       // secret marriage to Elizabeth Woodville
       const wx = 460;
-      W.node(ctx, wx, ey, 14, { p: p(t, c.secret, 0.8), color: W.C.ivory });
-      W.text(ctx, T.ew, wx, ey + 58, { size: 40, color: W.C.ivory, reveal: p(t, c.secret + 0.2, 0.8) });
-      W.text(ctx, T.ewSub, wx, ey + 102, { size: 24, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.widow, 0.7) });
-      W.strokePoly(ctx, [[ex - 34, ey], [wx + 30, ey]], p(t, c.secret + 0.2, 1.0, E.inOut), { color: W.rgba(W.C.ivory, 0.8), width: 2 });
+      W.node(ctx, wx, ey, 14, { p: p(t, c.secret, 0.8), color: W.C.ivory, portrait: 'p_woodville', pr: 58 });
+      const wo = W.hasPortrait('p_woodville') ? 44 : 0;
+      W.text(ctx, T.ew, wx, ey + 58 + wo, { size: 40, color: W.C.ivory, reveal: p(t, c.secret + 0.2, 0.8) });
+      W.text(ctx, T.ewSub, wx, ey + 102 + wo, { size: 24, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.widow, 0.7) });
+      W.strokePoly(ctx, [[ex - (W.hasPortrait('p_edward4') ? 70 : 34), ey], [wx + (W.hasPortrait('p_woodville') ? 70 : 30), ey]], p(t, c.secret + 0.2, 1.0, E.inOut), { color: W.rgba(W.C.ivory, 0.8), width: 2 });
       W.rings(ctx, (ex + wx) / 2, ey - 50, 26, { p: p(t, c.secret + 0.5, 1.0), color: W.C.gold, width: 2 });
       W.text(ctx, T.secret, (ex + wx) / 2, ey - 110, { size: 28, fam: W.F.label, weight: 500, color: W.C.gold, alpha: p(t, c.secret + 0.8, 0.8) });
     },

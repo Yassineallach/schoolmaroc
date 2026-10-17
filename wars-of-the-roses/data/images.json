@@ -286,5 +286,21 @@
       215
     ],
     "note": "Edward IV, c.1520 panel (Royal Collection), supplied by the user"
+  },
+  "p_woodville": {
+    "file": "input/images/p_woodville.jpg",
+    "blend": "source-over",
+    "face": [
+      620,
+      440,
+      260
+    ],
+    "bust": [
+      640,
+      560,
+      380,
+      470
+    ],
+    "note": "Elizabeth Woodville, 16th-c. panel, supplied by the user"
   }
 }
