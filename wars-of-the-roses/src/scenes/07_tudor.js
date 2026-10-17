@@ -44,9 +44,10 @@
           W.text(ctx, n.label, 930 - pad, n.y, { size: n.size, color: i === 0 ? W.C.crimsonBright : W.C.ivory, align: 'right', alpha: i === 0 ? p(t, c.lan, 0.7) : np * 0.85 });
           if (n.sub) W.text(ctx, n.sub, 1000 + (i === 0 && W.hasPortrait('p_gaunt') ? 30 : 0), n.y, { size: 24, fam: W.F.label, weight: 400, color: W.C.ivoryDim, align: 'left', alpha: i === 0 ? p(t, c.lan + 0.3, 0.7) : np * 0.85 });
         });
-        W.node(ctx, 960, 760, 20, { p: p(t, c.ht, 0.8), color: W.C.crimsonBright, halo: W.C.crimson });
-        W.text(ctx, T.ht, 960, 840, { size: 64, color: W.C.ivory, reveal: p(t, c.ht + 0.1, 0.9) });
-        W.text(ctx, T.htSub, 960, 905, { size: 26, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.lan, 0.8) });
+        const hpo = W.hasPortrait('p_henry7') ? 34 : 0;
+        W.node(ctx, 960, 760 + hpo * 0.3, 20, { p: p(t, c.ht, 0.8), color: W.C.crimsonBright, halo: W.C.crimson, portrait: 'p_henry7', pr: 50 });
+        W.text(ctx, T.ht, 960, 840 + hpo, { size: 64, color: W.C.ivory, reveal: p(t, c.ht + 0.1, 0.9) });
+        W.text(ctx, T.htSub, 960, 905 + hpo, { size: 26, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.lan, 0.8) });
         W.caption(ctx, 1700, 760, t, c.exile, { kicker: '1471 — 1485', title: T.exile, sub: 'في بريتاني وفرنسا', size: 44, align: 'right' });
       });
       if (phaseB <= 0) return;
@@ -74,17 +75,18 @@
         }
         W.text(ctx, T.split, rx, 700, { size: 52, color: W.C.ivory, reveal: p(t, c.split + 0.3, 0.9) });
         const hx = 1350;
-        W.node(ctx, hx, ry, 22, { p: phaseB, color: W.C.crimsonBright, halo: W.C.crimson, crown: p(t, c.sup + 0.8, 1), crownColor: W.C.gold });
-        W.text(ctx, T.ht, hx, ry + 70, { size: 50, color: W.C.ivory, alpha: phaseB });
+        W.node(ctx, hx, ry, 22, { p: phaseB, color: W.C.crimsonBright, halo: W.C.crimson, crown: p(t, c.sup + 0.8, 1), crownColor: W.C.gold, portrait: 'p_henry7', pr: 62 });
+        const sr = W.hasPortrait('p_henry7') ? 135 : 95;
+        W.text(ctx, T.ht, hx, ry + (sr > 95 ? sr + 45 : 70), { size: 50, color: W.C.ivory, alpha: phaseB });
         for (let i = 0; i < 8; i++) {
           const r = W.rng(50 + i);
           const sx = rx + (r() - 0.5) * 260, sy = ry + (r() - 0.5) * 260;
           const ang = (i / 8) * Math.PI * 2;
-          const tx = hx + Math.cos(ang) * 95, ty = ry + Math.sin(ang) * 95;
+          const tx = hx + Math.cos(ang) * sr, ty = ry + Math.sin(ang) * sr;
           const m = p(t, c.sup + i * 0.1, 1.6, E.inOut);
           W.node(ctx, W.lerp(sx, tx, m), W.lerp(sy, ty, m), 7, { p: p(t, c.york + i * 0.05, 0.5), color: W.mixColor(W.C.ivory, W.C.crimsonBright, m * 0.4), width: 1.6 });
         }
-        W.text(ctx, T.sup, hx, ry + 140, { size: 30, fam: W.F.label, weight: 500, color: W.C.gold, alpha: p(t, c.sup + 0.5, 0.8) });
+        W.text(ctx, T.sup, hx, ry + (sr > 95 ? sr + 105 : 140), { size: 30, fam: W.F.label, weight: 500, color: W.C.gold, alpha: p(t, c.sup + 0.5, 0.8) });
       });
     },
   });
@@ -122,6 +124,7 @@
       W.formation(ctx, W.lerp(1440, 1100, conv), 690, t, { cols: 6, rows: 3, color: W.C.ivory, scatter: br, retreat: 1, seed: 42 });
       W.formation(ctx, W.lerp(480, 830, conv), 580, t, { cols: 8, rows: 3, color: W.C.crimsonBright, seed: 43 });
       W.bigArrow(ctx, [420, 580], [W.lerp(560, 900, conv), 580], p(t, S.start, 1.0), { color: W.C.crimsonBright, width: 22 });
+      W.portrait(ctx, 'p_henry7', 640, 355, 50, { shape: 'oval', ry: 62, p: p(t, S.start + 0.2, 0.8) });
       W.text(ctx, T.ht, 640, 470, { size: 36, color: W.C.crimsonBright, alpha: p(t, S.start + 0.2, 0.5) });
       // Richard III above his army; he dies on the field
       W.portrait(ctx, 'p_richard3', 1300, 255, 54, { shape: 'oval', ry: 66, p: p(t, S.start + 0.2, 0.8), dead: br > 0.5, alpha: 1 - br * 0.3 });
@@ -143,12 +146,13 @@
       const c = S.cues, T = S.text;
       const up = p(t, c.unite - 0.4, 1.2, E.inOut); // nodes move up to make room for the rose
       const ny = W.lerp(480, 240, up);
-      W.node(ctx, 1250, ny, 18, { p: p(t, c.wed, 0.7), color: W.C.crimsonBright, crown: 1, crownColor: W.C.gold });
-      W.text(ctx, T.h7, 1250, ny + 62, { size: 44, color: W.C.ivory, alpha: p(t, c.wed + 0.2, 0.7) });
-      W.node(ctx, 670, ny, 16, { p: p(t, c.eliz, 0.7), color: W.C.ivory });
-      W.text(ctx, T.eliz, 670, ny + 62, { size: 44, color: W.C.ivory, alpha: p(t, c.eliz + 0.2, 0.7) });
-      W.text(ctx, T.elizSub, 670, ny + 108, { size: 26, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.sister, 0.7) * (1 - up) });
-      W.strokePoly(ctx, [[1220, ny], [700, ny]], p(t, c.eliz + 0.3, 1.0, E.inOut), { color: W.rgba(W.C.gold, 0.7), width: 1.8 });
+      const hq = W.hasPortrait('p_henry7') ? 30 : 0, eq = W.hasPortrait('p_elizabeth_york') ? 30 : 0;
+      W.node(ctx, 1250, ny, 18, { p: p(t, c.wed, 0.7), color: W.C.crimsonBright, crown: 1, crownColor: W.C.gold, portrait: 'p_henry7', pr: 58 });
+      W.text(ctx, T.h7, 1250, ny + 62 + hq, { size: 44, color: W.C.ivory, alpha: p(t, c.wed + 0.2, 0.7) });
+      W.node(ctx, 670, ny, 16, { p: p(t, c.eliz, 0.7), color: W.C.ivory, portrait: 'p_elizabeth_york', pr: 58 });
+      W.text(ctx, T.eliz, 670, ny + 62 + eq, { size: 44, color: W.C.ivory, alpha: p(t, c.eliz + 0.2, 0.7) });
+      W.text(ctx, T.elizSub, 670, ny + 108 + eq, { size: 26, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.sister, 0.7) * (1 - up) });
+      W.strokePoly(ctx, [[1220 - hq * 1.4, ny], [700 + eq * 1.4, ny]], p(t, c.eliz + 0.3, 1.0, E.inOut), { color: W.rgba(W.C.gold, 0.7), width: 1.8 });
       W.rings(ctx, 960, ny - 40, 24, { p: p(t, c.eliz + 0.6, 1.0), color: W.C.gold, width: 2 });
       W.text(ctx, T.wed, 960, ny + 30, { size: 30, fam: W.F.latin, weight: 600, color: W.C.gold, dir: 'ltr', alpha: p(t, c.eliz + 1.0, 0.7) });
       // the two roses travel inwards and merge into the Tudor rose

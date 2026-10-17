@@ -360,5 +360,15 @@
       240
     ],
     "note": "Richard III, late-16th-c. panel (Society of Antiquaries type), supplied by the user"
+  },
+  "p_henry7": {
+    "file": "input/images/p_henry7.jpg",
+    "blend": "source-over",
+    "face": [
+      625,
+      570,
+      300
+    ],
+    "note": "Henry VII, 1505 panel (National Portrait Gallery), supplied by the user"
   }
 }
