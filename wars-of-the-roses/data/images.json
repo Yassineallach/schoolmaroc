@@ -1,3 +1,12 @@
 {
-  "night_king": { "file": "input/images/night_king.png", "blend": "multiply", "note": "ink drawing supplied by the user (signed Drumond 2015)" }
+  "night_king": {
+    "file": "input/images/night_king.png",
+    "blend": "multiply",
+    "note": "ink drawing supplied by the user (signed Drumond 2015)"
+  },
+  "dragon": {
+    "file": "input/images/dragon.png",
+    "blend": "multiply",
+    "note": "pencil drawing supplied by the user; title cropped, paper flattened, mirrored to face right"
+  }
 }

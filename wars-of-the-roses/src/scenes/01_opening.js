@@ -36,8 +36,11 @@
       if (!W.image(ctx, 'night_king', fx, fy + 30, 560, { reveal: nk, zoom: 1 + 0.04 * p(t, c.crystal, 4) }))
         inked(ctx, fx, fy + 60, 520, 640, nk, () => W.frostKing(ctx, fx, fy, 0.6, t, { eyes: p(t, c.crystal + 0.5, 0.6) }));
       W.text(ctx, T.a, fx, 760, { size: 50, color: W.C.ivory, reveal: p(t, c.crystal + 0.1, 0.8) });
-      inked(ctx, dx, dy, 700, 620, p(t, c.wing - 0.3, 1.1), () =>
-        W.bestiaryDragon(ctx, dx + 40, dy + 110, 0.56, t, { flap: 0.15 + 0.12 * Math.sin(t * 2.2), fire: p(t, c.wing + 0.4, 0.6) }));
+      // the dragon: real pencil drawing (falls back to the engraved version if missing)
+      const dr = p(t, c.wing - 0.3, 1.1);
+      if (!W.image(ctx, 'dragon', dx, dy - 10, 540, { reveal: dr, zoom: 1 + 0.04 * p(t, c.wing, 3) }))
+        inked(ctx, dx, dy, 700, 620, dr, () =>
+          W.bestiaryDragon(ctx, dx + 40, dy + 110, 0.56, t, { flap: 0.15 + 0.12 * Math.sin(t * 2.2), fire: p(t, c.wing + 0.4, 0.6) }));
       W.text(ctx, T.b, dx, 760, { size: 50, color: W.C.ivory, reveal: p(t, c.wing + 0.1, 0.8) });
       // refuted in red ink
       redCross(ctx, fx, fy + 40, 175, (t - c.strike) / 0.9);
