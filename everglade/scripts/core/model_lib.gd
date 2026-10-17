@@ -44,6 +44,14 @@ var _tex_mats: Dictionary = {}
 var _tex_shader: Shader = load("res://shaders/props_tex.gdshader")
 var _cut_shader: Shader = load("res://shaders/props_cut.gdshader")
 var _merged: Dictionary = {}
+var _tinted: Dictionary = {}
+
+## The tg_* wood models' own colours: honey wood, and the sage shutters and
+## cream frames their trims are painted in (blender/build_wood.py).
+const HONEY := Color(0.72, 0.54, 0.31)
+const TRIM_REFS := [Color(0.50, 0.53, 0.36), Color(0.93, 0.89, 0.81)]
+const SLICE_PAINT := 0
+const SLICE_WOOD := 3
 
 
 func _init() -> void:
@@ -295,3 +303,38 @@ func radius(kind: String) -> float:
 func new_arch_material() -> ShaderMaterial:
 	var mat := arch_material.duplicate() as ShaderMaterial
 	return mat
+
+
+## A model's merged meshes with its wood shifted to another tone and its
+## painted trims (shutters, window frames) in another colour. A colour with
+## alpha 0 keeps the model's own.
+func tinted(kind: String, wood: Color, trim: Color) -> Dictionary:
+	var base := merged(kind)
+	if (wood.a <= 0.0 and trim.a <= 0.0) or base.solid == null:
+		return base
+	var key := "%s|%s|%s" % [kind, wood.to_html(), trim.to_html()]
+	if _tinted.has(key):
+		return _tinted[key]
+	var arr: Array = (base.solid as ArrayMesh).surface_get_arrays(0)
+	var cols: PackedColorArray = arr[Mesh.ARRAY_COLOR]
+	var uvs: PackedVector2Array = arr[Mesh.ARRAY_TEX_UV]
+	if cols.size() == uvs.size():
+		for i in cols.size():
+			var c := cols[i]
+			var slice := int(uvs[i].x * 16.0)
+			if slice == SLICE_WOOD and wood.a > 0.0:
+				cols[i] = Color(minf(1.0, c.r * wood.r / HONEY.r), minf(1.0, c.g * wood.g / HONEY.g), minf(1.0, c.b * wood.b / HONEY.b), c.a)
+			elif slice == SLICE_PAINT and trim.a > 0.0:
+				for ref: Color in TRIM_REFS:
+					if absf(c.r - ref.r) + absf(c.g - ref.g) + absf(c.b - ref.b) < 0.2:
+						# keep each board's small shift in tone
+						var k := (c.r + c.g + c.b) / (ref.r + ref.g + ref.b)
+						cols[i] = Color(minf(1.0, trim.r * k), minf(1.0, trim.g * k), minf(1.0, trim.b * k), c.a)
+						break
+		arr[Mesh.ARRAY_COLOR] = cols
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	var out := base.duplicate()
+	out.solid = mesh
+	_tinted[key] = out
+	return out

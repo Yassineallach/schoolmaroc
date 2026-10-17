@@ -31,6 +31,11 @@ var _rng := RandomNumberGenerator.new()
 var _peel := 1.0      # how much stone shows through worn plaster (0 none)
 ## Height of the stilts/pillars the house stands on (0 = on the ground).
 var lift := 0.0
+## Openings planned for the walls being built: WallCut holes to cut, and
+## rectangles stonework and boards keep clear of (per side on rectangular
+## houses, one list round towers).
+var _cut: Array = []
+var _clear: Array = []
 const LIMESTONE := Color(0.80, 0.76, 0.67)
 
 
@@ -187,58 +192,20 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 		# a roof laid over a ring of the player's own walls
 		_rect_roof(mb, d, L, W, roof, pitch, roof_col, Color(stone_col.r, stone_col.g, stone_col.b, 0.25), stone_col, "stone")
 		return
-	# foundation plinth (slightly proud of the walls)
-	var fl := L + 0.16
-	var fw := W + 0.16
-	var plinth := [Vector3(-fl / 2, 0, -fw / 2), Vector3(fl / 2, 0, -fw / 2), Vector3(fl / 2, 0, fw / 2), Vector3(-fl / 2, 0, fw / 2)]
-	var foot := -1.6 if lift < 0.05 else 0.0
-	if _preview:
-		_ring_walls(mb, plinth, foot, PL, stone_col)
-	else:
-		_ring_walls(mb, plinth, foot, PL, Masonry.mortar_color(LIMESTONE))
-		_masonry_rect(mb, plinth, maxf(foot, -0.35), PL, LIMESTONE.darkened(0.06), [])
-	mb.quad(Vector3(-fl / 2, PL, fw / 2), Vector3(fl / 2, PL, fw / 2), Vector3(fl / 2, PL, -fw / 2), Vector3(-fl / 2, PL, -fw / 2), stone_col)
-	if lift >= 0.05:
-		_stilts_rect(mb, deco, L, W)
-	# main walls (whole stone houses are laid stone by stone)
-	if style == "stone" and not _preview:
-		_ring_walls(mb, corners, PL, eave, Masonry.mortar_color(LIMESTONE))
-		_masonry_rect(mb, corners, PL, eave, LIMESTONE, _openings(d, auto_doors, corners))
-	elif style == "wood" or style == "boards":
-		_plank_walls(mb, corners, d, auto_doors, style == "boards")
-	else:
-		_ring_walls(mb, corners, PL, eave, wcol)
-		if style == "plaster" and not _preview:
-			# worn lime render: stone patches and stone string courses
-			var bands: Array = []
-			if d.get("bands", true):
-				for f in range(1, floors):
-					bands.append(PL + f * FH)
-			_masonry_rect(mb, corners, PL, eave - 0.1, LIMESTONE, _openings(d, auto_doors, corners), true, bands)
-	for i in 4:
-		faces.append({"a": corners[(i + 1) % 4] + Vector3.UP * 0.0, "b": corners[i], "n": _side_normal(corners, i), "h": eave * 0.9})
 	# roof
 	_rect_roof(mb, d, L, W, roof, pitch, roof_col, wcol, stone_col, style)
-	# style trims
-	if style == "windrise":
-		_windrise(mb, corners, floors, d, auto_doors)
-	elif style == "timber":
-		_timber(mb, corners, floors, d, auto_doors)
-	elif style == "plaster":
-		_quoins(mb, corners, Color(0.80, 0.77, 0.72, 1.0))
-	elif style == "lakeside":
-		_lakeside(mb, corners, floors)
-	# floor band between storeys
-	if floors > 1 and d.get("bands", true) and style != "timber" and style != "windrise" and style != "lakeside" and style != "wood" and style != "boards" and not (style == "plaster" and not _preview):
-		for f in range(1, floors):
-			var y := PL + f * FH
-			_band(mb, corners, y, 0.14, 0.05, Color(wall_col.r * 0.9, wall_col.g * 0.88, wall_col.b * 0.85, 1.0))
-	# openings (none where another house is joined on)
+	# openings (none where another house is joined on), planned before the
+	# walls so the walls can be laid round them
+	_cut = [[], [], [], []]
+	_clear = [[], [], [], []]
 	var doors_done: Array = []
 	for door in auto_doors:
 		if _in_join(_side_point(corners, door.side, door.u)):
 			continue
 		if door.get("arch", false):
+			var aw: float = clampf(float(door.get("aw", 2.0)), 1.4, 5.0)
+			var sa: float = door.u * _side_len(corners, door.side)
+			_clear[door.side].append(Rect2(sa - aw * 0.5 - 0.35, -2.0, aw + 0.7, arch_height(aw) + 2.3))
 			_place_arch(deco, _side_point(corners, door.side, clampf(door.u, 0.1, 0.9)) + _side_normal(corners, door.side) * 0.02,
 					_side_normal(corners, door.side), door)
 		else:
@@ -289,8 +256,10 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 		var ws: Array = groups[key]
 		ws.sort_custom(func(a, b): return float(a.u) < float(b.u))
 		var len_side := _side_len(corners, side)
-		# only plain windows (and doors) merge into wide ones
-		var reach := (1.85 if kind == "window" else 1.75) if wt == "plain" else 0.0
+		var model := _window_model(wt, style) if kind == "window" else ""
+		# only plain square windows (and doors) merge into wide ones
+		var square := kind == "door" or (model != "" and int(WallCut.MODELS[model].arch) == WallCut.FLAT)
+		var reach := (1.85 if kind == "window" else 1.75) if wt == "plain" and square else 0.0
 		var i := 0
 		while i < ws.size():
 			var j := i
@@ -309,33 +278,94 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 				var a: Vector3 = corners[side]
 				var b: Vector3 = corners[(side + 1) % 4]
 				var n := _side_normal(corners, side)
-				var p := a.lerp(b, uc) + Vector3.UP * (PL + f * FH + 1.35)
+				if model == "":
+					# round windows and arrow slits stay carved ornaments on the face
+					var pc := a.lerp(b, uc) + Vector3.UP * (PL + f * FH + 1.35)
+					_clear[side].append(_window_hole(wt, uc * len_side, pc.y))
+					_fancy_window(deco, wt, Transform3D(DecoMerge.facing(n), pc))
+					i = j + 1
+					continue
+				var mw: float = WallCut.MODELS[model].w
+				var sx := (extra + mw) / mw
+				var hgt := WallCut.model_height(model)
+				var y := PL + f * FH + 0.75
 				# under the eaves, keep the window head clear of the roof overhang
 				var turned: bool = d.get("ridge", false)
 				if (side % 2 == 0) != turned and roof != "flat" and roof_h > 0.0:
 					var slope_k := roof_h / ((L if turned else W) * 0.5)
-					p.y = minf(p.y, eave - 0.34 * slope_k - 1.0)
-				# laid-stone storeys keep their deep stone surrounds bare, and sit
-				# the window on the stone face (windrise stone is set 4 cm proud)
+					y = minf(y, eave - 0.34 * slope_k - 0.08 - hgt)
+				y = minf(y, eave - 0.12 - hgt)
+				# laid-stone storeys keep their deep stone surrounds bare; windrise
+				# stone is set 4 cm proud, so its windows sit in that face
 				var in_stone := style == "stone" or (style == "windrise" and f == 0 and floors > 1)
-				if in_stone and style == "windrise" and not _preview:
-					p += n * 0.05
-				if wt != "plain":
-					_fancy_window(deco, wt, Transform3D(DecoMerge.facing(n), p))
-					i = j + 1
-					continue
-				var sx := (extra + 1.4) / 1.4
-				var xf := Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, 1, 1)), p)
-				deco.add("window_lattice" if lake else "window_frame", xf)
+				var p := a.lerp(b, uc) + Vector3.UP * y
+				if style == "windrise" and in_stone:
+					p += n * 0.04
+				var hl := WallCut.hole_for(model, uc * len_side, y, sx)
+				_cut[side].append(hl)
+				_clear[side].append(WallCut.rect(hl, 0.05))
+				_tg(deco, model, Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, 1, 1)), p))
+				# shutters and boxes fit the opening's width
+				var xf := Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(hl.w / 0.96, 1, 1)), p)
 				if trim < 0:
 					# windows placed before decorations were chosen keep the house's look
 					if shutters and j == i and not (in_stone and not _preview):
-						deco.add("shutters", xf)
+						_tg(deco, "tg_shutters", xf)
 					if boxes and f == 0:
-						deco.add("flower_box", xf)
+						_tg(deco, "tg_flower_box", xf)
 				else:
-					_window_trim(deco, trim, xf, p, n, j == i)
+					_window_trim(deco, trim, xf, p + Vector3.UP * hgt * 0.55, n, j == i)
 			i = j + 1
+	# foundation plinth (slightly proud of the walls)
+	var fl := L + 0.16
+	var fw := W + 0.16
+	var plinth := [Vector3(-fl / 2, 0, -fw / 2), Vector3(fl / 2, 0, -fw / 2), Vector3(fl / 2, 0, fw / 2), Vector3(-fl / 2, 0, fw / 2)]
+	var foot := -1.6 if lift < 0.05 else 0.0
+	if _preview:
+		_ring_walls(mb, plinth, foot, PL, stone_col)
+	else:
+		_ring_walls(mb, plinth, foot, PL, Masonry.mortar_color(LIMESTONE))
+		_masonry_rect(mb, plinth, maxf(foot, -0.35), PL, LIMESTONE.darkened(0.06), [])
+	mb.quad(Vector3(-fl / 2, PL, fw / 2), Vector3(fl / 2, PL, fw / 2), Vector3(fl / 2, PL, -fw / 2), Vector3(-fl / 2, PL, -fw / 2), stone_col)
+	if lift >= 0.05:
+		_stilts_rect(mb, deco, L, W)
+	# main walls (whole stone houses are laid stone by stone)
+	if style == "stone" and not _preview:
+		_ring_walls(mb, corners, PL, eave, Masonry.mortar_color(LIMESTONE), true, 0.0, Color(LIMESTONE.r, LIMESTONE.g, LIMESTONE.b, 0.25))
+		_masonry_rect(mb, corners, PL, eave, LIMESTONE, _openings(d, auto_doors, corners))
+	elif style == "wood" or style == "boards":
+		_plank_walls(mb, corners, d, auto_doors, style == "boards")
+	else:
+		# windrise stone and lakeside skirting are their own (proud) faces
+		var wall_y0 := PL
+		if style == "windrise":
+			wall_y0 = PL + (FH if floors > 1 else 1.0) - 0.04
+		elif style == "lakeside":
+			wall_y0 = PL + 0.7
+		_ring_walls(mb, corners, wall_y0, eave, wcol, true)
+		if style == "plaster" and not _preview:
+			# worn lime render: stone patches and stone string courses
+			var bands: Array = []
+			if d.get("bands", true):
+				for f in range(1, floors):
+					bands.append(PL + f * FH)
+			_masonry_rect(mb, corners, PL, eave - 0.1, LIMESTONE, _openings(d, auto_doors, corners), true, bands)
+	for i in 4:
+		faces.append({"a": corners[(i + 1) % 4] + Vector3.UP * 0.0, "b": corners[i], "n": _side_normal(corners, i), "h": eave * 0.9})
+	# style trims
+	if style == "windrise":
+		_windrise(mb, corners, floors, d, auto_doors)
+	elif style == "timber":
+		_timber(mb, corners, floors, d, auto_doors)
+	elif style == "plaster":
+		_quoins(mb, corners, Color(0.80, 0.77, 0.72, 1.0))
+	elif style == "lakeside":
+		_lakeside(mb, corners, floors)
+	# floor band between storeys
+	if floors > 1 and d.get("bands", true) and style != "timber" and style != "windrise" and style != "lakeside" and style != "wood" and style != "boards" and not (style == "plaster" and not _preview):
+		for f in range(1, floors):
+			var y := PL + f * FH
+			_band(mb, corners, y, 0.14, 0.05, Color(wall_col.r * 0.9, wall_col.g * 0.88, wall_col.b * 0.85, 1.0))
 	# chimney
 	var ch: float = d.get("chimney", NO_CHIMNEY)
 	if ch > NO_CHIMNEY + 1.0:
@@ -403,8 +433,26 @@ func _side_normal(corners: Array, side: int) -> Vector3:
 	return Vector3.UP.cross(dvec).normalized()
 
 
-func _ring_walls(mb: MeshBuilder, corners: Array, y0: float, y1: float, col: Color) -> void:
+## A ring of wall faces; with `cut`, the planned openings (_cut, measured
+## from each side's start corner, `s_off` further along for faces set proud
+## of the corners) are left open and lined with reveals.
+func _ring_walls(mb: MeshBuilder, corners: Array, y0: float, y1: float, col: Color, cut := false, s_off := 0.0,
+		reveal := Color(0, 0, 0, -1)) -> void:
 	var u := 0.0
+	if cut and _cut.size() == corners.size():
+		var rc := col if reveal.a < 0.0 else reveal
+		for i in corners.size():
+			var a: Vector3 = corners[i]
+			var b: Vector3 = corners[(i + 1) % corners.size()]
+			var l := a.distance_to(b)
+			var holes: Array = []
+			for hl in _cut[i]:
+				var h2: Dictionary = hl.duplicate()
+				h2.s += s_off
+				holes.append(h2)
+			WallCut.face(mb, WallCut.flat_at(a, b), WallCut.flat_nrm(_side_normal(corners, i)), 0.0, l, y0, y1, holes, col, rc, u)
+			u += l
+		return
 	for i in corners.size():
 		var a: Vector3 = corners[(i + 1) % corners.size()]
 		var b: Vector3 = corners[i]
@@ -446,7 +494,7 @@ func _quoins(mb: MeshBuilder, corners: Array, col: Color, top := -1.0) -> void:
 
 
 func _timber(mb: MeshBuilder, corners: Array, floors: int, d: Dictionary, doors: Array = []) -> void:
-	var beam := Color(0.36, 0.24, 0.16, 0.5)
+	var beam := _wood(Color(0.56, 0.42, 0.27, 0.5))   # Tiny Glade timber, #8E6A44
 	var t := 0.16
 	for f in floors + 1:
 		var y := PL + f * FH
@@ -661,66 +709,17 @@ func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNu
 		# a spire laid over a round ring of the player's own walls
 		_round_roof(mb, deco, R, roof, pitch, roof_col, stone_col, segs)
 		return
-	if style == "windrise":
-		_round_windrise(mb, R, floors, segs, d, auto_doors)
-	var foot := -1.6 if lift < 0.05 else 0.0
-	if _preview:
-		_cylinder(mb, R + 0.1, foot, PL, segs, stone_col)
-	else:
-		_cylinder(mb, R + 0.1, foot, PL, segs, Masonry.mortar_color(LIMESTONE))
-		_masonry_round(mb, R + 0.1, maxf(foot, -0.35), PL, LIMESTONE.darkened(0.06), [])
-	if lift >= 0.05:
-		_stilts_round(mb, R, segs)
-	if style == "stone" and not _preview:
-		_cylinder(mb, R, PL, eave, segs, Masonry.mortar_color(LIMESTONE))
-		_masonry_round(mb, R, PL, eave, LIMESTONE, _round_openings(d, auto_doors, R))
-	elif style == "wood" or style == "boards":
-		# timber tower on a stone footing, boards with battens
-		var tone := Color(0.52, 0.38, 0.26)
-		var footing := PL + 0.75
-		_cylinder(mb, R, PL, footing, segs, Masonry.mortar_color(LIMESTONE) if not _preview else stone_col)
-		if not _preview:
-			_masonry_round(mb, R, PL, footing, LIMESTONE.darkened(0.03), _round_openings(d, auto_doors, R))
-		_cylinder(mb, R, footing, eave, segs, Color(tone.r, tone.g, tone.b, 0.5))
-		if not _preview:
-			var holes := _round_openings(d, auto_doors, R)
-			var nb := int(TAU * R / 0.34)
-			for k in nb:
-				var sa := TAU * R * k / nb
-				var clear := true
-				for hole in holes:
-					var r: Rect2 = hole
-					if sa > r.position.x and sa < r.end.x:
-						clear = false
-				if not clear:
-					continue
-				var a := sa / R
-				var nn := Vector3(cos(a), 0, sin(a))
-				var c := tone.darkened(0.12 + 0.06 * sin(sa * 7.0))
-				mb.box(Transform3D(DecoMerge.facing(nn), nn * (R + 0.025) + Vector3.UP * (footing + eave) * 0.5), Vector3(0.07, eave - footing, 0.05), Color(c.r, c.g, c.b, 0.5))
-	else:
-		_cylinder(mb, R, PL, eave, segs, wcol)
-		if style == "plaster" and not _preview:
-			var rbands: Array = []
-			for f in range(1, floors):
-				rbands.append(PL + f * FH)
-			_masonry_round(mb, R, PL, eave - 0.1, LIMESTONE, _round_openings(d, auto_doors, R), true, rbands)
-	# ivy faces
-	var chunk := maxi(1, segs / 6)
-	var i := 0
-	while i < segs:
-		var a0 := TAU * i / segs
-		var a1 := TAU * mini(i + chunk, segs) / segs
-		var pa := Vector3(cos(a0), 0, sin(a0)) * R
-		var pb := Vector3(cos(a1), 0, sin(a1)) * R
-		faces.append({"a": pb, "b": pa, "n": ((pa + pb) * 0.5).normalized(), "h": eave * 0.9})
-		i += chunk
-	_round_roof(mb, deco, R, roof, pitch, roof_col, stone_col, segs)
-	# doors from paths
+	# openings first, so the walls can be laid round them
+	_cut = []
+	_clear = []
 	for door in auto_doors:
 		if door.get("arch", false):
 			var an := Vector3(cos(door.u * TAU), 0, sin(door.u * TAU))
 			_place_arch(deco, an * (R + 0.02), an, door)
+			var aw: float = clampf(float(door.get("aw", 2.0)), 1.4, 5.0)
+			var sa := fposmod(door.u, 1.0) * TAU * R
+			for k in [-1.0, 0.0, 1.0]:
+				_clear.append(Rect2(sa + k * TAU * R - aw * 0.5 - 0.35, -2.0, aw + 0.7, arch_height(aw) + 2.3))
 		else:
 			_place_round_opening(deco, R, door.u, 0, "door", rng)
 	var boxes := rng.randf() < 0.4
@@ -740,6 +739,63 @@ func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNu
 				skip = true
 		if not skip:
 			_place_round_opening(deco, R, w.u, f, kind, rng, boxes, w)
+	if style == "windrise":
+		_round_windrise(mb, R, floors, segs, d, auto_doors)
+	var foot := -1.6 if lift < 0.05 else 0.0
+	if _preview:
+		_cylinder(mb, R + 0.1, foot, PL, segs, stone_col)
+	else:
+		_cylinder(mb, R + 0.1, foot, PL, segs, Masonry.mortar_color(LIMESTONE))
+		_masonry_round(mb, R + 0.1, maxf(foot, -0.35), PL, LIMESTONE.darkened(0.06), [])
+	if lift >= 0.05:
+		_stilts_round(mb, R, segs)
+	if style == "stone" and not _preview:
+		_tower_wall(mb, R, R, PL, eave, segs, Masonry.mortar_color(LIMESTONE), Color(LIMESTONE.r, LIMESTONE.g, LIMESTONE.b, 0.25))
+		_masonry_round(mb, R, PL, eave, LIMESTONE, _round_openings(d, auto_doors, R))
+	elif style == "wood" or style == "boards":
+		# timber tower on a stone footing, boards with battens
+		var tone := _wood(Color(0.66, 0.48, 0.29))
+		var footing := PL + 0.75
+		_tower_wall(mb, R, R, PL, footing, segs, Masonry.mortar_color(LIMESTONE) if not _preview else stone_col, stone_col)
+		if not _preview:
+			_masonry_round(mb, R, PL, footing, LIMESTONE.darkened(0.03), _round_openings(d, auto_doors, R))
+		_tower_wall(mb, R, R, footing, eave, segs, Color(tone.r, tone.g, tone.b, 0.5))
+		if not _preview:
+			var holes := _round_openings(d, auto_doors, R)
+			var nb := int(TAU * R / 0.34)
+			for k in nb:
+				var sa := TAU * R * k / nb
+				var clear := true
+				for hole in holes:
+					var r: Rect2 = hole
+					if sa > r.position.x and sa < r.end.x:
+						clear = false
+				if not clear:
+					continue
+				var a := sa / R
+				var nn := Vector3(cos(a), 0, sin(a))
+				var c := tone.darkened(0.12 + 0.06 * sin(sa * 7.0))
+				mb.box(Transform3D(DecoMerge.facing(nn), nn * (R + 0.025) + Vector3.UP * (footing + eave) * 0.5), Vector3(0.07, eave - footing, 0.05), Color(c.r, c.g, c.b, 0.5))
+	else:
+		# windrise stone is its own (proud) face
+		var wall_y0 := PL + (FH if floors > 1 else 1.0) - 0.04 if style == "windrise" else PL
+		_tower_wall(mb, R, R, wall_y0, eave, segs, wcol)
+		if style == "plaster" and not _preview:
+			var rbands: Array = []
+			for f in range(1, floors):
+				rbands.append(PL + f * FH)
+			_masonry_round(mb, R, PL, eave - 0.1, LIMESTONE, _round_openings(d, auto_doors, R), true, rbands)
+	# ivy faces
+	var chunk := maxi(1, segs / 6)
+	var i := 0
+	while i < segs:
+		var a0 := TAU * i / segs
+		var a1 := TAU * mini(i + chunk, segs) / segs
+		var pa := Vector3(cos(a0), 0, sin(a0)) * R
+		var pb := Vector3(cos(a1), 0, sin(a1)) * R
+		faces.append({"a": pb, "b": pa, "n": ((pa + pb) * 0.5).normalized(), "h": eave * 0.9})
+		i += chunk
+	_round_roof(mb, deco, R, roof, pitch, roof_col, stone_col, segs)
 	_place_extras(deco, d, true)
 
 
@@ -791,30 +847,56 @@ func _round_roof(mb: MeshBuilder, deco: DecoMerge, R: float, roof: String, pitch
 		perches.append(apex + Vector3.UP * 0.9)
 
 
-func _place_round_opening(deco: DecoMerge, R: float, u: float, f: int, kind: String, rng: RandomNumberGenerator, boxes := false, w: Dictionary = {}) -> void:
+func _place_round_opening(deco: DecoMerge, R: float, u: float, f: int, kind: String, _rng_unused: RandomNumberGenerator, boxes := false, w: Dictionary = {}) -> void:
 	var a := u * TAU
 	var n := Vector3(cos(a), 0, sin(a))
-	var p := n * (R - 0.02)
+	var p := n * R
+	var s := fposmod(u, 1.0) * TAU * R
+	var style: String = data.get("style", "stone")
+	var cut: Array = []
+	var clear: Array = []
 	if kind == "door":
-		deco.add("door", Transform3D(DecoMerge.facing(n), p + Vector3.UP * PL))
+		var half := _door_into(deco, p, n, s, style, 1.0, cut, clear)
 		deco.add("stair_step", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(1.2, 1.0, 1.4)), n * (R + 0.25) + Vector3.UP * 0.0))
 		_door_steps(deco, n * (R + 0.1), n, 1.2)
 		var side := n.cross(Vector3.UP).normalized()
-		deco.add("wall_lantern", Transform3D(Basis.looking_at(n, Vector3.UP), p + side * 0.8 + Vector3.UP * (PL + 2.0)))
-		lamps.append(p + side * 0.8 + Vector3.UP * (PL + 1.9) + n * 0.3)
-		return
-	var wt: String = w.get("wt", "plain")
-	if wt != "plain":
-		_fancy_window(deco, wt, Transform3D(DecoMerge.facing(n), p + Vector3.UP * (PL + f * FH + 1.35)))
-		return
-	var xf := Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(0.75, 1, 1)), p + Vector3.UP * (PL + f * FH + 1.35))
-	deco.add("window_frame", xf)
-	var trim := int(w.get("deco", -1))
-	if trim < 0:
-		if boxes and f == 0:
-			deco.add("flower_box", xf)
+		deco.add("wall_lantern", Transform3D(Basis.looking_at(n, Vector3.UP), p + side * (half + 0.3) + Vector3.UP * (PL + 2.0)))
+		lamps.append(p + side * (half + 0.3) + Vector3.UP * (PL + 1.9) + n * 0.3)
 	else:
-		_window_trim(deco, trim, xf, xf.origin, n, true)
+		var wt: String = w.get("wt", "plain")
+		var model := _window_model(wt, style)
+		if model == "":
+			var pc := n * (R - 0.02) + Vector3.UP * (PL + f * FH + 1.35)
+			clear.append(_window_hole(wt, s, pc.y))
+			_fancy_window(deco, wt, Transform3D(DecoMerge.facing(n), pc))
+		else:
+			var hgt := WallCut.model_height(model)
+			var y := minf(PL + f * FH + 0.75, eave - 0.12 - hgt)
+			# windrise stone is set 4 cm proud
+			if style == "windrise" and f == 0 and data.get("floors", 1) > 1:
+				p += n * 0.04
+			var xf := Transform3D(DecoMerge.facing(n), p + Vector3.UP * y)
+			_tg(deco, model, xf)
+			var hl := WallCut.hole_for(model, s, y)
+			cut.append(hl)
+			clear.append(WallCut.rect(hl, 0.05))
+			var trim := int(w.get("deco", -1))
+			var txf := Transform3D(xf.basis * Basis.from_scale(Vector3(hl.w / 0.96, 1, 1)), xf.origin)
+			if trim < 0:
+				if boxes and f == 0:
+					_tg(deco, "tg_flower_box", txf)
+			else:
+				_window_trim(deco, trim, txf, xf.origin + Vector3.UP * hgt * 0.55, n, true)
+	# round the back of the tower too, where the openings wrap past s = 0
+	var circ := TAU * R
+	for hl in cut:
+		for k in [-1.0, 0.0, 1.0]:
+			var h2: Dictionary = hl.duplicate()
+			h2.s += k * circ
+			_cut.append(h2)
+	for r in clear:
+		for k in [-1.0, 0.0, 1.0]:
+			_clear.append(Rect2((r as Rect2).position + Vector2(k * circ, 0), (r as Rect2).size))
 
 
 ## A few bushes hugging the foot of the walls (not in front of doors), and
@@ -929,14 +1011,14 @@ func _pillar(mb: MeshBuilder, at: Vector3) -> void:
 func _plank_walls(mb: MeshBuilder, corners: Array, d: Dictionary, auto_doors: Array, vertical: bool) -> void:
 	var wood_c: Color = d.get("wall_col", Catalog.WALL_COLORS[0])
 	# wall colours are pale limewash; timber takes a warm tone of it
-	var tone := Color(0.52, 0.38, 0.26).lerp(Color(wood_c.r * 0.62, wood_c.g * 0.5, wood_c.b * 0.4), 0.35)
+	var tone := _wood(Color(0.66, 0.48, 0.29)).lerp(Color(wood_c.r * 0.62, wood_c.g * 0.5, wood_c.b * 0.4), 0.35)
 	var footing := PL + 0.75
 	if _preview:
-		_ring_walls(mb, corners, PL, footing, Color(0.78, 0.74, 0.68, 0.25))
+		_ring_walls(mb, corners, PL, footing, Color(0.78, 0.74, 0.68, 0.25), true)
 	else:
-		_ring_walls(mb, corners, PL, footing, Masonry.mortar_color(LIMESTONE))
+		_ring_walls(mb, corners, PL, footing, Masonry.mortar_color(LIMESTONE), true, 0.0, Color(LIMESTONE.r, LIMESTONE.g, LIMESTONE.b, 0.25))
 		_masonry_rect(mb, corners, PL, footing, LIMESTONE.darkened(0.03), _openings(d, auto_doors, corners))
-	_ring_walls(mb, corners, footing, eave, Color(tone.r, tone.g, tone.b, 0.5))
+	_ring_walls(mb, corners, footing, eave, Color(tone.r, tone.g, tone.b, 0.5), true)
 	if _preview:
 		return
 	var holes := _openings(d, auto_doors, corners)
@@ -1069,7 +1151,7 @@ func _fancy_window(deco: DecoMerge, wt: String, xf: Transform3D) -> void:
 func _window_trim(deco: DecoMerge, trim: int, xf: Transform3D, p: Vector3, n: Vector3, single: bool) -> void:
 	match trim:
 		1:
-			deco.add("flower_box", xf)
+			_tg(deco, "tg_flower_box", xf)
 		2:
 			# an iron arm over the window that a washing line is tied to
 			var arm := p + Vector3.UP * 0.98 + n * 0.22
@@ -1080,7 +1162,7 @@ func _window_trim(deco: DecoMerge, trim: int, xf: Transform3D, p: Vector3, n: Ve
 			line_anchors.append([arm + n * 0.22, n])
 		3:
 			if single:
-				deco.add("shutters", xf)
+				_tg(deco, "tg_shutters", xf)
 
 
 ## Point and outward normal on the wall at (side, u) and height y (local).
@@ -1140,6 +1222,13 @@ func _place_extras(deco: DecoMerge, d: Dictionary, round_b: bool) -> void:
 		lamps.append(spot[0] + n * 0.3 + Vector3.DOWN * 0.1)
 
 
+## A tower's wall face of radius r with the planned openings (_cut, in arc
+## length at radius `ref`) left open and lined.
+func _tower_wall(mb: MeshBuilder, r: float, ref: float, y0: float, y1: float, segs: int, col: Color, reveal := Color(0, 0, 0, -1)) -> void:
+	WallCut.face(mb, WallCut.round_at(r, ref), WallCut.round_nrm(ref), 0.0, TAU * ref, y0, y1, _cut, col,
+			col if reveal.a < 0.0 else reveal, 0.0, TAU * ref / segs)
+
+
 func _cylinder(mb: MeshBuilder, r: float, y0: float, y1: float, segs: int, col: Color) -> void:
 	for k in segs:
 		var a0 := TAU * k / segs
@@ -1193,7 +1282,7 @@ func _annulus(mb: MeshBuilder, r0: float, r1: float, y: float, segs: int, col: C
 ## timber with braces, gold trim between storeys and carved eave brackets.
 func _windrise(mb: MeshBuilder, corners: Array, floors: int, d: Dictionary, doors: Array) -> void:
 	var stone := Color(0.88, 0.84, 0.76, 0.25)
-	var beam := Color(0.32, 0.22, 0.17, 0.5)
+	var beam := _wood(Color(0.50, 0.37, 0.24, 0.5))
 	var gold := Color(0.95, 0.74, 0.30, 1.0)
 	var stone_top := PL + (FH if floors > 1 else 1.0)
 	var grown: Array = []
@@ -1201,10 +1290,10 @@ func _windrise(mb: MeshBuilder, corners: Array, floors: int, d: Dictionary, door
 		var v: Vector3 = c
 		grown.append(v + Vector3(signf(v.x), 0, signf(v.z)) * 0.04)
 	if _preview:
-		_ring_walls(mb, grown, PL, stone_top, stone)
+		_ring_walls(mb, grown, PL, stone_top, stone, true, 0.04)
 		_quoins(mb, corners, Color(0.95, 0.92, 0.85, 1.0), stone_top)
 	else:
-		_ring_walls(mb, grown, PL, stone_top, Masonry.mortar_color(LIMESTONE))
+		_ring_walls(mb, grown, PL, stone_top, Masonry.mortar_color(LIMESTONE), true, 0.04, Color(LIMESTONE.r, LIMESTONE.g, LIMESTONE.b, 0.25))
 		_masonry_rect(mb, grown, PL, stone_top - 0.04, LIMESTONE, _openings(d, doors, corners))
 	_band(mb, corners, stone_top, 0.12, 0.08, gold)
 	# timber framing on the plaster above the stone
@@ -1270,7 +1359,7 @@ func _lakeside(mb: MeshBuilder, corners: Array, _floors: int) -> void:
 	for c in corners:
 		var v: Vector3 = c
 		grown.append(v + Vector3(signf(v.x), 0, signf(v.z)) * 0.05)
-	_ring_walls(mb, grown, PL, PL + 0.75, skirt)
+	_ring_walls(mb, grown, PL, PL + 0.75, skirt, true, 0.05)
 	_band(mb, corners, PL + 0.78, 0.08, 0.07, Color(0.36, 0.37, 0.40, 1.0))
 	_band(mb, corners, eave - 0.22, 0.32, 0.06, wood)
 	for c in corners:
@@ -1358,13 +1447,13 @@ func _lakeside_roof(mb: MeshBuilder, L: float, W: float, rh: float, roof_col: Co
 
 func _round_windrise(mb: MeshBuilder, R: float, floors: int, segs: int, d: Dictionary = {}, auto_doors: Array = []) -> void:
 	var stone := Color(0.88, 0.84, 0.76, 0.25)
-	var beam := Color(0.32, 0.22, 0.17, 0.5)
+	var beam := _wood(Color(0.50, 0.37, 0.24, 0.5))
 	var gold := Color(0.95, 0.74, 0.30, 1.0)
 	var stone_top := PL + (FH if floors > 1 else 1.0)
 	if _preview:
-		_cylinder(mb, R + 0.04, PL, stone_top, segs, stone)
+		_tower_wall(mb, R + 0.04, R, PL, stone_top, segs, stone)
 	else:
-		_cylinder(mb, R + 0.04, PL, stone_top, segs, Masonry.mortar_color(LIMESTONE))
+		_tower_wall(mb, R + 0.04, R, PL, stone_top, segs, Masonry.mortar_color(LIMESTONE), Color(LIMESTONE.r, LIMESTONE.g, LIMESTONE.b, 0.25))
 		_masonry_round(mb, R + 0.04, PL, stone_top - 0.04, LIMESTONE, _round_openings(d, auto_doors, R))
 	_cylinder(mb, R + 0.09, stone_top - 0.06, stone_top + 0.06, segs, gold)
 	for f in range(2, floors + 1):
@@ -1405,16 +1494,78 @@ func _place_rect_door(deco: DecoMerge, corners: Array, side: int, u: float, styl
 	var p := a.lerp(b, uu)
 	if style == "lakeside":
 		# timber double door with red paper lanterns (they glow by night)
+		_clear[side].append(Rect2(uu * l - 0.64 * sx, PL - 0.2, 1.28 * sx, 2.55))
 		deco.add("door_wood", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, 1, 1)), p + Vector3.UP * PL + n * 0.02))
 		deco.add("stair_step", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(1.4, 1.0, 1.4)), p + n * 0.3))
 		return
-	deco.add("door", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, 1, 1)), p + Vector3.UP * PL + n * 0.02))
-	deco.add("stair_step", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(1.2 * sx, 1.0, 1.4)), p + n * 0.3))
-	_door_steps(deco, p, n, 1.2 * sx)
+	var half := _door_into(deco, p, n, uu * l, style, sx, _cut[side], _clear[side])
+	deco.add("stair_step", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(half * 1.75, 1.0, 1.4)), p + n * 0.3))
+	_door_steps(deco, p, n, half * 1.75)
 	var along := (b - a).normalized()
-	var side_off := 0.85 * sx if uu * l + 0.85 * sx < l - 0.2 else -0.85 * sx
+	var reach := half + 0.3
+	var side_off := reach if uu * l + reach < l - 0.2 else -reach
 	deco.add("wall_lantern", Transform3D(Basis.looking_at(n, Vector3.UP), p + along * side_off + Vector3.UP * (PL + 2.0) + n * 0.02))
 	lamps.append(p + along * side_off + Vector3.UP * (PL + 1.9) + n * 0.3)
+
+
+## A Tiny Glade plank door set into the wall at p (ground level, on the face)
+## `sx` times as wide; adds its opening to `cut` / `clear` (at s along the
+## face) and returns the opening's half-width.
+func _door_into(deco: DecoMerge, p: Vector3, n: Vector3, s: float, style: String, sx: float, cut: Array, clear: Array) -> float:
+	var model := "tg_door"
+	if sx > 1.3:
+		model = "tg_door_double"
+		sx = maxf(1.0, sx * 1.4 / 2.2)
+	elif style == "stone":
+		model = "tg_door_gothic"
+	elif style == "plaster":
+		model = "tg_door_arch"
+	var room := eave - PL - 0.12
+	if room < 1.6:
+		# no storey to cut it into: a door standing on the face
+		_tg(deco, model, Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, 1, 1)), p + Vector3.UP * PL + n * 0.18))
+		return float(WallCut.MODELS[model].w) * sx * 0.5
+	if WallCut.model_height(model) > room and model == "tg_door_gothic":
+		model = "tg_door_arch"
+	if WallCut.model_height(model) > room and model == "tg_door_arch":
+		model = "tg_door"
+	var sy := minf(1.0, room / WallCut.model_height(model))
+	_tg(deco, model, Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, sy, 1)), p + Vector3.UP * PL))
+	var hl := WallCut.hole_for(model, s, PL, sx)
+	hl.h *= sy
+	hl.nosill = true
+	cut.append(hl)
+	clear.append(WallCut.rect(hl, 0.08))
+	return hl.w * 0.5
+
+
+## A tg_* wood model in this house's wood tone and trim colour (Paint tool).
+func _tg(deco: DecoMerge, kind: String, xf: Transform3D) -> void:
+	deco.add_tinted(kind, xf, data.get("wood_tone", Color(0, 0, 0, 0)), data.get("trim_col", Color(0, 0, 0, 0)))
+
+
+## This house's wood tone applied to a timber colour (beams, boards).
+func _wood(c: Color) -> Color:
+	var tone: Color = data.get("wood_tone", Color(0, 0, 0, 0))
+	if tone.a <= 0.0:
+		return c
+	var h := ModelLib.HONEY
+	return Color(minf(1.0, c.r * tone.r / h.r), minf(1.0, c.g * tone.g / h.g), minf(1.0, c.b * tone.b / h.b), c.a)
+
+
+## The tg_* model a window of type `wt` uses on a house of `style` ("" for
+## the carved round windows and arrow slits).
+static func _window_model(wt: String, style: String) -> String:
+	match wt:
+		"arched":
+			return "tg_window_arch"
+		"gothic":
+			return "tg_window_gothic"
+		"lattice":
+			return "tg_window_lattice"
+		"round", "slit":
+			return ""
+	return "tg_window_lattice" if style in ["stone", "timber", "windrise", "lakeside"] else "tg_window"
 
 
 func _place_dormer(deco: DecoMerge, L: float, W: float, side: int, u: float) -> void:
@@ -1427,7 +1578,7 @@ func _place_dormer(deco: DecoMerge, L: float, W: float, side: int, u: float) -> 
 	var y := eave + roof_h * (1.0 - 0.55) - 0.25
 	var p := Vector3(x, y, zf * (-1.0 if front else 1.0))
 	deco.add("dormer", Transform3D(DecoMerge.facing(n), p))
-	deco.add("window_frame", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(0.75, 0.55, 1)), p + Vector3.UP * 0.4 + n * 0.02))
+	_tg(deco, "tg_window", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(0.72, 0.7, 0.6)), p + Vector3.UP * 0.12 + n * 0.14))
 
 
 # ---------------------------------------------------------------------------
@@ -1528,49 +1679,13 @@ func locate(world: Vector3) -> Dictionary:
 # ---------------------------------------------------------------------------
 ## Opening rectangles per side (s along the side, absolute y) for windows
 ## and doors, so no stone is laid across them.
-func _openings(d: Dictionary, doors: Array, corners: Array) -> Array:
-	var holes: Array = [[], [], [], []]
-	for w in d.get("windows", []) + doors:
-		var side: int = w.side
-		if side < 0 or side > 3:
-			continue
-		var l := _side_len(corners, side)
-		var s: float = w.u * l
-		var kind: String = w.get("kind", "door" if not w.has("f") else "window")
-		if kind == "dormer" or kind == "trapdoor":
-			continue
-		if w.get("arch", false):
-			var aw: float = clampf(float(w.get("aw", 2.0)), 1.4, 5.0)
-			holes[side].append(Rect2(s - aw * 0.5 - 0.35, -2.0, aw + 0.7, arch_height(aw) + 2.3))
-		elif kind == "door":
-			holes[side].append(Rect2(s - 0.64, PL - 0.2, 1.28, 2.55))
-		else:
-			var y: float = PL + int(w.get("f", 0)) * FH + 1.35
-			holes[side].append(_window_hole(w.get("wt", "plain"), s, y))
-	return holes
+## Rectangles stonework and boards keep clear of (planned with the openings).
+func _openings(_d: Dictionary, _doors: Array, _corners: Array) -> Array:
+	return _clear
 
 
-func _round_openings(d: Dictionary, doors: Array, R: float) -> Array:
-	var holes: Array = []
-	var circ := TAU * R
-	for w in d.get("windows", []) + doors:
-		var kind: String = w.get("kind", "door" if not w.has("f") else "window")
-		if kind == "trapdoor" or kind == "dormer":
-			continue
-		var s: float = fposmod(w.u, 1.0) * circ
-		var rect: Rect2
-		if w.get("arch", false):
-			var aw2: float = clampf(float(w.get("aw", 2.0)), 1.4, 5.0)
-			rect = Rect2(s - aw2 * 0.5 - 0.35, -2.0, aw2 + 0.7, arch_height(aw2) + 2.3)
-		elif kind == "door":
-			rect = Rect2(s - 0.66, PL - 0.2, 1.32, 2.6)
-		else:
-			var y: float = PL + int(w.get("f", 0)) * FH + 1.35
-			rect = Rect2(s - 0.4, y - 0.62, 0.8, 1.42) if w.get("wt", "plain") == "plain" else _window_hole(w.wt, s, y)
-		holes.append(rect)
-		holes.append(Rect2(rect.position + Vector2(circ, 0), rect.size))
-		holes.append(Rect2(rect.position - Vector2(circ, 0), rect.size))
-	return holes
+func _round_openings(_d: Dictionary, _doors: Array, _R: float) -> Array:
+	return _clear
 
 
 ## The stone-free rectangle a window of type `wt` needs, centred at s, y.

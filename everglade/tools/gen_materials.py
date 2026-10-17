@@ -347,7 +347,7 @@ def m_sand(rnd):
 
 
 MATERIALS = [
-    (m_painted, 0.6), (m_stone, 3.2), (m_rock, 3.0), (m_wood, 2.2),
+    (m_painted, 0.6), (m_stone, 3.2), (m_rock, 3.0), (m_wood_tg, 1.5),
     (m_bark, 3.4), (m_plaster, 1.6), (m_tiles, 2.6), (m_cloth, 1.4),
     (m_metal, 1.8), (m_moss, 2.4), (m_cobble, 3.4), (m_straw, 2.0),
     (m_meadow, 2.0), (m_dirt, 2.4), (m_flagstone, 3.0), (m_sand, 1.4),

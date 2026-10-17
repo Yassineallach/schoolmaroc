@@ -15,7 +15,7 @@ const RISE := 0.19          # target step height (m)
 const LADDER_SLOPE := 1.35  # rise per run beyond which it becomes a ladder
 
 const STONE := Color(0.80, 0.76, 0.68)
-const WOOD := Color(0.55, 0.40, 0.27)
+const WOOD := Color(0.72, 0.54, 0.31)   # Tiny Glade honey wood, #B88A50
 
 var data: Dictionary
 var body: StaticBody3D

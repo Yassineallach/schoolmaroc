@@ -40,7 +40,9 @@ func option_defs() -> Array:
 	if options.mode == "window":
 		defs.append({"type": "choice", "key": "wt", "items": [
 			{"id": "plain", "label": "Square", "icon": "win_plain"},
+			{"id": "lattice", "label": "Leaded", "icon": "win_lattice"},
 			{"id": "arched", "label": "Arched", "icon": "win_arched"},
+			{"id": "gothic", "label": "Pointed", "icon": "win_gothic"},
 			{"id": "round", "label": "Round", "icon": "win_round"},
 			{"id": "slit", "label": "Arrow slit", "icon": "win_slit"}]})
 	return defs

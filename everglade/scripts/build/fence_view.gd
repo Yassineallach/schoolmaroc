@@ -96,7 +96,8 @@ func build(d: Dictionary, terrain: Terrain, gates: Array = [], preview := false)
 		add_child(body)
 
 
-## Upright boards with pointed tops between two posts, standing on the ground.
+## Upright boards with soft, rounded tops between two posts, standing on the
+## ground (Tiny Glade's plank fence: honey wood, every board its own tone).
 func _boards(mb: MeshBuilder, a: Vector3, b: Vector3, terrain: Terrain, s0: float) -> void:
 	var flat := Vector3(b.x - a.x, 0, b.z - a.z)
 	var l := flat.length()
@@ -104,19 +105,33 @@ func _boards(mb: MeshBuilder, a: Vector3, b: Vector3, terrain: Terrain, s0: floa
 	var side := dir.cross(Vector3.UP).normalized()
 	var count := maxi(1, int(l / 0.19))
 	var w := l / count
+	const SEGS := 6
+	const DOME := 0.06
+	const T := 0.035
 	for k in count:
 		var c := a + dir * (w * (k + 0.5))
 		var g := terrain.height_at(c.x, c.z) - 0.05
-		var hh := 1.02 + 0.06 * sin((s0 + k * w) * 5.3)
-		var shade := 0.88 + 0.12 * fposmod(sin((s0 + k * w) * 12.9898) * 43.7, 1.0)
-		var col := Color(0.55 * shade, 0.40 * shade, 0.27 * shade, 1.0)
+		var hh := 1.0 + 0.05 * sin((s0 + k * w) * 5.3)
+		var rnd := fposmod(sin((s0 + k * w) * 12.9898) * 43.7, 1.0)
+		var col := Color(0.72, 0.54, 0.31).lerp(Color(0.82, 0.64, 0.38), rnd * 0.8) if k % 2 == 0 else Color(0.70, 0.52, 0.30).darkened(rnd * 0.1)
 		var start := mb.verts.size()
-		mb.box(Transform3D(DecoMerge.along(dir), Vector3(c.x, g + hh * 0.5, c.z) + side * 0.06), Vector3(w - 0.025, hh, 0.035), col)
-		var tip := Vector3(c.x, g + hh + 0.09, c.z) + side * 0.06
-		var l0 := Vector3(c.x, g + hh, c.z) - dir * (w - 0.025) * 0.5 + side * 0.06
-		var r0 := Vector3(c.x, g + hh, c.z) + dir * (w - 0.025) * 0.5 + side * 0.06
-		mb.tri_facing(l0 + side * 0.018, r0 + side * 0.018, tip + side * 0.018, side, col)
-		mb.tri_facing(l0 - side * 0.018, r0 - side * 0.018, tip - side * 0.018, -side, col)
+		var half := (w - 0.025) * 0.5
+		mb.box(Transform3D(DecoMerge.along(dir), Vector3(c.x, g + hh * 0.5, c.z) + side * 0.06), Vector3(half * 2.0, hh, T), col)
+		# a gentle dome across the top of the board
+		var base := Vector3(c.x, g + hh, c.z) + side * 0.06
+		var rim: Array[Vector3] = []
+		for i in SEGS + 1:
+			var t := float(i) / SEGS
+			var x := lerpf(-half, half, t)
+			rim.append(base + dir * x + Vector3.UP * DOME * sin(PI * t))
+		for i in SEGS:
+			for sgn in [1.0, -1.0]:
+				var off: Vector3 = side * (T * 0.5 * sgn)
+				mb.tri_facing(base + off, rim[i] + off, rim[i + 1] + off, side * sgn, col)
+			var up := (rim[i + 1] - rim[i]).cross(side).normalized()
+			if up.y < 0.0:
+				up = -up
+			mb.quad_facing(rim[i] + side * T * 0.5, rim[i + 1] + side * T * 0.5, rim[i + 1] - side * T * 0.5, rim[i] - side * T * 0.5, up, col)
 		Ornaments._layer(mb, start, Ornaments.M_WOOD)
 
 

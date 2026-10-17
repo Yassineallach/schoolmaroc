@@ -5,10 +5,12 @@ extends BaseTool
 ##    look (colours, style, roof shape, pattern, material, trims)
 ##  * Paste style: tap other pieces to give them that look (whatever of it
 ##    suits them)
-##  * Wall / roof / stone / window-light colour: tap a piece to paint it
+##  * Wall / roof / stone / wood / trim / window-light colour: tap a piece to
+##    paint it (wood tones the doors, sills and beams; trims are the
+##    shutters and window frames)
 
 const STYLE_KEYS := ["wall_col", "roof_col", "style", "roof", "pitch", "curve", "pattern", "col", "mat", "bands",
-		"merlons", "peel", "glass", "smoke", "links", "level", "rail"]
+		"merlons", "peel", "glass", "smoke", "links", "level", "rail", "wood_tone", "trim_col"]
 const GLASS_COLORS := [Color(1.0, 0.86, 0.6), Color(1.0, 0.97, 0.9), Color(0.6, 0.8, 1.0), Color(0.6, 1.0, 0.7),
 		Color(1.0, 0.6, 0.75), Color(0.78, 0.62, 1.0)]
 
@@ -28,6 +30,8 @@ func option_defs() -> Array:
 		{"id": "wall_col", "label": "Walls", "icon": "plaster"},
 		{"id": "roof_col", "label": "Roofs", "icon": "roof"},
 		{"id": "col", "label": "Stone", "icon": "wall"},
+		{"id": "wood_tone", "label": "Wood", "icon": "boards"},
+		{"id": "trim_col", "label": "Trims", "icon": "win_plain"},
 		{"id": "glass", "label": "Window light", "icon": "window"}]}]
 	var palette := _palette()
 	if not palette.is_empty():
@@ -43,6 +47,10 @@ func _palette() -> Array:
 			return Catalog.ROOF_COLORS
 		"col":
 			return Catalog.STONE_COLORS
+		"wood_tone":
+			return Catalog.WOOD_TONES
+		"trim_col":
+			return Catalog.TRIM_COLORS
 		"glass":
 			return GLASS_COLORS
 	return []
@@ -115,7 +123,8 @@ static func _suits(type: String, key: String, item: Dictionary) -> bool:
 		"buildings":
 			if key == "roof":
 				return true
-			return key in ["wall_col", "roof_col", "style", "pitch", "curve", "bands", "merlons", "peel", "glass", "smoke", "links"]
+			return key in ["wall_col", "roof_col", "style", "pitch", "curve", "bands", "merlons", "peel", "glass", "smoke", "links",
+					"wood_tone", "trim_col"]
 		"walls":
 			return key in ["col", "style", "pattern", "merlons", "level"]
 		"fences":

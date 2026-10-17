@@ -111,6 +111,20 @@ const STONE_COLORS := [
 	Color(0.47, 0.46, 0.43), Color(0.76, 0.69, 0.56),
 ]
 
+# Tiny Glade wood tones (doors, window sills, beams, boards): natural honey,
+# golden honey, dark oak, weathered grey and pale driftwood; measured from
+# its screenshots (sRGB, the way the game paints vertex colours)
+const WOOD_TONES := [
+	Color(0.72, 0.54, 0.31), Color(0.81, 0.64, 0.38), Color(0.56, 0.40, 0.24),
+	Color(0.52, 0.47, 0.36), Color(0.76, 0.66, 0.49),
+]
+
+# painted trims (shutters and window frames): sage, cream, blue, red, bottle green
+const TRIM_COLORS := [
+	Color(0.50, 0.53, 0.36), Color(0.93, 0.89, 0.81), Color(0.44, 0.55, 0.65),
+	Color(0.65, 0.33, 0.29), Color(0.31, 0.42, 0.34),
+]
+
 const RECT_ROOFS := ["gable", "hip", "flat"]
 const ROUND_ROOFS := ["cone", "flat"]
 const STYLES := ["windrise", "lakeside", "plaster", "timber", "stone", "wood", "boards"]

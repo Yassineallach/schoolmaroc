@@ -239,7 +239,9 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 		var ds := _sample_at(samples, o.s)
 		var dn: Vector3 = ds.n * side
 		var face: Vector3 = ds.p + dn * (thick * 0.5 - 0.02)
-		deco.add("door", Transform3D(DecoMerge.facing(dn), face + Vector3.UP * (terrain.height_at(face.x, face.z) - 0.04)))
+		# the Tiny Glade plank door (a pointed one in a stone surround on stone
+		# walls), stood forward so its boards sit on the face
+		deco.add("tg_door" if wood else "tg_door_gothic", Transform3D(DecoMerge.facing(dn), face + dn * 0.2 + Vector3.UP * (terrain.height_at(face.x, face.z) - 0.04)))
 		var t4 := Geo.tangent_at(pts, o.s)
 		var lp: Vector3 = face + Vector3(t4.x, 0, t4.y) * 0.95 + dn * 0.05
 		deco.add("wall_lantern", Transform3D(Basis.looking_at(dn, Vector3.UP), lp + Vector3.UP * (terrain.height_at(lp.x, lp.z) + 2.0)))

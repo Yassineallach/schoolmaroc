@@ -103,6 +103,8 @@ func _ready() -> void:
 			add_child(load("res://tests/showcase.gd").new())
 		if a.begins_with("--horizon=") and ResourceLoader.exists("res://tests/horizon.gd"):
 			add_child(load("res://tests/horizon.gd").new())
+		if a.begins_with("--woodview=") and ResourceLoader.exists("res://tests/woodview.gd"):
+			add_child(load("res://tests/woodview.gd").new())
 
 
 func _make_tools() -> void:

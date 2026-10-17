@@ -11,7 +11,16 @@ var _leaves: Dictionary = {} # leaf or kit-texture material -> SurfaceTool
 
 
 func add(kind: String, xf: Transform3D) -> void:
-	var m: Dictionary = ModelLib.merged(kind)
+	_add(ModelLib.merged(kind), xf)
+
+
+## A model with its wood in another tone and its painted trims in another
+## colour (see ModelLib.tinted).
+func add_tinted(kind: String, xf: Transform3D, wood: Color, trim: Color) -> void:
+	_add(ModelLib.tinted(kind, wood, trim), xf)
+
+
+func _add(m: Dictionary, xf: Transform3D) -> void:
 	if m.solid:
 		_solid.append_from(m.solid, 0, xf)
 		_has_solid = true

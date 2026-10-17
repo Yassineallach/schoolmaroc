@@ -14,7 +14,7 @@ const M_CLOTH := 7
 const M_METAL := 8
 
 const STONE := Color(0.80, 0.76, 0.68)
-const WOOD := Color(0.42, 0.30, 0.20)
+const WOOD := Color(0.60, 0.45, 0.28)
 const IRON := Color(0.20, 0.21, 0.24)
 const GOLD := Color(0.86, 0.68, 0.30)
 const GLASS := Color(1.0, 0.86, 0.6, 0.5)   # alpha 0.5: window glass in glow.gdshader

@@ -20,8 +20,8 @@ const M_CLOTH := 7
 const M_METAL := 8
 const M_STRAW := 11
 
-const WOOD := Color(0.56, 0.41, 0.27)
-const DARK_WOOD := Color(0.40, 0.29, 0.19)
+const WOOD := Color(0.76, 0.57, 0.33)
+const DARK_WOOD := Color(0.56, 0.42, 0.27)
 const IRON := Color(0.24, 0.25, 0.28)
 
 

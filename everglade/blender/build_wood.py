@@ -16,7 +16,7 @@ This script builds those pieces:
   footing), beam_bay (a timber-framing bay)
 
     python blender/build_wood.py preview <out.png>   # lineup render
-    python blender/build_wood.py export <out_dir> [names...]
+    python blender/build_wood.py export assets/models [names...]   # game GLBs (EXPORTS)
 
 Conventions match blender/build_assets.py: 1 unit = 1 m, origin at the
 piece's foot, front facing -Y, vertex colour RGB = albedo, alpha = channel
@@ -57,6 +57,11 @@ M_PAINT, M_STONE, M_WOOD, M_METAL = 0, 1, 3, 8
 MAT_SLICES = 16
 
 rng = random.Random(7)
+
+# How far a door or window is set back into its wall opening when exported
+# for the game (0 in the previews). Parts meant to stand on the wall face
+# (sills, steps, stone surrounds) reach forward by it.
+SURF = 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -333,7 +338,7 @@ def door_tg(arch=False):
     p.ring(0.07, 0.014, (W / 2 - 0.2, -0.03, 1.05), rot=(0, 0, 0))
     p.cyl(0.035, 0.03, (W / 2 - 0.2, -0.0, 1.12), rot=(math.pi / 2, 0, 0))
     # a worn threshold step
-    p.plank((W + 0.3, 0.42, 0.12), (0, -0.16, 0.0), color=STONE, mat=M_STONE, round_=0.35)
+    p.plank((W + 0.3, 0.42 + SURF, 0.12), (0, -0.16 - SURF / 2, 0.0), color=STONE, mat=M_STONE, round_=0.35)
     return p
 
 
@@ -354,7 +359,7 @@ def window_tg(arch=False):
     # cross bar: 2 x 2 panes
     p.plank((W - 0.06, 0.08, 0.05), (0, 0.02, H * 0.52), color=CREAM, mat=M_PAINT, round_=0.4, wonky=0.3)
     # a proud sill
-    p.plank((W + 0.3, 0.26, 0.09), (0, -0.06, -0.02), color=WOOD, round_=0.35)
+    p.plank((W + 0.3, 0.26 + SURF, 0.09), (0, -0.06 - SURF / 2, -0.02), color=WOOD, round_=0.35)
     pts = [(-W / 2, 0.0), (W / 2, 0.0), (W / 2, H)]
     if arch:
         for i in range(1, 16):
@@ -536,10 +541,10 @@ def door_tg_gothic():
     shape = _pointed(c, R, hs)
     # smooth stone surround: jambs and two arcs meeting at the point
     for sgn in (-1, 1):
-        p.plank((0.2, 0.26, hs + 0.02), (sgn * (half + 0.1), 0.0, (hs + 0.02) / 2), color=STONE, mat=M_STONE, round_=0.3, wonky=0.4)
+        p.plank((0.2, 0.26, hs + 0.02), (sgn * (half + 0.1), -SURF * 1.3, (hs + 0.02) / 2), color=STONE, mat=M_STONE, round_=0.3, wonky=0.4)
     a_end = math.acos(c / (R + 0.1))
-    p.arc_frame(-c, hs, R + 0.1, 0.26, 0.2, color=STONE, mat=M_STONE, a0=0.0, a1=a_end)
-    p.arc_frame(c, hs, R + 0.1, 0.26, 0.2, color=STONE, mat=M_STONE, a0=math.pi - a_end, a1=math.pi)
+    p.arc_frame(-c, hs, R + 0.1, 0.26, 0.2, y=-SURF * 1.3, color=STONE, mat=M_STONE, a0=0.0, a1=a_end)
+    p.arc_frame(c, hs, R + 0.1, 0.26, 0.2, y=-SURF * 1.3, color=STONE, mat=M_STONE, a0=math.pi - a_end, a1=math.pi)
     # boards cut to the point
     n = 5
     w = W / n
@@ -555,7 +560,7 @@ def door_tg_gothic():
             p.cyl(0.025, 0.02, (x, -0.01, z), rot=(math.pi / 2, 0, 0))
     p.ring(0.075, 0.015, (W / 2 - 0.22, -0.03, 1.05))
     p.cyl(0.035, 0.03, (W / 2 - 0.22, 0.0, 1.13), rot=(math.pi / 2, 0, 0))
-    p.plank((W + 0.4, 0.44, 0.12), (0, -0.16, 0.0), color=STONE, mat=M_STONE, round_=0.35)
+    p.plank((W + 0.4, 0.44 + SURF * 1.3, 0.12), (0, -0.16 - SURF * 0.65, 0.0), color=STONE, mat=M_STONE, round_=0.35)
     return p
 
 
@@ -572,7 +577,7 @@ def door_tg_double():
         for z in (0.45, H - 0.5):
             p.plank((W / 2 - 0.12, 0.025, 0.08), (sgn * W / 4, -0.005, z), color=IRON, mat=M_METAL, round_=0.4, wonky=0.2)
         p.ring(0.06, 0.013, (sgn * 0.14, -0.03, 1.05))
-    p.plank((W + 0.35, 0.42, 0.12), (0, -0.16, 0.0), color=STONE, mat=M_STONE, round_=0.35)
+    p.plank((W + 0.35, 0.42 + SURF, 0.12), (0, -0.16 - SURF / 2, 0.0), color=STONE, mat=M_STONE, round_=0.35)
     return p
 
 
@@ -592,7 +597,7 @@ def window_tg_gothic():
     p.arc_frame(c, hs, R, 0.16, t, color=CREAM, mat=M_PAINT, a0=math.pi - a_end, a1=math.pi)
     p.plank((0.05, 0.08, H - 0.1), (0, 0.02, (H - 0.1) / 2), color=CREAM, mat=M_PAINT, round_=0.4, wonky=0.2)
     p.plank((W - 0.04, 0.08, 0.05), (0, 0.02, hs * 0.55), color=CREAM, mat=M_PAINT, round_=0.4, wonky=0.2)
-    p.plank((W + 0.26, 0.26, 0.09), (0, -0.06, -0.02), color=WOOD, round_=0.35)
+    p.plank((W + 0.26, 0.26 + SURF, 0.09), (0, -0.06 - SURF / 2, -0.02), color=WOOD, round_=0.35)
     shape = _pointed(c, R, hs)
     pts = [(-half, 0.0), (half, 0.0)]
     for i in range(0, 13):
@@ -610,7 +615,7 @@ def window_tg_lattice():
     for sgn in (-1, 1):
         p.plank((t, 0.16, H), (sgn * W / 2, 0, H / 2), color=WOOD_DARK, round_=0.35, wonky=0.4)
     p.plank((W + t, 0.16, t), (0, 0, H), color=WOOD_DARK, round_=0.35)
-    p.plank((W + 0.26, 0.26, 0.09), (0, -0.06, -0.02), color=WOOD_DARK, round_=0.35)
+    p.plank((W + 0.26, 0.26 + SURF, 0.09), (0, -0.06 - SURF / 2, -0.02), color=WOOD_DARK, round_=0.35)
     # lead cames running both diagonals, clipped to the opening
     step = 0.17
     k = -H
@@ -928,6 +933,60 @@ def _stage(out, cols_w, rows_h, cx):
     print("wrote", out)
 
 
+# Game models: name -> (builder, set back into the opening, shift y, shift z).
+# Origin = bottom centre of the wall opening on the wall face; doors and
+# windows sit back inside the opening, shutters and flower boxes stand on
+# the wall face around it.
+EXPORTS = {
+    "tg_door": (lambda: door_tg(False), 0.16, 0.0, 0.0),
+    "tg_door_arch": (lambda: door_tg(True), 0.16, 0.0, 0.0),
+    "tg_door_gothic": (door_tg_gothic, 0.16, 0.0, 0.0),
+    "tg_door_double": (door_tg_double, 0.16, 0.0, 0.0),
+    "tg_window": (lambda: window_tg(False), 0.14, 0.0, 0.0),
+    "tg_window_arch": (lambda: window_tg(True), 0.14, 0.0, 0.0),
+    "tg_window_gothic": (window_tg_gothic, 0.14, 0.0, 0.0),
+    "tg_window_lattice": (window_tg_lattice, 0.14, 0.0, 0.0),
+    "tg_shutters": (lambda: shutters_tg(False), 0.0, -0.04, 0.0),
+    "tg_shutters_z": (lambda: shutters_tg(True), 0.0, -0.04, 0.0),
+    "tg_flower_box": (flower_box_tg, 0.0, -0.16, -0.3),
+    "tg_fence": (fence_tg, 0.0, 0.0, 0.0),
+    "tg_beam_ends": (beam_ends, 0.0, 0.0, 0.0),
+}
+
+
+def _to_srgb(v):
+    v = max(0.0, min(1.0, v))
+    return v * 12.92 if v <= 0.0031308 else 1.055 * v ** (1 / 2.4) - 0.055
+
+
+def export(out_dir, names=None):
+    global SURF
+    for name, (build, surf, dy, dz) in EXPORTS.items():
+        if names and name not in names:
+            continue
+        reset()
+        rng.seed(sum(map(ord, name)))
+        SURF = surf
+        obj = build().to_object()
+        SURF = 0.0
+        # the game paints vertex colours as they are (its other models carry
+        # sRGB-like values), so store the measured sRGB colours, not linear
+        for ca in obj.data.color_attributes:
+            for item in ca.data:
+                c = item.color
+                item.color = (_to_srgb(c[0]), _to_srgb(c[1]), _to_srgb(c[2]), c[3])
+        obj.location = (0.0, surf + dy, dz)
+        bpy.ops.object.select_all(action="DESELECT")
+        for o in bpy.context.scene.objects:
+            o.select_set(True)
+        path = os.path.join(out_dir, name + ".glb")
+        bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", use_selection=True, export_apply=True,
+                                  export_yup=True, export_normals=True, export_vertex_color="ACTIVE",
+                                  export_all_vertex_colors=False, export_materials="EXPORT",
+                                  export_image_format="NONE", export_animations=False)
+        print("exported", path)
+
+
 if __name__ == "__main__":
     args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
     if args and args[0] == "preview":
@@ -936,3 +995,5 @@ if __name__ == "__main__":
         vignette(args[1])
     elif args and args[0] == "palette":
         palette_sheet(args[1])
+    elif args and args[0] == "export":
+        export(os.path.abspath(args[1]), set(args[2:]))

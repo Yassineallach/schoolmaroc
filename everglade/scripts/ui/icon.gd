@@ -373,6 +373,16 @@ func _draw() -> void:
 			poly([Vector2(0.28, 0.86), Vector2(0.28, 0.42), Vector2(0.34, 0.24), Vector2(0.5, 0.16), Vector2(0.66, 0.24), Vector2(0.72, 0.42), Vector2(0.72, 0.86)], SUN)
 			line([Vector2(0.5, 0.16), Vector2(0.5, 0.86)])
 			rect(0.2, 0.84, 0.6, 0.08, STONE)
+		"win_gothic":
+			poly([Vector2(0.3, 0.86), Vector2(0.3, 0.46), Vector2(0.36, 0.28), Vector2(0.5, 0.1), Vector2(0.64, 0.28), Vector2(0.7, 0.46), Vector2(0.7, 0.86)], SUN)
+			line([Vector2(0.5, 0.16), Vector2(0.5, 0.86)])
+			rect(0.22, 0.84, 0.56, 0.08, STONE)
+		"win_lattice":
+			rect(0.24, 0.14, 0.52, 0.7, SUN)
+			for seg in [[0.24, 0.32, 0.42, 0.14], [0.24, 0.58, 0.68, 0.14], [0.24, 0.84, 0.76, 0.32], [0.5, 0.84, 0.76, 0.58]]:
+				line([Vector2(seg[0], seg[1]), Vector2(seg[2], seg[3])], INK, 0.03)
+				line([Vector2(1.0 - seg[0], seg[1]), Vector2(1.0 - seg[2], seg[3])], INK, 0.03)
+			rect(0.18, 0.84, 0.64, 0.08, WOOD)
 		"win_round":
 			circle(Vector2(0.5, 0.5), 0.3, SUN)
 			line([Vector2(0.2, 0.5), Vector2(0.8, 0.5)])
