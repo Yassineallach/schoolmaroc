@@ -796,7 +796,7 @@ func _make_view(type: String, item: Dictionary, animate: bool, draft := false) -
 
 
 func _queue_build(type: String, item: Dictionary) -> void:
-	var job := {"type": type, "id": item.id, "gen": _job_gen[item.id], "item": item.duplicate(true),
+	var job := {"type": type, "id": item.id, "gen": _job_gen[item.id], "glade": data, "item": item.duplicate(true),
 			"open": (_openings.get(item.id, []) as Array).duplicate(true)}
 	if type == "buildings":
 		job.joins = join_polys(item)
@@ -834,9 +834,12 @@ func _run_job(job: Dictionary) -> void:
 func _job_done(job: Dictionary, v: Node3D) -> void:
 	_job_running = false
 	WorkerThreadPool.wait_for_task_completion(job.task)
-	var f := find(job.id)
-	if f.is_empty() or int(job.gen) != int(_job_gen.get(job.id, -1)):
-		v.free()       # removed, or changed again since: a newer build is queued
+	_next_job.call_deferred()
+	var f := find(job.id) if is_same(job.glade, data) else {}
+	if f.is_empty() or f.type != job.type or int(job.gen) != int(_job_gen.get(job.id, -1)):
+		# another glade loaded, the piece removed, or changed again since
+		# (a newer build is queued)
+		v.free()
 	else:
 		if views.has(job.id) and is_instance_valid(views[job.id]):
 			views[job.id].free()
@@ -845,7 +848,6 @@ func _job_done(job: Dictionary, v: Node3D) -> void:
 		v.finish()
 		views[job.id] = v
 		_links_dirty = true
-	_next_job()
 
 
 func _make_view_now(type: String, item: Dictionary, animate: bool, preview := false) -> Node3D:
