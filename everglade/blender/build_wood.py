@@ -850,23 +850,23 @@ def palette_sheet(out):
         WOOD, WOOD_LIGHT, WOOD_DARK = WOOD_TONES[tone]
         for col, piece in enumerate(["door_tg_gothic", "window_tg_lattice", "wall_planks_v", "fence_tg"]):
             o = PIECES[piece]().to_object()
-            o.location = (col * cell, -row * cell * 1.15, 0.9 if piece == "shutters_tg" else 0)
+            o.location = (col * cell, -row * cell * 1.75, 0.9 if piece == "shutters_tg" else 0)
             if piece == "window_tg_lattice":
                 o.location.z = 0.9
             if piece == "wall_planks_v":
                 o.scale = (0.85, 0.85, 0.85)
-        _label("%s" % tone, (-1.9, -row * cell * 1.15 + 0.5, 0.01), 0.3)
+        _label("%s" % tone, (-1.9, -row * cell * 1.75 + 0.5, 0.01), 0.3)
     WOOD, WOOD_LIGHT, WOOD_DARK = WOOD_TONES["Natural"]
     for i, (name, c) in enumerate(TRIMS.items()):
         CREAM = c
         x = i * 2.6
-        y = -len(names) * cell * 1.15 - 0.6
+        y = -len(names) * cell * 1.75 - 0.6
         w = window_tg(i % 2 == 1).to_object()
         w.location = (x, y, 0.9)
         sh = shutters_tg(False, c).to_object()
         sh.location = (x, y, 0.9)
         _label(name, (x, y - 0.9, 0.01), 0.26)
-    _stage(out, cols_w=max(4 * cell, len(TRIMS) * 2.6) + 4.0, rows_h=(len(names) + 1) * cell * 1.15, cx=(4 * cell) / 2 - 2.0)
+    _stage(out, cols_w=max(4 * cell, len(TRIMS) * 2.6) + 4.0, rows_h=(len(names) + 1) * cell * 1.75, cx=(4 * cell) / 2 - 2.0)
 
 
 def _label(text, loc, size):
