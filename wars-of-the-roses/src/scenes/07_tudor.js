@@ -123,10 +123,12 @@
       W.formation(ctx, W.lerp(480, 830, conv), 580, t, { cols: 8, rows: 3, color: W.C.crimsonBright, seed: 43 });
       W.bigArrow(ctx, [420, 580], [W.lerp(560, 900, conv), 580], p(t, S.start, 1.0), { color: W.C.crimsonBright, width: 22 });
       W.text(ctx, T.ht, 640, 470, { size: 36, color: W.C.crimsonBright, alpha: p(t, S.start + 0.2, 0.5) });
-      W.text(ctx, T.r3, 1300, 360, { size: 36, color: W.C.ivory, alpha: p(t, S.start + 0.2, 0.5) * (1 - br * 0.5) });
+      // Richard III above his army; he dies on the field
+      W.portrait(ctx, 'p_richard3', 1300, 255, 54, { shape: 'oval', ry: 66, p: p(t, S.start + 0.2, 0.8), dead: br > 0.5, alpha: 1 - br * 0.3 });
+      W.text(ctx, T.r3, 1300, 372, { size: 36, color: W.C.ivory, alpha: p(t, S.start + 0.2, 0.5) * (1 - br * 0.5) });
       // Richard's crown falls
       const fall = p(t, c.r3 + 0.3, 1.3, E.inCubic);
-      const cx = W.lerp(1230, 1300, fall), cy = W.lerp(300, 830, fall);
+      const cx = W.lerp(1300, 1360, fall), cy = W.lerp(150, 830, fall);
       W.alpha(ctx, 1 - p(t, c.quick, 0.6), () => W.crown(ctx, cx, cy, 34, { color: W.C.gold, width: 2.2, fill: 0.25, rot: fall * 2.4 }));
       W.caption(ctx, 1760, 200, t, S.start, { kicker: T.btSub, title: T.bt, size: 54 });
       W.illustrative(ctx, p(t, S.start + 0.3, 0.6));

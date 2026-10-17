@@ -350,5 +350,15 @@
       320
     ],
     "note": "Edward V, later panel, supplied by the user"
+  },
+  "p_richard3": {
+    "file": "input/images/p_richard3.jpg",
+    "blend": "source-over",
+    "face": [
+      530,
+      640,
+      240
+    ],
+    "note": "Richard III, late-16th-c. panel (Society of Antiquaries type), supplied by the user"
   }
 }
