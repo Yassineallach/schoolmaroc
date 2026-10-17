@@ -42,6 +42,11 @@
   "banner_lancaster": {
     "file": "input/images/banner_lancaster.png",
     "blend": "source-over",
-    "note": "red banner supplied by the user; original eye emblem painted out (rose added in code)"
+    "note": "plain red banner supplied by the user (white background removed); rose added in code"
+  },
+  "banner_york": {
+    "file": "input/images/banner_york.png",
+    "blend": "source-over",
+    "note": "same banner, red cloth recoloured to cream for York; rose added in code"
   }
 }
