@@ -118,7 +118,7 @@
         const pts = W.arcPts(from, L, 0.12, 40);
         W.route(ctx, pts, t, hp, { color: W.C.crimsonBright, width: 2.5 });
         const h = W.polyPart(pts, hp).pop();
-        W.node(ctx, h[0], h[1], 10, { color: W.C.crimsonBright, crown: 0.9, crownColor: W.C.gold });
+        W.node(ctx, h[0], h[1], 10, { color: W.C.crimsonBright, crown: 0.9, crownColor: W.C.gold, portrait: 'p_henry6', pr: 26 });
       }
       W.marker(ctx, L[0], L[1], t, c.h6 + 1.5, { label: T.h6, sub: T.h6Sub, side: 'left', dist: 70, color: W.C.crimsonBright, size: 34 });
       // Margaret and her son to exile

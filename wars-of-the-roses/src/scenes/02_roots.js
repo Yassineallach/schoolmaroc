@@ -185,7 +185,7 @@
       }
       // the infant king: a tiny node under a crown far too large
       const ip = p(t, c.infant, 1.0, E.out);
-      W.node(ctx, 520, 470, 7, { p: ip, color: W.C.crimsonBright });
+      if (!W.portrait(ctx, 'p_henry6', 520, 462, 34, { p: ip })) W.node(ctx, 520, 470, 7, { p: ip, color: W.C.crimsonBright });
       W.crown(ctx, 520, 330 - (1 - ip) * 40, 74, { p: p(t, c.infant + 0.2, 1.4, E.inOut), color: W.C.gold, width: 2.4, fill: 0.2, glow: 'rgba(201,164,92,0.4)' });
       W.text(ctx, T.h6, 520, 525, { size: 44, color: W.C.ivory, reveal: p(t, c.h6, 0.8) });
       W.text(ctx, T.h6Sub, 520, 575, { size: 24, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.h6 + 0.5, 0.8) });

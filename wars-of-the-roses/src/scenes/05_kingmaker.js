@@ -116,8 +116,8 @@
         W.marker(ctx, TK[0], TK[1], t, c.prince, { kind: 'battle', label: T.tew, sub: T.tewSub, side: 'left', dist: 80, color: W.C.ivory, size: 40 });
         // Henry VI in the Tower: his node fades
         const d = p(t, c.h6, 1.4);
-        W.node(ctx, L[0] + 2, L[1] + 40, 11, { p: p(t, c.back, 0.6), color: W.mixColor(W.C.crimsonBright, '#3a3430', d), dead: d > 0.5 });
-        W.text(ctx, 'هنري السادس', L[0] + 30, L[1] + 40, { size: 28, color: W.C.crimsonBright, align: 'left', alpha: p(t, c.back + 0.3, 0.6) * (1 - d * 0.5) });
+        W.node(ctx, L[0] + 2, L[1] + 40, 11, { p: p(t, c.back, 0.6), color: W.mixColor(W.C.crimsonBright, '#3a3430', d), dead: d > 0.5, portrait: 'p_henry6', pr: 30 });
+        W.text(ctx, 'هنري السادس', L[0] + (W.hasPortrait('p_henry6') ? 46 : 30), L[1] + 40, { size: 28, color: W.C.crimsonBright, align: 'left', alpha: p(t, c.back + 0.3, 0.6) * (1 - d * 0.5) });
         W.caption(ctx, 1760, 220, t, c.h6, { kicker: T.h6Sub, title: T.h6, size: 44, alpha: p(t, c.h6, 0.6) });
       });
     },

@@ -222,5 +222,21 @@
       620
     ],
     "note": "Henry V, late 16th-c. profile portrait (National Portrait Gallery), supplied by the user"
+  },
+  "p_henry6": {
+    "file": "input/images/p_henry6.jpg",
+    "blend": "source-over",
+    "face": [
+      650,
+      430,
+      240
+    ],
+    "bust": [
+      650,
+      560,
+      380,
+      460
+    ],
+    "note": "Henry VI enthroned, 15th-c. illumination (Royal Collection / BL), supplied by the user"
   }
 }

@@ -52,9 +52,10 @@
         }
       });
       W.text(ctx, T.adv, 900, 190, { size: 28, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: p(t, c.adv + 0.5, 0.8) });
-      W.node(ctx, hx, hy, 18, { p: p(t, c.henry, 0.8), color: W.C.crimsonBright, crown: p(t, c.henry + 0.2, 1), crownColor: W.C.gold });
-      W.text(ctx, T.h6, hx, hy + 62, { size: 46, color: W.C.ivory, reveal: p(t, c.henry + 1.5, 0.8) });
-      W.text(ctx, T.weak, hx, hy + 112, { size: 28, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.weak + 1.6, 0.8) });
+      W.node(ctx, hx, hy, 18, { p: p(t, c.henry, 0.8), color: W.C.crimsonBright, crown: p(t, c.henry + 0.2, 1), crownColor: W.C.gold, portrait: 'p_henry6', pr: 58 });
+      const hp6 = W.hasPortrait('p_henry6') ? 40 : 0;
+      W.text(ctx, T.h6, hx, hy + 62 + hp6, { size: 46, color: W.C.ivory, reveal: p(t, c.henry + 1.5, 0.8) });
+      W.text(ctx, T.weak, hx, hy + 112 + hp6, { size: 28, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.weak + 1.6, 0.8) });
       // Margaret of Anjou, from France
       const mx = 1480, my = 600;
       W.fleur(ctx, mx, my - 110, 40, { p: p(t, c.m - 0.3, 1.2, E.inOut), color: W.C.gold, width: 2, fill: 0.15 });
@@ -112,8 +113,8 @@
         ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * rp); ctx.stroke(); ctx.restore();
       }
       W.text(ctx, 'البلاط', cx + r2 + 20, cy - r2 + 30, { size: 26, fam: W.F.label, weight: 400, color: W.C.ivoryDim, align: 'left', alpha: p(t, 103, 0.8) });
-      W.node(ctx, cx, cy, 18, { p: p(t, 102.6, 0.8), color: W.C.crimsonBright, crown: 1, crownColor: W.C.gold });
-      W.text(ctx, T.king, cx, cy + 58, { size: 34, color: W.C.ivory, alpha: p(t, 102.8, 0.8) });
+      W.node(ctx, cx, cy, 18, { p: p(t, 102.6, 0.8), color: W.C.crimsonBright, crown: 1, crownColor: W.C.gold, portrait: 'p_henry6', pr: 52 });
+      W.text(ctx, T.king, cx, cy + (W.hasPortrait('p_henry6') ? 92 : 58), { size: 34, color: W.C.ivory, alpha: p(t, 102.8, 0.8) });
       // York: from the inner circle out to the margins
       const mv = p(t, c.push, 2.0, E.inOut);
       const ang = W.lerp(-0.4, Math.PI * 0.95, mv) + rot * (1 - mv);
