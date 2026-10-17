@@ -50,18 +50,12 @@ func _run() -> void:
 			{"side": 0, "u": 0.8, "f": 2, "kind": "window"}]})
 	game.hud.visible = false
 	var i := 0
-	for x in [0, -16, -8, 24]:
-		game.rig.focus_on(Vector3(x, 2.2, -2.2), 12.0)
-		game.rig.yaw = deg_to_rad(198)
+	for shot in [[-8.0, 26.0, 198.0], [20.0, 24.0, 160.0]]:
+		game.rig.focus_on(Vector3(shot[0], 2.2, -1.0), shot[1])
+		game.rig.yaw = deg_to_rad(shot[2])
 		game.rig.snap()
 		for k in 30:
 			await get_tree().process_frame
-		await _shot("%d_front" % i)
+		await _shot("%d_wide" % i)
 		i += 1
-	game.rig.focus_on(Vector3(-17.2, 1.2, -2.6), 4.2)
-	game.rig.yaw = deg_to_rad(212)
-	game.rig.snap()
-	for k in 30:
-		await get_tree().process_frame
-	await _shot("close")
 	get_tree().quit()
