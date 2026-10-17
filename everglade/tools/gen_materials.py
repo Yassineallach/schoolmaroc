@@ -192,6 +192,28 @@ def m_wood(rnd):
     return tint(v, (1.03, 1.0, 0.95)), h, 0.75
 
 
+def m_wood_tg(rnd):
+    """Tiny Glade-style wood grain: the planks themselves are modelled, so
+    the texture only adds a soft, painterly grain - long gentle streaks
+    running along the board, a few wide light/dark bands, the odd small
+    soft knot - all low in contrast so the boards read as flat warm colour
+    from afar and only show their grain up close."""
+    # streaks: noise stretched along the board (x), fine across it (y)
+    streak = fbm(rnd, 2, 4, py=48, gain=0.55) * 0.6 + vnoise(rnd, 1, 120) * 0.4
+    # wide, gentle bands of lighter and darker wood
+    bands = fbm(rnd, 1, 3, py=6)
+    # a soft wavy flow so the grain is not ruler-straight
+    flow = fbm(rnd, 3, 3, py=3)
+    wavy = np.roll(streak, 0, axis=0)
+    rows = (np.arange(S)[:, None] + (flow - 0.5) * 40).astype(int) % S
+    wavy = streak[rows, np.arange(S)[None, :]]
+    f1, _, cid = worley(rnd, 4)
+    knot = smoothstep(0.12, 0.0, f1) * (cid > 0.78)
+    v = 0.5 * (1.0 + (wavy - 0.5) * 0.16 + (bands - 0.5) * 0.12 - knot * 0.18)
+    h = 0.5 + (wavy - 0.5) * 0.35 - knot * 0.2
+    return tint(v, (1.03, 1.0, 0.95)), h, 0.8
+
+
 def m_bark(rnd):
     ridges = fbm(rnd, 36, 3, py=3) * 0.65 + fbm(rnd, 72, 2, py=6) * 0.35
     deep = smoothstep(0.4, 0.58, ridges)

@@ -76,9 +76,10 @@ class Piece:
                 loop[self.col] = c
                 loop[self.uv].uv = uv
 
-    def plank(self, size, loc, rot=(0, 0, 0), color=WOOD, mat=M_WOOD, round_=0.22, vary=0.07, wonky=1.0):
+    def plank(self, size, loc, rot=(0, 0, 0), color=None, mat=M_WOOD, round_=0.22, vary=0.07, wonky=1.0):
         """A chunky board with soft, rounded edges (bevel ~ round_ of its
         thinnest side), a little jitter in size, tilt and position."""
+        color = color or WOOD
         sx, sy, sz = size
         j = wonky
         sx *= 1.0 + rng.uniform(-0.04, 0.04) * j
@@ -215,14 +216,60 @@ class Piece:
         return obj
 
 
+GRAIN = os.environ.get("WOOD_GRAIN", "")
+
+
 def _vc_material():
     m = bpy.data.materials.new("VertexColor")
     m.use_nodes = True
     nt = m.node_tree
     bsdf = nt.nodes["Principled BSDF"]
     vc = nt.nodes.new("ShaderNodeVertexColor")
-    nt.links.new(vc.outputs["Color"], bsdf.inputs["Base Color"])
     bsdf.inputs["Roughness"].default_value = 0.8
+    if GRAIN and os.path.exists(GRAIN):
+        # preview the game's grain: a box-projected detail texture around 0.5
+        # multiplying the painted colour (as shaders/materials.gdshaderinc does)
+        tc = nt.nodes.new("ShaderNodeTexCoord")
+        mp = nt.nodes.new("ShaderNodeMapping")
+        mp.inputs["Scale"].default_value = (0.95, 0.95, 0.95)
+        tex = nt.nodes.new("ShaderNodeTexImage")
+        tex.image = bpy.data.images.load(GRAIN)
+        tex.projection = "BOX"
+        tex.projection_blend = 0.3
+        mul = nt.nodes.new("ShaderNodeMixRGB")
+        mul.blend_type = "MULTIPLY"
+        mul.inputs["Fac"].default_value = 1.0
+        two = nt.nodes.new("ShaderNodeMixRGB")
+        two.blend_type = "MULTIPLY"
+        two.inputs["Fac"].default_value = 1.0
+        two.inputs["Color2"].default_value = (2.0, 2.0, 2.0, 1.0)
+        nt.links.new(tc.outputs["Object"], mp.inputs["Vector"])
+        nt.links.new(mp.outputs["Vector"], tex.inputs["Vector"])
+        nt.links.new(tex.outputs["Color"], two.inputs["Color1"])
+        nt.links.new(vc.outputs["Color"], mul.inputs["Color1"])
+        nt.links.new(two.outputs["Color"], mul.inputs["Color2"])
+        # only the wood slice (UV.x) gets the grain, like the game's layers
+        uvn = nt.nodes.new("ShaderNodeUVMap")
+        sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+        sub = nt.nodes.new("ShaderNodeMath")
+        sub.operation = "SUBTRACT"
+        sub.inputs[1].default_value = (M_WOOD + 0.5) / MAT_SLICES
+        ab = nt.nodes.new("ShaderNodeMath")
+        ab.operation = "ABSOLUTE"
+        lt = nt.nodes.new("ShaderNodeMath")
+        lt.operation = "LESS_THAN"
+        lt.inputs[1].default_value = 0.02
+        nt.links.new(uvn.outputs["UV"], sep.inputs["Vector"])
+        nt.links.new(sep.outputs["X"], sub.inputs[0])
+        nt.links.new(sub.outputs[0], ab.inputs[0])
+        nt.links.new(ab.outputs[0], lt.inputs[0])
+        pick = nt.nodes.new("ShaderNodeMixRGB")
+        nt.links.new(lt.outputs[0], pick.inputs["Fac"])
+        nt.links.new(vc.outputs["Color"], pick.inputs["Color1"])
+        nt.links.new(mul.outputs["Color"], pick.inputs["Color2"])
+        nt.links.new(pick.outputs["Color"], bsdf.inputs["Base Color"])
+    else:
+        nt.links.new(vc.outputs["Color"], bsdf.inputs["Base Color"])
     return m
 
 
@@ -238,9 +285,10 @@ def _glow_material():
 # ---------------------------------------------------------------------------
 # Pieces (front faces -Y, foot at z = 0)
 # ---------------------------------------------------------------------------
-def _boards(p, x0, x1, z0, z1, y, n, color=WOOD, thick=0.06, arch=None):
+def _boards(p, x0, x1, z0, z1, y, n, color=None, thick=0.06, arch=None):
     """n upright boards filling x0..x1 up to z1; with arch = (cx, zc, r) their
     tops are cut cleanly to that circle."""
+    color = color or WOOD
     w = (x1 - x0) / n
     for i in range(n):
         x = x0 + w * (i + 0.5)
@@ -617,9 +665,116 @@ def vignette(out):
     print("wrote", out)
 
 
+# Wood tones, like Tiny Glade's palette tool (estimates: no published values)
+# - name: (main, light, dark beams)
+WOOD_TONES = {
+    "Natural": ((0.54, 0.35, 0.23), (0.69, 0.52, 0.35), (0.35, 0.23, 0.15)),
+    "Honey": ((0.70, 0.50, 0.30), (0.82, 0.65, 0.43), (0.47, 0.32, 0.19)),
+    "Walnut": ((0.40, 0.26, 0.18), (0.52, 0.36, 0.25), (0.25, 0.16, 0.11)),
+    "Weathered": ((0.56, 0.53, 0.48), (0.68, 0.65, 0.59), (0.38, 0.35, 0.31)),
+    "Driftwood": ((0.72, 0.66, 0.57), (0.82, 0.77, 0.68), (0.50, 0.45, 0.38)),
+}
+# painted trims (window frames, shutters, doors can be painted)
+TRIMS = {"Cream": (0.93, 0.89, 0.81), "Sage": (0.56, 0.66, 0.54), "Blue": (0.44, 0.55, 0.65),
+         "Red": (0.65, 0.33, 0.29), "Bottle": (0.27, 0.42, 0.36)}
+
+
+def palette_sheet(out):
+    """Door, shutters on a window, plank wall and fence in each wood tone,
+    plus the painted trim colours on windows and shutters."""
+    global WOOD, WOOD_LIGHT, WOOD_DARK, CREAM
+    reset()
+    cell = 3.2
+    names = list(WOOD_TONES.keys())
+    for row, tone in enumerate(names):
+        WOOD, WOOD_LIGHT, WOOD_DARK = WOOD_TONES[tone]
+        for col, piece in enumerate(["door_tg_arch", "shutters_tg", "wall_planks_v", "fence_tg"]):
+            o = PIECES[piece]().to_object()
+            o.location = (col * cell, -row * cell * 1.15, 0.9 if piece == "shutters_tg" else 0)
+            if piece == "shutters_tg":
+                w = window_tg(False).to_object()
+                w.location = o.location
+            if piece == "wall_planks_v":
+                o.scale = (0.85, 0.85, 0.85)
+        _label("%s" % tone, (-1.9, -row * cell * 1.15 + 0.5, 0.01), 0.3)
+    WOOD, WOOD_LIGHT, WOOD_DARK = WOOD_TONES["Natural"]
+    for i, (name, c) in enumerate(TRIMS.items()):
+        CREAM = c
+        x = i * 2.6
+        y = -len(names) * cell * 1.15 - 0.6
+        w = window_tg(i % 2 == 1).to_object()
+        w.location = (x, y, 0.9)
+        WOOD_LIGHT = c
+        sh = shutters_tg().to_object()
+        sh.location = (x, y, 0.9)
+        WOOD_LIGHT = WOOD_TONES["Natural"][1]
+        _label(name, (x, y - 0.9, 0.01), 0.26)
+    _stage(out, cols_w=max(4 * cell, len(TRIMS) * 2.6) + 4.0, rows_h=(len(names) + 1) * cell * 1.15, cx=(4 * cell) / 2 - 2.0)
+
+
+def _label(text, loc, size):
+    td = bpy.data.curves.new("t", "FONT")
+    td.body = text
+    td.size = size
+    td.align_x = "CENTER"
+    to = bpy.data.objects.new("t", td)
+    to.location = loc
+    bpy.context.scene.collection.objects.link(to)
+    mt = bpy.data.materials.get("ink") or bpy.data.materials.new("ink")
+    mt.use_nodes = True
+    mt.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0, 0, 0, 1)
+    to.data.materials.append(mt)
+
+
+def _stage(out, cols_w, rows_h, cx):
+    sc = bpy.context.scene
+    bpy.ops.mesh.primitive_plane_add(size=400, location=(0, 0, -0.005))
+    gm = bpy.data.materials.new("ground")
+    gm.use_nodes = True
+    gm.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.42, 0.56, 0.28, 1)
+    bpy.context.active_object.data.materials.append(gm)
+    w = bpy.data.worlds.new("W")
+    w.use_nodes = True
+    w.node_tree.nodes["Background"].inputs[0].default_value = (0.74, 0.84, 0.95, 1)
+    w.node_tree.nodes["Background"].inputs[1].default_value = 0.7
+    sc.world = w
+    sd = bpy.data.lights.new("Sun", "SUN")
+    sd.energy = 3.2
+    sd.angle = math.radians(4)
+    sd.color = (1.0, 0.94, 0.84)
+    so = bpy.data.objects.new("Sun", sd)
+    so.rotation_euler = (math.radians(52), math.radians(8), math.radians(-38))
+    sc.collection.objects.link(so)
+    cd = bpy.data.cameras.new("C")
+    cd.type = "ORTHO"
+    cd.ortho_scale = max(cols_w, rows_h * 0.62)
+    cam = bpy.data.objects.new("C", cd)
+    sc.collection.objects.link(cam)
+    sc.camera = cam
+    ang = math.radians(32)
+    cy = -rows_h / 2 + 1.5
+    cam.location = (cx, cy - 40 * math.cos(ang), 40 * math.sin(ang) + 1.0)
+    cam.rotation_euler = (math.radians(90) - ang, 0, 0)
+    sc.render.engine = "CYCLES"
+    sc.cycles.samples = 48
+    sc.cycles.device = "CPU"
+    sc.cycles.diffuse_bounces = 4
+    sc.render.resolution_x = 1800
+    sc.render.resolution_y = int(1800 * min(1.4, rows_h * 0.55 / cols_w)) + 200
+    try:
+        sc.view_settings.view_transform = "AgX"
+    except TypeError:
+        sc.view_settings.view_transform = "Filmic"
+    sc.render.filepath = out
+    bpy.ops.render.render(write_still=True)
+    print("wrote", out)
+
+
 if __name__ == "__main__":
     args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
     if args and args[0] == "preview":
         preview(args[1])
     elif args and args[0] == "vignette":
         vignette(args[1])
+    elif args and args[0] == "palette":
+        palette_sheet(args[1])
