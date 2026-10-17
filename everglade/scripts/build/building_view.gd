@@ -303,7 +303,7 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 					p += n * 0.04
 				var hl := WallCut.hole_for(model, uc * len_side, y, sx)
 				_cut[side].append(hl)
-				_clear[side].append(WallCut.rect(hl, 0.05))
+				_clear[side].append(WallCut.rect(hl, 0.05 + _surround_w(style)))
 				_tg(deco, model, Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, 1, 1)), p))
 				# shutters and boxes fit the opening's width
 				var xf := Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(hl.w / 0.96, 1, 1)), p)
@@ -366,6 +366,8 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 		for f in range(1, floors):
 			var y := PL + f * FH
 			_band(mb, corners, y, 0.14, 0.05, Color(wall_col.r * 0.9, wall_col.g * 0.88, wall_col.b * 0.85, 1.0))
+	if not d.get("roof_only", false):
+		_details_rect(mb, d, corners, style, floors, roof, L, W)
 	# chimney
 	var ch: float = d.get("chimney", NO_CHIMNEY)
 	if ch > NO_CHIMNEY + 1.0:
@@ -507,9 +509,10 @@ func _timber(mb: MeshBuilder, corners: Array, floors: int, d: Dictionary, doors:
 		var count := maxi(1, int(l / 1.3))
 		for k in count + 1:
 			var u := float(k) / count
+			# openings bring their own posts (see _timber_surround)
 			var skip := false
-			for w in d.get("windows", []) + doors:
-				if w.side == i and absf(w.u - u) * l < 0.65:
+			for hl in (_cut[i] if _cut.size() == 4 else []):
+				if absf(hl.s - u * l) < hl.w * 0.5 + 0.35:
 					skip = true
 			if skip and k != 0 and k != count:
 				continue
@@ -520,6 +523,12 @@ func _timber(mb: MeshBuilder, corners: Array, floors: int, d: Dictionary, doors:
 		for f in range(1, floors):
 			var y0 := PL + f * FH
 			for end in [0.0, 1.0]:
+				var near := false
+				for hl in (_cut[i] if _cut.size() == 4 else []):
+					if absf(hl.s - end * l) < hl.w * 0.5 + 1.3 and hl.y > y0 - 0.5 and hl.y < y0 + FH:
+						near = true
+				if near:
+					continue
 				var dir := (b - a).normalized() * (1.0 if end == 0.0 else -1.0)
 				var start := a.lerp(b, end) + n * 0.045
 				var mid := start + dir * 0.55 + Vector3.UP * (y0 + FH * 0.5)
@@ -694,6 +703,254 @@ func _flat_rect_roof(mb: MeshBuilder, L: float, W: float, col: Color) -> void:
 # ---------------------------------------------------------------------------
 # Round towers
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Tiny Glade's small building details: dressed stone or timber surrounds
+# round every opening, rafter ends and knee brackets under the eaves, beam
+# ends under jettied storeys, and braces under half-timbered windows
+# ---------------------------------------------------------------------------
+const TIMBER := Color(0.56, 0.42, 0.27, 0.5)   # #8E6A44
+const SURROUND_STONE := 0.2
+
+
+## How wide a style's opening surrounds are (stonework keeps clear of them).
+static func _surround_w(style: String) -> float:
+	match style:
+		"stone", "plaster", "windrise":
+			return SURROUND_STONE
+		"wood", "boards":
+			return 0.13
+	return 0.0
+
+
+func _details_rect(mb: MeshBuilder, d: Dictionary, corners: Array, style: String, floors: int, roof: String, L: float, W: float) -> void:
+	if _preview or floors <= 0:
+		return
+	var stone_top := PL + (FH if floors > 1 else 1.0)
+	var beam := _wood(TIMBER)
+	for i in 4:
+		var a: Vector3 = corners[i]
+		var b: Vector3 = corners[(i + 1) % 4]
+		var n := _side_normal(corners, i)
+		var at := WallCut.flat_at(a, b)
+		var nrm := WallCut.flat_nrm(n)
+		var l := a.distance_to(b)
+		for hl in _cut[i]:
+			var kind := style
+			if style == "windrise":
+				kind = "stone" if hl.y < stone_top else "timber"
+			match kind:
+				"stone", "plaster":
+					if hl.get("model", "") != "tg_door_gothic":
+						_stone_surround(mb, at, nrm, hl, LIMESTONE)
+				"wood", "boards":
+					_board_surround(mb, at, nrm, hl, beam)
+				"timber":
+					_timber_surround(mb, at, nrm, hl, beam, floors)
+		# beam ends under the upper storeys of timber houses (a jettied look)
+		if style in ["timber", "windrise", "wood", "boards"]:
+			for f in range(1, floors):
+				var y := PL + f * FH
+				if style == "windrise" and y < stone_top + 0.1:
+					continue
+				_beam_ends(mb, at, n, l, y - 0.1, beam, _cut[i])
+	# under the eaves: rafter ends and knee brackets on the eave sides
+	if roof == "flat" or style == "lakeside":
+		return
+	var turned: bool = d.get("ridge", false)
+	for i in 4:
+		var eave_side := roof == "hip" or ((i % 2 == 0) != turned)
+		if not eave_side:
+			continue
+		var a: Vector3 = corners[i]
+		var b: Vector3 = corners[(i + 1) % 4]
+		var n := _side_normal(corners, i)
+		var l := a.distance_to(b)
+		var dir := (b - a) / l
+		var depth := (L if turned else W) * 0.5
+		var slope := roof_h / maxf(depth, 0.1)
+		# rafter ends poking out under the overhang (windrise has its carved
+		# brackets there instead)
+		var count := maxi(2, int(l / 0.55)) if style != "windrise" else -1
+		for k in count + 1:
+			var s := l * k / count
+			if roof == "hip" and (k == 0 or k == count):
+				continue
+			var p := a + dir * s
+			var ang := atan(slope)
+			var out := 0.34
+			var c := p + n * (out * 0.5) + Vector3.UP * (eave - 0.09 - out * 0.5 * slope)
+			mb.bevel_box(Transform3D(DecoMerge.facing(n) * Basis(Vector3.RIGHT, ang), c), Vector3(0.1, 0.1, out), 0.025, beam)
+		# big knee brackets under the overhang, kept clear of windows and
+		# doors, and left off the lowest buildings
+		if eave - PL < 1.6 or style == "stone":
+			continue
+		var nb := maxi(1, int(round(l / 2.6)))
+		for k in nb + 1:
+			var s := lerpf(0.3, l - 0.3, float(k) / nb)
+			var busy := false
+			for hl in _cut[i]:
+				if absf(hl.s - s) < hl.w * 0.5 + 0.35 and WallCut.top(hl) > eave - 1.0:
+					busy = true
+			if busy:
+				continue
+			_knee(mb, a + dir * s, n, eave - 0.12, slope, beam)
+
+
+## Dressed stone round an opening: alternating long and short jamb blocks,
+## a lintel over square heads, voussoirs round arches.
+func _stone_surround(mb: MeshBuilder, at: Callable, nrm: Callable, hl: Dictionary, base: Color) -> void:
+	var half: float = hl.w * 0.5
+	var spring: float = hl.y + hl.h
+	var y := float(hl.y)
+	var k := 0
+	var stone := Color(base.r, base.g, base.b, 0.25)
+	while y < spring - 0.05:
+		var h := minf(0.3 if k % 2 == 0 else 0.24, spring - y)
+		if spring - (y + h) < 0.12:
+			h = spring - y
+		var wj := SURROUND_STONE if k % 2 == 0 else SURROUND_STONE * 0.65
+		for sgn in [-1.0, 1.0]:
+			var s0: float = hl.s + sgn * half
+			var s1: float = s0 + sgn * wj
+			_block(mb, at, nrm, minf(s0, s1), maxf(s0, s1), y + 0.012, y + h - 0.012, 0.07, Masonry.stone_color(stone, _rng))
+		y += h
+		k += 1
+	if int(hl.arch) == WallCut.FLAT:
+		_block(mb, at, nrm, hl.s - half - SURROUND_STONE * 0.8, hl.s + half + SURROUND_STONE * 0.8, spring + 0.012, spring + 0.22, 0.08,
+				Masonry.stone_color(stone, _rng))
+		return
+	# voussoirs following the arch, a little keystone at the top
+	var n_v := 7 if hl.w < 1.2 else 9
+	for i in n_v:
+		var x0: float = -half + hl.w * i / n_v + 0.012
+		var x1: float = -half + hl.w * (i + 1) / n_v - 0.012
+		var key := i == n_v / 2
+		var r := SURROUND_STONE * (1.15 if key else 0.9)
+		_arch_block(mb, at, nrm, hl, x0, x1, r, 0.08 if key else 0.07, Masonry.stone_color(stone, _rng))
+
+
+## Plank frame boards cut round an opening in a board wall.
+func _board_surround(mb: MeshBuilder, at: Callable, nrm: Callable, hl: Dictionary, col: Color) -> void:
+	var half: float = hl.w * 0.5
+	var spring: float = hl.y + hl.h
+	var t := 0.12
+	for sgn in [-1.0, 1.0]:
+		var s0: float = hl.s + sgn * half
+		_block(mb, at, nrm, minf(s0, s0 + sgn * t), maxf(s0, s0 + sgn * t), hl.y - (0.0 if hl.get("nosill", false) else 0.1), spring, 0.06, col)
+	if int(hl.arch) == WallCut.FLAT:
+		_block(mb, at, nrm, hl.s - half - t - 0.06, hl.s + half + t + 0.06, spring, spring + 0.14, 0.07, col)
+	else:
+		var n_v := 6
+		for i in n_v:
+			_arch_block(mb, at, nrm, hl, -half + hl.w * i / n_v, -half + hl.w * (i + 1) / n_v, t, 0.06, col)
+
+
+## Half-timbering round an opening: posts each side, a lintel over it and,
+## under a window, a sill rail with a St Andrew's cross below.
+func _timber_surround(mb: MeshBuilder, at: Callable, nrm: Callable, hl: Dictionary, col: Color, _floors: int) -> void:
+	var half: float = hl.w * 0.5
+	var top := WallCut.top(hl)
+	var f := floori((float(hl.y) - PL) / FH)
+	var floor_y := PL + f * FH + 0.16
+	var t := 0.14
+	for sgn in [-1.0, 1.0]:
+		var s0: float = hl.s + sgn * half
+		_block(mb, at, nrm, minf(s0, s0 + sgn * t), maxf(s0, s0 + sgn * t), floor_y, top + 0.16, 0.06, col)
+	_block(mb, at, nrm, hl.s - half - t, hl.s + half + t, top, top + 0.15, 0.065, col)
+	if hl.get("nosill", false):
+		return
+	var sill: float = hl.y - 0.02
+	_block(mb, at, nrm, hl.s - half - t, hl.s + half + t, sill - 0.14, sill, 0.065, col)
+	var lo := floor_y
+	var hi := sill - 0.14
+	if hi - lo < 0.35:
+		return
+	# the cross under the window
+	var p0: Vector3 = at.call(hl.s - half, lo)
+	var p1: Vector3 = at.call(hl.s + half, hi)
+	var p2: Vector3 = at.call(hl.s + half, lo)
+	var p3: Vector3 = at.call(hl.s - half, hi)
+	var n: Vector3 = nrm.call(hl.s)
+	for pair in [[p0, p1], [p2, p3]]:
+		var u: Vector3 = pair[0]
+		var v: Vector3 = pair[1]
+		var d3 := v - u
+		var mid := (u + v) * 0.5 + n * 0.03
+		var x := d3.normalized()
+		var basis := Basis(x, n.cross(x).normalized(), n)
+		mb.bevel_box(Transform3D(basis, mid), Vector3(d3.length() + 0.04, 0.11, 0.06), 0.02, col)
+
+
+## A rectangle of the face from s0..s1, y0..y1 raised `d` proud of it.
+func _block(mb: MeshBuilder, at: Callable, nrm: Callable, s0: float, s1: float, y0: float, y1: float, d: float, col: Color) -> void:
+	var a: Vector3 = at.call(s0, y0)
+	var b: Vector3 = at.call(s1, y1)
+	var n: Vector3 = nrm.call((s0 + s1) * 0.5)
+	var mid := (a + b) * 0.5 + n * d * 0.5
+	var along := (Vector3(b.x, 0, b.z) - Vector3(a.x, 0, a.z)).length()
+	mb.bevel_box(Transform3D(DecoMerge.facing(n), mid), Vector3(along, y1 - y0, d), minf(0.03, d * 0.4), col)
+
+
+## One voussoir: the band between the arch and `r` beyond it, over x0..x1
+## (offsets from the opening's centre), raised `d` proud of the face.
+func _arch_block(mb: MeshBuilder, at: Callable, nrm: Callable, hl: Dictionary, x0: float, x1: float, r: float, d: float, col: Color) -> void:
+	var half: float = hl.w * 0.5
+	var pts_in: Array[Vector2] = []
+	var pts_out: Array[Vector2] = []
+	var centre := Vector2(hl.s, float(hl.y) + float(hl.h))
+	for x in [x0, x1]:
+		var p := Vector2(hl.s + x, WallCut.head(hl, clampf(x, -half, half)))
+		var o := (p - centre)
+		if int(hl.arch) == WallCut.POINTED:
+			var c := half * WallCut.K_C * (-1.0 if x >= 0.0 else 1.0)
+			o = p - Vector2(hl.s + c, centre.y)
+		o = o.normalized() if o.length() > 0.001 else Vector2.UP
+		pts_in.append(p)
+		pts_out.append(p + o * r)
+	var n: Vector3 = nrm.call(hl.s)
+	var q := [at.call(pts_in[0].x, pts_in[0].y), at.call(pts_in[1].x, pts_in[1].y), at.call(pts_out[1].x, pts_out[1].y), at.call(pts_out[0].x, pts_out[0].y)]
+	var fr := n * d
+	mb.quad_facing(q[0] + fr, q[1] + fr, q[2] + fr, q[3] + fr, n, col)
+	for e in 4:
+		var u: Vector3 = q[e]
+		var v: Vector3 = q[(e + 1) % 4]
+		var mid := (u + v) * 0.5
+		var ctr: Vector3 = (q[0] + q[1] + q[2] + q[3]) * 0.25
+		var side := (mid - ctr)
+		side = (side - n * side.dot(n)).normalized()
+		mb.quad_facing(u, v, v + fr, u + fr, side, col)
+
+
+## A row of beam ends sticking out of the wall at height y.
+func _beam_ends(mb: MeshBuilder, at: Callable, n: Vector3, l: float, y: float, col: Color, holes: Array) -> void:
+	var count := maxi(2, int(l / 0.5))
+	for k in range(1, count):
+		var s := l * k / count
+		var clear := true
+		for hl in holes:
+			if absf(hl.s - s) < hl.w * 0.5 + 0.12 and y > hl.y - 0.2 and y < WallCut.top(hl) + 0.2:
+				clear = false
+		if not clear:
+			continue
+		var p: Vector3 = at.call(s, y)
+		mb.bevel_box(Transform3D(DecoMerge.facing(n), p + n * 0.13), Vector3(0.13, 0.13, 0.26), 0.03, col)
+
+
+## A knee bracket under the eaves: a short post on the wall and a brace up
+## to the rafters.
+func _knee(mb: MeshBuilder, p: Vector3, n: Vector3, top: float, slope: float, col: Color) -> void:
+	var post_h := 0.62
+	mb.bevel_box(Transform3D(DecoMerge.facing(n), p + n * 0.06 + Vector3.UP * (top - post_h * 0.5)), Vector3(0.13, post_h, 0.12), 0.03, col)
+	var lo := p + n * 0.08 + Vector3.UP * (top - post_h + 0.08)
+	var hi := p + n * 0.36 + Vector3.UP * (top - 0.36 * slope - 0.04)
+	var d3 := hi - lo
+	var z := d3.normalized()
+	var x := n.cross(Vector3.UP).normalized()
+	var basis := Basis(x, z.cross(x).normalized(), z)
+	mb.bevel_box(Transform3D(basis, (lo + hi) * 0.5), Vector3(0.11, 0.11, d3.length() + 0.06), 0.03, col)
+	mb.bevel_box(Transform3D(DecoMerge.facing(n), p + n * 0.22 + Vector3.UP * (top - 0.04 - 0.22 * slope)), Vector3(0.14, 0.12, 0.44), 0.03, col)
+
+
 func _build_round(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNumberGenerator, floors: int, auto_doors: Array, faces: Array) -> void:
 	var R: float = d.r
 	var style: String = d.get("style", "stone")
@@ -1535,7 +1792,7 @@ func _door_into(deco: DecoMerge, p: Vector3, n: Vector3, s: float, style: String
 	hl.h *= sy
 	hl.nosill = true
 	cut.append(hl)
-	clear.append(WallCut.rect(hl, 0.08))
+	clear.append(WallCut.rect(hl, 0.08 + _surround_w(style)))
 	return hl.w * 0.5
 
 

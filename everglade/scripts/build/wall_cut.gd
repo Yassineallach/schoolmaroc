@@ -41,7 +41,7 @@ const MODELS := {
 ## as wide (merged windows, double doors).
 static func hole_for(model: String, s: float, y: float, sx := 1.0) -> Dictionary:
 	var m: Dictionary = MODELS[model]
-	return {"s": s, "y": y, "w": float(m.w) * sx, "h": float(m.h), "arch": int(m.arch)}
+	return {"s": s, "y": y, "w": float(m.w) * sx, "h": float(m.h), "arch": int(m.arch), "model": model}
 
 
 ## How far the head rises above the jambs.

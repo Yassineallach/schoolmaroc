@@ -50,7 +50,7 @@ func _run() -> void:
 			{"side": 0, "u": 0.8, "f": 2, "kind": "window"}]})
 	game.hud.visible = false
 	var i := 0
-	for x in [-16, 24, -8]:
+	for x in [-16, 0, -8, 8]:
 		game.rig.focus_on(Vector3(x, 2.2, -2.2), 12.0)
 		game.rig.yaw = deg_to_rad(198)
 		game.rig.snap()
