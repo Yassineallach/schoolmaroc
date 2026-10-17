@@ -468,6 +468,19 @@ func _draw() -> void:
 			circle(Vector2(0.5, 0.5), 0.05, Color(1, 1, 1), false)
 		"folder":
 			poly([Vector2(0.1, 0.3), Vector2(0.38, 0.3), Vector2(0.46, 0.38), Vector2(0.9, 0.38), Vector2(0.9, 0.82), Vector2(0.1, 0.82)], SUN)
+		"bookmark":
+			poly([Vector2(0.28, 0.1), Vector2(0.72, 0.1), Vector2(0.72, 0.9), Vector2(0.5, 0.7), Vector2(0.28, 0.9)], ROOF)
+		"brush":
+			rect(0.44, 0.1, 0.12, 0.5, WOOD)
+			poly([Vector2(0.36, 0.58), Vector2(0.64, 0.58), Vector2(0.7, 0.9), Vector2(0.3, 0.9)], Color(0.45, 0.6, 0.85))
+		"pipette":
+			line([Vector2(0.2, 0.8), Vector2(0.62, 0.38)], INK, 0.1)
+			circle(Vector2(0.7, 0.3), 0.14, ROOF)
+			circle(Vector2(0.2, 0.82), 0.05, Color(0.45, 0.6, 0.85), false)
+		"group":
+			rect(0.12, 0.42, 0.34, 0.4, STONE)
+			rect(0.54, 0.3, 0.34, 0.52, PAPER)
+			poly([Vector2(0.08, 0.42), Vector2(0.29, 0.22), Vector2(0.5, 0.42)], ROOF)
 		"hammer":
 			rect(0.46, 0.35, 0.09, 0.58, WOOD)
 			poly([Vector2(0.22, 0.14), Vector2(0.78, 0.14), Vector2(0.78, 0.36), Vector2(0.22, 0.36)], STONE)

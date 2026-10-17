@@ -123,6 +123,14 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 	_deco_root.name = "DecoRoot"
 	add_child(_deco_root)
 	deco.apply_to(_deco_root)
+	if d.has("glass"):
+		# window light painted another colour
+		var gi := _deco_root.get_node_or_null("DecoGlow") as MeshInstance3D
+		if gi:
+			var gm := ModelLib.glow_material.duplicate() as ShaderMaterial
+			var gc: Color = d.glass
+			gm.set_shader_parameter("tint", Vector3(gc.r, gc.g, gc.b) / Vector3(1.0, 0.86, 0.6))
+			gi.material_override = gm
 	if preview:
 		return
 	_add_smoke(d)
@@ -1115,13 +1123,15 @@ func _place_extras(deco: DecoMerge, d: Dictionary, round_b: bool) -> void:
 					var ridge := maxf(0.0, L / 2 - W / 2 * 0.95) if roof == "hip" else L / 2 - 0.2
 					top = Vector3(clampf(x, -ridge, ridge), eave + roof_h - 0.12, 0)
 			deco.add_mesh(Ornaments.flag(pat), Transform3D(Basis(Vector3.UP, float(fl.get("r", 0.6))), top))
-			flag_anchors.append(top + Vector3.UP * 2.0)
+			if d.get("links", true):
+				flag_anchors.append(top + Vector3.UP * 2.0)
 			perches.append(top + Vector3.UP * 2.25)
 		else:
 			var spot := _wall_spot(int(fl.get("side", 0)), float(fl.get("u", 0.5)), float(fl.get("y", 3.0)))
 			var p: Vector3 = spot[0] + spot[1] * 0.02
 			deco.add_mesh(Ornaments.banner(pat), Transform3D(DecoMerge.facing(spot[1]), p))
-			flag_anchors.append(p + spot[1] * 0.62)
+			if d.get("links", true):
+				flag_anchors.append(p + spot[1] * 0.62)
 	for lt in d.get("lanterns", []):
 		var spot := _wall_spot(int(lt.get("side", 0)), float(lt.get("u", 0.5)), float(lt.get("y", 2.2)))
 		var n: Vector3 = spot[1]
@@ -1423,7 +1433,7 @@ func _place_dormer(deco: DecoMerge, L: float, W: float, side: int, u: float) -> 
 # Life
 # ---------------------------------------------------------------------------
 func _add_smoke(_d: Dictionary) -> void:
-	if not has_meta("smoke_at"):
+	if not has_meta("smoke_at") or not _d.get("smoke", true):
 		return
 	var p := CPUParticles3D.new()
 	p.name = "Smoke"

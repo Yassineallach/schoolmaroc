@@ -11,6 +11,7 @@ signal redo_pressed
 signal home_pressed
 signal photo_pressed
 signal view_pressed
+signal bookmark_chosen(index: int)
 signal settings_pressed
 signal time_changed(value: float)
 signal season_pressed
@@ -26,6 +27,7 @@ const TOOLS := [
 	{"id": "stairs", "label": "Stairs", "icon": "stairs"},
 	{"id": "nature", "label": "Nature", "icon": "nature"},
 	{"id": "decor", "label": "Decor", "icon": "decor"},
+	{"id": "paint", "label": "Paint", "icon": "brush"},
 	{"id": "water", "label": "Ponds", "icon": "water"},
 	{"id": "terrain", "label": "Land", "icon": "terrain"},
 	{"id": "eraser", "label": "Eraser", "icon": "eraser"},
@@ -74,6 +76,11 @@ func _ready() -> void:
 	_build_bottom(layer_box)
 	_build_inspector(layer_box)
 	_build_hint(layer_box)
+	_build_key_hints(root)
+	_quick = Control.new()
+	_quick.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_quick.visible = false
+	root.add_child(_quick)
 
 
 func _apply_safe_area(margin: MarginContainer) -> void:
@@ -178,6 +185,10 @@ func _build_top(parent: Control) -> void:
 	_season_btn.custom_minimum_size.x = 84
 	_season_btn.pressed.connect(func(): season_pressed.emit())
 	right.add_child(_season_btn)
+	var marks := icon_button("bookmark", "", 56)
+	marks.tooltip_text = "Bookmarks"
+	marks.pressed.connect(func(): _show_bookmarks(marks))
+	right.add_child(marks)
 	var view := icon_button("eye", "", 56)
 	view.tooltip_text = "Walk, fly or map view (V)"
 	view.pressed.connect(func(): view_pressed.emit())
@@ -486,6 +497,91 @@ func show_hint(text: String, key := "") -> void:
 	_hint_tween.tween_property(_hint_panel, "modulate:a", 1.0, 0.25)
 	_hint_tween.tween_interval(4.5)
 	_hint_tween.tween_property(_hint_panel, "modulate:a", 0.0, 0.6)
+
+
+# ---------------------------------------------------------------------------
+# Quick tools (hold Space / mouse back button), key hints, bookmarks
+# ---------------------------------------------------------------------------
+var _quick: Control
+var _key_hints: Label
+var bookmarks_source: Callable   # returns the glade's bookmark list
+
+
+## A ring of tool icons around the pointer; letting go of Space over one
+## picks it (Tiny Glade 1.16's quick toolbar).
+func open_quick_tools(at: Vector2) -> void:
+	if _quick.visible:
+		return
+	for c in _quick.get_children():
+		c.queue_free()
+	var n := TOOLS.size()
+	var radius := 120.0
+	var vp := get_viewport().get_visible_rect().size
+	at = at.clamp(Vector2(radius + 40, radius + 40), vp - Vector2(radius + 40, radius + 40))
+	for i in n:
+		var a := TAU * i / n - PI * 0.5
+		var b := icon_button(TOOLS[i].icon, "", 54)
+		b.set_meta("tool", TOOLS[i].id)
+		b.position = at + Vector2(cos(a), sin(a)) * radius - Vector2(27, 27)
+		b.tooltip_text = TOOLS[i].label
+		var id: String = TOOLS[i].id
+		b.pressed.connect(func():
+			_quick.visible = false
+			tool_selected.emit(id))
+		_quick.add_child(b)
+	_quick.set_meta("at", at)
+	_quick.visible = true
+
+
+func close_quick_tools() -> void:
+	if not _quick.visible:
+		return
+	_quick.visible = false
+	var m := get_viewport().get_mouse_position()
+	var at: Vector2 = _quick.get_meta("at", m)
+	if m.distance_to(at) < 50.0:
+		return
+	var best := ""
+	var bd := INF
+	for b in _quick.get_children():
+		var c: Vector2 = (b as Control).position + Vector2(27, 27)
+		if c.distance_to(m) < bd:
+			bd = c.distance_to(m)
+			best = b.get_meta("tool")
+	if best != "":
+		tool_selected.emit(best)
+
+
+func _build_key_hints(parent: Control) -> void:
+	_key_hints = Label.new()
+	_key_hints.text = "1-9  tools (again: cycle)\nSpace  quick tools\nCtrl+Z / Y  undo / redo\nCtrl+1  duplicate\nCtrl+tap  group select\nDel  remove\nCtrl  no snapping / erase\nV  walk · fly · map\nP  photo mode"
+	_key_hints.add_theme_font_size_override("font_size", 13)
+	_key_hints.add_theme_color_override("font_color", Color(1, 1, 1, 0.85))
+	_key_hints.add_theme_color_override("font_outline_color", Color(0.25, 0.18, 0.12, 0.7))
+	_key_hints.add_theme_constant_override("outline_size", 6)
+	_key_hints.set_anchors_preset(Control.PRESET_CENTER_LEFT)
+	_key_hints.position = Vector2(16, -90)
+	_key_hints.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(_key_hints)
+	var refresh := func():
+		_key_hints.visible = Settings.key_hints and not DisplayServer.is_touchscreen_available()
+	refresh.call()
+	Settings.changed.connect(refresh)
+
+
+func _show_bookmarks(anchor: Control) -> void:
+	var marks: Array = bookmarks_source.call() if bookmarks_source.is_valid() else []
+	var pm := PopupMenu.new()
+	if marks.is_empty():
+		pm.add_item("No bookmarks yet: select a group and tap Bookmark")
+		pm.set_item_disabled(0, true)
+	for i in marks.size():
+		pm.add_item(String(marks[i].get("name", "Bookmark %d" % (i + 1))), i)
+	pm.id_pressed.connect(func(i): bookmark_chosen.emit(i))
+	pm.popup_hide.connect(pm.queue_free)
+	root.add_child(pm)
+	pm.position = Vector2i(anchor.global_position + Vector2(0, anchor.size.y + 6))
+	pm.popup()
 
 
 func toast(text: String) -> void:

@@ -429,7 +429,8 @@ static func _footprint_area(b: Dictionary) -> float:
 
 ## A house pushed against a bigger one squares up to it (within 12°).
 func _glue(b: Dictionary) -> void:
-	if b.shape != "rect":
+	# Ctrl holds off the 12-degree snapping, as in Tiny Glade
+	if b.shape != "rect" or Input.is_key_pressed(KEY_CTRL):
 		return
 	var host := _join_host(b)
 	if host.is_empty() or host.shape != "rect":
@@ -1358,6 +1359,107 @@ func show_selection(id: int) -> void:
 
 func hide_selection() -> void:
 	selection_ring.visible = false
+	show_group([])
+
+
+# ---------------------------------------------------------------------------
+# Groups (select several pieces, then move, turn, raise or copy them together)
+# ---------------------------------------------------------------------------
+var _group_rings: Array[MeshInstance3D] = []
+
+
+func show_group(ids: Array) -> void:
+	while _group_rings.size() < ids.size():
+		var r := MeshInstance3D.new()
+		r.mesh = selection_ring.mesh
+		r.material_override = selection_ring.material_override
+		add_child(r)
+		_group_rings.append(r)
+	for i in _group_rings.size():
+		var ring := _group_rings[i]
+		ring.visible = i < ids.size()
+		if not ring.visible:
+			continue
+		show_selection(ids[i])
+		ring.global_position = selection_ring.global_position
+		ring.scale = selection_ring.scale
+	selection_ring.visible = false
+
+
+## Ground centre of a piece.
+func item_center(id: int) -> Vector2:
+	var f := find(id)
+	if f.is_empty():
+		return Vector2.ZERO
+	var item: Dictionary = f.item
+	match f.type:
+		"buildings":
+			return item.c
+		"props":
+			return Vector2((item.p as Vector3).x, (item.p as Vector3).z)
+	var pts: PackedVector2Array = item.pts
+	var acc := Vector2.ZERO
+	for p in pts:
+		acc += p
+	return acc / maxf(1.0, pts.size())
+
+
+## Moves, turns (about the group's middle) and raises pieces together.
+func transform_items(ids: Array, offset: Vector2, angle := 0.0, rise := 0.0) -> void:
+	var mid := Vector2.ZERO
+	for id in ids:
+		mid += item_center(id)
+	mid /= maxf(1.0, ids.size())
+	var touched_props := false
+	for id in ids:
+		var f := find(id)
+		if f.is_empty():
+			continue
+		var item: Dictionary = f.item
+		match f.type:
+			"buildings":
+				item.c = (item.c as Vector2 - mid).rotated(-angle) + mid + offset
+				item.rot = float(item.get("rot", 0.0)) + angle
+				if rise != 0.0 and not item.get("roof_only", false):
+					item.lift = clampf(float(item.get("lift", 0.0)) + rise, 0.0, 6.0)
+			"props":
+				var pp: Vector3 = item.p
+				var q := (Vector2(pp.x, pp.z) - mid).rotated(-angle) + mid + offset
+				var y := terrain.height_at_v(q) - 0.03
+				if rise != 0.0 or item.get("on", false):
+					y = maxf(pp.y + rise, y)
+					item.on = y > terrain.height_at_v(q) + 0.05
+				item.p = Vector3(q.x, y, q.y)
+				item.r = float(item.get("r", 0.0)) - angle
+				touched_props = true
+			_:
+				var pts: PackedVector2Array = item.pts
+				for i in pts.size():
+					pts[i] = (pts[i] - mid).rotated(-angle) + mid + offset
+				item.pts = pts
+				if f.type == "stairs" and rise != 0.0:
+					item.y0 = float(item.y0) + rise
+					item.y1 = float(item.y1) + rise
+	for id in ids:
+		var f2 := find(id)
+		if not f2.is_empty() and f2.type != "props":
+			if f2.type == "buildings":
+				settle_building(f2.item)
+			_make_view(f2.type, f2.item, false)
+	if touched_props:
+		props.rebuild(data.props)
+	mark_interactions()
+	changed.emit()
+
+
+## Copies every piece of a group (offset to the side); returns the new ids.
+func clone_items(ids: Array) -> Array:
+	var out: Array = []
+	for id in ids:
+		var c := clone(id, Vector2(2.5, 2.5))
+		if c >= 0:
+			out.append(c)
+	return out
 
 
 ## Tops of walls, fences and roofs where birds like to sit.

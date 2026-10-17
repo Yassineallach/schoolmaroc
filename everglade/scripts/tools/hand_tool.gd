@@ -39,10 +39,18 @@ var _hover_t := 0.0
 func _init() -> void:
 	tool_id = "hand"
 	title = "Explore"
+	options = {"multi": false}
+
+
+func option_defs() -> Array:
+	return [{"type": "toggle", "key": "multi", "label": "Group", "icon": "group"}]
 
 
 func hint() -> String:
-	return "Tap things to edit them: pull their handles to reshape, drag them to move. Tap animals to pet them."
+	return "Tap things to edit them: pull their handles to reshape, drag them to move. Ctrl+tap (or Group) selects several. Flick a sheep to herd the flock."
+
+
+var _group_move: Array = []
 
 
 func deactivate() -> void:
@@ -69,6 +77,17 @@ func press(screen: Vector2) -> bool:
 			_herd = {"from": Vector2(g0.x, g0.z), "to": Vector2(g0.x, g0.z)}
 			return true
 	var sel: int = game.selected_id
+	# dragging any piece of a group moves the whole group
+	if game.group.size() >= 2:
+		var gh := pick(screen)
+		if not gh.is_empty() and game.group.has(gh.get("id", -1)):
+			var gg = ground(screen)
+			if gg != null:
+				glade.begin_change()
+				_group_move = game.group.duplicate()
+				last = Vector2(gg.x, gg.z)
+				_moved = false
+				return true
 	if sel < 0 and _hover_id >= 0:
 		# grabbing a handle of the hovered piece selects it on the way
 		_sync_handles()
@@ -115,6 +134,18 @@ func press(screen: Vector2) -> bool:
 
 
 func drag(screen: Vector2) -> void:
+	if not _group_move.is_empty():
+		var g2 = ground(screen)
+		if g2 == null:
+			return
+		var p2 := Vector2(g2.x, g2.z)
+		var d2 := p2 - last
+		if d2.length() > 0.25:
+			last = p2
+			_moved = true
+			glade.transform_items(_group_move, d2)
+			glade.show_group(_group_move)
+		return
 	if not _herd.is_empty():
 		var g1 = ground(screen)
 		if g1 != null:
@@ -159,6 +190,13 @@ func drag(screen: Vector2) -> void:
 
 
 func release(_screen: Vector2) -> void:
+	if not _group_move.is_empty():
+		_group_move = []
+		if not _moved:
+			glade.undo_stack.pop_back()
+		else:
+			Sfx.play("place_stone", -6.0)
+		return
 	if not _herd.is_empty():
 		var dv: Vector2 = _herd.to - _herd.from
 		if dv.length() > 0.6:
@@ -198,6 +236,8 @@ func release(_screen: Vector2) -> void:
 
 func cancel() -> void:
 	_herd = {}
+	if not _group_move.is_empty():
+		release(Vector2.ZERO)
 	if not _drag.is_empty() or not moving.is_empty():
 		release(Vector2.ZERO)
 
@@ -222,6 +262,11 @@ func tap(screen: Vector2) -> void:
 	var hit := pick(screen)
 	if hit.is_empty() or hit.kind == "terrain":
 		game.select(-1)
+		return
+	if Input.is_key_pressed(KEY_CTRL) or options.get("multi", false):
+		game.toggle_group(hit.id)
+		_for_id = -2
+		Sfx.play("click", -4.0)
 		return
 	game.select(hit.id)
 	Sfx.play("click", -4.0)
@@ -310,6 +355,13 @@ func _place_handles(type: String, item: Dictionary) -> void:
 				if type == "stairs":
 					hy = lerpf(float(item.y0), float(item.y1), acc / maxf(total, 0.01)) + 0.25
 				_handles.append({"kind": "pt", "i": i, "pos": Geo.v3(pts[i], hy)})
+			if type != "stairs" and pts.size() >= 2:
+				# "continue" handles just past each end draw the line on
+				for e in [0, 1]:
+					var tip: Vector2 = pts[0] if e == 0 else pts[pts.size() - 1]
+					var nxt: Vector2 = pts[1] if e == 0 else pts[pts.size() - 2]
+					var out := (tip - nxt).normalized() * 0.9
+					_handles.append({"kind": "ext", "end": e, "pos": Geo.v3(tip + out, t.height_at_v(tip + out) + 0.25)})
 			if type == "stairs":
 				_handles.append({"kind": "sy0", "pos": Geo.v3(pts[0], float(item.y0) + 1.1)})
 				_handles.append({"kind": "sy1", "pos": Geo.v3(pts[pts.size() - 1], float(item.y1) + 1.1)})
@@ -395,7 +447,7 @@ static func _handle_material(kind: String) -> Material:
 	match kind:
 		"wall_h", "floors", "pitch", "eave", "lift", "sy0", "sy1":
 			col = Color(1.0, 0.78, 0.3)        # heights
-		"size_x", "size_z", "radius":
+		"size_x", "size_z", "radius", "ext":
 			col = Color(0.55, 0.85, 0.55)      # stretch
 		"rotate":
 			col = Color(0.5, 0.75, 1.0)        # turn
@@ -459,6 +511,19 @@ func _drag_handle(screen: Vector2) -> void:
 				item.curve = 0.0
 		"eave":
 			item.eave = clampf(float(item0.get("eave", 2.4)) + dy * 0.012, 0.8, 9.0)
+		"ext":
+			var ge = ground(screen)
+			if ge == null:
+				return
+			var gp := Vector2(ge.x, ge.z)
+			var pts_e: PackedVector2Array = item.pts
+			var tip_i: int = 0 if h.end == 0 else pts_e.size() - 1
+			if pts_e[tip_i].distance_to(gp) > 0.5:
+				if h.end == 0:
+					pts_e.insert(0, gp)
+				else:
+					pts_e.append(gp)
+				item.pts = pts_e
 		"sy0", "sy1":
 			var key: String = "y0" if h.kind == "sy0" else "y1"
 			item[key] = snappedf(float(item0[key]) + dy * 0.012, 0.05)
@@ -508,7 +573,7 @@ func _drag_handle(screen: Vector2) -> void:
 	_place_handles(f.type, item)
 	# keep the grabbed handle under the finger for point drags
 	for i in _handles.size():
-		if _handles[i].kind == h.kind and _handles[i].get("i", -1) == h.get("i", -1):
+		if _handles[i].kind == h.kind and _handles[i].get("i", -1) == h.get("i", -1) and _handles[i].get("end", -1) == h.get("end", -1):
 			_drag.h = _handles[i] if h.kind != "rotate" else h
 	glade.show_selection(item.id)
 

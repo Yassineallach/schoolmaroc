@@ -22,6 +22,8 @@ var tools: Dictionary = {}
 var tool: BaseTool
 var selected_id := -1
 var current_id := ""
+## Pieces selected together (Ctrl+tap, or the hand tool's Group toggle).
+var group: Array = []
 
 var _touches: Dictionary = {} # index -> position
 var _ignored: Dictionary = {} # touches that started on UI
@@ -105,7 +107,7 @@ func _ready() -> void:
 
 func _make_tools() -> void:
 	for t in [HandTool.new(), WallTool.new(), BuildingTool.new(), RoofTool.new(), DetailsTool.new(),
-			FenceTool.new(), PathTool.new(), StairTool.new(), NatureTool.new(), DecorTool.new(), WaterTool.new(),
+			FenceTool.new(), PathTool.new(), StairTool.new(), NatureTool.new(), DecorTool.new(), PaintTool.new(), WaterTool.new(),
 			TerrainTool.new(), EraserTool.new()]:
 		var bt := t as BaseTool
 		bt.setup(self, glade)
@@ -123,6 +125,8 @@ func _connect_ui() -> void:
 	hud.redo_pressed.connect(do_redo)
 	hud.home_pressed.connect(func(): enter_menu())
 	hud.photo_pressed.connect(enter_photo)
+	hud.bookmarks_source = func(): return glade.data.get("bookmarks", [])
+	hud.bookmark_chosen.connect(recall_bookmark)
 	hud.view_pressed.connect(func():
 		if mode == Mode.BUILD:
 			if tool:
@@ -270,6 +274,7 @@ func set_tool(id: String) -> void:
 # ---------------------------------------------------------------------------
 func select(id: int) -> void:
 	selected_id = id
+	group.clear()
 	if id < 0:
 		glade.hide_selection()
 		hud.hide_inspector()
@@ -280,6 +285,90 @@ func select(id: int) -> void:
 		return
 	glade.show_selection(id)
 	hud.show_inspector(_inspector_defs(f), _inspector_values(f))
+
+
+## Adds a piece to (or takes it out of) the group selection.
+func toggle_group(id: int) -> void:
+	if group.is_empty() and selected_id >= 0 and selected_id != id:
+		group.append(selected_id)
+	if group.has(id):
+		group.erase(id)
+	else:
+		group.append(id)
+	if group.size() <= 1:
+		var keep: int = group[0] if group.size() == 1 else -1
+		select(keep)
+		return
+	selected_id = id
+	glade.show_group(group)
+	hud.show_inspector(_group_defs(), {})
+
+
+func _group_defs() -> Array:
+	return [
+		{"type": "title", "text": "%d pieces" % group.size()},
+		{"type": "actions", "items": [
+			{"id": "g_rotl", "icon": "rotl", "label": "Turn"}, {"id": "g_rotr", "icon": "rotr", "label": "Turn"},
+			{"id": "g_up", "icon": "plus", "label": "Raise"}, {"id": "g_down", "icon": "minus", "label": "Lower"}]},
+		{"type": "actions", "items": [
+			{"id": "g_clone", "icon": "clone", "label": "Copy all"}, {"id": "g_bookmark", "icon": "bookmark", "label": "Bookmark"},
+			{"id": "g_delete", "icon": "trash", "label": "Remove all"}]},
+		{"type": "label", "text": "Drag any of them to move them all. Ctrl+tap (or Group) adds or drops pieces."},
+	]
+
+
+func _on_group_action(action: String) -> void:
+	glade.begin_change()
+	match action:
+		"g_rotl", "g_rotr":
+			glade.transform_items(group, Vector2.ZERO, 0.2618 * (1.0 if action == "g_rotl" else -1.0))
+		"g_up", "g_down":
+			glade.transform_items(group, Vector2.ZERO, 0.0, 0.5 if action == "g_up" else -0.5)
+		"g_clone":
+			var copies := glade.clone_items(group)
+			group = copies
+			if not group.is_empty():
+				selected_id = group[-1]
+		"g_delete":
+			for id in group:
+				glade.remove(id)
+			select(-1)
+			Sfx.play("erase")
+			_update_undo()
+			return
+		"g_bookmark":
+			glade.undo_stack.pop_back()
+			var marks: Array = glade.data.get("bookmarks", [])
+			marks.append({"name": "Group %d" % (marks.size() + 1), "ids": group.duplicate(),
+					"cam": [rig.target.x, rig.target.z, rig.yaw, rig.distance]})
+			glade.data.bookmarks = marks
+			hud.toast("Bookmarked as Group %d" % marks.size())
+			_on_glade_changed()
+			return
+	glade.show_group(group)
+	hud.show_inspector(_group_defs(), {})
+	Sfx.play("place_stone", -6.0)
+	_update_undo()
+
+
+## Recalls a bookmark: the camera returns and its pieces are selected.
+func recall_bookmark(i: int) -> void:
+	var marks: Array = glade.data.get("bookmarks", [])
+	if i < 0 or i >= marks.size():
+		return
+	var m: Dictionary = marks[i]
+	var cam: Array = m.get("cam", [0, 0, 0, 30])
+	rig.focus_on(Vector3(cam[0], 0, cam[1]), cam[3])
+	rig.yaw = cam[2]
+	var ids: Array = (m.get("ids", []) as Array).filter(func(id): return not glade.find(id).is_empty())
+	if ids.size() >= 2 and tool and tool.tool_id == "hand":
+		select(-1)
+		group = ids
+		selected_id = ids[-1]
+		glade.show_group(group)
+		hud.show_inspector(_group_defs(), {})
+	elif ids.size() == 1:
+		select(ids[0])
 
 
 func _inspector_defs(f: Dictionary) -> Array:
@@ -319,6 +408,8 @@ func _inspector_defs(f: Dictionary) -> Array:
 				{"type": "choice", "key": "style", "items": styles},
 				{"type": "colors", "key": "wall_col", "colors": Catalog.WALL_COLORS},
 				{"type": "toggle", "key": "bands", "label": "Storey bands", "icon": "bands"},
+				{"type": "toggle", "key": "smoke", "label": "Smoke", "icon": "chimney"},
+				{"type": "toggle", "key": "links", "label": "Flag strings", "icon": "flag"},
 				{"type": "toggle", "key": "merlons", "label": "Battlements", "icon": "merlons"},
 				{"type": "slider", "key": "peel", "label": "Worn", "min": 0.0, "max": 3.0, "step": 0.1},
 				{"type": "slider", "key": "lift", "label": "Pillars", "min": 0.0, "max": 6.0, "step": 0.1},
@@ -402,6 +493,8 @@ func _inspector_values(f: Dictionary) -> Dictionary:
 		v.merlons = item.get("merlons", true)
 	if f.type == "buildings":
 		v.bands = item.get("bands", true)
+		v.smoke = item.get("smoke", true)
+		v.links = item.get("links", true)
 		v.merlons = item.get("merlons", true)
 		v.peel = item.get("peel", 1.0)
 		v.lift = item.get("lift", 0.0)
@@ -421,6 +514,9 @@ func _closest_index(arr: Array, c: Color) -> int:
 
 
 func _on_inspector_action(action: String, value: Variant) -> void:
+	if action.begins_with("g_"):
+		_on_group_action(action)
+		return
 	var f := glade.find(selected_id)
 	if f.is_empty():
 		return
@@ -509,7 +605,7 @@ func _on_inspector_action(action: String, value: Variant) -> void:
 			item.ivy = 0.0 if cur > 0.5 else 1.0
 		"ridge":
 			item.ridge = not item.get("ridge", false)
-		"bands", "merlons", "level", "rail", "float":
+		"bands", "merlons", "level", "rail", "float", "smoke", "links":
 			item[action] = bool(value)
 		"mat":
 			item.mat = value
@@ -667,6 +763,12 @@ func _on_back() -> void:
 # ---------------------------------------------------------------------------
 # Input
 # ---------------------------------------------------------------------------
+func _input(event: InputEvent) -> void:
+	# releasing Space picks from the quick tool ring
+	if event is InputEventKey and not event.pressed and (event as InputEventKey).keycode == KEY_SPACE:
+		hud.close_quick_tools()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if settings_panel.visible:
 		return
@@ -822,11 +924,20 @@ func _multi_gesture() -> void:
 
 func _on_mouse_button(e: InputEventMouseButton) -> void:
 	match e.button_index:
+		MOUSE_BUTTON_XBUTTON1:
+			# mouse back button: the quick tool ring (like holding Space)
+			if mode == Mode.BUILD:
+				if e.pressed:
+					hud.open_quick_tools(e.position)
+				else:
+					hud.close_quick_tools()
 		MOUSE_BUTTON_WHEEL_UP:
 			if e.pressed:
+				_zoom_to_cursor(e.position, 0.9)
 				rig.zoom_by(0.9)
 		MOUSE_BUTTON_WHEEL_DOWN:
 			if e.pressed:
+				_zoom_to_cursor(e.position, 1.1)
 				rig.zoom_by(1.1)
 		MOUSE_BUTTON_RIGHT:
 			_mouse_rotate = e.pressed
@@ -834,8 +945,64 @@ func _on_mouse_button(e: InputEventMouseButton) -> void:
 			_mouse_pan = e.pressed
 
 
+## Settings > Zoom towards the pointer: the view slides towards (or away
+## from) whatever is under the mouse as it zooms.
+func _zoom_to_cursor(pos: Vector2, factor: float) -> void:
+	if not Settings.zoom_to_cursor or mode == Mode.MENU:
+		return
+	var g = glade.ground_hit(rig.camera, pos)
+	if g == null:
+		return
+	var t: Vector3 = rig.target
+	var d := Vector2((g as Vector3).x - t.x, (g as Vector3).z - t.z)
+	rig.pan_world(Vector3(d.x, 0, d.y) * (1.0 - factor))
+
+
+## Number keys, Tiny Glade style: each picks a group of tools and pressing
+## it again cycles through the group.
+const KEY_GROUPS := [
+	["wall", "building", "roof", "fence"], ["path", "stairs"], ["details", "decor"], ["paint"],
+	["eraser"], ["terrain"], ["nature"], ["nature"], ["water"],
+]
+
+
+func _key_tool(idx: int) -> void:
+	var grp: Array = KEY_GROUPS[idx]
+	var cur: String = tool.tool_id if tool else ""
+	if idx == 4 and cur == "eraser":
+		# 5 again cycles the erasers
+		var modes := ["all", "walls", "paths", "trees", "plants", "water", "hammer"]
+		var m: String = tool.options.get("mode", "all")
+		tool.set_option("mode", modes[(modes.find(m) + 1) % modes.size()])
+		hud.set_tool("eraser", tool)
+		hud.toast(String(tool.options.mode).capitalize())
+		return
+	if idx == 7:
+		set_tool("nature")
+		tool.set_option("family", "forest")
+		hud.set_tool("nature", tool)
+		return
+	var i := grp.find(cur)
+	set_tool(grp[(i + 1) % grp.size()] if i >= 0 else grp[0])
+
+
 func _on_key(e: InputEventKey) -> void:
 	var ctrl := e.ctrl_pressed or e.meta_pressed
+	if ctrl and (e.keycode == KEY_1 or e.keycode == KEY_D) and mode == Mode.BUILD:
+		# duplicate the selected (or hovered) piece
+		var id := selected_id
+		if id < 0 and tools.has("hand"):
+			id = (tools["hand"] as HandTool)._hover_id
+		if id >= 0:
+			glade.begin_change()
+			var copy := glade.clone(id)
+			if copy >= 0:
+				select(copy)
+				Sfx.play("place_stone", -4.0)
+			else:
+				glade.undo_stack.pop_back()
+			_update_undo()
+		return
 	if ctrl and e.keycode == KEY_Z:
 		if e.shift_pressed:
 			do_redo()
@@ -863,13 +1030,11 @@ func _on_key(e: InputEventKey) -> void:
 				view.cycle()
 				return
 	if mode == Mode.BUILD and e.keycode >= KEY_1 and e.keycode <= KEY_9:
-		var idx := int(e.keycode - KEY_1)
-		if idx < HUD.TOOLS.size():
-			set_tool(HUD.TOOLS[idx].id)
+		_key_tool(int(e.keycode - KEY_1))
 	if mode == Mode.BUILD and e.keycode == KEY_0:
-		set_tool("terrain")
-	if mode == Mode.BUILD and e.keycode == KEY_MINUS:
-		set_tool("eraser")
+		set_tool("hand")
+	if mode == Mode.BUILD and e.keycode == KEY_SPACE:
+		hud.open_quick_tools(get_viewport().get_mouse_position())
 
 
 func _keyboard_camera(delta: float) -> void:

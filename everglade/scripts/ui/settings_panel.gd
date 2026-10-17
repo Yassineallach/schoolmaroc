@@ -70,6 +70,8 @@ func _ready() -> void:
 	v.add_child(_slider("Fog height", Settings.fog_height, func(val): Settings.fog_height = val))
 	v.add_child(_slider("Snow (winter)", Settings.snow, func(val): Settings.snow = val))
 	v.add_child(_toggle("Vibration", Settings.haptics, func(on): Settings.haptics = on))
+	v.add_child(_toggle("Zoom towards the pointer", Settings.zoom_to_cursor, func(on): Settings.zoom_to_cursor = on))
+	v.add_child(_toggle("Key hints", Settings.key_hints, func(on): Settings.key_hints = on))
 	v.add_child(_toggle("Show tips", Settings.show_tips, func(on):
 		Settings.show_tips = on
 		if on:
