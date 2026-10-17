@@ -90,6 +90,8 @@
         ctx.save(); ctx.globalAlpha *= W.clamp(sp * 1.4); ctx.translate(W.W / 2, 400); ctx.rotate((t - c.son) * 0.04);
         ctx.drawImage(W.IMG.rose_en_soleil.img, -D / 2, -D / 2, D, D); ctx.restore();
       } else W.sun(ctx, W.W / 2, 360, 230, t, { p: sp, color: W.rgba(W.C.gold, 0.7) });
+      // Edward's portrait at the heart of his badge
+      W.portrait(ctx, 'p_edward4', W.W / 2, 400, 96, { shape: 'oval', ry: 120, p: p(t, c.claim - 0.2, 1.2) });
       const d = p(t, c.crowned, 1.0, E.out);
       W.crown(ctx, W.W / 2, hasBadge ? W.lerp(40, 150, d) : W.lerp(120, 360, d), hasBadge ? 56 : 68, { p: p(t, c.claim, 1.2, E.inOut), color: W.C.gold, width: 3, fill: 0.35 });
       W.text(ctx, T.name, W.W / 2, 690, { size: 104, color: W.C.ivory, reveal: p(t, c.crowned + 0.3, 1.0), rise: 14 });

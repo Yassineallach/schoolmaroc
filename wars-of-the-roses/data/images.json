@@ -270,5 +270,21 @@
       390
     ],
     "note": "Richard, Duke of York, 15th-c. illumination, supplied by the user"
+  },
+  "p_edward4": {
+    "file": "input/images/p_edward4.png",
+    "blend": "source-over",
+    "face": [
+      240,
+      205,
+      125
+    ],
+    "bust": [
+      245,
+      260,
+      170,
+      215
+    ],
+    "note": "Edward IV, c.1520 panel (Royal Collection), supplied by the user"
   }
 }

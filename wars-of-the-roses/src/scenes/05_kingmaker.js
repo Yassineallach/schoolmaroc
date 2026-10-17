@@ -10,8 +10,8 @@
       const c = S.cues, T = S.text;
       const ex = 960, ey = 540;
       W.text(ctx, T.err, W.W / 2, 200, { size: 40, fam: W.F.label, weight: 500, color: W.C.crimsonBright, reveal: p(t, c.err, 0.9) });
-      W.node(ctx, ex, ey, 18, { p: p(t, 170.9, 0.8), color: W.C.ivory, crown: 1, crownColor: W.C.ivory });
-      W.text(ctx, T.e4, ex, ey + 62, { size: 46, color: W.C.ivory, alpha: p(t, 171.0, 0.8) });
+      W.node(ctx, ex, ey, 18, { p: p(t, 170.9, 0.8), color: W.C.ivory, crown: 1, crownColor: W.C.ivory, portrait: 'p_edward4', pr: 58 });
+      W.text(ctx, T.e4, ex, ey + 62 + (W.hasPortrait('p_edward4') ? 40 : 0), { size: 46, color: W.C.ivory, alpha: p(t, 171.0, 0.8) });
       // planned French match, then cut
       const fx = 1460;
       const cut = p(t, c.cancel, 0.6, E.out);
@@ -59,8 +59,8 @@
       W.text(ctx, T.york, 480, 190, { size: 40, color: W.C.ivory, alpha: sp });
       W.text(ctx, T.lan, 1440, 190, { size: 40, color: W.C.crimsonBright, alpha: sp });
       // Edward
-      W.node(ctx, 400, 520, 18, { p: sp, color: W.C.ivory, crown: 1, crownColor: W.C.ivory });
-      W.text(ctx, T.e4, 400, 582, { size: 38, color: W.C.ivory, alpha: sp });
+      W.node(ctx, 400, 520, 18, { p: sp, color: W.C.ivory, crown: 1, crownColor: W.C.ivory, portrait: 'p_edward4', pr: 52 });
+      W.text(ctx, T.e4, 400, W.hasPortrait('p_edward4') ? 618 : 582, { size: 38, color: W.C.ivory, alpha: sp });
       // Lancastrian camp
       W.node(ctx, 1640, 520, 16, { p: p(t, c.ally - 0.4, 0.8), color: W.C.crimsonBright, crown: W.hasPortrait('p_margaret') ? 0 : 1, crownColor: W.C.gold, portrait: 'p_margaret', pr: 52 });
       W.text(ctx, 'مارغريت أنجو', 1640, W.hasPortrait('p_margaret') ? 618 : 582, { size: 34, color: W.C.crimsonBright, alpha: p(t, c.ally - 0.2, 0.7) });
