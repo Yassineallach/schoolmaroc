@@ -90,7 +90,7 @@ const STONE_COLORS := [
 
 const RECT_ROOFS := ["gable", "hip", "flat"]
 const ROUND_ROOFS := ["cone", "flat"]
-const STYLES := ["windrise", "lakeside", "plaster", "timber", "stone"]
+const STYLES := ["windrise", "lakeside", "plaster", "timber", "stone", "wood", "boards"]
 const ROOF_LABELS := {"gable": "Gable", "hip": "Hipped", "flat": "Battlement", "cone": "Spire"}
 
 const PATH_STYLES := ["dirt", "cobble", "paved", "stones"]

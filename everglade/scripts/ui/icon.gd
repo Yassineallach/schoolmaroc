@@ -402,6 +402,30 @@ func _draw() -> void:
 			line([Vector2(0.05, 0.25), Vector2(0.5, 0.35), Vector2(0.95, 0.25)], INK, 0.04)
 			rect(0.16, 0.3, 0.22, 0.32, Color(0.72, 0.82, 0.9))
 			rect(0.56, 0.32, 0.24, 0.4, Color(0.9, 0.74, 0.72))
+		"wood":
+			for k in 5:
+				rect(0.12, 0.14 + k * 0.15, 0.76, 0.13, WOOD.darkened(0.06 * (k % 2)))
+		"boards":
+			for k in 5:
+				rect(0.12 + k * 0.152, 0.14, 0.13, 0.74, WOOD.darkened(0.06 * (k % 2)))
+		"fence_planks":
+			for k in 5:
+				poly([Vector2(0.12 + k * 0.16, 0.9), Vector2(0.12 + k * 0.16, 0.36), Vector2(0.19 + k * 0.16, 0.26), Vector2(0.26 + k * 0.16, 0.36), Vector2(0.26 + k * 0.16, 0.9)], WOOD)
+		"ridge":
+			poly([Vector2(0.1, 0.62), Vector2(0.5, 0.3), Vector2(0.9, 0.62)], ROOF)
+			line([Vector2(0.25, 0.85), Vector2(0.75, 0.85)], INK, 0.05)
+			poly([Vector2(0.7, 0.78), Vector2(0.82, 0.85), Vector2(0.7, 0.92)], INK)
+		"bands":
+			rect(0.2, 0.1, 0.6, 0.82, PAPER)
+			rect(0.16, 0.38, 0.68, 0.07, STONE)
+			rect(0.16, 0.64, 0.68, 0.07, STONE)
+		"merlons":
+			rect(0.12, 0.42, 0.76, 0.5, STONE)
+			for k in 3:
+				rect(0.12 + k * 0.29, 0.22, 0.18, 0.2, STONE)
+		"level":
+			poly([Vector2(0.06, 0.92), Vector2(0.06, 0.62), Vector2(0.4, 0.5), Vector2(0.94, 0.66), Vector2(0.94, 0.92)], LEAF)
+			rect(0.1, 0.22, 0.8, 0.3, STONE)
 		"hammer":
 			rect(0.46, 0.35, 0.09, 0.58, WOOD)
 			poly([Vector2(0.22, 0.14), Vector2(0.78, 0.14), Vector2(0.78, 0.36), Vector2(0.22, 0.36)], STONE)

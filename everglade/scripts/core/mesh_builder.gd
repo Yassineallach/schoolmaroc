@@ -151,6 +151,19 @@ static func _bp(xf: Transform3D, h: Vector3, inner: Vector3, axis: int, s: float
 	return xf * o
 
 
+## Copies another builder's faces in, transformed by `xf`.
+func append(other: MeshBuilder, xf: Transform3D) -> void:
+	var base := verts.size()
+	var nb := xf.basis.inverse().transposed()
+	for i in other.verts.size():
+		verts.append(xf * other.verts[i])
+		normals.append((nb * other.normals[i]).normalized())
+		colors.append(other.colors[i])
+		uvs.append(other.uvs[i])
+	for k in other.indices:
+		indices.append(base + k)
+
+
 func commit(mesh: ArrayMesh = null) -> ArrayMesh:
 	if mesh == null:
 		mesh = ArrayMesh.new()

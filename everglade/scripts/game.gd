@@ -273,9 +273,9 @@ func _inspector_defs(f: Dictionary) -> Array:
 				roofs.append({"id": r, "label": Catalog.ROOF_LABELS[r], "icon": r})
 			var styles: Array = []
 			for s in Catalog.STYLES:
-				if round_b and (s == "timber" or s == "lakeside"):
+				if round_b and (s == "timber" or s == "lakeside" or s == "boards"):
 					continue
-				styles.append({"id": s, "label": s.capitalize(), "icon": s})
+				styles.append({"id": s, "label": {"wood": "Planks"}.get(s, s.capitalize()), "icon": s})
 			var size_actions: Array = [
 				{"id": "bigger", "icon": "plus", "label": "Wider"}, {"id": "smaller", "icon": "minus", "label": "Narrower"}]
 			if not round_b:
@@ -286,6 +286,8 @@ func _inspector_defs(f: Dictionary) -> Array:
 			var extra: Array = [{"id": "windows", "icon": "window", "label": "Windows"}, {"id": "clear_windows", "icon": "close", "label": "No windows"}]
 			if not round_b:
 				extra.append({"id": "chimney", "icon": "chimney", "label": "Chimney"})
+				if item.roof != "flat":
+					extra.append({"id": "ridge", "icon": "ridge", "label": "Turn roof"})
 			extra.append({"id": "ivy", "icon": "ivy", "label": "Ivy"})
 			extra.append({"id": "clone", "icon": "clone", "label": "Copy"})
 			extra.append({"id": "delete", "icon": "trash", "label": "Remove"})
@@ -297,6 +299,10 @@ func _inspector_defs(f: Dictionary) -> Array:
 				{"type": "colors", "key": "roof_col", "colors": Catalog.ROOF_COLORS},
 				{"type": "choice", "key": "style", "items": styles},
 				{"type": "colors", "key": "wall_col", "colors": Catalog.WALL_COLORS},
+				{"type": "toggle", "key": "bands", "label": "Storey bands", "icon": "bands"},
+				{"type": "toggle", "key": "merlons", "label": "Battlements", "icon": "merlons"},
+				{"type": "slider", "key": "peel", "label": "Worn", "min": 0.0, "max": 3.0, "step": 0.1},
+				{"type": "slider", "key": "lift", "label": "Pillars", "min": 0.0, "max": 6.0, "step": 0.1},
 				{"type": "actions", "items": size_actions},
 				{"type": "actions", "items": extra},
 			]
@@ -304,13 +310,16 @@ func _inspector_defs(f: Dictionary) -> Array:
 			return [
 				{"type": "title", "text": "Wall"},
 				{"type": "choice", "key": "style", "items": [
-					{"id": "rendered", "label": "Rendered", "icon": "wall_rendered"}, {"id": "stone", "label": "Bare stone", "icon": "wall"}]},
+					{"id": "rendered", "label": "Rendered", "icon": "wall_rendered"}, {"id": "stone", "label": "Bare stone", "icon": "wall"},
+					{"id": "wood", "label": "Timber", "icon": "wood"}]},
 				{"type": "choice", "key": "pattern", "items": [
 					{"id": "glade", "label": "Hand-laid", "icon": "wall_glade"}, {"id": "kit", "label": "Rounded", "icon": "wall_kit"},
 					{"id": "rubble", "label": "Fieldstone", "icon": "wall_rubble"}, {"id": "classic", "label": "Coursed", "icon": "wall"},
 					{"id": "brick", "label": "Brick", "icon": "wall_brick"}, {"id": "ashlar", "label": "Ashlar", "icon": "wall_ashlar"}]},
 				{"type": "slider", "key": "h", "label": "Height", "min": 0.8, "max": 7.0, "step": 0.1},
 				{"type": "colors", "key": "col", "colors": Catalog.STONE_COLORS},
+				{"type": "toggle", "key": "level", "label": "Level top", "icon": "level"},
+				{"type": "toggle", "key": "merlons", "label": "Battlements", "icon": "merlons"},
 				{"type": "actions", "items": [{"id": "more_pts", "icon": "plus", "label": "More points"}, {"id": "fewer_pts", "icon": "minus", "label": "Fewer points"}, {"id": "straighten", "icon": "ruler", "label": "Straighten"}, {"id": "cut", "icon": "cut", "label": "Cut"}]},
 				{"type": "actions", "items": [{"id": "ivy", "icon": "ivy", "label": "Ivy"}, {"id": "clone", "icon": "clone", "label": "Copy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
 				{"type": "label", "text": "Pull the dots to reshape it and the top handle for height. Paths through a wall open an archway; a path ending at it adds a door."},
@@ -319,7 +328,8 @@ func _inspector_defs(f: Dictionary) -> Array:
 			return [
 				{"type": "title", "text": "Fence"},
 				{"type": "choice", "key": "style", "items": [
-					{"id": "wood", "label": "Rustic", "icon": "fence"}, {"id": "ornate", "label": "Ornate", "icon": "fence_ornate"}]},
+					{"id": "wood", "label": "Rustic", "icon": "fence"}, {"id": "ornate", "label": "Ornate", "icon": "fence_ornate"},
+					{"id": "planks", "label": "Planks", "icon": "fence_planks"}]},
 				{"type": "actions", "items": [{"id": "more_pts", "icon": "plus", "label": "More points"}, {"id": "fewer_pts", "icon": "minus", "label": "Fewer points"}, {"id": "straighten", "icon": "ruler", "label": "Straighten"}, {"id": "cut", "icon": "cut", "label": "Cut"}]},
 				{"type": "actions", "items": [{"id": "clone", "icon": "clone", "label": "Copy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
 				{"type": "label", "text": "Pull the dots to reshape it. Paths crossing a fence get a little gate."},
@@ -356,6 +366,13 @@ func _inspector_values(f: Dictionary) -> Dictionary:
 	if f.type == "walls":
 		v.col = _closest_index(Catalog.STONE_COLORS, item.get("col", Catalog.STONE_COLORS[0]))
 		v.pattern = item.get("pattern", "classic")
+		v.level = item.get("level", false)
+		v.merlons = item.get("merlons", true)
+	if f.type == "buildings":
+		v.bands = item.get("bands", true)
+		v.merlons = item.get("merlons", true)
+		v.peel = item.get("peel", 1.0)
+		v.lift = item.get("lift", 0.0)
 	return v
 
 
@@ -458,6 +475,12 @@ func _on_inspector_action(action: String, value: Variant) -> void:
 		"ivy":
 			var cur: float = item.get("ivy", 0.0)
 			item.ivy = 0.0 if cur > 0.5 else 1.0
+		"ridge":
+			item.ridge = not item.get("ridge", false)
+		"bands", "merlons", "level":
+			item[action] = bool(value)
+		"peel", "lift":
+			item[action] = snappedf(float(value), 0.1)
 	glade.refresh(selected_id, false)
 	Sfx.play("place_wood", -6.0)
 	Settings.vibrate(8)

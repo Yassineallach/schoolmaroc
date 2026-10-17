@@ -6,7 +6,8 @@ extends BaseTool
 ##    points follow softly); walls also get a height handle on top.
 ##  - houses: pull the wall-top handle for floors, the roof handle for the
 ##    roof's pitch, the side handles to stretch the house (the far side stays
-##    put) and the ring handle to turn it. Towers get a radius handle.
+##    put), the ring handle to turn it and the low corner handle to raise it
+##    onto pillars. Towers get a radius handle.
 ##  - roofs: the roof handle drags up/down for pitch and sideways to round
 ##    the roof out or flare it; roofs laid on walls get an eave handle.
 ##  - props: a ring handle turns them.
@@ -284,8 +285,18 @@ func _place_handles(type: String, item: Dictionary) -> void:
 			var v: BuildingView = glade.views.get(item.id)
 			var eave: float = v.eave if v else Catalog.FLOOR_H * item.floors
 			var roof_h: float = v.roof_h if v else 2.0
-			var base: float = item.get("base", t.height_at_v(item.c))
+			var ground_y: float = item.get("base", t.height_at_v(item.c))
+			var base: float = ground_y + float(item.get("lift", 0.0))
 			var c3 := Vector3(item.c.x, base, item.c.y)
+			if not item.get("roof_only", false):
+				# lift the house onto pillars
+				var lpos: Vector2 = item.c + Vector2(-0.7071, -0.7071) * (float(item.get("r", 1.0)) + 0.35)
+				if item.shape != "round":
+					var lrot: float = item.get("rot", 0.0)
+					var lx := Vector2(cos(lrot), sin(lrot))
+					var lz := Vector2(-sin(lrot), cos(lrot))
+					lpos = item.c - lx * (item.size.x * 0.5 + 0.3) + lz * (item.size.y * 0.5 + 0.3)
+				_handles.append({"kind": "lift", "pos": Vector3(lpos.x, base + 0.15, lpos.y)})
 			if item.shape == "round":
 				var r: float = item.r
 				_handles.append({"kind": "eave" if item.get("roof_only", false) else "floors", "pos": c3 + Vector3(r + 0.1, eave, 0)})
@@ -347,7 +358,7 @@ static var _mats: Dictionary = {}
 static func _handle_material(kind: String) -> Material:
 	var col := Color(1.0, 0.98, 0.92)          # reshape points
 	match kind:
-		"wall_h", "floors", "pitch", "eave":
+		"wall_h", "floors", "pitch", "eave", "lift":
 			col = Color(1.0, 0.78, 0.3)        # heights
 		"size_x", "size_z", "radius":
 			col = Color(0.55, 0.85, 0.55)      # stretch
@@ -413,6 +424,10 @@ func _drag_handle(screen: Vector2) -> void:
 				item.curve = 0.0
 		"eave":
 			item.eave = clampf(float(item0.get("eave", 2.4)) + dy * 0.012, 0.8, 9.0)
+		"lift":
+			item.lift = snappedf(clampf(float(item0.get("lift", 0.0)) + dy * 0.012, 0.0, 6.0), 0.1)
+			if item.lift < 0.2:
+				item.lift = 0.0
 		"size_x", "size_z":
 			var g2 = ground(screen)
 			if g2 == null:

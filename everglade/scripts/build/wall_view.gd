@@ -36,6 +36,10 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 	# finished walls: a recessed mortar core faced with individual stones;
 	# previews (while drawing) stay a light flat stone volume
 	var masonry := not preview
+	# timber walls: plank boards with battens instead of stonework
+	var wood: bool = d.get("style", "stone") == "wood"
+	if wood:
+		masonry = false
 	# "rendered": warm lime plaster over the stonework, with quoins, a stone
 	# course under the battlements and worn patches where stones show through
 	var rendered: bool = d.get("style", "stone") == "rendered"
@@ -43,6 +47,10 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 	if masonry and rendered:
 		stone = Masonry.plaster_color(col)
 	var cap := stone if masonry else Color(col.r * 0.9, col.g * 0.9, col.b * 0.9, 0.25)
+	var plank := Color(0.50, 0.37, 0.25, 0.5).lerp(Color(col.r * 0.6, col.g * 0.48, col.b * 0.36, 0.5), 0.3)
+	if wood:
+		stone = plank
+		cap = Color(plank.r * 0.8, plank.g * 0.8, plank.b * 0.8, 0.5)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(d.get("id", 1)) * 7919 + 13
 
@@ -58,7 +66,7 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 	s_list.sort()
 
 	# a roof laid over the wall replaces its battlements (Tiny Glade does the same)
-	var tall := h >= 3.2 and int(d.get("roofed", -1)) < 0
+	var tall: bool = h >= 3.2 and int(d.get("roofed", -1)) < 0 and bool(d.get("merlons", true)) and not wood
 	var samples: Array = []
 	var ground_raw: Array[float] = []
 	for s in s_list:
@@ -73,13 +81,18 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 			acc += ground_raw[k]
 			cnt += 1
 		smooth_g.append(acc / cnt)
+	# "level" walls keep one top height instead of following the ground
+	var level_top := -INF
+	if d.get("level", false):
+		for g0 in smooth_g:
+			level_top = maxf(level_top, g0 + h)
 	for i in s_list.size():
 		var s: float = s_list[i]
 		var p := Geo.point_at(pts, s)
 		var t := Geo.tangent_at(pts, s)
 		var nrm := Vector3(-t.y, 0, t.x)
 		var g := ground_raw[i]
-		var top := smooth_g[i] + h
+		var top := smooth_g[i] + h if level_top == -INF else level_top
 		var low := minf(g, smooth_g[i]) - 0.45
 		var hole := false
 		var arch := false
@@ -150,6 +163,21 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 
 	if masonry:
 		_lay_stones(mb, samples, openings, doors, total, h, thick, ht, col, rng, rendered)
+	elif wood and not preview:
+		# battens over the board joints on both faces
+		var kb := 0.16
+		while kb < total - 0.1:
+			var SB := _sample_at(samples, kb)
+			if SB.low < 1e5:
+				var tb := Geo.tangent_at(pts, kb)
+				var bb := DecoMerge.along(Vector3(tb.x, 0, tb.y))
+				var y_lo: float = SB.low
+				var y_hi: float = SB.top
+				for sgn in [1.0, -1.0]:
+					var shade := 0.85 + 0.1 * sin(kb * 9.0)
+					mb.box(Transform3D(bb, SB.p + SB.n * (ht + 0.02) * sgn + Vector3.UP * (y_lo + y_hi) * 0.5),
+							Vector3(0.07, y_hi - y_lo, 0.04), Color(plank.r * shade, plank.g * shade, plank.b * shade, 0.5))
+			kb += 0.34
 
 	# battlements on tall walls
 	if tall:

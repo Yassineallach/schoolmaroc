@@ -132,6 +132,31 @@ static func bunting(a: Vector3, b: Vector3, seed_value: int) -> ArrayMesh:
 	return mb.commit()
 
 
+## A twiggy bird nest with three pale blue eggs (origin at its base).
+static func nest() -> ArrayMesh:
+	if _cache.has("nest"):
+		return _cache["nest"]
+	var mb := MeshBuilder.new()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 41
+	for i in 18:
+		var a := TAU * i / 18.0
+		var r := 0.16 + rng.randf_range(-0.02, 0.02)
+		var p := Vector3(cos(a) * r, 0.05 + rng.randf_range(-0.02, 0.03), sin(a) * r)
+		var basis := Basis(Vector3.UP, -a + rng.randf_range(-0.4, 0.4)) * Basis(Vector3.RIGHT, rng.randf_range(-0.3, 0.3))
+		var c := Color(0.45, 0.34, 0.22).lerp(Color(0.62, 0.52, 0.34), rng.randf())
+		_box(mb, Transform3D(basis, p), Vector3(0.03, 0.04, 0.16), c, M_WOOD)
+	_box(mb, Transform3D(Basis.IDENTITY, Vector3(0, 0.02, 0)), Vector3(0.28, 0.04, 0.28), Color(0.4, 0.3, 0.2), M_WOOD)
+	for e in 3:
+		var a2 := TAU * e / 3.0
+		var start := mb.verts.size()
+		mb.box(Transform3D(Basis(Vector3.UP, a2), Vector3(cos(a2) * 0.05, 0.07, sin(a2) * 0.05)), Vector3(0.05, 0.06, 0.04), Color(0.72, 0.84, 0.86))
+		_layer(mb, start, M_PAINT)
+	var m := mb.commit()
+	_cache["nest"] = m
+	return m
+
+
 ## Colour of a flag's cloth at (u along the fly, v down the hoist), 0..1.
 static func pattern_color(pattern: int, u: float, v: float) -> Color:
 	var pair: Array = PAIRS[posmod(pattern, PAIRS.size())]

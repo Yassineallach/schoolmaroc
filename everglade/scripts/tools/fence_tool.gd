@@ -14,7 +14,8 @@ func option_defs() -> Array:
 	return [
 		{"type": "choice", "key": "style", "items": [
 			{"id": "wood", "label": "Rustic", "icon": "fence"},
-			{"id": "ornate", "label": "Ornate", "icon": "fence_ornate"}]},
+			{"id": "ornate", "label": "Ornate", "icon": "fence_ornate"},
+			{"id": "planks", "label": "Planks", "icon": "fence_planks"}]},
 		{"type": "toggle", "key": "straight", "label": "Straight", "icon": "ruler"},
 	]
 

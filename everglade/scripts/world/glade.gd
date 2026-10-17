@@ -1197,7 +1197,7 @@ func ceiling_at(p: Vector2) -> float:
 				d = minf(d, Geo.dist_to_segment(p, poly[i], poly[(i + 1) % poly.size()]))
 			if d > 1.2:
 				continue
-		var top: float = b.base + Catalog.PLINTH + b.floors * Catalog.FLOOR_H
+		var top: float = b.base + float(b.get("lift", 0.0)) + Catalog.PLINTH + b.floors * Catalog.FLOOR_H
 		var v = views.get(b.id)
 		if v:
 			top += v.roof_h
@@ -1228,6 +1228,9 @@ func is_blocked(p: Vector2) -> bool:
 	if not terrain.in_play_area(p, 0.5):
 		return true
 	for b in data.buildings:
+		# animals can shelter under a house raised on pillars
+		if float(b.get("lift", 0.0)) >= 1.4:
+			continue
 		if Geometry2D.is_point_in_polygon(p, BuildingView.footprint(b)):
 			return true
 	return false
@@ -1247,6 +1250,8 @@ func crosses_obstacle(a: Vector2, b: Vector2) -> bool:
 				if not ok:
 					return true
 	for bld in data.buildings:
+		if float(bld.get("lift", 0.0)) >= 1.4:
+			continue
 		var poly := BuildingView.footprint(bld)
 		var closed := poly.duplicate()
 		closed.append(poly[0])

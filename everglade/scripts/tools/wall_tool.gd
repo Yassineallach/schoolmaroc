@@ -13,7 +13,8 @@ func option_defs() -> Array:
 	return [
 		{"type": "choice", "key": "style", "items": [
 			{"id": "rendered", "label": "Rendered", "icon": "wall_rendered"},
-			{"id": "stone", "label": "Bare stone", "icon": "wall"}]},
+			{"id": "stone", "label": "Bare stone", "icon": "wall"},
+			{"id": "wood", "label": "Timber", "icon": "wood"}]},
 		{"type": "choice", "key": "pattern", "items": [
 			{"id": "glade", "label": "Hand-laid", "icon": "wall_glade"}, {"id": "kit", "label": "Rounded", "icon": "wall_kit"},
 			{"id": "rubble", "label": "Fieldstone", "icon": "wall_rubble"}, {"id": "classic", "label": "Coursed", "icon": "wall"},

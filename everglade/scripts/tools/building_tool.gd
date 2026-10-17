@@ -26,7 +26,9 @@ func option_defs() -> Array:
 			{"id": "lakeside", "label": "Lakeside", "icon": "lakeside"},
 			{"id": "plaster", "label": "Plaster", "icon": "plaster"},
 			{"id": "timber", "label": "Timber", "icon": "timber"},
-			{"id": "stone", "label": "Stone", "icon": "stone"}]},
+			{"id": "stone", "label": "Stone", "icon": "stone"},
+			{"id": "wood", "label": "Planks", "icon": "wood"},
+			{"id": "boards", "label": "Boards", "icon": "boards"}]},
 		{"type": "slider", "key": "floors", "label": "Floors", "min": 1, "max": 5, "step": 1},
 		{"type": "colors", "key": "roof_color", "colors": Catalog.ROOF_COLORS},
 	]
