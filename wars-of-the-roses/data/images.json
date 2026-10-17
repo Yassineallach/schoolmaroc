@@ -370,5 +370,15 @@
       300
     ],
     "note": "Henry VII, 1505 panel (National Portrait Gallery), supplied by the user"
+  },
+  "p_elizabeth_york": {
+    "file": "input/images/p_elizabeth_york.jpg",
+    "blend": "source-over",
+    "face": [
+      590,
+      600,
+      250
+    ],
+    "note": "Elizabeth of York, late-16th-c. panel (National Portrait Gallery type), supplied by the user"
   }
 }
