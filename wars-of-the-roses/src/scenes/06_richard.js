@@ -59,27 +59,28 @@
     draw(ctx, t, S) {
       const c = S.cues, T = S.text;
       const ex = 1300, ey = 470, rx = 620;
+      const po = 40; // label offset for the portrait medallions
       const jail = p(t, c.jail, 1.4, E.inOut);
       // Edward V
       W.alpha(ctx, 1 - jail, () => {
-        W.node(ctx, ex, ey, 17, { p: p(t, c.son, 0.8), color: W.C.ivory, halo: t < c.illeg ? W.C.ivory : null });
-        W.text(ctx, T.e5, ex, ey + 62, { size: 44, color: W.C.ivory, reveal: p(t, c.son + 0.2, 0.8) });
-        W.text(ctx, T.e5Sub, ex, ey + 108, { size: 26, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.heir, 0.7) * (1 - p(t, c.illeg, 0.5)) });
+        W.node(ctx, ex, ey, 17, { p: p(t, c.son, 0.8), color: W.C.ivory, halo: t < c.illeg ? W.C.ivory : null, portrait: 'p_edward5', pr: 58 });
+        W.text(ctx, T.e5, ex, ey + 62 + po, { size: 44, color: W.C.ivory, reveal: p(t, c.son + 0.2, 0.8) });
+        W.text(ctx, T.e5Sub, ex, ey + 108 + po, { size: 26, fam: W.F.label, weight: 400, color: W.C.gold, alpha: p(t, c.heir, 0.7) * (1 - p(t, c.illeg, 0.5)) });
       });
       // illegitimacy stamp
       W.alpha(ctx, 1 - jail, () => {
         W.seal(ctx, ex + 150, ey - 40, 52, { p: p(t, c.illeg, 0.5), color: W.C.crimson, emblem: false });
-        W.text(ctx, T.illeg, ex, ey + 108, { size: 36, fam: W.F.label, weight: 700, color: W.C.crimsonBright, alpha: p(t, c.illeg + 0.2, 0.4) });
-        W.text(ctx, T.reason, ex, ey + 160, { size: 26, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: p(t, c.reason, 0.7) });
+        W.text(ctx, T.illeg, ex, ey + 108 + po, { size: 36, fam: W.F.label, weight: 700, color: W.C.crimsonBright, alpha: p(t, c.illeg + 0.2, 0.4) });
+        W.text(ctx, T.reason, ex, ey + 160 + po, { size: 26, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: p(t, c.reason, 0.7) });
       });
       // Richard III
-      W.node(ctx, rx, ey, 18, { p: p(t, c.r3, 0.8), color: W.C.ivory });
-      W.text(ctx, T.r3, rx, ey + 62, { size: 46, color: W.C.ivory, reveal: p(t, c.r3 + 0.2, 0.8) });
-      W.text(ctx, T.r3Sub, rx, ey + 108, { size: 26, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: p(t, c.r3 + 0.6, 0.7) });
-      W.strokePoly(ctx, [[rx + 30, ey], [ex - 30, ey]], p(t, c.r3 + 0.4, 0.9), { color: W.rgba(W.C.ivory, 0.35), width: 1.5, dash: [2, 6] });
+      W.node(ctx, rx, ey, 18, { p: p(t, c.r3, 0.8), color: W.C.ivory, portrait: 'p_richard3', pr: 58 });
+      W.text(ctx, T.r3, rx, ey + 62 + po, { size: 46, color: W.C.ivory, reveal: p(t, c.r3 + 0.2, 0.8) });
+      W.text(ctx, T.r3Sub, rx, ey + 108 + po, { size: 26, fam: W.F.label, weight: 400, color: W.C.ivoryDim, alpha: p(t, c.r3 + 0.6, 0.7) });
+      W.strokePoly(ctx, [[rx + 70, ey], [ex - 70, ey]], p(t, c.r3 + 0.4, 0.9), { color: W.rgba(W.C.ivory, 0.35), width: 1.5, dash: [2, 6] });
       // the crown moves to the uncle
       const cm = p(t, c.took, 1.4, E.inOut);
-      W.crown(ctx, W.lerp(ex, rx, cm), ey - 70 - Math.sin(cm * Math.PI) * 90, 36, { p: p(t, c.son, 1.0), color: W.C.gold, width: 2.2, fill: 0.25, glow: 'rgba(201,164,92,0.4)' });
+      W.crown(ctx, W.lerp(ex, rx, cm), ey - 70 - po - Math.sin(cm * Math.PI) * 90, 36, { p: p(t, c.son, 1.0), color: W.C.gold, width: 2.2, fill: 0.25, glow: 'rgba(201,164,92,0.4)' });
       // the boys in the Tower
       const tx = 1300, ty = 560;
       const box = W.castle(ctx, tx, ty, 120, { p: Math.max(jail, 0.001), color: W.C.ivoryDim, width: 2, fill: 0.08 });

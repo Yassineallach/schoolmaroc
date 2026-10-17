@@ -334,5 +334,21 @@
       370
     ],
     "note": "George, Duke of Clarence, later panel, supplied by the user"
+  },
+  "p_edward5": {
+    "file": "input/images/p_edward5.jpg",
+    "blend": "source-over",
+    "face": [
+      385,
+      250,
+      165
+    ],
+    "bust": [
+      390,
+      330,
+      260,
+      320
+    ],
+    "note": "Edward V, later panel, supplied by the user"
   }
 }
