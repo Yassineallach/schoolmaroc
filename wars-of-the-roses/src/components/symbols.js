@@ -31,7 +31,27 @@
   }
 
   // ---- crown ------------------------------------------------------------------
-  W.crown = (ctx, x, y, s, o = {}) =>
+  W.crown = (ctx, x, y, s, o = {}) => {
+    const rec = W.IMG && W.IMG.crown;
+    if (rec) {
+      // real crown (Crown of Princess Blanche): fades and settles in as it "draws"
+      const p = o.p == null ? 1 : W.clamp(o.p);
+      if (p <= 0) return;
+      const w = 2.3 * s, h = w * (rec.img.height / rec.img.width);
+      ctx.save();
+      ctx.globalAlpha *= W.clamp(p * 1.4);
+      ctx.translate(x, y - 0.22 * s + (1 - W.E.out(p)) * 0.25 * s);
+      if (o.rot) ctx.rotate(o.rot);
+      const sc = 0.92 + 0.08 * W.E.out(p);
+      ctx.scale(sc, sc);
+      if (o.glow) { ctx.shadowColor = 'rgba(160,110,30,0.55)'; ctx.shadowBlur = 0.35 * s; }
+      ctx.drawImage(rec.img, -w / 2, -h / 2, w, h);
+      ctx.restore();
+      return;
+    }
+    return W.crownDrawn(ctx, x, y, s, o);
+  };
+  W.crownDrawn = (ctx, x, y, s, o = {}) =>
     stroked(ctx, x, y, s, o, (P) => {
       P.moveTo(-0.95, 0.55); P.lineTo(0.95, 0.55); P.lineTo(0.95, 0.32); P.lineTo(-0.95, 0.32); P.closePath();
       P.moveTo(-0.95, 0.32); P.lineTo(-1.05, -0.42); P.lineTo(-0.52, 0.02); P.lineTo(0, -0.66);

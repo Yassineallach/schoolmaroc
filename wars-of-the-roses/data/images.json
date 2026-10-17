@@ -23,5 +23,10 @@
     "file": "input/images/rose_lancaster.png",
     "blend": "source-over",
     "note": "Red Rose of Lancaster badge (transparent PNG) supplied by the user"
+  },
+  "crown": {
+    "file": "input/images/crown.png",
+    "blend": "source-over",
+    "note": "Crown of Princess Blanche (c.1370-80) photo supplied by the user; background and cushion removed"
   }
 }
