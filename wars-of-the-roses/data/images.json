@@ -206,5 +206,21 @@
       150
     ],
     "note": "Henry IV, 15th-c. manuscript illumination, supplied by the user"
+  },
+  "p_henry5": {
+    "file": "input/images/p_henry5.jpg",
+    "blend": "source-over",
+    "face": [
+      630,
+      500,
+      340
+    ],
+    "bust": [
+      640,
+      700,
+      500,
+      620
+    ],
+    "note": "Henry V, late 16th-c. profile portrait (National Portrait Gallery), supplied by the user"
   }
 }
