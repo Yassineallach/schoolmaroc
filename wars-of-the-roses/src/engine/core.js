@@ -205,3 +205,29 @@
     ctx.restore();
   };
 })();
+
+/* Real images: W.image(ctx, key, cx, cy, h, o)
+   o.alpha, o.reveal (0..1 ink-in from top), o.zoom (Ken Burns scale), o.blend ('multiply' drops white paper) */
+(function () {
+  const { W } = window;
+  W.image = (ctx, key, cx, cy, h, o = {}) => {
+    const rec = W.IMG && W.IMG[key];
+    const a = o.alpha == null ? 1 : o.alpha;
+    if (!rec || a <= 0) return false;
+    const im = rec.img;
+    const z = o.zoom || 1;
+    const hh = h * z, ww = (im.width / im.height) * hh;
+    const rv = o.reveal == null ? 1 : W.clamp(o.reveal);
+    if (rv <= 0) return true;
+    ctx.save();
+    ctx.globalAlpha *= a;
+    ctx.globalCompositeOperation = o.blend || rec.blend || 'source-over';
+    ctx.beginPath();
+    ctx.rect(cx - ww / 2 - 2, cy - hh / 2 - 2, ww + 4, (hh + 4) * W.E.inOut(rv));
+    ctx.clip();
+    if (o.tint) ctx.filter = o.tint;
+    ctx.drawImage(im, cx - ww / 2, cy - hh / 2, ww, hh);
+    ctx.restore();
+    return true;
+  };
+})();

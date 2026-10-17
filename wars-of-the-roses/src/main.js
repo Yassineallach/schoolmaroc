@@ -92,6 +92,17 @@
     DATA = await res.json();
     W.DATA = DATA;
     await loadFonts();
+    // real images supplied for the film (data/images.json)
+    W.IMG = {};
+    try {
+      const list = await (await fetch('../data/images.json')).json();
+      await Promise.all(Object.entries(list).map(([k, v]) => new Promise((res) => {
+        const im = new Image();
+        im.onload = () => { W.IMG[k] = { img: im, ...v }; res(); };
+        im.onerror = () => { console.warn('missing image', k); res(); };
+        im.src = '../' + v.file;
+      })));
+    } catch (e) { console.warn('no images.json'); }
     const missing = DATA.scenes.filter((s) => !registry[s.id]).map((s) => s.id);
     if (missing.length) console.warn('scenes without implementation:', missing.join(', '));
     window.__ready = true;
