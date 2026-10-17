@@ -5,8 +5,9 @@ extends Node3D
 
 signal changed
 
-const SEASONS := ["spring", "summer", "autumn", "winter"]
-const SEASON_NAMES := ["Spring", "Summer", "Autumn", "Winter"]
+## The glade types: four seasons plus Tiny Glade's overcast "Olden".
+const SEASONS := ["spring", "summer", "autumn", "winter", "olden"]
+const SEASON_NAMES := ["Spring", "Summer", "Autumn", "Winter", "Olden"]
 
 var time_of_day := 0.38: set = set_time
 var season := 1: set = set_season
@@ -78,6 +79,8 @@ func _ready() -> void:
 	_build_clouds()
 	Settings.changed.connect(func():
 		sun.shadow_enabled = Settings.shadows_enabled()
+		if SEASONS[season] == "winter":
+			_target_snow = Settings.snow
 		_apply_fog_settings())
 	set_season(season)
 	_snow = _target_snow
@@ -93,7 +96,7 @@ func set_time(t: float) -> void:
 
 
 func set_season(s: int) -> void:
-	season = clampi(s, 0, 3)
+	season = clampi(s, 0, SEASONS.size() - 1)
 	match SEASONS[season]:
 		"spring":
 			_target_leaf = Color(0.62, 1.0, 0.38, 0.35)
@@ -110,13 +113,22 @@ func set_season(s: int) -> void:
 		"winter":
 			_target_leaf = Color(0.62, 0.6, 0.5, 0.6)
 			_target_ground = Color(0.92, 0.96, 1.02)
-			_target_snow = 0.85
+			_target_snow = Settings.snow
+		"olden":
+			# grey, windswept and old: dry, faded leaves and pale grass
+			_target_leaf = Color(0.56, 0.5, 0.38, 0.8)
+			_target_ground = Color(0.9, 0.88, 0.8)
+			_target_snow = 0.0
 	if is_inside_tree():
 		for key in _particles:
 			(_particles[key] as CPUParticles3D).emitting = false
 		var key: String = SEASONS[season]
 		if _particles.has(key):
 			(_particles[key] as CPUParticles3D).emitting = true
+		if key == "olden" and _particles.has("autumn"):
+			(_particles["autumn"] as CPUParticles3D).emitting = true
+		if env:
+			_apply_fog_settings()
 	changed.emit()
 
 
@@ -161,8 +173,16 @@ func _apply() -> void:
 	var hor_gold := Color(1.0, 0.62, 0.46)
 	var top_night := Color(0.03, 0.05, 0.18)
 	var hor_night := Color(0.14, 0.18, 0.40)
+	var olden := season == 4
+	if olden:
+		# an overcast sky: muted, with little golden hour
+		golden *= 0.35
+		top_day = Color(0.56, 0.6, 0.66)
+		hor_day = Color(0.78, 0.8, 0.82)
 	var top := top_night.lerp(top_day, day).lerp(top_gold, golden * 0.7)
 	var hor := hor_night.lerp(hor_day, day).lerp(hor_gold, golden * 0.8)
+	if olden:
+		sun.light_energy = 0.75 * day
 	if season == 3:
 		hor = hor.lerp(Color(0.85, 0.88, 0.92), 0.4 * day)
 	sky_mat.set_shader_parameter("top_color", top)
@@ -313,4 +333,8 @@ func _apply_fog_settings() -> void:
 	env.fog_density = lerpf(0.0045, 0.03, amount * amount)
 	env.fog_height = lerpf(-2.0, 6.0, Settings.fog_height)
 	env.fog_height_density = lerpf(0.0, 0.2, amount * amount)
+	if season == 4:
+		# Olden glades sit in a soft grey mist
+		env.fog_density *= 2.2
+		env.fog_height_density = maxf(env.fog_height_density, 0.06)
 	env.fog_aerial_perspective = 0.25

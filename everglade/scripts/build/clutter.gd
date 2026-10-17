@@ -7,7 +7,7 @@ extends RefCounted
 ## other prop kind (props, decor picker, thumbnails), and the Glade strews
 ## a few by new doors (Tiny Glade's clutter).
 
-const KINDS := ["pumpkins", "veg_crate", "bread_stall", "anvil", "fabric_rolls", "broom_rack", "wreath",
+const KINDS := ["jack_o_lantern", "pumpkins", "veg_crate", "bread_stall", "anvil", "fabric_rolls", "broom_rack", "wreath",
 		"wheelbarrow", "chair", "birdhouse", "flower_pots", "doorbell", "bucket", "sacks", "beehive", "table"]
 ## What turns up by a new door.
 const DOORSTEP := ["pumpkins", "veg_crate", "broom_rack", "wheelbarrow", "chair", "flower_pots", "bucket", "sacks",
@@ -30,6 +30,8 @@ static func build(kind: String) -> ArrayMesh:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(kind)
 	match kind:
+		"jack_o_lantern":
+			_gourd(mb, Vector3.ZERO, 0.3, Color(0.93, 0.5, 0.14))
 		"pumpkins":
 			for i in 3:
 				var p := Vector3(rng.randf_range(-0.3, 0.3), 0, rng.randf_range(-0.3, 0.3)) if i > 0 else Vector3.ZERO
@@ -141,6 +143,26 @@ static func build(kind: String) -> ArrayMesh:
 					_box(mb, Vector3(x, 0.37, z), Vector3(0.07, 0.74, 0.07), DARK_WOOD, M_WOOD)
 			_cyl(mb, Vector3(-0.3, 0.78, 0), Vector3(-0.3, 0.95, 0), 0.06, Color(0.7, 0.45, 0.3), M_STONE, 0.05)
 			_ball(mb, Vector3(0.25, 0.83, 0.05), 0.09, Color(0.82, 0.6, 0.32), 0.6, 1.6)
+	return mb.commit()
+
+
+## Glowing parts (lit at night by glow.gdshader), or null.
+static func build_glow(kind: String) -> ArrayMesh:
+	if kind != "jack_o_lantern":
+		return null
+	# a carved face: two eyes and a toothy grin, glowing candle-orange
+	var mb := MeshBuilder.new()
+	var c := Color(1.0, 0.62, 0.2, 1.0)
+	var z := 0.36
+	var n := Vector3(0, 0, 1)
+	for ex in [-0.11, 0.11]:
+		mb.tri_facing(Vector3(ex - 0.06, 0.28, z), Vector3(ex + 0.06, 0.28, z), Vector3(ex, 0.38, z - 0.01), n, c)
+	var pts := [Vector3(-0.17, 0.17, z - 0.01), Vector3(-0.1, 0.12, z), Vector3(-0.05, 0.16, z), Vector3(0.0, 0.11, z),
+			Vector3(0.05, 0.16, z), Vector3(0.1, 0.12, z), Vector3(0.17, 0.17, z - 0.01)]
+	for i in pts.size() - 1:
+		var a: Vector3 = pts[i]
+		var b: Vector3 = pts[i + 1]
+		mb.quad_facing(a, b, b + Vector3.DOWN * 0.07, a + Vector3.DOWN * 0.07, n, c)
 	return mb.commit()
 
 

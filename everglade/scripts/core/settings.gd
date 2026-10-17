@@ -12,6 +12,7 @@ var haptics := true
 var quality := 1 # 0 low, 1 medium, 2 high
 var fog := 0.22 # 0 clear .. 1 thick
 var fog_height := 0.35 # 0 hugs the ground .. 1 fills the valley
+var snow := 0.85 # how thickly winter glades are snowed over
 var invert_rotate := false
 var show_tips := true
 var tips_seen: Dictionary = {}
@@ -47,6 +48,7 @@ func load_settings() -> void:
 	quality = cfg.get_value("graphics", "quality", quality)
 	fog = cfg.get_value("graphics", "fog", fog)
 	fog_height = cfg.get_value("graphics", "fog_height", fog_height)
+	snow = cfg.get_value("graphics", "snow", snow)
 
 
 func save_settings() -> void:
@@ -61,6 +63,7 @@ func save_settings() -> void:
 	cfg.set_value("graphics", "quality", quality)
 	cfg.set_value("graphics", "fog", fog)
 	cfg.set_value("graphics", "fog_height", fog_height)
+	cfg.set_value("graphics", "snow", snow)
 	cfg.save(PATH)
 
 

@@ -68,6 +68,7 @@ func _ready() -> void:
 	v.add_child(q)
 	v.add_child(_slider("Fog", Settings.fog, func(val): Settings.fog = val))
 	v.add_child(_slider("Fog height", Settings.fog_height, func(val): Settings.fog_height = val))
+	v.add_child(_slider("Snow (winter)", Settings.snow, func(val): Settings.snow = val))
 	v.add_child(_toggle("Vibration", Settings.haptics, func(on): Settings.haptics = on))
 	v.add_child(_toggle("Show tips", Settings.show_tips, func(on):
 		Settings.show_tips = on

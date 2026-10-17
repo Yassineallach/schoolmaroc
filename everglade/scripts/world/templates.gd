@@ -38,9 +38,61 @@ static func _build(glade: Glade, template: String) -> void:
 		"lake":
 			glade.new_glade("lake", "Lakeside Glade")
 			_sprinkle_nature(glade, 14, 2)
+		"daily":
+			_daily(glade)
 		_:
 			glade.new_glade("meadow", "Meadow Glade")
 			_sprinkle_nature(glade, 10, 3)
+
+
+## Today's theme (Tiny Glade's daily theme glade): a different base glade and
+## set of props each day, with Halloween and the winter holidays as
+## special events.
+static func daily_theme(date: Dictionary = Time.get_date_dict_from_system()) -> Dictionary:
+	var m: int = date.month
+	var d: int = date.day
+	if m == 10 and d >= 24:
+		return {"name": "Hallowed Glade", "base": "ruins", "season": 2, "time": 0.82,
+				"props": ["jack_o_lantern", "jack_o_lantern", "pumpkins", "scarecrow", "haystack", "lantern"], "flags": [4, 9]}
+	if m == 12 and d >= 19 and d <= 26:
+		return {"name": "Festive Glade", "base": "hamlet", "season": 3, "time": 0.7,
+				"props": ["wreath", "lantern", "paper_lantern", "log_pile", "sacks", "fabric_rolls"], "flags": [0, 6]}
+	var themes := [
+		{"name": "Harvest Glade", "base": "meadow", "season": 2, "time": 0.4, "props": ["pumpkins", "veg_crate", "sacks", "hay_bale", "wheelbarrow", "haystack"], "flags": [5, 11]},
+		{"name": "Lantern Glade", "base": "lake", "season": 1, "time": 0.78, "props": ["lantern", "paper_lantern", "stone_lantern", "bench"], "flags": [1, 7]},
+		{"name": "Market Glade", "base": "town", "season": 1, "time": 0.42, "props": ["bread_stall", "fabric_rolls", "market_stall", "flower_cart", "veg_crate"], "flags": [3, 15]},
+		{"name": "Blossom Glade", "base": "village", "season": 0, "time": 0.38, "props": ["flower_pots", "planter", "beehive", "birdhouse"], "flags": [2, 8]},
+		{"name": "Banner Glade", "base": "hamlet", "season": 1, "time": 0.45, "props": ["banner", "banner", "signpost", "barrel"], "flags": [6, 12, 18]},
+		{"name": "Old Stones", "base": "ruins", "season": 4, "time": 0.4, "props": ["ruin_pillar", "ruin_slab", "rock_big", "stump"], "flags": [10]},
+		{"name": "Hill Farm", "base": "hills", "season": 1, "time": 0.36, "props": ["beehive", "wheelbarrow", "hay_bale", "chair", "table"], "flags": [5]},
+	]
+	var day_number := int(Time.get_unix_time_from_datetime_dict(date) / 86400.0)
+	return themes[posmod(day_number, themes.size())]
+
+
+static func _daily(glade: Glade) -> void:
+	var th := daily_theme()
+	_build(glade, th.base)
+	glade.data.name = th.name
+	glade.data.theme_season = th.season
+	glade.data.theme_time = th.time
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(th.name) + int(Time.get_unix_time_from_system() / 86400.0)
+	var kinds: Array = th.props
+	for i in 14:
+		var a := rng.randf() * TAU
+		var p := Vector2(cos(a), sin(a)) * rng.randf_range(4.0, 17.0)
+		if glade.is_blocked(p) or glade._on_path(p, 0.3):
+			continue
+		var kind: String = kinds[rng.randi() % kinds.size()]
+		_prop(glade, kind, p, rng.randf() * TAU, rng.randf_range(0.9, 1.1))
+	# themed flags on the roofs
+	var pats: Array = th.flags
+	for b in glade.data.buildings:
+		if rng.randf() < 0.6:
+			var flags: Array = b.get("flags", [])
+			flags.append({"at": "top", "u": rng.randf_range(0.3, 0.7), "z": 0.0, "pat": pats[rng.randi() % pats.size()], "r": rng.randf() * TAU})
+			b.flags = flags
 
 
 static func _sprinkle_nature(glade: Glade, trees: int, seed_value: int) -> void:

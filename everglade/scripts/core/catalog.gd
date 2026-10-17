@@ -71,6 +71,7 @@ const DECOR := {
 	"tea_terrace": {"cat": "landmarks", "label": "Tea terrace", "align": true},
 	"bamboo_raft": {"cat": "landmarks", "label": "Bamboo raft", "align": false, "float": true},
 	"pumpkins": {"cat": "clutter", "label": "Pumpkins", "align": true},
+	"jack_o_lantern": {"cat": "lights", "label": "Carved pumpkin", "align": true},
 	"veg_crate": {"cat": "clutter", "label": "Vegetables", "align": true},
 	"bread_stall": {"cat": "market", "label": "Bread stall", "align": false},
 	"anvil": {"cat": "clutter", "label": "Anvil", "align": false},

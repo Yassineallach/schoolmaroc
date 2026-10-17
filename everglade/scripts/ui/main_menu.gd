@@ -15,6 +15,7 @@ const TEMPLATES := [
 	{"id": "town", "label": "Town Plaza", "desc": "Paved square, fountain, cafés and golden trees.", "icon": "windrise"},
 	{"id": "ruins", "label": "Meadow Ruins", "desc": "Ancient arches and a glowing rotunda in tall grass.", "icon": "grand"},
 	{"id": "village", "label": "Jade Lake Village", "desc": "White houses, a stone causeway, rafts and peaks.", "icon": "lakeside"},
+	{"id": "daily", "label": "Daily theme", "desc": "A new themed glade every day (and on holidays).", "icon": "flag"},
 ]
 
 var root: Control

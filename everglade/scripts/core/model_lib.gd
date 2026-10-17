@@ -135,10 +135,17 @@ func _scene(kind: String) -> PackedScene:
 ## Animated props/creatures use this to reach their named child pivots.
 func instance(kind: String, raw := false) -> Node3D:
 	if Clutter.KINDS.has(kind):
+		var holder := Node3D.new()
 		var mi := MeshInstance3D.new()
 		mi.mesh = merged(kind).solid
 		mi.material_override = props_material
-		return mi
+		holder.add_child(mi)
+		if merged(kind).glow:
+			var gi := MeshInstance3D.new()
+			gi.mesh = merged(kind).glow
+			gi.material_override = glow_material
+			holder.add_child(gi)
+		return holder
 	var packed := _scene(resolve(kind, raw))
 	if packed == null:
 		push_warning("Missing model: " + kind)
@@ -189,7 +196,7 @@ func merged(kind: String, raw := false) -> Dictionary:
 		return _merged[key]
 	if Clutter.KINDS.has(kind):
 		var cm := Clutter.build(kind)
-		var cr := {"solid": cm, "glow": null, "leaves": null, "tex": [], "aabb": cm.get_aabb(), "leaf_mat": leaf_material}
+		var cr := {"solid": cm, "glow": Clutter.build_glow(kind), "leaves": null, "tex": [], "aabb": cm.get_aabb(), "leaf_mat": leaf_material}
 		_merged[key] = cr
 		return cr
 	var root := instance(key, true)

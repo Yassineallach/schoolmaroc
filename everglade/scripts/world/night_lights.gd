@@ -9,7 +9,7 @@ const POOL := 8
 # light height above the prop origin and reach, per lamp kind
 const SOURCES := {
 	"lantern": [2.45, 6.5], "paper_lantern": [2.1, 6.0], "stone_lantern": [1.0, 4.0],
-	"wind_shrine": [1.6, 5.0], "fountain": [1.2, 3.5],
+	"wind_shrine": [1.6, 5.0], "fountain": [1.2, 3.5], "jack_o_lantern": [0.35, 3.0],
 }
 
 var glade: Glade

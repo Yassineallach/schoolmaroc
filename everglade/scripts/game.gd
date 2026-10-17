@@ -174,8 +174,8 @@ func enter_menu(first := false) -> void:
 func start_new(template: String) -> void:
 	GladeTemplates.build(glade, template)
 	current_id = GladeStore.new_id()
-	glade.data.time = 0.38
-	glade.data.season = 1
+	glade.data.time = glade.data.get("theme_time", 0.38)
+	glade.data.season = glade.data.get("theme_season", 1)
 	_enter_build()
 	save_now(false)
 
@@ -556,7 +556,7 @@ func _set_time(v: float) -> void:
 
 
 func _cycle_season() -> void:
-	day.season = (day.season + 1) % 4
+	day.season = (day.season + 1) % DayCycle.SEASONS.size()
 	glade.data.season = day.season
 	hud.set_season(DayCycle.SEASON_NAMES[day.season])
 	hud.toast(DayCycle.SEASON_NAMES[day.season])
