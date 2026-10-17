@@ -793,7 +793,7 @@ func _details_rect(mb: MeshBuilder, d: Dictionary, corners: Array, style: String
 					busy = true
 			if busy:
 				continue
-			_knee(mb, a + dir * s, n, eave - 0.12, slope, beam)
+			_knee(mb, a + dir * s, n, eave - 0.24, slope, beam)
 
 
 ## Dressed stone round an opening: alternating long and short jamb blocks,
@@ -815,8 +815,12 @@ func _stone_surround(mb: MeshBuilder, at: Callable, nrm: Callable, hl: Dictionar
 			_block(mb, at, nrm, minf(s0, s1), maxf(s0, s1), y + 0.012, y + h - 0.012, 0.07, Masonry.stone_color(stone, _rng))
 		y += h
 		k += 1
+	# heads stay under the eaves
+	var room := eave - 0.08 - WallCut.top(hl)
+	if room < 0.08:
+		return
 	if int(hl.arch) == WallCut.FLAT:
-		_block(mb, at, nrm, hl.s - half - SURROUND_STONE * 0.8, hl.s + half + SURROUND_STONE * 0.8, spring + 0.012, spring + 0.22, 0.08,
+		_block(mb, at, nrm, hl.s - half - SURROUND_STONE * 0.8, hl.s + half + SURROUND_STONE * 0.8, spring + 0.012, spring + minf(0.22, room), 0.08,
 				Masonry.stone_color(stone, _rng))
 		return
 	# voussoirs following the arch, a little keystone at the top
@@ -825,7 +829,7 @@ func _stone_surround(mb: MeshBuilder, at: Callable, nrm: Callable, hl: Dictionar
 		var x0: float = -half + hl.w * i / n_v + 0.012
 		var x1: float = -half + hl.w * (i + 1) / n_v - 0.012
 		var key := i == n_v / 2
-		var r := SURROUND_STONE * (1.15 if key else 0.9)
+		var r := minf(SURROUND_STONE * (1.15 if key else 0.9), room)
 		_arch_block(mb, at, nrm, hl, x0, x1, r, 0.08 if key else 0.07, Masonry.stone_color(stone, _rng))
 
 
@@ -837,12 +841,15 @@ func _board_surround(mb: MeshBuilder, at: Callable, nrm: Callable, hl: Dictionar
 	for sgn in [-1.0, 1.0]:
 		var s0: float = hl.s + sgn * half
 		_block(mb, at, nrm, minf(s0, s0 + sgn * t), maxf(s0, s0 + sgn * t), hl.y - (0.0 if hl.get("nosill", false) else 0.1), spring, 0.06, col)
+	var room := eave - 0.08 - WallCut.top(hl)
+	if room < 0.06:
+		return
 	if int(hl.arch) == WallCut.FLAT:
-		_block(mb, at, nrm, hl.s - half - t - 0.06, hl.s + half + t + 0.06, spring, spring + 0.14, 0.07, col)
+		_block(mb, at, nrm, hl.s - half - t - 0.06, hl.s + half + t + 0.06, spring, spring + minf(0.14, room), 0.07, col)
 	else:
 		var n_v := 6
 		for i in n_v:
-			_arch_block(mb, at, nrm, hl, -half + hl.w * i / n_v, -half + hl.w * (i + 1) / n_v, t, 0.06, col)
+			_arch_block(mb, at, nrm, hl, -half + hl.w * i / n_v, -half + hl.w * (i + 1) / n_v, minf(t, room), 0.06, col)
 
 
 ## Half-timbering round an opening: posts each side, a lintel over it and,
@@ -855,8 +862,9 @@ func _timber_surround(mb: MeshBuilder, at: Callable, nrm: Callable, hl: Dictiona
 	var t := 0.14
 	for sgn in [-1.0, 1.0]:
 		var s0: float = hl.s + sgn * half
-		_block(mb, at, nrm, minf(s0, s0 + sgn * t), maxf(s0, s0 + sgn * t), floor_y, top + 0.16, 0.06, col)
-	_block(mb, at, nrm, hl.s - half - t, hl.s + half + t, top, top + 0.15, 0.065, col)
+		_block(mb, at, nrm, minf(s0, s0 + sgn * t), maxf(s0, s0 + sgn * t), floor_y, minf(top + 0.16, eave - 0.08), 0.06, col)
+	if eave - 0.08 - top > 0.06:
+		_block(mb, at, nrm, hl.s - half - t, hl.s + half + t, top, minf(top + 0.15, eave - 0.08), 0.065, col)
 	if hl.get("nosill", false):
 		return
 	var sill: float = hl.y - 0.02
