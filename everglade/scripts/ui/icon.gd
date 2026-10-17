@@ -226,9 +226,6 @@ func _draw() -> void:
 				line([Vector2(x, 0.92), Vector2(x, 0.4)], LEAF.darkened(0.2), 0.05)
 				for k in 4:
 					circle(Vector2(x, 0.2 + k * 0.08), 0.05, Color(0.62, 0.5, 0.9), false)
-		"pines":
-			rect(0.45, 0.72, 0.1, 0.2, WOOD)
-			poly([Vector2(0.2, 0.75), Vector2(0.5, 0.1), Vector2(0.8, 0.75)], Color(0.28, 0.5, 0.36))
 		"bushes":
 			circle(Vector2(0.35, 0.62), 0.2, LEAF)
 			circle(Vector2(0.62, 0.58), 0.24, LEAF.darkened(0.1))

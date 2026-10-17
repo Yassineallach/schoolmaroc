@@ -114,29 +114,26 @@ const TILE := 26.0            # forest batching tile (metres)
 const NEAR := [24.0, 32.0, 42.0]
 const MID := 120.0
 const HORIZON := [200.0, 260.0, 300.0]
+## Every broadleaf kind we have (no cone-shaped firs).
 const ALL_TREES := ["tree_round_a", "tree_round_b", "tree_round_c", "tree_birch", "tree_blossom", "tree_golden",
-		"tree_orange", "tree_teal", "tree_pine_a", "tree_pine_b", "tree_cedar"]
+		"tree_orange", "tree_teal"]
 
 static var _lod_meshes: Dictionary = {}
 
 
 func _plant_forest(template: String) -> void:
 	# every tree kind grows in every glade; the template picks which lead
-	var lead: Array = ["tree_round_a", "tree_round_c", "tree_pine_a", "tree_birch"]
+	var lead: Array = ["tree_round_a", "tree_round_c", "tree_round_b", "tree_birch"]
 	match template:
 		"town", "hamlet":
-			lead = ["tree_round_a", "tree_golden", "tree_pine_a", "tree_orange"]
+			lead = ["tree_round_a", "tree_golden", "tree_round_c", "tree_orange"]
 		"village":
-			lead = ["tree_teal", "tree_blossom", "tree_pine_b", "tree_golden"]
+			lead = ["tree_teal", "tree_blossom", "tree_round_a", "tree_golden"]
 		"ruins":
-			lead = ["tree_round_c", "tree_cedar", "tree_golden", "tree_pine_b"]
+			lead = ["tree_round_c", "tree_round_b", "tree_golden", "tree_birch"]
 	var weights: Dictionary = {}
 	for kind in ALL_TREES:
 		weights[kind] = 3.0 if kind in lead else 1.0
-	# the far hills are mostly conifers, as on a mountainside
-	var far_weights: Dictionary = weights.duplicate()
-	for kind in ["tree_pine_a", "tree_pine_b", "tree_cedar"]:
-		far_weights[kind] *= 2.5
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(template) & 0xFFFF
 	var q := clampi(Settings.quality, 0, 2)
@@ -146,7 +143,7 @@ func _plant_forest(template: String) -> void:
 	var placed: Dictionary = {}   # kind -> {tile key -> [xforms]}
 	_groves(placed, rng, weights, edge, near, 4.4, Vector2(1.1, 1.6))
 	_groves(placed, rng, weights, near, MID, 7.0, Vector2(1.4, 2.1))
-	_groves(placed, rng, far_weights, MID, horizon, 11.0, Vector2(2.0, 2.9))
+	_groves(placed, rng, weights, MID, horizon, 11.0, Vector2(2.0, 2.9))
 	for kind in placed:
 		_commit_tiles(kind, placed[kind], near)
 
@@ -219,7 +216,7 @@ func _commit_tiles(kind: String, tiles: Dictionary, near: float) -> void:
 		for part in ["solid", "leaves"]:
 			if m[part] == null:
 				continue
-			# the cedar is all trunk-material; keep it, drop the others' trunks
+			# trunks hide under the crowns far away
 			if part == "solid" and d > MID and m.leaves != null:
 				continue
 			var mm := MultiMesh.new()
@@ -239,7 +236,7 @@ func _commit_tiles(kind: String, tiles: Dictionary, near: float) -> void:
 
 
 ## The same tree mesh with automatic level-of-detail versions. Light meshes
-## (the firs) are kept whole: simplifying them leaves thin spikes.
+## are kept whole: simplifying them leaves thin spikes.
 static func _lod_mesh(kind: String, part: String, src: ArrayMesh) -> ArrayMesh:
 	var key := kind + "/" + part
 	var tris := 0

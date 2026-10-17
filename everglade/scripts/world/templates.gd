@@ -242,8 +242,8 @@ static func _town(glade: Glade) -> void:
 		_prop(glade, item[0], item[1], item[2])
 	for c in [Vector2(-9.5, -2.8), Vector2(7.6, -10.5), Vector2(14.5, -1.5), Vector2(-4.5, 11.5), Vector2(6.5, 12.5)]:
 		_prop(glade, "tree_golden" if rng.randf() < 0.6 else "tree_orange", c, rng.randf() * TAU, rng.randf_range(0.95, 1.2))
-	_scatter(glade, rng, ["tree_golden", "tree_orange", "tree_round_a", "tree_pine_a"], Vector2(-14, -16), 7.0, 10, Vector2(0.9, 1.3), false)
-	_scatter(glade, rng, ["tree_golden", "tree_round_c", "tree_pine_b"], Vector2(18, -4), 5.0, 6, Vector2(0.9, 1.3), false)
+	_scatter(glade, rng, ["tree_golden", "tree_orange", "tree_round_a", "tree_birch"], Vector2(-14, -16), 7.0, 10, Vector2(0.9, 1.3), false)
+	_scatter(glade, rng, ["tree_golden", "tree_round_c", "tree_round_a"], Vector2(18, -4), 5.0, 6, Vector2(0.9, 1.3), false)
 	_scatter(glade, rng, ["tree_orange", "tree_golden", "tree_round_a"], Vector2(-17, 14), 5.0, 6, Vector2(0.9, 1.3), false)
 	_scatter(glade, rng, ["bush_golden", "bush_a", "bush_b"], Vector2(-8, 11), 7.0, 10)
 	_scatter(glade, rng, Catalog.FLOWERS, Vector2(-7, 10.5), 6.0, 24)
@@ -333,8 +333,8 @@ static func _village(glade: Glade) -> void:
 		_prop(glade, "tree_blossom", c, rng.randf() * TAU, rng.randf_range(0.95, 1.2))
 	for c in [Vector2(12.0, -1.5), Vector2(-13.0, -6.5), Vector2(-1.5, -16.5)]:
 		_prop(glade, "tree_golden", c, rng.randf() * TAU, rng.randf_range(1.0, 1.25))
-	_scatter(glade, rng, ["tree_teal", "tree_pine_a", "tree_blossom", "tree_teal"], Vector2(-17, -16), 5.0, 8, Vector2(0.9, 1.3), false)
-	_scatter(glade, rng, ["tree_teal", "tree_golden", "tree_pine_b"], Vector2(18, -17), 4.0, 6, Vector2(0.9, 1.3), false)
+	_scatter(glade, rng, ["tree_teal", "tree_round_c", "tree_blossom", "tree_teal"], Vector2(-17, -16), 5.0, 8, Vector2(0.9, 1.3), false)
+	_scatter(glade, rng, ["tree_teal", "tree_golden", "tree_birch"], Vector2(18, -17), 4.0, 6, Vector2(0.9, 1.3), false)
 	_scatter(glade, rng, ["tree_teal", "tree_blossom", "tree_round_c"], Vector2(-17, 12), 5.0, 6, Vector2(0.9, 1.3), false)
 	_scatter(glade, rng, ["tree_teal", "tree_golden"], Vector2(17, 13), 5.0, 6, Vector2(0.9, 1.3), false)
 	_scatter(glade, rng, ["bush_a", "bush_b", "bush_golden"], Vector2(0, -9), 14.0, 12)

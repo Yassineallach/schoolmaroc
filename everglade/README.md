@@ -53,7 +53,7 @@ GamingOnLinux patch coverage.
 | Stairs on slopes | Steps appear on steep paths | Stone steps on slopes > 0.55 |
 | Terrain | Paint land on a flat meadow, then drag it up/down (height) and sideways (smooth hill ↔ rocky cliff); Ctrl stacks a layer on top; can't dig below the meadow except with water; right-click a chunk for height/falloff | `TerrainTool` + `Terrain` patches: paint a stroke (or tap) to raise a patch; press a patch and drag up/down for height (drag to the ground removes it) and left/right for falloff; **Hill** / **Cliff** presets; **Stack** builds terraces on top of the ground you start on. Steep patches get layered rock faces with a grassy lip and scree boulders at their feet; gentle ones are grassy hills. Houses ride up with the ground. Only the pond tool digs below the meadow |
 | Ponds | Dig and water fills it | `WaterTool`: dig or fill; depth-tinted water, foamy shores, reeds along banks and lily pads |
-| Forest & flower brushes | Paint trees, bushes, flowers | `NatureTool`: forest, leafy, great oak, golden, blossom, firs, bushes, flowers, lavender, rocks, with a brush size |
+| Forest & flower brushes | Paint trees, bushes, flowers | `NatureTool`: forest, leafy, great oak, golden, blossom, bushes, flowers, lavender, rocks, with a brush size |
 | Decorations | Lanterns, wells, carts, haystacks… | `DecorTool`: 32 props with 3D thumbnails (windmills, fountains, stalls, café tables, ruins, rotunda, stone lanterns, tea terraces, bamboo rafts that float…); drag to rotate while placing |
 | Eraser | Rub out things; walls are split | `EraserTool`: cuts walls/fences/paths, removes props and buildings |
 | Sheep (pettable), ducks, birds | Wildlife appears based on what you build | Sheep flock, duck families on ponds, chickens near houses, birds perching on walls and roofs, butterflies; tap any of them for a heart |
@@ -96,8 +96,8 @@ countryside carries on beyond it into the haze, so it never feels like an island
   settles to the same level at its border) and swells into rolling hills toward a hazy horizon, with the
   same painted meadow colours (`shaders/outer_ground.gdshader`) and a darker woodland floor.
 - A **forest of real trees** surrounds the plot (the glade is a clearing in the woods) and carries on over
-  the hills to the horizon. All eleven tree kinds grow in **groves of 2-6 trees**: packed at the clearing's
-  edge, more open behind, bigger and mostly conifers on the far hills. Trees are batched per kind into 26 m
+  the hills to the horizon. All eight broadleaf tree kinds grow (no cone-shaped firs) in **groves of 2-6 trees**: packed at the clearing's
+  edge, more open behind, bigger on the far hills. Trees are batched per kind into 26 m
   tiles that cull off screen; distant tiles use automatic mesh LODs and skip the trunks hidden under their
   crowns. The woods end at 200 / 260 / 300 m by graphics preset.
 - A **camera blur** (`shaders/far_blur.gdshader`) softens everything beyond the glade with distance, for the

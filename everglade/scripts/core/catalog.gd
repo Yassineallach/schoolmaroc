@@ -5,10 +5,9 @@ extends RefCounted
 const FLOOR_H := 2.5
 const PLINTH := 0.45
 
-const TREES := ["tree_round_a", "tree_round_c", "tree_round_b", "tree_birch", "tree_pine_a", "tree_pine_b", "tree_cedar"]
+const TREES := ["tree_round_a", "tree_round_c", "tree_round_b", "tree_birch", "tree_golden", "tree_teal"]
 const BROADLEAF := ["tree_round_a", "tree_round_c", "tree_birch"]
 const GRAND := ["tree_round_b"]
-const PINES := ["tree_pine_a", "tree_pine_b", "tree_cedar"]
 const GOLDEN := ["tree_golden", "tree_orange", "tree_golden", "bush_golden"]
 const BLOSSOM := ["tree_blossom", "tree_teal", "tree_blossom"]
 const BUSHES := ["bush_a", "bush_b", "bush_berries", "bush_golden"]
@@ -24,7 +23,6 @@ const NATURE := {
 	"grand": {"label": "Great oak", "kinds": GRAND, "spacing": 5.0, "scale": Vector2(0.9, 1.2)},
 	"golden": {"label": "Golden", "kinds": GOLDEN, "spacing": 2.8, "scale": Vector2(0.85, 1.25)},
 	"blossom": {"label": "Blossom", "kinds": BLOSSOM, "spacing": 2.8, "scale": Vector2(0.85, 1.2)},
-	"pines": {"label": "Firs", "kinds": PINES, "spacing": 2.2, "scale": Vector2(0.8, 1.3)},
 	"bushes": {"label": "Bushes", "kinds": BUSHES, "spacing": 1.1, "scale": Vector2(0.8, 1.3)},
 	"flowers": {"label": "Flowers", "kinds": FLOWERS, "spacing": 0.55, "scale": Vector2(0.8, 1.3)},
 	"lavender": {"label": "Lavender", "kinds": LAVENDER, "spacing": 0.5, "scale": Vector2(0.9, 1.4)},
