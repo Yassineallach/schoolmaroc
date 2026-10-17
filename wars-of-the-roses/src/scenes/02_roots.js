@@ -40,7 +40,7 @@
         e3: { x: 960, y: 250, label: null, portrait: 'p_edward3', pr: 48, t: c.e3, r: 18, color: W.C.gold, alpha: 1 - p(t, c.disputes, 1.2) * 0.5, labelGap: 30 },
         bp: { x: X.bp, y: yS, label: T.bp, sub: T.bpSub, t: c.sons, portrait: 'p_blackprince', dead: t > c.bpDead + 0.3, alpha: (t > c.bpDead ? 0.55 : 1) * relevant('bp'), color: W.C.ivoryDim },
         li: { x: X.li, y: yS, label: T.li, sub: T.liSub, t: c.sons + 0.15, portrait: 'p_lionel', dead: true, alpha: 0.45 * relevant('li'), color: W.C.ivoryDim },
-        jg: { x: X.jg, y: yS, label: T.jg, sub: T.jgSub, t: c.sons + 0.3, color: W.mixColor(W.C.ivory, W.C.crimsonBright, lanP), halo: t > c.three ? (lanP > 0 ? W.C.crimson : W.C.ivory) : null },
+        jg: { x: X.jg, y: yS, label: T.jg, sub: T.jgSub, t: c.sons + 0.3, portrait: 'p_gaunt', color: W.mixColor(W.C.ivory, W.C.crimsonBright, lanP), halo: t > c.three ? (lanP > 0 ? W.C.crimson : W.C.ivory) : null },
         el: { x: X.el, y: yS, label: T.el, sub: T.elSub, t: c.sons + 0.45, color: W.C.ivory, halo: t > c.three ? W.C.ivory : null },
         tw: { x: X.tw, y: yS, label: T.tw, sub: T.twSub, t: c.sons + 0.6, alpha: relevant('tw'), halo: t > c.three && t < c.disputes ? W.C.ivory : null },
         r2: { x: X.bp, y: 770, label: T.r2, sub: T.r2Sub, t: c.grandson, r: 13, color: W.C.ivory, alpha: relevant('r2') },
@@ -80,7 +80,7 @@
       // the two houses descend from the 3rd and 4th sons
       for (const [k, x, col, txt, kind, cue] of [['lan', X.jg, W.C.crimsonBright, T.lan, 'lancaster', c.lan], ['york', X.el, W.C.ivory, T.york, 'york', c.york]]) {
         const dp = p(t, c.branches + (k === 'york' ? 0.3 : 0), 1.0, E.inOut);
-        W.strokePoly(ctx, [[x, 595], [x, 800]], dp, { color: W.rgba(k === 'lan' ? W.C.crimsonBright : W.C.ivory, 0.6), width: 2.5 });
+        W.strokePoly(ctx, [[x, 632], [x, 800]], dp, { color: W.rgba(k === 'lan' ? W.C.crimsonBright : W.C.ivory, 0.6), width: 2.5 });
         W.rose(ctx, x, 835, 36, { kind, bloom: p(t, cue - 0.2, 1.2) });
         W.text(ctx, txt, x, 910, { size: 46, color: col, reveal: p(t, cue, 0.9), rise: 10 });
       }

@@ -39,9 +39,10 @@
         W.strokePoly(ctx, [[960, 730], [960, 214]], lp, { color: W.rgba(W.C.crimsonBright, 0.55), width: 2, dash: [3, 7] });
         chain.forEach((n, i) => {
           const np = p(t, c.desc + (3 - i) * 0.3, 0.7);
-          W.node(ctx, 960, n.y, n.r, { p: np, color: n.col, halo: i === 0 && t > c.lan ? W.C.crimson : null });
-          W.text(ctx, n.label, 930 - n.r, n.y, { size: n.size, color: i === 0 ? W.C.crimsonBright : W.C.ivory, align: 'right', alpha: i === 0 ? p(t, c.lan, 0.7) : np * 0.85 });
-          if (n.sub) W.text(ctx, n.sub, 1000, n.y, { size: 24, fam: W.F.label, weight: 400, color: W.C.ivoryDim, align: 'left', alpha: i === 0 ? p(t, c.lan + 0.3, 0.7) : np * 0.85 });
+          const pk = i === 0 ? 'p_gaunt' : null, pad = W.hasPortrait(pk) ? 52 : n.r;
+          W.node(ctx, 960, n.y, n.r, { p: np, color: n.col, halo: i === 0 && t > c.lan ? W.C.crimson : null, portrait: pk, pr: 44 });
+          W.text(ctx, n.label, 930 - pad, n.y, { size: n.size, color: i === 0 ? W.C.crimsonBright : W.C.ivory, align: 'right', alpha: i === 0 ? p(t, c.lan, 0.7) : np * 0.85 });
+          if (n.sub) W.text(ctx, n.sub, 1000 + (i === 0 && W.hasPortrait('p_gaunt') ? 30 : 0), n.y, { size: 24, fam: W.F.label, weight: 400, color: W.C.ivoryDim, align: 'left', alpha: i === 0 ? p(t, c.lan + 0.3, 0.7) : np * 0.85 });
         });
         W.node(ctx, 960, 760, 20, { p: p(t, c.ht, 0.8), color: W.C.crimsonBright, halo: W.C.crimson });
         W.text(ctx, T.ht, 960, 840, { size: 64, color: W.C.ivory, reveal: p(t, c.ht + 0.1, 0.9) });

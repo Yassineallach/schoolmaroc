@@ -126,5 +126,21 @@
       420
     ],
     "note": "Lionel of Antwerp, drawing of a tomb weeper figure, supplied by the user"
+  },
+  "p_gaunt": {
+    "file": "input/images/p_gaunt.jpg",
+    "blend": "source-over",
+    "face": [
+      232,
+      108,
+      92
+    ],
+    "bust": [
+      230,
+      170,
+      150,
+      190
+    ],
+    "note": "John of Gaunt, late 16th-c. portrait (Badminton House), supplied by the user"
   }
 }
