@@ -126,8 +126,11 @@ func _apply() -> void:
 	if _far_blur_mat:
 		_far_blur_mat.set_shader_parameter("far_start", _s_distance * 1.1 + 8.0)
 		_far_blur_mat.set_shader_parameter("far_end", _s_distance * 2.6 + 50.0)
+	if far_blur:
+		# photo mode focuses with its own lens settings (PhotoUI)
+		far_blur.visible = not photo_mode
 	var attrs := camera.attributes as CameraAttributesPractical
-	if attrs:
+	if attrs and not photo_mode:
 		# Godot's own far blur smears the whole screen with MSAA on Mobile
 		attrs.dof_blur_far_enabled = false
 		attrs.dof_blur_far_distance = _s_distance * 1.6 + 6.0

@@ -67,6 +67,7 @@ func _ready() -> void:
 	settings_panel = SettingsPanel.new()
 	add_child(settings_panel)
 	photo_ui = PhotoUI.new()
+	photo_ui.game = self
 	add_child(photo_ui)
 	view = ViewModes.new()
 	view.name = "ViewModes"
@@ -216,8 +217,11 @@ func enter_photo() -> void:
 		tool.cancel()
 	hud.visible = false
 	glade.show_boundary(false)
-	photo_ui.open(day.time_of_day)
 	rig.photo_mode = true
+	# Godot's depth of field needs MSAA off (FXAA smooths edges instead)
+	get_viewport().msaa_3d = Viewport.MSAA_DISABLED
+	get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
+	photo_ui.open(day.time_of_day)
 	hud.show_hint("", "")
 
 
@@ -228,6 +232,9 @@ func exit_photo() -> void:
 	photo_ui.visible = false
 	hud.visible = true
 	rig.photo_mode = false
+	rig.camera.fov = 42.0
+	get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
+	Settings.apply()
 	rig.pitch_offset = 0.0
 	rig.zoom_by(1.0)
 
@@ -757,6 +764,9 @@ func _handle_tap(pos: Vector2) -> void:
 		# walking and flying: taps only pet animals
 		if creature:
 			creature.pet()
+		return
+	if mode == Mode.PHOTO and creature == null:
+		photo_ui.focus_at(pos)
 		return
 	if creature and (mode == Mode.PHOTO or tool == null or tool.tool_id in ["hand", "nature", "decor", "details", "roof", "stairs"]):
 		creature.pet()

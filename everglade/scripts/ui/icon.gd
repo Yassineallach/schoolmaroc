@@ -463,6 +463,11 @@ func _draw() -> void:
 			rect(0.12, 0.34, 0.76, 0.32, WOOD)
 			circle(Vector2(0.3, 0.72), 0.12, WOOD.darkened(0.3))
 			circle(Vector2(0.7, 0.72), 0.12, WOOD.darkened(0.3))
+		"focus":
+			draw_arc(_p(0.5, 0.5), _w(0.3), 0, TAU, 32, Color(1, 1, 1, 0.9) * tint, _w(0.05), true)
+			circle(Vector2(0.5, 0.5), 0.05, Color(1, 1, 1), false)
+		"folder":
+			poly([Vector2(0.1, 0.3), Vector2(0.38, 0.3), Vector2(0.46, 0.38), Vector2(0.9, 0.38), Vector2(0.9, 0.82), Vector2(0.1, 0.82)], SUN)
 		"hammer":
 			rect(0.46, 0.35, 0.09, 0.58, WOOD)
 			poly([Vector2(0.22, 0.14), Vector2(0.78, 0.14), Vector2(0.78, 0.36), Vector2(0.22, 0.36)], STONE)
