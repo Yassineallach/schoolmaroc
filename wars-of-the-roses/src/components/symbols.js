@@ -45,6 +45,7 @@
       const sc = 0.92 + 0.08 * W.E.out(p);
       ctx.scale(sc, sc);
       if (o.glow) { ctx.shadowColor = 'rgba(160,110,30,0.55)'; ctx.shadowBlur = 0.35 * s; }
+      ctx.globalCompositeOperation = rec.blend || 'source-over';
       ctx.drawImage(rec.img, -w / 2, -h / 2, w, h);
       ctx.restore();
       return;
