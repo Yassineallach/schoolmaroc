@@ -136,10 +136,13 @@ static func _leaf_tex_of(mi: MeshInstance3D) -> String:
 
 func _scene(kind: String) -> PackedScene:
 	_lock.lock()
-	if not _scenes.has(kind):
-		_scenes[kind] = load(MODEL_DIR + kind + ".glb") as PackedScene
-	var sc: PackedScene = _scenes[kind]
+	var sc = _scenes.get(kind)
 	_lock.unlock()
+	if sc == null:
+		sc = load(MODEL_DIR + kind + ".glb") as PackedScene
+		_lock.lock()
+		_scenes[kind] = sc
+		_lock.unlock()
 	return sc
 
 
@@ -203,21 +206,31 @@ func _is_glow(mi: MeshInstance3D) -> bool:
 ## Returns {"solid": ArrayMesh, "glow": ArrayMesh or null, "aabb": AABB}
 ## with every child mesh baked into the model's root space.
 func merged(kind: String, raw := false) -> Dictionary:
-	# houses and walls are built on a worker thread too (Glade): one at a time
+	# houses and walls are built on a worker thread too (Glade): the cache is
+	# locked only to look up and to store, never while loading (a load may
+	# need the main thread, which could be waiting on the lock)
+	var key := resolve(kind, raw)
 	_lock.lock()
-	var r := _merged_impl(kind, raw)
+	var hit = _merged.get(key)
 	_lock.unlock()
-	return r
+	if hit != null:
+		return hit
+	return _merged_impl(kind, raw)
 
 
 func _merged_impl(kind: String, raw := false) -> Dictionary:
 	var key := resolve(kind, raw)
-	if _merged.has(key):
-		return _merged[key]
+	_lock.lock()
+	var cached = _merged.get(key)
+	_lock.unlock()
+	if cached != null:
+		return cached
 	if Clutter.KINDS.has(kind):
 		var cm := Clutter.build(kind)
 		var cr := {"solid": cm, "glow": Clutter.build_glow(kind), "leaves": null, "tex": [], "aabb": cm.get_aabb(), "leaf_mat": leaf_material}
+		_lock.lock()
 		_merged[key] = cr
+		_lock.unlock()
 		return cr
 	var root := instance(key, true)
 	var leaf_tex := ""
@@ -280,7 +293,9 @@ func _merged_impl(kind: String, raw := false) -> Dictionary:
 			result.aabb = result.leaves.get_aabb()
 		else:
 			result.aabb = result.aabb.merge(result.leaves.get_aabb())
+	_lock.lock()
 	_merged[key] = result
+	_lock.unlock()
 	return result
 
 
@@ -321,10 +336,7 @@ func new_arch_material() -> ShaderMaterial:
 ## painted trims (shutters, window frames) in another colour. A colour with
 ## alpha 0 keeps the model's own.
 func tinted(kind: String, wood: Color, trim: Color) -> Dictionary:
-	_lock.lock()
-	var r := _tinted_impl(kind, wood, trim)
-	_lock.unlock()
-	return r
+	return _tinted_impl(kind, wood, trim)
 
 
 func _tinted_impl(kind: String, wood: Color, trim: Color) -> Dictionary:
@@ -332,8 +344,11 @@ func _tinted_impl(kind: String, wood: Color, trim: Color) -> Dictionary:
 	if (wood.a <= 0.0 and trim.a <= 0.0) or base.solid == null:
 		return base
 	var key := "%s|%s|%s" % [kind, wood.to_html(), trim.to_html()]
-	if _tinted.has(key):
-		return _tinted[key]
+	_lock.lock()
+	var cached = _tinted.get(key)
+	_lock.unlock()
+	if cached != null:
+		return cached
 	var arr: Array = (base.solid as ArrayMesh).surface_get_arrays(0)
 	var cols: PackedColorArray = arr[Mesh.ARRAY_COLOR]
 	var uvs: PackedVector2Array = arr[Mesh.ARRAY_TEX_UV]
@@ -355,5 +370,7 @@ func _tinted_impl(kind: String, wood: Color, trim: Color) -> Dictionary:
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
 	var out := base.duplicate()
 	out.solid = mesh
+	_lock.lock()
 	_tinted[key] = out
+	_lock.unlock()
 	return out

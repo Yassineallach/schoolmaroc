@@ -50,7 +50,16 @@ func _walk(n: Node, bucket: String, out: Dictionary) -> void:
 func _run() -> void:
 	for i in 60:
 		await get_tree().process_frame
+	var t_start := Time.get_ticks_msec()
 	game.start_new(template.split(",")[0])
+	print("PERF glade on screen (drafts) after %d ms" % (Time.get_ticks_msec() - t_start))
+	var slowest := 0
+	while (not game.glade._jobs.is_empty() or game.glade._job_running) and Time.get_ticks_msec() - t_start < 300000:
+		var f0 := Time.get_ticks_usec()
+		await get_tree().process_frame
+		slowest = maxi(slowest, Time.get_ticks_usec() - f0)
+	print("PERF all full builds in after %d ms; slowest frame meanwhile %.1f ms; queue left %d" % [Time.get_ticks_msec() - t_start,
+		slowest / 1000.0, game.glade._jobs.size()])
 	for i in 120:
 		await get_tree().process_frame
 	var proc := 0.0

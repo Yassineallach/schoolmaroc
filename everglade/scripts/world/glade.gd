@@ -805,9 +805,22 @@ func _queue_build(type: String, item: Dictionary) -> void:
 	_next_job()
 
 
+## Models houses and walls place, loaded on the main thread before the
+## first background build (the worker then only reads the cache).
+const _BUILD_MODELS := ["tg_door", "tg_door_arch", "tg_door_gothic", "tg_door_double", "tg_window", "tg_window_arch",
+	"tg_window_gothic", "tg_window_lattice", "tg_window_tracery", "tg_shutters", "tg_flower_box", "door_wood",
+	"window_frame", "window_lattice", "stair_step", "wall_lantern", "dormer", "trapdoor", "bush_a", "bush_berries", "chimney"]
+var _models_warm := false
+
+
 func _next_job() -> void:
 	if _job_running or _jobs.is_empty():
 		return
+	if not _models_warm:
+		_models_warm = true
+		for k in _BUILD_MODELS:
+			if ModelLib.has_model(k):
+				ModelLib.merged(k)
 	var job: Dictionary = _jobs.pop_front()
 	_job_running = true
 	job.task = WorkerThreadPool.add_task(_run_job.bind(job), false, "build " + str(job.id))
