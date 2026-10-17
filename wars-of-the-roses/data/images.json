@@ -158,5 +158,21 @@
       165
     ],
     "note": "Edmund of Langley, engraving, supplied by the user"
+  },
+  "p_woodstock": {
+    "file": "input/images/p_woodstock.jpg",
+    "blend": "source-over",
+    "face": [
+      655,
+      300,
+      230
+    ],
+    "bust": [
+      650,
+      480,
+      360,
+      440
+    ],
+    "note": "Thomas of Woodstock, manuscript illumination with his swan badge, supplied by the user"
   }
 }

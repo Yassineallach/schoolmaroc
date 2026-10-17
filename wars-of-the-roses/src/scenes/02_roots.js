@@ -42,7 +42,7 @@
         li: { x: X.li, y: yS, label: T.li, sub: T.liSub, t: c.sons + 0.15, portrait: 'p_lionel', dead: true, alpha: 0.45 * relevant('li'), color: W.C.ivoryDim },
         jg: { x: X.jg, y: yS, label: T.jg, sub: T.jgSub, t: c.sons + 0.3, portrait: 'p_gaunt', color: W.mixColor(W.C.ivory, W.C.crimsonBright, lanP), halo: t > c.three ? (lanP > 0 ? W.C.crimson : W.C.ivory) : null },
         el: { x: X.el, y: yS, label: T.el, sub: T.elSub, t: c.sons + 0.45, portrait: 'p_langley', color: W.C.ivory, halo: t > c.three ? W.C.ivory : null },
-        tw: { x: X.tw, y: yS, label: T.tw, sub: T.twSub, t: c.sons + 0.6, alpha: relevant('tw'), halo: t > c.three && t < c.disputes ? W.C.ivory : null },
+        tw: { x: X.tw, y: yS, label: T.tw, sub: T.twSub, t: c.sons + 0.6, portrait: 'p_woodstock', alpha: relevant('tw'), halo: t > c.three && t < c.disputes ? W.C.ivory : null },
         r2: { x: X.bp, y: 770, label: T.r2, sub: T.r2Sub, t: c.grandson, r: 13, color: W.C.ivory, alpha: relevant('r2') },
         lan: { x: X.jg, y: 830, t: c.branches, r: 0.01, alpha: 0 },
         york: { x: X.el, y: 830, t: c.branches + 0.3, r: 0.01, alpha: 0 },
@@ -68,7 +68,7 @@
         const a = 1 - p(t, c.disputes, 0.8);
         W.alpha(ctx, a, () => {
           ctx.strokeStyle = W.rgba(W.C.gold, 0.7); ctx.lineWidth = 1.5;
-          const y = 625, x0 = X.tw - 60, x1 = X.jg + 60, mid = (x0 + x1) / 2, h = (x1 - x0) / 2 * bk;
+          const y = 660, x0 = X.tw - 60, x1 = X.jg + 60, mid = (x0 + x1) / 2, h = (x1 - x0) / 2 * bk;
           ctx.beginPath(); ctx.moveTo(mid - h, y - 12); ctx.lineTo(mid - h, y); ctx.lineTo(mid + h, y); ctx.lineTo(mid + h, y - 12); ctx.stroke();
           W.text(ctx, T.living, mid, y + 40, { size: 32, fam: W.F.label, weight: 500, color: W.C.gold, reveal: p(t, c.three + 0.2, 0.8) });
         });
