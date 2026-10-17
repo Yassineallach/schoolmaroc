@@ -79,7 +79,19 @@ func apply() -> void:
 	_set_bus("Ambience", ambience_volume)
 	var vp := get_viewport()
 	if vp:
-		vp.scaling_3d_scale = [0.7, 0.85, 1.0][quality]
+		if OS.has_feature("mobile"):
+			# Phone screens are so dense (an S21+ is 2400 x 1080 on 6.7") that
+			# drawing the 3D at full size costs a lot for nothing: render it
+			# smaller and bring it back up with AMD FSR, which rebuilds the
+			# edges and sharpens, so it looks the same. The UI stays full size.
+			vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR
+			vp.scaling_3d_scale = [0.6, 0.7, 0.78][quality]
+			vp.fsr_sharpness = 0.2
+			# A steady 60 instead of chasing 120 Hz: half the work per second,
+			# even frame pacing, and the phone doesn't heat up and throttle
+			Engine.max_fps = 60
+		else:
+			vp.scaling_3d_scale = [0.7, 0.85, 1.0][quality]
 		vp.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][quality]
 	changed.emit()
 

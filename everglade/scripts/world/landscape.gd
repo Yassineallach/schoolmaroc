@@ -232,6 +232,12 @@ func _commit_tiles(kind: String, tiles: Dictionary, near: float) -> void:
 			if d <= MID:
 				# trunks hide under the canopy from afar
 				mmi.visibility_range_end = 220.0 if part == "leaves" else 140.0
+			# behind the camera blur and the haze, simpler detail levels can't
+			# be told apart: let them kick in sooner there
+			if d > MID:
+				mmi.lod_bias = 0.15
+			elif d > near + TILE:
+				mmi.lod_bias = 0.4
 			_forest.add_child(mmi)
 
 

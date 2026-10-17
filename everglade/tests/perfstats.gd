@@ -100,9 +100,15 @@ func _run() -> void:
 	get_tree().quit()
 
 
+## Mean wall time of a frame (run headless, that is the scripts and engine
+## work without the GPU), taking the median of a few batches.
 func _proc_ms(frames: int) -> float:
-	var acc := 0.0
-	for i in frames:
+	var batches: Array[float] = []
+	for b in 5:
 		await get_tree().process_frame
-		acc += Performance.get_monitor(Performance.TIME_PROCESS)
-	return acc / frames * 1000.0
+		var t0 := Time.get_ticks_usec()
+		for i in frames:
+			await get_tree().process_frame
+		batches.append((Time.get_ticks_usec() - t0) / 1000.0 / frames)
+	batches.sort()
+	return batches[2]

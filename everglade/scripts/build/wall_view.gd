@@ -294,6 +294,23 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 	cs.shape = _collision_shell(samples, thick * 0.5 + 0.04)
 	body.add_child(cs)
 	add_child(body)
+	_schedule_lods.call_deferred()
+
+
+var _lod_gen := 0
+
+
+## Detail levels for the finished wall, a moment after the last rebuild
+## (see BuildingView._schedule_lods).
+func _schedule_lods() -> void:
+	_lod_gen += 1
+	var gen := _lod_gen
+	if not is_inside_tree():
+		return
+	await get_tree().create_timer(0.8 + randf() * 1.6).timeout
+	if gen != _lod_gen or not is_inside_tree():
+		return
+	MeshLod.apply_under(self)
 
 
 func _pillar(mb: MeshBuilder, S: Dictionary, thick: float, h: float, col: Color, masonry := false, rng: RandomNumberGenerator = null) -> void:

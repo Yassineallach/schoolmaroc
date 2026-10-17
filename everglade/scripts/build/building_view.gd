@@ -181,6 +181,25 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 	for a in line_anchors:
 		a[0] = transform * a[0]
 		a[1] = transform.basis * a[1]
+	_schedule_lods.call_deferred()
+
+
+var _lod_gen := 0
+
+
+## Detail levels for the finished house, made a moment after the last
+## rebuild (so dragging its handles stays quick, and a whole town loading
+## spreads the work out): far away it draws simplified meshes that look the
+## same at that size on screen, shadows included.
+func _schedule_lods() -> void:
+	_lod_gen += 1
+	var gen := _lod_gen
+	if not is_inside_tree():
+		return
+	await get_tree().create_timer(0.8 + randf() * 1.6).timeout
+	if gen != _lod_gen or not is_instance_valid(arch_mi):
+		return
+	MeshLod.apply_under(self)
 
 
 # ---------------------------------------------------------------------------
