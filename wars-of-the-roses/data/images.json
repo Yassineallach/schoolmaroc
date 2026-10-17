@@ -13,5 +13,10 @@
     "file": "input/images/rose_york.png",
     "blend": "source-over",
     "note": "White Rose of York badge (transparent PNG) supplied by the user"
+  },
+  "rose_tudor": {
+    "file": "input/images/rose_tudor.png",
+    "blend": "source-over",
+    "note": "Tudor Rose badge (transparent PNG) supplied by the user"
   }
 }
