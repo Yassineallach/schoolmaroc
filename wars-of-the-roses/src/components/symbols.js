@@ -50,6 +50,18 @@
     const bloom = o.bloom == null ? 1 : o.bloom;
     if (bloom <= 0) return;
     const kind = o.kind || 'york';
+    // real heraldic artwork when supplied (rose_york / rose_lancaster / rose_tudor)
+    const rec = W.IMG && W.IMG['rose_' + kind];
+    if (rec) {
+      const d = 2.2 * s * (0.55 + 0.45 * W.E.outBack(W.clamp(bloom)));
+      ctx.save();
+      ctx.globalAlpha *= (o.alpha == null ? 1 : o.alpha) * W.clamp(bloom * 1.6);
+      ctx.translate(x, y);
+      ctx.rotate((o.spin || 0) + (1 - W.clamp(bloom)) * -0.6);
+      ctx.drawImage(rec.img, -d / 2, -d / 2, d, d);
+      ctx.restore();
+      return;
+    }
     const outer = kind === 'york' ? W.C.rose : W.C.crimson;
     const inner = kind === 'lancaster' ? W.C.crimsonBright : W.C.rose;
     const edge = 'rgba(42,31,22,0.75)';

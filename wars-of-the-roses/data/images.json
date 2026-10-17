@@ -8,5 +8,10 @@
     "file": "input/images/dragon.png",
     "blend": "multiply",
     "note": "pencil drawing supplied by the user; title cropped, paper flattened, mirrored to face right"
+  },
+  "rose_york": {
+    "file": "input/images/rose_york.png",
+    "blend": "source-over",
+    "note": "White Rose of York badge (transparent PNG) supplied by the user"
   }
 }
