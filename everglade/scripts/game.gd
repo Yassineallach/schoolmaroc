@@ -17,6 +17,7 @@ var hud: HUD
 var menu: MainMenu
 var settings_panel: SettingsPanel
 var photo_ui: PhotoUI
+var view: ViewModes
 var tools: Dictionary = {}
 var tool: BaseTool
 var selected_id := -1
@@ -67,6 +68,10 @@ func _ready() -> void:
 	add_child(settings_panel)
 	photo_ui = PhotoUI.new()
 	add_child(photo_ui)
+	view = ViewModes.new()
+	view.name = "ViewModes"
+	add_child(view)
+	view.setup(self)
 	_make_tools()
 	_connect_ui()
 	glade.changed.connect(_on_glade_changed)
@@ -117,6 +122,11 @@ func _connect_ui() -> void:
 	hud.redo_pressed.connect(do_redo)
 	hud.home_pressed.connect(func(): enter_menu())
 	hud.photo_pressed.connect(enter_photo)
+	hud.view_pressed.connect(func():
+		if mode == Mode.BUILD:
+			if tool:
+				tool.cancel()
+			view.cycle())
 	hud.settings_pressed.connect(func(): settings_panel.open())
 	hud.time_changed.connect(_set_time)
 	hud.season_pressed.connect(_cycle_season)
@@ -137,6 +147,7 @@ func _connect_ui() -> void:
 # Modes
 # ---------------------------------------------------------------------------
 func enter_menu(first := false) -> void:
+	view.enter("")
 	if not first and mode == Mode.BUILD:
 		await save_now(true)
 	mode = Mode.MENU
@@ -198,6 +209,7 @@ func _enter_build() -> void:
 func enter_photo() -> void:
 	if mode != Mode.BUILD:
 		return
+	view.enter("")
 	mode = Mode.PHOTO
 	select(-1)
 	if tool:
@@ -591,7 +603,7 @@ func _process(delta: float) -> void:
 			save_now(false)
 	if (_gesture == "tool") and tool:
 		tool.process_hold(delta)
-	if mode != Mode.MENU:
+	if mode != Mode.MENU and (not view.active() or view.mode == "map"):
 		_keyboard_camera(delta)
 
 
@@ -627,6 +639,8 @@ func _notification(what: int) -> void:
 func _on_back() -> void:
 	if settings_panel.visible:
 		settings_panel.close()
+	elif view.active():
+		view.leave()
 	elif mode == Mode.PHOTO:
 		exit_photo()
 	elif mode == Mode.BUILD:
@@ -648,6 +662,11 @@ func _on_back() -> void:
 # ---------------------------------------------------------------------------
 func _unhandled_input(event: InputEvent) -> void:
 	if settings_panel.visible:
+		return
+	if view.active() and view.mode != "map":
+		if (event is InputEventScreenTouch or event is InputEventMouseButton) and view.over_ui(event.position):
+			return
+		view.input(event)
 		return
 	if event is InputEventScreenTouch:
 		_on_touch(event)
@@ -734,6 +753,11 @@ func _handle_tap(pos: Vector2) -> void:
 	# animals respond to a tap whatever the tool
 	var cam := rig.camera
 	var creature := life.pick(cam.project_ray_origin(pos), cam.project_ray_normal(pos))
+	if view.active() and view.mode != "map":
+		# walking and flying: taps only pet animals
+		if creature:
+			creature.pet()
+		return
 	if creature and (mode == Mode.PHOTO or tool == null or tool.tool_id in ["hand", "nature", "decor", "details", "roof", "stairs"]):
 		creature.pet()
 		return
@@ -824,6 +848,10 @@ func _on_key(e: InputEventKey) -> void:
 				exit_photo()
 		KEY_F12:
 			take_photo()
+		KEY_V:
+			if mode == Mode.BUILD:
+				view.cycle()
+				return
 	if mode == Mode.BUILD and e.keycode >= KEY_1 and e.keycode <= KEY_9:
 		var idx := int(e.keycode - KEY_1)
 		if idx < HUD.TOOLS.size():

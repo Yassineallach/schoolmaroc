@@ -10,6 +10,7 @@ signal undo_pressed
 signal redo_pressed
 signal home_pressed
 signal photo_pressed
+signal view_pressed
 signal settings_pressed
 signal time_changed(value: float)
 signal season_pressed
@@ -177,6 +178,10 @@ func _build_top(parent: Control) -> void:
 	_season_btn.custom_minimum_size.x = 84
 	_season_btn.pressed.connect(func(): season_pressed.emit())
 	right.add_child(_season_btn)
+	var view := icon_button("eye", "", 56)
+	view.tooltip_text = "Walk, fly or map view (V)"
+	view.pressed.connect(func(): view_pressed.emit())
+	right.add_child(view)
 	var photo := icon_button("camera", "", 56)
 	photo.pressed.connect(func(): photo_pressed.emit())
 	right.add_child(photo)
@@ -517,6 +522,6 @@ func is_over_ui(pos: Vector2) -> bool:
 		if ctl.is_visible_in_tree() and ctl.get_global_rect().has_point(pos):
 			return true
 	var top_h := 90.0
-	if pos.y < top_h and (pos.x < 220.0 or pos.x > get_viewport().get_visible_rect().size.x - 560.0):
+	if pos.y < top_h and (pos.x < 220.0 or pos.x > get_viewport().get_visible_rect().size.x - 630.0):
 		return true
 	return false

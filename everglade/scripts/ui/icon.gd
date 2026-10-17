@@ -455,6 +455,14 @@ func _draw() -> void:
 			for k in 4:
 				line([Vector2(0.2 + k * 0.2, 0.92), Vector2(0.22 + k * 0.2, 0.3)], SUN.darkened(0.2), 0.05)
 				poly([Vector2(0.17 + k * 0.2, 0.32), Vector2(0.22 + k * 0.2, 0.1), Vector2(0.27 + k * 0.2, 0.32)], SUN)
+		"eye":
+			poly([Vector2(0.06, 0.5), Vector2(0.3, 0.28), Vector2(0.5, 0.22), Vector2(0.7, 0.28), Vector2(0.94, 0.5), Vector2(0.7, 0.72), Vector2(0.5, 0.78), Vector2(0.3, 0.72)], PAPER)
+			circle(Vector2(0.5, 0.5), 0.16, WATER)
+			circle(Vector2(0.5, 0.5), 0.06, INK, false)
+		"cart":
+			rect(0.12, 0.34, 0.76, 0.32, WOOD)
+			circle(Vector2(0.3, 0.72), 0.12, WOOD.darkened(0.3))
+			circle(Vector2(0.7, 0.72), 0.12, WOOD.darkened(0.3))
 		"hammer":
 			rect(0.46, 0.35, 0.09, 0.58, WOOD)
 			poly([Vector2(0.22, 0.14), Vector2(0.78, 0.14), Vector2(0.78, 0.36), Vector2(0.22, 0.36)], STONE)

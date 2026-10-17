@@ -17,6 +17,8 @@ var distance := 30.0
 var pitch_offset := 0.0
 var auto_orbit := false
 var photo_mode := false
+## Top-down map view (Tiny Glade's map camera).
+var map_mode := false
 
 var _s_target := Vector3.ZERO
 var _s_yaw := 0.0
@@ -103,6 +105,8 @@ func _process(delta: float) -> void:
 
 func _apply() -> void:
 	var pitch := clampf(base_pitch(_s_distance) + _s_pitch_offset, deg_to_rad(3.0), deg_to_rad(85.0))
+	if map_mode:
+		pitch = deg_to_rad(89.5)
 	var dir := Vector3(sin(_s_yaw) * cos(pitch), sin(pitch), cos(_s_yaw) * cos(pitch))
 	var pos := _s_target + dir * _s_distance
 	if terrain:
