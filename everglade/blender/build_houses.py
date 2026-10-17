@@ -320,6 +320,21 @@ def cone_roof(p, cx, cy, r_base, z_base, height, palette, over=0.35, flare=0.18)
     p.ball(0.09, (cx, cy, z_base + height + 0.55), lin("#C9A04A"), mat=8)
 
 
+def gable_outline(surf, half_d, z_wall, gap=0.14):
+    """A gable wall's outline in (y, z), tucked under the (curved) roof."""
+    pts = [(-half_d, z_wall)]
+    ts = [k / 16 for k in range(17)]
+    side = []
+    for t in ts:
+        y, z = surf(t)
+        if y <= half_d:
+            side.append((y, z - gap))
+    pts += [(-y, z) for (y, z) in side]
+    pts += [(y, z) for (y, z) in reversed(side[:-1])]
+    pts.append((half_d, z_wall))
+    return pts
+
+
 def chimney(p, x, y, z0, z1):
     z = z0
     k = 0
@@ -481,13 +496,13 @@ def timber_house(ox, oy):
     # --- roof: gable along X, eaves front and back, gables plastered
     rise = 2.3
     rp = Piece("roof")
-    gable_roof(rp, -W2 / 2, W2 / 2, D2 / 2, g2, rise, TERRACOTTA)
+    surf = gable_roof(rp, -W2 / 2, W2 / 2, D2 / 2, g2, rise, TERRACOTTA)
     # gable triangles
     for sgn in (-1, 1):
         gp = Piece("gable")
         bm = gp.bm
         x = sgn * (W2 / 2 - 0.1)
-        vs = [bm.verts.new((x, -D2 / 2, g2)), bm.verts.new((x, D2 / 2, g2)), bm.verts.new((x, 0, g2 + rise - 0.1))]
+        vs = [bm.verts.new((x, y, z)) for (y, z) in gable_outline(surf, D2 / 2, g2)]
         f = bm.faces.new(vs)
         gp._paint([f], PLASTER, M_PAINT)
         bm.normal_update()
@@ -559,12 +574,12 @@ def cottage(ox, oy):
         parts.append(place_piece(lambda: bw.shutters_tg(False), loc, rz, 0.0, dy=-0.04))
     rp = Piece("cott_roof")
     rise = 1.9
-    gable_roof(rp, -W / 2, W / 2, D / 2, g, rise, SLATE, curve=0.16)
+    surf = gable_roof(rp, -W / 2, W / 2, D / 2, g, rise, SLATE, curve=0.16)
     for sgn in (-1, 1):
         gp = Piece("cgable")
         bm = gp.bm
         x = sgn * (W / 2 - 0.1)
-        vs = [bm.verts.new((x, -D / 2, g)), bm.verts.new((x, D / 2, g)), bm.verts.new((x, 0, g + rise - 0.1))]
+        vs = [bm.verts.new((x, y, z)) for (y, z) in gable_outline(surf, D / 2, g)]
         f = bm.faces.new(vs)
         bm.normal_update()
         bmesh.ops.solidify(bm, geom=[f], thickness=0.2)
@@ -602,7 +617,7 @@ def chapel(ox, oy):
         def place(u, z, out, face=face):
             loc, rz = face_frame(face, u, z, out)
             return loc, (0, 0, rz)
-        lay_stones(sp, list(stone_face(sp, -half - 0.07, half + 0.07, 0.0, g, ops if face == front else None)), place, proud=0.05)
+        lay_stones(sp, list(stone_face(sp, -half - 0.07, half + 0.07, 0.0, g, None, ops if face == front else None)), place, proud=0.05)
     parts.append(sp.to_object())
     for u in doors:
         loc, rz = face_frame(front, u, 0.25)
@@ -611,13 +626,19 @@ def chapel(ox, oy):
     parts.append(place_piece(bw.window_tg_gothic, loc, rz, 0.14))
     rp = Piece("chap_roof")
     rise = 2.4
-    gable_roof(rp, -W / 2, W / 2, D / 2, g, rise, TERRACOTTA, curve=0.1)
+    surf = gable_roof(rp, -W / 2, W / 2, D / 2, g, rise, TERRACOTTA, curve=0.1)
     for sgn in (-1, 1):
         gp = Piece("sgable")
         # stone gable: courses stepping in
         z = g
-        while z < g + rise - 0.15:
-            half = (D / 2) * (1 - (z - g) / rise)
+        while z < g + rise - 0.3:
+            # each course as wide as the roof above it allows
+            half = 0.0
+            for k in range(200):
+                yy, zz = surf(k / 200)
+                if zz - 0.2 >= z + 0.24:
+                    half = min(yy, D / 2)
+                    break
             y = -half
             while y < half - 0.05:
                 w = min(rng.uniform(0.32, 0.5), half - y)
@@ -728,7 +749,7 @@ def render(out, which="all"):
         cottage(0.5, 1.0)
         chapel(7.5, 0.5)
         tower(13.5, 2.5)
-        stage(out, (3.6, 1.0, 2.6), 30.0, res=(1900, 950), yaw=-14, pitch=20, lens=45)
+        stage(out, (3.4, 1.0, 2.8), 44.0, res=(1900, 1000), yaw=-16, pitch=22, lens=45)
         return
     fn, focus, dist = HOUSES[which]
     fn(0, 0)
