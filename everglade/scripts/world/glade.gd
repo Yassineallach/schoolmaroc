@@ -735,7 +735,10 @@ func buildings_near(center: Vector2, radius: float) -> Array:
 
 
 ## Rebuilds one structure after its data changed (e.g. from the inspector).
-func refresh(id: int, animate := false) -> void:
+## Rebuilds a piece's view. With `draft` (while a handle is dragged) houses
+## and walls are rebuilt as a quick draft only; otherwise their full build
+## runs in the background and swaps in when ready (see _make_view).
+func refresh(id: int, animate := false, draft := false) -> void:
 	var f := find(id)
 	if f.is_empty():
 		return
@@ -749,7 +752,7 @@ func refresh(id: int, animate := false) -> void:
 			for o in joined_with(f.item):
 				if not neighbours.has(o):
 					neighbours.append(o)
-		_make_view(f.type, f.item, animate)
+		_make_view(f.type, f.item, animate, draft)
 		# houses joined before or after the edit hide or show their buried windows
 		for o in neighbours:
 			if views.has(o.id):
@@ -767,7 +770,85 @@ func _after_edit(pos: Vector3, kind: String) -> void:
 # ---------------------------------------------------------------------------
 # Views
 # ---------------------------------------------------------------------------
-func _make_view(type: String, item: Dictionary, animate: bool) -> Node3D:
+# ---------------------------------------------------------------------------
+# Background builds. A finished house or stone wall takes long to build
+# (every stone and tile is modelled), far too long to hold up the game on
+# a phone: so houses and walls are built on a worker thread, one at a time,
+# together with their detail levels, while the view already on screen (or
+# a quick draft of a new piece) stays until the finished one swaps in.
+# ---------------------------------------------------------------------------
+var _jobs: Array = []
+var _job_running := false
+var _job_gen: Dictionary = {}     # id -> generation of the latest request
+
+
+func _make_view(type: String, item: Dictionary, animate: bool, draft := false) -> Node3D:
+	if (type == "buildings" or type == "walls") and not batch:
+		_job_gen[item.id] = int(_job_gen.get(item.id, 0)) + 1
+		if draft or not views.has(item.id):
+			# a quick draft on screen right away (it can be picked too)
+			var dv := _make_view_now(type, item, animate, true)
+			dv.finish()
+		if not draft:
+			_queue_build(type, item)
+		return views.get(item.id)
+	return _make_view_now(type, item, animate, false)
+
+
+func _queue_build(type: String, item: Dictionary) -> void:
+	var job := {"type": type, "id": item.id, "gen": _job_gen[item.id], "item": item.duplicate(true),
+			"open": (_openings.get(item.id, []) as Array).duplicate(true)}
+	if type == "buildings":
+		job.joins = join_polys(item)
+	_jobs = _jobs.filter(func(j): return j.id != item.id)
+	_jobs.append(job)
+	_next_job()
+
+
+func _next_job() -> void:
+	if _job_running or _jobs.is_empty():
+		return
+	var job: Dictionary = _jobs.pop_front()
+	_job_running = true
+	job.task = WorkerThreadPool.add_task(_run_job.bind(job), false, "build " + str(job.id))
+
+
+## Worker thread: the full build and its detail levels, off screen.
+func _run_job(job: Dictionary) -> void:
+	var v: Node3D
+	if job.type == "buildings":
+		var bv := BuildingView.new()
+		bv.threaded = true
+		bv.joins = job.joins
+		bv.build(job.item, job.open)
+		v = bv
+	else:
+		var wv := WallView.new()
+		wv.threaded = true
+		wv.build(job.item, terrain, job.open)
+		v = wv
+	MeshLod.apply_under(v)
+	_job_done.call_deferred(job, v)
+
+
+func _job_done(job: Dictionary, v: Node3D) -> void:
+	_job_running = false
+	WorkerThreadPool.wait_for_task_completion(job.task)
+	var f := find(job.id)
+	if f.is_empty() or int(job.gen) != int(_job_gen.get(job.id, -1)):
+		v.free()       # removed, or changed again since: a newer build is queued
+	else:
+		if views.has(job.id) and is_instance_valid(views[job.id]):
+			views[job.id].free()
+		(_roots.buildings if job.type == "buildings" else _roots.walls).add_child(v)
+		v.data = f.item
+		v.finish()
+		views[job.id] = v
+		_links_dirty = true
+	_next_job()
+
+
+func _make_view_now(type: String, item: Dictionary, animate: bool, preview := false) -> Node3D:
 	if views.has(item.id):
 		views[item.id].free()
 		views.erase(item.id)
@@ -776,7 +857,7 @@ func _make_view(type: String, item: Dictionary, animate: bool) -> Node3D:
 		"walls":
 			v = WallView.new()
 			_roots.walls.add_child(v)
-			v.build(item, terrain, _openings.get(item.id, []))
+			v.build(item, terrain, _openings.get(item.id, []), preview)
 		"fences":
 			v = FenceView.new()
 			_roots.fences.add_child(v)
@@ -789,7 +870,7 @@ func _make_view(type: String, item: Dictionary, animate: bool) -> Node3D:
 			v = BuildingView.new()
 			_roots.buildings.add_child(v)
 			v.joins = join_polys(item)
-			v.build(item, _openings.get(item.id, []))
+			v.build(item, _openings.get(item.id, []), preview)
 		"stairs":
 			v = StairView.new()
 			_roots.walls.add_child(v)

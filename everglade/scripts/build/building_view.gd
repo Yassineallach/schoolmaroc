@@ -155,6 +155,28 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 	ivy = Ivy.build(faces, seed_value * 13 + 5, 1.4)
 	add_child(ivy)
 	Ivy.set_growth(ivy, d.get("ivy", 0.0))
+	if not threaded:
+		finish()
+	for i in perches.size():
+		perches[i] = transform * perches[i]
+	for i in flag_anchors.size():
+		flag_anchors[i] = transform * flag_anchors[i]
+	for a in line_anchors:
+		a[0] = transform * a[0]
+		a[1] = transform.basis * a[1]
+
+
+## Built on a worker thread (Glade's background builds): the collision body
+## is added on the main thread afterwards, by finish().
+var threaded := false
+
+
+## Adds the collision volume (picking, keeping the camera out). Physics
+## objects are made on the main thread only.
+func finish() -> void:
+	if body != null or data.is_empty():
+		return
+	var d := data
 	body = StaticBody3D.new()
 	body.collision_layer = 8
 	body.set_meta("kind", "building")
@@ -174,32 +196,6 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 	cs.position = Vector3(0, (eave + roof_h + 0.3) * 0.5 - 0.15, 0)
 	body.add_child(cs)
 	add_child(body)
-	for i in perches.size():
-		perches[i] = transform * perches[i]
-	for i in flag_anchors.size():
-		flag_anchors[i] = transform * flag_anchors[i]
-	for a in line_anchors:
-		a[0] = transform * a[0]
-		a[1] = transform.basis * a[1]
-	_schedule_lods.call_deferred()
-
-
-var _lod_gen := 0
-
-
-## Detail levels for the finished house, made a moment after the last
-## rebuild (so dragging its handles stays quick, and a whole town loading
-## spreads the work out): far away it draws simplified meshes that look the
-## same at that size on screen, shadows included.
-func _schedule_lods() -> void:
-	_lod_gen += 1
-	var gen := _lod_gen
-	if not is_inside_tree():
-		return
-	await get_tree().create_timer(0.8 + randf() * 1.6).timeout
-	if gen != _lod_gen or not is_instance_valid(arch_mi):
-		return
-	MeshLod.apply_under(self)
 
 
 # ---------------------------------------------------------------------------

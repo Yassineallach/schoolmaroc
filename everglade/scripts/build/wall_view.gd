@@ -269,6 +269,8 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 			deco.add_mesh(Ornaments.banner(int(o.get("pat", 0))), Transform3D(DecoMerge.facing(on), op))
 			flag_anchors.append(op + on * 0.62)
 	deco.apply_to(self)
+	_body_samples = samples
+	_body_half = thick * 0.5 + 0.04
 
 	if preview:
 		return
@@ -286,31 +288,29 @@ func build(d: Dictionary, terrain: Terrain, openings: Array = [], preview := fal
 	add_child(ivy)
 	Ivy.set_growth(ivy, d.get("ivy", 0.0))
 
+	if not threaded:
+		finish()
+
+
+## Built on a worker thread (Glade's background builds): the collision body
+## is added on the main thread afterwards, by finish().
+var threaded := false
+var _body_samples: Array = []
+var _body_half := 0.0
+
+
+## Adds the collision shell. Physics objects are made on the main thread only.
+func finish() -> void:
+	if body != null or _body_samples.is_empty():
+		return
 	body = StaticBody3D.new()
 	body.collision_layer = 2
 	body.set_meta("kind", "wall")
-	body.set_meta("id", d.id)
+	body.set_meta("id", data.id)
 	var cs := CollisionShape3D.new()
-	cs.shape = _collision_shell(samples, thick * 0.5 + 0.04)
+	cs.shape = _collision_shell(_body_samples, _body_half)
 	body.add_child(cs)
 	add_child(body)
-	_schedule_lods.call_deferred()
-
-
-var _lod_gen := 0
-
-
-## Detail levels for the finished wall, a moment after the last rebuild
-## (see BuildingView._schedule_lods).
-func _schedule_lods() -> void:
-	_lod_gen += 1
-	var gen := _lod_gen
-	if not is_inside_tree():
-		return
-	await get_tree().create_timer(0.8 + randf() * 1.6).timeout
-	if gen != _lod_gen or not is_inside_tree():
-		return
-	MeshLod.apply_under(self)
 
 
 func _pillar(mb: MeshBuilder, S: Dictionary, thick: float, h: float, col: Color, masonry := false, rng: RandomNumberGenerator = null) -> void:

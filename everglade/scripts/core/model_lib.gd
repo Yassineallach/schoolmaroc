@@ -44,6 +44,7 @@ var _tex_mats: Dictionary = {}
 var _tex_shader: Shader = load("res://shaders/props_tex.gdshader")
 var _cut_shader: Shader = load("res://shaders/props_cut.gdshader")
 var _merged: Dictionary = {}
+var _lock := Mutex.new()
 var _tinted: Dictionary = {}
 
 ## The tg_* wood models' own colours: honey wood, and the sage shutters and
@@ -134,9 +135,12 @@ static func _leaf_tex_of(mi: MeshInstance3D) -> String:
 
 
 func _scene(kind: String) -> PackedScene:
+	_lock.lock()
 	if not _scenes.has(kind):
 		_scenes[kind] = load(MODEL_DIR + kind + ".glb") as PackedScene
-	return _scenes[kind]
+	var sc: PackedScene = _scenes[kind]
+	_lock.unlock()
+	return sc
 
 
 ## Instantiates the model as a node tree with stylised materials applied.
@@ -199,6 +203,14 @@ func _is_glow(mi: MeshInstance3D) -> bool:
 ## Returns {"solid": ArrayMesh, "glow": ArrayMesh or null, "aabb": AABB}
 ## with every child mesh baked into the model's root space.
 func merged(kind: String, raw := false) -> Dictionary:
+	# houses and walls are built on a worker thread too (Glade): one at a time
+	_lock.lock()
+	var r := _merged_impl(kind, raw)
+	_lock.unlock()
+	return r
+
+
+func _merged_impl(kind: String, raw := false) -> Dictionary:
 	var key := resolve(kind, raw)
 	if _merged.has(key):
 		return _merged[key]
@@ -309,6 +321,13 @@ func new_arch_material() -> ShaderMaterial:
 ## painted trims (shutters, window frames) in another colour. A colour with
 ## alpha 0 keeps the model's own.
 func tinted(kind: String, wood: Color, trim: Color) -> Dictionary:
+	_lock.lock()
+	var r := _tinted_impl(kind, wood, trim)
+	_lock.unlock()
+	return r
+
+
+func _tinted_impl(kind: String, wood: Color, trim: Color) -> Dictionary:
 	var base := merged(kind)
 	if (wood.a <= 0.0 and trim.a <= 0.0) or base.solid == null:
 		return base

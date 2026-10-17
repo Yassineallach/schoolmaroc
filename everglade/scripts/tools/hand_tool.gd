@@ -287,7 +287,7 @@ func _process(delta: float) -> void:
 			_since = 0.0
 			_pending = false
 			if not _drag.is_empty():
-				glade.refresh(_drag.f.item.id, false)
+				glade.refresh(_drag.f.item.id, false, true)
 				glade.show_selection(_drag.f.item.id)
 	# keep handles a constant size on screen
 	if _handle_root and _handle_root.visible:

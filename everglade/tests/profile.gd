@@ -26,6 +26,11 @@ func _run() -> void:
 		var v := BuildingView.new()
 		add_child(v)
 		_t("house " + style, func(): v.build(d))
+		_t("  its LODs", func(): MeshLod.apply_under(v))
+		var pv := BuildingView.new()
+		add_child(pv)
+		_t("  draft (preview) build", func(): pv.build(d, [], true))
+		pv.queue_free()
 		v.queue_free()
 	var r := tpl.duplicate(true)
 	r.shape = "round"

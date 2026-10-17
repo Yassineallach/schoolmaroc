@@ -29,13 +29,29 @@ const DESIGNS := 6
 const PATTERNS := 36   # PAIRS x DESIGNS
 
 static var _cache: Dictionary = {}
+## Houses and walls are built on a worker thread too: the cache is shared.
+static var _lock := Mutex.new()
+
+
+static func _cached(key: Variant) -> Variant:
+	_lock.lock()
+	var v = _cache.get(key)
+	_lock.unlock()
+	return v
+
+
+static func _store(key: Variant, v: Variant) -> void:
+	_lock.lock()
+	_cache[key] = v
+	_lock.unlock()
 
 
 ## {solid: ArrayMesh, glow: ArrayMesh} for a window type, centred like the
 ## kit window frame (origin at the opening's middle, +Z out of the wall).
 static func window(kind: String) -> Dictionary:
-	if _cache.has(kind):
-		return _cache[kind]
+	var hit = _cached(kind)
+	if hit != null:
+		return hit
 	var mb := MeshBuilder.new()
 	var gl := MeshBuilder.new()
 	match kind:
@@ -46,36 +62,38 @@ static func window(kind: String) -> Dictionary:
 		"slit":
 			_slit(mb, gl)
 	var out := {"solid": mb.commit(), "glow": gl.commit()}
-	_cache[kind] = out
+	_store(kind, out)
 	return out
 
 
 ## A flag flying from a pole whose foot is at the origin.
 static func flag(pattern: int) -> ArrayMesh:
 	var key := "flag%d" % pattern
-	if _cache.has(key):
-		return _cache[key]
+	var hit = _cached(key)
+	if hit != null:
+		return hit
 	var mb := MeshBuilder.new()
 	var h := 2.1
 	_box(mb, Transform3D(Basis(), Vector3(0, h * 0.5, 0)), Vector3(0.07, h, 0.07), WOOD, M_WOOD)
 	_box(mb, Transform3D(Basis(), Vector3(0, h + 0.06, 0)), Vector3(0.13, 0.13, 0.13), GOLD, M_METAL)
 	_cloth(mb, Vector3(0.04, h - 0.05, 0), Vector3(1.0, 0, 0), Vector3(0, -0.62, 0), pattern, 0.07, false)
 	var m := mb.commit()
-	_cache[key] = m
+	_store(key, m)
 	return m
 
 
 ## A banner hanging from an iron rod that sticks out of a wall (+Z out).
 static func banner(pattern: int) -> ArrayMesh:
 	var key := "banner%d" % pattern
-	if _cache.has(key):
-		return _cache[key]
+	var hit = _cached(key)
+	if hit != null:
+		return hit
 	var mb := MeshBuilder.new()
 	_box(mb, Transform3D(Basis(), Vector3(0, 0, 0.32)), Vector3(0.04, 0.04, 0.64), IRON, M_METAL)
 	_box(mb, Transform3D(Basis(), Vector3(0, -0.02, 0.6)), Vector3(0.74, 0.05, 0.05), WOOD, M_WOOD)
 	_cloth(mb, Vector3(-0.32, -0.04, 0.6), Vector3(0.64, 0, 0), Vector3(0, -1.35, 0), pattern, 0.0, true)
 	var m := mb.commit()
-	_cache[key] = m
+	_store(key, m)
 	return m
 
 
@@ -137,8 +155,9 @@ static func bunting(a: Vector3, b: Vector3, seed_value: int) -> ArrayMesh:
 ## `grate` fills the opening with iron bars (a water gate).
 static func portal(w: float, h: float, grate := false) -> ArrayMesh:
 	var key := "portal%.2f_%.2f_%s" % [w, h, grate]
-	if _cache.has(key):
-		return _cache[key]
+	var hit = _cached(key)
+	if hit != null:
+		return hit
 	var mb := MeshBuilder.new()
 	var spans: Array = [[0.0, w]]
 	if w > 2.8:
@@ -191,14 +210,15 @@ static func portal(w: float, h: float, grate := false) -> ArrayMesh:
 			for yy in [spring * 0.35, spring * 0.75]:
 				_box(mb, Transform3D(Basis.IDENTITY, Vector3(cx, yy, 0.1)), Vector3(sw, 0.05, 0.05), IRON, M_METAL)
 	var m := mb.commit()
-	_cache[key] = m
+	_store(key, m)
 	return m
 
 
 ## A twiggy bird nest with three pale blue eggs (origin at its base).
 static func nest() -> ArrayMesh:
-	if _cache.has("nest"):
-		return _cache["nest"]
+	var hit = _cached("nest")
+	if hit != null:
+		return hit
 	var mb := MeshBuilder.new()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 41
@@ -216,7 +236,7 @@ static func nest() -> ArrayMesh:
 		mb.box(Transform3D(Basis(Vector3.UP, a2), Vector3(cos(a2) * 0.05, 0.07, sin(a2) * 0.05)), Vector3(0.05, 0.06, 0.04), Color(0.72, 0.84, 0.86))
 		_layer(mb, start, M_PAINT)
 	var m := mb.commit()
-	_cache["nest"] = m
+	_store("nest", m)
 	return m
 
 
