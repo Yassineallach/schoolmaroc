@@ -8,7 +8,7 @@ var template := "town"
 func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--perfstats="):
-			template = a.trim_prefix("--perfstats=")
+			template = a.trim_prefix("--perfstats=")   # "town,scripts" also times each script
 	game = get_parent()
 	_run.call_deferred()
 
@@ -50,7 +50,7 @@ func _walk(n: Node, bucket: String, out: Dictionary) -> void:
 func _run() -> void:
 	for i in 60:
 		await get_tree().process_frame
-	game.start_new(template)
+	game.start_new(template.split(",")[0])
 	for i in 120:
 		await get_tree().process_frame
 	var proc := 0.0
@@ -83,6 +83,9 @@ func _run() -> void:
 			var sn: String = (n.get_script() as Script).resource_path.get_file()
 			procs[sn] = procs.get(sn, 0) + 1
 	print("PERF processing scripts ", procs)
+	if not template.ends_with(",scripts"):
+		get_tree().quit()
+		return
 	# script time per frame with each kind of script paused in turn
 	var base := await _proc_ms(40)
 	print("PERF base process %.2f ms" % base)
