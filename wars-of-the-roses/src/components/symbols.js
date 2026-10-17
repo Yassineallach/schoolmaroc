@@ -392,7 +392,23 @@
     }, 14);
 
   // ---- fleur-de-lis (France) -------------------------------------------------------
-  W.fleur = (ctx, x, y, s, o = {}) =>
+  W.fleur = (ctx, x, y, s, o = {}) => {
+    const rec = W.IMG && W.IMG.fleur;
+    if (rec) {
+      const p = o.p == null ? 1 : W.clamp(o.p);
+      if (p <= 0) return;
+      const h = 2.0 * s, w = h * (rec.img.width / rec.img.height);
+      ctx.save();
+      ctx.globalAlpha *= W.clamp(p * 1.4);
+      ctx.translate(x, y);
+      const sc = 0.85 + 0.15 * W.E.out(p); ctx.scale(sc, sc);
+      ctx.drawImage(rec.img, -w / 2, -h / 2, w, h);
+      ctx.restore();
+      return;
+    }
+    return W.fleurDrawn(ctx, x, y, s, o);
+  };
+  W.fleurDrawn = (ctx, x, y, s, o = {}) =>
     stroked(ctx, x, y, s, o, (P) => {
       P.moveTo(0, -1); P.bezierCurveTo(0.35, -0.6, 0.3, -0.1, 0, 0.25); P.bezierCurveTo(-0.3, -0.1, -0.35, -0.6, 0, -1);
       for (const d of [-1, 1]) {

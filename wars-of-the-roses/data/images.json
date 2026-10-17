@@ -68,5 +68,10 @@
     "file": "input/images/rose_en_soleil.png",
     "blend": "source-over",
     "note": "Edward IV's badge, the white rose en soleil (transparent PNG) supplied by the user"
+  },
+  "fleur": {
+    "file": "input/images/fleur.png",
+    "blend": "source-over",
+    "note": "fleur-de-lis supplied by the user"
   }
 }
