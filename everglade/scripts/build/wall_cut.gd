@@ -40,9 +40,9 @@ const MODELS := {
 
 ## The hole a tg_* model needs, centred at s with its sill at y, `sx` times
 ## as wide (merged windows, double doors).
-static func hole_for(model: String, s: float, y: float, sx := 1.0) -> Dictionary:
+static func hole_for(model: String, s: float, y: float, sx := 1.0, sy := 1.0) -> Dictionary:
 	var m: Dictionary = MODELS[model]
-	return {"s": s, "y": y, "w": float(m.w) * sx, "h": float(m.h), "arch": int(m.arch), "model": model}
+	return {"s": s, "y": y, "w": float(m.w) * sx, "h": float(m.h) * sy, "arch": int(m.arch), "model": model}
 
 
 ## How far the head rises above the jambs.

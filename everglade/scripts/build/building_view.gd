@@ -5,7 +5,9 @@ extends Node3D
 ## battlement tops. Windows, doors, dormers and chimneys are placed from the
 ## building's data; doors also appear automatically where paths arrive.
 
-const FH := Catalog.FLOOR_H
+## Storey height: Catalog.FLOOR_H times the house's "fh" scale (taller or
+## squatter storeys, pulled with the storey handle).
+var FH := Catalog.FLOOR_H
 const PL := Catalog.PLINTH
 const NO_CHIMNEY := -99.0
 
@@ -108,6 +110,7 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 	var base: float = float(d.get("base", 0.0)) + lift
 	transform = Transform3D(local_basis(d.get("rot", 0.0)), Vector3(c.x, base, c.y))
 	var floors: int = clampi(d.get("floors", 1), 0, 8)
+	FH = Catalog.FLOOR_H * clampf(float(d.get("fh", 1.0)), 0.7, 1.6)
 	# no storeys at all: a low tent-like house that is nearly all roof
 	eave = PL + floors * FH if floors > 0 else PL + 0.4
 	if d.get("roof_only", false):
@@ -256,7 +259,8 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 			if (roof == "gable" or roof == "hip") and not lake and not d.get("ridge", false):
 				_place_dormer(deco, L, W, side, u)
 			continue
-		var key := "%d:%d:%s:%s" % [side, f, kind, w.get("wt", "plain")]
+		# windows and doors scaled alike merge; sizes come in steps of 0.1
+		var key := "%d:%d:%s:%s:%s" % [side, f, kind, w.get("wt", "plain"), snappedf(float(w.get("sc", 1.0)), 0.1)]
 		if not groups.has(key):
 			groups[key] = []
 		groups[key].append(w)
@@ -266,13 +270,14 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 		var f := int(parts[1])
 		var kind := parts[2]
 		var wt := parts[3]
+		var sc := clampf(float(parts[4]), 0.5, 2.0)
 		var ws: Array = groups[key]
 		ws.sort_custom(func(a, b): return float(a.u) < float(b.u))
 		var len_side := _side_len(corners, side)
 		var model := _window_model(wt, style) if kind == "window" else ""
 		# only plain square windows (and doors) merge into wide ones
 		var square := kind == "door" or (model != "" and int(WallCut.MODELS[model].arch) == WallCut.FLAT)
-		var reach := (1.85 if kind == "window" else 1.75) if wt == "plain" and square else 0.0
+		var reach := ((1.85 if kind == "window" else 1.75) * sc) if wt == "plain" and square else 0.0
 		var i := 0
 		while i < ws.size():
 			var j := i
@@ -286,7 +291,7 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 			for k in range(i, j + 1):
 				trim = maxi(trim, int(ws[k].get("deco", -1)))
 			if kind == "door":
-				_place_rect_door(deco, corners, side, uc, style, (extra + 1.5) / 1.5)
+				_place_rect_door(deco, corners, side, uc, style, (extra + 1.5 * sc) / (1.5 * sc), sc)
 			else:
 				var a: Vector3 = corners[side]
 				var b: Vector3 = corners[(side + 1) % 4]
@@ -294,14 +299,16 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 				if model == "":
 					# round windows and arrow slits stay carved ornaments on the face
 					var pc := a.lerp(b, uc) + Vector3.UP * (PL + f * FH + 1.35)
-					_clear[side].append(_window_hole(wt, uc * len_side, pc.y))
-					_fancy_window(deco, wt, Transform3D(DecoMerge.facing(n), pc))
+					var hr := _window_hole(wt, uc * len_side, pc.y)
+					_clear[side].append(Rect2(hr.get_center() - hr.size * sc * 0.5, hr.size * sc))
+					_fancy_window(deco, wt, Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3.ONE * sc), pc))
 					i = j + 1
 					continue
-				var mw: float = WallCut.MODELS[model].w
+				var mw: float = WallCut.MODELS[model].w * sc
 				var sx := (extra + mw) / mw
-				var hgt := WallCut.model_height(model)
-				var y := PL + f * FH + 0.75
+				var hgt := WallCut.model_height(model) * sc
+				# a scaled window keeps the same middle height on its storey
+				var y := maxf(PL + f * FH + 0.75 + WallCut.model_height(model) * (1.0 - sc) * 0.5, PL + f * FH + 0.2)
 				# under the eaves, keep the window head clear of the roof overhang
 				var turned: bool = d.get("ridge", false)
 				if (side % 2 == 0) != turned and roof != "flat" and roof_h > 0.0:
@@ -316,12 +323,12 @@ func _build_rect(d: Dictionary, mb: MeshBuilder, deco: DecoMerge, rng: RandomNum
 					p += n * _jet
 				if style == "windrise" and in_stone:
 					p += n * 0.04
-				var hl := WallCut.hole_for(model, uc * len_side, y, sx)
+				var hl := WallCut.hole_for(model, uc * len_side, y, sx * sc, sc)
 				_cut[side].append(hl)
 				_clear[side].append(WallCut.rect(hl, 0.05 + _surround_w(style)))
-				_tg(deco, model, Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, 1, 1)), p))
-				# shutters and boxes fit the opening's width
-				var xf := Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(hl.w / 0.96, 1, 1)), p)
+				_tg(deco, model, Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx * sc, sc, 1)), p))
+				# shutters and boxes fit the opening
+				var xf := Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(hl.w / 0.96, sc, 1)), p)
 				if trim < 0:
 					# windows placed before decorations were chosen keep the house's look
 					if shutters and j == i and not (in_stone and not _preview):
@@ -1254,8 +1261,9 @@ func _place_round_opening(deco: DecoMerge, R: float, u: float, f: int, kind: Str
 	var style: String = data.get("style", "stone")
 	var cut: Array = []
 	var clear: Array = []
+	var sc := clampf(float(w.get("sc", 1.0)), 0.5, 2.0)
 	if kind == "door":
-		var half := _door_into(deco, p, n, s, style, 1.0, cut, clear)
+		var half := _door_into(deco, p, n, s, style, 1.0, cut, clear, sc)
 		deco.add("stair_step", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(1.2, 1.0, 1.4)), n * (R + 0.25) + Vector3.UP * 0.0))
 		_door_steps(deco, n * (R + 0.1), n, 1.2)
 		var side := n.cross(Vector3.UP).normalized()
@@ -1266,21 +1274,22 @@ func _place_round_opening(deco: DecoMerge, R: float, u: float, f: int, kind: Str
 		var model := _window_model(wt, style)
 		if model == "":
 			var pc := n * (R - 0.02) + Vector3.UP * (PL + f * FH + 1.35)
-			clear.append(_window_hole(wt, s, pc.y))
-			_fancy_window(deco, wt, Transform3D(DecoMerge.facing(n), pc))
+			var hr := _window_hole(wt, s, pc.y)
+			clear.append(Rect2(hr.get_center() - hr.size * sc * 0.5, hr.size * sc))
+			_fancy_window(deco, wt, Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3.ONE * sc), pc))
 		else:
-			var hgt := WallCut.model_height(model)
-			var y := minf(PL + f * FH + 0.75, eave - 0.12 - hgt)
+			var hgt := WallCut.model_height(model) * sc
+			var y := minf(maxf(PL + f * FH + 0.75 + hgt / sc * (1.0 - sc) * 0.5, PL + f * FH + 0.2), eave - 0.12 - hgt)
 			# windrise stone is set 4 cm proud
 			if style == "windrise" and f == 0 and data.get("floors", 1) > 1:
 				p += n * 0.04
-			var xf := Transform3D(DecoMerge.facing(n), p + Vector3.UP * y)
+			var xf := Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sc, sc, 1)), p + Vector3.UP * y)
 			_tg(deco, model, xf)
-			var hl := WallCut.hole_for(model, s, y)
+			var hl := WallCut.hole_for(model, s, y, sc, sc)
 			cut.append(hl)
 			clear.append(WallCut.rect(hl, 0.05))
 			var trim := int(w.get("deco", -1))
-			var txf := Transform3D(xf.basis * Basis.from_scale(Vector3(hl.w / 0.96, 1, 1)), xf.origin)
+			var txf := Transform3D(xf.basis * Basis.from_scale(Vector3(hl.w / 0.96 / sc, 1, 1)), xf.origin)
 			if trim < 0:
 				if boxes and f == 0:
 					_tg(deco, "tg_flower_box", txf)
@@ -1884,7 +1893,7 @@ func _in_join(p: Vector3) -> bool:
 	return false
 
 
-func _place_rect_door(deco: DecoMerge, corners: Array, side: int, u: float, style := "", sx := 1.0) -> void:
+func _place_rect_door(deco: DecoMerge, corners: Array, side: int, u: float, style := "", sx := 1.0, sc := 1.0) -> void:
 	var a: Vector3 = corners[side]
 	var b: Vector3 = corners[(side + 1) % 4]
 	var n := _side_normal(corners, side)
@@ -1897,7 +1906,7 @@ func _place_rect_door(deco: DecoMerge, corners: Array, side: int, u: float, styl
 		deco.add("door_wood", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, 1, 1)), p + Vector3.UP * PL + n * 0.02))
 		deco.add("stair_step", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(1.4, 1.0, 1.4)), p + n * 0.3))
 		return
-	var half := _door_into(deco, p, n, uu * l, style, sx, _cut[side], _clear[side])
+	var half := _door_into(deco, p, n, uu * l, style, sx, _cut[side], _clear[side], sc)
 	deco.add("stair_step", Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(half * 1.75, 1.0, 1.4)), p + n * 0.3))
 	_door_steps(deco, p, n, half * 1.75)
 	var along := (b - a).normalized()
@@ -1910,7 +1919,7 @@ func _place_rect_door(deco: DecoMerge, corners: Array, side: int, u: float, styl
 ## A Tiny Glade plank door set into the wall at p (ground level, on the face)
 ## `sx` times as wide; adds its opening to `cut` / `clear` (at s along the
 ## face) and returns the opening's half-width.
-func _door_into(deco: DecoMerge, p: Vector3, n: Vector3, s: float, style: String, sx: float, cut: Array, clear: Array) -> float:
+func _door_into(deco: DecoMerge, p: Vector3, n: Vector3, s: float, style: String, sx: float, cut: Array, clear: Array, sc := 1.0) -> float:
 	var model := "tg_door"
 	if sx > 1.3:
 		model = "tg_door_double"
@@ -1919,8 +1928,10 @@ func _door_into(deco: DecoMerge, p: Vector3, n: Vector3, s: float, style: String
 		model = "tg_door_gothic"
 	elif style == "plaster":
 		model = "tg_door_arch"
-	var room := eave - PL - 0.12
-	if room < 1.6:
+	# a scaled door: wider and taller alike (it still has to fit the storey)
+	sx *= sc
+	var room := (eave - PL - 0.12) / sc
+	if room * sc < 1.6:
 		# no storey to cut it into: a door standing on the face
 		_tg(deco, model, Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, 1, 1)), p + Vector3.UP * PL + n * 0.18))
 		return float(WallCut.MODELS[model].w) * sx * 0.5
@@ -1928,7 +1939,7 @@ func _door_into(deco: DecoMerge, p: Vector3, n: Vector3, s: float, style: String
 		model = "tg_door_arch"
 	if WallCut.model_height(model) > room and model == "tg_door_arch":
 		model = "tg_door"
-	var sy := minf(1.0, room / WallCut.model_height(model))
+	var sy := minf(1.0, room / WallCut.model_height(model)) * sc
 	_tg(deco, model, Transform3D(DecoMerge.facing(n) * Basis.from_scale(Vector3(sx, sy, 1)), p + Vector3.UP * PL))
 	var hl := WallCut.hole_for(model, s, PL, sx)
 	hl.h *= sy

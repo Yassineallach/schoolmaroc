@@ -40,6 +40,13 @@ func _run() -> void:
 	game.life.clear()
 	var g := game.glade
 	_house(Vector2(-16, 0), "plaster", 2, "plain")
+	# scaled: taller storeys, a bigger door, one big and one small window
+	var big := {"shape": "rect", "c": Vector2(-24, 0), "size": Vector2(6.4, 4.4), "rot": 0.0, "floors": 2, "style": "plaster", "roof": "gable",
+		"roof_col": Catalog.ROOF_COLORS[1], "wall_col": Catalog.WALL_COLORS[0], "pitch": 1.0, "chimney": -99.0, "seed": 5, "fh": 1.25,
+		"windows": [{"side": 0, "u": 0.5, "f": 0, "kind": "door", "sc": 1.25}, {"side": 0, "u": 0.18, "f": 0, "kind": "window", "wt": "arched", "sc": 1.4},
+			{"side": 0, "u": 0.82, "f": 0, "kind": "window", "sc": 0.7}, {"side": 0, "u": 0.5, "f": 1, "kind": "window", "wt": "tracery", "sc": 1.3}]}
+	game.glade.add_building(big)
+	game.glade.add_prop("bench", Vector3(-21.5, 0, -3.6), 0.0, 1.8, false, false)
 	_house(Vector2(-8, 0), "stone", 2, "tracery")
 	_house(Vector2(0, 0), "timber", 2, "plain")
 	_house(Vector2(8, 0), "wood", 1, "arched")
@@ -50,7 +57,7 @@ func _run() -> void:
 			{"side": 0, "u": 0.8, "f": 2, "kind": "window"}]})
 	game.hud.visible = false
 	var i := 0
-	for shot in [[-16.0, 11.0, 198.0], [-8.0, 11.0, 198.0], [24.0, 12.0, 205.0]]:
+	for shot in [[-24.0, 14.0, 200.0]]:
 		game.rig.focus_on(Vector3(shot[0], 2.2, -2.0), shot[1])
 		game.rig.yaw = deg_to_rad(shot[2])
 		game.rig.snap()

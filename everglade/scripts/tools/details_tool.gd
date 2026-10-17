@@ -25,7 +25,7 @@ const TRIM_NAMES := ["Plain", "Flower box", "Washing line", "Shutters"]
 func _init() -> void:
 	tool_id = "details"
 	title = "Windows & Doors"
-	options = {"mode": "window", "wt": "plain"}
+	options = {"mode": "window", "wt": "plain", "size": 1.0}
 
 
 func option_defs() -> Array:
@@ -46,6 +46,10 @@ func option_defs() -> Array:
 			{"id": "tracery", "label": "Tracery", "icon": "win_tracery"},
 			{"id": "round", "label": "Round", "icon": "win_round"},
 			{"id": "slit", "label": "Arrow slit", "icon": "win_slit"}]})
+	if options.mode == "window" or options.mode == "door":
+		# new windows and doors take this size; tapping one at another size
+		# resizes it
+		defs.append({"type": "slider", "key": "size", "label": "Size", "min": 0.6, "max": 1.6, "step": 0.1})
 	return defs
 
 
@@ -63,7 +67,7 @@ func hint() -> String:
 			return "Tap a roof or tower top for a flag, a wall for a banner, the ground for a standard. Tap one again to change its pattern."
 		"remove":
 			return "Tap a window, door, lantern, flag or chimney to take it away."
-	return "Tap a wall for a window; tap it again for a flower box, washing line or shutters. Drag one to the ground for a door. On a flat roof it's a trapdoor."
+	return "Tap a wall for a window; tap it again for a flower box, washing line or shutters. Drag one to the ground for a door. Set Size and tap one to resize it. On a flat roof it's a trapdoor."
 
 
 func press(screen: Vector2) -> bool:
@@ -199,12 +203,21 @@ func _tap_building(hit: Dictionary, mode: String) -> void:
 				var kind := "door" if mode == "door" or (loc.y < Catalog.PLINTH + 0.9 and loc.f == 0) else "window"
 				var f_idx: int = 0 if kind == "door" else loc.f
 				var door := glade.door_near(b, loc.side, loc.u, 0.9) if kind == "door" else {}
-				if not door.is_empty():
+				var want := snappedf(float(options.size), 0.1)
+				if not door.is_empty() and b.windows.has(door) and absf(float(door.get("sc", 1.0)) - want) > 0.01:
+					# tapping a door at another size resizes it
+					if absf(want - 1.0) < 0.01:
+						door.erase("sc")
+					else:
+						door.sc = want
+					game.hud.toast("Bigger" if want > 1.0 else ("Smaller" if want < 1.0 else "Usual size"))
+				elif not door.is_empty():
 					# tapping a door again shuffles the clutter beside it
 					glade.reroll_clutter(b, door)
 					Sfx.play("plant", -4.0)
 					return
-				_tap_window(b, {"side": loc.side, "u": loc.u, "f": f_idx, "kind": kind, "wt": options.wt})
+				else:
+					_tap_window(b, {"side": loc.side, "u": loc.u, "f": f_idx, "kind": kind, "wt": options.wt, "sc": want})
 	if not ok:
 		glade.undo_stack.pop_back()
 		Sfx.play("nope", -8.0)
@@ -218,10 +231,21 @@ func _tap_building(hit: Dictionary, mode: String) -> void:
 ## swaps its shape, or removes it.
 func _tap_window(b: Dictionary, w: Dictionary) -> void:
 	var existing := _window_at(b, {"side": w.side, "u": w.u, "f": w.f}, 0.9)
+	if absf(float(w.get("sc", 1.0)) - 1.0) < 0.01:
+		w.erase("sc")
 	if existing.is_empty():
 		if w.kind == "door":
 			w.erase("wt")
 		b.windows.append(w)
+		return
+	# tapping a window or door at another size resizes it
+	var want := float(w.get("sc", 1.0))
+	if absf(float(existing.get("sc", 1.0)) - want) > 0.01:
+		if absf(want - 1.0) < 0.01:
+			existing.erase("sc")
+		else:
+			existing.sc = want
+		game.hud.toast("Bigger" if want > 1.0 else ("Smaller" if want < 1.0 else "Usual size"))
 		return
 	if existing.kind == "door" or w.kind == "door":
 		b.windows.erase(existing)

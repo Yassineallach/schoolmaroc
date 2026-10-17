@@ -1035,7 +1035,7 @@ func surface_at(p: Vector2, near := 0.7) -> float:
 			continue
 		if Geometry2D.is_point_in_polygon(p, BuildingView.footprint(b)):
 			var v = views.get(b.id)
-			var top: float = float(b.get("base", 0.0)) + float(b.get("lift", 0.0)) + (v.eave if v else Catalog.PLINTH + b.floors * Catalog.FLOOR_H)
+			var top: float = float(b.get("base", 0.0)) + float(b.get("lift", 0.0)) + (v.eave if v else Catalog.PLINTH + b.floors * Catalog.FLOOR_H * float(b.get("fh", 1.0)))
 			h = maxf(h, top)
 	for w in data.walls:
 		var c := Geo.closest(w.pts, p)
@@ -1242,12 +1242,12 @@ func _doors_for(b: Dictionary, pts: PackedVector2Array, pw: float) -> Array:
 	var tmp := BuildingView.new()
 	tmp.data = b
 	tmp.transform = Transform3D(BuildingView.local_basis(b.get("rot", 0.0)), Vector3(b.c.x, b.base, b.c.y))
-	tmp.eave = Catalog.PLINTH + b.floors * Catalog.FLOOR_H
+	tmp.eave = Catalog.PLINTH + b.floors * Catalog.FLOOR_H * float(b.get("fh", 1.0))
 	var out: Array = []
 	for point in points:
 		var loc := tmp.locate(Vector3(point.x, b.base + 0.5, point.y))
 		var o := {"side": loc.side, "u": snappedf(loc.u, 0.001), "s": 0.0}
-		if (through or pw >= 2.0) and float(b.get("lift", 0.0)) < 0.3 and b.floors * Catalog.FLOOR_H > 2.4:
+		if (through or pw >= 2.0) and float(b.get("lift", 0.0)) < 0.3 and b.floors * Catalog.FLOOR_H * float(b.get("fh", 1.0)) > 2.4:
 			o.arch = true
 			o.aw = snappedf(pw + 0.4, 0.1)
 			if terrain.height_at_v(point) < Terrain.WATER_LEVEL - 0.05:
@@ -1489,7 +1489,7 @@ func ceiling_at(p: Vector2) -> float:
 				d = minf(d, Geo.dist_to_segment(p, poly[i], poly[(i + 1) % poly.size()]))
 			if d > 1.2:
 				continue
-		var top: float = b.base + float(b.get("lift", 0.0)) + Catalog.PLINTH + b.floors * Catalog.FLOOR_H
+		var top: float = b.base + float(b.get("lift", 0.0)) + Catalog.PLINTH + b.floors * Catalog.FLOOR_H * float(b.get("fh", 1.0))
 		var v = views.get(b.id)
 		if v:
 			top += v.roof_h

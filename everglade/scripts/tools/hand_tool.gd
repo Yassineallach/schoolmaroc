@@ -10,7 +10,9 @@ extends BaseTool
 ##    onto pillars. Towers get a radius handle.
 ##  - roofs: the roof handle drags up/down for pitch and sideways to round
 ##    the roof out or flare it; roofs laid on walls get an eave handle.
-##  - props: a ring handle turns them.
+##  - props: a ring handle turns them, the handle above scales them.
+##  - houses and towers: the corner handle at the eaves makes every storey
+##    taller or squatter (windows and doors scale in the Windows tool).
 ## With a mouse, hovering a piece already shows its handles.
 ## Dragging the selected piece anywhere else moves it.
 
@@ -370,7 +372,7 @@ func _place_handles(type: String, item: Dictionary) -> void:
 				_handles.append({"kind": "wall_h", "pos": Geo.v3(mid, t.height_at_v(mid) + float(item.get("h", 2.4)) + 0.45)})
 		"buildings":
 			var v: BuildingView = glade.views.get(item.id)
-			var eave: float = v.eave if v else Catalog.FLOOR_H * item.floors
+			var eave: float = v.eave if v else Catalog.FLOOR_H * float(item.get("fh", 1.0)) * item.floors
 			var roof_h: float = v.roof_h if v else 2.0
 			var ground_y: float = item.get("base", t.height_at_v(item.c))
 			var base: float = ground_y + float(item.get("lift", 0.0))
@@ -388,6 +390,8 @@ func _place_handles(type: String, item: Dictionary) -> void:
 				var r: float = item.r
 				_handles.append({"kind": "eave" if item.get("roof_only", false) else "floors", "pos": c3 + Vector3(r + 0.1, eave, 0)})
 				_handles.append({"kind": "radius", "pos": c3 + Vector3(0, 0.3, r + 0.2)})
+				if not item.get("roof_only", false):
+					_handles.append({"kind": "storey", "pos": c3 + Vector3(-r - 0.15, eave, 0)})
 				if roof_h > 0.3:
 					_handles.append({"kind": "pitch", "pos": c3 + Vector3.UP * (eave + roof_h + 0.3)})
 			else:
@@ -400,6 +404,9 @@ func _place_handles(type: String, item: Dictionary) -> void:
 				if roof_h > 0.3:
 					_handles.append({"kind": "pitch", "pos": c3 + Vector3.UP * (eave + roof_h + 0.3)})
 				_handles.append({"kind": "size_x", "pos": Geo.v3(item.c + ax * (s.x * 0.5 + 0.2), base + 0.4)})
+				if not item.get("roof_only", false):
+					var top_corner: Vector2 = item.c + ax * (s.x * 0.5 + 0.15) + az * (s.y * 0.5 + 0.15)
+					_handles.append({"kind": "storey", "pos": Geo.v3(top_corner, base + eave)})
 				_handles.append({"kind": "size_z", "pos": Geo.v3(item.c + az * (s.y * 0.5 + 0.2), base + 0.4)})
 				var corner: Vector2 = item.c + ax * (s.x * 0.5 + 0.9) - az * (s.y * 0.5 + 0.9)
 				_handles.append({"kind": "rotate", "pos": Geo.v3(corner, t.height_at_v(corner) + 0.3)})
@@ -409,6 +416,8 @@ func _place_handles(type: String, item: Dictionary) -> void:
 			var at: Vector3 = item.p + Vector3(cos(pr), 0, sin(pr)) * rad
 			at.y = t.height_at(at.x, at.z) + 0.3
 			_handles.append({"kind": "rotate", "pos": at})
+			var top := ModelLib.radius(item.kind) * float(item.get("s", 1.0)) * 1.6 + 0.6
+			_handles.append({"kind": "pscale", "pos": item.p + Vector3.UP * top})
 	_show_handles()
 
 
@@ -445,9 +454,9 @@ static var _mats: Dictionary = {}
 static func _handle_material(kind: String) -> Material:
 	var col := Color(1.0, 0.98, 0.92)          # reshape points
 	match kind:
-		"wall_h", "floors", "pitch", "eave", "lift", "sy0", "sy1":
+		"wall_h", "floors", "pitch", "eave", "lift", "sy0", "sy1", "storey":
 			col = Color(1.0, 0.78, 0.3)        # heights
-		"size_x", "size_z", "radius", "ext":
+		"size_x", "size_z", "radius", "ext", "pscale":
 			col = Color(0.55, 0.85, 0.55)      # stretch
 		"rotate":
 			col = Color(0.5, 0.75, 1.0)        # turn
@@ -511,6 +520,13 @@ func _drag_handle(screen: Vector2) -> void:
 				item.curve = 0.0
 		"eave":
 			item.eave = clampf(float(item0.get("eave", 2.4)) + dy * 0.012, 0.8, 9.0)
+		"storey":
+			# every storey taller or squatter
+			item.fh = snappedf(clampf(float(item0.get("fh", 1.0)) + dy * 0.004, 0.7, 1.6), 0.05)
+			if absf(item.fh - 1.0) < 0.01:
+				item.erase("fh")
+		"pscale":
+			item.s = snappedf(clampf(float(item0.get("s", 1.0)) * (1.0 + dy * 0.006), 0.3, 4.0), 0.05)
 		"ext":
 			var ge = ground(screen)
 			if ge == null:
