@@ -554,7 +554,7 @@ func _on_inspector_action(action: String, value: Variant) -> void:
 			_update_undo()
 			return
 		"floors":
-			item.floors = clampi(item.floors + int(value), 1, 6)
+			item.floors = clampi(item.floors + int(value), 0 if item.shape != "round" else 1, 6)
 			rebuild_panel = true
 		"roof":
 			item.roof = value
@@ -932,10 +932,14 @@ func _on_mouse_button(e: InputEventMouseButton) -> void:
 				else:
 					hud.close_quick_tools()
 		MOUSE_BUTTON_WHEEL_UP:
+			if e.pressed and _wheel_tool(1.0):
+				return
 			if e.pressed:
 				_zoom_to_cursor(e.position, 0.9)
 				rig.zoom_by(0.9)
 		MOUSE_BUTTON_WHEEL_DOWN:
+			if e.pressed and _wheel_tool(-1.0):
+				return
 			if e.pressed:
 				_zoom_to_cursor(e.position, 1.1)
 				rig.zoom_by(1.1)
@@ -943,6 +947,23 @@ func _on_mouse_button(e: InputEventMouseButton) -> void:
 			_mouse_rotate = e.pressed
 		MOUSE_BUTTON_MIDDLE:
 			_mouse_pan = e.pressed
+
+
+## While drawing a wall the wheel sets its height (Tiny Glade); while
+## drawing stairs, their extra rise.
+func _wheel_tool(dir: float) -> bool:
+	if mode != Mode.BUILD or tool == null or not (tool is StrokeTool) or not (tool as StrokeTool).drawing:
+		return false
+	match tool.tool_id:
+		"wall":
+			tool.options.height = clampf(float(tool.options.height) + 0.2 * dir, 0.8, 7.0)
+			hud.toast("Height %.1f m" % tool.options.height)
+			return true
+		"stairs":
+			tool.options.rise = clampf(float(tool.options.rise) + 0.25 * dir, 0.0, 8.0)
+			hud.toast("Rise +%.1f m" % tool.options.rise)
+			return true
+	return false
 
 
 ## Settings > Zoom towards the pointer: the view slides towards (or away

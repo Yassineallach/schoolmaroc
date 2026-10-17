@@ -236,6 +236,10 @@ func add_building(b: Dictionary) -> Dictionary:
 	if not b.has("windows"):
 		b.windows = BuildingView.default_windows(b)
 	settle_building(b)
+	# a shape snapped onto a flat-roofed one gets a flat roof too
+	var host := _join_host(b)
+	if not host.is_empty() and host.get("roof", "") == "flat" and not batch:
+		b.roof = "flat"
 	data.buildings.append(b)
 	if batch:
 		return b

@@ -171,7 +171,59 @@ countryside carries on beyond it into the haze, so it never feels like an island
 **Desktop (for testing)**
 
 - Right-drag rotates and tilts, middle-drag pans, the wheel zooms, WASD/QE moves.
-- `1`–`9` pick tools, `Ctrl+Z` / `Ctrl+Y` undo/redo, `P` toggles photo mode, `Del` deletes, `Esc` goes back.
+- Number keys pick tool groups as in Tiny Glade and cycle within a group when pressed again:
+  `1` walls/houses/roofs/fences, `2` paths/stairs, `3` windows/decor, `4` paint, `5` erasers (again
+  cycles everything, walls only, paths, trees, plants, water, hammer), `6` land, `7` flowers,
+  `8` trees, `9` ponds, `0` Explore.
+- Hold `Space` (or the mouse back button) for a ring of tools at the pointer; let go over one.
+- `Ctrl+Z` / `Ctrl+Y` undo/redo, `Ctrl+1` or `Ctrl+D` duplicate, `Ctrl`+tap group-select, `Del`
+  deletes, `Ctrl` while placing holds off snapping (and turns path/plant/pond brushes into erasers),
+  the wheel while drawing a wall sets its height, `V` walk/fly/map, `P` photo mode, `Esc` goes back.
+
+## 2b. Everything else from Tiny Glade
+
+A feature-by-feature pass over Tiny Glade (up to its 1.16 update) added:
+
+- **Windows & details** (`DetailsTool`, `scripts/build/ornaments.gd`): plain, arched, round and
+  arrow-slit windows; tapping a plain window again cycles flower box → washing-line bracket →
+  shutters → removed; facing brackets string **laundry** between them, even across a lane. A window
+  on a flat roof is a **trapdoor**. Wall **lanterns** (lamp posts on the ground). **Flags** on roofs and
+  tower tops, **banners** on walls, standards on the ground, 36 patterns (tap again for the next),
+  strung together with **bunting**. A Remove mode, and tapping a door re-rolls its **clutter**.
+- **Houses:** a corner handle raises a house onto **stone pillars** (steps run down from its doors,
+  sheep shelter underneath); **Turn roof**; tower roofs bend into **domes** or flare into **spires**;
+  **plank** and **board** houses and towers on stone footings, **timber** freehand walls, an upright
+  **plank fence**; toggles for storey bands, battlements, chimney smoke and flag strings; a **Worn**
+  slider for peeling plaster; **level-topped** walls; houses with **no storeys** (tent-like); shapes
+  snapped onto a flat-roofed house get a flat roof; bushes at house feet and **bird nests** where
+  roofs meet.
+- **Stairs tool** (`scripts/build/stair_view.gd`): draw from where they start to where they arrive
+  (ground, wall tops, flat roofs); round a tower they spiral; level = landing, steep = **ladder**;
+  railings; stone or timber; **Float** hangs them on bobbing rocks.
+- **Paths:** wide paths open **archways**, paths right through a house make a **tunnel** (twin arches
+  when very wide, an iron **water gate** when flooded); **worn cobbles** and **setts**.
+- **Clutter:** new doors strew clutter beside them; 17 new clutter pieces modelled in code
+  (`scripts/build/clutter.gd`, incl. a glowing carved pumpkin); the decor picker is grouped and
+  pieces can stand on roofs, wall tops and stairs.
+- **Paint tool:** copy a piece's style and paste it, or paint walls, roofs, stone and window light.
+- **Groups:** select several pieces, move/turn/raise/copy/remove them together, **bookmark** them.
+- **Erasers:** everything, walls only (ruins), paths, trees, plants, water, and a one-thing hammer.
+  **Continue** handles extend walls, fences and paths; hills can be **moved**.
+- **Nature:** repainting flowers thickens them into bushes; flowers on water become lilies; trees
+  in ponds get lily pads; **Meadow** and **Grain** brushes.
+- **Cameras** (`scripts/world/view_modes.gd`): **walk** (first person, up stairs and onto roofs,
+  Ctrl walks through things), **fly**, **map**, and **riding a cart** rollercoaster-style down
+  connected flights of stairs, with sheep in the carts behind.
+- **Photo mode:** tap to focus, blur, focus depth, field of view, exposure, colour, vignette, filters
+  (warm, cool, sepia, mono, dreamy) and a painterly look; a folder button opens the pictures.
+- **Creatures:** flick a sheep to **herd** the flock; sheep built over or lifted by the ground
+  **parachute** down on umbrellas; ducks fly off from new paths and filled-in water; koi dart away
+  from the pointer.
+- **World:** the grey, misty **Olden** glade type (the season button switches any glade), a **snow**
+  slider, a **daily theme** glade with Halloween and winter-holiday events.
+
+Not carried over: Steam Workshop mods, controller glyphs and the TGSR upscaler (PC features), and
+Tiny Glade's own soundtrack.
 
 ## 3. Project layout
 

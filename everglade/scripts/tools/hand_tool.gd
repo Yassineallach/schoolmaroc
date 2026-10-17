@@ -493,7 +493,7 @@ func _drag_handle(screen: Vector2) -> void:
 		"wall_h":
 			item.h = snappedf(clampf(float(item0.get("h", 2.4)) + dy * 0.012, 0.8, 7.0), 0.1)
 		"floors":
-			var nf := clampi(int(item0.floors) + int(round(dy / 55.0)), 1, 6)
+			var nf := clampi(int(item0.floors) + int(round(dy / 55.0)), 0 if item.shape != "round" else 1, 6)
 			if nf != item.floors:
 				var old: int = item.floors
 				item.floors = nf

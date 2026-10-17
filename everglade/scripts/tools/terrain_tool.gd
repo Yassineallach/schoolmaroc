@@ -26,7 +26,7 @@ var _sound_t := 0.0
 func _init() -> void:
 	tool_id = "terrain"
 	title = "Terrain"
-	options = {"shape": "hill", "size": 2.2, "stack": false}
+	options = {"shape": "hill", "size": 2.2, "stack": false, "move": false}
 
 
 func option_defs() -> Array:
@@ -36,11 +36,15 @@ func option_defs() -> Array:
 			{"id": "cliff", "label": "Cliff", "icon": "cliff"}]},
 		{"type": "slider", "key": "size", "label": "Brush", "min": 0.8, "max": 6.0, "step": 0.1},
 		{"type": "toggle", "key": "stack", "label": "Stack", "icon": "stack"},
+		{"type": "toggle", "key": "move", "label": "Move", "icon": "hand"},
 	]
 
 
 func hint() -> String:
-	return "Paint land on the meadow. Press a hill and drag up/down for height, left/right for cliff ↔ hill."
+	return "Paint land on the meadow. Press a hill and drag up/down for height, left/right for cliff ↔ hill. With Move, drag a hill somewhere else."
+
+
+var _last_ground := Vector2.ZERO
 
 
 func _default_height() -> float:
@@ -60,6 +64,16 @@ func press(screen: Vector2) -> bool:
 	_start_screen = screen
 	_moved = false
 	var hit: Dictionary = {} if options.stack else glade.terrain.patch_at(at)
+	if options.get("move", false):
+		if hit.is_empty():
+			glade.undo_stack.pop_back()
+			return false
+		_mode = "move"
+		_patch = hit
+		_last_ground = at
+		_old_bounds = Terrain.patch_bounds(_patch)
+		Sfx.play("rumble", -10.0, 0.2)
+		return true
 	if not hit.is_empty():
 		_mode = "adjust"
 		_patch = hit
@@ -79,6 +93,20 @@ func drag(screen: Vector2) -> void:
 		return
 	if screen.distance_to(_start_screen) > 10.0:
 		_moved = true
+	if _mode == "move":
+		var gm = ground(screen)
+		if gm == null:
+			return
+		var to := Vector2(gm.x, gm.z)
+		var dlt := to - _last_ground
+		if dlt.length() > 0.2:
+			_last_ground = to
+			var mp: PackedVector2Array = _patch.pts
+			for i in mp.size():
+				mp[i] = glade.terrain.clamp_to_play(mp[i] + dlt)
+			_patch.pts = mp
+			_pending = true
+		return
 	if _mode == "adjust":
 		var d := screen - _start_screen
 		_patch.h = clampf(_start_h - d.y * ADJUST_HEIGHT_PER_PX, 0.0, Terrain.PATCH_MAX_H)

@@ -93,8 +93,9 @@ func build(d: Dictionary, auto_doors: Array = [], preview := false) -> void:
 	_peel = clampf(float(d.get("peel", 1.0)), 0.0, 3.0)
 	var base: float = float(d.get("base", 0.0)) + lift
 	transform = Transform3D(local_basis(d.get("rot", 0.0)), Vector3(c.x, base, c.y))
-	var floors: int = clampi(d.get("floors", 1), 1, 8)
-	eave = PL + floors * FH
+	var floors: int = clampi(d.get("floors", 1), 0, 8)
+	# no storeys at all: a low tent-like house that is nearly all roof
+	eave = PL + floors * FH if floors > 0 else PL + 0.4
 	if d.get("roof_only", false):
 		eave = float(d.get("eave", 2.4))
 	var mb := MeshBuilder.new()
