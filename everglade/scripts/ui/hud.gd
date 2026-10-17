@@ -22,6 +22,7 @@ const TOOLS := [
 	{"id": "details", "label": "Windows", "icon": "details"},
 	{"id": "fence", "label": "Fences", "icon": "fence"},
 	{"id": "path", "label": "Paths", "icon": "path"},
+	{"id": "stairs", "label": "Stairs", "icon": "stairs"},
 	{"id": "nature", "label": "Nature", "icon": "nature"},
 	{"id": "decor", "label": "Decor", "icon": "decor"},
 	{"id": "water", "label": "Ponds", "icon": "water"},

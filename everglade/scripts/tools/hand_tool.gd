@@ -269,15 +269,27 @@ func _place_handles(type: String, item: Dictionary) -> void:
 	_handles.clear()
 	var t := glade.terrain
 	match type:
-		"walls", "fences", "paths":
+		"walls", "fences", "paths", "stairs":
 			var pts: PackedVector2Array = item.pts
 			var knots: int = clampi(int(item.get("knots", LINE_HANDLES)), 2, 25)
 			var step := maxi(1, int(ceil(float(pts.size() - 1) / (knots - 1))))
 			var idx := range(0, pts.size(), step)
 			if idx[idx.size() - 1] != pts.size() - 1:
 				idx.append(pts.size() - 1)
-			for i in idx:
-				_handles.append({"kind": "pt", "i": i, "pos": Geo.v3(pts[i], t.height_at_v(pts[i]) + 0.25)})
+			var total := Geo.length(pts)
+			var acc := 0.0
+			for i in pts.size():
+				if i > 0:
+					acc += pts[i].distance_to(pts[i - 1])
+				if not i in idx:
+					continue
+				var hy := t.height_at_v(pts[i]) + 0.25
+				if type == "stairs":
+					hy = lerpf(float(item.y0), float(item.y1), acc / maxf(total, 0.01)) + 0.25
+				_handles.append({"kind": "pt", "i": i, "pos": Geo.v3(pts[i], hy)})
+			if type == "stairs":
+				_handles.append({"kind": "sy0", "pos": Geo.v3(pts[0], float(item.y0) + 1.1)})
+				_handles.append({"kind": "sy1", "pos": Geo.v3(pts[pts.size() - 1], float(item.y1) + 1.1)})
 			if type == "walls":
 				var mid := Geo.point_at(pts, Geo.length(pts) * 0.5)
 				_handles.append({"kind": "wall_h", "pos": Geo.v3(mid, t.height_at_v(mid) + float(item.get("h", 2.4)) + 0.45)})
@@ -358,7 +370,7 @@ static var _mats: Dictionary = {}
 static func _handle_material(kind: String) -> Material:
 	var col := Color(1.0, 0.98, 0.92)          # reshape points
 	match kind:
-		"wall_h", "floors", "pitch", "eave", "lift":
+		"wall_h", "floors", "pitch", "eave", "lift", "sy0", "sy1":
 			col = Color(1.0, 0.78, 0.3)        # heights
 		"size_x", "size_z", "radius":
 			col = Color(0.55, 0.85, 0.55)      # stretch
@@ -424,6 +436,9 @@ func _drag_handle(screen: Vector2) -> void:
 				item.curve = 0.0
 		"eave":
 			item.eave = clampf(float(item0.get("eave", 2.4)) + dy * 0.012, 0.8, 9.0)
+		"sy0", "sy1":
+			var key: String = "y0" if h.kind == "sy0" else "y1"
+			item[key] = snappedf(float(item0[key]) + dy * 0.012, 0.05)
 		"lift":
 			item.lift = snappedf(clampf(float(item0.get("lift", 0.0)) + dy * 0.012, 0.0, 6.0), 0.1)
 			if item.lift < 0.2:

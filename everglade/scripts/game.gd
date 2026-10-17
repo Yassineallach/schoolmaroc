@@ -99,7 +99,7 @@ func _ready() -> void:
 
 func _make_tools() -> void:
 	for t in [HandTool.new(), WallTool.new(), BuildingTool.new(), RoofTool.new(), DetailsTool.new(),
-			FenceTool.new(), PathTool.new(), NatureTool.new(), DecorTool.new(), WaterTool.new(),
+			FenceTool.new(), PathTool.new(), StairTool.new(), NatureTool.new(), DecorTool.new(), WaterTool.new(),
 			TerrainTool.new(), EraserTool.new()]:
 		var bt := t as BaseTool
 		bt.setup(self, glade)
@@ -344,6 +344,18 @@ func _inspector_defs(f: Dictionary) -> Array:
 				{"type": "actions", "items": [{"id": "more_pts", "icon": "plus", "label": "More points"}, {"id": "fewer_pts", "icon": "minus", "label": "Fewer points"}, {"id": "straighten", "icon": "ruler", "label": "Straighten"}, {"id": "cut", "icon": "cut", "label": "Cut"}]},
 				{"type": "actions", "items": [{"id": "clone", "icon": "clone", "label": "Copy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
 			]
+		"stairs":
+			return [
+				{"type": "title", "text": "Stairs"},
+				{"type": "choice", "key": "mat", "items": [
+					{"id": "stone", "label": "Stone", "icon": "stairs"}, {"id": "wood", "label": "Timber", "icon": "stairs_wood"}]},
+				{"type": "slider", "key": "w", "label": "Width", "min": 0.6, "max": 3.0, "step": 0.1},
+				{"type": "toggle", "key": "rail", "label": "Railing", "icon": "rail"},
+				{"type": "toggle", "key": "float", "label": "Float", "icon": "float"},
+				{"type": "actions", "items": [{"id": "flip_stairs", "icon": "rotr", "label": "Reverse"}, {"id": "more_pts", "icon": "plus", "label": "More points"}, {"id": "straighten", "icon": "ruler", "label": "Straighten"}]},
+				{"type": "actions", "items": [{"id": "clone", "icon": "clone", "label": "Copy"}, {"id": "delete", "icon": "trash", "label": "Remove"}]},
+				{"type": "label", "text": "Pull the tall handles at each end to raise or lower that end; the dots reshape the flight."},
+			]
 		"props":
 			return [
 				{"type": "title", "text": String(item.kind).replace("_", " ").capitalize()},
@@ -477,8 +489,14 @@ func _on_inspector_action(action: String, value: Variant) -> void:
 			item.ivy = 0.0 if cur > 0.5 else 1.0
 		"ridge":
 			item.ridge = not item.get("ridge", false)
-		"bands", "merlons", "level":
+		"bands", "merlons", "level", "rail", "float":
 			item[action] = bool(value)
+		"mat":
+			item.mat = value
+		"flip_stairs":
+			var y0: float = item.y0
+			item.y0 = item.y1
+			item.y1 = y0
 		"peel", "lift":
 			item[action] = snappedf(float(value), 0.1)
 	glade.refresh(selected_id, false)
@@ -715,7 +733,7 @@ func _handle_tap(pos: Vector2) -> void:
 	# animals respond to a tap whatever the tool
 	var cam := rig.camera
 	var creature := life.pick(cam.project_ray_origin(pos), cam.project_ray_normal(pos))
-	if creature and (mode == Mode.PHOTO or tool == null or tool.tool_id in ["hand", "nature", "decor", "details", "roof"]):
+	if creature and (mode == Mode.PHOTO or tool == null or tool.tool_id in ["hand", "nature", "decor", "details", "roof", "stairs"]):
 		creature.pet()
 		return
 	if mode == Mode.BUILD and tool:

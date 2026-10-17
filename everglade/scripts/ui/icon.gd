@@ -426,6 +426,19 @@ func _draw() -> void:
 		"level":
 			poly([Vector2(0.06, 0.92), Vector2(0.06, 0.62), Vector2(0.4, 0.5), Vector2(0.94, 0.66), Vector2(0.94, 0.92)], LEAF)
 			rect(0.1, 0.22, 0.8, 0.3, STONE)
+		"stairs", "stairs_wood":
+			var sc := STONE if icon == "stairs" else WOOD
+			for k in 4:
+				rect(0.12 + k * 0.19, 0.7 - k * 0.18, 0.19, 0.22 + k * 0.18, sc)
+		"rail":
+			for k in 4:
+				rect(0.14 + k * 0.22, 0.32, 0.06, 0.56, WOOD)
+			rect(0.1, 0.26, 0.8, 0.08, WOOD)
+		"float":
+			rect(0.15, 0.25, 0.7, 0.16, STONE)
+			circle(Vector2(0.32, 0.66), 0.1, STONE)
+			circle(Vector2(0.62, 0.78), 0.08, STONE)
+			circle(Vector2(0.75, 0.56), 0.04, SUN, false)
 		"hammer":
 			rect(0.46, 0.35, 0.09, 0.58, WOOD)
 			poly([Vector2(0.22, 0.14), Vector2(0.78, 0.14), Vector2(0.78, 0.36), Vector2(0.22, 0.36)], STONE)

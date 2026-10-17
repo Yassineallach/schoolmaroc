@@ -80,7 +80,7 @@ func _ready() -> void:
 static func empty_data(name_text := "My Glade") -> Dictionary:
 	return {
 		"version": 1, "name": name_text, "season": 1, "time": 0.38, "next_id": 1,
-		"walls": [], "fences": [], "paths": [], "buildings": [], "props": [], "patches": [],
+		"walls": [], "fences": [], "paths": [], "buildings": [], "props": [], "patches": [], "stairs": [],
 		"template": "meadow", "seed": randi() % 100000,
 	}
 
@@ -102,7 +102,7 @@ func new_glade(template: String, name_text := "My Glade") -> void:
 
 func load_data(d: Dictionary) -> void:
 	data = d
-	for key in ["walls", "fences", "paths", "buildings", "props", "patches"]:
+	for key in ["walls", "fences", "paths", "buildings", "props", "patches", "stairs"]:
 		if not data.has(key):
 			data[key] = []
 	if data.has("terrain"):
@@ -172,6 +172,8 @@ func _restore(d: Dictionary) -> void:
 	data.season = keep_season
 	if not data.has("patches"):
 		data.patches = []
+	if not data.has("stairs"):
+		data.stairs = []
 	terrain.patches = data.patches
 	terrain.set_heights(d.terrain)
 	terrain.flush()
@@ -183,8 +185,8 @@ func _restore(d: Dictionary) -> void:
 # Lookup
 # ---------------------------------------------------------------------------
 func find(id: int) -> Dictionary:
-	for key in ["walls", "fences", "paths", "buildings", "props"]:
-		for item in data[key]:
+	for key in ["walls", "fences", "paths", "buildings", "props", "stairs"]:
+		for item in data.get(key, []):
 			if item.id == id:
 				return {"type": key, "item": item}
 	return {}
@@ -695,6 +697,14 @@ func erase_lines_near(center: Vector2, radius: float) -> int:
 				data[type].append(copy)
 				_make_view(type, copy, false)
 			count += 1
+	# stairs go as a whole
+	for st in data.get("stairs", []).duplicate():
+		if Geo.closest(st.pts, center).x <= radius:
+			data.stairs.erase(st)
+			if views.has(st.id):
+				views[st.id].queue_free()
+				views.erase(st.id)
+			count += 1
 	if count > 0:
 		mark_interactions()
 		changed.emit()
@@ -771,6 +781,10 @@ func _make_view(type: String, item: Dictionary, animate: bool) -> Node3D:
 			_roots.buildings.add_child(v)
 			v.joins = join_polys(item)
 			v.build(item, _openings.get(item.id, []))
+		"stairs":
+			v = StairView.new()
+			_roots.walls.add_child(v)
+			v.build(item, terrain)
 	views[item.id] = v
 	_links_dirty = true
 	if animate and v.has_method("play_build_anim"):
@@ -794,8 +808,8 @@ func rebuild_all() -> void:
 	views.clear()
 	_openings.clear()
 	_compute_interactions()
-	for type in ["walls", "fences", "paths", "buildings"]:
-		for item in data[type]:
+	for type in ["walls", "fences", "paths", "buildings", "stairs"]:
+		for item in data.get(type, []):
 			_make_view(type, item, false)
 	props.rebuild(data.props)
 	_paint_mask()
@@ -881,6 +895,37 @@ func _rebuild_links() -> void:
 	_links.add_child(mi)
 
 
+## Adds stairs along `pts` rising from y0 (first point) to y1 (last point).
+func add_stairs(pts: PackedVector2Array, y0: float, y1: float, w: float, mat: String) -> Dictionary:
+	var st := {"id": next_id(), "pts": pts, "y0": snappedf(y0, 0.01), "y1": snappedf(y1, 0.01), "w": w, "mat": mat, "rail": true}
+	data.stairs.append(st)
+	_make_view("stairs", st, true)
+	_after_edit(Geo.v3(pts[0], y0), "stairs")
+	return st
+
+
+## The height something standing at p would rest on: the ground, a flat
+## roof, the top of a wall or the walking line of other stairs.
+func surface_at(p: Vector2, near := 0.7) -> float:
+	var h := terrain.height_at_v(p)
+	for b in data.buildings:
+		if b.get("roof", "") != "flat" and not b.get("roof_only", false):
+			continue
+		if Geometry2D.is_point_in_polygon(p, BuildingView.footprint(b)):
+			var v = views.get(b.id)
+			var top: float = float(b.get("base", 0.0)) + float(b.get("lift", 0.0)) + (v.eave if v else Catalog.PLINTH + b.floors * Catalog.FLOOR_H)
+			h = maxf(h, top)
+	for w in data.walls:
+		var c := Geo.closest(w.pts, p)
+		if c.x < near:
+			h = maxf(h, terrain.height_at_v(Geo.point_at(w.pts, c.y)) + float(w.get("h", 2.4)))
+	for st in data.get("stairs", []):
+		var c2 := Geo.closest(st.pts, p)
+		if c2.x < float(st.get("w", 1.2)) * 0.5:
+			h = maxf(h, StairView.height_at(st, c2.y))
+	return h
+
+
 ## Reeds along pond banks and lily pads on open water, placed deterministically.
 func _rebuild_shore() -> void:
 	var reeds: Array[Transform3D] = []
@@ -945,8 +990,8 @@ func terrain_edited() -> void:
 		pos.y = terrain.height_at(pos.x, pos.z)
 		p.p = pos
 	props.rebuild(data.props)
-	for type in ["walls", "fences", "paths"]:
-		for item in data[type]:
+	for type in ["walls", "fences", "paths", "stairs"]:
+		for item in data.get(type, []):
 			_make_view(type, item, false)
 	_rebuild_shore()
 	_rebuild_scree()
