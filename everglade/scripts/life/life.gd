@@ -29,6 +29,14 @@ func setup(g: Glade, d: DayCycle) -> void:
 	day.changed.connect(func(): _rebalance_in = minf(_rebalance_in, 1.0) if _rebalance_in > 0 else 1.0)
 
 
+## Sends the sheep near `from` trotting off in `dir`.
+func herd(from: Vector2, dir: Vector2) -> void:
+	for s in sheep:
+		if is_instance_valid(s) and (s as Node3D).global_position.distance_to(Vector3(from.x, (s as Node3D).global_position.y, from.y)) < 6.0:
+			s.run_to(dir.normalized())
+	Sfx.play("baa", -4.0)
+
+
 func clear() -> void:
 	for list in [sheep, ducks, chickens, birds, butterflies, cats, kois, slimes, crystalflies, wildlife]:
 		for c in list:

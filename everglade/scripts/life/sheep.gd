@@ -3,18 +3,35 @@ extends Creature
 ## Wanders the meadow, grazes, follows the flock and loves a pat.
 
 var flock: Array = []
+var _check_t := 0.0
+var _boost_t := 0.0
+var _base_speed := 0.55
 
 
 func _ready() -> void:
 	speed = rng.randf_range(0.45, 0.65)
+	_base_speed = speed
 	sound = "baa"
 	state = "graze"
 	state_time = rng.randf_range(1.0, 5.0)
 
 
 func _process(delta: float) -> void:
+	if state == "para":
+		return
 	state_time -= delta
 	happy = maxf(0.0, happy - delta * 0.5)
+	_boost_t -= delta
+	if _boost_t <= 0.0:
+		speed = _base_speed
+	# built over, or the ground jumped under it: up and away on an umbrella
+	_check_t -= delta
+	if _check_t <= 0.0:
+		_check_t = 0.4
+		var gp := ground_pos()
+		if _built_over(gp) or absf(global_position.y - ground_y(gp)) > 0.6:
+			parachute()
+			return
 	var moving := false
 	match state:
 		"graze":
@@ -47,6 +64,29 @@ func _process(delta: float) -> void:
 	animate_legs(moving, delta)
 	# gentle breathing / body bob
 	model.scale = Vector3.ONE * (1.0 + sin(Time.get_ticks_msec() * 0.003 + rng.seed) * 0.012)
+
+
+func _built_over(p: Vector2) -> bool:
+	for b in glade.data.buildings:
+		if float(b.get("lift", 0.0)) < 1.4 and Geometry2D.is_point_in_polygon(p, BuildingView.footprint(b)):
+			return true
+	return false
+
+
+## Herded: trot off in `dir` (Tiny Glade's flick-to-herd).
+func run_to(dir: Vector2) -> void:
+	if state == "para":
+		return
+	var pos := ground_pos()
+	for k in 4:
+		var p := pos + dir.rotated(rng.randf_range(-0.35, 0.35)) * rng.randf_range(3.0, 5.5) * (1.0 - k * 0.2)
+		if not glade.is_blocked(p) and not glade.crosses_obstacle(pos, p):
+			target = p
+			state = "walk"
+			state_time = 8.0
+			speed = _base_speed * 2.6
+			_boost_t = 3.0
+			return
 
 
 func _choose_target() -> bool:

@@ -56,7 +56,18 @@ func deactivate() -> void:
 # ---------------------------------------------------------------------------
 # Input
 # ---------------------------------------------------------------------------
+var _herd: Dictionary = {}
+
+
 func press(screen: Vector2) -> bool:
+	# press a sheep and flick: the flock trots off that way
+	var cam := camera()
+	var critter = game.life.pick(cam.project_ray_origin(screen), cam.project_ray_normal(screen))
+	if critter is Sheep:
+		var g0 = ground(screen)
+		if g0 != null:
+			_herd = {"from": Vector2(g0.x, g0.z), "to": Vector2(g0.x, g0.z)}
+			return true
 	var sel: int = game.selected_id
 	if sel < 0 and _hover_id >= 0:
 		# grabbing a handle of the hovered piece selects it on the way
@@ -104,6 +115,11 @@ func press(screen: Vector2) -> bool:
 
 
 func drag(screen: Vector2) -> void:
+	if not _herd.is_empty():
+		var g1 = ground(screen)
+		if g1 != null:
+			_herd.to = Vector2(g1.x, g1.z)
+		return
 	if not _drag.is_empty():
 		_drag_handle(screen)
 		return
@@ -143,6 +159,12 @@ func drag(screen: Vector2) -> void:
 
 
 func release(_screen: Vector2) -> void:
+	if not _herd.is_empty():
+		var dv: Vector2 = _herd.to - _herd.from
+		if dv.length() > 0.6:
+			game.life.herd(_herd.from, dv)
+		_herd = {}
+		return
 	if not _drag.is_empty():
 		var f: Dictionary = _drag.f
 		_drag = {}
@@ -175,6 +197,7 @@ func release(_screen: Vector2) -> void:
 
 
 func cancel() -> void:
+	_herd = {}
 	if not _drag.is_empty() or not moving.is_empty():
 		release(Vector2.ZERO)
 

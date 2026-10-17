@@ -19,8 +19,25 @@ func ground_y(_p: Vector2) -> float:
 	return Terrain.WATER_LEVEL - 0.14
 
 
+var _shy_t := 0.0
+
+
 func _process(delta: float) -> void:
 	t += delta
+	# glide away from the mouse pointer passing over the water
+	_shy_t -= delta
+	if _shy_t <= 0.0 and not DisplayServer.is_touchscreen_available():
+		_shy_t = 0.2
+		var cam := get_viewport().get_camera_3d()
+		if cam:
+			var m := get_viewport().get_mouse_position()
+			var o := cam.project_ray_origin(m)
+			var dir := cam.project_ray_normal(m)
+			if absf(dir.y) > 0.01:
+				var hit := o + dir * ((Terrain.WATER_LEVEL - o.y) / dir.y)
+				if Vector2(hit.x, hit.z).distance_to(ground_pos()) < 1.1:
+					pet()
+					_shy_t = 1.5
 	if _tail:
 		_tail.rotation.y = sin(t * 7.0) * 0.5
 	model.rotation.y = sin(t * 3.5) * 0.08
