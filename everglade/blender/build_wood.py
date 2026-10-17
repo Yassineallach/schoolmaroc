@@ -35,11 +35,17 @@ from mathutils import Matrix, Vector
 
 # Warm, moderately saturated woods (Tiny Glade's GI lifts and warms them in
 # game; these are estimates picked to match its screenshots' feel)
-WOOD = (0.54, 0.35, 0.23)        # #8A5A3B
-WOOD_LIGHT = (0.69, 0.52, 0.35)  # #B08458
-WOOD_DARK = (0.35, 0.23, 0.15)   # #5A3A26
+# Measured from Tiny Glade screenshots (sRGB hex as seen in game, stored
+# linear here as Blender / glTF vertex colours are):
+#   doors #BC9453-#C9A35C, timber beams #A28352-#B29163, chairs and crates
+#   #C5914F-#DBA462, darker doors and lintels #806B4D-#90653D
+WOOD = (0.479, 0.254, 0.08)        # #B88A50 golden honey (doors, boards)
+WOOD_LIGHT = (0.644, 0.361, 0.117)  # #D2A260 light honey (furniture, light boards)
+WOOD_DARK = (0.27, 0.144, 0.058)   # #8E6A44 beams, frames, lintels
+SAGE = (0.212, 0.238, 0.105)        # #7F865B painted shutters and doors
 WOOD_GREY = (0.55, 0.52, 0.47)   # weathered
-CREAM = (0.93, 0.89, 0.81)       # painted frames
+CREAM = (0.847, 0.768, 0.624)       # #EDE3CF painted frames
+LEAD = (0.044, 0.036, 0.03)        # window leading
 SEAM = (0.23, 0.15, 0.09)
 IRON = (0.23, 0.23, 0.23)
 STONE = (0.78, 0.75, 0.68)
@@ -359,21 +365,24 @@ def window_tg(arch=False):
     return p
 
 
-def shutters_tg():
-    p = Piece("shutters_tg")
+def shutters_tg(z_brace=False, color=None):
+    p = Piece("shutters_tg_z" if z_brace else "shutters_tg")
+    color = color or SAGE
     W, H = 0.86, 1.04
     leaf = W / 2 + 0.04
     for sgn in (-1, 1):
         hinge = sgn * (W / 2 + 0.06)
-        # each leaf swung open flat against the wall: three boards and a Z brace
+        # each leaf swung open flat against the wall: three painted boards,
+        # two ledges (Tiny Glade's are plain; the Z brace is optional)
         for k in range(3):
             x = hinge + sgn * (leaf / 3 * (k + 0.5))
-            p.plank((leaf / 3 - 0.012, 0.045, H), (x, 0.0, H / 2), color=(0.42, 0.52, 0.48) if False else WOOD_LIGHT)
+            p.plank((leaf / 3 - 0.012, 0.045, H), (x, 0.0, H / 2), color=color, mat=M_PAINT, vary=0.05)
         cx = hinge + sgn * leaf / 2
         for z in (0.18, H - 0.18):
-            p.plank((leaf - 0.04, 0.03, 0.1), (cx, -0.035, z), color=WOOD, wonky=0.4)
-        diag = math.atan2(H - 0.36, leaf - 0.08)
-        p.plank((math.hypot(H - 0.36, leaf - 0.08), 0.03, 0.09), (cx, -0.035, H / 2), rot=(0, sgn * diag, 0), color=WOOD, wonky=0.3)
+            p.plank((leaf - 0.04, 0.03, 0.1), (cx, -0.035, z), color=color, mat=M_PAINT, wonky=0.4, vary=0.05)
+        if z_brace:
+            diag = math.atan2(H - 0.36, leaf - 0.08)
+            p.plank((math.hypot(H - 0.36, leaf - 0.08), 0.03, 0.09), (cx, -0.035, H / 2), rot=(0, sgn * diag, 0), color=color, mat=M_PAINT, wonky=0.3)
         for z in (0.18, H - 0.18):
             p.cyl(0.03, 0.03, (hinge, -0.02, z), rot=(math.pi / 2, 0, 0))
     return p
@@ -506,12 +515,159 @@ def beam_bay():
     return p
 
 
+def _pointed(c, R, hs):
+    """Height of a pointed (gothic) arch of radius R over half-width c-offset
+    centres at x: two arcs meeting at the middle."""
+    def f(x):
+        cx = -c if x >= 0 else c
+        return hs + math.sqrt(max(0.0, R * R - (x - cx) ** 2))
+    return f
+
+
+def door_tg_gothic():
+    """Pointed-arch plank door in a stone surround (Tiny Glade's castle doors)."""
+    p = Piece("door_tg_gothic")
+    W, H = 1.1, 2.4
+    half = W / 2
+    R = W * 0.85                      # arc radius: a gently pointed lancet
+    c = R - half                      # arc centres sit this far off-centre
+    top = math.sqrt(R * R - c * c)    # rise of the point above the springing
+    hs = H - top
+    shape = _pointed(c, R, hs)
+    # smooth stone surround: jambs and two arcs meeting at the point
+    for sgn in (-1, 1):
+        p.plank((0.2, 0.26, hs + 0.02), (sgn * (half + 0.1), 0.0, (hs + 0.02) / 2), color=STONE, mat=M_STONE, round_=0.3, wonky=0.4)
+    a_end = math.acos(c / (R + 0.1))
+    p.arc_frame(-c, hs, R + 0.1, 0.26, 0.2, color=STONE, mat=M_STONE, a0=0.0, a1=a_end)
+    p.arc_frame(c, hs, R + 0.1, 0.26, 0.2, color=STONE, mat=M_STONE, a0=math.pi - a_end, a1=math.pi)
+    # boards cut to the point
+    n = 5
+    w = W / n
+    for i in range(n):
+        x = -half + w * (i + 0.5)
+        tone = WOOD if i % 3 else (WOOD[0] * 1.08, WOOD[1] * 1.06, WOOD[2] * 1.03)
+        verts = p.plank((w - 0.012, 0.06, H), (x, 0.04, H / 2), color=tone, wonky=0.5)
+        p.round_top(verts, H, lambda vx: shape(vx) - 0.04)
+    # iron: two straps across and a ring handle
+    for z in (0.5, hs - 0.25):
+        p.plank((W - 0.06, 0.025, 0.07), (0, -0.005, z), color=IRON, mat=M_METAL, round_=0.4, wonky=0.2)
+        for x in (-W * 0.35, 0.0, W * 0.35):
+            p.cyl(0.025, 0.02, (x, -0.01, z), rot=(math.pi / 2, 0, 0))
+    p.ring(0.075, 0.015, (W / 2 - 0.22, -0.03, 1.05))
+    p.cyl(0.035, 0.03, (W / 2 - 0.22, 0.0, 1.13), rot=(math.pi / 2, 0, 0))
+    p.plank((W + 0.4, 0.44, 0.12), (0, -0.16, 0.0), color=STONE, mat=M_STONE, round_=0.35)
+    return p
+
+
+def door_tg_double():
+    """Wide double plank door with iron straps."""
+    p = Piece("door_tg_double")
+    W, H = 1.9, 2.3
+    p.plank((0.18, 0.22, H + 0.06), (-W / 2 - 0.09, 0.0, (H + 0.06) / 2), color=WOOD_DARK, wonky=0.4)
+    p.plank((0.18, 0.22, H + 0.06), (W / 2 + 0.09, 0.0, (H + 0.06) / 2), color=WOOD_DARK, wonky=0.4)
+    p.plank((W + 0.55, 0.24, 0.22), (0, 0.0, H + 0.12), color=WOOD_DARK)
+    for sgn in (-1, 1):
+        x0 = 0.0 if sgn > 0 else -W / 2
+        _boards(p, x0 + 0.005, x0 + W / 2 - 0.005, 0.02, H, 0.04, 4)
+        for z in (0.45, H - 0.5):
+            p.plank((W / 2 - 0.12, 0.025, 0.08), (sgn * W / 4, -0.005, z), color=IRON, mat=M_METAL, round_=0.4, wonky=0.2)
+        p.ring(0.06, 0.013, (sgn * 0.14, -0.03, 1.05))
+    p.plank((W + 0.35, 0.42, 0.12), (0, -0.16, 0.0), color=STONE, mat=M_STONE, round_=0.35)
+    return p
+
+
+def window_tg_gothic():
+    p = Piece("window_tg_gothic")
+    W, H = 0.7, 1.15
+    half = W / 2
+    R = W * 0.85
+    c = R - half
+    top = math.sqrt(R * R - c * c)
+    hs = H - top
+    t = 0.11
+    for sgn in (-1, 1):
+        p.plank((t, 0.16, hs), (sgn * half, 0, hs / 2), color=CREAM, mat=M_PAINT, round_=0.35, vary=0.02, wonky=0.3)
+    a_end = math.acos(c / R)
+    p.arc_frame(-c, hs, R, 0.16, t, color=CREAM, mat=M_PAINT, a0=0.0, a1=a_end)
+    p.arc_frame(c, hs, R, 0.16, t, color=CREAM, mat=M_PAINT, a0=math.pi - a_end, a1=math.pi)
+    p.plank((0.05, 0.08, H - 0.1), (0, 0.02, (H - 0.1) / 2), color=CREAM, mat=M_PAINT, round_=0.4, wonky=0.2)
+    p.plank((W - 0.04, 0.08, 0.05), (0, 0.02, hs * 0.55), color=CREAM, mat=M_PAINT, round_=0.4, wonky=0.2)
+    p.plank((W + 0.26, 0.26, 0.09), (0, -0.06, -0.02), color=WOOD, round_=0.35)
+    shape = _pointed(c, R, hs)
+    pts = [(-half, 0.0), (half, 0.0)]
+    for i in range(0, 13):
+        x = half - W * i / 12
+        pts.append((x, shape(x) if abs(x) < half else hs))
+    p.glass(pts, 0.05)
+    return p
+
+
+def window_tg_lattice():
+    """Diamond-paned leaded window (Tiny Glade's timber houses)."""
+    p = Piece("window_tg_lattice")
+    W, H = 0.8, 1.1
+    t = 0.11
+    for sgn in (-1, 1):
+        p.plank((t, 0.16, H), (sgn * W / 2, 0, H / 2), color=WOOD_DARK, round_=0.35, wonky=0.4)
+    p.plank((W + t, 0.16, t), (0, 0, H), color=WOOD_DARK, round_=0.35)
+    p.plank((W + 0.26, 0.26, 0.09), (0, -0.06, -0.02), color=WOOD_DARK, round_=0.35)
+    # lead cames running both diagonals, clipped to the opening
+    step = 0.17
+    k = -H
+    while k < W + H:
+        for sgn in (-1, 1):
+            # line x = x0 + sgn*z inside [-W/2, W/2] x [0, H]
+            pts = []
+            for z in (0.0, H):
+                x = -W / 2 + k - sgn * z * 0.0 + (z if sgn > 0 else -z) - (0 if sgn > 0 else -0)
+                pts.append((x, z))
+            (xa, za), (xb, zb) = pts
+            # clip parametric line to the box
+            t0, t1 = 0.0, 1.0
+            dx, dz = xb - xa, zb - za
+            for pp, q in ((-dx, xa + W / 2 - 0.02), (dx, W / 2 - 0.02 - xa)):
+                if abs(pp) < 1e-9:
+                    if q < 0:
+                        t0, t1 = 1, 0
+                    continue
+                r = q / pp
+                if pp < 0:
+                    t0 = max(t0, r)
+                else:
+                    t1 = min(t1, r)
+            if t1 - t0 > 0.02:
+                a = (xa + dx * t0, za + dz * t0)
+                b = (xa + dx * t1, za + dz * t1)
+                L = math.hypot(b[0] - a[0], b[1] - a[1])
+                ang = math.atan2(b[1] - a[1], b[0] - a[0])
+                p.plank((L, 0.03, 0.022), ((a[0] + b[0]) / 2, 0.035, (a[1] + b[1]) / 2), rot=(0, -ang, 0),
+                        color=LEAD, mat=M_METAL, round_=0.4, wonky=0.0, vary=0.0)
+        k += step
+    p.glass([(-W / 2, 0.0), (W / 2, 0.0), (W / 2, H), (-W / 2, H)], 0.05)
+    return p
+
+
+def beam_ends():
+    """A row of beam ends under a jettied floor or the eaves, on a plate."""
+    p = Piece("beam_ends")
+    L = 2.4
+    p.plank((L, 0.2, 0.2), (0, 0.0, 0.1), color=WOOD_DARK)
+    n = 7
+    for i in range(n):
+        x = -L / 2 + 0.15 + (L - 0.3) * i / (n - 1)
+        p.plank((0.16, 0.36, 0.16), (x, -0.22, -0.02), color=WOOD, round_=0.3, wonky=0.8)
+    p.plank((L + 0.1, 0.12, 0.08), (0, -0.36, 0.1), color=WOOD_DARK, wonky=0.4)
+    return p
+
+
 PIECES = {
     "door_tg": lambda: door_tg(False), "door_tg_arch": lambda: door_tg(True),
     "window_tg": lambda: window_tg(False), "window_tg_arch": lambda: window_tg(True),
     "shutters_tg": shutters_tg, "flower_box_tg": flower_box_tg, "fence_tg": fence_tg,
     "stairs_tg": stairs_tg, "bracket_tg": bracket_tg, "wall_planks_h": lambda: wall_planks(False),
     "wall_planks_v": lambda: wall_planks(True), "beam_bay": beam_bay,
+    "door_tg_gothic": door_tg_gothic, "door_tg_double": door_tg_double, "window_tg_gothic": window_tg_gothic,
+    "window_tg_lattice": window_tg_lattice, "beam_ends": beam_ends, "shutters_tg_z": lambda: shutters_tg(True),
 }
 
 
@@ -522,16 +678,20 @@ def reset():
 
 def preview(out):
     reset()
-    order = ["door_tg", "door_tg_arch", "window_tg", "window_tg_arch", "shutters_tg", "flower_box_tg",
-             "wall_planks_h", "wall_planks_v", "beam_bay", "fence_tg", "stairs_tg", "bracket_tg"]
+    order = ["door_tg", "door_tg_arch", "door_tg_gothic", "door_tg_double", "window_tg", "window_tg_arch",
+             "window_tg_gothic", "window_tg_lattice", "shutters_tg", "flower_box_tg", "beam_ends", "bracket_tg",
+             "wall_planks_h", "wall_planks_v", "beam_bay", "fence_tg", "stairs_tg"]
     cols = 4
     cell = 3.9
     for i, name in enumerate(order):
         obj = PIECES[name]().to_object()
         obj.location = ((i % cols) * cell, -(i // cols) * cell * 1.5, 0)
+        if name == "beam_ends":
+            obj.location.z = 1.4
+            obj.rotation_euler.z = math.radians(-25)
         if name in ("stairs_tg", "bracket_tg"):
             obj.rotation_euler.z = math.radians(-55)
-        if name == "window_tg" or name == "window_tg_arch":
+        if name.startswith("window_tg"):
             obj.location.z = 0.9
         if name == "shutters_tg":
             # shown round a window, as in game
@@ -576,7 +736,7 @@ def preview(out):
     cd = bpy.data.cameras.new("C")
     cd.type = "ORTHO"
     rows = (len(order) + cols - 1) // cols
-    cd.ortho_scale = cols * cell * 1.0
+    cd.ortho_scale = cols * cell * 1.16
     cam = bpy.data.objects.new("C", cd)
     sc.collection.objects.link(cam)
     sc.camera = cam
@@ -590,7 +750,8 @@ def preview(out):
     sc.cycles.device = "CPU"
     sc.cycles.diffuse_bounces = 4
     sc.render.resolution_x = 1800
-    sc.render.resolution_y = 1700
+    sc.render.resolution_y = 2000
+    sc.view_settings.exposure = 0.7
     try:
         sc.view_settings.view_transform = "AgX"
     except TypeError:
@@ -668,15 +829,14 @@ def vignette(out):
 # Wood tones, like Tiny Glade's palette tool (estimates: no published values)
 # - name: (main, light, dark beams)
 WOOD_TONES = {
-    "Natural": ((0.54, 0.35, 0.23), (0.69, 0.52, 0.35), (0.35, 0.23, 0.15)),
-    "Honey": ((0.70, 0.50, 0.30), (0.82, 0.65, 0.43), (0.47, 0.32, 0.19)),
-    "Walnut": ((0.40, 0.26, 0.18), (0.52, 0.36, 0.25), (0.25, 0.16, 0.11)),
-    "Weathered": ((0.56, 0.53, 0.48), (0.68, 0.65, 0.59), (0.38, 0.35, 0.31)),
-    "Driftwood": ((0.72, 0.66, 0.57), (0.82, 0.77, 0.68), (0.50, 0.45, 0.38)),
+    "Natural": (WOOD, WOOD_LIGHT, WOOD_DARK),
+    "Honey": ((0.624, 0.361, 0.12), (0.723, 0.462, 0.175), (0.361, 0.209, 0.082)),
+    "Oak": ((0.279, 0.13, 0.047), (0.356, 0.181, 0.054), (0.136, 0.07, 0.026)),
+    "Weathered": ((0.231, 0.188, 0.107), (0.319, 0.279, 0.159), (0.114, 0.095, 0.06)),
+    "Driftwood": ((0.546, 0.397, 0.209), (0.665, 0.527, 0.323), (0.27, 0.198, 0.107)),
 }
 # painted trims (window frames, shutters, doors can be painted)
-TRIMS = {"Cream": (0.93, 0.89, 0.81), "Sage": (0.56, 0.66, 0.54), "Blue": (0.44, 0.55, 0.65),
-         "Red": (0.65, 0.33, 0.29), "Bottle": (0.27, 0.42, 0.36)}
+TRIMS = {"Sage": SAGE, "Cream": CREAM, "Blue": (0.159, 0.266, 0.381), "Red": (0.376, 0.089, 0.068), "Bottle": (0.078, 0.147, 0.095)}
 
 
 def palette_sheet(out):
@@ -688,12 +848,11 @@ def palette_sheet(out):
     names = list(WOOD_TONES.keys())
     for row, tone in enumerate(names):
         WOOD, WOOD_LIGHT, WOOD_DARK = WOOD_TONES[tone]
-        for col, piece in enumerate(["door_tg_arch", "shutters_tg", "wall_planks_v", "fence_tg"]):
+        for col, piece in enumerate(["door_tg_gothic", "window_tg_lattice", "wall_planks_v", "fence_tg"]):
             o = PIECES[piece]().to_object()
             o.location = (col * cell, -row * cell * 1.15, 0.9 if piece == "shutters_tg" else 0)
-            if piece == "shutters_tg":
-                w = window_tg(False).to_object()
-                w.location = o.location
+            if piece == "window_tg_lattice":
+                o.location.z = 0.9
             if piece == "wall_planks_v":
                 o.scale = (0.85, 0.85, 0.85)
         _label("%s" % tone, (-1.9, -row * cell * 1.15 + 0.5, 0.01), 0.3)
@@ -704,10 +863,8 @@ def palette_sheet(out):
         y = -len(names) * cell * 1.15 - 0.6
         w = window_tg(i % 2 == 1).to_object()
         w.location = (x, y, 0.9)
-        WOOD_LIGHT = c
-        sh = shutters_tg().to_object()
+        sh = shutters_tg(False, c).to_object()
         sh.location = (x, y, 0.9)
-        WOOD_LIGHT = WOOD_TONES["Natural"][1]
         _label(name, (x, y - 0.9, 0.01), 0.26)
     _stage(out, cols_w=max(4 * cell, len(TRIMS) * 2.6) + 4.0, rows_h=(len(names) + 1) * cell * 1.15, cx=(4 * cell) / 2 - 2.0)
 
@@ -761,6 +918,7 @@ def _stage(out, cols_w, rows_h, cx):
     sc.cycles.diffuse_bounces = 4
     sc.render.resolution_x = 1800
     sc.render.resolution_y = int(1800 * min(1.4, rows_h * 0.55 / cols_w)) + 200
+    sc.view_settings.exposure = 0.7
     try:
         sc.view_settings.view_transform = "AgX"
     except TypeError:
