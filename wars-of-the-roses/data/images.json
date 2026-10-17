@@ -73,5 +73,10 @@
     "file": "input/images/fleur.png",
     "blend": "source-over",
     "note": "fleur-de-lis supplied by the user"
+  },
+  "shield": {
+    "file": "input/images/shield.png",
+    "blend": "source-over",
+    "note": "black iron heater shield supplied by the user (white background removed)"
   }
 }

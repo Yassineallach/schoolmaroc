@@ -180,7 +180,23 @@
   };
 
   // ---- shield (heater) ----------------------------------------------------------
-  W.shield = (ctx, x, y, s, o = {}) =>
+  W.shield = (ctx, x, y, s, o = {}) => {
+    const rec = W.IMG && W.IMG.shield;
+    if (rec) {
+      const p = o.p == null ? 1 : W.clamp(o.p);
+      if (p <= 0) return;
+      const h = 2.15 * s, w = h * (rec.img.width / rec.img.height);
+      ctx.save();
+      ctx.globalAlpha *= W.clamp(p * 1.4);
+      ctx.translate(x, y + 0.08 * s);
+      const sc = 0.9 + 0.1 * W.E.out(p); ctx.scale(sc, sc);
+      ctx.drawImage(rec.img, -w / 2, -h / 2, w, h);
+      ctx.restore();
+      return;
+    }
+    return W.shieldDrawn(ctx, x, y, s, o);
+  };
+  W.shieldDrawn = (ctx, x, y, s, o = {}) =>
     stroked(ctx, x, y, s, o, (P) => {
       P.moveTo(-0.8, -0.85); P.lineTo(0.8, -0.85); P.lineTo(0.8, -0.1);
       P.bezierCurveTo(0.8, 0.5, 0.35, 0.85, 0, 1.05);
