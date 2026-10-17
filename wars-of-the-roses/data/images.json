@@ -142,5 +142,21 @@
       190
     ],
     "note": "John of Gaunt, late 16th-c. portrait (Badminton House), supplied by the user"
+  },
+  "p_langley": {
+    "file": "input/images/p_langley.jpg",
+    "blend": "source-over",
+    "face": [
+      118,
+      105,
+      85
+    ],
+    "bust": [
+      120,
+      170,
+      120,
+      165
+    ],
+    "note": "Edmund of Langley, engraving, supplied by the user"
   }
 }

@@ -41,7 +41,7 @@
         bp: { x: X.bp, y: yS, label: T.bp, sub: T.bpSub, t: c.sons, portrait: 'p_blackprince', dead: t > c.bpDead + 0.3, alpha: (t > c.bpDead ? 0.55 : 1) * relevant('bp'), color: W.C.ivoryDim },
         li: { x: X.li, y: yS, label: T.li, sub: T.liSub, t: c.sons + 0.15, portrait: 'p_lionel', dead: true, alpha: 0.45 * relevant('li'), color: W.C.ivoryDim },
         jg: { x: X.jg, y: yS, label: T.jg, sub: T.jgSub, t: c.sons + 0.3, portrait: 'p_gaunt', color: W.mixColor(W.C.ivory, W.C.crimsonBright, lanP), halo: t > c.three ? (lanP > 0 ? W.C.crimson : W.C.ivory) : null },
-        el: { x: X.el, y: yS, label: T.el, sub: T.elSub, t: c.sons + 0.45, color: W.C.ivory, halo: t > c.three ? W.C.ivory : null },
+        el: { x: X.el, y: yS, label: T.el, sub: T.elSub, t: c.sons + 0.45, portrait: 'p_langley', color: W.C.ivory, halo: t > c.three ? W.C.ivory : null },
         tw: { x: X.tw, y: yS, label: T.tw, sub: T.twSub, t: c.sons + 0.6, alpha: relevant('tw'), halo: t > c.three && t < c.disputes ? W.C.ivory : null },
         r2: { x: X.bp, y: 770, label: T.r2, sub: T.r2Sub, t: c.grandson, r: 13, color: W.C.ivory, alpha: relevant('r2') },
         lan: { x: X.jg, y: 830, t: c.branches, r: 0.01, alpha: 0 },
