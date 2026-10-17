@@ -110,5 +110,21 @@
       400
     ],
     "note": "Edward the Black Prince, 19th-c. engraving, supplied by the user"
+  },
+  "p_lionel": {
+    "file": "input/images/p_lionel.jpg",
+    "blend": "source-over",
+    "face": [
+      455,
+      255,
+      230
+    ],
+    "bust": [
+      455,
+      420,
+      330,
+      420
+    ],
+    "note": "Lionel of Antwerp, drawing of a tomb weeper figure, supplied by the user"
   }
 }

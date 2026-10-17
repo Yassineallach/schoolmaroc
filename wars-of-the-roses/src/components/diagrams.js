@@ -21,7 +21,7 @@
         pts = [[A.x + Math.cos(ang) * ra, A.y + Math.sin(ang) * ra], [B.x - Math.cos(ang) * rb, B.y - Math.sin(ang) * rb]];
       } else {
         const my = A.y + (B.y - A.y) * (e.mid || 0.5);
-        pts = [[A.x, A.y + ra], [A.x, my], [B.x, my], [B.x, B.y - rb]];
+        pts = [[A.x, A.y + ra + (e.fromOffset || 0)], [A.x, my], [B.x, my], [B.x, B.y - rb]];
       }
       ctx.save();
       ctx.globalAlpha *= e.alpha == null ? 1 : e.alpha;

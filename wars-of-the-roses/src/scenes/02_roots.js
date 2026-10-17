@@ -39,7 +39,7 @@
       const nodes = {
         e3: { x: 960, y: 250, label: null, portrait: 'p_edward3', pr: 48, t: c.e3, r: 18, color: W.C.gold, alpha: 1 - p(t, c.disputes, 1.2) * 0.5, labelGap: 30 },
         bp: { x: X.bp, y: yS, label: T.bp, sub: T.bpSub, t: c.sons, portrait: 'p_blackprince', dead: t > c.bpDead + 0.3, alpha: (t > c.bpDead ? 0.55 : 1) * relevant('bp'), color: W.C.ivoryDim },
-        li: { x: X.li, y: yS, label: T.li, sub: T.liSub, t: c.sons + 0.15, dead: true, alpha: 0.45 * relevant('li'), color: W.C.ivoryDim },
+        li: { x: X.li, y: yS, label: T.li, sub: T.liSub, t: c.sons + 0.15, portrait: 'p_lionel', dead: true, alpha: 0.45 * relevant('li'), color: W.C.ivoryDim },
         jg: { x: X.jg, y: yS, label: T.jg, sub: T.jgSub, t: c.sons + 0.3, color: W.mixColor(W.C.ivory, W.C.crimsonBright, lanP), halo: t > c.three ? (lanP > 0 ? W.C.crimson : W.C.ivory) : null },
         el: { x: X.el, y: yS, label: T.el, sub: T.elSub, t: c.sons + 0.45, color: W.C.ivory, halo: t > c.three ? W.C.ivory : null },
         tw: { x: X.tw, y: yS, label: T.tw, sub: T.twSub, t: c.sons + 0.6, alpha: relevant('tw'), halo: t > c.three && t < c.disputes ? W.C.ivory : null },
@@ -49,7 +49,7 @@
       };
       const edges = [
         ...['bp', 'li', 'jg', 'el', 'tw'].map((k, i) => ({ a: 'e3', b: k, t: c.sons + i * 0.15, mid: 0.45, alpha: k === 'li' ? 0.45 * relevant(k) : k === 'jg' || k === 'el' ? 1 : relevant(k) * (k === 'bp' && t > c.bpDead ? 0.6 : 1) })),
-        { a: 'bp', b: 'r2', t: c.grandson - 0.3, alpha: relevant('r2') },
+        { a: 'bp', b: 'r2', t: c.grandson - 0.3, alpha: relevant('r2'), fromOffset: 78 },
       ];
       W.tree(ctx, t, nodes, edges);
       W.text(ctx, T.e3, W.hasPortrait('p_edward3') ? 1030 : 990, 250, { size: 36, color: W.C.ivory, align: 'left', alpha: p(t, c.e3 + 0.2, 0.7) * nodes.e3.alpha });
