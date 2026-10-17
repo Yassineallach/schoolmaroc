@@ -107,6 +107,42 @@ class Piece:
         return allv
 
 
+    def round_top(self, verts, top, shape):
+        """Bends the top of a board onto a curve: verts within reach of `top`
+        move by shape(x) - top (an arch, or a soft dome on a fence board)."""
+        for v in verts:
+            if v.co.z > top - 0.14:
+                v.co.z += shape(v.co.x) - top
+
+    def arc_frame(self, cx, zc, r, depth, thick, y=0.0, color=WOOD_DARK, mat=M_WOOD, a0=0.0, a1=math.pi, steps=28):
+        """One smooth curved member (an arch head): a soft, rounded square
+        section swept round a circle in the XZ plane."""
+        before = set(self.bm.faces)
+        prof = []
+        n = 12
+        for k in range(n):
+            a = math.tau * (k + 0.5) / n
+            # squircle section: flat faces, round corners
+            cx_ = math.copysign(abs(math.cos(a)) ** 0.5, math.cos(a)) * thick * 0.5
+            cy_ = math.copysign(abs(math.sin(a)) ** 0.5, math.sin(a)) * depth * 0.5
+            prof.append((cx_, cy_))
+        rings = []
+        for i in range(steps + 1):
+            a = a0 + (a1 - a0) * i / steps
+            radial = Vector((math.cos(a), 0, math.sin(a)))
+            ring = []
+            for (u, w) in prof:
+                pos = Vector((cx, y, zc)) + radial * (r + u) + Vector((0, w, 0))
+                ring.append(self.bm.verts.new(pos))
+            rings.append(ring)
+        for i in range(steps):
+            for k in range(n):
+                self.bm.faces.new((rings[i][k], rings[i][(k + 1) % n], rings[i + 1][(k + 1) % n], rings[i + 1][k]))
+        self.bm.faces.new(list(reversed(rings[0])))
+        self.bm.faces.new(rings[-1])
+        faces = [f for f in self.bm.faces if f not in before]
+        self._paint(faces, color, mat, vary=0.04)
+
     def cyl(self, r, depth, loc, rot=(0, 0, 0), color=IRON, mat=M_METAL, seg=10, r2=None):
         before = set(self.bm.faces)
         bmesh.ops.create_cone(self.bm, cap_ends=True, cap_tris=False, segments=seg, radius1=r,
@@ -202,43 +238,40 @@ def _glow_material():
 # ---------------------------------------------------------------------------
 # Pieces (front faces -Y, foot at z = 0)
 # ---------------------------------------------------------------------------
-def _boards(p, x0, x1, z0, z1, y, n, color=WOOD, thick=0.06, arch=0.0):
-    """n upright boards filling x0..x1, optionally cut to a round arch top."""
+def _boards(p, x0, x1, z0, z1, y, n, color=WOOD, thick=0.06, arch=None):
+    """n upright boards filling x0..x1 up to z1; with arch = (cx, zc, r) their
+    tops are cut cleanly to that circle."""
     w = (x1 - x0) / n
-    cx = (x0 + x1) * 0.5
-    half = (x1 - x0) * 0.5
     for i in range(n):
         x = x0 + w * (i + 0.5)
         top = z1
-        if arch > 0.0:
-            t = (x - cx) / half
-            top = z1 - arch + arch * math.sqrt(max(0.0, 1.0 - t * t))
         tone = color if i % 3 else (color[0] * 1.06, color[1] * 1.05, color[2] * 1.03)
-        p.plank((w - 0.012, thick, top - z0), (x, y, (z0 + top) * 0.5), color=tone)
+        if arch:
+            cx, zc, r = arch
+            top = zc + r
+        verts = p.plank((w - 0.012, thick, top - z0), (x, y, (z0 + top) * 0.5), color=tone, wonky=0.5)
+        if arch:
+            cx, zc, r = arch
+            p.round_top(verts, top, lambda vx, cx=cx, zc=zc, r=r: zc + math.sqrt(max(0.0, r * r - (vx - cx) ** 2)) - 0.03)
 
 
 def door_tg(arch=False):
     p = Piece("door_tg_arch" if arch else "door_tg")
     W, H = 1.12, 2.2
-    rise = 0.32 if arch else 0.0
-    # chunky frame: two posts and a lintel (an arched head for the arched door)
-    p.plank((0.16, 0.2, H + 0.08), (-W / 2 - 0.08, 0.0, (H + 0.08) / 2), color=WOOD_DARK)
-    p.plank((0.16, 0.2, H + 0.08), (W / 2 + 0.08, 0.0, (H + 0.08) / 2), color=WOOD_DARK)
+    r = W / 2
+    spring = H - r if arch else H     # a round arch starts here
+    # chunky frame posts
+    p.plank((0.16, 0.2, spring + 0.04), (-W / 2 - 0.08, 0.0, (spring + 0.04) / 2), color=WOOD_DARK, wonky=0.4)
+    p.plank((0.16, 0.2, spring + 0.04), (W / 2 + 0.08, 0.0, (spring + 0.04) / 2), color=WOOD_DARK, wonky=0.4)
     if arch:
-        seg = 7
-        for i in range(seg):
-            a0 = math.pi * i / seg
-            a1 = math.pi * (i + 1) / seg
-            am = (a0 + a1) / 2
-            r = W / 2 + 0.08
-            p.plank((r * (a1 - a0) * 1.08, 0.2, 0.16), (math.cos(am) * r, 0.0, H - rise + math.sin(am) * rise * 1.9 + 0.02),
-                    rot=(0, -(am - math.pi / 2) * 0.75, 0), color=WOOD_DARK, wonky=0.4)
+        # one smooth curved head, not a ring of blocks
+        p.arc_frame(0.0, spring, r + 0.08, 0.2, 0.16)
+        _boards(p, -W / 2, W / 2, 0.02, H, 0.04, 5, arch=(0.0, spring, r))
     else:
         p.plank((W + 0.5, 0.22, 0.2), (0, 0.0, H + 0.1), color=WOOD_DARK)
-    # the leaf: five upright boards, set back in the frame
-    _boards(p, -W / 2, W / 2, 0.02, H + (0.12 if arch else 0.0), 0.04, 5, arch=rise)
+        _boards(p, -W / 2, W / 2, 0.02, H, 0.04, 5)
     # two ledges behind, and simple iron strap hinges with round ends in front
-    for z in (0.45, H - 0.55):
+    for z in (0.45, spring - 0.45):
         p.plank((W - 0.08, 0.05, 0.14), (0, 0.09, z), color=WOOD_DARK, wonky=0.5)
         p.plank((W * 0.62, 0.025, 0.07), (-W / 2 + W * 0.31, -0.005, z), color=IRON, mat=M_METAL, round_=0.4, wonky=0.3)
         p.cyl(0.05, 0.025, (-W / 2 + W * 0.62, 0.0, z), rot=(math.pi / 2, 0, 0))
@@ -253,35 +286,27 @@ def door_tg(arch=False):
 def window_tg(arch=False):
     p = Piece("window_tg_arch" if arch else "window_tg")
     W, H = 0.86, 1.04
-    zb = 0.0
     t = 0.12    # fat, rounded frame bars
-    rise = 0.28 if arch else 0.0
-    p.plank((t, 0.16, H), (-W / 2, 0, zb + H / 2), color=CREAM, mat=M_PAINT, round_=0.35, vary=0.02)
-    p.plank((t, 0.16, H), (W / 2, 0, zb + H / 2), color=CREAM, mat=M_PAINT, round_=0.35, vary=0.02)
+    r = W / 2
+    p.plank((t, 0.16, H), (-W / 2, 0, H / 2), color=CREAM, mat=M_PAINT, round_=0.35, vary=0.02, wonky=0.4)
+    p.plank((t, 0.16, H), (W / 2, 0, H / 2), color=CREAM, mat=M_PAINT, round_=0.35, vary=0.02, wonky=0.4)
     if arch:
-        seg = 7
-        for i in range(seg):
-            a0 = math.pi * i / seg
-            a1 = math.pi * (i + 1) / seg
-            am = (a0 + a1) / 2
-            r = W / 2
-            p.plank((r * (a1 - a0) * 1.15, 0.16, t), (math.cos(am) * r, 0, zb + H + math.sin(am) * rise * 1.6),
-                    rot=(0, -(am - math.pi / 2) * 0.8, 0), color=CREAM, mat=M_PAINT, round_=0.35, wonky=0.3, vary=0.02)
-        # the gothic "hat": a little drip moulding above the arch
-        p.plank((W + 0.34, 0.2, 0.09), (0, -0.03, zb + H + rise * 1.6 + 0.16), color=STONE, mat=M_STONE, round_=0.4)
+        # a smooth round head on the side posts
+        p.arc_frame(0.0, H, r, 0.16, t, color=CREAM, mat=M_PAINT)
+        p.plank((0.05, 0.08, H + r - 0.08), (0, 0.02, (H + r - 0.08) / 2 + 0.02), color=CREAM, mat=M_PAINT, round_=0.4, wonky=0.2)
     else:
-        p.plank((W + t, 0.16, t), (0, 0, zb + H), color=CREAM, mat=M_PAINT, round_=0.35, vary=0.02)
-    # cross mullion: 2 x 2 panes
-    p.plank((0.05, 0.08, H - 0.06), (0, 0.02, zb + H / 2), color=CREAM, mat=M_PAINT, round_=0.4, wonky=0.3)
-    p.plank((W - 0.06, 0.08, 0.05), (0, 0.02, zb + H * 0.52), color=CREAM, mat=M_PAINT, round_=0.4, wonky=0.3)
+        p.plank((W + t, 0.16, t), (0, 0, H), color=CREAM, mat=M_PAINT, round_=0.35, vary=0.02)
+        p.plank((0.05, 0.08, H - 0.06), (0, 0.02, H / 2), color=CREAM, mat=M_PAINT, round_=0.4, wonky=0.3)
+    # cross bar: 2 x 2 panes
+    p.plank((W - 0.06, 0.08, 0.05), (0, 0.02, H * 0.52), color=CREAM, mat=M_PAINT, round_=0.4, wonky=0.3)
     # a proud sill
-    p.plank((W + 0.3, 0.26, 0.09), (0, -0.06, zb - 0.02), color=WOOD, round_=0.35)
-    pts = [(-W / 2, zb), (W / 2, zb), (W / 2, zb + H)]
+    p.plank((W + 0.3, 0.26, 0.09), (0, -0.06, -0.02), color=WOOD, round_=0.35)
+    pts = [(-W / 2, 0.0), (W / 2, 0.0), (W / 2, H)]
     if arch:
-        for i in range(1, 12):
-            a = math.pi * i / 12
-            pts.append((math.cos(a) * W / 2, zb + H + math.sin(a) * rise * 1.6))
-    pts.append((-W / 2, zb + H))
+        for i in range(1, 16):
+            a = math.pi * i / 16
+            pts.append((math.cos(a) * r, H + math.sin(a) * r))
+    pts.append((-W / 2, H))
     p.glass(pts, 0.05)
     return p
 
@@ -334,10 +359,11 @@ def fence_tg():
     n = 8
     for i in range(n):
         x = -L / 2 + 0.1 + (L - 0.2) * (i + 0.5) / n
-        h = 1.0 + rng.uniform(-0.05, 0.05)
-        p.plank(((L - 0.2) / n - 0.025, 0.045, h), (x, 0.05, h / 2), color=WOOD if i % 2 else WOOD_LIGHT)
-        # a rounded, slightly pointed top
-        p.plank(((L - 0.2) / n * 0.7, 0.044, 0.08), (x, 0.05, h + 0.02), rot=(0, math.radians(45), 0), color=WOOD, round_=0.4, wonky=0.2)
+        h = 1.0 + rng.uniform(-0.04, 0.04)
+        bw = (L - 0.2) / n - 0.025
+        verts = p.plank((bw, 0.045, h), (x, 0.05, h / 2), color=WOOD if i % 2 else WOOD_LIGHT, wonky=0.6)
+        # a soft, rounded top (a gentle dome across the board)
+        p.round_top(verts, h, lambda vx, x=x, h=h, bw=bw: h - 0.07 * (1.0 - math.sqrt(max(0.0, 1.0 - ((vx - x) / (bw * 0.5 + 0.01)) ** 2))))
     return p
 
 
