@@ -3,13 +3,15 @@ extends Node3D
 ## The world around the glade, so it never looks like an island:
 ##  * an endless ground ring that continues the terrain without a seam and
 ##    swells into soft hills toward the horizon, fading into haze
-##  * a compact forest of real trees all around, as in Tiny Glade, where the
-##    buildable square is a clearing in deep woods: packed mixed trees from
-##    the clearing's edge, then the cheapest trees (firs) further out,
-##    fading into the haze over the hills.
-## To stay fast, trees are batched per kind into map tiles: tiles out of
-## view are culled, far tiles stop drawing inside the fog, nothing casts
-## shadows, and the forest is shallower on the Battery graphics preset.
+##  * a forest of real trees all around, as in Tiny Glade, where the
+##    buildable square is a clearing in deep woods. Every tree kind grows
+##    in it, in groves of 2-6: packed at the clearing's edge, opening up
+##    behind, and carrying on over the hills to the horizon, softened by
+##    the camera blur and the haze.
+## To stay fast, trees are batched per kind into map tiles that cull off
+## screen, distant tiles use automatic detail levels and skip the trunks
+## hidden under their crowns, nothing casts shadows, and the woods end
+## nearer on the Battery graphics preset.
 
 const RADIUS := 420.0
 const RINGS := 26
@@ -106,62 +108,106 @@ func _ground_y(x: float, z: float) -> float:
 
 
 const TILE := 26.0            # forest batching tile (metres)
-## Forest depth beyond the clearing's edge for Battery / Balanced / Beautiful.
-const DEPTH := [26.0, 36.0, 46.0]
+## Where each band of woods ends for Battery / Balanced / Beautiful: the
+## packed woods at the clearing's edge, the open woods behind them, and the
+## far woods over the hills to the horizon.
+const NEAR := [24.0, 32.0, 42.0]
+const MID := 120.0
+const HORIZON := [200.0, 260.0, 300.0]
+const ALL_TREES := ["tree_round_a", "tree_round_b", "tree_round_c", "tree_birch", "tree_blossom", "tree_golden",
+		"tree_orange", "tree_teal", "tree_pine_a", "tree_pine_b", "tree_cedar"]
+
+static var _lod_meshes: Dictionary = {}
 
 
 func _plant_forest(template: String) -> void:
-	var kinds: Array = ["tree_round_a", "tree_round_c", "tree_pine_a", "tree_pine_b", "tree_round_a", "tree_birch"]
+	# every tree kind grows in every glade; the template picks which lead
+	var lead: Array = ["tree_round_a", "tree_round_c", "tree_pine_a", "tree_birch"]
 	match template:
 		"town", "hamlet":
-			kinds = ["tree_round_a", "tree_golden", "tree_pine_a", "tree_round_c", "tree_orange", "tree_pine_b"]
+			lead = ["tree_round_a", "tree_golden", "tree_pine_a", "tree_orange"]
 		"village":
-			kinds = ["tree_teal", "tree_blossom", "tree_pine_a", "tree_golden", "tree_teal", "tree_round_c"]
+			lead = ["tree_teal", "tree_blossom", "tree_pine_b", "tree_golden"]
 		"ruins":
-			kinds = ["tree_round_a", "tree_round_c", "tree_golden", "tree_pine_b", "tree_round_a", "tree_birch"]
-	var far_kinds: Array = ["tree_pine_a", "tree_pine_b", "tree_pine_a", kinds[0]]
+			lead = ["tree_round_c", "tree_cedar", "tree_golden", "tree_pine_b"]
+	var weights: Dictionary = {}
+	for kind in ALL_TREES:
+		weights[kind] = 3.0 if kind in lead else 1.0
+	# the far hills are mostly conifers, as on a mountainside
+	var far_weights: Dictionary = weights.duplicate()
+	for kind in ["tree_pine_a", "tree_pine_b", "tree_cedar"]:
+		far_weights[kind] *= 2.5
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(template) & 0xFFFF
-	var placed: Dictionary = {}   # kind -> {tile key -> [xforms]}
+	var q := clampi(Settings.quality, 0, 2)
 	var edge := Terrain.PLAY_HALF + 1.2
-	var depth: float = DEPTH[clampi(Settings.quality, 0, 2)]
-	var near := edge + depth
-	# --- packed mixed woods from the clearing's edge (jittered grid)
-	_fill(placed, kinds, rng, edge, near, 2.25, Vector2(1.15, 1.65), 0.95)
-	# --- the deep woods: firs (the cheapest trees), bigger, into the haze
-	_fill(placed, far_kinds, rng, near - 1.0, near + 34.0, 3.3, Vector2(1.6, 2.3), 0.9)
+	var near: float = edge + NEAR[q]
+	var horizon: float = HORIZON[q]
+	var placed: Dictionary = {}   # kind -> {tile key -> [xforms]}
+	_groves(placed, rng, weights, edge, near, 4.4, Vector2(1.1, 1.6))
+	_groves(placed, rng, weights, near, MID, 7.0, Vector2(1.4, 2.1))
+	_groves(placed, rng, far_weights, MID, horizon, 11.0, Vector2(2.0, 2.9))
 	for kind in placed:
 		_commit_tiles(kind, placed[kind], near)
 
 
-## Packs trees on a jittered grid over the square band inner..outer.
-func _fill(placed: Dictionary, kinds: Array, rng: RandomNumberGenerator, inner: float, outer: float,
-		step: float, scale_range: Vector2, keep: float) -> void:
+## Plants groves of 2-6 trees over the square band inner..outer: grove
+## centres on a jittered grid (spacing step), each grove mostly one kind
+## around a taller leader, with the odd tree of another kind mixed in.
+func _groves(placed: Dictionary, rng: RandomNumberGenerator, weights: Dictionary, inner: float, outer: float,
+		step: float, scale_range: Vector2) -> void:
+	var total := 0.0
+	for kind in weights:
+		total += weights[kind]
 	var x := -outer
 	while x <= outer:
 		var z := -outer
 		while z <= outer:
-			var p := Vector2(x, z) + Vector2(rng.randf_range(-0.38, 0.38), rng.randf_range(-0.38, 0.38)) * step
+			var c := Vector2(x, z) + Vector2(rng.randf_range(-0.4, 0.4), rng.randf_range(-0.4, 0.4)) * step
 			z += step
-			var d := maxf(absf(p.x), absf(p.y))
-			if d < inner or d > outer or rng.randf() > keep:
+			var dc := maxf(absf(c.x), absf(c.y))
+			if dc < inner - step * 0.5 or dc > outer + step * 0.5:
 				continue
-			# the front rows step up from smaller trees so the edge reads as a wall of woods
-			var front := 1.0 - smoothstep(inner, inner + 3.5, d)
-			var s := rng.randf_range(scale_range.x, scale_range.y) * lerpf(1.0, 0.82, front)
-			var kind: String = kinds[rng.randi() % kinds.size()]
-			var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.9, 1.15), s))
-			var key := Vector2i(floori(p.x / TILE), floori(p.y / TILE))
-			if not placed.has(kind):
-				placed[kind] = {}
-			if not placed[kind].has(key):
-				placed[kind][key] = []
-			placed[kind][key].append(Transform3D(basis, Vector3(p.x, _ground_y(p.x, p.y) - 0.1, p.y)))
+			var kind := _pick(rng, weights, total)
+			var count := rng.randi_range(2, 6)
+			var spread := step * (0.22 + 0.06 * count)
+			for i in count:
+				var p := c
+				if i > 0:
+					var a := rng.randf() * TAU
+					p += Vector2(cos(a), sin(a)) * spread * sqrt(rng.randf_range(0.15, 1.0))
+				var d := maxf(absf(p.x), absf(p.y))
+				if d < inner or d >= outer:
+					continue
+				# the front rows step up from smaller trees so the edge reads as a wall of woods
+				var front := 1.0 - smoothstep(inner, inner + 3.5, d)
+				var s := rng.randf_range(scale_range.x, scale_range.y) * lerpf(1.0, 0.82, front)
+				if i == 0:
+					s *= 1.12
+				var k := kind if rng.randf() < 0.8 else _pick(rng, weights, total)
+				var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.9, 1.15), s))
+				var key := Vector2i(floori(p.x / TILE), floori(p.y / TILE))
+				if not placed.has(k):
+					placed[k] = {}
+				if not placed[k].has(key):
+					placed[k][key] = []
+				placed[k][key].append(Transform3D(basis, Vector3(p.x, _ground_y(p.x, p.y) - 0.1, p.y)))
 		x += step
 
 
-## One MultiMesh per kind, part and tile: tiles cull off screen, and tiles
-## deep in the woods stop drawing where the fog has swallowed them.
+func _pick(rng: RandomNumberGenerator, weights: Dictionary, total: float) -> String:
+	var r := rng.randf() * total
+	for kind in weights:
+		r -= weights[kind]
+		if r <= 0.0:
+			return kind
+	return weights.keys()[0]
+
+
+## One MultiMesh per kind, part and tile: tiles cull off screen, trees past
+## the packed woods use meshes with automatic detail levels (simplified
+## only where the camera blur and haze soften them), and far trunks, hidden
+## under the crowns, aren't drawn at all.
 func _commit_tiles(kind: String, tiles: Dictionary, near: float) -> void:
 	if not ModelLib.has_model(kind):
 		return
@@ -169,13 +215,16 @@ func _commit_tiles(kind: String, tiles: Dictionary, near: float) -> void:
 	for key in tiles:
 		var xforms: Array = tiles[key]
 		var centre := (Vector2(key) + Vector2(0.5, 0.5)) * TILE
-		var far := maxf(absf(centre.x), absf(centre.y)) > near
+		var d := maxf(absf(centre.x), absf(centre.y))
 		for part in ["solid", "leaves"]:
 			if m[part] == null:
 				continue
+			# the cedar is all trunk-material; keep it, drop the others' trunks
+			if part == "solid" and d > MID and m.leaves != null:
+				continue
 			var mm := MultiMesh.new()
 			mm.transform_format = MultiMesh.TRANSFORM_3D
-			mm.mesh = m[part]
+			mm.mesh = m[part] if d <= near + TILE * 0.5 else _lod_mesh(kind, part, m[part])
 			mm.instance_count = xforms.size()
 			for i in xforms.size():
 				mm.set_instance_transform(i, xforms[i])
@@ -183,6 +232,26 @@ func _commit_tiles(kind: String, tiles: Dictionary, near: float) -> void:
 			mmi.multimesh = mm
 			mmi.material_override = m.leaf_mat if part == "leaves" else ModelLib.props_material
 			mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			# trunks hide under the canopy from afar; far tiles fade into the fog
-			mmi.visibility_range_end = (110.0 if far else 160.0) if part == "leaves" else (80.0 if far else 120.0)
+			if d <= MID:
+				# trunks hide under the canopy from afar
+				mmi.visibility_range_end = 220.0 if part == "leaves" else 140.0
 			_forest.add_child(mmi)
+
+
+## The same tree mesh with automatic level-of-detail versions. Light meshes
+## (the firs) are kept whole: simplifying them leaves thin spikes.
+static func _lod_mesh(kind: String, part: String, src: ArrayMesh) -> ArrayMesh:
+	var key := kind + "/" + part
+	var tris := 0
+	for s in src.get_surface_count():
+		var n := src.surface_get_array_index_len(s)
+		tris += (n if n > 0 else src.surface_get_array_len(s)) / 3
+	if tris < 200:
+		return src
+	if not _lod_meshes.has(key):
+		var im := ImporterMesh.new()
+		for s in src.get_surface_count():
+			im.add_surface(src.surface_get_primitive_type(s), src.surface_get_arrays(s), [], {}, src.surface_get_material(s))
+		im.generate_lods(60.0, 0.0, [])
+		_lod_meshes[key] = im.get_mesh()
+	return _lod_meshes[key]

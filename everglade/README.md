@@ -95,8 +95,13 @@ countryside carries on beyond it into the haze, so it never feels like an island
 - `scripts/world/landscape.gd`: an endless ground ring continues the terrain without a seam (the terrain
   settles to the same level at its border) and swells into rolling hills toward a hazy horizon, with the
   same painted meadow colours (`shaders/outer_ground.gdshader`) and a darker woodland floor.
-- A dense **forest belt** hugs the plot (the glade is a clearing in the woods) and thins into copses and
-  lone trees over the far meadows: ~1,000 trees in one MultiMesh per kind.
+- A **forest of real trees** surrounds the plot (the glade is a clearing in the woods) and carries on over
+  the hills to the horizon. All eleven tree kinds grow in **groves of 2-6 trees**: packed at the clearing's
+  edge, more open behind, bigger and mostly conifers on the far hills. Trees are batched per kind into 26 m
+  tiles that cull off screen; distant tiles use automatic mesh LODs and skip the trunks hidden under their
+  crowns. The woods end at 200 / 260 / 300 m by graphics preset.
+- A **camera blur** (`shaders/far_blur.gdshader`) softens everything beyond the glade with distance, for the
+  tilt-shift miniature look, while the glade itself stays sharp.
 - A constant soft aerial haze swallows the distance; template scenery (karst peaks, cliffs) stands in it.
 - The **plot boundary** is a white line on the ground, shown only while a build tool is active.
 
@@ -249,7 +254,7 @@ plants, props, fences and animals.
 - Props are drawn through one MultiMesh per kind; each wall, building, fence and path is merged into 2–3 meshes.
 - Procedural construction is built once: templates record everything and build each view a single time; buildings and walls use simple collision volumes instead of trimeshes of every stone; edge bevels are applied only to blocks (a window is ~1.8k triangles). A full Town Plaza builds in about a second on a desktop CPU (`-- --profile` prints timings).
 - Terrain is 64 chunks, and only edited chunks are rebuilt (a few per frame). Grass is one MultiMesh of patches per chunk (1.2 / 2.2 / 3.4 patches per m² by quality, each patch 7 modelled clumps); blades sink into the ground beyond ~30 m where the matching terrain colour takes over.
-- Graphics presets *Battery / Balanced / Beautiful* change render scale (0.7/0.85/1.0), MSAA, shadows, grass density and depth of field.
+- Graphics presets *Battery / Balanced / Beautiful* change render scale (0.7/0.85/1.0), MSAA, shadows, grass density and how far the forest reaches. Godot's own far depth of field is off: with MSAA on the Mobile renderer it blurs the whole screen, so the camera blur is a depth-buffer shader of our own.
 - Water and terrain shaders don't use screen or depth textures, so they work on the GL Compatibility renderer.
 
 ## 5b. Wall patterns

@@ -34,10 +34,33 @@ func _ready() -> void:
 	var attrs := CameraAttributesPractical.new()
 	camera.attributes = attrs
 	_add_outline()
+	_add_far_blur()
 	_s_target = target
 	_s_yaw = yaw
 	_s_distance = distance
 	_apply()
+
+
+## Camera blur over the distance beyond the glade (shaders/far_blur).
+var far_blur: MeshInstance3D
+var _far_blur_mat: ShaderMaterial
+
+
+func _add_far_blur() -> void:
+	far_blur = MeshInstance3D.new()
+	far_blur.name = "FarBlur"
+	var quad := QuadMesh.new()
+	quad.size = Vector2.ONE
+	far_blur.mesh = quad
+	_far_blur_mat = ShaderMaterial.new()
+	_far_blur_mat.shader = load("res://shaders/far_blur.gdshader")
+	_far_blur_mat.set_shader_parameter("glade_half", Terrain.PLAY_HALF + 3.0)
+	_far_blur_mat.render_priority = -1
+	far_blur.material_override = _far_blur_mat
+	far_blur.extra_cull_margin = 16384.0
+	far_blur.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	far_blur.position = Vector3(0, 0, -1.0)
+	camera.add_child(far_blur)
 
 
 ## Full-screen contact shading (soft occlusion in creases) from the depth buffer.
@@ -94,10 +117,15 @@ func _apply() -> void:
 	var look := _s_target + Vector3.UP * lerpf(0.6, 0.0, inverse_lerp(MIN_DIST, MAX_DIST, _s_distance))
 	if pos.distance_to(look) > 0.01:
 		camera.look_at(look, Vector3.UP)
-	# tilt-shift style depth of field for the miniature look
+	# tilt-shift style camera blur for the miniature look; it also softens
+	# the woods running off to the horizon
+	if _far_blur_mat:
+		_far_blur_mat.set_shader_parameter("far_start", _s_distance * 1.1 + 8.0)
+		_far_blur_mat.set_shader_parameter("far_end", _s_distance * 2.6 + 50.0)
 	var attrs := camera.attributes as CameraAttributesPractical
 	if attrs:
-		attrs.dof_blur_far_enabled = photo_mode or Settings.quality >= 2
+		# Godot's own far blur smears the whole screen with MSAA on Mobile
+		attrs.dof_blur_far_enabled = false
 		attrs.dof_blur_far_distance = _s_distance * 1.6 + 6.0
 		attrs.dof_blur_far_transition = _s_distance * 1.2 + 8.0
 		attrs.dof_blur_near_enabled = photo_mode
