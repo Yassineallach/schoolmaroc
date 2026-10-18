@@ -60,6 +60,22 @@ so any frame can be rendered alone and workers can split the timeline between th
 - FFmpeg with libx264 and AAC
 - Python 3 with numpy
 
+### Rendering on Windows
+
+1. Install [Node.js LTS](https://nodejs.org), [Python 3](https://www.python.org/downloads/) (tick "Add python.exe to PATH") and [Git](https://git-scm.com).
+2. Install FFmpeg: `winget install Gyan.FFmpeg`, then open a new terminal so `ffmpeg` is on the PATH.
+3. In a terminal:
+   ```bat
+   git clone -b claude/cool-franklin-fahou6 https://github.com/yassineallach/schoolmaroc.git
+   cd schoolmaroc\wars-of-the-roses
+   python -m pip install numpy
+   npm install
+   npx playwright install chromium
+   node scripts/render.mjs
+   ```
+4. The video is written to `output\final_video.mp4` (1920×1080, 30 fps, about 150 MB).
+   On a typical laptop it takes 10–25 minutes; `--workers 2` uses less memory.
+
 ## Commands
 
 ```bash

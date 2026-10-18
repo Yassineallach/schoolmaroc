@@ -133,7 +133,7 @@ function buildAudio(ranges, out, music) {
   const narr = path.join(ROOT, DATA.meta.audio);
   const score = path.join(BUILD, 'score.wav');
   if (music && !fs.existsSync(score)) {
-    const r = spawnSync('python3', [path.join(ROOT, 'scripts/make_score.py'), score], { stdio: 'inherit' });
+    const r = spawnSync(process.platform === 'win32' ? 'python' : 'python3', [path.join(ROOT, 'scripts/make_score.py'), score], { stdio: 'inherit' });
     if (r.status) throw new Error('score generation failed');
   }
   const parts = ranges.map(([a, b], i) => {
