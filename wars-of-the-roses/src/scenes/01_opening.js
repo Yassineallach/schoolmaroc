@@ -113,7 +113,9 @@
       const c = S.cues, T = S.text;
       const cx = W.W / 2;
       border(ctx, p(t, 19.5, 3.2, E.inOut), t);
-      W.alpha(ctx, 0.16, () => W.crossedSwords(ctx, cx, 560, 300, { p: p(t, 21.6, 2.4, E.inOut), color: W.C.ivory, width: 2 }));
+      // the Iron Throne, faint behind the title: the drama these wars inspired
+      if (!W.image(ctx, 'iron_throne', cx, 520, 660, { alpha: 0.13 * p(t, 21.6, 2.4), tint: 'sepia(0.7)', zoom: 1 + 0.03 * p(t, 21.6, 8) }))
+        W.alpha(ctx, 0.16, () => W.crossedSwords(ctx, cx, 560, 300, { p: p(t, 21.6, 2.4, E.inOut), color: W.C.ivory, width: 2 }));
       W.crown(ctx, cx, 330, 64, { p: p(t, 20.2, 2.0, E.inOut), color: W.C.gold, width: 3, fill: 0.35 * p(t, 21.6, 1) });
       W.rose(ctx, 1500, 560, 74, { kind: 'lancaster', bloom: p(t, 20.6, 2) });
       W.rose(ctx, 420, 560, 74, { kind: 'york', bloom: p(t, 21.0, 2) });

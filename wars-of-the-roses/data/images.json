@@ -380,5 +380,10 @@
       250
     ],
     "note": "Elizabeth of York, late-16th-c. panel (National Portrait Gallery type), supplied by the user"
+  },
+  "iron_throne": {
+    "file": "input/images/iron_throne.png",
+    "blend": "multiply",
+    "note": "Iron Throne ink-and-wash drawing on white, supplied by the user; multiply drops the white"
   }
 }
