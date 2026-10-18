@@ -77,6 +77,7 @@ func _ready() -> void:
 	_build_inspector(layer_box)
 	_build_hint(layer_box)
 	_build_key_hints(root)
+	_build_perf(root)
 	_quick = Control.new()
 	_quick.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_quick.visible = false
@@ -504,6 +505,7 @@ func show_hint(text: String, key := "") -> void:
 # ---------------------------------------------------------------------------
 var _quick: Control
 var _key_hints: Label
+var _perf: Label
 var bookmarks_source: Callable   # returns the glade's bookmark list
 
 
@@ -567,6 +569,38 @@ func _build_key_hints(parent: Control) -> void:
 		_key_hints.visible = Settings.key_hints and not DisplayServer.is_touchscreen_available()
 	refresh.call()
 	Settings.changed.connect(refresh)
+
+
+## FPS, frame time and what the GPU was asked to draw, refreshed twice a
+## second (Settings > Performance readout).
+func _build_perf(parent: Control) -> void:
+	_perf = Label.new()
+	_perf.add_theme_font_size_override("font_size", 13)
+	_perf.add_theme_color_override("font_color", Color(1, 1, 1, 0.9))
+	_perf.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
+	_perf.add_theme_constant_override("outline_size", 6)
+	_perf.position = Vector2(16, 72)
+	_perf.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(_perf)
+	var refresh := func(): _perf.visible = Settings.perf_overlay
+	refresh.call()
+	Settings.changed.connect(refresh)
+	var t := Timer.new()
+	t.wait_time = 0.5
+	t.autostart = true
+	t.timeout.connect(_update_perf)
+	add_child(t)
+
+
+func _update_perf() -> void:
+	if not _perf.visible:
+		return
+	var fps := Engine.get_frames_per_second()
+	var calls := RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME)
+	var prims := RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)
+	var objs := RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME)
+	_perf.text = "%d fps · %.1f ms\n%d draw calls · %d objects\n%.2f M triangles" % [
+			fps, 1000.0 / maxf(fps, 1.0), calls, objs, prims / 1000000.0]
 
 
 func _show_bookmarks(anchor: Control) -> void:

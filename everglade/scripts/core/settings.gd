@@ -15,6 +15,7 @@ var fog_height := 0.35 # 0 hugs the ground .. 1 fills the valley
 var snow := 0.85 # how thickly winter glades are snowed over
 var zoom_to_cursor := false
 var key_hints := true
+var perf_overlay := false
 var invert_rotate := false
 var show_tips := true
 var tips_seen: Dictionary = {}
@@ -53,6 +54,7 @@ func load_settings() -> void:
 	snow = cfg.get_value("graphics", "snow", snow)
 	zoom_to_cursor = cfg.get_value("controls", "zoom_to_cursor", zoom_to_cursor)
 	key_hints = cfg.get_value("controls", "key_hints", key_hints)
+	perf_overlay = cfg.get_value("graphics", "perf_overlay", perf_overlay)
 
 
 func save_settings() -> void:
@@ -70,6 +72,7 @@ func save_settings() -> void:
 	cfg.set_value("graphics", "snow", snow)
 	cfg.set_value("controls", "zoom_to_cursor", zoom_to_cursor)
 	cfg.set_value("controls", "key_hints", key_hints)
+	cfg.set_value("graphics", "perf_overlay", perf_overlay)
 	cfg.save(PATH)
 
 

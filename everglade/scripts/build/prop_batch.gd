@@ -1,11 +1,17 @@
 class_name PropBatch
 extends Node3D
 ## Draws every placed prop (trees, flowers, lanterns, wells...) through one
-## MultiMesh per kind. Freshly placed props pop in as single instances first.
+## MultiMesh per kind and map tile, so the tiles off screen aren't drawn at
+## all (a MultiMesh is culled as a whole). Freshly placed props pop in as
+## single instances first.
+
+const TILE := 12.0
+## Ground clutter tiles further than this from the camera aren't drawn.
+const SMALL_RANGE := 90.0
 
 const NO_SHADOW := ["flowers_pink", "flowers_white", "flowers_blue", "flowers_yellow", "flowers_red", "mushrooms", "grass_tuft", "fern", "plant_leafy", "wheat"]
 
-var _mmis: Dictionary = {} # kind -> [solid MMI, glow MMI or null]
+var _mmis: Dictionary = {} # "kind@tx,tz" -> [solid MMI, glow MMI or null, ...]
 var _hidden: Dictionary = {}
 var _props: Array = []
 var _animated: Dictionary = {} # prop id -> Node3D (windmills...)
@@ -33,22 +39,25 @@ func rebuild(props: Array) -> void:
 			live[p.id] = true
 			_sync_animated(p)
 			continue
-		if not groups.has(p.kind):
-			groups[p.kind] = []
-		groups[p.kind].append(prop_transform(p))
+		var pos: Vector3 = p.p
+		var key := "%s@%d,%d" % [p.kind, floori(pos.x / TILE), floori(pos.z / TILE)]
+		if not groups.has(key):
+			groups[key] = []
+		groups[key].append(prop_transform(p))
 	for id in _animated.keys():
 		if not live.has(id):
 			_animated[id].queue_free()
 			_animated.erase(id)
-	for kind in _mmis.keys():
-		if not groups.has(kind):
-			for mmi in _mmis[kind]:
+	for key in _mmis.keys():
+		if not groups.has(key):
+			for mmi in _mmis[key]:
 				if mmi:
 					mmi.queue_free()
-			_mmis.erase(kind)
-	for kind in groups:
+			_mmis.erase(key)
+	for key in groups:
+		var kind: String = (key as String).get_slice("@", 0)
 		var m: Dictionary = ModelLib.merged(kind)
-		if not _mmis.has(kind):
+		if not _mmis.has(key):
 			var solid: MultiMeshInstance3D = null
 			if m.solid:
 				solid = _make_mmi(m.solid, ModelLib.props_material, not NO_SHADOW.has(kind))
@@ -61,9 +70,15 @@ func rebuild(props: Array) -> void:
 			var parts: Array = [solid, glow, leaves]
 			for pair in m.tex:
 				parts.append(_make_mmi(pair[0], pair[1], not NO_SHADOW.has(kind)))
-			_mmis[kind] = parts
-		var xforms: Array = groups[kind]
-		for mmi in _mmis[kind]:
+			if NO_SHADOW.has(kind):
+				# flowers and tufts are a few pixels across beyond this
+				for mmi in parts:
+					if mmi:
+						mmi.visibility_range_end = SMALL_RANGE
+						mmi.visibility_range_end_margin = 10.0
+			_mmis[key] = parts
+		var xforms: Array = groups[key]
+		for mmi in _mmis[key]:
 			if mmi == null:
 				continue
 			var mm: MultiMesh = mmi.multimesh
