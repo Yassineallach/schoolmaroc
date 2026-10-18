@@ -21,6 +21,19 @@ let chromium;
 try { ({ chromium } = require('playwright')); }
 catch { ({ chromium } = require('/opt/node22/lib/node_modules/playwright')); }
 
+/** Playwright's bundled Chromium; if it is missing (e.g. a failed download on Windows),
+    fall back to the installed Microsoft Edge or Google Chrome, which use the same engine. */
+async function launchBrowser(opts = {}) {
+  try { return await chromium.launch(opts); }
+  catch (err) {
+    for (const channel of ['msedge', 'chrome']) {
+      try { const b = await chromium.launch({ ...opts, channel }); console.log(`using installed ${channel}`); return b; }
+      catch { /* try the next one */ }
+    }
+    throw err;
+  }
+}
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'output');
 const BUILD = path.join(OUT, 'build');
@@ -89,7 +102,7 @@ async function renderSegment(browser, port, a, f0, f1, file, progress) {
 async function renderRanges(ranges, name) {
   const srv = await serve();
   const port = srv.address().port;
-  const browser = await chromium.launch({ args: ['--disable-gpu-vsync', '--force-color-profile=srgb', '--font-render-hinting=none'] });
+  const browser = await launchBrowser({ args: ['--disable-gpu-vsync', '--force-color-profile=srgb', '--font-render-hinting=none'] });
   const jobs = [];
   ranges.forEach(([a, b], ri) => {
     const n = Math.round((b - a) * FPS);
@@ -160,7 +173,7 @@ async function stills(times) {
   const dir = path.join(OUT, 'stills');
   fs.mkdirSync(dir, { recursive: true });
   const srv = await serve();
-  const browser = await chromium.launch();
+  const browser = await launchBrowser();
   const ctx = await openPage(browser, srv.address().port);
   for (const t of times) {
     const buf = await grab(ctx, t, 'png');
@@ -174,7 +187,7 @@ async function stills(times) {
 
 async function thumbnail() {
   const srv = await serve();
-  const browser = await chromium.launch();
+  const browser = await launchBrowser();
   const ctx = await openPage(browser, srv.address().port);
   await ctx.page.evaluate(() => W.drawThumbnail(document.getElementById('c').getContext('2d')));
   const r = await ctx.cdp.send('Page.captureScreenshot', { format: 'png' });
