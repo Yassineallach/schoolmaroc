@@ -385,5 +385,10 @@
     "file": "input/images/iron_throne.png",
     "blend": "multiply",
     "note": "Iron Throne ink-and-wash drawing on white, supplied by the user; multiply drops the white"
+  },
+  "got_poster": {
+    "file": "input/images/got_poster.jpg",
+    "blend": "multiply",
+    "note": "Game of Thrones fan-art poster on white, supplied by the user; multiply melts the white edges into the parchment"
   }
 }

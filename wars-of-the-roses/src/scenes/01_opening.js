@@ -112,13 +112,16 @@
     draw(ctx, t, S) {
       const c = S.cues, T = S.text;
       const cx = W.W / 2;
-      border(ctx, p(t, 19.5, 3.2, E.inOut), t);
+      // "if this sounds familiar..." — the Game of Thrones poster comes first, then gives way to the title page
+      const pin = p(t, c.familiar, 1.2, E.out), pout = p(t, 23.3, 1.0, E.inOut);
+      W.image(ctx, 'got_poster', cx, 540, 800 * (0.96 + 0.04 * pin + 0.03 * pout), { alpha: pin * (1 - pout), reveal: p(t, c.familiar, 1.4) });
+      border(ctx, p(t, 23.4, 2.6, E.inOut), t);
       // the Iron Throne, faint behind the title: the drama these wars inspired
-      if (!W.image(ctx, 'iron_throne', cx, 520, 660, { alpha: 0.13 * p(t, 21.6, 2.4), tint: 'sepia(0.7)', zoom: 1 + 0.03 * p(t, 21.6, 8) }))
-        W.alpha(ctx, 0.16, () => W.crossedSwords(ctx, cx, 560, 300, { p: p(t, 21.6, 2.4, E.inOut), color: W.C.ivory, width: 2 }));
-      W.crown(ctx, cx, 330, 64, { p: p(t, 20.2, 2.0, E.inOut), color: W.C.gold, width: 3, fill: 0.35 * p(t, 21.6, 1) });
-      W.rose(ctx, 1500, 560, 74, { kind: 'lancaster', bloom: p(t, 20.6, 2) });
-      W.rose(ctx, 420, 560, 74, { kind: 'york', bloom: p(t, 21.0, 2) });
+      if (!W.image(ctx, 'iron_throne', cx, 520, 660, { alpha: 0.13 * p(t, 24.2, 2.0), tint: 'sepia(0.7)', zoom: 1 + 0.03 * p(t, 24.2, 6) }))
+        W.alpha(ctx, 0.16, () => W.crossedSwords(ctx, cx, 560, 300, { p: p(t, 24.2, 2.0, E.inOut), color: W.C.ivory, width: 2 }));
+      W.crown(ctx, cx, 330, 64, { p: p(t, 23.8, 1.6, E.inOut), color: W.C.gold, width: 3, fill: 0.35 * p(t, 24.6, 1) });
+      W.rose(ctx, 1500, 560, 74, { kind: 'lancaster', bloom: p(t, 23.9, 1.6) });
+      W.rose(ctx, 420, 560, 74, { kind: 'york', bloom: p(t, 24.1, 1.6) });
       // rubricated title: "حروب" in ink, "الوردتين" in red
       W.words(ctx, T.title, cx, 545, t, [c.title - 0.1, c.title + 0.3], { size: 168, colors: [W.C.ivory, W.C.crimson], rise: 14, dur: 1.0 });
       const lp = p(t, c.title + 0.4, 1.4, E.inOut);
