@@ -26,6 +26,8 @@ var best_hand := 0
 var shop_charms: Array = []
 var shop_runes: Array = []
 var _last_hex := ""
+var _next_id := 0
+var shop_card: Dictionary = {}
 
 
 func _init() -> void:
@@ -36,9 +38,42 @@ func _init() -> void:
 	var id := 0
 	for s in 4:
 		for r in range(2, 15):
-			deck.append({"rank": r, "suit": s, "id": id})
+			deck.append(make_card(r, s, id))
 			id += 1
+	_next_id = id
 	pick_boss()
+
+
+static func make_card(rank: int, suit: int, id: int) -> Dictionary:
+	return {"rank": rank, "suit": suit, "id": id, "enh": "", "ed": "", "seal": ""}
+
+
+func new_card_id() -> int:
+	_next_id += 1
+	return _next_id - 1
+
+
+func random_edition(chance: float) -> String:
+	if rng.randf() >= chance:
+		return ""
+	var r := rng.randf()
+	return "chroma" if r > 0.85 else ("holo" if r > 0.5 else "foil")
+
+
+## A random upgraded playing card for the shop, with its price.
+func roll_shop_card() -> void:
+	var c := make_card(rng.randi_range(2, 14), rng.randi_range(0, 3), new_card_id())
+	var enh := Data.ENHANCEMENTS.keys()
+	c.enh = enh[rng.randi_range(0, enh.size() - 1)]
+	c.ed = random_edition(0.25)
+	if rng.randf() < 0.25:
+		c.seal = "crimson" if rng.randf() < 0.5 else "golden"
+	var cost := 3
+	if c.ed != "":
+		cost += Data.EDITIONS[c.ed].cost
+	if c.seal != "":
+		cost += 2
+	shop_card = {"card": c, "cost": cost}
 
 
 func pick_boss() -> void:
@@ -137,14 +172,28 @@ func roll_shop() -> void:
 			pool = Data.CHARMS.filter(func(c): return not owned.has(c.id))
 		if pool.is_empty():
 			break
-		var pick: Dictionary = pool[rng.randi_range(0, pool.size() - 1)]
+		var pick: Dictionary = pool[rng.randi_range(0, pool.size() - 1)].duplicate()
+		pick.ed = random_edition(0.12)
+		if pick.ed != "":
+			pick.cost += Data.EDITIONS[pick.ed].cost
 		shop_charms.append(pick)
 		owned.append(pick.id)
 	shop_runes = []
 	var hands := Data.HAND_ORDER.duplicate()
 	shuffle(hands)
-	shop_runes = [hands[0], hands[1]]
+	shop_runes = [hands[0]]
+	roll_shop_card()
 
 
-func sell_value(charm_id: String) -> int:
-	return maxi(1, Data.charm_def(charm_id).cost / 2)
+func sell_value(inst: Dictionary) -> int:
+	var cost: int = Data.charm_def(inst.id).cost
+	if inst.get("ed", "") != "":
+		cost += Data.EDITIONS[inst.ed].cost
+	return maxi(1, cost / 2)
+
+
+func remove_from_deck(card: Dictionary) -> void:
+	for i in deck.size():
+		if deck[i].id == card.id:
+			deck.remove_at(i)
+			return

@@ -23,7 +23,7 @@ var lbl_discards: Label
 var lbl_hand_name: Label
 var lbl_chips: Label
 var lbl_mult: Label
-var lbl_deck: Label
+var btn_deck: Button
 var lbl_charm_count: Label
 
 var charm_row: Control
@@ -41,6 +41,9 @@ var chosen_marker: Polygon2D
 var jiggle := 0.0
 
 var hand_views: Array = []
+var drag_view: Control = null
+var _drag_grab := Vector2.ZERO
+var manual_order := false
 var charm_views: Array = []
 var busy := true
 var _shop_open := false
@@ -181,7 +184,7 @@ func _build_ui() -> void:
 	lbl_ante = _place(_label("", 28), info_box, Vector2(0, 0), Vector2(150, 90))
 	lbl_money = _place(_label("", 46, Data.MONEY_COLOR), info_box, Vector2(150, 0), Vector2(170, 90))
 	_place(_button("Poker Hands", Color("5a5f73"), show_hand_info, Vector2(320, 56), 24), self, Vector2(10, 582), Vector2(320, 56))
-	lbl_deck = _place(_label("", 22, Color(1, 1, 1, 0.75)), self, Vector2(10, 648), Vector2(320, 40))
+	btn_deck = _place(_button("Deck", Color("4a4f63"), show_deck, Vector2(320, 48), 22), self, Vector2(10, 650), Vector2(320, 48))
 
 	# Charm row along the top of the table
 	charm_bg = _panel(Vector2(SIDE_W + 10, 10), Vector2(900, CHARM_H), Color(0, 0, 0, 0.25))
@@ -227,6 +230,10 @@ func _build_ui() -> void:
 	modal = Control.new()
 	modal.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(modal)
+	# Cards use z_index for fanning and dragging; keep popups above them.
+	fx_layer.z_index = 300
+	overlay.z_index = 350
+	modal.z_index = 400
 
 
 func _on_resize() -> void:
@@ -301,7 +308,7 @@ func update_hud() -> void:
 	lbl_hands.text = str(gs.hands_left)
 	lbl_discards.text = str(gs.discards_left)
 	lbl_round_score.text = Data.fmt(gs.round_score)
-	lbl_deck.text = "Deck %d/%d" % [gs.draw_pile.size(), gs.deck.size()]
+	btn_deck.text = "Deck %d/%d" % [gs.draw_pile.size() if in_round else gs.deck.size(), gs.deck.size()]
 	lbl_charm_count.text = "%d/%d" % [gs.charms.size(), gs.charm_slots]
 	var shown_idx := gs.blind_idx
 	lbl_blind.text = gs.blind_name(shown_idx)
@@ -338,15 +345,89 @@ func rebuild_charms() -> void:
 		v.queue_free()
 	charm_views = []
 	var n := gs.charms.size() if gs else 0
+	for i in n:
+		var v := CharmView.new(gs.charms[i].id, "", gs.charms[i].get("ed", ""))
+		v.set_meta("inst", gs.charms[i])
+		v.tapped.connect(_on_charm_tapped)
+		v.held.connect(_on_charm_tapped)
+		v.drag_started.connect(_on_drag_start)
+		v.dragged.connect(_on_drag_move)
+		v.drag_ended.connect(_on_drag_end)
+		charm_row.add_child(v)
+		charm_views.append(v)
+	layout_charms(false)
+	update_hud()
+
+
+func layout_charms(animate: bool) -> void:
+	var n := charm_views.size()
 	var step := 136.0
 	var x0 := (charm_row.size.x - (CharmView.W + step * maxi(n - 1, 0))) / 2.0
 	for i in n:
-		var v := CharmView.new(gs.charms[i].id)
-		v.position = Vector2(x0 + i * step, 4)
-		v.tapped.connect(_on_charm_tapped)
-		charm_row.add_child(v)
-		charm_views.append(v)
-	update_hud()
+		var v: CharmView = charm_views[i]
+		if v == drag_view:
+			continue
+		var target := Vector2(x0 + i * step, 4)
+		if animate:
+			create_tween().tween_property(v, "position", target, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		else:
+			v.position = target
+
+
+# ---------------------------------------------------------------- dragging
+
+## Cards in hand and owned charms can be dragged sideways to reorder them.
+func _drag_list(v: Control) -> Array:
+	return hand_views if v is CardView else charm_views
+
+
+func _on_drag_start(v: Control, pos: Vector2) -> void:
+	if v is CardView and (busy or not in_round or not hand_views.has(v)):
+		return
+	if v is CharmView and busy and in_round:
+		return
+	drag_view = v
+	_drag_grab = pos - v.global_position
+	v.z_index = 200
+	juice(v, 0.08)
+
+
+func _on_drag_move(v: Control, pos: Vector2) -> void:
+	if v != drag_view:
+		return
+	v.global_position = pos - _drag_grab
+	var list := _drag_list(v)
+	var cx := v.global_position.x + v.size.x / 2
+	var idx := 0
+	for o in list:
+		if o != v and o.global_position.x + o.size.x / 2 < cx:
+			idx += 1
+	var cur := list.find(v)
+	if idx != cur:
+		list.remove_at(cur)
+		list.insert(idx, v)
+		if v is CardView:
+			manual_order = true
+			layout_hand(true)
+		else:
+			layout_charms(true)
+
+
+func _on_drag_end(v: Control) -> void:
+	if v != drag_view:
+		return
+	drag_view = null
+	if v is CardView:
+		gs.hand = hand_views.map(func(h): return h.card)
+		layout_hand(true)
+	else:
+		gs.charms = charm_views.map(func(c): return _charm_inst(c))
+		layout_charms(true)
+	sfx.play("select")
+
+
+func _charm_inst(v: CharmView) -> Dictionary:
+	return v.get_meta("inst")
 
 
 func popup_text(pos: Vector2, text: String, col: Color, fsize: int = 34) -> void:
@@ -563,6 +644,8 @@ func clear_hand_views() -> void:
 	for v in hand_views:
 		v.queue_free()
 	hand_views = []
+	drag_view = null
+	manual_order = false
 
 
 func deal() -> void:
@@ -572,15 +655,27 @@ func deal() -> void:
 		v.set_debuffed(gs.is_debuffed(c))
 		v.position = Vector2(vw - 60, vh - 120)
 		v.rotation_degrees = 30
+		v.face_up = false
 		v.tapped.connect(_on_card_tapped)
+		v.held.connect(show_card_info)
+		v.drag_started.connect(_on_drag_start)
+		v.dragged.connect(_on_drag_move)
+		v.drag_ended.connect(_on_drag_end)
 		hand_layer.add_child(v)
 		hand_views.append(v)
-	sort_hand()
+	if not manual_order:
+		sort_hand()
+	gs.hand = hand_views.map(func(h): return h.card)
 	for i in drawn.size():
 		sfx.play("deal", 0.9 + 0.05 * i)
 	layout_hand(true)
 	update_hud()
-	await wait(0.3)
+	var k := 0
+	for v in hand_views:
+		if not v.face_up:
+			v.flip_up(0.15 + 0.05 * k)
+			k += 1
+	await wait(0.35 + 0.05 * k)
 
 
 func sort_hand() -> void:
@@ -599,6 +694,7 @@ func sort_hand() -> void:
 
 func set_sort(mode: String) -> void:
 	sort_mode = mode
+	manual_order = false
 	_place_marker()
 	if gs == null or not in_round or busy:
 		return
@@ -616,6 +712,8 @@ func layout_hand(animate: bool) -> void:
 	var x0 := main_cx() - total / 2.0
 	for i in n:
 		var v: CardView = hand_views[i]
+		if v == drag_view:
+			continue
 		var off := i - (n - 1) / 2.0
 		var target := Vector2(x0 + i * step, hand_y() + absf(off) * absf(off) * 2.0 - (34.0 if v.selected else 0.0))
 		var rot := off * 2.5
@@ -680,9 +778,9 @@ func play_selected() -> void:
 	for c in gs.charms:
 		if c.id == "snowball":
 			c.data.m = c.data.get("m", 0) + 1
-	var events := Scoring.compute(gs, played, ev)
+	var result := Scoring.compute(gs, played, ev, hand_views.map(func(v): return v.card))
 	var view_of := {}
-	for v in sel:
+	for v in sel + hand_views:
 		view_of[v.card.id] = v
 	var scoring_ids: Array = ev.scoring.map(func(c): return c.id)
 	for v in sel:
@@ -692,58 +790,67 @@ func play_selected() -> void:
 
 	var chips := 0.0
 	var mult := 0.0
-	var step_t := 0.32
+	var step_t := 0.3
 	var pitch := 1.0
 	lbl_hand_name.text = "%s  lvl %d" % [ev.name, gs.hand_levels[ev.name]]
-	for e in events:
-		match e.kind:
-			"base":
-				chips = e.chips
-				mult = e.mult
-				lbl_chips.text = Data.fmt(chips)
-				lbl_mult.text = Data.fmt(mult)
-				bump(lbl_chips.get_parent())
-				bump(lbl_mult.get_parent())
-				await wait(step_t)
-			"card":
-				var v: CardView = view_of[e.card.id]
-				bump(v, 1.2)
-				if e.get("debuff", false):
-					popup_text(v.position + Vector2(CardView.W / 2, -24), "Debuffed", Color("aaaaaa"), 26)
-				else:
-					chips += e.chips
-					lbl_chips.text = Data.fmt(chips)
-					bump(lbl_chips.get_parent(), 1.08)
-					popup_text(v.position + Vector2(CardView.W / 2, -24), "+%d" % e.chips, Data.CHIP_COLOR.lightened(0.2))
-					sfx.play("chips", pitch)
-					pitch += 0.05
-				await wait(step_t)
-			"charm":
-				var cv: CharmView = charm_views[e.charm_index]
-				bump(cv, 1.15)
-				var anchor := cv.global_position + Vector2(CharmView.W / 2, CharmView.H + 18)
-				if e.has("card"):
-					var v2: CardView = view_of[e.card.id]
-					bump(v2, 1.12)
-					anchor = v2.position + Vector2(CardView.W / 2, CardView.H + 22)
-				if e.has("chips"):
-					chips += e.chips
-					lbl_chips.text = Data.fmt(chips)
-					popup_text(anchor, "+%d" % e.chips, Data.CHIP_COLOR.lightened(0.2))
-					sfx.play("chips", pitch)
-				if e.has("mult"):
-					mult += e.mult
-					lbl_mult.text = Data.fmt(mult)
-					popup_text(anchor + Vector2(0, 36 if e.has("chips") else 0), "+%d Mult" % e.mult, Data.MULT_COLOR)
-					sfx.play("mult", pitch)
-				if e.has("xmult"):
-					mult *= e.xmult
-					lbl_mult.text = _fmt_mult(mult)
-					popup_text(anchor, "x%s Mult" % str(e.xmult).trim_suffix(".0"), Data.XMULT_COLOR)
-					sfx.play("xmult", pitch)
-				bump(lbl_mult.get_parent(), 1.08)
-				pitch += 0.05
-				await wait(step_t)
+	for e in result.events:
+		if e.kind == "base":
+			chips = e.chips
+			mult = e.mult
+			lbl_chips.text = Data.fmt(chips)
+			lbl_mult.text = Data.fmt(mult)
+			bump(lbl_chips.get_parent())
+			bump(lbl_mult.get_parent())
+			await wait(step_t)
+			continue
+		# Popups go above a played card, below a charm, or above a held card.
+		var anchor := Vector2.ZERO
+		if e.has("charm_index"):
+			var cv: CharmView = charm_views[e.charm_index]
+			bump(cv, 1.15)
+			anchor = cv.global_position + Vector2(CharmView.W / 2, CharmView.H + 18)
+		if e.has("card"):
+			var v: CardView = view_of[e.card.id]
+			bump(v, 1.2 if e.kind != "charm" else 1.1)
+			if e.kind == "held" or not e.has("charm_index"):
+				anchor = v.position + Vector2(CardView.W / 2, -24)
+			else:
+				anchor = v.position + Vector2(CardView.W / 2, CardView.H + 22)
+		if e.get("debuff", false):
+			popup_text(anchor, "Debuffed", Color("aaaaaa"), 26)
+		if e.get("again", false):
+			popup_text(anchor, "Again!", Color("ffdf6b"), 30)
+			sfx.play("select", 1.3)
+		var line := 0
+		if e.has("chips"):
+			chips += e.chips
+			lbl_chips.text = Data.fmt(chips)
+			bump(lbl_chips.get_parent(), 1.08)
+			popup_text(anchor, "+%d" % e.chips, Data.CHIP_COLOR.lightened(0.2))
+			sfx.play("chips", pitch)
+			line += 1
+		if e.has("mult"):
+			mult += e.mult
+			lbl_mult.text = _fmt_mult(mult)
+			bump(lbl_mult.get_parent(), 1.08)
+			popup_text(anchor + Vector2(0, 36 * line), "+%d Mult" % e.mult, Data.MULT_COLOR)
+			sfx.play("mult", pitch)
+			line += 1
+		if e.has("xmult"):
+			mult *= e.xmult
+			lbl_mult.text = _fmt_mult(mult)
+			bump(lbl_mult.get_parent(), 1.08)
+			popup_text(anchor + Vector2(0, 36 * line), "x%s Mult" % str(e.xmult).trim_suffix(".0"), Data.XMULT_COLOR)
+			sfx.play("xmult", pitch)
+			line += 1
+		if e.has("money"):
+			gs.money += e.money
+			update_hud()
+			bump(lbl_money, 1.2)
+			popup_text(anchor + Vector2(0, 36 * line), "$%d" % e.money, Data.MONEY_COLOR)
+			sfx.play("coin", pitch)
+		pitch += 0.04
+		await wait(step_t)
 
 	var total := int(floor(chips * mult))
 	gs.best_hand = maxi(gs.best_hand, total)
@@ -760,6 +867,14 @@ func play_selected() -> void:
 	tw.tween_method(func(x): lbl_round_score.text = Data.fmt(x), from, gs.round_score, 0.4)
 	await wait(0.5)
 
+	# Glass cards that broke leave the deck for good.
+	for c in result.shatter:
+		var v: CardView = view_of[c.id]
+		sel.erase(v)
+		gs.remove_from_deck(c)
+		shatter(v)
+	if not result.shatter.is_empty():
+		await wait(0.4)
 	# Clear played cards.
 	for i in sel.size():
 		var v: CardView = sel[i]
@@ -829,6 +944,10 @@ func win_round() -> void:
 	in_round = false
 	sfx.play("win")
 	await wait(0.3)
+	var gilded := 0
+	for v in hand_views:
+		if v.card.get("enh", "") == "gilded" and not gs.is_debuffed(v.card):
+			gilded += 3
 	clear_hand_views()
 	lbl_hand_name.text = ""
 	var reward := gs.blind_reward()
@@ -838,7 +957,7 @@ func win_round() -> void:
 	for c in gs.charms:
 		if c.id == "gold":
 			charm_cash += 4
-	var total := reward + per_hand + interest + charm_cash
+	var total := reward + per_hand + interest + charm_cash + gilded
 	var vb := open_overlay()
 	vb.add_child(_label(gs.blind_name() + " defeated!", 38, Color("ffdf6b")))
 	_row_label(vb, "Blind reward", "$%d" % reward)
@@ -848,6 +967,8 @@ func win_round() -> void:
 		_row_label(vb, "Interest ($1 per $5)", "$%d" % interest)
 	if charm_cash > 0:
 		_row_label(vb, "Gold Tooth", "$%d" % charm_cash)
+	if gilded > 0:
+		_row_label(vb, "Gilded cards held", "$%d" % gilded)
 	vb.add_child(_center(_button("Cash Out: $%d" % total, Color("e0a526"), func():
 		gs.money += total
 		sfx.play("coin")
@@ -915,7 +1036,7 @@ func show_shop() -> void:
 	var vb := open_overlay()
 	_shop_open = true
 	vb.add_child(_label("Shop", 40, Color("ffdf6b")))
-	vb.add_child(_label("Tap a charm above to sell it", 18, Color(1, 1, 1, 0.6)))
+	vb.add_child(_label("Tap a charm above to sell it. Bought cards join your deck.", 18, Color(1, 1, 1, 0.6)))
 	var body := HBoxContainer.new()
 	body.alignment = BoxContainer.ALIGNMENT_CENTER
 	body.add_theme_constant_override("separation", 24)
@@ -925,11 +1046,19 @@ func show_shop() -> void:
 	grid.add_theme_constant_override("separation", 16)
 	for i in gs.shop_charms.size():
 		var d: Dictionary = gs.shop_charms[i]
-		grid.add_child(_shop_item(CharmView.new(d.id), d.cost, d.desc, Data.RARITY_NAMES[d.rarity], func(): buy_charm(i)))
+		var desc: String = d.desc
+		if d.get("ed", "") != "":
+			desc = "%s\n%s: %s" % [d.desc, Data.EDITIONS[d.ed].name, Data.EDITIONS[d.ed].desc]
+		grid.add_child(_shop_item(CharmView.new(d.id, "", d.get("ed", "")), d.cost, desc, Data.RARITY_NAMES[d.rarity], func(): buy_charm(i)))
 	for i in gs.shop_runes.size():
 		var h: String = gs.shop_runes[i]
 		var b: Array = Data.HAND_BASE[h]
 		grid.add_child(_shop_item(CharmView.new("", h), Data.RUNE_COST, "Level up %s\n+%d Chips +%d Mult" % [h, b[2], b[3]], "Rune", func(): buy_rune(i)))
+	if not gs.shop_card.is_empty():
+		var c: Dictionary = gs.shop_card.card
+		var cv := CardView.new(c)
+		cv.float_amount = 1.0
+		grid.add_child(_shop_item(cv, gs.shop_card.cost, "\n".join(Data.card_mods(c)), Data.card_name(c), buy_card))
 	if grid.get_child_count() == 0:
 		grid.add_child(_label("Sold out!", 28))
 	body.add_child(grid)
@@ -943,7 +1072,7 @@ func show_shop() -> void:
 	body.add_child(side)
 
 
-func _shop_item(view: CharmView, cost: int, desc: String, tag: String, cb: Callable) -> Control:
+func _shop_item(view: Control, cost: int, desc: String, tag: String, cb: Callable) -> Control:
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 6)
 	col.custom_minimum_size = Vector2(138, 0)
@@ -955,7 +1084,7 @@ func _shop_item(view: CharmView, cost: int, desc: String, tag: String, cb: Calla
 	d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	d.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	d.custom_minimum_size = Vector2(138, 92)
-	d.add_theme_font_size_override("font_size", 17)
+	d.add_theme_font_size_override("font_size", 16)
 	col.add_child(d)
 	var b := _button("$%d" % cost, Color("e0a526"), cb, Vector2(130, 60), 28)
 	b.disabled = gs.money < cost
@@ -971,11 +1100,23 @@ func buy_charm(i: int) -> void:
 		popup_text(Vector2(main_cx(), TOP_H + 40), "No room for more charms", Color.WHITE, 28)
 		return
 	gs.money -= d.cost
-	gs.charms.append({"id": d.id, "data": {}})
+	gs.charms.append({"id": d.id, "data": {}, "ed": d.get("ed", "")})
 	gs.shop_charms.remove_at(i)
 	sfx.play("coin")
 	rebuild_charms()
 	show_shop()
+
+
+func buy_card() -> void:
+	var cost: int = gs.shop_card.cost
+	if gs.money < cost:
+		return
+	gs.money -= cost
+	gs.deck.append(gs.shop_card.card)
+	gs.shop_card = {}
+	sfx.play("coin")
+	show_shop()
+	popup_text(Vector2(main_cx(), TOP_H + 40), "Added to deck (%d cards)" % gs.deck.size(), Color.WHITE, 30)
 
 
 func buy_rune(i: int) -> void:
@@ -1041,6 +1182,8 @@ func _on_charm_tapped(v: CharmView) -> void:
 		return
 	var inst: Dictionary = gs.charms[idx]
 	var d := Data.charm_def(inst.id)
+	if v == drag_view:
+		return
 	var vb := open_modal()
 	vb.add_child(_label(d.name, 40, Data.RARITY_COLORS[d.rarity].lightened(0.4)))
 	vb.add_child(_label(Data.RARITY_NAMES[d.rarity], 20, Color(1, 1, 1, 0.6)))
@@ -1051,17 +1194,14 @@ func _on_charm_tapped(v: CharmView) -> void:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 14)
-	if idx > 0:
-		row.add_child(_button("Move left", Color("5a5f73"), func():
-			gs.charms.remove_at(idx)
-			gs.charms.insert(idx - 1, inst)
-			rebuild_charms()
-			close_modal(), Vector2(170, 70), 24))
-	var sell := _button("Sell $%d" % gs.sell_value(inst.id), Color("3f9a5a"), func():
-		gs.money += gs.sell_value(inst.id)
-		gs.charms.remove_at(idx)
+	var sell := _button("Sell $%d" % gs.sell_value(inst), Color("3f9a5a"), func():
+		gs.money += gs.sell_value(inst)
+		gs.charms.erase(inst)
+		charm_views.erase(v)
+		v.dissolve()
 		sfx.play("coin")
-		rebuild_charms()
+		layout_charms(true)
+		update_hud()
 		close_modal()
 		if _shop_open:
 			show_shop(), Vector2(170, 70), 24)
@@ -1069,7 +1209,94 @@ func _on_charm_tapped(v: CharmView) -> void:
 	row.add_child(sell)
 	row.add_child(_button("Close", Color("5a5f73"), close_modal, Vector2(150, 70), 24))
 	vb.add_child(row)
-	vb.add_child(_label("Charms trigger left to right.", 18, Color(1, 1, 1, 0.5)))
+	vb.add_child(_label("Charms trigger left to right. Drag to reorder.", 18, Color(1, 1, 1, 0.5)))
+
+
+## Break a card into tumbling shards.
+func shatter(v: CardView) -> void:
+	sfx.play("lose", 2.2)
+	jiggle += 1.0
+	var origin := v.position
+	var face: Color = Data.ENHANCEMENTS["glass"].face
+	for i in 10:
+		var shard := Polygon2D.new()
+		var c := Vector2(randf() * CardView.W, randf() * CardView.H)
+		var pts := PackedVector2Array()
+		for k in 3:
+			var a := TAU * k / 3.0 + randf()
+			pts.append(Vector2(cos(a), sin(a)) * randf_range(10, 22))
+		shard.polygon = pts
+		shard.color = face if i % 3 else Color(1, 1, 1, 0.9)
+		shard.position = origin + c
+		shard.z_index = 120
+		fx_layer.add_child(shard)
+		var dir := (c - Vector2(CardView.W, CardView.H) / 2).normalized()
+		var tw := create_tween().set_parallel()
+		tw.tween_property(shard, "position", shard.position + dir * randf_range(60, 140) + Vector2(0, 90), 0.6).set_ease(Tween.EASE_IN)
+		tw.tween_property(shard, "rotation", randf_range(-4, 4), 0.6)
+		tw.tween_property(shard, "modulate:a", 0.0, 0.6).set_delay(0.2)
+		tw.chain().tween_callback(shard.queue_free)
+	popup_text(origin + Vector2(CardView.W / 2, -24), "Shattered!", Color("bff3ff"), 30)
+	v.queue_free()
+
+
+func show_card_info(v: CardView) -> void:
+	if v == drag_view:
+		return
+	var c := v.card
+	var vb := open_modal()
+	vb.add_child(_label(Data.card_name(c), 36, Color("ffdf6b")))
+	vb.add_child(_label("+%d Chips when scored" % Data.card_chips(c.rank), 24, Data.CHIP_COLOR.lightened(0.3)))
+	for line in Data.card_mods(c):
+		var l := _label(line, 24)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		l.custom_minimum_size = Vector2(540, 0)
+		vb.add_child(l)
+	if gs.is_debuffed(c):
+		vb.add_child(_label("Debuffed by " + gs.boss_hex.name, 22, Color("ff8080")))
+	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 64), 24)))
+
+
+func show_deck() -> void:
+	if gs == null:
+		return
+	var vb := open_modal()
+	var remaining := {}
+	for c in gs.draw_pile:
+		remaining[c.id] = true
+	vb.add_child(_label("Deck: %d cards" % gs.deck.size(), 34, Color("ffdf6b")))
+	if in_round:
+		vb.add_child(_label("Faded cards have already been drawn this round", 18, Color(1, 1, 1, 0.6)))
+	var cards := gs.deck.duplicate()
+	cards.sort_custom(func(a, b):
+		if a.suit != b.suit:
+			return a.suit < b.suit
+		return a.rank > b.rank)
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(760, mini(ceili(cards.size() / 13.0), 6) * 78)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	var grid := GridContainer.new()
+	grid.columns = 13
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	for c in cards:
+		var cell := Control.new()
+		cell.custom_minimum_size = Vector2(52, 72)
+		cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var cv := CardView.new(c)
+		cv.float_amount = 0.0
+		cv.scale = Vector2(0.5, 0.5)
+		cv.pivot_offset = Vector2.ZERO
+		cv.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if in_round and not remaining.has(c.id):
+			cv.modulate = Color(1, 1, 1, 0.3)
+		cell.add_child(cv)
+		grid.add_child(cell)
+	scroll.add_child(grid)
+	vb.add_child(_center(scroll))
+	var upgraded := cards.filter(func(c): return c.enh != "" or c.ed != "" or c.seal != "").size()
+	vb.add_child(_label("%d upgraded cards. Hold a card in hand to see its details." % upgraded, 18, Color(1, 1, 1, 0.6)))
+	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 60), 24)))
 
 
 func show_hand_info() -> void:

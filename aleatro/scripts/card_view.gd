@@ -2,18 +2,26 @@ class_name CardView
 extends Control
 
 signal tapped(view)
+signal held(view)
+signal drag_started(view, pos)
+signal dragged(view, pos)
+signal drag_ended(view)
 
 const W := 100.0
 const H := 140.0
+const BACK_COLOR := Color("b3364e")
 
 var card: Dictionary
 var selected := false
 var debuffed := false
+var face_up := true
 var float_amount := 0.5
 var _phase := randf() * TAU
+var _touch := TouchTracker.new()
 
 static var _face_box: PixelBox
 static var _select_box: PixelBox
+static var _fx_shader: Shader
 
 
 func _init(c: Dictionary = {}) -> void:
@@ -29,15 +37,38 @@ func _init(c: Dictionary = {}) -> void:
 		_select_box = PixelBox.new(Color(0, 0, 0, 0), 4.0)
 		_select_box.outline = 4.0
 		_select_box.outline_color = Color("ffcc33")
+		_fx_shader = load("res://shaders/card_fx.gdshader")
+	if card.get("ed", "") != "":
+		_ensure_material().set_shader_parameter("edition", Data.EDITIONS[card.ed].shader)
+
+
+func _ensure_material() -> ShaderMaterial:
+	if material == null:
+		var m := ShaderMaterial.new()
+		m.shader = _fx_shader
+		m.set_shader_parameter("size", size)
+		m.set_shader_parameter("phase", _phase)
+		material = m
+	return material
 
 
 func _gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		tapped.emit(self)
+	match _touch.handle(event):
+		"tap":
+			tapped.emit(self)
+		"drag_start":
+			drag_started.emit(self, event.global_position)
+		"drag":
+			dragged.emit(self, event.global_position)
+		"drag_end":
+			drag_ended.emit(self)
+	if event is InputEventMouseButton or _touch.dragging:
 		accept_event()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	if _touch.tick(delta):
+		held.emit(self)
 	if float_amount > 0.0 and is_visible_in_tree():
 		queue_redraw()
 
@@ -47,15 +78,43 @@ func set_debuffed(v: bool) -> void:
 	queue_redraw()
 
 
+## Turn over to reveal the face (squash to an edge, swap, unsquash).
+func flip_up(delay: float = 0.0) -> void:
+	face_up = false
+	queue_redraw()
+	var tw := create_tween()
+	tw.tween_interval(delay)
+	tw.tween_property(self, "scale:x", 0.0, 0.09)
+	tw.tween_callback(func():
+		face_up = true
+		queue_redraw())
+	tw.tween_property(self, "scale:x", 1.0, 0.09)
+
+
+## Burn away, then free.
+func dissolve(time: float = 0.6) -> void:
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var m := _ensure_material()
+	var tw := create_tween()
+	tw.tween_method(func(v): m.set_shader_parameter("dissolve", v), 0.0, 1.0, time)
+	tw.tween_callback(queue_free)
+
+
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	var amount := float_amount * (2.0 if selected else 1.0)
 	var base := Anim.float_xform(size, _phase, amount)
 	draw_set_transform_matrix(base)
-	# lifted cards cast a longer shadow
 	var lift := Anim.lift(_phase, amount)
+	# lifted cards cast a longer shadow
 	_face_box.shadow_offset = (Vector2(6, 12) if selected else Vector2(3, 6)) + Vector2(1, 3) * lift
+	if not face_up:
+		_draw_back()
+		return
+	var enh: String = card.get("enh", "")
+	_face_box.color = Data.ENHANCEMENTS[enh].face if enh != "" else Color("f7f3ea")
 	draw_style_box(_face_box, Rect2(Vector2.ZERO, size))
+	_draw_enhancement(enh)
 	if selected:
 		draw_style_box(_select_box, Rect2(Vector2.ZERO, size))
 	var col: Color = Data.SUIT_COLORS[card.suit]
@@ -75,10 +134,58 @@ func _draw() -> void:
 		draw_string(font, Vector2(30, 82), label, HORIZONTAL_ALIGNMENT_CENTER, 40, 34, col)
 	else:
 		draw_suit(self, card.suit, size / 2 + Vector2(0, 2), 46.0, col)
+	if enh != "":
+		_draw_badge(Data.ENHANCEMENTS[enh].name, Data.ENHANCEMENTS[enh].badge)
+	if card.get("seal", "") != "":
+		var sc: Color = Data.SEALS[card.seal].color
+		var at := Vector2(size.x - 15, size.y / 2)
+		draw_circle(at + Vector2(1, 2), 10, Color(0, 0, 0, 0.3))
+		draw_circle(at, 10, sc.darkened(0.3))
+		draw_circle(at, 7, sc)
+		draw_circle(at + Vector2(-2, -2), 2.5, sc.lightened(0.5))
 	if debuffed:
 		draw_rect(Rect2(Vector2.ZERO, size), Color(0.1, 0.1, 0.1, 0.55))
 		draw_line(Vector2(18, 18), size - Vector2(18, 18), Color("ff4d4d"), 6)
 		draw_line(Vector2(size.x - 18, 18), Vector2(18, size.y - 18), Color("ff4d4d"), 6)
+
+
+func _draw_back() -> void:
+	_face_box.color = BACK_COLOR
+	draw_style_box(_face_box, Rect2(Vector2.ZERO, size))
+	var inner := PixelBox.new(BACK_COLOR.darkened(0.25), 3.0)
+	inner.outline = 2.0
+	inner.outline_color = Color(1, 1, 1, 0.5)
+	draw_style_box(inner, Rect2(8, 8, size.x - 16, size.y - 16))
+	for y in range(18, int(size.y) - 12, 18):
+		for x in range(20, int(size.x) - 12, 20):
+			var c := Vector2(x + (9 if (y / 18) % 2 == 0 else 0), y)
+			if c.x < size.x - 12:
+				draw_colored_polygon(PackedVector2Array([c + Vector2(0, -5), c + Vector2(4, 0), c + Vector2(0, 5), c + Vector2(-4, 0)]), Color(1, 1, 1, 0.25))
+
+
+func _draw_enhancement(enh: String) -> void:
+	match enh:
+		"glass":
+			for i in 3:
+				var x := 22.0 + i * 26.0
+				draw_line(Vector2(x, 10), Vector2(x - 18, 40), Color(1, 1, 1, 0.7), 4.0 - i)
+		"iron":
+			for p in [Vector2(9, 9), Vector2(size.x - 9, 9), Vector2(9, size.y - 9), Vector2(size.x - 9, size.y - 9)]:
+				draw_circle(p, 3, Color("8a929e"))
+		"lucky":
+			for p in [Vector2(80, 14), Vector2(20, 126)]:
+				for k in 4:
+					var a := PI / 2 * k + PI / 4
+					draw_circle(p + Vector2(cos(a), sin(a)) * 4, 3.2, Color("3b9a4a", 0.6))
+
+
+func _draw_badge(text: String, col: Color) -> void:
+	var font := ThemeDB.fallback_font
+	# bottom-left corner, clear of the centre pip and the mirrored rank
+	var r := Rect2(7, size.y - 21, 56, 15)
+	var b := PixelBox.new(col, 2.0)
+	draw_style_box(b, r)
+	draw_string(font, Vector2(r.position.x, r.position.y + 12.5), text.to_upper(), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 10, Color.WHITE)
 
 
 static func draw_suit(ci: CanvasItem, suit: int, c: Vector2, s: float, col: Color) -> void:

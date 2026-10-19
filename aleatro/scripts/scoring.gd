@@ -1,11 +1,14 @@
 class_name Scoring
 extends RefCounted
 
-## Builds the ordered list of scoring events for a played hand.
-## Event kinds: "base" {chips, mult}, "card" {card, chips} / {card, debuff},
-## "charm" {charm_index, card?, chips?, mult?, xmult?}.
-static func compute(gs: GameState, played: Array, ev: Dictionary) -> Array:
+## Builds the ordered scoring events for a played hand.
+## Returns {events: Array, shatter: Array of glass cards that broke}.
+## Every event but "base" may carry chips, mult, xmult and money, plus an
+## anchor: "card" (played or held card) and/or "charm_index".
+## Flags: "debuff" (card did nothing), "again" (retrigger).
+static func compute(gs: GameState, played: Array, ev: Dictionary, held: Array) -> Dictionary:
 	var events := []
+	var shatter := []
 	var hand_name: String = ev.name
 	var lvl: int = gs.hand_levels[hand_name]
 	var chips := Data.hand_chips(hand_name, lvl)
@@ -19,23 +22,76 @@ static func compute(gs: GameState, played: Array, ev: Dictionary) -> Array:
 		if gs.is_debuffed(card):
 			events.append({"kind": "card", "card": card, "debuff": true})
 			continue
-		events.append({"kind": "card", "card": card, "chips": Data.card_chips(card.rank)})
-		for i in gs.charms.size():
-			var fx := _on_card(gs.charms[i], card)
-			if not fx.is_empty():
-				fx.kind = "charm"
-				fx.charm_index = i
-				fx.card = card
-				events.append(fx)
+		var reps := 2 if card.get("seal", "") == "crimson" else 1
+		for rep in reps:
+			if rep > 0:
+				events.append({"kind": "card", "card": card, "again": true})
+			events.append({"kind": "card", "card": card, "chips": Data.card_chips(card.rank)})
+			var enh := _enhancement(gs, card)
+			if not enh.is_empty():
+				enh.kind = "card"
+				enh.card = card
+				events.append(enh)
+			if card.get("seal", "") == "golden":
+				events.append({"kind": "card", "card": card, "money": 3})
+			var ed := edition_fx(card.get("ed", ""))
+			if not ed.is_empty():
+				ed.kind = "card"
+				ed.card = card
+				events.append(ed)
+			for i in gs.charms.size():
+				var fx := _on_card(gs.charms[i], card)
+				if not fx.is_empty():
+					fx.kind = "charm"
+					fx.charm_index = i
+					fx.card = card
+					events.append(fx)
+		if card.get("enh", "") == "glass" and gs.rng.randi_range(1, 4) == 1:
+			shatter.append(card)
+
+	for card in held:
+		if card.get("enh", "") == "iron" and not gs.is_debuffed(card):
+			events.append({"kind": "held", "card": card, "xmult": 1.5})
 
 	var ctx := {"gs": gs, "played": played, "contains": ev.contains}
 	for i in gs.charms.size():
-		var fx := _on_hand(gs.charms[i], ctx)
+		var inst: Dictionary = gs.charms[i]
+		var fx := _on_hand(inst, ctx)
 		if not fx.is_empty():
 			fx.kind = "charm"
 			fx.charm_index = i
 			events.append(fx)
-	return events
+		var ed := edition_fx(inst.get("ed", ""))
+		if not ed.is_empty():
+			ed.kind = "charm"
+			ed.charm_index = i
+			events.append(ed)
+	return {"events": events, "shatter": shatter}
+
+
+static func edition_fx(ed: String) -> Dictionary:
+	match ed:
+		"foil":
+			return {"chips": 50}
+		"holo":
+			return {"mult": 10}
+		"chroma":
+			return {"xmult": 1.5}
+	return {}
+
+
+static func _enhancement(gs: GameState, card: Dictionary) -> Dictionary:
+	match card.get("enh", ""):
+		"etched":
+			return {"chips": 30}
+		"charged":
+			return {"mult": 4}
+		"glass":
+			return {"xmult": 2.0}
+		"lucky":
+			if gs.rng.randi_range(1, 5) == 1:
+				return {"mult": 20}
+	return {}
 
 
 static func _on_card(inst: Dictionary, card: Dictionary) -> Dictionary:
@@ -113,6 +169,10 @@ static func _on_hand(inst: Dictionary, ctx: Dictionary) -> Dictionary:
 
 static func describe(inst: Dictionary) -> String:
 	var d: Dictionary = Data.charm_def(inst.id)
+	var text: String = d.desc
 	if inst.id == "snowball":
-		return "%s\n(Currently +%d Mult)" % [d.desc, inst.data.get("m", 0)]
-	return d.desc
+		text = "%s\n(Currently +%d Mult)" % [d.desc, inst.data.get("m", 0)]
+	if inst.get("ed", "") != "":
+		var e: Dictionary = Data.EDITIONS[inst.ed]
+		text += "\n%s: %s" % [e.name, e.desc]
+	return text

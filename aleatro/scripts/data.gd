@@ -65,6 +65,25 @@ const CHARMS := [
 	{"id": "crown", "name": "Crown", "desc": "x1.5 Mult for each scored King", "cost": 9, "rarity": 2},
 ]
 
+# Card upgrades. Enhancements and seals live on playing cards; editions on cards and charms.
+const ENHANCEMENTS := {
+	"etched": {"name": "Etched", "desc": "+30 Chips when scored", "face": Color("dbe9ff"), "badge": Color("2f6fd1")},
+	"charged": {"name": "Charged", "desc": "+4 Mult when scored", "face": Color("ffe0dc"), "badge": Color("d63a3a")},
+	"glass": {"name": "Glass", "desc": "x2 Mult when scored; 1 in 4 chance to shatter", "face": Color("e3fbff"), "badge": Color("3aa6c4")},
+	"iron": {"name": "Iron", "desc": "x1.5 Mult while held in hand", "face": Color("c8ced8"), "badge": Color("5d6675")},
+	"gilded": {"name": "Gilded", "desc": "Earn $3 if held in hand at end of round", "face": Color("ffe7a0"), "badge": Color("c08a12")},
+	"lucky": {"name": "Lucky", "desc": "1 in 5 chance of +20 Mult when scored", "face": Color("e2f6da"), "badge": Color("3b9a4a")},
+}
+const EDITIONS := {
+	"foil": {"name": "Foil", "desc": "+50 Chips", "cost": 2, "shader": 1},
+	"holo": {"name": "Holo", "desc": "+10 Mult", "cost": 3, "shader": 2},
+	"chroma": {"name": "Chroma", "desc": "x1.5 Mult", "cost": 5, "shader": 3},
+}
+const SEALS := {
+	"crimson": {"name": "Crimson Seal", "desc": "Retrigger this card", "color": Color("d6283c")},
+	"golden": {"name": "Golden Seal", "desc": "Earn $3 when this card is scored", "color": Color("f2b415")},
+}
+
 const RARITY_COLORS := [Color("4a6fa5"), Color("3f9a5a"), Color("b8334a")]
 const RARITY_NAMES := ["Common", "Uncommon", "Rare"]
 const RUNE_COLOR := Color("6c4ab6")
@@ -91,6 +110,26 @@ static func ante_target(ante: int) -> int:
 	var raw := float(ANTE_BASE[FINAL_ANTE - 1]) * pow(1.75, ante - FINAL_ANTE)
 	var mag := pow(10.0, floor(log(raw) / log(10.0)) - 1)
 	return int(floor(raw / mag) * mag)
+
+
+static func card_name(card: Dictionary) -> String:
+	var names := {11: "Jack", 12: "Queen", 13: "King", 14: "Ace"}
+	return "%s of %s" % [names.get(card.rank, str(card.rank)), SUIT_NAMES[card.suit]]
+
+
+## Lines describing a card's upgrades, for tooltips and the shop.
+static func card_mods(card: Dictionary) -> Array:
+	var out := []
+	if card.get("enh", "") != "":
+		var e: Dictionary = ENHANCEMENTS[card.enh]
+		out.append("%s: %s" % [e.name, e.desc])
+	if card.get("ed", "") != "":
+		var d: Dictionary = EDITIONS[card.ed]
+		out.append("%s: %s" % [d.name, d.desc])
+	if card.get("seal", "") != "":
+		var sl: Dictionary = SEALS[card.seal]
+		out.append("%s: %s" % [sl.name, sl.desc])
+	return out
 
 
 static func card_chips(rank: int) -> int:
