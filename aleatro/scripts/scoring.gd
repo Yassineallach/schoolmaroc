@@ -40,6 +40,8 @@ static func compute(gs: GameState, played: Array, ev: Dictionary, held: Array) -
 				ed.card = card
 				events.append(ed)
 			for i in gs.charms.size():
+				if gs.charm_disabled(i):
+					continue
 				var fx := _on_card(gs.charms[i], card)
 				if not fx.is_empty():
 					fx.kind = "charm"
@@ -55,6 +57,8 @@ static func compute(gs: GameState, played: Array, ev: Dictionary, held: Array) -
 
 	var ctx := {"gs": gs, "played": played, "contains": ev.contains}
 	for i in gs.charms.size():
+		if gs.charm_disabled(i):
+			continue
 		var inst: Dictionary = gs.charms[i]
 		var fx := _on_hand(inst, ctx)
 		if not fx.is_empty():

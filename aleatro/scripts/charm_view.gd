@@ -15,6 +15,8 @@ const H := 150.0
 var charm_id := ""
 var rune_hand := ""
 var edition := ""
+var face_up := true
+var smothered := false
 var float_amount := 1.0
 var _phase := randf() * TAU
 var _touch := TouchTracker.new()
@@ -88,6 +90,9 @@ func _draw() -> void:
 		col = Data.RARITY_COLORS[d.rarity]
 		name = d.name
 	draw_set_transform_matrix(Anim.float_xform(size, _phase, float_amount))
+	if not face_up:
+		_draw_back()
+		return
 	var sb := PixelBox.new(col, 4.0, 0.0, true)
 	sb.shadow_offset = Vector2(3, 5) + Vector2(1, 3) * Anim.lift(_phase, float_amount)
 	sb.outline = 4.0
@@ -113,3 +118,30 @@ func _draw() -> void:
 		draw_style_box(b, Rect2(30, 6, 60, 16))
 		draw_string(font, Vector2(30, 18.5), tag, HORIZONTAL_ALIGNMENT_CENTER, 60, 11, Color.WHITE)
 	draw_multiline_string(font, Vector2(6, 112), name, HORIZONTAL_ALIGNMENT_CENTER, size.x - 12, 19, 2, Color.WHITE)
+	if smothered:
+		draw_rect(Rect2(Vector2.ZERO, size), Color(0.1, 0.05, 0.05, 0.6))
+		draw_string(font, Vector2(0, size.y / 2 + 8), "DISABLED", HORIZONTAL_ALIGNMENT_CENTER, size.x, 18, Color("ff8a5c"))
+
+
+func _draw_back() -> void:
+	var back := PixelBox.new(Color("3b2f4f"), 4.0, 0.0, true)
+	back.outline = 4.0
+	back.outline_color = Color("c9a227")
+	draw_style_box(back, Rect2(Vector2.ZERO, size))
+	var c := size / 2
+	for r in [34.0, 22.0, 10.0]:
+		draw_arc(c, r, 0, TAU, 24, Color("c9a227", 0.6), 3.0)
+	draw_string(ThemeDB.fallback_font, c + Vector2(-20, 12), "?", HORIZONTAL_ALIGNMENT_CENTER, 40, 34, Color("f2d675"))
+
+
+## Turn over to reveal the face.
+func flip_up(delay: float = 0.0) -> void:
+	if face_up:
+		return
+	var tw := create_tween()
+	tw.tween_interval(delay)
+	tw.tween_property(self, "scale:x", 0.0, 0.09)
+	tw.tween_callback(func():
+		face_up = true
+		queue_redraw())
+	tw.tween_property(self, "scale:x", 1.0, 0.09)

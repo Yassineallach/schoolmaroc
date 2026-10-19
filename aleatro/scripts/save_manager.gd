@@ -18,8 +18,11 @@ var profile := 1
 var _thread := Thread.new()
 var _sem := Semaphore.new()
 var _mutex := Mutex.new()
-var _pending := {}  # path -> PackedByteArray (null = delete)
+var _pending := {}  # path -> [seq, PackedByteArray or null (= delete)]
 var _quit := false
+var _seq := 0
+var _io := Mutex.new()  # one write at a time, from either thread
+var _written := {}  # path -> seq of the newest snapshot on disk
 
 
 func _ready() -> void:
@@ -85,7 +88,7 @@ func save_settings(settings: Dictionary) -> void:
 
 ## {stats: Dictionary, seen_charms: Array, seen_hexes: Array}
 func load_profile(p: int = profile) -> Dictionary:
-	var data := _read(_profile_path(p))
+	var data := _load(_profile_path(p))
 	if data.is_empty() and p == 1:
 		data = _migrate_legacy()
 	data.merge({"stats": {}, "seen_charms": [], "seen_hexes": []})
@@ -112,7 +115,7 @@ func has_run(p: int = profile) -> bool:
 	var path := _run_path(p)
 	_mutex.lock()
 	var queued := _pending.has(path)
-	var bytes = _pending.get(path)
+	var bytes = _pending[path][1] if queued else null
 	_mutex.unlock()
 	if queued:
 		return bytes != null
@@ -120,12 +123,20 @@ func has_run(p: int = profile) -> bool:
 
 
 func load_run(p: int = profile) -> Dictionary:
+	return _load(_run_path(p))
+
+
+## The newest version of a file: a queued snapshot if any, else the disk.
+func _load(path: String) -> Dictionary:
 	_mutex.lock()
-	var pending = _pending.get(_run_path(p), false)
+	var job = _pending.get(path)
 	_mutex.unlock()
-	if pending is PackedByteArray:
-		return bytes_to_var(pending)
-	return _read(_run_path(p))
+	if job != null:
+		return bytes_to_var(job[1]) if job[1] is PackedByteArray else {}
+	_io.lock()
+	var data := _read(path)
+	_io.unlock()
+	return data
 
 
 func save_run(snapshot: Dictionary) -> void:
@@ -140,7 +151,8 @@ func delete_run() -> void:
 
 func _queue(path: String, bytes) -> void:
 	_mutex.lock()
-	_pending[path] = bytes
+	_seq += 1
+	_pending[path] = [_seq, bytes]
 	_mutex.unlock()
 	_sem.post()
 
@@ -152,7 +164,7 @@ func flush() -> void:
 	_pending.clear()
 	_mutex.unlock()
 	for path in jobs:
-		_write(path, jobs[path])
+		_commit(path, jobs[path])
 
 
 func _worker() -> void:
@@ -166,7 +178,16 @@ func _worker() -> void:
 		_pending.clear()
 		_mutex.unlock()
 		for path in jobs:
-			_write(path, jobs[path])
+			_commit(path, jobs[path])
+
+
+## Write a queued snapshot unless a newer one for that file already landed.
+func _commit(path: String, job: Array) -> void:
+	_io.lock()
+	if job[0] > _written.get(path, -1):
+		_write(path, job[1])
+		_written[path] = job[0]
+	_io.unlock()
 
 
 static func _write(path: String, bytes) -> void:

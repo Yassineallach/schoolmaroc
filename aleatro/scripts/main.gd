@@ -14,6 +14,8 @@ var lbl_target: Label
 var lbl_reward: Label
 var blind_box: Panel
 var blind_chip: BlindChip
+var side_panel: Panel
+var side_box: PixelBox
 var lbl_round_score: Label
 var lbl_ante: Label
 var lbl_money: Label
@@ -169,8 +171,9 @@ func _build_ui() -> void:
 	add_child(bg)
 
 	# Left sidebar: blind, round score, current hand, counters, money
-	var side := _panel(Vector2(0, 0), Vector2(SIDE_W, 720), Color(0, 0, 0, 0.3))
-	side.add_theme_stylebox_override("panel", _box(Color(0, 0, 0, 0.3), 0.0))
+	side_panel = _panel(Vector2(0, 0), Vector2(SIDE_W, 720), Color(0, 0, 0, 0.3))
+	side_box = _box(Color(0, 0, 0, 0.3), 0.0)
+	side_panel.add_theme_stylebox_override("panel", side_box)
 	blind_box = _panel(Vector2(10, 10), Vector2(320, 140), Color("3a7bd5"))
 	lbl_blind = _place(_label("", 30), blind_box, Vector2(0, 4), Vector2(320, 38))
 	_place(_label("Score at least", 20, Color(1, 1, 1, 0.8)), blind_box, Vector2(0, 40), Vector2(320, 24))
@@ -178,7 +181,15 @@ func _build_ui() -> void:
 	lbl_reward = _place(_label("", 22, Data.MONEY_COLOR), blind_box, Vector2(0, 104), Vector2(320, 30))
 	blind_chip = BlindChip.new(Color.WHITE, 58.0)
 	blind_chip.position = Vector2(10, 46)
+	blind_chip.pivot_offset = blind_chip.size / 2
 	blind_box.add_child(blind_chip)
+	# Tap the blind for its details.
+	blind_box.mouse_filter = Control.MOUSE_FILTER_STOP
+	blind_box.gui_input.connect(func(e):
+		if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and gs != null:
+			juice(blind_chip, 0.25)
+			sfx.play("chips", 0.6)
+			show_blind_info())
 
 	var score_box := _panel(Vector2(10, 160), Vector2(320, 70), Color(0, 0, 0, 0.35))
 	_place(_label("Round score", 22, Color(1, 1, 1, 0.8), HORIZONTAL_ALIGNMENT_LEFT), score_box, Vector2(14, 0), Vector2(140, 70))
@@ -348,6 +359,15 @@ func update_hud() -> void:
 	blind_box.add_theme_stylebox_override("panel", _box(gs.blind_color(shown_idx), 3.0, true))
 	blind_chip.color = gs.blind_color(shown_idx).lightened(0.3)
 	var boss := gs.blind_idx == 2
+	# The sidebar takes on the colour of the blind being faced.
+	var tint := Color(gs.blind_color(shown_idx).darkened(0.72), 0.55)
+	if not side_box.color.is_equal_approx(tint) and not side_panel.has_meta("tinting"):
+		side_panel.set_meta("tinting", true)
+		var tw := create_tween()
+		tw.tween_method(func(c):
+			side_box.color = c
+			side_panel.queue_redraw(), side_box.color, tint, 0.5)
+		tw.tween_callback(func(): side_panel.remove_meta("tinting"))
 	bg_mat.set_shader_parameter("base_a", gs.boss_hex.color.darkened(0.45) if boss else Color(0.09, 0.30, 0.22))
 	bg_mat.set_shader_parameter("base_b", gs.boss_hex.color.darkened(0.8) if boss else Color(0.04, 0.15, 0.12))
 	btn_play.disabled = busy or not in_round or selected_views().is_empty()
@@ -364,9 +384,12 @@ func update_preview() -> void:
 		lbl_chips.text = "0"
 		lbl_mult.text = "0"
 		return
-	var ev := Poker.evaluate(sel.map(func(v): return v.card))
+	var cards := sel.map(func(v): return v.card)
+	var ev := Poker.evaluate(cards)
 	var lvl: int = gs.hand_levels[ev.name]
 	lbl_hand_name.text = "%s  lvl %d" % [ev.name, lvl]
+	if gs.hand_blocked(ev, cards) != "":
+		lbl_hand_name.text = "%s  (not allowed)" % ev.name
 	lbl_chips.text = Data.fmt(Data.hand_chips(ev.name, lvl))
 	lbl_mult.text = Data.fmt(Data.hand_mult(ev.name, lvl))
 
@@ -387,7 +410,21 @@ func rebuild_charms() -> void:
 		charm_row.add_child(v)
 		charm_views.append(v)
 	layout_charms(false)
+	refresh_charm_states()
 	update_hud()
+
+
+## Show which charms the boss has disabled or hidden.
+func refresh_charm_states() -> void:
+	for i in charm_views.size():
+		var v: CharmView = charm_views[i]
+		v.smothered = gs != null and in_round and gs.charm_disabled(i)
+		var hidden := gs != null and in_round and gs.hex() == "eclipse"
+		if hidden:
+			v.face_up = false
+		elif not v.face_up:
+			v.flip_up(0.05 * i)
+		v.queue_redraw()
 
 
 func layout_charms(animate: bool) -> void:
@@ -661,6 +698,8 @@ func show_blind_select() -> void:
 		inner.add_child(_label("Score at least", 18, Color(1, 1, 1, 0.8)))
 		inner.add_child(_label(Data.fmt(gs.blind_target(i)), 30, Color("ffdf6b")))
 		inner.add_child(_label("Reward " + "$".repeat(gs.blind_reward(i)), 20, Data.MONEY_COLOR))
+		if i == 2 and gs.is_showdown(2):
+			inner.add_child(_label("SHOWDOWN", 18, Color("ffdf6b")))
 		if i == 2:
 			var desc := _label(gs.boss_hex.desc, 19, Color.WHITE)
 			desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -688,10 +727,12 @@ func start_blind() -> void:
 	lbl_chips.text = "0"
 	lbl_mult.text = "0"
 	update_hud()
-	popup_text(Vector2(main_cx(), play_y() + 60), gs.blind_name(), Color.WHITE, 44)
-	if gs.blind_idx == 2:
-		popup_text(Vector2(main_cx(), play_y() + 110), gs.boss_hex.desc, Color("ffdf6b"), 26)
+	rebuild_charms()
+	if gs.blind_idx != 2:
+		popup_text(Vector2(main_cx(), play_y() + 60), gs.blind_name(), Color.WHITE, 44)
 	await deal()
+	if gs.hex() != "":
+		await announce_boss()
 	busy = false
 	update_hud()
 	save_run("round")
@@ -732,12 +773,37 @@ func deal() -> void:
 		sfx.play("deal", 0.9 + 0.05 * i)
 	layout_hand(true)
 	update_hud()
+	for c in drawn:
+		if gs.draws_face_down(c):
+			gs.boss_state.down.append(c.id)
 	var k := 0
 	for v in hand_views:
-		if not v.face_up:
+		if not v.face_up and not gs.boss_state.get("down", []).has(v.card.id):
 			v.flip_up(0.15 + 0.05 * k)
 			k += 1
 	await wait(0.35 + 0.05 * k)
+	ensure_forced()
+
+
+## The Lantern keeps one card selected at all times.
+func ensure_forced() -> void:
+	if gs.hex() != "lantern" or hand_views.is_empty():
+		return
+	var forced: int = gs.boss_state.get("forced", -1)
+	if hand_views.any(func(v): return v.card.id == forced):
+		return
+	var v: CardView = hand_views[gs.rng.randi_range(0, hand_views.size() - 1)]
+	gs.boss_state.forced = v.card.id
+	if not v.selected:
+		var sel := selected_views()
+		if sel.size() >= MAX_SELECT:
+			sel[0].selected = false
+			sel[0].queue_redraw()
+		v.selected = true
+		v.queue_redraw()
+	juice(v, 0.15)
+	layout_hand(true)
+	update_hud()
 
 
 func sort_hand() -> void:
@@ -796,6 +862,10 @@ func selected_views() -> Array:
 func _on_card_tapped(v: CardView) -> void:
 	if busy or not in_round or not hand_views.has(v):
 		return
+	if v.selected and v.card.id == gs.boss_state.get("forced", -1) and gs.hex() == "lantern":
+		juice(blind_chip, 0.2)
+		popup_text(v.position + Vector2(CardView.W / 2, -24), "Held by the Lantern", Color("9fdcff"), 22)
+		return
 	if not v.selected and selected_views().size() >= MAX_SELECT:
 		return
 	v.selected = not v.selected
@@ -836,13 +906,38 @@ func play_selected() -> void:
 	layout_hand(true)
 	await wait(0.3)
 
+	# Face-down cards turn over once played.
+	var revealed := false
+	for v in sel:
+		if gs.boss_state.get("down", []).has(v.card.id):
+			gs.boss_state.down.erase(v.card.id)
+			v.flip_up(0.0)
+			revealed = true
+	if revealed:
+		await wait(0.25)
+
 	var played: Array = sel.map(func(v): return v.card)
 	var ev := Poker.evaluate(played)
 	gs.hands_played_count[ev.name] += 1
 	for c in gs.charms:
 		if c.id == "snowball":
 			c.data.m = c.data.get("m", 0) + 1
-	var result := Scoring.compute(gs, played, ev, hand_views.map(func(v): return v.card))
+	var blocked := gs.hand_blocked(ev, played)
+	var result := {"events": [], "shatter": []}
+	if blocked != "":
+		juice(blind_chip, 0.3)
+		sfx.play("lose", 1.6)
+		haptic(40, 0.5)
+		await banner("Not allowed!", blocked, gs.boss_hex.color)
+	else:
+		for note in gs.on_hand_played(ev, played):
+			juice(blind_chip, 0.2)
+			popup_text(Vector2(main_cx(), play_y() - 30), note, gs.boss_hex.color.lightened(0.45), 28)
+			sfx.play("mult", 0.7)
+			await wait(0.5)
+		refresh_charm_states()
+		update_hud()
+		result = Scoring.compute(gs, played, ev, hand_views.map(func(v): return v.card))
 	var view_of := {}
 	for v in sel + hand_views:
 		view_of[v.card.id] = v
@@ -1014,7 +1109,8 @@ func win_round() -> void:
 	in_round = false
 	sfx.play("win")
 	haptic(40, 0.5)
-	await wait(0.3)
+	refresh_charm_states()
+	await defeat_blind()
 	var gilded := 0
 	for v in hand_views:
 		if v.card.get("enh", "") == "gilded" and not gs.is_debuffed(v.card):
@@ -1277,6 +1373,12 @@ func _on_charm_tapped(v: CharmView) -> void:
 		return
 	var inst: Dictionary = gs.charms[idx]
 	var d := Data.charm_def(inst.id)
+	if not v.face_up:
+		var hv := open_modal()
+		hv.add_child(_label("Face down", 36, Color("f2d675")))
+		hv.add_child(_label("%s hides your charms until it is defeated." % gs.boss_hex.name, 22))
+		hv.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 60), 24)))
+		return
 	if v == drag_view:
 		return
 	var vb := open_modal()
@@ -1291,7 +1393,18 @@ func _on_charm_tapped(v: CharmView) -> void:
 	row.add_theme_constant_override("separation", 14)
 	var sell := _button("Sell $%d" % gs.sell_value(inst), Color("3f9a5a"), func():
 		gs.money += gs.sell_value(inst)
+		var was_ember := gs.charm_disabled(gs.charms.find(inst))
 		gs.charms.erase(inst)
+		if in_round and gs.blind_idx == 2:
+			gs.boss_state.sold = true
+			if was_ember:
+				gs.boss_state.ember = -1
+			if inst.id == "warden":
+				disable_boss()
+			elif gs.boss_hex.id == "jade" and gs.hex() == "jade":
+				for hv in hand_views:
+					hv.set_debuffed(gs.is_debuffed(hv.card))
+				toast("Jade Wreath lifted: cards work again")
 		charm_views.erase(v)
 		v.dissolve()
 		sfx.play("coin")
@@ -1334,6 +1447,130 @@ func shatter(v: CardView) -> void:
 		tw.chain().tween_callback(shard.queue_free)
 	popup_text(origin + Vector2(CardView.W / 2, -24), "Shattered!", Color("bff3ff"), 30)
 	v.queue_free()
+
+
+## Large message across the table; play waits until it has been read.
+func banner(title: String, text: String, col: Color, hold: float = 1.4) -> void:
+	var p := PanelContainer.new()
+	var sb := _box(col.darkened(0.35), 4.0, true)
+	sb.outline = 4.0
+	sb.outline_color = col.lightened(0.4)
+	sb.set_content_margin_all(22)
+	p.add_theme_stylebox_override("panel", sb)
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var vb := VBoxContainer.new()
+	vb.add_child(_label(title, 40, Color("ffdf6b")))
+	var l := _label(text, 26)
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size = Vector2(520, 0)
+	vb.add_child(l)
+	p.add_child(vb)
+	fx_layer.add_child(p)
+	await get_tree().process_frame
+	p.pivot_offset = p.size / 2
+	p.position = Vector2(main_cx(), (TOP_H + hand_y()) / 2.0) - p.size / 2
+	p.scale = Vector2(0.3, 0.3)
+	var tw := create_tween()
+	tw.tween_property(p, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_interval(hold + text.length() * 0.02)
+	tw.tween_property(p, "modulate:a", 0.0, 0.25)
+	tw.tween_callback(p.queue_free)
+	await tw.finished
+
+
+## Boss warning: a run of descending pings, then its rule across the table.
+func announce_boss() -> void:
+	for i in 4:
+		sfx.play("mult", 0.75 - 0.05 * i)
+		if i == 0:
+			juice(blind_chip, 0.35)
+			jiggle += 1.5
+		await wait(0.1)
+	var title: String = ("Showdown: " if gs.is_showdown() else "") + gs.boss_hex.name
+	await banner(title, gs.boss_hex.desc, gs.boss_hex.color)
+
+
+## The blind token burns away with a ping for each dollar of reward.
+func defeat_blind() -> void:
+	var m := ShaderMaterial.new()
+	m.shader = load("res://shaders/card_fx.gdshader")
+	m.set_shader_parameter("size", blind_chip.size)
+	m.set_shader_parameter("burn", gs.blind_color().lightened(0.4))
+	blind_chip.material = m
+	juice(blind_chip, 0.3)
+	var pings := mini(gs.blind_reward() + 2, 7)
+	for i in pings:
+		sfx.play("chips", 0.85 - 0.05 * i)
+		m.set_shader_parameter("dissolve", float(i + 1) / pings)
+		await wait(0.12)
+	var tw := create_tween()
+	tw.tween_property(lbl_blind, "modulate:a", 0.0, 0.2)
+	await tw.finished
+	blind_chip.material = null
+	lbl_blind.modulate.a = 1.0
+
+
+## The Warden's effect: undo whatever the boss changed this round.
+func disable_boss() -> void:
+	var was := gs.hex()
+	if was == "":
+		return
+	gs.boss_state.disabled = true
+	match was:
+		"bulwark":
+			gs.target = gs.target / 2
+		"abyss":
+			gs.target = gs.target / 3
+		"needle":
+			gs.hands_left += gs.max_hands - 1
+		"drought":
+			gs.discards_left = gs.max_discards
+	gs.boss_state.down = []
+	gs.boss_state.forced = -1
+	gs.boss_state.ember = -1
+	for v in hand_views:
+		v.set_debuffed(gs.is_debuffed(v.card))
+		if not v.face_up:
+			v.flip_up()
+	refresh_charm_states()
+	juice(blind_chip, 0.4)
+	sfx.play("xmult", 0.8)
+	toast("Warden disabled %s" % gs.boss_hex.name)
+	update_hud()
+	if was == "shackle":
+		busy = true
+		await deal()
+		busy = false
+		update_hud()
+	if gs.round_score >= gs.target:
+		await win_round()
+
+
+func show_blind_info() -> void:
+	var idx := gs.blind_idx
+	var vb := open_modal()
+	vb.add_child(_label(gs.blind_name(idx), 38, gs.blind_color(idx).lightened(0.4)))
+	vb.add_child(_label("Score at least %s   Reward %s" % [Data.fmt(gs.target if in_round else gs.blind_target(idx)), "$".repeat(gs.blind_reward(idx))], 22))
+	if idx == 2:
+		if gs.is_showdown():
+			vb.add_child(_label("Showdown boss", 20, Color("ffdf6b")))
+		var desc := _label(gs.boss_hex.desc, 26)
+		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		desc.custom_minimum_size = Vector2(520, 0)
+		vb.add_child(desc)
+		if in_round and gs.boss_state.get("disabled", false):
+			vb.add_child(_label("Disabled by the Warden", 22, Color("8fe3a0")))
+		elif in_round:
+			match gs.hex():
+				"echo":
+					var used: Array = gs.boss_state.used_hands
+					vb.add_child(_label("Already played: " + (", ".join(used) if not used.is_empty() else "none"), 20, Color(1, 1, 1, 0.75)))
+				"monotone":
+					var only: String = gs.boss_state.only_hand
+					vb.add_child(_label("Allowed hand: " + (only if only != "" else "whatever you play first"), 20, Color(1, 1, 1, 0.75)))
+	else:
+		vb.add_child(_label("No special rules", 22, Color(1, 1, 1, 0.7)))
+	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 60), 24)))
 
 
 func show_card_info(v: CardView) -> void:
@@ -1492,11 +1729,14 @@ func resume_round() -> void:
 	var k := 0
 	for c in gs.hand:
 		var v := _make_hand_view(c)
-		v.flip_up(0.1 + 0.05 * k)
-		k += 1
+		if not gs.boss_state.get("down", []).has(c.id):
+			v.flip_up(0.1 + 0.05 * k)
+			k += 1
+	refresh_charm_states()
 	layout_hand(true)
 	update_hud()
 	await wait(0.4 + 0.05 * k)
+	ensure_forced()
 	busy = false
 	update_hud()
 
@@ -1559,7 +1799,7 @@ func deselect_all() -> void:
 		return
 	var any := false
 	for v in hand_views:
-		if v.selected:
+		if v.selected and not (gs.hex() == "lantern" and v.card.id == gs.boss_state.get("forced", -1)):
 			v.selected = false
 			v.queue_redraw()
 			any = true

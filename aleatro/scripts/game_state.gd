@@ -28,6 +28,8 @@ var shop_runes: Array = []
 var _last_hex := ""
 var _next_id := 0
 var shop_card: Dictionary = {}
+## Per-round boss bookkeeping; saved with the run.
+var boss_state := {}
 
 
 func _init() -> void:
@@ -77,7 +79,9 @@ func roll_shop_card() -> void:
 
 
 func pick_boss() -> void:
-	var pool := Data.HEXES.filter(func(h): return h.min_ante <= ante and h.id != _last_hex)
+	var showdown := ante % Data.FINAL_ANTE == 0
+	var pool := Data.HEXES.filter(func(h): return h.get("showdown", false) == showdown \
+			and h.min_ante <= maxi(ante, 1) and h.id != _last_hex)
 	boss_hex = pool[rng.randi_range(0, pool.size() - 1)]
 	_last_hex = boss_hex.id
 
@@ -99,8 +103,19 @@ func blind_reward(idx: int = blind_idx) -> int:
 	return [3, 4, 5][idx]
 
 
+## The active boss effect, or "" outside boss blinds or once disabled.
 func hex() -> String:
-	return boss_hex.id if blind_idx == 2 else ""
+	if blind_idx != 2 or boss_state.get("disabled", false):
+		return ""
+	return boss_hex.id
+
+
+func is_showdown(idx: int = blind_idx) -> bool:
+	return idx == 2 and boss_hex.get("showdown", false)
+
+
+func current_hand_size() -> int:
+	return hand_size - (1 if hex() == "shackle" else 0)
 
 
 func start_round() -> void:
@@ -116,6 +131,10 @@ func start_round() -> void:
 	draw_pile = deck.duplicate()
 	shuffle(draw_pile)
 	hand = []
+	boss_state = {"used_hands": [], "only_hand": "", "disabled": false, "forced": -1,
+		"ember": -1, "sold": false, "hands_played": 0, "down": []}
+	if hex() == "eclipse":
+		shuffle(charms)
 
 
 func shuffle(arr: Array) -> void:
@@ -127,18 +146,76 @@ func shuffle(arr: Array) -> void:
 
 
 func is_debuffed(card: Dictionary) -> bool:
-	if blind_idx != 2:
-		return false
+	match hex():
+		"":
+			return false
+		"mute":
+			return card.rank >= 11 and card.rank <= 13
+		"jade":
+			return not boss_state.get("sold", false)
 	if boss_hex.has("suit"):
 		return card.suit == boss_hex.suit
-	if boss_hex.id == "mute":
-		return card.rank >= 11 and card.rank <= 13
 	return false
+
+
+## Whether a newly drawn card should arrive face down.
+func draws_face_down(card: Dictionary) -> bool:
+	match hex():
+		"mask":
+			return card.rank >= 11 and card.rank <= 13
+		"shroud":
+			return boss_state.get("hands_played", 0) == 0
+	return false
+
+
+func charm_disabled(i: int) -> bool:
+	return hex() == "ember" and boss_state.get("ember", -1) == i
+
+
+## Why the boss refuses this hand, or "" if it may be played.
+func hand_blocked(ev: Dictionary, played: Array) -> String:
+	match hex():
+		"echo":
+			if boss_state.used_hands.has(ev.name):
+				return "%s was already played" % ev.name
+		"monotone":
+			if boss_state.only_hand != "" and boss_state.only_hand != ev.name:
+				return "Only %s is allowed" % boss_state.only_hand
+		"tithe":
+			if played.size() < 5:
+				return "Hands must use 5 cards"
+	return ""
+
+
+## Boss bookkeeping when a hand is played; returns lines to announce.
+func on_hand_played(ev: Dictionary, played: Array) -> Array:
+	var notes := []
+	boss_state.hands_played = boss_state.get("hands_played", 0) + 1
+	match hex():
+		"echo":
+			boss_state.used_hands.append(ev.name)
+		"monotone":
+			if boss_state.only_hand == "":
+				boss_state.only_hand = ev.name
+		"erosion":
+			if hand_levels[ev.name] > 1:
+				hand_levels[ev.name] -= 1
+				notes.append("%s eroded to lvl %d" % [ev.name, hand_levels[ev.name]])
+		"toll":
+			var cost := mini(played.size(), money)
+			money -= cost
+			if cost > 0:
+				notes.append("Toll: -$%d" % cost)
+		"ember":
+			if not charms.is_empty():
+				boss_state.ember = rng.randi_range(0, charms.size() - 1)
+				notes.append("%s is smothered" % Data.charm_def(charms[boss_state.ember].id).name)
+	return notes
 
 
 func draw_cards() -> Array:
 	var drawn := []
-	while hand.size() < hand_size and not draw_pile.is_empty():
+	while hand.size() < current_hand_size() and not draw_pile.is_empty():
 		var c = draw_pile.pop_back()
 		hand.append(c)
 		drawn.append(c)
@@ -205,7 +282,7 @@ const SAVE_FIELDS := [
 	"ante", "blind_idx", "money", "hand_size", "max_hands", "max_discards", "hands_left",
 	"discards_left", "charm_slots", "charms", "hand_levels", "hands_played_count", "deck",
 	"round_score", "target", "endless", "reroll_cost", "best_hand", "shop_charms",
-	"shop_runes", "shop_card", "_last_hex", "_next_id",
+	"shop_runes", "shop_card", "_last_hex", "_next_id", "boss_state",
 ]
 
 

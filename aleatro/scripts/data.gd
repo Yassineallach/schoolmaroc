@@ -61,6 +61,7 @@ const CHARMS := [
 	{"id": "treasury", "name": "Treasury", "desc": "+2 Chips for every $1 you hold", "cost": 6, "rarity": 1},
 	{"id": "hollow", "name": "Hollow", "desc": "x1 Mult for each empty charm slot (counts itself)", "cost": 8, "rarity": 1},
 	{"id": "prism", "name": "Prism", "desc": "x3 Mult if played cards include all 4 suits", "cost": 7, "rarity": 1},
+	{"id": "warden", "name": "Warden", "desc": "Sell during a boss blind to disable it", "cost": 6, "rarity": 1},
 	{"id": "duet", "name": "Duet", "desc": "x2 Mult if hand contains a Pair", "cost": 8, "rarity": 2},
 	{"id": "crown", "name": "Crown", "desc": "x1.5 Mult for each scored King", "cost": 9, "rarity": 2},
 ]
@@ -101,6 +102,20 @@ const HEXES := [
 	{"id": "needle", "name": "The Needle", "desc": "Play only 1 hand", "mult": 1.0, "min_ante": 2, "color": Color("5f7a2c")},
 	{"id": "mute", "name": "The Mute", "desc": "All face cards are debuffed", "mult": 2.0, "min_ante": 2, "color": Color("6b6b9a")},
 	{"id": "drought", "name": "The Drought", "desc": "No discards this round", "mult": 2.0, "min_ante": 2, "color": Color("c4a03a")},
+	{"id": "toll", "name": "The Toll", "desc": "Lose $1 for every card played", "mult": 2.0, "min_ante": 1, "color": Color("b5872f")},
+	{"id": "shroud", "name": "The Shroud", "desc": "Your first hand is dealt face down", "mult": 2.0, "min_ante": 1, "color": Color("4d5566")},
+	{"id": "shackle", "name": "The Shackle", "desc": "-1 hand size", "mult": 2.0, "min_ante": 1, "color": Color("6e6e6e")},
+	{"id": "tithe", "name": "The Tithe", "desc": "Every hand must use 5 cards", "mult": 2.0, "min_ante": 1, "color": Color("9c6bb3")},
+	{"id": "echo", "name": "The Echo", "desc": "Each hand type may be played only once", "mult": 2.0, "min_ante": 2, "color": Color("3f7f9e")},
+	{"id": "monotone", "name": "The Monotone", "desc": "Only one hand type may be played", "mult": 2.0, "min_ante": 2, "color": Color("8a7d5b")},
+	{"id": "erosion", "name": "The Erosion", "desc": "Leveled hands lose a level when played", "mult": 2.0, "min_ante": 2, "color": Color("a0603d")},
+	{"id": "mask", "name": "The Mask", "desc": "Face cards are dealt face down", "mult": 2.0, "min_ante": 2, "color": Color("5d4a7a")},
+	{"id": "lantern", "name": "The Lantern", "desc": "One card is always selected", "mult": 2.0, "min_ante": 3, "color": Color("3a8fb7")},
+	# Showdown bosses guard ante 8 (and every 8th ante after it).
+	{"id": "ember", "name": "Ember Crown", "desc": "A random charm is disabled every hand", "mult": 2.0, "min_ante": 8, "showdown": true, "color": Color("d9572b")},
+	{"id": "jade", "name": "Jade Wreath", "desc": "All cards are debuffed until a charm is sold", "mult": 2.0, "min_ante": 8, "showdown": true, "color": Color("2f9e6e")},
+	{"id": "abyss", "name": "Violet Abyss", "desc": "Enormous blind", "mult": 6.0, "min_ante": 8, "showdown": true, "color": Color("7a3fc2")},
+	{"id": "eclipse", "name": "Gilded Eclipse", "desc": "Charms are flipped face down and shuffled", "mult": 2.0, "min_ante": 8, "showdown": true, "color": Color("c9a227")},
 ]
 
 
