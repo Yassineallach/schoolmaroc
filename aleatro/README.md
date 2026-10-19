@@ -1,6 +1,6 @@
 # Aleatro
 
-A portrait poker roguelike for Android, built with **Godot 4.7** (GL Compatibility renderer).
+A landscape poker roguelike for Android, built with **Godot 4.7** (GL Compatibility renderer).
 Package id: `com.mardev.Aleatro`.
 
 Play poker hands to beat a score target. Score = Chips x Mult. Each ante has a Small Blind,

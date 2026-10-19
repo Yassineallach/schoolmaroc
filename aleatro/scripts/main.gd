@@ -2,7 +2,9 @@ extends Control
 
 const MAX_SELECT := 5
 const STATS_PATH := "user://stats.cfg"
-const TOP_H := 330.0  # header + charm row; overlays start below it
+const SIDE_W := 340.0  # left sidebar width
+const CHARM_H := 160.0
+const TOP_H := 180.0  # charm row; table overlays start below it
 
 var gs: GameState
 var sfx: Sfx
@@ -24,11 +26,12 @@ var lbl_deck: Label
 var lbl_charm_count: Label
 
 var charm_row: Control
+var charm_bg: Panel
 var hand_layer: Control
 var fx_layer: Control
 var overlay: Control
 var modal: Control
-var controls: Control
+var controls: HBoxContainer
 var btn_play: Button
 var btn_discard: Button
 
@@ -36,10 +39,11 @@ var hand_views: Array = []
 var charm_views: Array = []
 var busy := true
 var _shop_open := false
+var _overlay_full := false
 var in_round := false
 var sort_mode := "rank"
-var vw := 720.0
-var vh := 1280.0
+var vw := 1280.0
+var vh := 720.0
 var stats := {"best_ante": 0, "best_hand": 0, "runs": 0, "wins": 0}
 
 
@@ -137,70 +141,62 @@ func _build_ui() -> void:
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
 
-	# Header: blind info, round score, ante/money
-	blind_box = _panel(Vector2(10, 10), Vector2(330, 150), Color("3a7bd5"))
-	lbl_blind = _place(_label("", 30), blind_box, Vector2(0, 6), Vector2(330, 40))
-	_place(_label("Score at least", 20, Color(1, 1, 1, 0.8)), blind_box, Vector2(0, 44), Vector2(330, 26))
-	lbl_target = _place(_label("", 38, Color("ffdf6b")), blind_box, Vector2(0, 68), Vector2(330, 46))
-	lbl_reward = _place(_label("", 22, Data.MONEY_COLOR), blind_box, Vector2(0, 112), Vector2(330, 30))
+	# Left sidebar: blind, round score, current hand, counters, money
+	var side := _panel(Vector2(0, 0), Vector2(SIDE_W, 720), Color(0, 0, 0, 0.3))
+	side.add_theme_stylebox_override("panel", _box(Color(0, 0, 0, 0.3), 0))
+	blind_box = _panel(Vector2(10, 10), Vector2(320, 140), Color("3a7bd5"))
+	lbl_blind = _place(_label("", 30), blind_box, Vector2(0, 4), Vector2(320, 38))
+	_place(_label("Score at least", 20, Color(1, 1, 1, 0.8)), blind_box, Vector2(0, 40), Vector2(320, 24))
+	lbl_target = _place(_label("", 38, Color("ffdf6b")), blind_box, Vector2(0, 62), Vector2(320, 44))
+	lbl_reward = _place(_label("", 22, Data.MONEY_COLOR), blind_box, Vector2(0, 104), Vector2(320, 30))
 
-	var score_box := _panel(Vector2(350, 10), Vector2(180, 150), Color(0, 0, 0, 0.35))
-	_place(_label("Round score", 20, Color(1, 1, 1, 0.8)), score_box, Vector2(0, 14), Vector2(180, 30))
-	lbl_round_score = _place(_label("0", 36), score_box, Vector2(0, 50), Vector2(180, 60))
+	var score_box := _panel(Vector2(10, 160), Vector2(320, 70), Color(0, 0, 0, 0.35))
+	_place(_label("Round score", 22, Color(1, 1, 1, 0.8), HORIZONTAL_ALIGNMENT_LEFT), score_box, Vector2(14, 0), Vector2(140, 70))
+	lbl_round_score = _place(_label("0", 36, Color.WHITE, HORIZONTAL_ALIGNMENT_RIGHT), score_box, Vector2(140, 0), Vector2(166, 70))
 
-	var info_box := _panel(Vector2(540, 10), Vector2(170, 150), Color(0, 0, 0, 0.35))
-	lbl_ante = _place(_label("", 26), info_box, Vector2(0, 12), Vector2(170, 36))
-	lbl_money = _place(_label("", 44, Data.MONEY_COLOR), info_box, Vector2(0, 56), Vector2(170, 60))
-	var info_btn := _button("Hands", Color("5a5f73"), show_hand_info, Vector2(150, 36), 20)
-	_place(info_btn, info_box, Vector2(10, 108), Vector2(150, 36))
+	var sbox := _panel(Vector2(10, 240), Vector2(320, 120), Color(0, 0, 0, 0.35))
+	lbl_hand_name = _place(_label("", 26), sbox, Vector2(0, 4), Vector2(320, 38))
+	var cbox := _panel(Vector2(10, 46), Vector2(138, 62), Data.CHIP_COLOR, sbox)
+	lbl_chips = _place(_label("0", 34), cbox, Vector2(0, 0), Vector2(138, 62))
+	_place(_label("x", 34, Color("ff6b6b")), sbox, Vector2(148, 46), Vector2(24, 62))
+	var mbox := _panel(Vector2(172, 46), Vector2(138, 62), Data.MULT_COLOR, sbox)
+	lbl_mult = _place(_label("0", 34), mbox, Vector2(0, 0), Vector2(138, 62))
 
-	# Charm row
-	_panel(Vector2(10, 170), Vector2(700, 160), Color(0, 0, 0, 0.25))
+	var hb := _panel(Vector2(10, 370), Vector2(155, 100), Data.CHIP_COLOR.darkened(0.35))
+	_place(_label("Hands", 20), hb, Vector2(0, 6), Vector2(155, 26))
+	lbl_hands = _place(_label("4", 44), hb, Vector2(0, 32), Vector2(155, 60))
+	var db := _panel(Vector2(175, 370), Vector2(155, 100), Data.MULT_COLOR.darkened(0.35))
+	_place(_label("Discards", 20), db, Vector2(0, 6), Vector2(155, 26))
+	lbl_discards = _place(_label("3", 44), db, Vector2(0, 32), Vector2(155, 60))
+
+	var info_box := _panel(Vector2(10, 480), Vector2(320, 90), Color(0, 0, 0, 0.35))
+	lbl_ante = _place(_label("", 28), info_box, Vector2(0, 0), Vector2(150, 90))
+	lbl_money = _place(_label("", 46, Data.MONEY_COLOR), info_box, Vector2(150, 0), Vector2(170, 90))
+	_place(_button("Poker Hands", Color("5a5f73"), show_hand_info, Vector2(320, 56), 24), self, Vector2(10, 582), Vector2(320, 56))
+	lbl_deck = _place(_label("", 22, Color(1, 1, 1, 0.75)), self, Vector2(10, 648), Vector2(320, 40))
+
+	# Charm row along the top of the table
+	charm_bg = _panel(Vector2(SIDE_W + 10, 10), Vector2(900, CHARM_H), Color(0, 0, 0, 0.25))
 	charm_row = Control.new()
-	charm_row.position = Vector2(10, 170)
-	charm_row.size = Vector2(700, 160)
+	charm_row.position = Vector2(SIDE_W + 10, 10)
 	add_child(charm_row)
-	lbl_charm_count = _place(_label("0/5", 18, Color(1, 1, 1, 0.7), HORIZONTAL_ALIGNMENT_RIGHT), self, Vector2(600, 306), Vector2(104, 24))
-
-	# Score row
-	var hb := _panel(Vector2(10, 345), Vector2(120, 120), Data.CHIP_COLOR.darkened(0.35))
-	_place(_label("Hands", 20), hb, Vector2(0, 10), Vector2(120, 30))
-	lbl_hands = _place(_label("4", 48), hb, Vector2(0, 40), Vector2(120, 70))
-	var db := _panel(Vector2(590, 345), Vector2(120, 120), Data.MULT_COLOR.darkened(0.35))
-	_place(_label("Discards", 20), db, Vector2(0, 10), Vector2(120, 30))
-	lbl_discards = _place(_label("3", 48), db, Vector2(0, 40), Vector2(120, 70))
-	var sbox := _panel(Vector2(140, 345), Vector2(440, 120), Color(0, 0, 0, 0.35))
-	lbl_hand_name = _place(_label("", 26), sbox, Vector2(0, 4), Vector2(440, 40))
-	var cbox := _panel(Vector2(14, 48), Vector2(190, 62), Data.CHIP_COLOR, sbox)
-	lbl_chips = _place(_label("0", 36), cbox, Vector2(0, 0), Vector2(190, 62))
-	_place(_label("x", 36, Color("ff6b6b")), sbox, Vector2(204, 48), Vector2(32, 62))
-	var mbox := _panel(Vector2(236, 48), Vector2(190, 62), Data.MULT_COLOR, sbox)
-	lbl_mult = _place(_label("0", 36), mbox, Vector2(0, 0), Vector2(190, 62))
+	lbl_charm_count = _place(_label("0/5", 18, Color(1, 1, 1, 0.7), HORIZONTAL_ALIGNMENT_RIGHT), charm_bg, Vector2(0, CHARM_H - 26), Vector2(0, 24))
 
 	hand_layer = Control.new()
 	hand_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
 	hand_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(hand_layer)
 
-	controls = Control.new()
-	controls.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	controls = HBoxContainer.new()
+	controls.add_theme_constant_override("separation", 14)
+	controls.alignment = BoxContainer.ALIGNMENT_CENTER
+	btn_play = _button("Play Hand", Data.CHIP_COLOR, play_selected, Vector2(220, 80))
+	btn_discard = _button("Discard", Data.MULT_COLOR, discard_selected, Vector2(220, 80))
+	controls.add_child(btn_play)
+	controls.add_child(_button("Rank", Color("c47b1a"), func(): set_sort("rank"), Vector2(120, 80), 24))
+	controls.add_child(_button("Suit", Color("c47b1a"), func(): set_sort("suit"), Vector2(120, 80), 24))
+	controls.add_child(btn_discard)
 	add_child(controls)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	btn_play = _button("Play Hand", Data.CHIP_COLOR, play_selected, Vector2(190, 84))
-	btn_discard = _button("Discard", Data.MULT_COLOR, discard_selected, Vector2(190, 84))
-	row.add_child(btn_play)
-	var sorts := VBoxContainer.new()
-	sorts.add_theme_constant_override("separation", 6)
-	sorts.add_child(_button("Rank", Color("c47b1a"), func(): set_sort("rank"), Vector2(150, 39), 22))
-	sorts.add_child(_button("Suit", Color("c47b1a"), func(): set_sort("suit"), Vector2(150, 39), 22))
-	row.add_child(sorts)
-	row.add_child(btn_discard)
-	row.position = Vector2(0, 0)
-	row.size = Vector2(720, 84)
-	controls.add_child(row)
-	lbl_deck = _place(_label("", 20, Color(1, 1, 1, 0.75), HORIZONTAL_ALIGNMENT_RIGHT), controls, Vector2(450, 96), Vector2(254, 28))
 
 	fx_layer = Control.new()
 	fx_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -220,20 +216,35 @@ func _on_resize() -> void:
 	vw = s.x
 	vh = s.y
 	bg_mat.set_shader_parameter("aspect", vw / vh)
-	controls.position = Vector2(0, vh - 150)
-	controls.size = Vector2(720, 150)
-	overlay.position = Vector2(0, TOP_H)
-	overlay.size = Vector2(vw, vh - TOP_H)
+	var mw := main_w()
+	charm_bg.size = Vector2(mw - 20, CHARM_H)
+	charm_row.size = charm_bg.size
+	lbl_charm_count.position = Vector2(mw - 140, CHARM_H - 26)
+	lbl_charm_count.size = Vector2(110, 24)
+	controls.position = Vector2(SIDE_W, vh - 94)
+	controls.size = Vector2(mw, 80)
+	_fit_overlay()
 	modal.size = s
+	if gs:
+		rebuild_charms()
 	layout_hand(false)
 
 
+## Width of the table area right of the sidebar.
+func main_w() -> float:
+	return vw - SIDE_W
+
+
+func main_cx() -> float:
+	return SIDE_W + main_w() / 2.0
+
+
 func hand_y() -> float:
-	return vh - 340.0
+	return vh - 104.0 - CardView.H - 14.0
 
 
 func play_y() -> float:
-	return (465.0 + hand_y()) / 2.0 - CardView.H / 2.0 - 10.0
+	return (TOP_H + hand_y()) / 2.0 - CardView.H / 2.0 - 16.0
 
 
 # ---------------------------------------------------------------- HUD
@@ -283,7 +294,7 @@ func rebuild_charms() -> void:
 	charm_views = []
 	var n := gs.charms.size() if gs else 0
 	var step := 136.0
-	var x0 := (700.0 - (CharmView.W + step * maxi(n - 1, 0))) / 2.0
+	var x0 := (charm_row.size.x - (CharmView.W + step * maxi(n - 1, 0))) / 2.0
 	for i in n:
 		var v := CharmView.new(gs.charms[i].id)
 		v.position = Vector2(x0 + i * step, 4)
@@ -327,13 +338,18 @@ func clear_overlay() -> void:
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
+func _fit_overlay() -> void:
+	overlay.position = Vector2.ZERO if _overlay_full else Vector2(SIDE_W, TOP_H)
+	overlay.size = Vector2(vw, vh) if _overlay_full else Vector2(main_w(), vh - TOP_H)
+
+
 ## Builds a centered panel in the overlay area and returns its VBox.
 func open_overlay(full_screen := false) -> VBoxContainer:
 	clear_overlay()
 	_shop_open = false
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	overlay.position = Vector2(0, 0 if full_screen else TOP_H)
-	overlay.size = Vector2(vw, vh - overlay.position.y)
+	_overlay_full = full_screen
+	_fit_overlay()
 	var dim := ColorRect.new()
 	dim.color = Color(0, 0, 0, 0.55 if full_screen else 0.35)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -405,7 +421,7 @@ func show_help() -> void:
 	vb.add_child(_label("How to play", 40, Color("ffdf6b")))
 	var t := Label.new()
 	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	t.custom_minimum_size = Vector2(580, 0)
+	t.custom_minimum_size = Vector2(820, 0)
 	t.add_theme_font_size_override("font_size", 23)
 	t.text = "Select up to 5 cards and play a poker hand. Each hand type has base Chips and Mult; scored cards add their rank in Chips (faces 10, Aces 11).\n\nScore = Chips x Mult. Reach the blind's target before you run out of hands. Discards let you swap cards.\n\nEach ante has a Small Blind, a Big Blind and a Boss Blind with a nasty twist. Beat ante %d to win.\n\nSpend money in the shop on Charms (passive bonuses, up to 5) and Runes (level up a hand type). You earn $1 interest per $5 held, up to $5." % Data.FINAL_ANTE
 	vb.add_child(t)
@@ -435,8 +451,12 @@ func show_blind_select() -> void:
 	update_hud()
 	var vb := open_overlay()
 	vb.add_child(_label("Ante %d" % gs.ante, 40, Color("ffdf6b")))
+	var cols := HBoxContainer.new()
+	cols.alignment = BoxContainer.ALIGNMENT_CENTER
+	cols.add_theme_constant_override("separation", 16)
 	for i in 3:
 		var p := PanelContainer.new()
+		p.custom_minimum_size = Vector2(250, 190)
 		var current := i == gs.blind_idx
 		var col := gs.blind_color(i)
 		var sb := _box(col if current else col.darkened(0.6), 14)
@@ -445,26 +465,27 @@ func show_blind_select() -> void:
 			sb.border_color = Color.WHITE
 		p.add_theme_stylebox_override("panel", sb)
 		var inner := VBoxContainer.new()
-		inner.add_theme_constant_override("separation", 2)
+		inner.add_theme_constant_override("separation", 4)
 		var state := "Upcoming"
 		if i < gs.blind_idx:
 			state = "Defeated"
 		elif current:
 			state = "Up next"
-		var head := HBoxContainer.new()
-		var nm := _label(gs.blind_name(i), 30, Color.WHITE, HORIZONTAL_ALIGNMENT_LEFT)
-		nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		head.add_child(nm)
-		head.add_child(_label(state, 22, Color(1, 1, 1, 0.8)))
-		inner.add_child(head)
-		var info := "Score at least %s   Reward %s" % [Data.fmt(gs.blind_target(i)), "$".repeat(gs.blind_reward(i))]
-		inner.add_child(_label(info, 22, Color(1, 1, 1, 0.9), HORIZONTAL_ALIGNMENT_LEFT))
+		inner.add_child(_label(state, 18, Color(1, 1, 1, 0.75)))
+		inner.add_child(_label(gs.blind_name(i), 30))
+		inner.add_child(_label("Score at least", 18, Color(1, 1, 1, 0.8)))
+		inner.add_child(_label(Data.fmt(gs.blind_target(i)), 30, Color("ffdf6b")))
+		inner.add_child(_label("Reward " + "$".repeat(gs.blind_reward(i)), 20, Data.MONEY_COLOR))
 		if i == 2:
-			inner.add_child(_label(gs.boss_hex.desc, 22, Color("ffdf6b"), HORIZONTAL_ALIGNMENT_LEFT))
+			var desc := _label(gs.boss_hex.desc, 19, Color.WHITE)
+			desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			desc.custom_minimum_size = Vector2(220, 0)
+			inner.add_child(desc)
 		p.add_child(inner)
 		if i < gs.blind_idx:
 			p.modulate.a = 0.5
-		vb.add_child(p)
+		cols.add_child(p)
+	vb.add_child(cols)
 	vb.add_child(_center(_button("Play " + gs.blind_name(), gs.blind_color(), start_blind, Vector2(360, 86), 30)))
 
 
@@ -480,9 +501,9 @@ func start_blind() -> void:
 	lbl_chips.text = "0"
 	lbl_mult.text = "0"
 	update_hud()
-	popup_text(Vector2(vw / 2, play_y() + 60), gs.blind_name(), Color.WHITE, 44)
+	popup_text(Vector2(main_cx(), play_y() + 60), gs.blind_name(), Color.WHITE, 44)
 	if gs.blind_idx == 2:
-		popup_text(Vector2(vw / 2, play_y() + 110), gs.boss_hex.desc, Color("ffdf6b"), 26)
+		popup_text(Vector2(main_cx(), play_y() + 110), gs.boss_hex.desc, Color("ffdf6b"), 26)
 	await deal()
 	busy = false
 	update_hud()
@@ -538,10 +559,10 @@ func layout_hand(animate: bool) -> void:
 	var n := hand_views.size()
 	if n == 0:
 		return
-	var avail := 700.0
+	var avail := main_w() - 40.0
 	var step := minf(CardView.W + 6, (avail - CardView.W) / maxf(n - 1, 1))
 	var total := CardView.W + step * (n - 1)
-	var x0 := (vw - total) / 2.0
+	var x0 := main_cx() - total / 2.0
 	for i in n:
 		var v: CardView = hand_views[i]
 		var off := i - (n - 1) / 2.0
@@ -590,7 +611,7 @@ func play_selected() -> void:
 		hand_views.erase(v)
 	var n := sel.size()
 	var gap := 108.0
-	var x0 := (vw - (CardView.W + gap * (n - 1))) / 2.0
+	var x0 := main_cx() - (CardView.W + gap * (n - 1)) / 2.0
 	for i in n:
 		var v: CardView = sel[i]
 		v.selected = false
@@ -715,7 +736,7 @@ func play_selected() -> void:
 			var t3 := create_tween()
 			t3.tween_property(v, "position", Vector2(vw + 40, v.position.y), 0.25)
 			t3.tween_callback(v.queue_free)
-		popup_text(Vector2(vw / 2, play_y() + 60), "The Grip!", gs.boss_hex.color.lightened(0.3), 36)
+		popup_text(Vector2(main_cx(), play_y() + 60), "The Grip!", gs.boss_hex.color.lightened(0.3), 36)
 		gs.hand = hand_views.map(func(v): return v.card)
 		await wait(0.3)
 	lbl_hand_name.text = ""
@@ -842,11 +863,15 @@ func show_shop() -> void:
 	update_hud()
 	var vb := open_overlay()
 	_shop_open = true
-	vb.add_child(_label("Shop", 44, Color("ffdf6b")))
+	vb.add_child(_label("Shop", 40, Color("ffdf6b")))
 	vb.add_child(_label("Tap a charm above to sell it", 18, Color(1, 1, 1, 0.6)))
+	var body := HBoxContainer.new()
+	body.alignment = BoxContainer.ALIGNMENT_CENTER
+	body.add_theme_constant_override("separation", 24)
+	vb.add_child(body)
 	var grid := HBoxContainer.new()
 	grid.alignment = BoxContainer.ALIGNMENT_CENTER
-	grid.add_theme_constant_override("separation", 22)
+	grid.add_theme_constant_override("separation", 16)
 	for i in gs.shop_charms.size():
 		var d: Dictionary = gs.shop_charms[i]
 		grid.add_child(_shop_item(CharmView.new(d.id), d.cost, d.desc, Data.RARITY_NAMES[d.rarity], func(): buy_charm(i)))
@@ -855,17 +880,16 @@ func show_shop() -> void:
 		var b: Array = Data.HAND_BASE[h]
 		grid.add_child(_shop_item(CharmView.new("", h), Data.RUNE_COST, "Level up %s\n+%d Chips +%d Mult" % [h, b[2], b[3]], "Rune", func(): buy_rune(i)))
 	if grid.get_child_count() == 0:
-		vb.add_child(_label("Sold out!", 28))
-	else:
-		vb.add_child(grid)
-	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 20)
-	var reroll := _button("Reroll $%d" % gs.reroll_cost, Color("3f9a5a"), reroll_shop, Vector2(250, 84), 28)
+		grid.add_child(_label("Sold out!", 28))
+	body.add_child(grid)
+	var side := VBoxContainer.new()
+	side.alignment = BoxContainer.ALIGNMENT_CENTER
+	side.add_theme_constant_override("separation", 20)
+	side.add_child(_button("Next Round", Data.MULT_COLOR, show_blind_select, Vector2(210, 110), 28))
+	var reroll := _button("Reroll $%d" % gs.reroll_cost, Color("3f9a5a"), reroll_shop, Vector2(210, 90), 28)
 	reroll.disabled = gs.money < gs.reroll_cost
-	row.add_child(reroll)
-	row.add_child(_button("Next Round", Data.MULT_COLOR, show_blind_select, Vector2(250, 84), 28))
-	vb.add_child(row)
+	side.add_child(reroll)
+	body.add_child(side)
 
 
 func _shop_item(view: CharmView, cost: int, desc: String, tag: String, cb: Callable) -> Control:
@@ -893,7 +917,7 @@ func buy_charm(i: int) -> void:
 	if gs.money < d.cost:
 		return
 	if gs.charms.size() >= gs.charm_slots:
-		popup_text(Vector2(vw / 2, TOP_H + 40), "No room for more charms", Color.WHITE, 28)
+		popup_text(Vector2(main_cx(), TOP_H + 40), "No room for more charms", Color.WHITE, 28)
 		return
 	gs.money -= d.cost
 	gs.charms.append({"id": d.id, "data": {}})
@@ -912,7 +936,7 @@ func buy_rune(i: int) -> void:
 	gs.shop_runes.remove_at(i)
 	sfx.play("xmult")
 	show_shop()
-	popup_text(Vector2(vw / 2, TOP_H + 40), "%s  lvl %d" % [h, gs.hand_levels[h]], Color("c9b3ff"), 32)
+	popup_text(Vector2(main_cx(), TOP_H + 40), "%s  lvl %d" % [h, gs.hand_levels[h]], Color("c9b3ff"), 32)
 
 
 func reroll_shop() -> void:
