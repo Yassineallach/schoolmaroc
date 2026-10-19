@@ -27,6 +27,7 @@ var btn_deck: Button
 var lbl_charm_count: Label
 
 var charm_row: Control
+var table_catcher: Control
 var charm_bg: Panel
 var hand_layer: Control
 var fx_layer: Control
@@ -53,6 +54,10 @@ var sort_mode := "rank"
 var vw := 1280.0
 var vh := 720.0
 var stats := {"best_ante": 0, "best_hand": 0, "runs": 0, "wins": 0}
+var settings := {"sound": true, "vibration": true, "speed": 1.0}
+var on_title := false
+var sidebar_buttons: Array = []
+var pad: PadInput
 
 
 func _ready() -> void:
@@ -60,7 +65,10 @@ func _ready() -> void:
 	sfx = Sfx.new()
 	add_child(sfx)
 	_load_stats()
+	_apply_settings()
 	_build_ui()
+	pad = PadInput.new(self)
+	add_child(pad)
 	get_viewport().size_changed.connect(_on_resize)
 	_on_resize()
 	show_title()
@@ -134,6 +142,7 @@ func _button(text: String, col: Color, cb: Callable, min_size := Vector2(160, 76
 	b.resized.connect(func(): b.pivot_offset = b.size / 2)
 	b.pressed.connect(func():
 		sfx.play("click")
+		haptic(12, 0.3)
 		juice(b)
 		jiggle += 0.5
 		cb.call())
@@ -183,8 +192,10 @@ func _build_ui() -> void:
 	var info_box := _panel(Vector2(10, 480), Vector2(320, 90), Color(0, 0, 0, 0.35))
 	lbl_ante = _place(_label("", 28), info_box, Vector2(0, 0), Vector2(150, 90))
 	lbl_money = _place(_label("", 46, Data.MONEY_COLOR), info_box, Vector2(150, 0), Vector2(170, 90))
-	_place(_button("Poker Hands", Color("5a5f73"), show_hand_info, Vector2(320, 56), 24), self, Vector2(10, 582), Vector2(320, 56))
+	var btn_hands := _place(_button("Hands", Color("5a5f73"), show_hand_info, Vector2(155, 56), 24), self, Vector2(10, 582), Vector2(155, 56))
+	var btn_menu := _place(_button("Menu", Color("5a5f73"), show_menu, Vector2(155, 56), 24), self, Vector2(175, 582), Vector2(155, 56))
 	btn_deck = _place(_button("Deck", Color("4a4f63"), show_deck, Vector2(320, 48), 22), self, Vector2(10, 650), Vector2(320, 48))
+	sidebar_buttons = [btn_hands, btn_menu, btn_deck]
 
 	# Charm row along the top of the table
 	charm_bg = _panel(Vector2(SIDE_W + 10, 10), Vector2(900, CHARM_H), Color(0, 0, 0, 0.25))
@@ -192,6 +203,14 @@ func _build_ui() -> void:
 	charm_row.position = Vector2(SIDE_W + 10, 10)
 	add_child(charm_row)
 	lbl_charm_count = _place(_label("0/5", 18, Color(1, 1, 1, 0.7), HORIZONTAL_ALIGNMENT_RIGHT), charm_bg, Vector2(0, CHARM_H - 26), Vector2(0, 24))
+
+	# Tapping empty table space clears the selection.
+	table_catcher = Control.new()
+	table_catcher.mouse_filter = Control.MOUSE_FILTER_STOP
+	table_catcher.gui_input.connect(func(e):
+		if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+			deselect_all())
+	add_child(table_catcher)
 
 	hand_layer = Control.new()
 	hand_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -246,6 +265,8 @@ func _on_resize() -> void:
 	charm_row.size = charm_bg.size
 	lbl_charm_count.position = Vector2(mw - 140, CHARM_H - 26)
 	lbl_charm_count.size = Vector2(110, 24)
+	table_catcher.position = Vector2(SIDE_W, TOP_H)
+	table_catcher.size = Vector2(mw, vh - TOP_H - 104)
 	controls.position = Vector2(SIDE_W, vh - 94)
 	controls.size = Vector2(mw, 80)
 	_fit_overlay()
@@ -517,6 +538,7 @@ func _row_label(vb: Container, left: String, right: String, right_col := Data.MO
 
 
 func show_title() -> void:
+	on_title = true
 	in_round = false
 	busy = true
 	var vb := open_overlay(true)
@@ -553,7 +575,7 @@ func show_help() -> void:
 	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	t.custom_minimum_size = Vector2(820, 0)
 	t.add_theme_font_size_override("font_size", 23)
-	t.text = "Select up to 5 cards and play a poker hand. Each hand type has base Chips and Mult; scored cards add their rank in Chips (faces 10, Aces 11).\n\nScore = Chips x Mult. Reach the blind's target before you run out of hands. Discards let you swap cards.\n\nEach ante has a Small Blind, a Big Blind and a Boss Blind with a nasty twist. Beat ante %d to win.\n\nSpend money in the shop on Charms (passive bonuses, up to 5) and Runes (level up a hand type). You earn $1 interest per $5 held, up to $5." % Data.FINAL_ANTE
+	t.text = "Select up to 5 cards and play a poker hand. Each hand type has base Chips and Mult; scored cards add their rank in Chips (faces 10, Aces 11).\n\nScore = Chips x Mult. Reach the blind's target before you run out of hands. Discards let you swap cards.\n\nEach ante has a Small Blind, a Big Blind and a Boss Blind with a nasty twist. Beat ante %d to win.\n\nSpend money in the shop on Charms (passive bonuses, up to 5) and Runes (level up a hand type). You earn $1 interest per $5 held, up to $5.\n\nDrag cards or charms to reorder them; hold a card to see its details. Gamepad: d-pad moves, A selects (hold A + left/right to move a card), X plays, Y discards, LB/RB sort, Start opens the menu. Keyboard: arrows, Enter, P, D, Q/E, Esc; hold R to restart." % Data.FINAL_ANTE
 	vb.add_child(t)
 	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(220, 70))))
 
@@ -564,6 +586,7 @@ func _center(c: Control) -> Control:
 
 
 func new_run() -> void:
+	on_title = false
 	gs = GameState.new()
 	stats.runs += 1
 	_save_stats()
@@ -943,6 +966,7 @@ func discard_selected() -> void:
 func win_round() -> void:
 	in_round = false
 	sfx.play("win")
+	haptic(40, 0.5)
 	await wait(0.3)
 	var gilded := 0
 	for v in hand_views:
@@ -992,6 +1016,7 @@ func game_over() -> void:
 	in_round = false
 	busy = true
 	sfx.play("lose")
+	haptic(150, 0.8)
 	stats.best_ante = maxi(stats.best_ante, gs.ante)
 	_save_stats()
 	clear_hand_views()
@@ -1215,6 +1240,7 @@ func _on_charm_tapped(v: CharmView) -> void:
 ## Break a card into tumbling shards.
 func shatter(v: CardView) -> void:
 	sfx.play("lose", 2.2)
+	haptic(60, 0.7)
 	jiggle += 1.0
 	var origin := v.position
 	var face: Color = Data.ENHANCEMENTS["glass"].face
@@ -1336,10 +1362,128 @@ func _load_stats() -> void:
 		return
 	for k in stats.keys():
 		stats[k] = cf.get_value("stats", k, stats[k])
+	for k in settings.keys():
+		settings[k] = cf.get_value("settings", k, settings[k])
 
 
 func _save_stats() -> void:
 	var cf := ConfigFile.new()
 	for k in stats.keys():
 		cf.set_value("stats", k, stats[k])
+	for k in settings.keys():
+		cf.set_value("settings", k, settings[k])
 	cf.save(STATS_PATH)
+
+
+func _apply_settings() -> void:
+	AudioServer.set_bus_mute(0, not settings.sound)
+	Engine.time_scale = settings.speed
+
+
+# ---------------------------------------------------------------- input helpers
+
+## Short buzz on phones (and rumble on a gamepad in use).
+func haptic(ms: int, strength: float) -> void:
+	if not settings.vibration:
+		return
+	if OS.has_feature("mobile"):
+		Input.vibrate_handheld(ms, strength)
+	if pad != null and pad.pad_mode and pad.last_joy >= 0:
+		Input.start_joy_vibration(pad.last_joy, strength * 0.6, strength, ms / 1000.0)
+
+
+func deselect_all() -> void:
+	if busy or not in_round:
+		return
+	var any := false
+	for v in hand_views:
+		if v.selected:
+			v.selected = false
+			v.queue_redraw()
+			any = true
+	if any:
+		sfx.play("select", 0.8)
+		layout_hand(true)
+		update_hud()
+
+
+## Back button / Escape / B: close a popup, then clear the selection, then
+## open the menu. On the title screen it leaves the app.
+func go_back() -> void:
+	if not modal.get_children().filter(func(c): return not c.is_queued_for_deletion()).is_empty():
+		close_modal()
+		return
+	if in_round and not busy and not selected_views().is_empty():
+		deselect_all()
+		return
+	if on_title:
+		get_tree().quit()
+		return
+	show_menu()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		go_back()
+
+
+## A button that only fires after being held down, filling up as it goes.
+func _hold_button(text: String, col: Color, cb: Callable, hold := 0.8, min_size := Vector2(300, 64)) -> Button:
+	var b := _button(text, col, func(): pass, min_size, 24)
+	b.set_meta("hold", true)
+	var fill := ColorRect.new()
+	fill.color = Color(1, 1, 1, 0.3)
+	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fill.position = Vector2(4, 4)
+	fill.size = Vector2(0, min_size.y - 14)
+	b.add_child(fill)
+	var state := {"tw": null}
+	b.button_down.connect(func():
+		var tw := create_tween()
+		state.tw = tw
+		tw.tween_property(fill, "size:x", b.size.x - 8, hold)
+		tw.tween_callback(func():
+			haptic(30, 0.6)
+			cb.call()))
+	b.button_up.connect(func():
+		if state.tw != null and state.tw.is_valid():
+			state.tw.kill()
+		fill.size.x = 0)
+	return b
+
+
+func show_menu() -> void:
+	if on_title:
+		return
+	var vb := open_modal()
+	vb.add_child(_label("Paused", 40, Color("ffdf6b")))
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 14)
+	grid.add_theme_constant_override("v_separation", 14)
+	grid.add_child(_button("Sound: %s" % ("On" if settings.sound else "Off"), Color("4a6fa5"), func():
+		settings.sound = not settings.sound
+		_apply_settings()
+		_save_stats()
+		show_menu(), Vector2(300, 64), 24))
+	grid.add_child(_button("Vibration: %s" % ("On" if settings.vibration else "Off"), Color("4a6fa5"), func():
+		settings.vibration = not settings.vibration
+		_save_stats()
+		haptic(40, 0.6)
+		show_menu(), Vector2(300, 64), 24))
+	grid.add_child(_button("Speed: %sx" % str(settings.speed).trim_suffix(".0"), Color("4a6fa5"), func():
+		var speeds := [1.0, 1.5, 2.0, 3.0]
+		settings.speed = speeds[(speeds.find(settings.speed) + 1) % speeds.size()]
+		_apply_settings()
+		_save_stats()
+		show_menu(), Vector2(300, 64), 24))
+	grid.add_child(_button("How to play", Color("5a5f73"), show_help, Vector2(300, 64), 24))
+	grid.add_child(_hold_button("Hold: New Run", Data.MULT_COLOR, func():
+		close_modal()
+		new_run()))
+	grid.add_child(_hold_button("Hold: Main Menu", Color("7b4fa0"), func():
+		close_modal()
+		clear_hand_views()
+		show_title()))
+	vb.add_child(_center(grid))
+	vb.add_child(_center(_button("Resume", Data.CHIP_COLOR, close_modal, Vector2(320, 76), 30)))
