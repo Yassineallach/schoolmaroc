@@ -179,8 +179,8 @@ func _live(node: Node) -> Array:
 func _buttons(node: Node) -> Array:
 	var out := []
 	for c in _live(node):
-		if c is BaseButton:
-			if c.is_visible_in_tree() and not c.disabled:
+		if c is BaseButton or c is Slider:
+			if c.is_visible_in_tree() and not (c is BaseButton and c.disabled):
 				out.append(c)
 		elif c is Control or c is CanvasLayer:
 			out += _buttons(c)
@@ -195,6 +195,11 @@ func navigate(dir: Vector2) -> void:
 	var list := focusables()
 	if focused == null:
 		focused = _default(list)
+		return
+	# Left/right on a slider changes its value instead of moving focus.
+	if focused is Slider and dir.y == 0:
+		focused.value += focused.step * dir.x
+		main.haptic(6, 0.15)
 		return
 	var hand: Array = main.hand_views
 	if focused is CardView and hand.has(focused) and dir.y == 0:

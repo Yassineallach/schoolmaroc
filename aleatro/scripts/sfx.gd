@@ -20,8 +20,10 @@ func _ready() -> void:
 	_streams.win = _tone([523.0, 659.0, 784.0, 1046.0], 0.5, 0.3)
 	_streams.lose = _tone([392.0, 311.0, 262.0], 0.7, 0.3)
 	_streams.deal = _tone([300.0], 0.04, 0.15)
+	Music._ensure_bus("SFX")
 	for i in 8:
 		var p := AudioStreamPlayer.new()
+		p.bus = "SFX"
 		add_child(p)
 		_players.append(p)
 
@@ -32,7 +34,8 @@ func play(name: String, pitch: float = 1.0) -> void:
 	var p := _players[_next]
 	_next = (_next + 1) % _players.size()
 	p.stream = _streams[name]
-	p.pitch_scale = pitch
+	# A little random detune keeps repeated sounds from feeling mechanical.
+	p.pitch_scale = pitch * randf_range(0.97, 1.03)
 	p.play()
 
 

@@ -54,16 +54,19 @@ var sort_mode := "rank"
 var vw := 1280.0
 var vh := 720.0
 var stats := {"best_ante": 0, "best_hand": 0, "runs": 0, "wins": 0}
-var settings := {"sound": true, "vibration": true, "speed": 1.0}
+var settings := {"master": 80.0, "music": 70.0, "sfx": 85.0, "vibration": true, "speed": 1.0}
 var on_title := false
 var sidebar_buttons: Array = []
 var pad: PadInput
+var music: Music
 
 
 func _ready() -> void:
 	theme = _make_theme()
 	sfx = Sfx.new()
 	add_child(sfx)
+	music = Music.new()
+	add_child(music)
 	_load_stats()
 	_apply_settings()
 	_build_ui()
@@ -539,6 +542,8 @@ func _row_label(vb: Container, left: String, right: String, right_col := Data.MO
 
 func show_title() -> void:
 	on_title = true
+	music.set_track("table")
+	music.pitch_target = 1.0
 	in_round = false
 	busy = true
 	var vb := open_overlay(true)
@@ -587,6 +592,7 @@ func _center(c: Control) -> Control:
 
 func new_run() -> void:
 	on_title = false
+	music.pitch_target = 1.0
 	gs = GameState.new()
 	stats.runs += 1
 	_save_stats()
@@ -599,6 +605,7 @@ func new_run() -> void:
 
 
 func show_blind_select() -> void:
+	music.set_track("boss" if gs.blind_idx == 2 else "table")
 	in_round = false
 	busy = true
 	update_hud()
@@ -816,6 +823,7 @@ func play_selected() -> void:
 	var step_t := 0.3
 	var pitch := 1.0
 	lbl_hand_name.text = "%s  lvl %d" % [ev.name, gs.hand_levels[ev.name]]
+	music.pitch_target = 1.03
 	for e in result.events:
 		if e.kind == "base":
 			chips = e.chips
@@ -875,6 +883,7 @@ func play_selected() -> void:
 		pitch += 0.04
 		await wait(step_t)
 
+	music.pitch_target = 1.0
 	var total := int(floor(chips * mult))
 	gs.best_hand = maxi(gs.best_hand, total)
 	if total > stats.best_hand:
@@ -1017,6 +1026,8 @@ func game_over() -> void:
 	busy = true
 	sfx.play("lose")
 	haptic(150, 0.8)
+	music.set_track("table")
+	music.pitch_target = 0.85
 	stats.best_ante = maxi(stats.best_ante, gs.ante)
 	_save_stats()
 	clear_hand_views()
@@ -1036,6 +1047,7 @@ func game_over() -> void:
 
 func show_victory() -> void:
 	busy = true
+	music.set_track("shop")
 	var vb := open_overlay(true)
 	vb.add_child(_label("You Win!", 72, Color("ffdf6b")))
 	vb.add_child(_label("You beat ante %d." % Data.FINAL_ANTE, 28))
@@ -1060,6 +1072,7 @@ func show_shop() -> void:
 	update_hud()
 	var vb := open_overlay()
 	_shop_open = true
+	music.set_track("shop")
 	vb.add_child(_label("Shop", 40, Color("ffdf6b")))
 	vb.add_child(_label("Tap a charm above to sell it. Bought cards join your deck.", 18, Color(1, 1, 1, 0.6)))
 	var body := HBoxContainer.new()
@@ -1196,6 +1209,7 @@ func open_modal() -> VBoxContainer:
 
 
 func close_modal() -> void:
+	music.set_muffled(false)
 	for c in modal.get_children():
 		c.queue_free()
 	modal.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1364,6 +1378,9 @@ func _load_stats() -> void:
 		stats[k] = cf.get_value("stats", k, stats[k])
 	for k in settings.keys():
 		settings[k] = cf.get_value("settings", k, settings[k])
+	# 1.5.0 had a single on/off sound switch
+	if cf.get_value("settings", "sound", true) == false:
+		settings.master = 0.0
 
 
 func _save_stats() -> void:
@@ -1376,7 +1393,7 @@ func _save_stats() -> void:
 
 
 func _apply_settings() -> void:
-	AudioServer.set_bus_mute(0, not settings.sound)
+	Music.apply_volumes(settings.master, settings.music, settings.sfx)
 	Engine.time_scale = settings.speed
 
 
@@ -1452,20 +1469,63 @@ func _hold_button(text: String, col: Color, cb: Callable, hold := 0.8, min_size 
 	return b
 
 
+## Label, slider and value for one 0-100 volume setting; applies live.
+func _volume_row(title: String, key: String) -> Control:
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 14)
+	var l := _label(title, 24, Color.WHITE, HORIZONTAL_ALIGNMENT_LEFT)
+	l.custom_minimum_size = Vector2(110, 0)
+	hb.add_child(l)
+	var slider := HSlider.new()
+	slider.min_value = 0
+	slider.max_value = 100
+	slider.step = 5
+	slider.value = settings[key]
+	slider.custom_minimum_size = Vector2(420, 40)
+	slider.focus_mode = Control.FOCUS_NONE
+	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var track := PixelBox.new(Color(0, 0, 0, 0.45), 2.0)
+	track.set_content_margin_all(6)
+	slider.add_theme_stylebox_override("slider", track)
+	var fill := PixelBox.new(Data.CHIP_COLOR, 2.0)
+	fill.set_content_margin_all(6)
+	slider.add_theme_stylebox_override("grabber_area", fill)
+	slider.add_theme_stylebox_override("grabber_area_highlight", fill)
+	hb.add_child(slider)
+	var val := _label("%d" % settings[key], 24, Color("ffdf6b"), HORIZONTAL_ALIGNMENT_RIGHT)
+	val.custom_minimum_size = Vector2(56, 0)
+	hb.add_child(val)
+	slider.value_changed.connect(func(v):
+		settings[key] = v
+		val.text = "%d" % v
+		_apply_settings()
+		_save_stats()
+		if key == "sfx":
+			sfx.play("select"))
+	return hb
+
+
+func show_credits() -> void:
+	var vb := open_modal()
+	vb.add_child(_label("Aleatro", 40, Color("ffdf6b")))
+	var v := Engine.get_version_info()
+	vb.add_child(_label("Made with Godot Engine %d.%d" % [v.major, v.minor], 22))
+	vb.add_child(_label("Music, sound and art are generated by the game's own code.", 20, Color(1, 1, 1, 0.7)))
+	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 60), 24)))
+
+
 func show_menu() -> void:
 	if on_title:
 		return
 	var vb := open_modal()
+	music.set_muffled(true)
 	vb.add_child(_label("Paused", 40, Color("ffdf6b")))
+	for row in [["Master", "master"], ["Music", "music"], ["Sounds", "sfx"]]:
+		vb.add_child(_volume_row(row[0], row[1]))
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 14)
 	grid.add_theme_constant_override("v_separation", 14)
-	grid.add_child(_button("Sound: %s" % ("On" if settings.sound else "Off"), Color("4a6fa5"), func():
-		settings.sound = not settings.sound
-		_apply_settings()
-		_save_stats()
-		show_menu(), Vector2(300, 64), 24))
 	grid.add_child(_button("Vibration: %s" % ("On" if settings.vibration else "Off"), Color("4a6fa5"), func():
 		settings.vibration = not settings.vibration
 		_save_stats()
@@ -1478,6 +1538,7 @@ func show_menu() -> void:
 		_save_stats()
 		show_menu(), Vector2(300, 64), 24))
 	grid.add_child(_button("How to play", Color("5a5f73"), show_help, Vector2(300, 64), 24))
+	grid.add_child(_button("Credits", Color("5a5f73"), show_credits, Vector2(300, 64), 24))
 	grid.add_child(_hold_button("Hold: New Run", Data.MULT_COLOR, func():
 		close_modal()
 		new_run()))
