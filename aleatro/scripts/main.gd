@@ -1,7 +1,6 @@
 extends Control
 
 const MAX_SELECT := 5
-const STATS_PATH := "user://stats.cfg"
 const SIDE_W := 340.0  # left sidebar width
 const CHARM_H := 160.0
 const TOP_H := 180.0  # charm row; table overlays start below it
@@ -53,7 +52,13 @@ var in_round := false
 var sort_mode := "rank"
 var vw := 1280.0
 var vh := 720.0
-var stats := {"best_ante": 0, "best_hand": 0, "runs": 0, "wins": 0}
+const STAT_DEFAULTS := {
+	"runs": 0, "wins": 0, "best_ante": 0, "best_hand": 0, "hands_played": 0,
+	"cards_played": 0, "money_earned": 0, "charms_bought": 0, "cards_shattered": 0,
+}
+var stats := STAT_DEFAULTS.duplicate()
+var saves: SaveManager
+var profile_data := {}
 var settings := {"master": 80.0, "music": 70.0, "sfx": 85.0, "vibration": true, "speed": 1.0}
 var on_title := false
 var sidebar_buttons: Array = []
@@ -67,6 +72,8 @@ func _ready() -> void:
 	add_child(sfx)
 	music = Music.new()
 	add_child(music)
+	saves = SaveManager.new()
+	add_child(saves)
 	_load_stats()
 	_apply_settings()
 	_build_ui()
@@ -444,6 +451,7 @@ func _on_drag_end(v: Control) -> void:
 	if v is CardView:
 		gs.hand = hand_views.map(func(h): return h.card)
 		layout_hand(true)
+		save_run("round")
 	else:
 		gs.charms = charm_views.map(func(c): return _charm_inst(c))
 		layout_charms(true)
@@ -563,12 +571,27 @@ func show_title() -> void:
 		cards.add_child(cv)
 	vb.add_child(cards)
 	vb.add_child(Control.new())
-	var b := _button("Play", Data.CHIP_COLOR, new_run, Vector2(320, 96), 40)
-	b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	vb.add_child(b)
-	var h := _button("How to play", Color("5a5f73"), show_help, Vector2(320, 70), 26)
-	h.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	vb.add_child(h)
+	var main_row := HBoxContainer.new()
+	main_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	main_row.add_theme_constant_override("separation", 18)
+	if saves.has_run():
+		var run := saves.load_run()
+		main_row.add_child(_button("Continue\nAnte %d  $%d" % [run.get("ante", 1), run.get("money", 0)], Color("3f9a5a"), resume_run, Vector2(300, 96), 28))
+		main_row.add_child(_hold_button("Hold: New Run", Data.CHIP_COLOR, new_run, 0.6, Vector2(300, 96)))
+	else:
+		main_row.add_child(_button("Play", Data.CHIP_COLOR, new_run, Vector2(320, 96), 40))
+	vb.add_child(main_row)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 14)
+	row.add_child(_button("How to play", Color("5a5f73"), show_help, Vector2(200, 64), 24))
+	row.add_child(_button("Collection", Color("5a5f73"), show_collection, Vector2(200, 64), 24))
+	row.add_child(_button("Profile %d" % saves.profile, Color("7b4fa0"), func():
+		saves.profile = saves.profile % SaveManager.PROFILES + 1
+		saves.save_settings(settings)
+		_load_profile()
+		show_title(), Vector2(200, 64), 24))
+	vb.add_child(row)
 	if stats.runs > 0:
 		vb.add_child(_label("Best ante: %d   Best hand: %s   Wins: %d" % [stats.best_ante, Data.fmt(stats.best_hand), stats.wins], 20, Color(1, 1, 1, 0.7)))
 
@@ -596,6 +619,7 @@ func new_run() -> void:
 	gs = GameState.new()
 	stats.runs += 1
 	_save_stats()
+	saves.delete_run()
 	clear_hand_views()
 	rebuild_charms()
 	lbl_hand_name.text = ""
@@ -648,6 +672,8 @@ func show_blind_select() -> void:
 		cols.add_child(p)
 	vb.add_child(cols)
 	vb.add_child(_center(_button("Play " + gs.blind_name(), gs.blind_color(), start_blind, Vector2(360, 86), 30)))
+	discover("hex", gs.boss_hex.id)
+	save_run("blind")
 
 
 # ---------------------------------------------------------------- round flow
@@ -668,6 +694,7 @@ func start_blind() -> void:
 	await deal()
 	busy = false
 	update_hud()
+	save_run("round")
 
 
 func clear_hand_views() -> void:
@@ -678,21 +705,26 @@ func clear_hand_views() -> void:
 	manual_order = false
 
 
+func _make_hand_view(c: Dictionary) -> CardView:
+	var v := CardView.new(c)
+	v.set_debuffed(gs.is_debuffed(c))
+	v.position = Vector2(vw - 60, vh - 120)
+	v.rotation_degrees = 30
+	v.face_up = false
+	v.tapped.connect(_on_card_tapped)
+	v.held.connect(show_card_info)
+	v.drag_started.connect(_on_drag_start)
+	v.dragged.connect(_on_drag_move)
+	v.drag_ended.connect(_on_drag_end)
+	hand_layer.add_child(v)
+	hand_views.append(v)
+	return v
+
+
 func deal() -> void:
 	var drawn := gs.draw_cards()
 	for c in drawn:
-		var v := CardView.new(c)
-		v.set_debuffed(gs.is_debuffed(c))
-		v.position = Vector2(vw - 60, vh - 120)
-		v.rotation_degrees = 30
-		v.face_up = false
-		v.tapped.connect(_on_card_tapped)
-		v.held.connect(show_card_info)
-		v.drag_started.connect(_on_drag_start)
-		v.dragged.connect(_on_drag_move)
-		v.drag_ended.connect(_on_drag_end)
-		hand_layer.add_child(v)
-		hand_views.append(v)
+		_make_hand_view(c)
 	if not manual_order:
 		sort_hand()
 	gs.hand = hand_views.map(func(h): return h.card)
@@ -781,6 +813,8 @@ func play_selected() -> void:
 		return
 	busy = true
 	gs.hands_left -= 1
+	stats.hands_played += 1
+	stats.cards_played += sel.size()
 	update_hud()
 	btn_play.disabled = true
 	btn_discard.disabled = true
@@ -876,6 +910,7 @@ func play_selected() -> void:
 			line += 1
 		if e.has("money"):
 			gs.money += e.money
+			stats.money_earned += e.money
 			update_hud()
 			bump(lbl_money, 1.2)
 			popup_text(anchor + Vector2(0, 36 * line), "$%d" % e.money, Data.MONEY_COLOR)
@@ -901,6 +936,7 @@ func play_selected() -> void:
 
 	# Glass cards that broke leave the deck for good.
 	for c in result.shatter:
+		stats.cards_shattered += 1
 		var v: CardView = view_of[c.id]
 		sel.erase(v)
 		gs.remove_from_deck(c)
@@ -941,6 +977,7 @@ func play_selected() -> void:
 	await deal()
 	busy = false
 	update_hud()
+	save_run("round")
 
 
 func _fmt_mult(m: float) -> String:
@@ -970,6 +1007,7 @@ func discard_selected() -> void:
 	await deal()
 	busy = false
 	update_hud()
+	save_run("round")
 
 
 func win_round() -> void:
@@ -990,20 +1028,32 @@ func win_round() -> void:
 	for c in gs.charms:
 		if c.id == "gold":
 			charm_cash += 4
-	var total := reward + per_hand + interest + charm_cash + gilded
-	var vb := open_overlay()
-	vb.add_child(_label(gs.blind_name() + " defeated!", 38, Color("ffdf6b")))
-	_row_label(vb, "Blind reward", "$%d" % reward)
+	var rows := [["Blind reward", reward]]
 	if per_hand > 0:
-		_row_label(vb, "Remaining hands (%d)" % per_hand, "$%d" % per_hand)
+		rows.append(["Remaining hands (%d)" % per_hand, per_hand])
 	if interest > 0:
-		_row_label(vb, "Interest ($1 per $5)", "$%d" % interest)
+		rows.append(["Interest ($1 per $5)", interest])
 	if charm_cash > 0:
-		_row_label(vb, "Gold Tooth", "$%d" % charm_cash)
+		rows.append(["Gold Tooth", charm_cash])
 	if gilded > 0:
-		_row_label(vb, "Gilded cards held", "$%d" % gilded)
+		rows.append(["Gilded cards held", gilded])
+	var info := {"title": gs.blind_name() + " defeated!", "rows": rows, "total": reward + per_hand + interest + charm_cash + gilded}
+	save_run("cashout", {"cashout": info})
+	show_cashout(info)
+
+
+func show_cashout(info: Dictionary) -> void:
+	in_round = false
+	busy = true
+	music.set_track("boss" if gs.blind_idx == 2 else "table")
+	var vb := open_overlay()
+	vb.add_child(_label(info.title, 38, Color("ffdf6b")))
+	for r in info.rows:
+		_row_label(vb, r[0], "$%d" % r[1])
+	var total: int = info.total
 	vb.add_child(_center(_button("Cash Out: $%d" % total, Color("e0a526"), func():
 		gs.money += total
+		stats.money_earned += total
 		sfx.play("coin")
 		cash_out(), Vector2(380, 90), 32)))
 
@@ -1028,6 +1078,7 @@ func game_over() -> void:
 	haptic(150, 0.8)
 	music.set_track("table")
 	music.pitch_target = 0.85
+	saves.delete_run()
 	stats.best_ante = maxi(stats.best_ante, gs.ante)
 	_save_stats()
 	clear_hand_views()
@@ -1047,6 +1098,7 @@ func game_over() -> void:
 
 func show_victory() -> void:
 	busy = true
+	saves.delete_run()
 	music.set_track("shop")
 	var vb := open_overlay(true)
 	vb.add_child(_label("You Win!", 72, Color("ffdf6b")))
@@ -1108,6 +1160,9 @@ func show_shop() -> void:
 	reroll.disabled = gs.money < gs.reroll_cost
 	side.add_child(reroll)
 	body.add_child(side)
+	for d in gs.shop_charms:
+		discover("charm", d.id)
+	save_run("shop")
 
 
 func _shop_item(view: Control, cost: int, desc: String, tag: String, cb: Callable) -> Control:
@@ -1139,6 +1194,7 @@ func buy_charm(i: int) -> void:
 		return
 	gs.money -= d.cost
 	gs.charms.append({"id": d.id, "data": {}, "ed": d.get("ed", "")})
+	stats.charms_bought += 1
 	gs.shop_charms.remove_at(i)
 	sfx.play("coin")
 	rebuild_charms()
@@ -1371,25 +1427,114 @@ func show_hand_info() -> void:
 # ---------------------------------------------------------------- persistence
 
 func _load_stats() -> void:
-	var cf := ConfigFile.new()
-	if cf.load(STATS_PATH) != OK:
-		return
-	for k in stats.keys():
-		stats[k] = cf.get_value("stats", k, stats[k])
-	for k in settings.keys():
-		settings[k] = cf.get_value("settings", k, settings[k])
-	# 1.5.0 had a single on/off sound switch
-	if cf.get_value("settings", "sound", true) == false:
-		settings.master = 0.0
+	settings = saves.load_settings(settings)
+	_load_profile()
+
+
+func _load_profile() -> void:
+	profile_data = saves.load_profile()
+	stats = STAT_DEFAULTS.duplicate()
+	stats.merge(profile_data.stats, true)
 
 
 func _save_stats() -> void:
-	var cf := ConfigFile.new()
-	for k in stats.keys():
-		cf.set_value("stats", k, stats[k])
-	for k in settings.keys():
-		cf.set_value("settings", k, settings[k])
-	cf.save(STATS_PATH)
+	saves.save_settings(settings)
+	profile_data.stats = stats
+	saves.save_profile(profile_data)
+
+
+## Snapshot the run at a safe point so it can be resumed after the app closes.
+func save_run(screen: String, extra := {}) -> void:
+	if gs == null:
+		return
+	var snap := gs.to_dict()
+	snap.screen = screen
+	snap.sort_mode = sort_mode
+	snap.manual_order = manual_order
+	snap.merge(extra)
+	saves.save_run(snap)
+	# Lifetime stats change during play; keep them in step with the run.
+	profile_data.stats = stats
+	saves.save_profile(profile_data)
+
+
+func resume_run() -> void:
+	var d := saves.load_run()
+	if d.is_empty():
+		new_run()
+		return
+	on_title = false
+	music.pitch_target = 1.0
+	gs = GameState.from_dict(d)
+	sort_mode = d.get("sort_mode", "rank")
+	_place_marker()
+	clear_hand_views()
+	manual_order = d.get("manual_order", false)
+	rebuild_charms()
+	lbl_hand_name.text = ""
+	match d.get("screen", "blind"):
+		"shop":
+			show_shop()
+		"cashout":
+			show_cashout(d.cashout)
+		"round":
+			resume_round()
+		_:
+			show_blind_select()
+
+
+func resume_round() -> void:
+	clear_overlay()
+	_shop_open = false
+	in_round = true
+	busy = true
+	music.set_track("boss" if gs.blind_idx == 2 else "table")
+	var k := 0
+	for c in gs.hand:
+		var v := _make_hand_view(c)
+		v.flip_up(0.1 + 0.05 * k)
+		k += 1
+	layout_hand(true)
+	update_hud()
+	await wait(0.4 + 0.05 * k)
+	busy = false
+	update_hud()
+
+
+## Record a charm or boss the player has now seen; announce new ones.
+func discover(kind: String, id: String) -> void:
+	var key := "seen_charms" if kind == "charm" else "seen_hexes"
+	if profile_data[key].has(id):
+		return
+	profile_data[key].append(id)
+	_save_stats()
+	if kind == "charm":
+		toast("New charm discovered: " + Data.charm_def(id).name)
+	else:
+		for h in Data.HEXES:
+			if h.id == id:
+				toast("New boss discovered: " + h.name)
+
+
+## A small notice that slides in at the top right.
+func toast(text: String) -> void:
+	var p := PanelContainer.new()
+	var sb := _box(Color("22313b"), 3.0, true)
+	sb.outline = 2.0
+	sb.outline_color = Color("ffdf6b")
+	sb.set_content_margin_all(12)
+	p.add_theme_stylebox_override("panel", sb)
+	p.add_child(_label(text, 20, Color.WHITE))
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fx_layer.add_child(p)
+	var slot := fx_layer.get_children().filter(func(c): return c is PanelContainer).size() - 1
+	p.position = Vector2(vw + 10, 12 + slot * 58)
+	await get_tree().process_frame
+	var tw := create_tween()
+	tw.tween_property(p, "position:x", vw - p.size.x - 12, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_interval(2.4)
+	tw.tween_property(p, "position:x", vw + 10, 0.25)
+	tw.tween_callback(p.queue_free)
 
 
 func _apply_settings() -> void:
@@ -1505,13 +1650,76 @@ func _volume_row(title: String, key: String) -> Control:
 	return hb
 
 
-func show_credits() -> void:
+func show_collection(tab: String = "charms") -> void:
 	var vb := open_modal()
-	vb.add_child(_label("Aleatro", 40, Color("ffdf6b")))
-	var v := Engine.get_version_info()
-	vb.add_child(_label("Made with Godot Engine %d.%d" % [v.major, v.minor], 22))
-	vb.add_child(_label("Music, sound and art are generated by the game's own code.", 20, Color(1, 1, 1, 0.7)))
-	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 60), 24)))
+	vb.add_child(_label("Collection  (Profile %d)" % saves.profile, 34, Color("ffdf6b")))
+	var tabs := HBoxContainer.new()
+	tabs.alignment = BoxContainer.ALIGNMENT_CENTER
+	tabs.add_theme_constant_override("separation", 12)
+	for t in [["charms", "Charms"], ["bosses", "Bosses"], ["stats", "Stats"], ["credits", "Credits"]]:
+		var b := _button(t[1], Data.CHIP_COLOR if t[0] == tab else Color("4a4f63"), func(): show_collection(t[0]), Vector2(170, 54), 22)
+		tabs.add_child(b)
+	vb.add_child(tabs)
+	match tab:
+		"charms":
+			var seen: Array = profile_data.seen_charms
+			vb.add_child(_label("%d / %d discovered" % [seen.size(), Data.CHARMS.size()], 20, Color(1, 1, 1, 0.7)))
+			var grid := GridContainer.new()
+			grid.columns = 7
+			grid.add_theme_constant_override("h_separation", 10)
+			grid.add_theme_constant_override("v_separation", 8)
+			for c in Data.CHARMS:
+				var cell := Control.new()
+				cell.custom_minimum_size = Vector2(CharmView.W, CharmView.H) * 0.62
+				cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				if seen.has(c.id):
+					var cv := CharmView.new(c.id)
+					cv.float_amount = 0.6
+					cv.scale = Vector2(0.62, 0.62)
+					cv.pivot_offset = Vector2.ZERO
+					cv.mouse_filter = Control.MOUSE_FILTER_IGNORE
+					cell.add_child(cv)
+				else:
+					var lock := Panel.new()
+					lock.size = cell.custom_minimum_size
+					lock.add_theme_stylebox_override("panel", _box(Color(0, 0, 0, 0.4), 3.0))
+					_place(_label("?", 40, Color(1, 1, 1, 0.35)), lock, Vector2.ZERO, lock.size)
+					cell.add_child(lock)
+				grid.add_child(cell)
+			vb.add_child(_center(grid))
+		"bosses":
+			var seen: Array = profile_data.seen_hexes
+			vb.add_child(_label("%d / %d discovered" % [seen.size(), Data.HEXES.size()], 20, Color(1, 1, 1, 0.7)))
+			var grid := GridContainer.new()
+			grid.columns = 2
+			grid.add_theme_constant_override("h_separation", 24)
+			grid.add_theme_constant_override("v_separation", 6)
+			for h in Data.HEXES:
+				var row := HBoxContainer.new()
+				row.add_theme_constant_override("separation", 10)
+				var known := seen.has(h.id)
+				row.add_child(BlindChip.new(h.color.lightened(0.3) if known else Color(0.4, 0.4, 0.4), 40.0))
+				var txt := _label("%s: %s" % [h.name, h.desc] if known else "???", 19, Color.WHITE if known else Color(1, 1, 1, 0.4), HORIZONTAL_ALIGNMENT_LEFT)
+				txt.custom_minimum_size = Vector2(380, 0)
+				txt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				row.add_child(txt)
+				grid.add_child(row)
+			vb.add_child(_center(grid))
+		"stats":
+			var labels := [["Runs", "runs"], ["Wins", "wins"], ["Best ante", "best_ante"], ["Best hand", "best_hand"],
+				["Hands played", "hands_played"], ["Cards played", "cards_played"], ["Money earned", "money_earned"],
+				["Charms bought", "charms_bought"], ["Glass cards shattered", "cards_shattered"]]
+			var box := VBoxContainer.new()
+			box.custom_minimum_size = Vector2(520, 0)
+			for l in labels:
+				_row_label(box, l[0], ("$" if l[1] == "money_earned" else "") + Data.fmt(stats[l[1]]), Color("ffdf6b"))
+			vb.add_child(_center(box))
+		"credits":
+			var v := Engine.get_version_info()
+			vb.add_child(_label("Aleatro", 36, Color.WHITE))
+			vb.add_child(_label("Made with Godot Engine %d.%d" % [v.major, v.minor], 22))
+			vb.add_child(_label("Music, sound and art are generated by the game's own code.", 20, Color(1, 1, 1, 0.7)))
+	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 58), 24)))
 
 
 func show_menu() -> void:
@@ -1538,7 +1746,7 @@ func show_menu() -> void:
 		_save_stats()
 		show_menu(), Vector2(300, 64), 24))
 	grid.add_child(_button("How to play", Color("5a5f73"), show_help, Vector2(300, 64), 24))
-	grid.add_child(_button("Credits", Color("5a5f73"), show_credits, Vector2(300, 64), 24))
+	grid.add_child(_button("Collection", Color("5a5f73"), show_collection, Vector2(300, 64), 24))
 	grid.add_child(_hold_button("Hold: New Run", Data.MULT_COLOR, func():
 		close_modal()
 		new_run()))

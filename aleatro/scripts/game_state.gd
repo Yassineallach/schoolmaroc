@@ -197,3 +197,44 @@ func remove_from_deck(card: Dictionary) -> void:
 		if deck[i].id == card.id:
 			deck.remove_at(i)
 			return
+
+
+# ---------------------------------------------------------------- save / load
+
+const SAVE_FIELDS := [
+	"ante", "blind_idx", "money", "hand_size", "max_hands", "max_discards", "hands_left",
+	"discards_left", "charm_slots", "charms", "hand_levels", "hands_played_count", "deck",
+	"round_score", "target", "endless", "reroll_cost", "best_hand", "shop_charms",
+	"shop_runes", "shop_card", "_last_hex", "_next_id",
+]
+
+
+func to_dict() -> Dictionary:
+	var d := {}
+	for f in SAVE_FIELDS:
+		d[f] = get(f)
+	# Hand and draw pile hold the same card objects as the deck; store ids.
+	d.hand = hand.map(func(c): return c.id)
+	d.draw_pile = draw_pile.map(func(c): return c.id)
+	d.boss = boss_hex.id
+	d.rng_seed = rng.seed
+	d.rng_state = rng.state
+	return d
+
+
+static func from_dict(d: Dictionary) -> GameState:
+	var gs := GameState.new()
+	for f in SAVE_FIELDS:
+		if d.has(f):
+			gs.set(f, d[f])
+	var by_id := {}
+	for c in gs.deck:
+		by_id[c.id] = c
+	gs.hand = d.get("hand", []).filter(func(i): return by_id.has(i)).map(func(i): return by_id[i])
+	gs.draw_pile = d.get("draw_pile", []).filter(func(i): return by_id.has(i)).map(func(i): return by_id[i])
+	for h in Data.HEXES:
+		if h.id == d.get("boss", ""):
+			gs.boss_hex = h
+	gs.rng.seed = d.get("rng_seed", gs.rng.seed)
+	gs.rng.state = d.get("rng_state", gs.rng.state)
+	return gs
