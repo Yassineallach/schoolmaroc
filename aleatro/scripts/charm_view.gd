@@ -42,15 +42,9 @@ func _draw() -> void:
 		var d := Data.charm_def(charm_id)
 		col = Data.RARITY_COLORS[d.rarity]
 		name = d.name
-	var shadow := StyleBoxFlat.new()
-	shadow.bg_color = Color(0, 0, 0, 0.35)
-	shadow.set_corner_radius_all(12)
-	draw_style_box(shadow, Rect2(Vector2(4, 6), size))
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = col
-	sb.set_corner_radius_all(12)
-	sb.set_border_width_all(4)
-	sb.border_color = col.lightened(0.35)
+	var sb := PixelBox.new(col, 4.0, 0.0, true)
+	sb.outline = 4.0
+	sb.outline_color = col.lightened(0.35)
 	draw_style_box(sb, Rect2(Vector2.ZERO, size))
 	# emblem
 	var center := Vector2(size.x / 2, 52)

@@ -34,6 +34,10 @@ var modal: Control
 var controls: HBoxContainer
 var btn_play: Button
 var btn_discard: Button
+var btn_rank: Button
+var btn_suit: Button
+var chosen_marker: Polygon2D
+var jiggle := 0.0
 
 var hand_views: Array = []
 var charm_views: Array = []
@@ -64,24 +68,21 @@ func _make_theme() -> Theme:
 	var t := Theme.new()
 	t.default_font_size = 26
 	t.set_color("font_color", "Label", Color.WHITE)
-	t.set_color("font_outline_color", "Label", Color(0, 0, 0, 0.6))
-	t.set_constant("outline_size", "Label", 4)
+	t.set_color("font_shadow_color", "Label", Color(0, 0, 0, 0.4))
+	t.set_constant("shadow_offset_x", "Label", 2)
+	t.set_constant("shadow_offset_y", "Label", 3)
 	return t
 
 
-func _box(col: Color, radius: int = 14) -> StyleBoxFlat:
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = col
-	sb.set_corner_radius_all(radius)
-	sb.set_content_margin_all(12)
-	return sb
+func _box(col: Color, step: float = 3.0, shadow := false) -> PixelBox:
+	return PixelBox.new(col, step, 0.0, shadow)
 
 
 func _panel(pos: Vector2, sz: Vector2, col: Color, parent: Node = self) -> Panel:
 	var p := Panel.new()
 	p.position = pos
 	p.size = sz
-	p.add_theme_stylebox_override("panel", _box(col))
+	p.add_theme_stylebox_override("panel", _box(col, 3.0, col.a > 0.5))
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(p)
 	return p
@@ -110,12 +111,12 @@ func _button(text: String, col: Color, cb: Callable, min_size := Vector2(160, 76
 	b.text = text
 	b.custom_minimum_size = min_size
 	b.focus_mode = Control.FOCUS_NONE
-	var normal := _box(col, 14)
-	normal.shadow_color = Color(0, 0, 0, 0.35)
-	normal.shadow_offset = Vector2(0, 5)
-	normal.shadow_size = 1
-	var pressed := _box(col.darkened(0.25), 14)
-	var disabled := _box(col.darkened(0.55).lerp(Color(0.3, 0.3, 0.3), 0.5), 14)
+	var normal := PixelBox.new(col, 3.0, 6.0, true)
+	var pressed := PixelBox.new(col.lightened(0.08), 3.0, 6.0, true)
+	pressed.pressed = true
+	var disabled := PixelBox.new(col.darkened(0.55).lerp(Color(0.3, 0.3, 0.3), 0.5), 3.0, 6.0, false)
+	for sb in [normal, pressed, disabled]:
+		sb.content_margin_bottom = 18
 	b.add_theme_stylebox_override("normal", normal)
 	b.add_theme_stylebox_override("hover", normal)
 	b.add_theme_stylebox_override("pressed", pressed)
@@ -126,8 +127,11 @@ func _button(text: String, col: Color, cb: Callable, min_size := Vector2(160, 76
 	b.add_theme_color_override("font_hover_color", Color.WHITE)
 	b.add_theme_color_override("font_pressed_color", Color.WHITE)
 	b.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.4))
+	b.resized.connect(func(): b.pivot_offset = b.size / 2)
 	b.pressed.connect(func():
 		sfx.play("click")
+		juice(b)
+		jiggle += 0.5
 		cb.call())
 	return b
 
@@ -143,7 +147,7 @@ func _build_ui() -> void:
 
 	# Left sidebar: blind, round score, current hand, counters, money
 	var side := _panel(Vector2(0, 0), Vector2(SIDE_W, 720), Color(0, 0, 0, 0.3))
-	side.add_theme_stylebox_override("panel", _box(Color(0, 0, 0, 0.3), 0))
+	side.add_theme_stylebox_override("panel", _box(Color(0, 0, 0, 0.3), 0.0))
 	blind_box = _panel(Vector2(10, 10), Vector2(320, 140), Color("3a7bd5"))
 	lbl_blind = _place(_label("", 30), blind_box, Vector2(0, 4), Vector2(320, 38))
 	_place(_label("Score at least", 20, Color(1, 1, 1, 0.8)), blind_box, Vector2(0, 40), Vector2(320, 24))
@@ -193,8 +197,18 @@ func _build_ui() -> void:
 	btn_play = _button("Play Hand", Data.CHIP_COLOR, play_selected, Vector2(220, 80))
 	btn_discard = _button("Discard", Data.MULT_COLOR, discard_selected, Vector2(220, 80))
 	controls.add_child(btn_play)
-	controls.add_child(_button("Rank", Color("c47b1a"), func(): set_sort("rank"), Vector2(120, 80), 24))
-	controls.add_child(_button("Suit", Color("c47b1a"), func(): set_sort("suit"), Vector2(120, 80), 24))
+	btn_rank = _button("Rank", Color("c47b1a"), func(): set_sort("rank"), Vector2(120, 80), 24)
+	btn_suit = _button("Suit", Color("c47b1a"), func(): set_sort("suit"), Vector2(120, 80), 24)
+	controls.add_child(btn_rank)
+	controls.add_child(btn_suit)
+	chosen_marker = Polygon2D.new()
+	chosen_marker.polygon = PackedVector2Array([Vector2(-11, 0), Vector2(11, 0), Vector2(0, 13)])
+	chosen_marker.color = Data.MULT_COLOR
+	btn_rank.add_child(chosen_marker)
+	_place_marker()
+	var bob := create_tween().set_loops()
+	bob.tween_property(chosen_marker, "offset:y", -5.0, 0.5).set_trans(Tween.TRANS_SINE)
+	bob.tween_property(chosen_marker, "offset:y", 0.0, 0.5).set_trans(Tween.TRANS_SINE)
 	controls.add_child(btn_discard)
 	add_child(controls)
 
@@ -247,6 +261,32 @@ func play_y() -> float:
 	return (TOP_H + hand_y()) / 2.0 - CardView.H / 2.0 - 16.0
 
 
+func _place_marker() -> void:
+	var b := btn_rank if sort_mode == "rank" else btn_suit
+	if chosen_marker.get_parent() != b:
+		chosen_marker.reparent(b, false)
+	chosen_marker.position = Vector2(60, -18)
+
+
+## Quick squash-and-wobble used on taps and score changes.
+func juice(node: Control, amount: float = 0.12) -> void:
+	node.pivot_offset = node.size / 2
+	var tw := create_tween().set_parallel()
+	node.scale = Vector2.ONE * (1.0 + amount)
+	node.rotation_degrees = randf_range(-3.0, 3.0)
+	tw.tween_property(node, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(node, "rotation_degrees", 0.0, 0.3).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+
+
+## Small screen shake that decays every frame.
+func _process(delta: float) -> void:
+	if jiggle > 0.0:
+		jiggle = maxf(0.0, jiggle - delta * 4.0)
+		position = Vector2(randf_range(-1, 1), randf_range(-1, 1)) * jiggle * 4.0
+	elif position != Vector2.ZERO:
+		position = Vector2.ZERO
+
+
 # ---------------------------------------------------------------- HUD
 
 func update_hud() -> void:
@@ -263,7 +303,7 @@ func update_hud() -> void:
 	lbl_blind.text = gs.blind_name(shown_idx)
 	lbl_target.text = Data.fmt(gs.blind_target(shown_idx) if not in_round else gs.target)
 	lbl_reward.text = "Reward: " + "$".repeat(gs.blind_reward(shown_idx))
-	blind_box.add_theme_stylebox_override("panel", _box(gs.blind_color(shown_idx)))
+	blind_box.add_theme_stylebox_override("panel", _box(gs.blind_color(shown_idx), 3.0, true))
 	var boss := gs.blind_idx == 2
 	bg_mat.set_shader_parameter("base_a", gs.boss_hex.color.darkened(0.45) if boss else Color(0.09, 0.30, 0.22))
 	bg_mat.set_shader_parameter("base_b", gs.boss_hex.color.darkened(0.8) if boss else Color(0.04, 0.15, 0.12))
@@ -321,9 +361,12 @@ func popup_text(pos: Vector2, text: String, col: Color, fsize: int = 34) -> void
 
 
 func bump(node: Control, amount: float = 1.18) -> void:
+	node.pivot_offset = node.size / 2
 	var tw := create_tween()
 	tw.tween_property(node, "scale", Vector2(amount, amount), 0.07)
-	tw.tween_property(node, "scale", Vector2.ONE, 0.12)
+	tw.parallel().tween_property(node, "rotation_degrees", randf_range(-4.0, 4.0), 0.07)
+	tw.tween_property(node, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(node, "rotation_degrees", 0.0, 0.25).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 
 func wait(t: float) -> void:
@@ -358,10 +401,10 @@ func open_overlay(full_screen := false) -> VBoxContainer:
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	overlay.add_child(center)
 	var panel := PanelContainer.new()
-	var sb := _box(Color("1d2a33").lerp(Color.BLACK, 0.1), 20)
+	var sb := _box(Color("1d2a33").lerp(Color.BLACK, 0.1), 5.0, true)
 	sb.set_content_margin_all(26)
-	sb.set_border_width_all(3)
-	sb.border_color = Color(1, 1, 1, 0.15)
+	sb.outline = 3.0
+	sb.outline_color = Color(1, 1, 1, 0.2)
 	panel.add_theme_stylebox_override("panel", sb)
 	panel.custom_minimum_size = Vector2(660, 0)
 	center.add_child(panel)
@@ -459,10 +502,10 @@ func show_blind_select() -> void:
 		p.custom_minimum_size = Vector2(250, 190)
 		var current := i == gs.blind_idx
 		var col := gs.blind_color(i)
-		var sb := _box(col if current else col.darkened(0.6), 14)
+		var sb := _box(col if current else col.darkened(0.6), 3.0, current)
 		if current:
-			sb.set_border_width_all(4)
-			sb.border_color = Color.WHITE
+			sb.outline = 4.0
+			sb.outline_color = Color.WHITE
 		p.add_theme_stylebox_override("panel", sb)
 		var inner := VBoxContainer.new()
 		inner.add_theme_constant_override("separation", 4)
@@ -549,6 +592,7 @@ func sort_hand() -> void:
 
 func set_sort(mode: String) -> void:
 	sort_mode = mode
+	_place_marker()
 	if gs == null or not in_round or busy:
 		return
 	sort_hand()
@@ -965,10 +1009,10 @@ func open_modal() -> VBoxContainer:
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	modal.add_child(center)
 	var panel := PanelContainer.new()
-	var sb := _box(Color("22313b"), 20)
+	var sb := _box(Color("22313b"), 5.0, true)
 	sb.set_content_margin_all(26)
-	sb.set_border_width_all(3)
-	sb.border_color = Color(1, 1, 1, 0.2)
+	sb.outline = 3.0
+	sb.outline_color = Color(1, 1, 1, 0.25)
 	panel.add_theme_stylebox_override("panel", sb)
 	panel.custom_minimum_size = Vector2(600, 0)
 	center.add_child(panel)

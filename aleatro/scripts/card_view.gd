@@ -10,8 +10,8 @@ var card: Dictionary
 var selected := false
 var debuffed := false
 
-static var _face_box: StyleBoxFlat
-static var _shadow_box: StyleBoxFlat
+static var _face_box: PixelBox
+static var _select_box: PixelBox
 
 
 func _init(c: Dictionary = {}) -> void:
@@ -21,14 +21,12 @@ func _init(c: Dictionary = {}) -> void:
 	pivot_offset = size / 2
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	if _face_box == null:
-		_face_box = StyleBoxFlat.new()
-		_face_box.bg_color = Color("f7f3ea")
-		_face_box.set_corner_radius_all(10)
-		_face_box.set_border_width_all(2)
-		_face_box.border_color = Color("c9c2b0")
-		_shadow_box = StyleBoxFlat.new()
-		_shadow_box.bg_color = Color(0, 0, 0, 0.35)
-		_shadow_box.set_corner_radius_all(10)
+		_face_box = PixelBox.new(Color("f7f3ea"), 4.0, 0.0, true)
+		_face_box.outline = 2.0
+		_face_box.outline_color = Color("c9c2b0")
+		_select_box = PixelBox.new(Color(0, 0, 0, 0), 4.0)
+		_select_box.outline = 4.0
+		_select_box.outline_color = Color("ffcc33")
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -44,15 +42,11 @@ func set_debuffed(v: bool) -> void:
 
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
-	draw_style_box(_shadow_box, Rect2(Vector2(4, 6), size))
+	# lifted cards cast a longer shadow
+	_face_box.shadow_offset = Vector2(6, 12) if selected else Vector2(3, 6)
 	draw_style_box(_face_box, Rect2(Vector2.ZERO, size))
 	if selected:
-		var sb := StyleBoxFlat.new()
-		sb.draw_center = false
-		sb.set_border_width_all(4)
-		sb.border_color = Color("ffcc33")
-		sb.set_corner_radius_all(10)
-		draw_style_box(sb, Rect2(Vector2.ZERO, size))
+		draw_style_box(_select_box, Rect2(Vector2.ZERO, size))
 	var col: Color = Data.SUIT_COLORS[card.suit]
 	var label: String = Data.RANK_LABELS[card.rank]
 	draw_string(font, Vector2(8, 32), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, col)
@@ -63,11 +57,9 @@ func _draw() -> void:
 	draw_suit(self, card.suit, Vector2(20, 48), 18.0, col)
 	draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
 	if card.rank >= 11 and card.rank <= 13:
-		var inner := StyleBoxFlat.new()
-		inner.bg_color = col.lightened(0.75)
-		inner.set_corner_radius_all(6)
-		inner.set_border_width_all(2)
-		inner.border_color = col
+		var inner := PixelBox.new(col.lightened(0.75), 2.0)
+		inner.outline = 2.0
+		inner.outline_color = col
 		draw_style_box(inner, Rect2(30, 34, 40, 72))
 		draw_string(font, Vector2(30, 82), label, HORIZONTAL_ALIGNMENT_CENTER, 40, 34, col)
 	else:
