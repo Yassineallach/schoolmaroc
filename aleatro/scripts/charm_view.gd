@@ -10,6 +10,8 @@ const H := 150.0
 
 var charm_id := ""
 var rune_hand := ""
+var float_amount := 1.0
+var _phase := randf() * TAU
 
 
 func _init(id: String = "", rune: String = "") -> void:
@@ -27,6 +29,11 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 
 
+func _process(_delta: float) -> void:
+	if float_amount > 0.0 and is_visible_in_tree():
+		queue_redraw()
+
+
 func title() -> String:
 	return "Rune: " + rune_hand if rune_hand != "" else Data.charm_def(charm_id).name
 
@@ -42,7 +49,9 @@ func _draw() -> void:
 		var d := Data.charm_def(charm_id)
 		col = Data.RARITY_COLORS[d.rarity]
 		name = d.name
+	draw_set_transform_matrix(Anim.float_xform(size, _phase, float_amount))
 	var sb := PixelBox.new(col, 4.0, 0.0, true)
+	sb.shadow_offset = Vector2(3, 5) + Vector2(1, 3) * Anim.lift(_phase, float_amount)
 	sb.outline = 4.0
 	sb.outline_color = col.lightened(0.35)
 	draw_style_box(sb, Rect2(Vector2.ZERO, size))

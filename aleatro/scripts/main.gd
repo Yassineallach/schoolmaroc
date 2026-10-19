@@ -14,6 +14,7 @@ var lbl_blind: Label
 var lbl_target: Label
 var lbl_reward: Label
 var blind_box: Panel
+var blind_chip: BlindChip
 var lbl_round_score: Label
 var lbl_ante: Label
 var lbl_money: Label
@@ -153,6 +154,9 @@ func _build_ui() -> void:
 	_place(_label("Score at least", 20, Color(1, 1, 1, 0.8)), blind_box, Vector2(0, 40), Vector2(320, 24))
 	lbl_target = _place(_label("", 38, Color("ffdf6b")), blind_box, Vector2(0, 62), Vector2(320, 44))
 	lbl_reward = _place(_label("", 22, Data.MONEY_COLOR), blind_box, Vector2(0, 104), Vector2(320, 30))
+	blind_chip = BlindChip.new(Color.WHITE, 58.0)
+	blind_chip.position = Vector2(10, 46)
+	blind_box.add_child(blind_chip)
 
 	var score_box := _panel(Vector2(10, 160), Vector2(320, 70), Color(0, 0, 0, 0.35))
 	_place(_label("Round score", 22, Color(1, 1, 1, 0.8), HORIZONTAL_ALIGNMENT_LEFT), score_box, Vector2(14, 0), Vector2(140, 70))
@@ -304,6 +308,7 @@ func update_hud() -> void:
 	lbl_target.text = Data.fmt(gs.blind_target(shown_idx) if not in_round else gs.target)
 	lbl_reward.text = "Reward: " + "$".repeat(gs.blind_reward(shown_idx))
 	blind_box.add_theme_stylebox_override("panel", _box(gs.blind_color(shown_idx), 3.0, true))
+	blind_chip.color = gs.blind_color(shown_idx).lightened(0.3)
 	var boss := gs.blind_idx == 2
 	bg_mat.set_shader_parameter("base_a", gs.boss_hex.color.darkened(0.45) if boss else Color(0.09, 0.30, 0.22))
 	bg_mat.set_shader_parameter("base_b", gs.boss_hex.color.darkened(0.8) if boss else Color(0.04, 0.15, 0.12))
@@ -445,6 +450,7 @@ func show_title() -> void:
 	for i in 5:
 		var cv := CardView.new({"rank": [14, 13, 12, 11, 10][i], "suit": [1, 0, 3, 2, 1][i], "id": -1})
 		cv.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		cv.float_amount = 1.2
 		cv.rotation_degrees = (i - 2) * 6
 		cards.add_child(cv)
 	vb.add_child(cards)
@@ -515,6 +521,7 @@ func show_blind_select() -> void:
 		elif current:
 			state = "Up next"
 		inner.add_child(_label(state, 18, Color(1, 1, 1, 0.75)))
+		inner.add_child(_center(BlindChip.new(col.lightened(0.3), 60.0)))
 		inner.add_child(_label(gs.blind_name(i), 30))
 		inner.add_child(_label("Score at least", 18, Color(1, 1, 1, 0.8)))
 		inner.add_child(_label(Data.fmt(gs.blind_target(i)), 30, Color("ffdf6b")))

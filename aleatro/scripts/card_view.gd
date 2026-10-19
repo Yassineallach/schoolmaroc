@@ -9,6 +9,8 @@ const H := 140.0
 var card: Dictionary
 var selected := false
 var debuffed := false
+var float_amount := 0.5
+var _phase := randf() * TAU
 
 static var _face_box: PixelBox
 static var _select_box: PixelBox
@@ -35,6 +37,11 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 
 
+func _process(_delta: float) -> void:
+	if float_amount > 0.0 and is_visible_in_tree():
+		queue_redraw()
+
+
 func set_debuffed(v: bool) -> void:
 	debuffed = v
 	queue_redraw()
@@ -42,8 +49,12 @@ func set_debuffed(v: bool) -> void:
 
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
+	var amount := float_amount * (2.0 if selected else 1.0)
+	var base := Anim.float_xform(size, _phase, amount)
+	draw_set_transform_matrix(base)
 	# lifted cards cast a longer shadow
-	_face_box.shadow_offset = Vector2(6, 12) if selected else Vector2(3, 6)
+	var lift := Anim.lift(_phase, amount)
+	_face_box.shadow_offset = (Vector2(6, 12) if selected else Vector2(3, 6)) + Vector2(1, 3) * lift
 	draw_style_box(_face_box, Rect2(Vector2.ZERO, size))
 	if selected:
 		draw_style_box(_select_box, Rect2(Vector2.ZERO, size))
@@ -52,10 +63,10 @@ func _draw() -> void:
 	draw_string(font, Vector2(8, 32), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, col)
 	draw_suit(self, card.suit, Vector2(20, 48), 18.0, col)
 	# bottom-right mirror
-	draw_set_transform(size, PI, Vector2.ONE)
+	draw_set_transform_matrix(base * Transform2D(PI, size))
 	draw_string(font, Vector2(8, 32), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, col)
 	draw_suit(self, card.suit, Vector2(20, 48), 18.0, col)
-	draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+	draw_set_transform_matrix(base)
 	if card.rank >= 11 and card.rank <= 13:
 		var inner := PixelBox.new(col.lightened(0.75), 2.0)
 		inner.outline = 2.0
