@@ -12,6 +12,8 @@ var hands_left := 4
 var discards_left := 3
 var charm_slots := 5
 var charms: Array = []  # [{id, data}]
+var spells: Array = []  # spell ids
+var spell_slots := 2
 var hand_levels := {}
 var hands_played_count := {}
 var deck: Array = []
@@ -25,6 +27,7 @@ var reroll_cost := 5
 var best_hand := 0
 var shop_charms: Array = []
 var shop_runes: Array = []
+var shop_spells: Array = []
 var _last_hex := ""
 var _next_id := 0
 var shop_card: Dictionary = {}
@@ -258,7 +261,13 @@ func roll_shop() -> void:
 	shop_runes = []
 	var hands := Data.HAND_ORDER.duplicate()
 	shuffle(hands)
-	shop_runes = [hands[0]]
+	# The magic slot holds either a rune or a spell.
+	shop_runes = []
+	shop_spells = []
+	if rng.randf() < 0.5:
+		shop_runes = [hands[0]]
+	else:
+		shop_spells = [Data.SPELLS[rng.randi_range(0, Data.SPELLS.size() - 1)].id]
 	roll_shop_card()
 
 
@@ -267,6 +276,56 @@ func sell_value(inst: Dictionary) -> int:
 	if inst.get("ed", "") != "":
 		cost += Data.EDITIONS[inst.ed].cost
 	return maxi(1, cost / 2)
+
+
+## Why a spell can't be cast on these cards right now, or "".
+func spell_blocked(id: String, selected: Array, in_round: bool) -> String:
+	var d := Data.spell_def(id)
+	if d.max == 0:
+		return ""
+	if not in_round:
+		return "Cast it during a round, on cards in your hand"
+	if selected.is_empty():
+		return "Select up to %d card%s first" % [d.max, "" if d.max == 1 else "s"]
+	if selected.size() > d.max:
+		return "Select at most %d card%s" % [d.max, "" if d.max == 1 else "s"]
+	if selected.size() < d.get("min", 1):
+		return "Select exactly %d cards" % d.min
+	return ""
+
+
+## Apply a spell to the selected cards (in hand order). Returns cards removed.
+func cast_spell(id: String, selected: Array) -> Array:
+	var d := Data.spell_def(id)
+	var removed := []
+	if d.has("enh"):
+		for c in selected:
+			c.enh = d.enh
+	elif d.has("suit"):
+		for c in selected:
+			c.suit = d.suit
+	else:
+		match id:
+			"ascend":
+				for c in selected:
+					c.rank = 2 if c.rank == 14 else c.rank + 1
+			"purge":
+				for c in selected:
+					remove_from_deck(c)
+					hand.erase(c)
+					removed.append(c)
+			"mirror":
+				var left: Dictionary = selected[0]
+				var right: Dictionary = selected[1]
+				for k in ["rank", "suit", "enh", "ed", "seal"]:
+					left[k] = right[k]
+			"sigil":
+				for c in selected:
+					c.seal = "crimson"
+			"windfall":
+				money += mini(money, 20)
+	spells.erase(id)
+	return removed
 
 
 func remove_from_deck(card: Dictionary) -> void:
@@ -282,7 +341,7 @@ const SAVE_FIELDS := [
 	"ante", "blind_idx", "money", "hand_size", "max_hands", "max_discards", "hands_left",
 	"discards_left", "charm_slots", "charms", "hand_levels", "hands_played_count", "deck",
 	"round_score", "target", "endless", "reroll_cost", "best_hand", "shop_charms",
-	"shop_runes", "shop_card", "_last_hex", "_next_id", "boss_state",
+	"shop_runes", "shop_card", "_last_hex", "_next_id", "boss_state", "spells", "shop_spells",
 ]
 
 

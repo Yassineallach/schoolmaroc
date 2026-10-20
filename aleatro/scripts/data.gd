@@ -85,6 +85,36 @@ const SEALS := {
 	"golden": {"name": "Golden Seal", "desc": "Earn $3 when this card is scored", "color": Color("f2b415")},
 }
 
+# Spells: held in two slots and cast on the cards selected in hand.
+# max = most cards it can target; 0 = no target needed.
+const SPELLS := [
+	{"id": "etch", "name": "Etch", "desc": "Make up to 2 selected cards Etched", "max": 2, "enh": "etched"},
+	{"id": "charge", "name": "Charge", "desc": "Make up to 2 selected cards Charged", "max": 2, "enh": "charged"},
+	{"id": "glaze", "name": "Glaze", "desc": "Make 1 selected card Glass", "max": 1, "enh": "glass"},
+	{"id": "forge", "name": "Forge", "desc": "Make 1 selected card Iron", "max": 1, "enh": "iron"},
+	{"id": "gild", "name": "Gild", "desc": "Make 1 selected card Gilded", "max": 1, "enh": "gilded"},
+	{"id": "clover", "name": "Clover", "desc": "Make up to 2 selected cards Lucky", "max": 2, "enh": "lucky"},
+	{"id": "bloom", "name": "Bloom", "desc": "Turn up to 3 selected cards into Hearts", "max": 3, "suit": 1},
+	{"id": "shade", "name": "Shade", "desc": "Turn up to 3 selected cards into Spades", "max": 3, "suit": 0},
+	{"id": "bramble", "name": "Bramble", "desc": "Turn up to 3 selected cards into Clubs", "max": 3, "suit": 2},
+	{"id": "kindle", "name": "Kindle", "desc": "Turn up to 3 selected cards into Diamonds", "max": 3, "suit": 3},
+	{"id": "ascend", "name": "Ascend", "desc": "Raise up to 2 selected cards by one rank", "max": 2},
+	{"id": "purge", "name": "Purge", "desc": "Destroy up to 2 selected cards", "max": 2},
+	{"id": "mirror", "name": "Mirror", "desc": "Select 2 cards: the left one becomes a copy of the right one", "max": 2, "min": 2},
+	{"id": "sigil", "name": "Sigil", "desc": "Add a Crimson Seal to 1 selected card", "max": 1},
+	{"id": "windfall", "name": "Windfall", "desc": "Double your money (up to +$20)", "max": 0},
+]
+const SPELL_COLOR := Color("2f7f6f")
+const SPELL_COST := 3
+
+
+static func spell_def(id: String) -> Dictionary:
+	for s in SPELLS:
+		if s.id == id:
+			return s
+	return {}
+
+
 const RARITY_COLORS := [Color("4a6fa5"), Color("3f9a5a"), Color("b8334a")]
 const RARITY_NAMES := ["Common", "Uncommon", "Rare"]
 const RUNE_COLOR := Color("6c4ab6")

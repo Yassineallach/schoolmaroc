@@ -3,7 +3,8 @@ extends Control
 const MAX_SELECT := 5
 const SIDE_W := 340.0  # left sidebar width
 const CHARM_H := 160.0
-const TOP_H := 180.0  # charm row; table overlays start below it
+const TOP_H := 180.0
+const SPELL_AREA := 230.0  # spell slots, right of the charm row  # charm row; table overlays start below it
 
 var gs: GameState
 var sfx: Sfx
@@ -30,6 +31,14 @@ var lbl_charm_count: Label
 var charm_row: Control
 var table_catcher: Control
 var charm_bg: Panel
+var spell_bg: Panel
+var spell_row: Control
+var spell_views: Array = []
+var lbl_spell_count: Label
+var deck_pile: PileView
+var discard_pile: PileView
+var hand_panel: Panel
+var lbl_hand_count: Label
 var hand_layer: Control
 var fx_layer: Control
 var overlay: Control
@@ -56,7 +65,7 @@ var vw := 1280.0
 var vh := 720.0
 const STAT_DEFAULTS := {
 	"runs": 0, "wins": 0, "best_ante": 0, "best_hand": 0, "hands_played": 0,
-	"cards_played": 0, "money_earned": 0, "charms_bought": 0, "cards_shattered": 0,
+	"cards_played": 0, "money_earned": 0, "charms_bought": 0, "cards_shattered": 0, "spells_cast": 0,
 }
 var stats := STAT_DEFAULTS.duplicate()
 var saves: SaveManager
@@ -226,6 +235,18 @@ func _build_ui() -> void:
 	charm_row.position = Vector2(SIDE_W + 10, 10)
 	add_child(charm_row)
 	lbl_charm_count = _place(_label("0/5", 18, Color(1, 1, 1, 0.7), HORIZONTAL_ALIGNMENT_RIGHT), charm_bg, Vector2(0, CHARM_H - 26), Vector2(0, 24))
+	spell_bg = _panel(Vector2(0, 10), Vector2(SPELL_AREA, CHARM_H), Color(0.05, 0.25, 0.2, 0.35))
+	spell_row = Control.new()
+	add_child(spell_row)
+	lbl_spell_count = _place(_label("0/2", 18, Color(1, 1, 1, 0.7), HORIZONTAL_ALIGNMENT_RIGHT), spell_bg, Vector2(SPELL_AREA - 120, CHARM_H - 26), Vector2(110, 24))
+
+	hand_panel = _panel(Vector2.ZERO, Vector2.ONE, Color(0, 0, 0, 0.14))
+	lbl_hand_count = _place(_label("", 18, Color(1, 1, 1, 0.6), HORIZONTAL_ALIGNMENT_LEFT), hand_panel, Vector2(12, 0), Vector2(160, 24))
+	deck_pile = PileView.new(false)
+	deck_pile.tapped.connect(show_deck)
+	add_child(deck_pile)
+	discard_pile = PileView.new(true)
+	add_child(discard_pile)
 
 	# Tapping empty table space clears the selection.
 	table_catcher = Control.new()
@@ -288,12 +309,23 @@ func _on_resize() -> void:
 	vh = s.y
 	bg_mat.set_shader_parameter("aspect", vw / vh)
 	var mw := main_w()
-	charm_bg.size = Vector2(mw - 20, CHARM_H)
+	charm_bg.size = Vector2(mw - 30 - SPELL_AREA, CHARM_H)
 	charm_row.size = charm_bg.size
-	lbl_charm_count.position = Vector2(mw - 140, CHARM_H - 26)
+	spell_bg.position = Vector2(vw - 10 - SPELL_AREA, 10)
+	spell_row.position = spell_bg.position
+	spell_row.size = spell_bg.size
+	hand_panel.position = Vector2(SIDE_W + 10, hand_y() - 46)
+	hand_panel.size = Vector2(mw - 20, CardView.H + 58)
+	lbl_hand_count.position = Vector2(12, hand_panel.size.y - 26)
+	deck_pile.position = Vector2(vw - PileView.W - 18, play_y())
+	discard_pile.position = Vector2(SIDE_W + 18, play_y())
+	if gs != null:
+		rebuild_spells()
+	lbl_charm_count.position = Vector2(charm_bg.size.x - 120, CHARM_H - 26)
 	lbl_charm_count.size = Vector2(110, 24)
-	table_catcher.position = Vector2(SIDE_W, TOP_H)
-	table_catcher.size = Vector2(mw, vh - TOP_H - 104)
+	# between the two piles, so taps on them still reach them
+	table_catcher.position = Vector2(SIDE_W + PileView.W + 30, TOP_H)
+	table_catcher.size = Vector2(mw - 2 * (PileView.W + 30), vh - TOP_H - 104)
 	controls.position = Vector2(SIDE_W, vh - 94)
 	controls.size = Vector2(mw, 80)
 	_fit_overlay()
@@ -358,6 +390,11 @@ func update_hud() -> void:
 	lbl_round_score.text = Data.fmt(gs.round_score)
 	btn_deck.text = "Deck %d/%d" % [gs.draw_pile.size() if in_round else gs.deck.size(), gs.deck.size()]
 	lbl_charm_count.text = "%d/%d" % [gs.charms.size(), gs.charm_slots]
+	lbl_spell_count.text = "%d/%d" % [gs.spells.size(), gs.spell_slots]
+	lbl_hand_count.text = "Hand %d/%d" % [hand_views.size(), gs.current_hand_size()] if in_round else ""
+	deck_pile.visible = true
+	discard_pile.visible = true
+	deck_pile.set_count(gs.draw_pile.size() if in_round else gs.deck.size(), gs.deck.size())
 	var shown_idx := gs.blind_idx
 	lbl_blind.text = gs.blind_name(shown_idx)
 	lbl_target.text = Data.fmt(gs.blind_target(shown_idx) if not in_round else gs.target)
@@ -431,6 +468,101 @@ func refresh_charm_states() -> void:
 		elif not v.face_up:
 			v.flip_up(0.05 * i)
 		v.queue_redraw()
+
+
+func rebuild_spells() -> void:
+	for v in spell_views:
+		v.queue_free()
+	spell_views = []
+	if gs == null:
+		return
+	for i in gs.spells.size():
+		var v := SpellView.new(gs.spells[i])
+		v.position = Vector2(12 + i * (SpellView.W + 14), (CHARM_H - SpellView.H) / 2.0 - 6)
+		v.tapped.connect(show_spell)
+		spell_row.add_child(v)
+		spell_views.append(v)
+	update_hud()
+
+
+func show_spell(v: SpellView) -> void:
+	var d := Data.spell_def(v.spell_id)
+	var targets: Array = selected_views().map(func(h): return h.card)
+	var why := gs.spell_blocked(v.spell_id, targets, in_round)
+	var vb := open_modal()
+	vb.add_child(_label(d.name, 40, Color("9fe3cf")))
+	vb.add_child(_label("Spell", 20, Color(1, 1, 1, 0.6)))
+	var desc := _label(d.desc, 26)
+	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc.custom_minimum_size = Vector2(520, 0)
+	vb.add_child(desc)
+	if why != "":
+		vb.add_child(_label(why, 20, Color("ffb37a")))
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 14)
+	var use := _button("Cast", Data.SPELL_COLOR, func():
+		close_modal()
+		cast_spell(v), Vector2(170, 70), 26)
+	use.disabled = why != "" or (busy and in_round)
+	row.add_child(use)
+	row.add_child(_button("Sell $1", Color("3f9a5a"), func():
+		gs.money += 1
+		gs.spells.erase(v.spell_id)
+		sfx.play("coin")
+		close_modal()
+		rebuild_spells()
+		if _shop_open:
+			show_shop(), Vector2(150, 70), 24))
+	row.add_child(_button("Close", Color("5a5f73"), close_modal, Vector2(150, 70), 24))
+	vb.add_child(row)
+	vb.add_child(_label("Select cards in your hand first, then cast.", 18, Color(1, 1, 1, 0.5)))
+
+
+## Cast a spell on the selected cards with a flourish.
+func cast_spell(v: SpellView) -> void:
+	var sel := selected_views()
+	var targets: Array = sel.map(func(h): return h.card)
+	if gs.spell_blocked(v.spell_id, targets, in_round) != "":
+		return
+	busy = true
+	var id := v.spell_id
+	stats.spells_cast += 1
+	spell_views.erase(v)
+	var tw := create_tween().set_parallel()
+	tw.tween_property(v, "global_position", Vector2(main_cx(), play_y()) - v.size / 2, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(v, "scale", Vector2(1.4, 1.4), 0.3)
+	sfx.play("xmult", 1.2)
+	await tw.finished
+	await wait(0.15)
+	var before_money := gs.money
+	var removed := gs.cast_spell(id, targets)
+	var vt := create_tween()
+	vt.tween_property(v, "modulate:a", 0.0, 0.25)
+	vt.tween_callback(v.queue_free)
+	for h in sel:
+		if removed.has(h.card):
+			hand_views.erase(h)
+			h.dissolve()
+		else:
+			h.selected = false
+			h.flip_up(0.0)
+			juice(h, 0.2)
+	if gs.money != before_money:
+		popup_text(Vector2(main_cx(), play_y()), "+$%d" % (gs.money - before_money), Data.MONEY_COLOR, 40)
+		sfx.play("coin")
+	haptic(30, 0.5)
+	jiggle += 0.8
+	await wait(0.4)
+	gs.hand = hand_views.map(func(h): return h.card)
+	rebuild_spells()
+	layout_hand(true)
+	if in_round:
+		busy = false
+		update_hud()
+		save_run("round")
+	elif _shop_open:
+		show_shop()
 
 
 func layout_charms(animate: bool) -> void:
@@ -670,6 +802,8 @@ func new_run() -> void:
 	saves.delete_run()
 	clear_hand_views()
 	rebuild_charms()
+	rebuild_spells()
+	discard_pile.clear()
 	lbl_hand_name.text = ""
 	lbl_chips.text = "0"
 	lbl_mult.text = "0"
@@ -746,6 +880,11 @@ func start_blind() -> void:
 	rebuild_charms()
 	if gs.blind_idx != 2:
 		popup_text(Vector2(main_cx(), play_y() + 60), gs.blind_name(), Color.WHITE, 44)
+	discard_pile.clear()
+	deck_pile.shuffle()
+	for i in 3:
+		sfx.play("deal", 0.7 + 0.1 * i)
+	await wait(0.5)
 	await deal()
 	if gs.hex() != "":
 		await announce_boss()
@@ -753,6 +892,18 @@ func start_blind() -> void:
 	update_hud()
 	save_run("round")
 	tutorial("hand", "Tap up to 5 cards to make a poker hand, then press Play Hand. Your score is Chips x Mult, so stronger hands score more.")
+
+
+## Fly a card onto the discard heap, then drop its view.
+func send_to_discard(v: CardView, delay := 0.0) -> void:
+	v.z_index = 60
+	var tw := create_tween().set_parallel()
+	tw.tween_property(v, "position", discard_pile.card_target() + Vector2(randf_range(-6, 6), randf_range(-6, 6)), 0.28).set_delay(delay).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(v, "rotation_degrees", randf_range(-25, 25), 0.28).set_delay(delay)
+	tw.tween_property(v, "scale", Vector2(PileView.W / CardView.W, PileView.W / CardView.W), 0.28).set_delay(delay)
+	tw.chain().tween_callback(func():
+		discard_pile.add(v.card)
+		v.queue_free())
 
 
 func clear_hand_views() -> void:
@@ -766,8 +917,8 @@ func clear_hand_views() -> void:
 func _make_hand_view(c: Dictionary) -> CardView:
 	var v := CardView.new(c)
 	v.set_debuffed(gs.is_debuffed(c))
-	v.position = Vector2(vw - 60, vh - 120)
-	v.rotation_degrees = 30
+	v.position = deck_pile.card_target()
+	v.rotation_degrees = -8
 	v.face_up = false
 	v.tapped.connect(_on_card_tapped)
 	v.held.connect(show_card_info)
@@ -1059,11 +1210,7 @@ func play_selected() -> void:
 		await wait(0.4)
 	# Clear played cards.
 	for i in sel.size():
-		var v: CardView = sel[i]
-		var t2 := create_tween().set_parallel()
-		t2.tween_property(v, "position", Vector2(vw + 40, play_y() - 80), 0.25).set_delay(i * 0.04)
-		t2.tween_property(v, "rotation_degrees", 40.0, 0.25).set_delay(i * 0.04)
-		t2.chain().tween_callback(v.queue_free)
+		send_to_discard(sel[i], i * 0.05)
 	gs.hand = hand_views.map(func(v): return v.card)
 	lbl_chips.text = "0"
 	lbl_mult.text = "0"
@@ -1081,9 +1228,7 @@ func play_selected() -> void:
 				break
 			var v: CardView = hand_views[gs.rng.randi_range(0, hand_views.size() - 1)]
 			hand_views.erase(v)
-			var t3 := create_tween()
-			t3.tween_property(v, "position", Vector2(vw + 40, v.position.y), 0.25)
-			t3.tween_callback(v.queue_free)
+			send_to_discard(v)
 		popup_text(Vector2(main_cx(), play_y() + 60), "The Grip!", gs.boss_hex.color.lightened(0.3), 36)
 		gs.hand = hand_views.map(func(v): return v.card)
 		await wait(0.3)
@@ -1112,10 +1257,7 @@ func discard_selected() -> void:
 	for i in sel.size():
 		var v: CardView = sel[i]
 		hand_views.erase(v)
-		var tw := create_tween().set_parallel()
-		tw.tween_property(v, "position", Vector2(vw + 40, v.position.y - 60), 0.22).set_delay(i * 0.04)
-		tw.tween_property(v, "rotation_degrees", 30.0, 0.22).set_delay(i * 0.04)
-		tw.chain().tween_callback(v.queue_free)
+		send_to_discard(v, i * 0.04)
 	gs.hand = hand_views.map(func(v): return v.card)
 	update_hud()
 	await wait(0.25)
@@ -1135,6 +1277,9 @@ func win_round() -> void:
 	for v in hand_views:
 		if v.card.get("enh", "") == "gilded" and not gs.is_debuffed(v.card):
 			gilded += 3
+	for i in hand_views.size():
+		send_to_discard(hand_views[i], i * 0.03)
+	hand_views = []
 	clear_hand_views()
 	lbl_hand_name.text = ""
 	var reward := gs.blind_reward()
@@ -1262,6 +1407,9 @@ func show_shop() -> void:
 		var h: String = gs.shop_runes[i]
 		var b: Array = Data.HAND_BASE[h]
 		grid.add_child(_shop_item(CharmView.new("", h), Data.RUNE_COST, "Level up %s\n+%d Chips +%d Mult" % [h, b[2], b[3]], "Rune", func(): buy_rune(i)))
+	for i in gs.shop_spells.size():
+		var sd := Data.spell_def(gs.shop_spells[i])
+		grid.add_child(_shop_item(SpellView.new(sd.id), Data.SPELL_COST, sd.desc, "Spell", func(): buy_spell(i)))
 	if not gs.shop_card.is_empty():
 		var c: Dictionary = gs.shop_card.card
 		var cv := CardView.new(c)
@@ -1330,6 +1478,21 @@ func buy_card() -> void:
 	sfx.play("coin")
 	show_shop()
 	popup_text(Vector2(main_cx(), TOP_H + 40), "Added to deck (%d cards)" % gs.deck.size(), Color.WHITE, 30)
+
+
+func buy_spell(i: int) -> void:
+	if gs.money < Data.SPELL_COST:
+		return
+	if gs.spells.size() >= gs.spell_slots:
+		popup_text(Vector2(main_cx(), TOP_H + 40), "No room for more spells", Color.WHITE, 28)
+		return
+	gs.money -= Data.SPELL_COST
+	gs.spells.append(gs.shop_spells[i])
+	gs.shop_spells.remove_at(i)
+	sfx.play("xmult", 1.3)
+	rebuild_spells()
+	show_shop()
+	tutorial("spell", "Spells wait in the slots at the top right. Select cards in your hand during a round, then tap a spell to cast it on them.")
 
 
 func buy_rune(i: int) -> void:
@@ -1784,6 +1947,7 @@ func resume_run() -> void:
 	clear_hand_views()
 	manual_order = d.get("manual_order", false)
 	rebuild_charms()
+	rebuild_spells()
 	lbl_hand_name.text = ""
 	match d.get("screen", "blind"):
 		"shop":
@@ -2027,7 +2191,7 @@ func show_collection(tab: String = "charms") -> void:
 		"stats":
 			var labels := [["Runs", "runs"], ["Wins", "wins"], ["Best ante", "best_ante"], ["Best hand", "best_hand"],
 				["Hands played", "hands_played"], ["Cards played", "cards_played"], ["Money earned", "money_earned"],
-				["Charms bought", "charms_bought"], ["Glass cards shattered", "cards_shattered"]]
+				["Charms bought", "charms_bought"], ["Spells cast", "spells_cast"], ["Glass cards shattered", "cards_shattered"]]
 			var box := VBoxContainer.new()
 			box.custom_minimum_size = Vector2(520, 0)
 			for l in labels:

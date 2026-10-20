@@ -142,7 +142,7 @@ func _focusables_for_layer() -> Array:
 		"overlay":
 			var list := _buttons(main.overlay)
 			if not main._overlay_full:
-				list += main.charm_views
+				list += main.charm_views + main.spell_views
 			return list
 	var list := []
 	if main.in_round:
@@ -150,6 +150,8 @@ func _focusables_for_layer() -> Array:
 	list += _buttons(main.controls)
 	list += main.sidebar_buttons
 	list += main.charm_views
+	list += main.spell_views
+	list += [main.deck_pile]
 	return list.filter(func(c): return is_instance_valid(c) and c.is_visible_in_tree() and not (c is BaseButton and c.disabled))
 
 
@@ -258,6 +260,10 @@ func _accept_pressed() -> void:
 			focused.pressed.emit()
 	elif focused is CharmView:
 		main._on_charm_tapped(focused)
+	elif focused is SpellView:
+		main.show_spell(focused)
+	elif focused is PileView:
+		main.show_deck()
 
 
 func _accept_released() -> void:
