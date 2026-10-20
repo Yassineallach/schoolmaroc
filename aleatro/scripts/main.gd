@@ -445,6 +445,7 @@ func rebuild_charms() -> void:
 	for i in n:
 		var v := CharmView.new(gs.charms[i].id, "", gs.charms[i].get("ed", ""))
 		v.set_meta("inst", gs.charms[i])
+		v.locked = gs.charms[i].get("locked", false)
 		v.tapped.connect(_on_charm_tapped)
 		v.held.connect(_on_charm_tapped)
 		v.drag_started.connect(_on_drag_start)
@@ -762,6 +763,7 @@ func show_title() -> void:
 	row.add_theme_constant_override("separation", 14)
 	row.add_child(_button("How to play", Color("5a5f73"), show_help, Vector2(200, 64), 24))
 	row.add_child(_button("Collection", Color("5a5f73"), show_collection, Vector2(200, 64), 24))
+	row.add_child(_button("Challenges", Color("b3364e"), show_challenges, Vector2(200, 64), 24))
 	row.add_child(_button("Profile %d" % saves.profile, Color("7b4fa0"), func():
 		saves.profile = saves.profile % SaveManager.PROFILES + 1
 		saves.save_settings(settings)
@@ -793,10 +795,13 @@ func _center(c: Control) -> Control:
 	return c
 
 
-func new_run() -> void:
+func new_run(challenge_id: String = "") -> void:
 	on_title = false
 	music.pitch_target = 1.0
 	gs = GameState.new()
+	if challenge_id != "":
+		gs.apply_challenge(challenge_id)
+		toast("Challenge: " + Data.challenge_def(challenge_id).name)
 	stats.runs += 1
 	_save_stats()
 	saves.delete_run()
@@ -1093,6 +1098,10 @@ func play_selected() -> void:
 		if c.id == "snowball":
 			c.data.m = c.data.get("m", 0) + 1
 	var blocked := gs.hand_blocked(ev, played)
+	if gs.rules.get("played_debuffed", false):
+		for c in played:
+			if not gs.played_this_ante.has(c.id):
+				gs.played_this_ante.append(c.id)
 	var result := {"events": [], "shatter": []}
 	if blocked != "":
 		juice(blind_chip, 0.3)
@@ -1252,8 +1261,15 @@ func discard_selected() -> void:
 	var sel := selected_views()
 	if sel.is_empty():
 		return
+	var cost: int = gs.rules.get("discard_cost", 0)
+	if gs.money < cost:
+		popup_text(Vector2(main_cx(), play_y() + 60), "Discarding costs $%d" % cost, Color.WHITE, 28)
+		return
 	busy = true
 	gs.discards_left -= 1
+	if cost > 0:
+		gs.money -= cost
+		popup_text(Vector2(main_cx(), play_y() + 60), "-$%d" % cost, Data.MONEY_COLOR, 32)
 	for i in sel.size():
 		var v: CardView = sel[i]
 		hand_views.erase(v)
@@ -1283,7 +1299,7 @@ func win_round() -> void:
 	clear_hand_views()
 	lbl_hand_name.text = ""
 	var reward := gs.blind_reward()
-	var per_hand := gs.hands_left
+	var per_hand := 0 if gs.rules.get("no_hand_money", false) else gs.hands_left
 	var interest := gs.interest()
 	var charm_cash := 0
 	for c in gs.charms:
@@ -1360,6 +1376,13 @@ func game_over() -> void:
 
 func show_victory() -> void:
 	busy = true
+	if gs.challenge != "":
+		if not profile_data.has("challenges_won"):
+			profile_data.challenges_won = []
+		if not profile_data.challenges_won.has(gs.challenge):
+			profile_data.challenges_won.append(gs.challenge)
+			_save_stats()
+		toast("Challenge complete: " + Data.challenge_def(gs.challenge).name)
 	saves.delete_run()
 	music.set_track("shop")
 	var vb := open_overlay(true)
@@ -1402,19 +1425,19 @@ func show_shop() -> void:
 		var desc: String = d.desc
 		if d.get("ed", "") != "":
 			desc = "%s\n%s: %s" % [d.desc, Data.EDITIONS[d.ed].name, Data.EDITIONS[d.ed].desc]
-		grid.add_child(_shop_item(CharmView.new(d.id, "", d.get("ed", "")), d.cost, desc, Data.RARITY_NAMES[d.rarity], func(): buy_charm(i)))
+		grid.add_child(_shop_item(CharmView.new(d.id, "", d.get("ed", "")), gs.price(d.cost), desc, Data.RARITY_NAMES[d.rarity], func(): buy_charm(i)))
 	for i in gs.shop_runes.size():
 		var h: String = gs.shop_runes[i]
 		var b: Array = Data.HAND_BASE[h]
-		grid.add_child(_shop_item(CharmView.new("", h), Data.RUNE_COST, "Level up %s\n+%d Chips +%d Mult" % [h, b[2], b[3]], "Rune", func(): buy_rune(i)))
+		grid.add_child(_shop_item(CharmView.new("", h), gs.price(Data.RUNE_COST), "Level up %s\n+%d Chips +%d Mult" % [h, b[2], b[3]], "Rune", func(): buy_rune(i)))
 	for i in gs.shop_spells.size():
 		var sd := Data.spell_def(gs.shop_spells[i])
-		grid.add_child(_shop_item(SpellView.new(sd.id), Data.SPELL_COST, sd.desc, "Spell", func(): buy_spell(i)))
+		grid.add_child(_shop_item(SpellView.new(sd.id), gs.price(Data.SPELL_COST), sd.desc, "Spell", func(): buy_spell(i)))
 	if not gs.shop_card.is_empty():
 		var c: Dictionary = gs.shop_card.card
 		var cv := CardView.new(c)
 		cv.float_amount = 1.0
-		grid.add_child(_shop_item(cv, gs.shop_card.cost, "\n".join(Data.card_mods(c)), Data.card_name(c), buy_card))
+		grid.add_child(_shop_item(cv, gs.price(gs.shop_card.cost), "\n".join(Data.card_mods(c)), Data.card_name(c), buy_card))
 	if grid.get_child_count() == 0:
 		grid.add_child(_label("Sold out!", 28))
 	body.add_child(grid)
@@ -1422,8 +1445,8 @@ func show_shop() -> void:
 	side.alignment = BoxContainer.ALIGNMENT_CENTER
 	side.add_theme_constant_override("separation", 20)
 	side.add_child(_button("Next Round", Data.MULT_COLOR, show_blind_select, Vector2(210, 110), 28))
-	var reroll := _button("Reroll $%d" % gs.reroll_cost, Color("3f9a5a"), reroll_shop, Vector2(210, 90), 28)
-	reroll.disabled = gs.money < gs.reroll_cost
+	var reroll := _button("Reroll $%d" % gs.price(gs.reroll_cost), Color("3f9a5a"), reroll_shop, Vector2(210, 90), 28)
+	reroll.disabled = gs.money < gs.price(gs.reroll_cost)
 	side.add_child(reroll)
 	body.add_child(side)
 	for d in gs.shop_charms:
@@ -1456,12 +1479,14 @@ func buy_charm(i: int) -> void:
 	if i < 0 or i >= gs.shop_charms.size():
 		return
 	var d: Dictionary = gs.shop_charms[i]
-	if gs.money < d.cost:
+	var cost := gs.price(d.cost)
+	if gs.money < cost:
 		return
 	if gs.charms.size() >= gs.charm_slots:
 		popup_text(Vector2(main_cx(), TOP_H + 40), "No room for more charms", Color.WHITE, 28)
 		return
-	gs.money -= d.cost
+	gs.money -= cost
+	_inflate()
 	gs.charms.append({"id": d.id, "data": {}, "ed": d.get("ed", "")})
 	stats.charms_bought += 1
 	gs.shop_charms.remove_at(i)
@@ -1470,11 +1495,19 @@ func buy_charm(i: int) -> void:
 	show_shop()
 
 
+## Inflation challenge: each purchase raises every shop price by $1.
+func _inflate() -> void:
+	if gs.rules.get("inflation", false):
+		gs.inflation += 1
+		toast("Prices rose to +$%d" % gs.inflation)
+
+
 func buy_card() -> void:
-	var cost: int = gs.shop_card.cost
+	var cost := gs.price(gs.shop_card.cost)
 	if gs.money < cost:
 		return
 	gs.money -= cost
+	_inflate()
 	gs.deck.append(gs.shop_card.card)
 	gs.shop_card = {}
 	sfx.play("coin")
@@ -1485,12 +1518,13 @@ func buy_card() -> void:
 func buy_spell(i: int) -> void:
 	if i < 0 or i >= gs.shop_spells.size():
 		return
-	if gs.money < Data.SPELL_COST:
+	if gs.money < gs.price(Data.SPELL_COST):
 		return
 	if gs.spells.size() >= gs.spell_slots:
 		popup_text(Vector2(main_cx(), TOP_H + 40), "No room for more spells", Color.WHITE, 28)
 		return
-	gs.money -= Data.SPELL_COST
+	gs.money -= gs.price(Data.SPELL_COST)
+	_inflate()
 	gs.spells.append(gs.shop_spells[i])
 	gs.shop_spells.remove_at(i)
 	sfx.play("xmult", 1.3)
@@ -1502,10 +1536,11 @@ func buy_spell(i: int) -> void:
 func buy_rune(i: int) -> void:
 	if i < 0 or i >= gs.shop_runes.size():
 		return
-	if gs.money < Data.RUNE_COST:
+	if gs.money < gs.price(Data.RUNE_COST):
 		return
 	var h: String = gs.shop_runes[i]
-	gs.money -= Data.RUNE_COST
+	gs.money -= gs.price(Data.RUNE_COST)
+	_inflate()
 	gs.hand_levels[h] += 1
 	gs.shop_runes.remove_at(i)
 	sfx.play("xmult")
@@ -1514,9 +1549,9 @@ func buy_rune(i: int) -> void:
 
 
 func reroll_shop() -> void:
-	if gs.money < gs.reroll_cost:
+	if gs.money < gs.price(gs.reroll_cost):
 		return
-	gs.money -= gs.reroll_cost
+	gs.money -= gs.price(gs.reroll_cost)
 	gs.reroll_cost += 1
 	gs.roll_shop()
 	show_shop()
@@ -1605,7 +1640,9 @@ func _on_charm_tapped(v: CharmView) -> void:
 		close_modal()
 		if _shop_open:
 			show_shop(), Vector2(170, 70), 24)
-	sell.disabled = busy and in_round
+	sell.disabled = (busy and in_round) or inst.get("locked", false)
+	if inst.get("locked", false):
+		sell.text = "Locked"
 	row.add_child(sell)
 	row.add_child(_button("Close", Color("5a5f73"), close_modal, Vector2(150, 70), 24))
 	vb.add_child(row)
@@ -2139,6 +2176,50 @@ func _volume_row(title: String, key: String) -> Control:
 	return hb
 
 
+func show_challenges() -> void:
+	var won: Array = profile_data.get("challenges_won", [])
+	var vb := open_modal()
+	vb.add_child(_label("Challenges", 38, Color("ffdf6b")))
+	vb.add_child(_label("%d / %d complete  -  beat ante %d to complete one" % [won.size(), Data.CHALLENGES.size(), Data.FINAL_ANTE], 20, Color(1, 1, 1, 0.7)))
+	var grid := GridContainer.new()
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", 12)
+	grid.add_theme_constant_override("v_separation", 12)
+	for ch in Data.CHALLENGES:
+		var done := won.has(ch.id)
+		var b := _button(ch.name + ("  [done]" if done else ""), Color("3f9a5a") if done else Color("4a4f63"), func(): show_challenge(ch.id), Vector2(260, 58), 22)
+		grid.add_child(b)
+	vb.add_child(_center(grid))
+	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 58), 24)))
+
+
+func show_challenge(id: String) -> void:
+	var ch := Data.challenge_def(id)
+	var vb := open_modal()
+	vb.add_child(_label(ch.name, 40, Color("ffdf6b")))
+	var desc := _label(ch.desc, 24)
+	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc.custom_minimum_size = Vector2(620, 0)
+	vb.add_child(desc)
+	for line in Data.challenge_lines(ch):
+		var l := _label("-  " + line, 20, Color(1, 1, 1, 0.85), HORIZONTAL_ALIGNMENT_LEFT)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		l.custom_minimum_size = Vector2(620, 0)
+		vb.add_child(l)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 14)
+	var start := func():
+		close_modal()
+		new_run(id)
+	if saves.has_run():
+		row.add_child(_hold_button("Hold: Start (ends current run)", Color("b3364e"), start, 0.6, Vector2(380, 70)))
+	else:
+		row.add_child(_button("Start", Color("b3364e"), start, Vector2(220, 70), 28))
+	row.add_child(_button("Back", Color("5a5f73"), show_challenges, Vector2(160, 70), 24))
+	vb.add_child(row)
+
+
 func show_collection(tab: String = "charms") -> void:
 	var vb := open_modal()
 	vb.add_child(_label("Collection  (Profile %d)" % saves.profile, 34, Color("ffdf6b")))
@@ -2197,11 +2278,12 @@ func show_collection(tab: String = "charms") -> void:
 		"stats":
 			var labels := [["Runs", "runs"], ["Wins", "wins"], ["Best ante", "best_ante"], ["Best hand", "best_hand"],
 				["Hands played", "hands_played"], ["Cards played", "cards_played"], ["Money earned", "money_earned"],
-				["Charms bought", "charms_bought"], ["Spells cast", "spells_cast"], ["Glass cards shattered", "cards_shattered"]]
+				["Charms bought", "charms_bought"], ["Spells cast", "spells_cast"], ["Challenges won", "challenges_won"], ["Glass cards shattered", "cards_shattered"]]
 			var box := VBoxContainer.new()
 			box.custom_minimum_size = Vector2(520, 0)
 			for l in labels:
-				_row_label(box, l[0], ("$" if l[1] == "money_earned" else "") + Data.fmt(stats[l[1]]), Color("ffdf6b"))
+				var val = profile_data.get("challenges_won", []).size() if l[1] == "challenges_won" else stats[l[1]]
+				_row_label(box, l[0], ("$" if l[1] == "money_earned" else "") + Data.fmt(val), Color("ffdf6b"))
 			vb.add_child(_center(box))
 		"credits":
 			var v := Engine.get_version_info()
@@ -2216,7 +2298,7 @@ func show_menu() -> void:
 		return
 	var vb := open_modal()
 	music.set_muffled(true)
-	vb.add_child(_label("Paused", 40, Color("ffdf6b")))
+	vb.add_child(_label("Paused" + ("  -  " + Data.challenge_def(gs.challenge).name if gs != null and gs.challenge != "" else ""), 40, Color("ffdf6b")))
 	for row in [["Master", "master"], ["Music", "music"], ["Sounds", "sfx"]]:
 		vb.add_child(_volume_row(row[0], row[1]))
 	var grid := GridContainer.new()

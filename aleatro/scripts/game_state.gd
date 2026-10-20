@@ -13,6 +13,12 @@ var discards_left := 3
 var charm_slots := 5
 var charms: Array = []  # [{id, data}]
 var spells: Array = []  # spell ids
+var challenge := ""
+var rules := {}
+var banned_charms: Array = []
+var banned_hexes: Array = []
+var inflation := 0
+var played_this_ante: Array = []  # card ids, for the Burnout rule
 var spell_slots := 2
 var hand_levels := {}
 var hands_played_count := {}
@@ -84,7 +90,7 @@ func roll_shop_card() -> void:
 func pick_boss() -> void:
 	var showdown := ante % Data.FINAL_ANTE == 0
 	var pool := Data.HEXES.filter(func(h): return h.get("showdown", false) == showdown \
-			and h.min_ante <= maxi(ante, 1) and h.id != _last_hex)
+			and h.min_ante <= maxi(ante, 1) and h.id != _last_hex and not banned_hexes.has(h.id))
 	boss_hex = pool[rng.randi_range(0, pool.size() - 1)]
 	_last_hex = boss_hex.id
 
@@ -103,7 +109,14 @@ func blind_target(idx: int = blind_idx) -> int:
 
 
 func blind_reward(idx: int = blind_idx) -> int:
+	if rules.get("no_reward", []).has(idx):
+		return 0
 	return [3, 4, 5][idx]
+
+
+## A shop price after challenge inflation.
+func price(base: int) -> int:
+	return base + inflation
 
 
 ## The active boss effect, or "" outside boss blinds or once disabled.
@@ -149,6 +162,8 @@ func shuffle(arr: Array) -> void:
 
 
 func is_debuffed(card: Dictionary) -> bool:
+	if rules.get("played_debuffed", false) and played_this_ante.has(card.id):
+		return true
 	match hex():
 		"":
 			return false
@@ -163,6 +178,8 @@ func is_debuffed(card: Dictionary) -> bool:
 
 ## Whether a newly drawn card should arrive face down.
 func draws_face_down(card: Dictionary) -> bool:
+	if rules.has("flipped") and rng.randi_range(1, rules.flipped) == 1:
+		return true
 	match hex():
 		"mask":
 			return card.rank >= 11 and card.rank <= 13
@@ -226,6 +243,8 @@ func draw_cards() -> Array:
 
 
 func interest() -> int:
+	if rules.get("no_interest", false):
+		return 0
 	return clampi(money / 5, 0, 5)
 
 
@@ -234,6 +253,7 @@ func advance_blind() -> void:
 	if blind_idx > 2:
 		blind_idx = 0
 		ante += 1
+		played_this_ante = []
 		pick_boss()
 
 
@@ -247,9 +267,11 @@ func roll_shop() -> void:
 	for i in 2:
 		var roll := rng.randf()
 		var rarity := 2 if roll > 0.95 else (1 if roll > 0.7 else 0)
-		var pool := Data.CHARMS.filter(func(c): return c.rarity == rarity and not owned.has(c.id))
+		if rules.get("no_shop_charms", false):
+			break
+		var pool := Data.CHARMS.filter(func(c): return c.rarity == rarity and not owned.has(c.id) and not banned_charms.has(c.id))
 		if pool.is_empty():
-			pool = Data.CHARMS.filter(func(c): return not owned.has(c.id))
+			pool = Data.CHARMS.filter(func(c): return not owned.has(c.id) and not banned_charms.has(c.id))
 		if pool.is_empty():
 			break
 		var pick: Dictionary = pool[rng.randi_range(0, pool.size() - 1)].duplicate()
@@ -342,6 +364,7 @@ const SAVE_FIELDS := [
 	"discards_left", "charm_slots", "charms", "hand_levels", "hands_played_count", "deck",
 	"round_score", "target", "endless", "reroll_cost", "best_hand", "shop_charms",
 	"shop_runes", "shop_card", "_last_hex", "_next_id", "boss_state", "spells", "shop_spells",
+	"challenge", "rules", "banned_charms", "banned_hexes", "inflation", "played_this_ante",
 ]
 
 
@@ -374,3 +397,39 @@ static func from_dict(d: Dictionary) -> GameState:
 	gs.rng.seed = d.get("rng_seed", gs.rng.seed)
 	gs.rng.state = d.get("rng_state", gs.rng.state)
 	return gs
+
+
+## Set this run up as a challenge: deck, slots, money, starting items, rules.
+func apply_challenge(id: String) -> void:
+	var ch := Data.challenge_def(id)
+	if ch.is_empty():
+		return
+	challenge = id
+	rules = ch.get("rules", {}).duplicate(true)
+	banned_charms = ch.get("banned_charms", []).duplicate()
+	banned_hexes = ch.get("banned_hexes", []).duplicate()
+	var mods: Dictionary = ch.get("mods", {})
+	money = mods.get("money", money)
+	max_hands = mods.get("hands", max_hands)
+	max_discards = mods.get("discards", max_discards)
+	hand_size = mods.get("hand_size", hand_size)
+	charm_slots = mods.get("charm_slots", charm_slots)
+	spell_slots = mods.get("spell_slots", spell_slots)
+	var spec: Dictionary = ch.get("deck", {})
+	if not spec.is_empty():
+		deck = []
+		_next_id = 0
+		for copy in spec.get("copies", 1):
+			for s in spec.get("suits", [0, 1, 2, 3]):
+				for r in spec.get("ranks", range(2, 15)):
+					var c := make_card(r, s, new_card_id())
+					c.enh = spec.get("enh", "")
+					c.ed = spec.get("ed", "")
+					c.seal = spec.get("seal", "")
+					deck.append(c)
+	charms = []
+	for c in ch.get("charms", []):
+		charms.append({"id": c.id, "data": {}, "ed": c.get("ed", ""), "locked": c.get("locked", false)})
+	spells = ch.get("spells", []).duplicate()
+	if banned_hexes.has(boss_hex.id):
+		pick_boss()

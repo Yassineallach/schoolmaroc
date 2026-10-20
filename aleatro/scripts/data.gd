@@ -115,6 +115,100 @@ static func spell_def(id: String) -> Dictionary:
 	return {}
 
 
+# Challenges: preset runs with their own rules.
+# mods: money, hands, discards, hand_size, charm_slots, spell_slots
+# rules: no_interest, no_hand_money, no_reward [blind idx], flipped (1 in N face
+#   down), discard_cost, inflation, no_shop_charms, played_debuffed
+# deck: ranks, suits, copies, enh, ed, seal
+# charms: [{id, ed?, locked?}]   spells: [ids]   banned_charms / banned_hexes: [ids]
+const CHALLENGES := [
+	{"id": "glass_house", "name": "Glass House", "desc": "Every card in the deck is Glass. Handle with care.",
+		"deck": {"enh": "glass"}, "banned_charms": ["crown"]},
+	{"id": "low_ceiling", "name": "Low Ceiling", "desc": "Nothing above a 9 in the deck.",
+		"deck": {"ranks": [2, 3, 4, 5, 6, 7, 8, 9]}, "charms": [{"id": "even", "locked": true}, {"id": "odd", "locked": true}],
+		"banned_charms": ["court", "scribe", "crown"]},
+	{"id": "court_only", "name": "Court Only", "desc": "Only 10s and higher, two of each.",
+		"deck": {"ranks": [10, 11, 12, 13, 14], "copies": 2}, "charms": [{"id": "court", "locked": true}],
+		"banned_hexes": ["mute", "mask"]},
+	{"id": "blindfold", "name": "Blindfold", "desc": "Some cards are dealt face down.",
+		"rules": {"flipped": 4}},
+	{"id": "tightrope", "name": "Tightrope", "desc": "One hand a round, but plenty of discards - for a price.",
+		"mods": {"hands": 1, "discards": 6, "money": 10}, "rules": {"discard_cost": 1}, "banned_hexes": ["needle", "drought"]},
+	{"id": "short_hand", "name": "Short Hand", "desc": "A smaller hand but room for more charms.",
+		"mods": {"hand_size": 6, "discards": 5, "charm_slots": 6}, "charms": [{"id": "jester"}, {"id": "snowball"}]},
+	{"id": "bare_hands", "name": "Bare Hands", "desc": "No charms at all. Win with spells and runes.",
+		"mods": {"charm_slots": 0, "hands": 5, "spell_slots": 3}, "rules": {"no_shop_charms": true},
+		"spells": ["mirror", "etch"], "banned_hexes": ["ember", "eclipse", "jade"]},
+	{"id": "austerity", "name": "Austerity", "desc": "Small and Big Blinds pay nothing, and savings earn nothing.",
+		"mods": {"charm_slots": 4, "money": 8}, "rules": {"no_reward": [0, 1], "no_interest": true}},
+	{"id": "inflation", "name": "Inflation", "desc": "Every purchase makes the whole shop pricier.",
+		"mods": {"money": 10}, "rules": {"inflation": true}},
+	{"id": "burnout", "name": "Burnout", "desc": "Every card is sealed Crimson, but played cards burn out until the next ante.",
+		"deck": {"seal": "crimson"}, "rules": {"played_debuffed": true}},
+	{"id": "tycoon", "name": "Tycoon", "desc": "Start rich, but leftover hands pay nothing.",
+		"mods": {"money": 40}, "rules": {"no_hand_money": true}, "charms": [{"id": "treasury", "locked": true}]},
+]
+
+
+static func challenge_def(id: String) -> Dictionary:
+	for c in CHALLENGES:
+		if c.id == id:
+			return c
+	return {}
+
+
+## Plain-language lines describing a challenge's setup.
+static func challenge_lines(ch: Dictionary) -> Array:
+	var out := []
+	var mods: Dictionary = ch.get("mods", {})
+	var labels := {"money": "Start with $%d", "hands": "%d hands per round", "discards": "%d discards per round",
+		"hand_size": "Hand size %d", "charm_slots": "%d charm slots", "spell_slots": "%d spell slots"}
+	for k in mods:
+		out.append(labels[k] % mods[k])
+	var rules: Dictionary = ch.get("rules", {})
+	if rules.has("no_interest"):
+		out.append("No interest")
+	if rules.has("no_hand_money"):
+		out.append("No money for leftover hands")
+	if rules.has("no_reward"):
+		out.append("No reward from " + " or ".join(rules.no_reward.map(func(i): return BLIND_NAMES[i])))
+	if rules.has("flipped"):
+		out.append("1 in %d cards dealt face down" % rules.flipped)
+	if rules.has("discard_cost"):
+		out.append("Each discard costs $%d" % rules.discard_cost)
+	if rules.has("inflation"):
+		out.append("Shop prices rise $1 after every purchase")
+	if rules.has("no_shop_charms"):
+		out.append("The shop sells no charms")
+	if rules.has("played_debuffed"):
+		out.append("Played cards are debuffed until the next ante")
+	var deck: Dictionary = ch.get("deck", {})
+	if not deck.is_empty():
+		var parts := []
+		if deck.has("ranks"):
+			parts.append("ranks %s only" % ", ".join(deck.ranks.map(func(r): return RANK_LABELS[r])))
+		if deck.get("copies", 1) > 1:
+			parts.append("x%d copies" % deck.copies)
+		if deck.has("enh"):
+			parts.append("all " + ENHANCEMENTS[deck.enh].name)
+		if deck.has("seal"):
+			parts.append("all with " + SEALS[deck.seal].name)
+		out.append("Deck: " + ", ".join(parts))
+	if ch.has("charms"):
+		out.append("Starting charms: " + ", ".join(ch.charms.map(func(c): return charm_def(c.id).name + (" (locked)" if c.get("locked", false) else ""))))
+	if ch.has("spells"):
+		out.append("Starting spells: " + ", ".join(ch.spells.map(func(s): return spell_def(s).name)))
+	if ch.has("banned_charms"):
+		out.append("Banned charms: " + ", ".join(ch.banned_charms.map(func(c): return charm_def(c).name)))
+	if ch.has("banned_hexes"):
+		var names := []
+		for h in HEXES:
+			if ch.banned_hexes.has(h.id):
+				names.append(h.name)
+		out.append("Banned bosses: " + ", ".join(names))
+	return out
+
+
 const RARITY_COLORS := [Color("4a6fa5"), Color("3f9a5a"), Color("b8334a")]
 const RARITY_NAMES := ["Common", "Uncommon", "Rare"]
 const RUNE_COLOR := Color("6c4ab6")

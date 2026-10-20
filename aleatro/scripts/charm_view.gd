@@ -17,6 +17,7 @@ var rune_hand := ""
 var edition := ""
 var face_up := true
 var smothered := false
+var locked := false
 var float_amount := 1.0
 var _phase := randf() * TAU
 var _touch := TouchTracker.new()
@@ -118,6 +119,11 @@ func _draw() -> void:
 		draw_style_box(b, Rect2(30, 6, 60, 16))
 		draw_string(font, Vector2(30, 18.5), tag, HORIZONTAL_ALIGNMENT_CENTER, 60, 11, Color.WHITE)
 	draw_multiline_string(font, Vector2(6, 112), name, HORIZONTAL_ALIGNMENT_CENTER, size.x - 12, 19, 2, Color.WHITE)
+	if locked:
+		# a small padlock: this charm cannot be sold
+		var at := Vector2(size.x - 22, 10)
+		draw_arc(at + Vector2(7, 7), 5, PI, TAU, 10, Color("f2d675"), 2.5)
+		draw_rect(Rect2(at + Vector2(0, 7), Vector2(14, 10)), Color("f2d675"))
 	if smothered:
 		draw_rect(Rect2(Vector2.ZERO, size), Color(0.1, 0.05, 0.05, 0.6))
 		draw_string(font, Vector2(0, size.y / 2 + 8), "DISABLED", HORIZONTAL_ALIGNMENT_CENTER, size.x, 18, Color("ff8a5c"))
