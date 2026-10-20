@@ -109,7 +109,7 @@ func appear() -> void:
 	tw.tween_property(self, "modulate:a", 1.0, 0.35)
 	tw.tween_property(_body, "scale", Vector2.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	if sfx:
-		sfx.play("xmult", 1.4)
+		sfx.play("ace_appear")
 
 
 ## Type a line into the bubble with voice blips; buttons appear when done.

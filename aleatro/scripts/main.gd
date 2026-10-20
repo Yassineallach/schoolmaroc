@@ -381,6 +381,10 @@ func _process(delta: float) -> void:
 # ---------------------------------------------------------------- HUD
 
 func update_hud() -> void:
+	# Ambience: a quiet table bed, with a low drone under boss rounds.
+	var boss_bed := gs != null and in_round and gs.hex() != ""
+	sfx.set_ambient("ambient_table", 0.25 if boss_bed else 0.55)
+	sfx.set_ambient("ambient_boss", 0.6 if boss_bed else 0.0)
 	if gs == null:
 		return
 	lbl_ante.text = "Ante %d/%d" % [gs.ante, Data.FINAL_ANTE]
@@ -510,7 +514,7 @@ func show_spell(v: SpellView) -> void:
 	row.add_child(_button("Sell $1", Color("3f9a5a"), func():
 		gs.money += 1
 		gs.spells.erase(v.spell_id)
-		sfx.play("coin")
+		sfx.play("charm_sell")
 		close_modal()
 		rebuild_spells()
 		if _shop_open:
@@ -533,7 +537,7 @@ func cast_spell(v: SpellView) -> void:
 	var tw := create_tween().set_parallel()
 	tw.tween_property(v, "global_position", Vector2(main_cx(), play_y()) - v.size / 2, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tw.tween_property(v, "scale", Vector2(1.4, 1.4), 0.3)
-	sfx.play("xmult", 1.2)
+	sfx.play("spell_cast")
 	await tw.finished
 	await wait(0.15)
 	var before_money := gs.money
@@ -551,7 +555,7 @@ func cast_spell(v: SpellView) -> void:
 			juice(h, 0.2)
 	if gs.money != before_money:
 		popup_text(Vector2(main_cx(), play_y()), "+$%d" % (gs.money - before_money), Data.MONEY_COLOR, 40)
-		sfx.play("coin")
+		sfx.play("coin_cascade")
 	haptic(30, 0.5)
 	jiggle += 0.8
 	await wait(0.4)
@@ -631,7 +635,7 @@ func _on_drag_end(v: Control) -> void:
 	else:
 		gs.charms = charm_views.map(func(c): return _charm_inst(c))
 		layout_charms(true)
-	sfx.play("select")
+	sfx.play("card_place", 1.2, 0.7)
 
 
 func _charm_inst(v: CharmView) -> Dictionary:
@@ -727,6 +731,8 @@ func _row_label(vb: Container, left: String, right: String, right_col := Data.MO
 
 func show_title() -> void:
 	on_title = true
+	sfx.set_ambient("ambient_table", 0.55)
+	sfx.set_ambient("ambient_boss", 0.0)
 	music.set_track("table")
 	music.pitch_target = 1.0
 	in_round = false
@@ -888,7 +894,7 @@ func start_blind() -> void:
 	discard_pile.clear()
 	deck_pile.shuffle()
 	for i in 3:
-		sfx.play("deal", 0.7 + 0.1 * i)
+		if i == 0: sfx.play("shuffle")
 	await wait(0.5)
 	await deal()
 	if gs.hex() != "":
@@ -943,7 +949,7 @@ func deal() -> void:
 		sort_hand()
 	gs.hand = hand_views.map(func(h): return h.card)
 	for i in drawn.size():
-		sfx.play("deal", 0.9 + 0.05 * i)
+		sfx.play("card_slide", 0.95 + 0.04 * i, 0.8)
 	layout_hand(true)
 	update_hud()
 	for c in drawn:
@@ -954,6 +960,8 @@ func deal() -> void:
 		if not v.face_up and not gs.boss_state.get("down", []).has(v.card.id):
 			v.flip_up(0.15 + 0.05 * k)
 			k += 1
+	if k > 0:
+		get_tree().create_timer(0.2).timeout.connect(func(): sfx.play("card_flip", 1.0, 0.7))
 	await wait(0.35 + 0.05 * k)
 	ensure_forced()
 	if in_round and hand_views.any(func(v): return v.card.enh != "" or v.card.ed != "" or v.card.seal != ""):
@@ -1045,7 +1053,7 @@ func _on_card_tapped(v: CardView) -> void:
 		return
 	v.selected = not v.selected
 	v.queue_redraw()
-	sfx.play("select", 1.1 if v.selected else 0.9)
+	sfx.play("card_select" if v.selected else "card_deselect")
 	layout_hand(true)
 	update_hud()
 
@@ -1078,6 +1086,7 @@ func play_selected() -> void:
 		var tw := create_tween().set_parallel()
 		tw.tween_property(v, "position", Vector2(x0 + i * gap, play_y()), 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		tw.tween_property(v, "rotation_degrees", 0.0, 0.22)
+	sfx.play("card_place")
 	layout_hand(true)
 	await wait(0.3)
 
@@ -1105,14 +1114,14 @@ func play_selected() -> void:
 	var result := {"events": [], "shatter": []}
 	if blocked != "":
 		juice(blind_chip, 0.3)
-		sfx.play("lose", 1.6)
+		sfx.play("not_allowed")
 		haptic(40, 0.5)
 		await banner("Not allowed!", blocked, gs.boss_hex.color)
 	else:
 		for note in gs.on_hand_played(ev, played):
 			juice(blind_chip, 0.2)
 			popup_text(Vector2(main_cx(), play_y() - 30), note, gs.boss_hex.color.lightened(0.45), 28)
-			sfx.play("mult", 0.7)
+			sfx.play("boss_ping", 1.0, 0.8)
 			await wait(0.5)
 		refresh_charm_states()
 		update_hud()
@@ -1159,7 +1168,7 @@ func play_selected() -> void:
 			popup_text(anchor, "Debuffed", Color("aaaaaa"), 26)
 		if e.get("again", false):
 			popup_text(anchor, "Again!", Color("ffdf6b"), 30)
-			sfx.play("select", 1.3)
+			sfx.play("again")
 		var line := 0
 		if e.has("chips"):
 			chips += e.chips
@@ -1200,12 +1209,15 @@ func play_selected() -> void:
 		_save_stats()
 	lbl_hand_name.text = Data.fmt(total)
 	bump(lbl_hand_name, 1.3)
-	sfx.play("coin")
+	sfx.play("score_total")
 	await wait(0.45)
 	var from := gs.round_score
 	gs.round_score += total
 	var tw := create_tween()
-	tw.tween_method(func(x): lbl_round_score.text = Data.fmt(x), from, gs.round_score, 0.4)
+	tw.tween_method(func(x):
+		if lbl_round_score.text != Data.fmt(x) and randf() < 0.25:
+			sfx.play("tally", 1.0, 0.5)
+		lbl_round_score.text = Data.fmt(x), from, gs.round_score, 0.4)
 	await wait(0.5)
 
 	# Glass cards that broke leave the deck for good.
@@ -1270,6 +1282,7 @@ func discard_selected() -> void:
 	if cost > 0:
 		gs.money -= cost
 		popup_text(Vector2(main_cx(), play_y() + 60), "-$%d" % cost, Data.MONEY_COLOR, 32)
+	sfx.play("discard")
 	for i in sel.size():
 		var v: CardView = sel[i]
 		hand_views.erase(v)
@@ -1285,7 +1298,7 @@ func discard_selected() -> void:
 
 func win_round() -> void:
 	in_round = false
-	sfx.play("win")
+	sfx.play("round_win")
 	haptic(40, 0.5)
 	refresh_charm_states()
 	await defeat_blind()
@@ -1331,7 +1344,7 @@ func show_cashout(info: Dictionary) -> void:
 	vb.add_child(_center(_button("Cash Out: $%d" % total, Color("e0a526"), func():
 		gs.money += total
 		stats.money_earned += total
-		sfx.play("coin")
+		sfx.play("cash_register")
 		cash_out(), Vector2(380, 90), 32)))
 
 
@@ -1351,7 +1364,7 @@ func cash_out() -> void:
 func game_over() -> void:
 	in_round = false
 	busy = true
-	sfx.play("lose")
+	sfx.play("game_over")
 	haptic(150, 0.8)
 	music.set_track("table")
 	music.pitch_target = 0.85
@@ -1376,6 +1389,7 @@ func game_over() -> void:
 
 func show_victory() -> void:
 	busy = true
+	sfx.play("victory")
 	if gs.challenge != "":
 		if not profile_data.has("challenges_won"):
 			profile_data.challenges_won = []
@@ -1490,7 +1504,7 @@ func buy_charm(i: int) -> void:
 	gs.charms.append({"id": d.id, "data": {}, "ed": d.get("ed", "")})
 	stats.charms_bought += 1
 	gs.shop_charms.remove_at(i)
-	sfx.play("coin")
+	sfx.play("charm_buy")
 	rebuild_charms()
 	show_shop()
 
@@ -1510,7 +1524,7 @@ func buy_card() -> void:
 	_inflate()
 	gs.deck.append(gs.shop_card.card)
 	gs.shop_card = {}
-	sfx.play("coin")
+	sfx.play("card_place")
 	show_shop()
 	popup_text(Vector2(main_cx(), TOP_H + 40), "Added to deck (%d cards)" % gs.deck.size(), Color.WHITE, 30)
 
@@ -1527,7 +1541,7 @@ func buy_spell(i: int) -> void:
 	_inflate()
 	gs.spells.append(gs.shop_spells[i])
 	gs.shop_spells.remove_at(i)
-	sfx.play("xmult", 1.3)
+	sfx.play("charm_buy", 1.15)
 	rebuild_spells()
 	show_shop()
 	tutorial("spell", "Spells wait in the slots at the top right. Select cards in your hand during a round, then tap a spell to cast it on them.")
@@ -1543,7 +1557,7 @@ func buy_rune(i: int) -> void:
 	_inflate()
 	gs.hand_levels[h] += 1
 	gs.shop_runes.remove_at(i)
-	sfx.play("xmult")
+	sfx.play("rune")
 	show_shop()
 	popup_text(Vector2(main_cx(), TOP_H + 40), "%s  lvl %d" % [h, gs.hand_levels[h]], Color("c9b3ff"), 32)
 
@@ -1553,6 +1567,7 @@ func reroll_shop() -> void:
 		return
 	gs.money -= gs.price(gs.reroll_cost)
 	gs.reroll_cost += 1
+	sfx.play("reroll")
 	gs.roll_shop()
 	show_shop()
 
@@ -1634,7 +1649,8 @@ func _on_charm_tapped(v: CharmView) -> void:
 				toast("Jade Wreath lifted: cards work again")
 		charm_views.erase(v)
 		v.dissolve()
-		sfx.play("coin")
+		sfx.play("dissolve")
+		sfx.play("charm_sell")
 		layout_charms(true)
 		update_hud()
 		close_modal()
@@ -1651,7 +1667,7 @@ func _on_charm_tapped(v: CharmView) -> void:
 
 ## Break a card into tumbling shards.
 func shatter(v: CardView) -> void:
-	sfx.play("lose", 2.2)
+	sfx.play("glass_shatter")
 	haptic(60, 0.7)
 	jiggle += 1.0
 	var origin := v.position
@@ -1763,7 +1779,7 @@ func banner(title: String, text: String, col: Color, hold: float = 1.4) -> void:
 ## Boss warning: a run of descending pings, then its rule across the table.
 func announce_boss() -> void:
 	for i in 4:
-		sfx.play("mult", 0.75 - 0.05 * i)
+		sfx.play("boss_intro") if i == 0 else sfx.play("boss_ping", 1.0, 0.7)
 		if i == 0:
 			juice(blind_chip, 0.35)
 			jiggle += 1.5
@@ -1782,7 +1798,7 @@ func defeat_blind() -> void:
 	juice(blind_chip, 0.3)
 	var pings := mini(gs.blind_reward() + 2, 7)
 	for i in pings:
-		sfx.play("chips", 0.85 - 0.05 * i)
+		sfx.play("blind_defeat") if i == 0 else sfx.play("tally", 1.3 - 0.05 * i)
 		m.set_shader_parameter("dissolve", float(i + 1) / pings)
 		await wait(0.12)
 	var tw := create_tween()
@@ -1816,7 +1832,7 @@ func disable_boss() -> void:
 			v.flip_up()
 	refresh_charm_states()
 	juice(blind_chip, 0.4)
-	sfx.play("xmult", 0.8)
+	sfx.play("spell_cast", 0.7)
 	toast("Warden disabled %s" % gs.boss_hex.name)
 	update_hud()
 	if was == "shackle":
@@ -2041,6 +2057,7 @@ func discover(kind: String, id: String) -> void:
 
 ## A small notice that slides in at the top right.
 func toast(text: String) -> void:
+	sfx.play("discover" if text.begins_with("New ") or text.begins_with("Challenge complete") else "toast", 1.0, 0.7)
 	var p := PanelContainer.new()
 	var sb := _box(Color("22313b"), 3.0, true)
 	sb.outline = 2.0
@@ -2087,7 +2104,7 @@ func deselect_all() -> void:
 			v.queue_redraw()
 			any = true
 	if any:
-		sfx.play("select", 0.8)
+		sfx.play("card_deselect")
 		layout_hand(true)
 		update_hud()
 
@@ -2127,11 +2144,13 @@ func _hold_button(text: String, col: Color, cb: Callable, hold := 0.8, min_size 
 	b.add_child(fill)
 	var state := {"tw": null}
 	b.button_down.connect(func():
+		sfx.play("hold_tick")
 		var tw := create_tween()
 		state.tw = tw
 		tw.tween_property(fill, "size:x", b.size.x - 8, hold)
 		tw.tween_callback(func():
 			haptic(30, 0.6)
+			sfx.play("hold_done")
 			cb.call()))
 	b.button_up.connect(func():
 		if state.tw != null and state.tw.is_valid():
@@ -2172,7 +2191,7 @@ func _volume_row(title: String, key: String) -> Control:
 		_apply_settings()
 		_save_stats()
 		if key == "sfx":
-			sfx.play("select"))
+			sfx.play("slider"))
 	return hb
 
 
@@ -2298,6 +2317,7 @@ func show_menu() -> void:
 		return
 	var vb := open_modal()
 	music.set_muffled(true)
+	sfx.play("pause_open")
 	vb.add_child(_label("Paused" + ("  -  " + Data.challenge_def(gs.challenge).name if gs != null and gs.challenge != "" else ""), 40, Color("ffdf6b")))
 	for row in [["Master", "master"], ["Music", "music"], ["Sounds", "sfx"]]:
 		vb.add_child(_volume_row(row[0], row[1]))

@@ -7,7 +7,14 @@ Play poker hands to beat a score target. Score = Chips x Mult. Each ante has a S
 a Big Blind and a Boss Blind with a twist. Beat ante 8 to win, then keep going in Endless mode.
 Spend your winnings in the shop on **Charms** (passive bonuses, 5 slots) and **Runes** (level up a hand type).
 
-All art and sound are generated at runtime, so the project ships no image or audio assets except the app icon.
+Art is drawn in code. Audio is original and synthesized offline by two scripts in `tools/`:
+
+- `python3 tools/make_music.py` renders the three music loops to `audio/`.
+- `python3 tools/make_sounds.py` renders the sound effect library to `audio/sfx/`
+  (about 60 files: UI, cards, scoring, money, bosses, Ace's voice, two ambient loops).
+
+Both need numpy and ffmpeg with libvorbis. The game loads every `.ogg` in `audio/sfx/`
+automatically; a file's name is its sound code, and `name_1`, `name_2`, ... are random variations.
 
 ## Layout
 

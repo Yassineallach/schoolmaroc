@@ -1,83 +1,114 @@
 class_name Sfx
 extends Node
 
-## Tiny synthesized sound effects, so the game ships without audio assets.
+## Sound effect manager. Every .ogg in res://audio/sfx is loaded at startup
+## and played by its file name ("sound code"). Files named name_1, name_2...
+## are variations of "name"; one is picked at random each time. Each code
+## gets a small pool of players so overlapping plays don't cut each other
+## off. Files named ambient_* are looping beds faded in and out with
+## set_ambient().
 
-const RATE := 22050
+const DIR := "res://audio/sfx"
+const POOL_MAX := 4
+const AMBIENT_FADE := 1.2  # fraction of the gap closed per second
 
-var _streams := {}
-var _players: Array[AudioStreamPlayer] = []
-var _next := 0
-var _voices: Array = []
+# Older short names still used around the code.
+const ALIASES := {"click": "button", "select": "card_select", "deal": "card_slide", "win": "round_win", "lose": "game_over"}
+
+var _streams := {}  # code -> Array[AudioStream] (variations)
+var _pools := {}  # code -> Array[AudioStreamPlayer]
+var _ambient := {}  # name -> {player, level, target}
 
 
 func _ready() -> void:
-	_streams.click = _tone([660.0], 0.05, 0.25)
-	_streams.select = _tone([880.0], 0.06, 0.22)
-	_streams.chips = _tone([520.0, 780.0], 0.09, 0.25)
-	_streams.mult = _tone([330.0, 495.0], 0.11, 0.28)
-	_streams.xmult = _tone([392.0, 587.0, 784.0], 0.16, 0.3)
-	_streams.coin = _tone([1046.0, 1568.0], 0.12, 0.22)
-	_streams.win = _tone([523.0, 659.0, 784.0, 1046.0], 0.5, 0.3)
-	_streams.lose = _tone([392.0, 311.0, 262.0], 0.7, 0.3)
-	_streams.deal = _tone([300.0], 0.04, 0.15)
-	_voices = [_voice(500, 1500), _voice(700, 1200), _voice(400, 2000), _voice(600, 1000), _voice(350, 900)]
 	Music._ensure_bus("SFX")
-	for i in 8:
-		var p := AudioStreamPlayer.new()
-		p.bus = "SFX"
-		add_child(p)
-		_players.append(p)
+	var variant := RegEx.create_from_string("^(.*)_(\\d+)$")
+	for file in ResourceLoader.list_directory(DIR):
+		if not file.ends_with(".ogg"):
+			continue
+		var code := file.get_basename()
+		var stream: AudioStream = load(DIR.path_join(file))
+		if code.begins_with("ambient_"):
+			_add_ambient(code, stream)
+			continue
+		var m := variant.search(code)
+		var group := m.get_string(1) if m else code
+		if not _streams.has(group):
+			_streams[group] = []
+		_streams[group].append(stream)
 
 
-func play(name: String, pitch: float = 1.0) -> void:
-	var stream: AudioStream = _voices.pick_random() if name == "voice" else _streams.get(name)
-	if stream == null:
+func has(code: String) -> bool:
+	return _streams.has(ALIASES.get(code, code))
+
+
+## Play a sound by code at a pitch multiplier and linear volume.
+func play(code: String, pitch: float = 1.0, volume: float = 1.0) -> void:
+	code = ALIASES.get(code, code)
+	var options: Array = _streams.get(code, [])
+	if options.is_empty():
 		return
-	var p := _players[_next]
-	_next = (_next + 1) % _players.size()
-	p.stream = stream
+	var p := _player_for(code)
+	p.stream = options.pick_random()
 	# A little random detune keeps repeated sounds from feeling mechanical.
-	p.pitch_scale = pitch * randf_range(0.97, 1.03)
+	p.pitch_scale = maxf(0.05, pitch * randf_range(0.97, 1.03))
+	p.volume_db = linear_to_db(maxf(volume, 0.001))
 	p.play()
 
 
-## Plays the frequencies as a quick arpeggio with a decaying envelope.
-func _tone(freqs: Array, dur: float, vol: float) -> AudioStreamWAV:
-	var n := int(RATE * dur)
-	var data := PackedByteArray()
-	data.resize(n * 2)
-	var seg := n / freqs.size()
-	var phase := 0.0
-	for i in n:
-		var f: float = freqs[mini(i / maxi(seg, 1), freqs.size() - 1)]
-		phase += TAU * f / RATE
-		var env := 1.0 - float(i) / n
-		var v := (sin(phase) * 0.7 + signf(sin(phase)) * 0.3) * env * env * vol
-		data.encode_s16(i * 2, int(clampf(v, -1.0, 1.0) * 32767))
-	var s := AudioStreamWAV.new()
-	s.format = AudioStreamWAV.FORMAT_16_BITS
-	s.mix_rate = RATE
-	s.stereo = false
-	s.data = data
-	return s
+## Reuse an idle player for this code, add one if all are busy, or steal
+## the one that started first.
+func _player_for(code: String) -> AudioStreamPlayer:
+	if not _pools.has(code):
+		_pools[code] = []
+	var pool: Array = _pools[code]
+	for p in pool:
+		if not p.playing:
+			return p
+	if pool.size() < POOL_MAX:
+		var p := AudioStreamPlayer.new()
+		p.bus = "SFX"
+		add_child(p)
+		pool.append(p)
+		return p
+	var oldest: AudioStreamPlayer = pool.pop_front()
+	pool.append(oldest)
+	return oldest
 
 
-## A short "talking" blip: a buzzy fundamental shaped by two vowel formants.
-func _voice(f1: float, f2: float) -> AudioStreamWAV:
-	var n := int(RATE * 0.07)
-	var data := PackedByteArray()
-	data.resize(n * 2)
-	var base := 190.0
-	for i in n:
-		var t := float(i) / RATE
-		var env := sin(PI * float(i) / n)
-		var glottal := fmod(t * base, 1.0)
-		var v := (sin(TAU * f1 * t) * 0.6 + sin(TAU * f2 * t) * 0.3) * (1.0 - glottal) * env * 0.35
-		data.encode_s16(i * 2, int(clampf(v, -1.0, 1.0) * 32767))
-	var s := AudioStreamWAV.new()
-	s.format = AudioStreamWAV.FORMAT_16_BITS
-	s.mix_rate = RATE
-	s.stereo = false
-	s.data = data
-	return s
+func stop_all() -> void:
+	for pool in _pools.values():
+		for p in pool:
+			p.stop()
+
+
+# ---------------------------------------------------------------- ambience
+
+func _add_ambient(name: String, stream: AudioStream) -> void:
+	if stream is AudioStreamOggVorbis:
+		stream.loop = true
+	var p := AudioStreamPlayer.new()
+	p.bus = "SFX"
+	p.stream = stream
+	p.volume_db = -80.0
+	add_child(p)
+	_ambient[name] = {"player": p, "level": 0.0, "target": 0.0}
+
+
+## Fade an ambient bed (by name, e.g. "ambient_table") toward `level` 0..1.
+func set_ambient(name: String, level: float) -> void:
+	if _ambient.has(name):
+		_ambient[name].target = clampf(level, 0.0, 1.0)
+
+
+func _process(delta: float) -> void:
+	var dt := delta / maxf(Engine.time_scale, 0.01)
+	for a in _ambient.values():
+		a.level = move_toward(a.level, a.target, dt * AMBIENT_FADE)
+		var p: AudioStreamPlayer = a.player
+		if a.level > 0.001:
+			if not p.playing:
+				p.play()
+			p.volume_db = linear_to_db(a.level)
+		elif p.playing:
+			p.stop()
