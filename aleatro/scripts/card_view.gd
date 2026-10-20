@@ -18,6 +18,7 @@ var face_up := true
 var float_amount := 0.5
 var _phase := randf() * TAU
 var _touch := TouchTracker.new()
+var _tilt := Tilt.new()
 
 static var _face_box: PixelBox
 static var _select_box: PixelBox
@@ -30,6 +31,7 @@ func _init(c: Dictionary = {}) -> void:
 	custom_minimum_size = size
 	pivot_offset = size / 2
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_tilt.attach(self)
 	if _face_box == null:
 		_face_box = PixelBox.new(Color("f7f3ea"), 4.0, 0.0, true)
 		_face_box.outline = 2.0
@@ -69,6 +71,7 @@ func _gui_input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if _touch.tick(delta):
 		held.emit(self)
+	_tilt.update(self, delta, _touch.pressing or _touch.dragging, _ensure_material)
 	if float_amount > 0.0 and is_visible_in_tree():
 		queue_redraw()
 
@@ -101,6 +104,12 @@ func dissolve(time: float = 0.6) -> void:
 
 
 func _draw() -> void:
+	var t := Prof.begin()
+	_paint()
+	Prof.end("card draw", t)
+
+
+func _paint() -> void:
 	var font := ThemeDB.fallback_font
 	var amount := float_amount * (2.0 if selected else 1.0)
 	var base := Anim.float_xform(size, _phase, amount)

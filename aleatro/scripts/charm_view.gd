@@ -21,6 +21,7 @@ var locked := false
 var float_amount := 1.0
 var _phase := randf() * TAU
 var _touch := TouchTracker.new()
+var _tilt := Tilt.new()
 
 
 func _init(id: String = "", rune: String = "", ed: String = "") -> void:
@@ -31,6 +32,7 @@ func _init(id: String = "", rune: String = "", ed: String = "") -> void:
 	custom_minimum_size = size
 	pivot_offset = size / 2
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_tilt.attach(self)
 	if edition != "":
 		_ensure_material().set_shader_parameter("edition", Data.EDITIONS[edition].shader)
 
@@ -62,6 +64,7 @@ func _gui_input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if _touch.tick(delta):
 		held.emit(self)
+	_tilt.update(self, delta, _touch.pressing or _touch.dragging, _ensure_material)
 	if float_amount > 0.0 and is_visible_in_tree():
 		queue_redraw()
 
@@ -80,6 +83,12 @@ func title() -> String:
 
 
 func _draw() -> void:
+	var t := Prof.begin()
+	_paint()
+	Prof.end("charm draw", t)
+
+
+func _paint() -> void:
 	var font := ThemeDB.fallback_font
 	var col: Color
 	var name: String

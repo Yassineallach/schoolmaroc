@@ -114,6 +114,12 @@ func _sleep() -> void:
 
 
 func _process(delta: float) -> void:
+	var t := Prof.begin()
+	_move(delta)
+	Prof.end("glide", t)
+
+
+func _move(delta: float) -> void:
 	var c := _host()
 	if c == null:
 		return

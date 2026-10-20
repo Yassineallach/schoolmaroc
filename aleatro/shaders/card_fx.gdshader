@@ -1,17 +1,30 @@
 shader_type canvas_item;
 
-// Edition shimmer and dissolve for cards and charms.
+// Edition shimmer, dissolve and pointer tilt for cards and charms.
 // edition: 0 none, 1 foil, 2 holo, 3 chroma.
+// tilt: where the pointer sits on the face, -1..1 per axis; tilt_amt eases
+// it in and out. The side under the pointer sinks away (it draws smaller,
+// as if further off), the opposite side rises and catches a little light.
 uniform int edition = 0;
 uniform vec2 size = vec2(100.0, 140.0);
 uniform float dissolve : hint_range(0.0, 1.0) = 0.0;
 uniform vec4 burn : source_color = vec4(1.0, 0.75, 0.3, 1.0);
 uniform float phase = 0.0;
+uniform vec2 tilt = vec2(0.0);
+uniform float tilt_amt = 0.0;
+
+const float TILT_DEPTH = 0.22;
 
 varying vec2 local;
 
 void vertex() {
 	local = VERTEX;
+	if (tilt_amt > 0.0) {
+		vec2 half_size = size * 0.5;
+		vec2 p = VERTEX - half_size;
+		float depth = dot(p / half_size, tilt) * tilt_amt * TILT_DEPTH;
+		VERTEX = half_size + p / (1.0 + max(depth, -0.5));
+	}
 }
 
 vec3 hue(float h) {
@@ -39,6 +52,11 @@ void fragment() {
 	} else if (edition == 3) {
 		float h = fract(uv.x * 0.6 + uv.y * 0.4 + t * 0.25);
 		c.rgb = mix(c.rgb, c.rgb * (0.6 + 0.7 * hue(h)), face * 0.6);
+	}
+	if (tilt_amt > 0.0) {
+		// raised side brighter, sunken side a touch darker
+		float lit = dot(uv - 0.5, -tilt) * tilt_amt;
+		c.rgb = clamp(c.rgb + face * vec3(lit * 0.22), 0.0, 1.0);
 	}
 	if (dissolve > 0.0) {
 		// Blocky noise so the dissolve reads as pixels burning away.

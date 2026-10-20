@@ -31,6 +31,8 @@ automatically; a file's name is its sound code, and `name_1`, `name_2`, ... are 
 | `scripts/glide.gd` | Spring mover for cards and charms: chases a target with slight overshoot, leans into fast moves, wobbles when kicked; honours Reduced motion |
 | `scripts/motes.gd` | Pixel-square particle emitter: bursts and steady trickles, point or area spawn, drag and gravity, fade-out, prewarm |
 | `scripts/debug_boxes.gd` | Developer overlay (F3, or tap the credits line 5 times): outlines every input area in its real rotated shape, coloured by hover / focus / moving, with an fps and node readout |
+| `scripts/prof.gd` | Section profiler (calls, avg / max ms, share of time); shown in the debug overlay, F4 clears |
+| `scripts/tilt.gd` | Pointer tilt for cards and charms: the face leans away from a hovering mouse or pressing finger (card_fx.gdshader) |
 
 ## Building the Android package
 

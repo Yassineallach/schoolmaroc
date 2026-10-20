@@ -3,7 +3,9 @@ extends Control
 
 ## Developer overlay: outlines every control that can take input, in its
 ## real (rotated, scaled) shape, coloured by state, plus a corner readout.
-## F3 toggles it; on a phone, tap the credits line five times.
+## F3 toggles it; on a phone, tap the credits line five times. While it is
+## up, Prof times the hot sections and the busiest show under the readout;
+## F4 clears them, and closing the overlay prints the table to the log.
 ##
 ##   red    takes input          green  under the pointer
 ##   gold   gamepad focus        blue   gliding to a new spot
@@ -30,13 +32,21 @@ func _init(m: Control) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F3:
-		toggle()
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_F3:
+			toggle()
+		elif event.keycode == KEY_F4 and visible:
+			Prof.reset()
 
 
 func toggle() -> void:
 	visible = not visible
 	set_process(visible)
+	if visible:
+		Prof.start()
+	else:
+		print("Aleatro profile\n", Prof.report(20))
+		Prof.stop()
 
 
 func _ready() -> void:
@@ -50,6 +60,12 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
+	var pt := Prof.begin()
+	_paint()
+	Prof.end("overlay draw", pt)
+
+
+func _paint() -> void:
 	var hovered := get_viewport().gui_get_hovered_control()
 	var focused: Control = main.pad.focused if main.pad != null else null
 	var moving := 0
@@ -96,6 +112,23 @@ func _draw() -> void:
 	draw_rect(Rect2(at - Vector2(8, 4), Vector2(240, 22 * lines.size() + 8)), Color(0, 0, 0, 0.7))
 	for i in lines.size():
 		draw_string(font, at + Vector2(0, 18 + 22 * i), lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color.WHITE)
+	_draw_profile(Vector2(size.x - 420, 14 + 22 * lines.size() + 16))
+
+
+## The busiest profiled sections: calls, average and worst ms, share of time.
+func _draw_profile(at: Vector2) -> void:
+	const COLS := [0.0, 170.0, 235.0, 305.0, 370.0]  # x of each column
+	var rows := Prof.rows(8)
+	var font := ThemeDB.fallback_font
+	draw_rect(Rect2(at - Vector2(8, 4), Vector2(420, 20 * (rows.size() + 1) + 10)), Color(0, 0, 0, 0.7))
+	var head := ["section", "calls", "avg ms", "max ms", "%"]
+	for c in head.size():
+		draw_string(font, at + Vector2(COLS[c], 16), head[c], HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color(1, 0.85, 0.4))
+	for i in rows.size():
+		var r: Array = rows[i]
+		var cells := [String(r[0]).left(20), str(r[1]), "%.3f" % r[3], "%.3f" % r[4], "%.1f" % r[5]]
+		for c in cells.size():
+			draw_string(font, at + Vector2(COLS[c], 36 + 20 * i), cells[c], HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color.WHITE)
 
 
 ## Draw `c`'s rectangle through its full transform, so rotation shows.

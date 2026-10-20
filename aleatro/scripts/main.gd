@@ -385,6 +385,12 @@ func _process(delta: float) -> void:
 # ---------------------------------------------------------------- HUD
 
 func update_hud() -> void:
+	var pt := Prof.begin()
+	_update_hud()
+	Prof.end("update_hud", pt)
+
+
+func _update_hud() -> void:
 	# Ambience: a quiet table bed, with a low drone under boss rounds.
 	var boss_bed := gs != null and in_round and gs.hex() != ""
 	sfx.set_ambient("ambient_table", 0.25 if boss_bed else 0.55)
@@ -1079,6 +1085,12 @@ func set_sort(mode: String) -> void:
 
 
 func layout_hand(animate: bool) -> void:
+	var pt := Prof.begin()
+	_layout_hand(animate)
+	Prof.end("layout_hand", pt)
+
+
+func _layout_hand(animate: bool) -> void:
 	var n := hand_views.size()
 	if n == 0:
 		return
@@ -1185,7 +1197,9 @@ func play_selected() -> void:
 			await wait(0.5)
 		refresh_charm_states()
 		update_hud()
+		var pt := Prof.begin()
 		result = Scoring.compute(gs, played, ev, hand_views.map(func(v): return v.card))
+		Prof.end("scoring", pt)
 	var view_of := {}
 	for v in sel + hand_views:
 		view_of[v.card.id] = v
@@ -2057,7 +2071,9 @@ func _save_stats() -> void:
 func save_run(screen: String, extra := {}) -> void:
 	if gs == null:
 		return
+	var pt := Prof.begin()
 	var snap := gs.to_dict()
+	Prof.end("save snapshot", pt)
 	snap.screen = screen
 	snap.sort_mode = sort_mode
 	snap.manual_order = manual_order

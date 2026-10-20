@@ -92,7 +92,9 @@ func _spawn() -> void:
 
 
 func _process(delta: float) -> void:
+	var t := Prof.begin()
 	_step(delta)
+	Prof.end("motes step", t)
 	queue_redraw()
 	if free_when_empty and _motes.is_empty() and (rate <= 0.0 or calm):
 		queue_free()
@@ -128,6 +130,7 @@ static func _size_at(t: float, span: float, full: float) -> float:
 
 
 func _draw() -> void:
+	var t := Prof.begin()
 	for m in _motes:
 		var s := roundf(_size_at(m[4], m[5], size))
 		if s < 1.0:
@@ -137,3 +140,4 @@ func _draw() -> void:
 		draw_set_transform(m[0].round(), m[2], Vector2.ONE)
 		draw_rect(Rect2(-s / 2.0, -s / 2.0, s, s), col)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	Prof.end("motes draw", t)
