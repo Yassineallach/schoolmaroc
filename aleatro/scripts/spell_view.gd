@@ -42,7 +42,7 @@ func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	draw_set_transform_matrix(Anim.float_xform(size, _phase, float_amount))
 	var sb := PixelBox.new(col, 4.0, 0.0, true)
-	sb.shadow_offset = Vector2(3, 5) + Vector2(1, 3) * Anim.lift(_phase, float_amount)
+	sb.shadow_offset = Vector2(3, 5) + Vector2(1, 3) * Anim.lift(_phase, float_amount) + Anim.parallax(self)
 	sb.outline = 4.0
 	sb.outline_color = Color("9fe3cf")
 	draw_style_box(sb, Rect2(Vector2.ZERO, size))

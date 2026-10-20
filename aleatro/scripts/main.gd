@@ -70,7 +70,7 @@ const STAT_DEFAULTS := {
 var stats := STAT_DEFAULTS.duplicate()
 var saves: SaveManager
 var profile_data := {}
-var settings := {"master": 80.0, "music": 70.0, "sfx": 85.0, "vibration": true, "speed": 1.0}
+var settings := {"master": 80.0, "music": 70.0, "sfx": 85.0, "vibration": true, "speed": 1.0, "reduced_motion": false}
 var on_title := false
 var sidebar_buttons: Array = []
 var pad: PadInput
@@ -352,16 +352,24 @@ func _place_marker() -> void:
 
 ## Quick squash-and-wobble used on taps and score changes.
 func juice(node: Control, amount: float = 0.12) -> void:
+	if Anim.calm:
+		return
 	node.pivot_offset = node.size / 2
 	var tw := create_tween().set_parallel()
 	node.scale = Vector2.ONE * (1.0 + amount)
-	node.rotation_degrees = randf_range(-3.0, 3.0)
 	tw.tween_property(node, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	var g := Glide.on(node)
+	if g != null:
+		g.kick(amount)
+		return
+	node.rotation_degrees = randf_range(-3.0, 3.0)
 	tw.tween_property(node, "rotation_degrees", 0.0, 0.3).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 
 ## Small screen shake that decays every frame.
 func _process(delta: float) -> void:
+	if jiggle > 0.0 and Anim.calm:
+		jiggle = 0.0
 	if jiggle > 0.0:
 		jiggle = maxf(0.0, jiggle - delta * 4.0)
 		position = Vector2(randf_range(-1, 1), randf_range(-1, 1)) * jiggle * 4.0
@@ -587,9 +595,9 @@ func layout_charms(animate: bool) -> void:
 			continue
 		var target := Vector2(x0 + i * step, 4)
 		if animate:
-			create_tween().tween_property(v, "position", target, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			Glide.of(v).to(target, 0.0)
 		else:
-			v.position = target
+			Glide.of(v).snap(target, 0.0)
 
 
 # ---------------------------------------------------------------- dragging
@@ -605,7 +613,8 @@ func _on_drag_start(v: Control, pos: Vector2) -> void:
 	if v is CharmView and busy and in_round:
 		return
 	drag_view = v
-	_drag_grab = pos - v.global_position
+	# grab offset in the parent's unrotated space, so a tilted card doesn't jump
+	_drag_grab = pos - (v.get_parent() as Control).get_global_transform() * v.position
 	v.z_index = 200
 	juice(v, 0.08)
 
@@ -613,9 +622,10 @@ func _on_drag_start(v: Control, pos: Vector2) -> void:
 func _on_drag_move(v: Control, pos: Vector2) -> void:
 	if v != drag_view:
 		return
-	v.global_position = pos - _drag_grab
+	var parent := v.get_parent() as Control
+	Glide.of(v).to(parent.get_global_transform().affine_inverse() * (pos - _drag_grab), 0.0, 0.0, Glide.SNAPPY)
 	var list := _drag_list(v)
-	var cx := v.global_position.x + v.size.x / 2
+	var cx := pos.x - _drag_grab.x + v.size.x / 2  # where the card is headed
 	var idx := 0
 	for o in list:
 		if o != v and o.global_position.x + o.size.x / 2 < cx:
@@ -669,9 +679,13 @@ func bump(node: Control, amount: float = 1.18) -> void:
 	node.pivot_offset = node.size / 2
 	var tw := create_tween()
 	tw.tween_property(node, "scale", Vector2(amount, amount), 0.07)
-	tw.parallel().tween_property(node, "rotation_degrees", randf_range(-4.0, 4.0), 0.07)
 	tw.tween_property(node, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
-	tw.parallel().tween_property(node, "rotation_degrees", 0.0, 0.25).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	var g := Glide.on(node)
+	if g != null:
+		g.kick((amount - 1.0) * 0.6)
+	elif not Anim.calm:
+		tw.parallel().tween_property(node, "rotation_degrees", randf_range(-4.0, 4.0), 0.07)
+		tw.tween_property(node, "rotation_degrees", 0.0, 0.25).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 
 func wait(t: float) -> void:
@@ -915,11 +929,11 @@ func start_blind() -> void:
 ## Fly a card onto the discard heap, then drop its view.
 func send_to_discard(v: CardView, delay := 0.0) -> void:
 	v.z_index = 60
-	var tw := create_tween().set_parallel()
-	tw.tween_property(v, "position", discard_pile.card_target() + Vector2(randf_range(-6, 6), randf_range(-6, 6)), 0.28).set_delay(delay).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tw.tween_property(v, "rotation_degrees", randf_range(-25, 25), 0.28).set_delay(delay)
-	tw.tween_property(v, "scale", Vector2(PileView.W / CardView.W, PileView.W / CardView.W), 0.28).set_delay(delay)
-	tw.chain().tween_callback(func():
+	Glide.of(v).to(discard_pile.card_target() + Vector2(randf_range(-6, 6), randf_range(-6, 6)), randf_range(-25, 25), delay)
+	var tw := create_tween()
+	tw.tween_interval(delay)
+	tw.tween_property(v, "scale", Vector2(PileView.W / CardView.W, PileView.W / CardView.W), 0.28)
+	tw.tween_callback(func():
 		discard_pile.add(v.card)
 		v.queue_free())
 
@@ -1037,12 +1051,9 @@ func layout_hand(animate: bool) -> void:
 		var rot := off * 2.5
 		v.z_index = i
 		if animate:
-			var tw := create_tween().set_parallel()
-			tw.tween_property(v, "position", target, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			tw.tween_property(v, "rotation_degrees", rot, 0.18)
+			Glide.of(v).to(target, rot)
 		else:
-			v.position = target
-			v.rotation_degrees = rot
+			Glide.of(v).snap(target, rot)
 
 
 func selected_views() -> Array:
@@ -1090,9 +1101,7 @@ func play_selected() -> void:
 		v.selected = false
 		v.queue_redraw()
 		v.z_index = 50 + i
-		var tw := create_tween().set_parallel()
-		tw.tween_property(v, "position", Vector2(x0 + i * gap, play_y()), 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		tw.tween_property(v, "rotation_degrees", 0.0, 0.22)
+		Glide.of(v).to(Vector2(x0 + i * gap, play_y()), 0.0, 0.03 * i)
 	sfx.play("card_place")
 	layout_hand(true)
 	await wait(0.3)
@@ -2081,6 +2090,8 @@ func toast(text: String) -> void:
 func _apply_settings() -> void:
 	Music.apply_volumes(settings.master, settings.music, settings.sfx)
 	Engine.time_scale = settings.speed
+	Glide.calm = settings.reduced_motion
+	Anim.calm = settings.reduced_motion
 
 
 # ---------------------------------------------------------------- input helpers
@@ -2315,6 +2326,11 @@ func show_menu() -> void:
 				_apply_settings()
 				_save_stats()
 				show_menu(), {"color": Color("4a6fa5"), "tooltip": "Speeds up scoring and dealing animations"}),
+			b.call("Motion: %s" % ("Reduced" if settings.reduced_motion else "Full"), func():
+				settings.reduced_motion = not settings.reduced_motion
+				_apply_settings()
+				_save_stats()
+				show_menu(), {"color": Color("4a6fa5"), "tooltip": "Reduced turns off screen shake, wobble, lean and idle sway"}),
 			b.call("How to play", show_help),
 			b.call("Collection", show_collection),
 			b.call("Replay tips", func():

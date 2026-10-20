@@ -107,7 +107,7 @@ func _draw() -> void:
 	draw_set_transform_matrix(base)
 	var lift := Anim.lift(_phase, amount)
 	# lifted cards cast a longer shadow
-	_face_box.shadow_offset = (Vector2(6, 12) if selected else Vector2(3, 6)) + Vector2(1, 3) * lift
+	_face_box.shadow_offset = (Vector2(6, 12) if selected else Vector2(3, 6)) + Vector2(1, 3) * lift + Anim.parallax(self)
 	if not face_up:
 		_draw_back()
 		return

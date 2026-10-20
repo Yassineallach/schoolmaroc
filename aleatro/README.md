@@ -28,6 +28,7 @@ automatically; a file's name is its sound code, and `name_1`, `name_2`, ... are 
 | `scripts/card_view.gd`, `charm_view.gd` | Procedurally drawn cards and charms |
 | `scripts/sfx.gd` | Synthesized sound effects |
 | `scripts/ui_build.gd` | Declarative menu builder: rows, columns, grids, live text and bars, delayed/hold/once buttons, choice tabs, tooltips |
+| `scripts/glide.gd` | Spring mover for cards and charms: chases a target with slight overshoot, leans into fast moves, wobbles when kicked; honours Reduced motion |
 
 ## Building the Android package
 

@@ -95,7 +95,7 @@ func _draw() -> void:
 		_draw_back()
 		return
 	var sb := PixelBox.new(col, 4.0, 0.0, true)
-	sb.shadow_offset = Vector2(3, 5) + Vector2(1, 3) * Anim.lift(_phase, float_amount)
+	sb.shadow_offset = Vector2(3, 5) + Vector2(1, 3) * Anim.lift(_phase, float_amount) + Anim.parallax(self)
 	sb.outline = 4.0
 	sb.outline_color = col.lightened(0.35)
 	draw_style_box(sb, Rect2(Vector2.ZERO, size))
