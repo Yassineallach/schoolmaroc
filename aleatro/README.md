@@ -25,7 +25,8 @@ automatically; a file's name is its sound code, and `name_1`, `name_2`, ... are 
 | `scripts/scoring.gd` | Charm effects; builds the per-hand scoring events |
 | `scripts/game_state.gd` | Run state: deck, money, blinds, shop rolls |
 | `scripts/main.gd` | UI, animations, round/shop flow |
-| `scripts/card_view.gd`, `charm_view.gd` | Procedurally drawn cards and charms |
+| `scripts/card_view.gd`, `charm_view.gd` | Card and charm views (layers enhancements, seals, editions over the face) |
+| `scripts/deck_art.gd` | The pixel deck: corner indices, traditional pip layouts, big ace pips and double-ended court figures, painted at 50x70 and drawn at 2x |
 | `scripts/sfx.gd` | Synthesized sound effects |
 | `scripts/ui_build.gd` | Declarative menu builder: rows, columns, grids, live text and bars, delayed/hold/once buttons, choice tabs, tooltips |
 | `scripts/glide.gd` | Spring mover for cards and charms: chases a target with slight overshoot, leans into fast moves, wobbles when kicked; honours Reduced motion |

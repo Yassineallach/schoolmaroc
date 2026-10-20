@@ -31,6 +31,7 @@ func _init(c: Dictionary = {}) -> void:
 	custom_minimum_size = size
 	pivot_offset = size / 2
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST  # crisp 2x pixel art
 	_tilt.attach(self)
 	if _face_box == null:
 		_face_box = PixelBox.new(Color("f7f3ea"), 4.0, 0.0, true)
@@ -110,7 +111,6 @@ func _draw() -> void:
 
 
 func _paint() -> void:
-	var font := ThemeDB.fallback_font
 	var amount := float_amount * (2.0 if selected else 1.0)
 	var base := Anim.float_xform(size, _phase, amount)
 	draw_set_transform_matrix(base)
@@ -126,23 +126,8 @@ func _paint() -> void:
 	_draw_enhancement(enh)
 	if selected:
 		draw_style_box(_select_box, Rect2(Vector2.ZERO, size))
-	var col: Color = Data.SUIT_COLORS[card.suit]
-	var label: String = Data.RANK_LABELS[card.rank]
-	draw_string(font, Vector2(8, 32), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, col)
-	draw_suit(self, card.suit, Vector2(20, 48), 18.0, col)
-	# bottom-right mirror
-	draw_set_transform_matrix(base * Transform2D(PI, size))
-	draw_string(font, Vector2(8, 32), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, col)
-	draw_suit(self, card.suit, Vector2(20, 48), 18.0, col)
-	draw_set_transform_matrix(base)
-	if card.rank >= 11 and card.rank <= 13:
-		var inner := PixelBox.new(col.lightened(0.75), 2.0)
-		inner.outline = 2.0
-		inner.outline_color = col
-		draw_style_box(inner, Rect2(30, 34, 40, 72))
-		draw_string(font, Vector2(30, 82), label, HORIZONTAL_ALIGNMENT_CENTER, 40, 34, col)
-	else:
-		draw_suit(self, card.suit, size / 2 + Vector2(0, 2), 46.0, col)
+	# indices, pips and court figures: one cached pixel image at 2x
+	draw_texture_rect(DeckArt.face(card.rank, card.suit), Rect2(Vector2.ZERO, size), false)
 	if enh != "":
 		_draw_badge(Data.ENHANCEMENTS[enh].name, Data.ENHANCEMENTS[enh].badge)
 	if card.get("seal", "") != "":
@@ -190,11 +175,11 @@ func _draw_enhancement(enh: String) -> void:
 
 func _draw_badge(text: String, col: Color) -> void:
 	var font := ThemeDB.fallback_font
-	# bottom-left corner, clear of the centre pip and the mirrored rank
-	var r := Rect2(7, size.y - 21, 56, 15)
+	# bottom middle, below the lowest pips and clear of the corner index
+	var r := Rect2(22, size.y - 17, 56, 13)
 	var b := PixelBox.new(col, 2.0)
 	draw_style_box(b, r)
-	draw_string(font, Vector2(r.position.x, r.position.y + 12.5), text.to_upper(), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 10, Color.WHITE)
+	draw_string(font, Vector2(r.position.x, r.position.y + 10.5), text.to_upper(), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 9, Color.WHITE)
 
 
 static func draw_suit(ci: CanvasItem, suit: int, c: Vector2, s: float, col: Color) -> void:
