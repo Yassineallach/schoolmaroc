@@ -77,6 +77,7 @@ var pad: PadInput
 var mascot: Mascot = null
 var mascot_layer: Control
 var music: Music
+var score_ratio := 0.0  # round score / target, drives the sidebar bar
 
 
 func _ready() -> void:
@@ -89,6 +90,7 @@ func _ready() -> void:
 	add_child(saves)
 	_load_stats()
 	_apply_settings()
+	UIBuild.feedback = _ui_feedback
 	_build_ui()
 	pad = PadInput.new(self)
 	add_child(pad)
@@ -142,34 +144,22 @@ func _place(l: Control, parent: Node, pos: Vector2, sz: Vector2) -> Control:
 
 
 func _button(text: String, col: Color, cb: Callable, min_size := Vector2(160, 76), fsize := 28) -> Button:
-	var b := Button.new()
-	b.text = text
-	b.custom_minimum_size = min_size
-	b.focus_mode = Control.FOCUS_NONE
-	var normal := PixelBox.new(col, 3.0, 6.0, true)
-	var pressed := PixelBox.new(col.lightened(0.08), 3.0, 6.0, true)
-	pressed.pressed = true
-	var disabled := PixelBox.new(col.darkened(0.55).lerp(Color(0.3, 0.3, 0.3), 0.5), 3.0, 6.0, false)
-	for sb in [normal, pressed, disabled]:
-		sb.content_margin_bottom = 18
-	b.add_theme_stylebox_override("normal", normal)
-	b.add_theme_stylebox_override("hover", normal)
-	b.add_theme_stylebox_override("pressed", pressed)
-	b.add_theme_stylebox_override("disabled", disabled)
-	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	b.add_theme_font_size_override("font_size", fsize)
-	b.add_theme_color_override("font_color", Color.WHITE)
-	b.add_theme_color_override("font_hover_color", Color.WHITE)
-	b.add_theme_color_override("font_pressed_color", Color.WHITE)
-	b.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.4))
-	b.resized.connect(func(): b.pivot_offset = b.size / 2)
-	b.pressed.connect(func():
-		sfx.play("click")
-		haptic(12, 0.3)
-		juice(b)
-		jiggle += 0.5
-		cb.call())
-	return b
+	return UIBuild.make_button({"button": text, "color": col, "on": cb, "min": min_size, "size": fsize})
+
+
+## Sound, haptics and juice for every UIBuild button.
+func _ui_feedback(event: String, b: Button) -> void:
+	match event:
+		"press":
+			sfx.play("click")
+			haptic(12, 0.3)
+			juice(b)
+			jiggle += 0.5
+		"hold_start":
+			sfx.play("hold_tick")
+		"hold_done":
+			haptic(30, 0.6)
+			sfx.play("hold_done")
 
 
 func _build_ui() -> void:
@@ -204,7 +194,8 @@ func _build_ui() -> void:
 
 	var score_box := _panel(Vector2(10, 160), Vector2(320, 70), Color(0, 0, 0, 0.35))
 	_place(_label("Round score", 22, Color(1, 1, 1, 0.8), HORIZONTAL_ALIGNMENT_LEFT), score_box, Vector2(14, 0), Vector2(140, 70))
-	lbl_round_score = _place(_label("0", 36, Color.WHITE, HORIZONTAL_ALIGNMENT_RIGHT), score_box, Vector2(140, 0), Vector2(166, 70))
+	lbl_round_score = _place(_label("0", 36, Color.WHITE, HORIZONTAL_ALIGNMENT_RIGHT), score_box, Vector2(140, 0), Vector2(166, 62))
+	_place(UIBuild.build({"bar": [self, "score_ratio"], "fill": Data.CHIP_COLOR, "min": Vector2(292, 8)}), score_box, Vector2(14, 56), Vector2(292, 8))
 
 	var sbox := _panel(Vector2(10, 240), Vector2(320, 120), Color(0, 0, 0, 0.35))
 	lbl_hand_name = _place(_label("", 26), sbox, Vector2(0, 4), Vector2(320, 38))
@@ -392,6 +383,7 @@ func update_hud() -> void:
 	lbl_hands.text = str(gs.hands_left)
 	lbl_discards.text = str(gs.discards_left)
 	lbl_round_score.text = Data.fmt(gs.round_score)
+	score_ratio = float(gs.round_score) / float(maxi(gs.target, 1)) if in_round else 0.0
 	btn_deck.text = "Deck %d/%d" % [gs.draw_pile.size() if in_round else gs.deck.size(), gs.deck.size()]
 	lbl_charm_count.text = "%d/%d" % [gs.charms.size(), gs.charm_slots]
 	lbl_spell_count.text = "%d/%d" % [gs.spells.size(), gs.spell_slots]
@@ -455,11 +447,26 @@ func rebuild_charms() -> void:
 		v.drag_started.connect(_on_drag_start)
 		v.dragged.connect(_on_drag_move)
 		v.drag_ended.connect(_on_drag_end)
+		UIBuild.attach_tooltip(v, func(): return _charm_tip(v), false)
 		charm_row.add_child(v)
 		charm_views.append(v)
 	layout_charms(false)
 	refresh_charm_states()
 	update_hud()
+
+
+## Hover text for a charm in the row; nothing while the boss hides it.
+func _charm_tip(v: CharmView) -> Dictionary:
+	if not v.face_up or drag_view != null:
+		return {}
+	var inst := _charm_inst(v)
+	var d := Data.charm_def(inst.id)
+	var lines: Array = [d.desc]
+	if inst.get("ed", "") != "":
+		lines.append("%s: %s" % [Data.EDITIONS[inst.ed].name, Data.EDITIONS[inst.ed].desc])
+	if v.smothered:
+		lines.append("Disabled by the boss")
+	return {"title": d.name, "lines": lines}
 
 
 ## Show which charms the boss has disabled or hidden.
@@ -1217,6 +1224,7 @@ func play_selected() -> void:
 	tw.tween_method(func(x):
 		if lbl_round_score.text != Data.fmt(x) and randf() < 0.25:
 			sfx.play("tally", 1.0, 0.5)
+		score_ratio = float(x) / float(maxi(gs.target, 1))
 		lbl_round_score.text = Data.fmt(x), from, gs.round_score, 0.4)
 	await wait(0.5)
 
@@ -1383,8 +1391,10 @@ func game_over() -> void:
 			most = n
 	_row_label(vb, "Most played", most, Color.WHITE)
 	ace_quip(["So close! Every run teaches something.", "Ouch. Want to deal again?", "The cards weren't with us this time.", "Shake it off, the next deck is lucky!"])
-	vb.add_child(_center(_button("New Run", Data.CHIP_COLOR, new_run, Vector2(320, 90), 34)))
-	vb.add_child(_center(_button("Main Menu", Color("5a5f73"), show_title, Vector2(320, 70), 26)))
+	vb.add_child(UIBuild.build({"col": [
+		{"button": "New Run", "color": Data.CHIP_COLOR, "on": new_run, "min": Vector2(320, 90), "size": 34, "delay": 1.0, "once": true},
+		{"button": "Main Menu", "color": Color("5a5f73"), "on": show_title, "min": Vector2(320, 70), "size": 26, "delay": 1.0, "once": true},
+	]}))
 
 
 func show_victory() -> void:
@@ -1459,9 +1469,8 @@ func show_shop() -> void:
 	side.alignment = BoxContainer.ALIGNMENT_CENTER
 	side.add_theme_constant_override("separation", 20)
 	side.add_child(_button("Next Round", Data.MULT_COLOR, show_blind_select, Vector2(210, 110), 28))
-	var reroll := _button("Reroll $%d" % gs.price(gs.reroll_cost), Color("3f9a5a"), reroll_shop, Vector2(210, 90), 28)
-	reroll.disabled = gs.money < gs.price(gs.reroll_cost)
-	side.add_child(reroll)
+	side.add_child(UIBuild.build({"button": "Reroll $%d" % gs.price(gs.reroll_cost), "color": Color("3f9a5a"), "on": reroll_shop,
+		"min": Vector2(210, 90), "enabled": func(): return gs.money >= gs.price(gs.reroll_cost)}))
 	body.add_child(side)
 	for d in gs.shop_charms:
 		discover("charm", d.id)
@@ -1470,22 +1479,14 @@ func show_shop() -> void:
 
 
 func _shop_item(view: Control, cost: int, desc: String, tag: String, cb: Callable) -> Control:
-	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 6)
-	col.custom_minimum_size = Vector2(138, 0)
 	view.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(_center(view))
-	col.add_child(_label(tag, 16, Color(1, 1, 1, 0.6)))
-	var d := Label.new()
-	d.text = desc
-	d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	d.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	d.custom_minimum_size = Vector2(138, 92)
-	d.add_theme_font_size_override("font_size", 16)
-	col.add_child(d)
-	var b := _button("$%d" % cost, Color("e0a526"), cb, Vector2(130, 60), 28)
-	b.disabled = gs.money < cost
-	col.add_child(_center(b))
+	var col := UIBuild.build({"col": [
+		{"node": _center(view)},
+		{"text": tag, "size": 16, "color": Color(1, 1, 1, 0.6), "fit": 138},
+		{"text": desc, "size": 16, "wrap": 138, "lines": 4, "id": "desc", "tooltip": {"title": tag, "lines": desc.split("\n")}},
+		{"button": "$%d" % cost, "color": Color("e0a526"), "on": cb, "min": Vector2(130, 60), "enabled": func(): return gs.money >= cost},
+	], "sep": 6})
+	UIBuild.find(col, "desc").custom_minimum_size.y = 92
 	return col
 
 
@@ -2127,6 +2128,10 @@ func go_back() -> void:
 	show_menu()
 
 
+func _exit_tree() -> void:
+	UIBuild.feedback = Callable()
+
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
 		go_back()
@@ -2134,29 +2139,7 @@ func _notification(what: int) -> void:
 
 ## A button that only fires after being held down, filling up as it goes.
 func _hold_button(text: String, col: Color, cb: Callable, hold := 0.8, min_size := Vector2(300, 64)) -> Button:
-	var b := _button(text, col, func(): pass, min_size, 24)
-	b.set_meta("hold", true)
-	var fill := ColorRect.new()
-	fill.color = Color(1, 1, 1, 0.3)
-	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	fill.position = Vector2(4, 4)
-	fill.size = Vector2(0, min_size.y - 14)
-	b.add_child(fill)
-	var state := {"tw": null}
-	b.button_down.connect(func():
-		sfx.play("hold_tick")
-		var tw := create_tween()
-		state.tw = tw
-		tw.tween_property(fill, "size:x", b.size.x - 8, hold)
-		tw.tween_callback(func():
-			haptic(30, 0.6)
-			sfx.play("hold_done")
-			cb.call()))
-	b.button_up.connect(func():
-		if state.tw != null and state.tw.is_valid():
-			state.tw.kill()
-		fill.size.x = 0)
-	return b
+	return UIBuild.make_button({"button": text, "color": col, "on": cb, "hold": hold, "min": min_size, "size": 24})
 
 
 ## Label, slider and value for one 0-100 volume setting; applies live.
@@ -2197,58 +2180,46 @@ func _volume_row(title: String, key: String) -> Control:
 
 func show_challenges() -> void:
 	var won: Array = profile_data.get("challenges_won", [])
-	var vb := open_modal()
-	vb.add_child(_label("Challenges", 38, Color("ffdf6b")))
-	vb.add_child(_label("%d / %d complete  -  beat ante %d to complete one" % [won.size(), Data.CHALLENGES.size(), Data.FINAL_ANTE], 20, Color(1, 1, 1, 0.7)))
-	var grid := GridContainer.new()
-	grid.columns = 3
-	grid.add_theme_constant_override("h_separation", 12)
-	grid.add_theme_constant_override("v_separation", 12)
+	var cells: Array = []
 	for ch in Data.CHALLENGES:
 		var done := won.has(ch.id)
-		var b := _button(ch.name + ("  [done]" if done else ""), Color("3f9a5a") if done else Color("4a4f63"), func(): show_challenge(ch.id), Vector2(260, 58), 22)
-		grid.add_child(b)
-	vb.add_child(_center(grid))
-	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 58), 24)))
+		cells.append({"button": ch.name + ("  [done]" if done else ""), "color": Color("3f9a5a") if done else Color("4a4f63"),
+			"on": func(): show_challenge(ch.id), "min": Vector2(260, 58), "size": 22, "fit": 236,
+			"tooltip": {"title": ch.name, "lines": [ch.desc]}})
+	open_modal().add_child(UIBuild.build({"col": [
+		{"text": "Challenges", "size": 38, "color": Color("ffdf6b")},
+		{"text": "%d / %d complete  -  beat ante %d to complete one" % [won.size(), Data.CHALLENGES.size(), Data.FINAL_ANTE], "size": 20, "color": Color(1, 1, 1, 0.7)},
+		{"grid": cells, "columns": 3},
+		{"button": "Close", "color": Color("5a5f73"), "on": close_modal, "min": Vector2(200, 58), "size": 24},
+	]}))
 
 
 func show_challenge(id: String) -> void:
 	var ch := Data.challenge_def(id)
-	var vb := open_modal()
-	vb.add_child(_label(ch.name, 40, Color("ffdf6b")))
-	var desc := _label(ch.desc, 24)
-	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	desc.custom_minimum_size = Vector2(620, 0)
-	vb.add_child(desc)
+	var rows: Array = [
+		{"text": ch.name, "size": 40, "color": Color("ffdf6b")},
+		{"text": ch.desc, "size": 24, "wrap": 620},
+	]
 	for line in Data.challenge_lines(ch):
-		var l := _label("-  " + line, 20, Color(1, 1, 1, 0.85), HORIZONTAL_ALIGNMENT_LEFT)
-		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		l.custom_minimum_size = Vector2(620, 0)
-		vb.add_child(l)
-	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 14)
+		rows.append({"text": "-  " + line, "size": 20, "color": Color(1, 1, 1, 0.85), "wrap": 620, "align": "left"})
 	var start := func():
 		close_modal()
 		new_run(id)
+	var go: Dictionary = {"button": "Start", "color": Color("b3364e"), "on": start, "min": Vector2(220, 70)}
 	if saves.has_run():
-		row.add_child(_hold_button("Hold: Start (ends current run)", Color("b3364e"), start, 0.6, Vector2(380, 70)))
-	else:
-		row.add_child(_button("Start", Color("b3364e"), start, Vector2(220, 70), 28))
-	row.add_child(_button("Back", Color("5a5f73"), show_challenges, Vector2(160, 70), 24))
-	vb.add_child(row)
+		go = {"button": "Hold: Start (ends current run)", "color": Color("b3364e"), "on": start, "hold": 0.6, "min": Vector2(380, 70), "size": 24}
+	rows.append({"row": [go, {"button": "Back", "color": Color("5a5f73"), "on": show_challenges, "min": Vector2(160, 70), "size": 24}], "sep": 14})
+	open_modal().add_child(UIBuild.build({"col": rows}))
 
 
 func show_collection(tab: String = "charms") -> void:
 	var vb := open_modal()
 	vb.add_child(_label("Collection  (Profile %d)" % saves.profile, 34, Color("ffdf6b")))
-	var tabs := HBoxContainer.new()
-	tabs.alignment = BoxContainer.ALIGNMENT_CENTER
-	tabs.add_theme_constant_override("separation", 12)
+	var tabs: Array = []
 	for t in [["charms", "Charms"], ["bosses", "Bosses"], ["stats", "Stats"], ["credits", "Credits"]]:
-		var b := _button(t[1], Data.CHIP_COLOR if t[0] == tab else Color("4a4f63"), func(): show_collection(t[0]), Vector2(170, 54), 22)
-		tabs.add_child(b)
-	vb.add_child(tabs)
+		tabs.append({"button": t[1], "color": Data.CHIP_COLOR if t[0] == tab else Color("4a4f63"), "on": func(): show_collection(t[0]),
+			"min": Vector2(170, 54), "size": 22, "choice": "collection", "chosen": t[0] == tab})
+	vb.add_child(UIBuild.build({"row": tabs, "sep": 12}))
 	match tab:
 		"charms":
 			var seen: Array = profile_data.seen_charms
@@ -2262,6 +2233,8 @@ func show_collection(tab: String = "charms") -> void:
 				cell.custom_minimum_size = Vector2(CharmView.W, CharmView.H) * 0.62
 				cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
 				if seen.has(c.id):
+					cell.mouse_filter = Control.MOUSE_FILTER_STOP
+					UIBuild.attach_tooltip(cell, {"title": c.name, "lines": [c.desc, Data.RARITY_NAMES[c.rarity]]})
 					var cv := CharmView.new(c.id)
 					cv.float_amount = 0.6
 					cv.scale = Vector2(0.62, 0.62)
@@ -2318,38 +2291,45 @@ func show_menu() -> void:
 	var vb := open_modal()
 	music.set_muffled(true)
 	sfx.play("pause_open")
-	vb.add_child(_label("Paused" + ("  -  " + Data.challenge_def(gs.challenge).name if gs != null and gs.challenge != "" else ""), 40, Color("ffdf6b")))
-	for row in [["Master", "master"], ["Music", "music"], ["Sounds", "sfx"]]:
-		vb.add_child(_volume_row(row[0], row[1]))
-	var grid := GridContainer.new()
-	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 14)
-	grid.add_theme_constant_override("v_separation", 14)
-	grid.add_child(_button("Vibration: %s" % ("On" if settings.vibration else "Off"), Color("4a6fa5"), func():
-		settings.vibration = not settings.vibration
-		_save_stats()
-		haptic(40, 0.6)
-		show_menu(), Vector2(300, 64), 24))
-	grid.add_child(_button("Speed: %sx" % str(settings.speed).trim_suffix(".0"), Color("4a6fa5"), func():
-		var speeds := [1.0, 1.5, 2.0, 3.0]
-		settings.speed = speeds[(speeds.find(settings.speed) + 1) % speeds.size()]
-		_apply_settings()
-		_save_stats()
-		show_menu(), Vector2(300, 64), 24))
-	grid.add_child(_button("How to play", Color("5a5f73"), show_help, Vector2(300, 64), 24))
-	grid.add_child(_button("Collection", Color("5a5f73"), show_collection, Vector2(300, 64), 24))
-	grid.add_child(_button("Replay tips", Color("5a5f73"), func():
-		profile_data.tutorial = []
-		profile_data.tips_off = false
-		_save_stats()
-		close_modal()
-		toast("Ace will show the tips again"), Vector2(300, 64), 24))
-	grid.add_child(_hold_button("Hold: New Run", Data.MULT_COLOR, func():
-		close_modal()
-		new_run()))
-	grid.add_child(_hold_button("Hold: Main Menu", Color("7b4fa0"), func():
-		close_modal()
-		clear_hand_views()
-		show_title()))
-	vb.add_child(_center(grid))
-	vb.add_child(_center(_button("Resume", Data.CHIP_COLOR, close_modal, Vector2(320, 76), 30)))
+	var title: String = "Paused" + ("  -  " + Data.challenge_def(gs.challenge).name if gs != null and gs.challenge != "" else "")
+	var opt := {"color": Color("5a5f73"), "min": Vector2(300, 64), "size": 24}
+	var b := func(text: String, cb: Callable, extra := {}) -> Dictionary:
+		var d := opt.duplicate()
+		d.merge({"button": text, "on": cb})
+		d.merge(extra, true)
+		return d
+	vb.add_child(UIBuild.build({"col": [
+		{"text": title, "size": 40, "color": Color("ffdf6b"), "fit": 720},
+		{"node": _volume_row("Master", "master")},
+		{"node": _volume_row("Music", "music")},
+		{"node": _volume_row("Sounds", "sfx")},
+		{"grid": [
+			b.call("Vibration: %s" % ("On" if settings.vibration else "Off"), func():
+				settings.vibration = not settings.vibration
+				_save_stats()
+				haptic(40, 0.6)
+				show_menu(), {"color": Color("4a6fa5")}),
+			b.call("Speed: %sx" % str(settings.speed).trim_suffix(".0"), func():
+				var speeds := [1.0, 1.5, 2.0, 3.0]
+				settings.speed = speeds[(speeds.find(settings.speed) + 1) % speeds.size()]
+				_apply_settings()
+				_save_stats()
+				show_menu(), {"color": Color("4a6fa5"), "tooltip": "Speeds up scoring and dealing animations"}),
+			b.call("How to play", show_help),
+			b.call("Collection", show_collection),
+			b.call("Replay tips", func():
+				profile_data.tutorial = []
+				profile_data.tips_off = false
+				_save_stats()
+				close_modal()
+				toast("Ace will show the tips again"), {"once": true}),
+			b.call("Hold: New Run", func():
+				close_modal()
+				new_run(), {"color": Data.MULT_COLOR, "hold": 0.8}),
+			b.call("Hold: Main Menu", func():
+				close_modal()
+				clear_hand_views()
+				show_title(), {"color": Color("7b4fa0"), "hold": 0.8}),
+		], "columns": 2, "sep": 14},
+		{"button": "Resume", "color": Data.CHIP_COLOR, "on": close_modal, "min": Vector2(320, 76), "size": 30},
+	]}))

@@ -27,6 +27,7 @@ automatically; a file's name is its sound code, and `name_1`, `name_2`, ... are 
 | `scripts/main.gd` | UI, animations, round/shop flow |
 | `scripts/card_view.gd`, `charm_view.gd` | Procedurally drawn cards and charms |
 | `scripts/sfx.gd` | Synthesized sound effects |
+| `scripts/ui_build.gd` | Declarative menu builder: rows, columns, grids, live text and bars, delayed/hold/once buttons, choice tabs, tooltips |
 
 ## Building the Android package
 
