@@ -1,7 +1,8 @@
 class_name CharmView
 extends Control
 
-## Draws a charm (or a rune when `rune_hand` is set) as a small tile.
+## Draws a charm as its pixel-art card (see CharmArt), or a rune as a tile
+## when `rune_hand` is set.
 
 signal tapped(view)
 signal held(view)
@@ -23,6 +24,8 @@ var _phase := randf() * TAU
 var _touch := TouchTracker.new()
 var _tilt := Tilt.new()
 
+static var _art := {}  # charm id -> ImageTexture
+
 
 func _init(id: String = "", rune: String = "", ed: String = "") -> void:
 	charm_id = id
@@ -32,6 +35,7 @@ func _init(id: String = "", rune: String = "", ed: String = "") -> void:
 	custom_minimum_size = size
 	pivot_offset = size / 2
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST  # the art is exactly 2x
 	_tilt.attach(self)
 	if edition != "":
 		_ensure_material().set_shader_parameter("edition", Data.EDITIONS[edition].shader)
@@ -105,6 +109,13 @@ func _paint() -> void:
 		return
 	var sb := PixelBox.new(col, 4.0, 0.0, true)
 	sb.shadow_offset = Vector2(3, 5) + Vector2(1, 3) * Anim.lift(_phase, float_amount) + Anim.parallax(self)
+	if rune_hand == "" and CharmArt.CARDS.has(charm_id):
+		# the card art, over the box's drop shadow only
+		sb.color = Color(0, 0, 0, 0)
+		draw_style_box(sb, Rect2(Vector2.ZERO, size))
+		draw_texture_rect(art(charm_id), Rect2(Vector2.ZERO, size), false)
+		_draw_overlays(font)
+		return
 	sb.outline = 4.0
 	sb.outline_color = col.lightened(0.35)
 	draw_style_box(sb, Rect2(Vector2.ZERO, size))
@@ -128,6 +139,37 @@ func _paint() -> void:
 		draw_style_box(b, Rect2(30, 6, 60, 16))
 		draw_string(font, Vector2(30, 18.5), tag, HORIZONTAL_ALIGNMENT_CENTER, 60, 11, Color.WHITE)
 	draw_multiline_string(font, Vector2(6, 112), name, HORIZONTAL_ALIGNMENT_CENTER, size.x - 12, 19, 2, Color.WHITE)
+	_draw_overlays(font)
+
+
+## The charm's card art, painted once from CharmArt with its edge in the
+## rarity colour, and cached.
+static func art(id: String) -> ImageTexture:
+	if not _art.has(id):
+		var card: Dictionary = CharmArt.CARDS[id]
+		var pal := {}
+		for k in card.pal:
+			pal[k] = Color(card.pal[k])
+		pal["Z"] = Data.RARITY_COLORS[Data.charm_def(id).rarity]
+		var rows: Array = card.rows
+		var img := Image.create(rows[0].length(), rows.size(), false, Image.FORMAT_RGBA8)
+		img.fill(Color(0, 0, 0, 0))
+		for y in rows.size():
+			var row: String = rows[y]
+			for x in row.length():
+				if row[x] != ".":
+					img.set_pixel(x, y, pal[row[x]])
+		_art[id] = ImageTexture.create_from_image(img)
+	return _art[id]
+
+
+## Edition tag, padlock and the boss's "disabled" veil, over any face.
+func _draw_overlays(font: Font) -> void:
+	if edition != "" and rune_hand == "" and CharmArt.CARDS.has(charm_id):
+		var tag: String = Data.EDITIONS[edition].name.to_upper()
+		var b := PixelBox.new(Color(0, 0, 0, 0.55), 2.0)
+		draw_style_box(b, Rect2(30, size.y - 22, 60, 16))
+		draw_string(font, Vector2(30, size.y - 9.5), tag, HORIZONTAL_ALIGNMENT_CENTER, 60, 11, Color.WHITE)
 	if locked:
 		# a small padlock: this charm cannot be sold
 		var at := Vector2(size.x - 22, 10)
