@@ -3,3 +3,4 @@ build/
 android/
 *.keystore
 *.jks
+__pycache__/
