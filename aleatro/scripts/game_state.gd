@@ -1030,6 +1030,7 @@ func cast_spell(id: String, selected: Array) -> Array:
 			"soul":
 				give_charm(3)
 	spells.erase(id)
+	run_flags["spells_cast"] = run_flags.get("spells_cast", 0) + 1
 	# casting a spell beyond the normal slots uses up a Negative slot
 	neg_spells = clampi(neg_spells, 0, maxi(0, spells.size() - spell_slots))
 	return removed

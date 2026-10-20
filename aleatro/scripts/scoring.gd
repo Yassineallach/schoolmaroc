@@ -230,8 +230,6 @@ static func _on_card(inst: Dictionary, card: Dictionary, ctx: Dictionary) -> Dic
 			if r == 14: return {"chips": 20, "mult": 4}
 		"court":
 			if face: return {"chips": 30}
-		"crown":
-			if r == 13: return {"xmult": 1.5}
 	return {}
 
 
@@ -349,6 +347,9 @@ static func _on_hand(inst: Dictionary, ctx: Dictionary) -> Dictionary:
 			if n > 0 and n % 6 == 0: return {"xmult": 4.0}
 		"slate":
 			if ctx.held.all(func(c): return gs.suit_is(c, 0) or gs.suit_is(c, 2)): return {"xmult": 3.0}
+		"seer":
+			var n: int = gs.run_flags.get("spells_cast", 0)
+			if n > 0: return {"mult": n}
 		"daredevil":
 			return {"chips": 250}
 		"rewind":

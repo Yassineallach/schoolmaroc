@@ -16,6 +16,7 @@ const EXTRA_TYPES := {"hand": TYPE_ARRAY, "draw_pile": TYPE_ARRAY, "boss": TYPE_
 
 ## "" when `d` is a run the game can resume, else what is wrong with it.
 static func run(d: Dictionary) -> String:
+	_rename_charms(d)
 	var fresh := GameState.new()
 	for f in GameState.SAVE_FIELDS:
 		if d.has(f) and not _same_type(d[f], fresh.get(f)):
@@ -31,6 +32,18 @@ static func run(d: Dictionary) -> String:
 	if why == "":
 		why = _screen(d)
 	return why
+
+
+## Carry charms that were renamed between versions over to their new ids.
+static func _rename_charms(d: Dictionary) -> void:
+	for key in ["charms", "shop_charms"]:
+		for c in d.get(key, []):
+			if c is Dictionary and Data.RENAMED_CHARMS.has(c.get("id")):
+				c.id = Data.RENAMED_CHARMS[c.id]
+				if key == "shop_charms":
+					c.merge(Data.charm_def(c.id), true)
+				else:
+					c.data = {}
 
 
 static func _same_type(v, like) -> bool:
@@ -157,6 +170,8 @@ static func profile(d: Dictionary, stat_defaults: Dictionary) -> Dictionary:
 		for k in stat_defaults:
 			if stats.get(k) is int and stats[k] >= 0:
 				out.stats[k] = stats[k]
+	if d.get("seen_charms") is Array:
+		d.seen_charms = d.seen_charms.map(func(id): return Data.RENAMED_CHARMS.get(id, id))
 	out.seen_charms = _strings(d.get("seen_charms"), func(id): return not Data.charm_def(id).is_empty())
 	out.seen_hexes = _strings(d.get("seen_hexes"), func(id): return Data.HEXES.any(func(h): return h.id == id))
 	out.challenges_won = _strings(d.get("challenges_won"), func(id): return not Data.challenge_def(id).is_empty())

@@ -34,6 +34,8 @@ const BLIND_NAMES := ["Small Blind", "Big Blind"]
 const BLIND_COLORS := [Color("3a7bd5"), Color("e0a526")]
 
 # rarity: 0 common, 1 uncommon, 2 rare
+## Charm ids from older versions and what they became.
+const RENAMED_CHARMS := {"crown": "seer"}
 ## Charms the shop only offers once a run flag is set.
 const CHARM_UNLOCKS := {"ripe": "plantain_spoiled"}
 
@@ -66,7 +68,7 @@ const CHARMS := [
 	{"id": "prism", "name": "Prism", "desc": "x3 Mult if played cards include all 4 suits", "cost": 7, "rarity": 1},
 	{"id": "warden", "name": "Warden", "desc": "Sell during a boss blind to disable it", "cost": 6, "rarity": 1},
 	{"id": "duet", "name": "Duet", "desc": "x2 Mult if hand contains a Pair", "cost": 8, "rarity": 2},
-	{"id": "crown", "name": "Crown", "desc": "x1.5 Mult for each scored King", "cost": 9, "rarity": 2},
+	{"id": "seer", "name": "Seer", "desc": "+1 Mult for every Spell cast this run", "cost": 6, "rarity": 0},
 	# --- batch 1
 	{"id": "pairchips", "name": "Twin Veil", "desc": "+50 Chips if the hand contains a Pair", "cost": 3, "rarity": 0},
 	{"id": "twopairchips", "name": "Duo Veil", "desc": "+80 Chips if the hand contains Two Pair", "cost": 4, "rarity": 0},
@@ -291,10 +293,10 @@ static func spell_def(id: String) -> Dictionary:
 # charms: [{id, ed?, locked?}]   spells: [ids]   banned_charms / banned_hexes: [ids]
 const CHALLENGES := [
 	{"id": "glass_house", "name": "Glass House", "desc": "Every card in the deck is Glass. Handle with care.",
-		"deck": {"enh": "glass"}, "banned_charms": ["crown"]},
+		"deck": {"enh": "glass"}},
 	{"id": "low_ceiling", "name": "Low Ceiling", "desc": "Nothing above a 9 in the deck.",
 		"deck": {"ranks": [2, 3, 4, 5, 6, 7, 8, 9]}, "charms": [{"id": "even", "locked": true}, {"id": "odd", "locked": true}],
-		"banned_charms": ["court", "scribe", "crown"]},
+		"banned_charms": ["court", "scribe"]},
 	{"id": "court_only", "name": "Court Only", "desc": "Only 10s and higher, two of each.",
 		"deck": {"ranks": [10, 11, 12, 13, 14], "copies": 2}, "charms": [{"id": "court", "locked": true}],
 		"banned_hexes": ["mute", "mask"]},
