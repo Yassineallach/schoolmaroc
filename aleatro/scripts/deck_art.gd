@@ -7,8 +7,8 @@ extends RefCounted
 ##   opposite corner
 ## - 2-10: traditional pip layouts, pips past the middle turned upside down
 ## - ace: one large pip
-## - J / Q / K: double-ended court figures built from layers (headwear,
-##   head, hair, collar, patterned robe, sash, held item), coloured per suit
+## - J / Q / K: double-ended court figures, seen side-on, from hand-drawn
+##   templates plus a sash and a held item, coloured per suit
 ## The face itself (paper colour, enhancement tint) is drawn by CardView
 ## underneath, so these images are transparent apart from the ink.
 
@@ -198,9 +198,9 @@ const JACK := [
 	"........KHSSSSSs",
 	"........KHrSSSSs",
 	".........KSSSSrr",
-	".........KKSSSSS",
-	"....KKKKKAAKSSSS",
-	"...KAAAAAaaAKKKK",
+	"................",
+	"....KKKKKKKKKKKK",
+	"...KAAAAAaaAAAAA",
 	"..KpPPPPAaAAAAAA",
 	".KppPpPpPAaaaaaa",
 	"KppPpPpPpPpPpPpG",
@@ -230,11 +230,11 @@ const QUEEN := [
 	"........KHrSSSSs",
 	"........KHSSSSrr",
 	"........KHHSSSSS",
-	"....KKKKHhHKSSSS",
-	"...KWWWKHhWWWWWW",
-	"..KWAWAWHhWAWAWW",
-	".KpPPPPPHhKWWWWW",
-	"KppPAPPPKhPKWWAW",
+	"....KKKKKKKKKKKK",
+	"...KWWWKWWWWWWWW",
+	"..KWAWAWWAWAWAWW",
+	".KpPPPPPPKWWWWWW",
+	"KppPAPPPPKPKWWAW",
 	"KppPPPPAPKPPKWWW",
 	"KppPAPPPPPAPPKKW",
 	"KppPPPPAPPPPAPPK",
@@ -261,14 +261,14 @@ const KING := [
 	".........KSKWSSS",
 	".........KSSSSSs",
 	".........KrSSSSs",
-	"....KKKKKHHHHHHr",
-	"...KWWKWWHHHHHHH",
-	"..KWKWWKWHHhHHHH",
-	".KpPPPPPKWHHHhHH",
-	".KpPpPPpPKWHHHHH",
-	"KppPPPPPPPKKHHhH",
-	"KppPpPPpPPPPKKHH",
-	"KppPPPPPPPpPPPKH",
+	"....KKKKKKKKKKKK",
+	"...KWWKWWKWWKWWW",
+	"..KWKWWKWWKWWKWW",
+	".KpPPPPPKWWKWWWW",
+	".KpPpPPpPKWWKWWW",
+	"KppPPPPPPPKKWWKW",
+	"KppPpPPpPPPPKKWW",
+	"KppPPPPPPPpPPPKW",
 	"KppPpPPpPPPPpPPG",
 	"KpGGGPPPPPpPPPPg",
 	"KSSSKPpPPpPPpPPG",
@@ -279,6 +279,57 @@ const KING := [
 	"..KgggggggggggGJ",
 	"..KpPPpPPpPPpPPG",
 	"..KpPPpPPpPPpPPg",
+]
+
+## Side-on heads, full width, drawn over the mirrored half: rows 0-11
+## replace it outright, rows 12-13 only where they are not ".". No eyes.
+const JACK_HEAD := [
+	"...............................",
+	"...........KKKKKKKK............",
+	"..........KPPPPPPPPK...........",
+	".........KPPPPPPPPPPK..........",
+	".........KGGGGGGGGGGGKK........",
+	".........KHHHHSSSSSSK..........",
+	".........KHHHSSSSSSSK..........",
+	".........KHHHSSSSSSSSK.........",
+	".........KHHhSSSSSSSsK.........",
+	".........KHHhSSSSSSSK..........",
+	".........KHHhSSSSSrSK..........",
+	"..........KHhSSSSSSK...........",
+	"...........KKSSSSKK............",
+	"............KSSSSK.............",
+]
+const QUEEN_HEAD := [
+	"...............................",
+	"............G..J..G............",
+	"...........GGG.GGG.GGG.........",
+	"..........KGgGGgGGgGK..........",
+	".........KHHHHHHHHHHK..........",
+	"........KHHHHHHSSSSSK..........",
+	".......KHHHHHHSSSSSSK..........",
+	".......KHHhHHHSSSSSSSK.........",
+	"......KHHHhHHhSSSSSSsK.........",
+	"......KHHHhHHhSSSSSrK..........",
+	".......KHHhHHhSSSSSSK..........",
+	"........KKKHHhKSSSSK...........",
+	"............KKSSK..............",
+	"............KSSSK..............",
+]
+const KING_HEAD := [
+	"..........G..G..G..G...........",
+	"..........GG.GG.GG.GG..........",
+	"..........GGGGGGGGGGG..........",
+	"..........GJGGAGGJGGG..........",
+	".........KgggggggggggK.........",
+	".........KHHHHHSSSSSSK.........",
+	".........KHHHHSSSSSSSK.........",
+	".........KHHHhSSSSSSSSK........",
+	".........KHHHhSSSSSSSsK........",
+	".........KHHHhSSSSHHHHK........",
+	".........KHHHhHHHHHHrK.........",
+	".........KHHHhHHHHHHHK.........",
+	"..........KHHhHHHHHHHHK........",
+	"............KhHHHHHHHK.........",
 ]
 
 const HW := 31  # court half width
@@ -298,11 +349,21 @@ const ITEMS := [
 ## same half turned upside down below, like a real double-ended card.
 static func _court(img: Image, rank: int, suit: int, col: Color) -> void:
 	var half: Array = [JACK, QUEEN, KING][rank - 11]
+	var head: Array = [JACK_HEAD, QUEEN_HEAD, KING_HEAD][rank - 11]
 	var g: Array = []
 	for row in half:
 		var full: String = row + row.left(15).reverse()
 		g.append(_chars(full))
+	for y in head.size():
+		var row: String = head[y]
+		for x in HW:
+			if y < 12 or row[x] != ".":
+				g[y][x] = row[x]
 	_overlay(g, rank - 11, suit)
+	# hearts and diamonds face the other way
+	if suit == 1 or suit == 3:
+		for row in g:
+			row.reverse()
 	var pal := _palette(rank, suit, col)
 	for y in HH:
 		for x in HW:
