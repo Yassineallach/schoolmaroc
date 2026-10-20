@@ -553,6 +553,406 @@ def crown(c):
     jester(c, hat=P_["red"], flaps=P_["gold"], collar=("9b2240", "6e1530"), crown=True)
 
 
+# ------------------------------------------------------------------ more props
+
+def chip_stack(c, x, y, n, col, edge, r=5.5):
+    """A stack of n poker chips, its top chip at y."""
+    c.pal.update({"A": col, "a": edge})
+    for k in range(n - 1, -1, -1):
+        yy = y + k * 3
+        c.ellipse(x, yy + 1, r, 2.4, "a")
+        c.ellipse(x, yy, r, 2.4, "A")
+    for dx in (-3, 0, 3):
+        c.set(x + dx, y, "w")
+
+
+def mini_crown(c, x, y, s=1.0):
+    c.pal.update({"Y": "f5b82e", "y": "b8801a", "I": "e63946"})
+    c.poly([(x - 5 * s, y + 4 * s), (x - 6 * s, y - 4 * s), (x - 2 * s, y), (x, y - 6 * s), (x + 2 * s, y),
+            (x + 6 * s, y - 4 * s), (x + 5 * s, y + 4 * s)], "Y")
+    c.rect(x - 5 * s, y + 2 * s, x + 5 * s, y + 4 * s, "y")
+    c.set(x, y + 1, "I")
+
+
+def waves(c, y0, cols=("A", "a"), x0=9, x1=50):
+    for band, yb in enumerate(range(y0, H - 1, 6)):
+        for x in range(x0, x1):
+            y = yb + 2 * math.sin((x + band * 7) / 4.0)
+            for yy in range(int(y), H - 2):
+                c.set(x, yy, cols[band % 2])
+
+
+def veil_card(n, hat, chip, rising=False, flush=False):
+    def f(c):
+        jester(c, top=5, hat=P_[hat], flaps=P_["white"], collar=P_[hat])
+        if flush:
+            c.pal.update({"D": "bfe6ff", "d": "42aaf0"})
+            waves(c, 63, ("D", "d"))
+        gap = 12 if n < 4 else 10
+        xs = [29 + (i - (n - 1) / 2) * gap for i in range(n)]
+        for i, x in enumerate(xs):
+            h = 2 + i if rising else 3
+            chip_stack(c, x, 66 - h * 3, h, chip[0], chip[1], 5.5 if n < 4 else 4.5)
+        c.outline(keep=".wDd")
+    return f
+
+
+def crown_card(hat, prop):
+    def f(c):
+        jester(c, top=4, hat=P_[hat], flaps=P_["gold"], collar=P_[hat], crown=True)
+        prop(c)
+        c.outline(keep=".w")
+    return f
+
+
+def _crowns(n):
+    def f(c):
+        gap = 12 if n < 4 else 10
+        for i in range(n):
+            mini_crown(c, 29 + (i - (n - 1) / 2) * gap, 59, 1.0 if n < 4 else 0.8)
+    return f
+
+
+def _rail(c):
+    c.pal.update({"S": "8a96a3", "s": "5d6675"})
+    for i in range(5):
+        x = 10 + i * 8
+        c.rect(x, 66 - i * 4, x + 6, 68, "S")
+        c.rect(x, 66 - i * 4, x + 6, 66 - i * 4, "s")
+
+
+def _flushwave(c):
+    c.pal.update({"A": "42aaf0", "a": "1d6fd1"})
+    waves(c, 56)
+
+
+def grin(c):
+    jester(c, top=10, hat=P_["purple"], flaps=P_["green"], collar=P_["purple"], grin=True)
+    c.pal.update({"M": "f4f1ea", "m": "c9c2b0"})
+    for x in (16, 44):
+        mini_mask(c, x, 61, "M", "m")
+    c.outline(keep=".w")
+
+
+def radio(c):
+    jester(c, top=4, hat=P_["orange"], flaps=P_["teal"], collar=P_["orange"])
+    c.pal.update({"D": "c06a3a", "d": "7a3f20", "S": "c9d3dc", "V": "9b5de5"})
+    c.rect(16, 52, 42, 68, "D")
+    c.rect(18, 54, 30, 66, "S")
+    for y in range(55, 66, 2):
+        c.rect(18, y, 30, y, "d")
+    c.ellipse(36, 58, 3, 3, "d"), c.ellipse(36, 64, 2, 2, "S")
+    c.line(40, 52, 47, 45, "S")
+    note(c, 49, 60, "V")
+    c.outline(keep=".w")
+
+
+def spearhead(c):
+    jester(c, cx=24, top=6, hat=P_["dark"], flaps=P_["sky"], collar=P_["dark"])
+    c.pal.update({"D": "c06a3a", "S": "c9d3dc", "s": "8a96a3"})
+    c.line(43, 70, 43, 30, "D", 2)
+    suit_shape(c, "spade", 43, 26, 6, "S")
+    suit_shape(c, "spade", 44, 27, 3.5, "s")
+    c.outline(keep=".w")
+
+
+def clover(c):
+    jester(c, top=4, hat=P_["green"], flaps=P_["gold"], collar=P_["green"])
+    c.pal.update({"G": "3fb97a", "g": "2a8a58"})
+    for dx, dy in ((-5, -4), (5, -4), (-5, 4), (5, 4)):
+        c.ellipse(30 + dx, 59 + dy, 5, 5, "G")
+        c.ellipse(30 + dx * 1.2, 59 + dy * 1.2, 2, 2, "g")
+    c.line(30, 60, 36, 72, "g", 2)
+    c.outline(keep=".w")
+
+
+def rawgem(c):
+    jester(c, top=4, hat=P_["orange"], flaps=P_["dark"], collar=P_["orange"])
+    c.pal.update({"O": "f08a24", "o": "b05a10", "Y": "ffc078"})
+    c.poly([(22, 58), (27, 49), (36, 48), (41, 56), (36, 69), (25, 67)], "O")
+    c.poly([(30, 58), (36, 48), (41, 56), (36, 69)], "o")
+    c.poly([(25, 56), (29, 51), (31, 57)], "Y")
+    c.outline(keep=".w")
+
+
+def heartstone(c):
+    jester(c, top=4, hat=P_["red"], flaps=P_["dark"], collar=P_["red"])
+    c.pal.update({"I": "e63946", "i": "a02030", "Y": "ff8a8a"})
+    suit_shape(c, "heart", 30, 59, 10, "I")
+    c.poly([(30, 50), (40, 56), (30, 70)], "i", only="I")
+    c.ellipse(25, 55, 2, 1.5, "Y")
+    c.outline(keep=".w")
+
+
+def portrait(c):
+    c.pal.update({"Y": "f5b82e", "y": "b8801a", "Q": "f4e7c4"})
+    c.rect(9, 9, 51, 68, "Y")
+    c.rect(12, 12, 48, 65, "Q")
+    c.rect(9, 66, 51, 68, "y")
+    jester(c, top=12, s=0.78, hat=P_["red"], flaps=P_["blue"], collar=P_["gold"])
+    c.outline(keep=".w")
+
+
+def tightrope(c):
+    c.pal.update({"Q": "dff2ff", "D": "c06a3a", "S": "8a96a3"})
+    background(c, "Q")
+    c.line(1, 52, W - 2, 46, "D", 2)
+    jester(c, top=6, s=0.78, hat=P_["red"], flaps=P_["gold"], collar=P_["red"])
+    c.line(6, 34, 54, 30, "S", 1)
+    c.ellipse(6, 34, 2, 2, "S"), c.ellipse(54, 30, 2, 2, "S")
+
+
+def fist(c):
+    jester(c, top=3, hat=P_["dark"], flaps=P_["red"], collar=P_["dark"])
+    c.pal.update({"S": "f2c9a0", "s": "c99a70"})
+    c.rect(18, 50, 42, 66, "S")
+    c.rect(18, 62, 42, 66, "s")
+    for x in (24, 30, 36):
+        c.rect(x, 50, x, 58, "s")
+    c.rect(14, 54, 19, 62, "S")
+    c.outline(keep=".w")
+
+
+def regent(c):
+    jester(c, top=4, hat=P_["purple"], flaps=P_["gold"], collar=("9b2240", "6e1530"), crown=True)
+    c.pal.update({"Y": "f5b82e", "I": "e63946", "M": "9b5de5"})
+    c.line(46, 70, 40, 46, "Y", 2)
+    c.ellipse(40, 45, 3, 3, "I")
+    c.rect(12, 54, 24, 68, "M")
+    c.rect(16, 58, 20, 64, "Y")
+    c.outline(keep=".w")
+
+
+def moonrise(c):
+    c.pal.update({"Q": "1d1f3a", "Y": "f5e6a8", "y": "c9b46a"})
+    background(c, "Q")
+    c.ellipse(30, 54, 14, 14, "Y")
+    c.ellipse(36, 50, 12, 12, "Q", only="Y")
+    jester(c, top=8, s=0.7, hat=P_["sky"], flaps=P_["purple"], collar=P_["sky"])
+    for k in range(18):
+        c.set((k * 23) % (W - 6) + 3, (k * 37) % 30 + 4, "Y")
+
+
+def encore(c):
+    c.pal.update({"I": "b8334a", "i": "7a1a2e", "Y": "f5b82e"})
+    jester(c, top=8, hat=P_["gold"], flaps=P_["red"], collar=P_["gold"], grin=True)
+    for side in (0, 1):
+        for x in range(9, 15):
+            xx = x if side == 0 else W - 1 - x
+            for y in range(2, H - 2):
+                if (x - 9) < 6 - y * 0.05:
+                    c.set(xx, y, "I" if (x // 2) % 2 else "i")
+    c.rect(9, 2, W - 10, 5, "Y")
+
+
+def masquerade(c):
+    jester(c, top=4, hat=P_["dark"], flaps=P_["gold"], collar=P_["dark"])
+    c.pal.update({"M": "f4f1ea", "m": "c9c2b0", "I": "e63946", "i": "a02030"})
+    mask(c, 20, 59, 1.0, "M", "m")
+    mask(c, 40, 59, 1.0, "I", "i")
+    c.outline(keep=".w")
+
+
+def punchcard(c):
+    jester(c, top=3, hat=P_["sky"], flaps=P_["white"], collar=P_["sky"])
+    c.pal.update({"Q": "f4e7c4", "q": "cdb98a"})
+    c.rect(12, 50, 48, 70, "Q")
+    c.poly([(12, 50), (17, 50), (12, 55)], ".")
+    for x in range(16, 46, 4):
+        for y in range(54, 68, 4):
+            c.set(x, y, "q" if (x * 7 + y) % 3 else "K")
+    c.outline(keep=".w")
+
+
+def twilight(c):
+    c.pal.update({"1": "f08a24", "2": "e0566a", "3": "9b5de5", "4": "4b3a8a", "Y": "f5d742"})
+    for y in range(1, H - 1):
+        c.rect(1, y, W - 2, y, "4321"[min(3, y * 4 // 52)] if y < 52 else "1")
+    c.ellipse(30, 58, 10, 10, "Y")
+    c.rect(1, 60, W - 2, H - 2, "4")
+    jester(c, top=6, s=0.78, hat=P_["dark"], flaps=P_["orange"], collar=P_["dark"])
+
+
+def callingcard(c):
+    jester(c, top=4, hat=P_["dark"], flaps=P_["white"], collar=P_["dark"])
+    c.pal.update({"Q": "f4f1ea", "q": "8a96a3"})
+    c.rect(14, 52, 46, 68, "Q")
+    c.rect(18, 56, 34, 57, "q")
+    for y in (61, 64):
+        c.rect(18, y, 42, y, "q")
+    coin(c, 46, 66)
+    c.outline(keep=".w")
+
+
+def ticket(c):
+    jester(c, top=4, hat=P_["gold"], flaps=P_["red"], collar=P_["gold"])
+    c.pal.update({"Y": "f5d742", "y": "c9a520"})
+    c.poly([(11, 54), (47, 50), (49, 66), (13, 70)], "Y")
+    for y in range(52, 70, 3):
+        c.set(18, y + (0 if y < 60 else -1), "y")
+    c.rect(24, 58, 44, 59, "y")
+    c.outline(keep=".w")
+
+
+def patience(c):
+    jester(c, cx=24, top=6, hat=P_["teal"], flaps=P_["gold"], collar=P_["teal"])
+    c.pal.update({"D": "c06a3a", "Q": "dff2ff", "Y": "f5d742"})
+    c.rect(34, 44, 48, 46, "D"), c.rect(34, 68, 48, 70, "D")
+    c.poly([(36, 47), (46, 47), (42, 57), (40, 57)], "Q")
+    c.poly([(40, 57), (42, 57), (46, 67), (36, 67)], "Q")
+    c.poly([(38, 61), (44, 61), (46, 67), (36, 67)], "Y")
+    c.outline(keep=".w")
+
+
+def corsair(c):
+    jester(c, top=4, hat=P_["dark"], flaps=P_["red"], collar=P_["red"])
+    c.pal.update({"S": "c9d3dc", "Y": "f5b82e"})
+    c.line(16, 68, 44, 50, "S", 2)
+    c.line(44, 68, 16, 50, "S", 2)
+    c.rect(20, 62, 24, 64, "Y"), c.rect(36, 62, 40, 64, "Y")
+    c.rect(20, 24, 26, 25, "K")
+    c.outline(keep=".w")
+
+
+def fame(c):
+    c.pal.update({"Y": "f5d742", "y": "c9a520"})
+    pts = []
+    for k in range(10):
+        a = -math.pi / 2 + k * math.pi / 5
+        r = 22 if k % 2 == 0 else 10
+        pts.append((30 + r * math.cos(a), 34 + r * math.sin(a)))
+    c.poly(pts, "Y")
+    jester(c, top=12, s=0.8, hat=P_["pink"], flaps=P_["gold"], collar=P_["pink"], grin=True)
+    for x in range(14, 48, 6):
+        c.set(x, 66, "y"), c.set(x + 1, 67, "y")
+
+
+def commuter(c):
+    jester(c, top=3, hat=P_["orange"], flaps=P_["blue"], collar=P_["orange"])
+    c.pal.update({"Y": "f5b82e", "y": "b8801a", "Q": "bfe6ff", "S": "3a3d5c"})
+    c.rect(10, 50, 48, 66, "Y")
+    c.rect(10, 63, 48, 66, "y")
+    for x in range(13, 44, 8):
+        c.rect(x, 53, x + 6, 58, "Q")
+    c.ellipse(17, 67, 3.5, 3.5, "S"), c.ellipse(43, 67, 3.5, 3.5, "S")
+    c.outline(keep=".w")
+
+
+def sprinter(c):
+    c.pal.update({"S": "a8aaaf"})
+    for y in (24, 31, 38, 45):
+        c.rect(10, y, 18 + (y % 3) * 2, y, "S")
+    jester(c, cx=34, top=8, hat=P_["green"], flaps=P_["orange"], collar=P_["green"])
+    c.pal.update({"I": "e63946", "i": "a02030"})
+    c.poly([(22, 60), (40, 58), (46, 64), (22, 66)], "I")
+    c.rect(22, 64, 46, 66, "i")
+    c.outline(keep=".w")
+
+
+def foursquare(c):
+    jester(c, top=3, hat=P_["blue"], flaps=P_["gold"], collar=P_["blue"])
+    c.pal.update({"1": "e63946", "2": "f5b82e", "3": "3fb97a", "4": "42aaf0"})
+    for i, (dx, dy) in enumerate(((0, 0), (11, 0), (0, 11), (11, 11))):
+        c.rect(19 + dx, 49 + dy, 28 + dx, 58 + dy, "1234"[i])
+    c.outline(keep=".w")
+
+
+def sorbet(c):
+    jester(c, cx=24, top=6, hat=P_["pink"], flaps=P_["white"], collar=P_["pink"])
+    c.pal.update({"D": "e0a35a", "d": "a8743a", "M": "f9c6d8", "m": "a8e6cf"})
+    c.poly([(35, 52), (49, 52), (42, 72)], "D")
+    for k in range(4):
+        c.line(36 + k * 3, 53, 42, 70, "d")
+    c.ellipse(42, 47, 7, 6, "M")
+    c.ellipse(42, 40, 5.5, 5, "m")
+    c.outline(keep=".w")
+
+
+def kettle(c):
+    jester(c, top=3, hat=P_["red"], flaps=P_["white"], collar=P_["red"])
+    c.pal.update({"I": "e63946", "M": "f4f1ea", "Y": "f5d742"})
+    c.poly([(16, 54), (44, 54), (40, 72), (20, 72)], "M")
+    for x in range(18, 44, 6):
+        c.poly([(x, 54), (x + 3, 54), (x + 2.5, 72), (x + 1, 72)], "I")
+    for x in range(17, 45, 5):
+        c.ellipse(x, 52, 3, 2.5, "M")
+        c.set(x, 51, "Y")
+    c.outline(keep=".w")
+
+
+def _banana(c, spots):
+    c.pal.update({"Y": "f5d742", "y": "c9a520", "D": "6e4a20"})
+    for k in range(40):
+        t = k / 39
+        x = 15 + 30 * t
+        y = 58 + 9 * math.sin(math.pi * t)
+        c.ellipse(x, y, 3.5, 3.5, "Y")
+    for k in range(40):
+        t = k / 39
+        c.set(15 + 30 * t, 61 + 9 * math.sin(math.pi * t), "y")
+    c.rect(12, 55, 14, 58, "D"), c.rect(45, 55, 47, 58, "D")
+    if spots:
+        for x, y in ((21, 63), (27, 66), (33, 66), (39, 63), (24, 64), (36, 64)):
+            c.set(x, y, "D"), c.set(x + 1, y, "D")
+
+
+def plantain(c):
+    jester(c, top=3, hat=P_["green"], flaps=P_["gold"], collar=P_["green"])
+    _banana(c, False)
+    c.outline(keep=".w")
+
+
+def ripe(c):
+    jester(c, top=3, hat=P_["gold"], flaps=P_["green"], collar=P_["gold"], grin=True)
+    _banana(c, True)
+    c.outline(keep=".w")
+
+
+def fizz(c):
+    jester(c, cx=24, top=6, hat=P_["sky"], flaps=P_["teal"], collar=P_["sky"])
+    c.pal.update({"Q": "bfe6ff", "G": "3fb97a", "g": "2a8a58"})
+    c.rect(36, 50, 48, 72, "G")
+    c.rect(39, 40, 45, 50, "G")
+    c.rect(44, 52, 47, 70, "g")
+    c.rect(38, 58, 46, 64, "Q")
+    for k, (x, y) in enumerate(((41, 34), (44, 28), (40, 22), (43, 16))):
+        c.ring(x, y, 2, 2, 0.8, "Q")
+    c.outline(keep=".wQ")
+
+
+def cardshark(c):
+    c.pal.update({"A": "42aaf0", "a": "1d6fd1", "S": "5d6675", "s": "3a3d5c", "Q": "f4f1ea"})
+    jester(c, top=3, hat=P_["dark"], flaps=P_["sky"], collar=P_["dark"])
+    c.rect(9, 58, 49, H - 3, "A")
+    waves(c, 62)
+    c.poly([(30, 58), (38, 44), (42, 58)], "S")
+    c.poly([(37, 50), (38, 44), (42, 58), (39, 58)], "s")
+    c.rect(10, 48, 18, 60, "Q"), c.set(14, 54, "I")
+    c.pal["I"] = "e63946"
+    c.outline(keep=".wAa")
+
+
+def loyal(c):
+    jester(c, top=3, hat=P_["red"], flaps=P_["gold"], collar=P_["red"])
+    c.pal.update({"Q": "f4e7c4", "I": "e63946"})
+    c.rect(10, 52, 50, 70, "Q")
+    for i in range(6):
+        x, y = 16 + (i % 3) * 14, 57 + (i // 3) * 8
+        c.ring(x, y, 3, 3, 1, "K" if i < 5 else "I")
+        if i < 5:
+            c.ellipse(x, y, 1.5, 1.5, "I")
+    c.outline(keep=".w")
+
+
+def slate(c):
+    c.pal.update({"Q": "2a4a3a", "D": "8a5a30", "M": "f4f1ea"})
+    background(c, "Q")
+    c.rect(1, 1, W - 2, 3, "D"), c.rect(1, H - 4, W - 2, H - 2, "D")
+    jester(c, top=6, s=0.8, hat=P_["dark"], flaps=P_["white"], collar=P_["dark"])
+    suit_shape(c, "spade", 18, 60, 6, "M")
+    suit_shape(c, "club", 42, 60, 6, "M")
+
+
 CHARMS = {
     "jester": jester_card,
     "ruby": ring_card(("e63946", "ff8a8a"), "heart", "red"),
@@ -566,9 +966,27 @@ CHARMS = {
     "odd": odd, "scribe": scribe, "well": well, "crowd": crowd, "laststand": laststand, "court": court,
     "spiral": spiral, "gold": gold, "snowball": snowball, "treasury": treasury, "hollow": hollow,
     "prism": prism, "warden": warden, "duet": duet, "crown": crown,
+    "pairchips": veil_card(2, "blue", ("1d6fd1", "13478a")),
+    "twopairchips": veil_card(4, "green", ("e63946", "a02030")),
+    "tripschips": veil_card(3, "gold", ("3fb97a", "2a8a58")),
+    "straightchips": veil_card(4, "orange", ("9b5de5", "6a3fa0"), rising=True),
+    "flushchips": veil_card(3, "sky", ("f5b82e", "b8801a"), flush=True),
+    "tripsx": crown_card("red", _crowns(3)),
+    "quadsx": crown_card("purple", _crowns(4)),
+    "straightx": crown_card("orange", _rail),
+    "flushx": crown_card("blue", _flushwave),
+    "grin": grin, "radio": radio, "spearhead": spearhead, "clover": clover, "rawgem": rawgem,
+    "heartstone": heartstone, "portrait": portrait, "tightrope": tightrope, "fist": fist,
+    "regent": regent, "moonrise": moonrise, "encore": encore, "masquerade": masquerade,
+    "punchcard": punchcard, "twilight": twilight, "callingcard": callingcard, "ticket": ticket,
+    "patience": patience, "corsair": corsair, "fame": fame, "commuter": commuter,
+    "sprinter": sprinter, "foursquare": foursquare, "sorbet": sorbet, "kettle": kettle,
+    "plantain": plantain, "ripe": ripe, "fizz": fizz, "cardshark": cardshark, "loyal": loyal,
+    "slate": slate,
 }
 
-FULL_ART = {"tide", "glitch", "even", "spiral", "snowball", "hollow", "prism"}
+FULL_ART = {"tide", "glitch", "even", "spiral", "snowball", "hollow", "prism", "tightrope", "moonrise",
+            "twilight", "slate"}
 
 # 5x7 bold corner letters
 LETTERS = {
@@ -594,7 +1012,7 @@ def corner_word(c, light):
         y += 8
 
 
-DARK_ART = {"glitch", "spiral", "hollow", "prism"}
+DARK_ART = {"glitch", "spiral", "hollow", "prism", "moonrise", "twilight", "slate"}
 
 
 def build(cid):

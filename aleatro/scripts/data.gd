@@ -34,6 +34,9 @@ const BLIND_NAMES := ["Small Blind", "Big Blind"]
 const BLIND_COLORS := [Color("3a7bd5"), Color("e0a526")]
 
 # rarity: 0 common, 1 uncommon, 2 rare
+## Charms the shop only offers once a run flag is set.
+const CHARM_UNLOCKS := {"ripe": "plantain_spoiled"}
+
 const CHARMS := [
 	{"id": "jester", "name": "Jester", "desc": "+4 Mult", "cost": 2, "rarity": 0},
 	{"id": "ruby", "name": "Ruby Ring", "desc": "Scored Hearts give +3 Mult", "cost": 5, "rarity": 0},
@@ -64,6 +67,47 @@ const CHARMS := [
 	{"id": "warden", "name": "Warden", "desc": "Sell during a boss blind to disable it", "cost": 6, "rarity": 1},
 	{"id": "duet", "name": "Duet", "desc": "x2 Mult if hand contains a Pair", "cost": 8, "rarity": 2},
 	{"id": "crown", "name": "Crown", "desc": "x1.5 Mult for each scored King", "cost": 9, "rarity": 2},
+	# --- batch 1
+	{"id": "pairchips", "name": "Twin Veil", "desc": "+50 Chips if the hand contains a Pair", "cost": 3, "rarity": 0},
+	{"id": "twopairchips", "name": "Duo Veil", "desc": "+80 Chips if the hand contains Two Pair", "cost": 4, "rarity": 0},
+	{"id": "tripschips", "name": "Triad Veil", "desc": "+100 Chips if the hand contains Three of a Kind", "cost": 4, "rarity": 0},
+	{"id": "straightchips", "name": "Rail Veil", "desc": "+100 Chips if the hand contains a Straight", "cost": 4, "rarity": 0},
+	{"id": "flushchips", "name": "Tide Veil", "desc": "+80 Chips if the hand contains a Flush", "cost": 4, "rarity": 0},
+	{"id": "tripsx", "name": "Triad Crown", "desc": "x3 Mult if the hand contains Three of a Kind", "cost": 8, "rarity": 2},
+	{"id": "quadsx", "name": "Quad Crown", "desc": "x4 Mult if the hand contains Four of a Kind", "cost": 8, "rarity": 2},
+	{"id": "straightx", "name": "Rail Crown", "desc": "x3 Mult if the hand contains a Straight", "cost": 8, "rarity": 2},
+	{"id": "flushx", "name": "Tide Crown", "desc": "x2 Mult if the hand contains a Flush", "cost": 8, "rarity": 2},
+	{"id": "grin", "name": "Grin", "desc": "Scored face cards give +5 Mult", "cost": 4, "rarity": 0},
+	{"id": "radio", "name": "Radio", "desc": "Scored 10s and 4s give +10 Chips and +4 Mult", "cost": 4, "rarity": 0},
+	{"id": "spearhead", "name": "Spearhead", "desc": "Scored Spades give +50 Chips", "cost": 7, "rarity": 1},
+	{"id": "clover", "name": "Clover Stone", "desc": "Scored Clubs give +7 Mult", "cost": 7, "rarity": 1},
+	{"id": "rawgem", "name": "Raw Topaz", "desc": "Scored Diamonds earn $1", "cost": 7, "rarity": 1},
+	{"id": "heartstone", "name": "Heartstone", "desc": "Scored Hearts have a 1 in 2 chance to give x1.5 Mult", "cost": 7, "rarity": 1},
+	{"id": "portrait", "name": "Portrait", "desc": "The first scored face card gives x2 Mult", "cost": 5, "rarity": 0},
+	{"id": "tightrope", "name": "Tightrope", "desc": "x3 Mult on the final hand of the round", "cost": 6, "rarity": 1},
+	{"id": "fist", "name": "Iron Fist", "desc": "The lowest card held in hand gives Mult equal to twice its value", "cost": 5, "rarity": 0},
+	{"id": "regent", "name": "Regent", "desc": "Each King held in hand gives x1.5 Mult", "cost": 8, "rarity": 2},
+	{"id": "moonrise", "name": "Moonrise", "desc": "Each Queen held in hand gives +13 Mult", "cost": 5, "rarity": 0},
+	{"id": "encore", "name": "Encore", "desc": "Retrigger scored 2s, 3s, 4s and 5s", "cost": 6, "rarity": 1},
+	{"id": "masquerade", "name": "Masquerade", "desc": "Retrigger scored face cards", "cost": 6, "rarity": 1},
+	{"id": "punchcard", "name": "Punch Card", "desc": "Retrigger the first scored card 2 more times", "cost": 4, "rarity": 0},
+	{"id": "twilight", "name": "Twilight", "desc": "Retrigger every scored card on the final hand of the round", "cost": 5, "rarity": 1},
+	{"id": "callingcard", "name": "Calling Card", "desc": "Scored face cards have a 1 in 2 chance to earn $2", "cost": 4, "rarity": 0},
+	{"id": "ticket", "name": "Gilt Ticket", "desc": "Scored Gilded cards earn $4", "cost": 5, "rarity": 0},
+	{"id": "patience", "name": "Patience", "desc": "At end of round, earn $2 per discard left if you used none", "cost": 4, "rarity": 0},
+	{"id": "corsair", "name": "Corsair", "desc": "+Mult equal to the sell value of your other charms", "cost": 4, "rarity": 0},
+	{"id": "fame", "name": "Fame", "desc": "+Mult equal to how many times this hand type has been played this run", "cost": 5, "rarity": 0},
+	{"id": "commuter", "name": "Commuter", "desc": "Gains +1 Mult for each hand in a row with no scored face card; resets on a face card", "cost": 6, "rarity": 0},
+	{"id": "sprinter", "name": "Sprinter", "desc": "Gains +15 Chips each time the hand contains a Straight", "cost": 5, "rarity": 0},
+	{"id": "foursquare", "name": "Four Square", "desc": "Gains +4 Chips each time exactly 4 cards are played", "cost": 4, "rarity": 0},
+	{"id": "sorbet", "name": "Sorbet", "desc": "+100 Chips. Loses 5 Chips every hand played", "cost": 5, "rarity": 0},
+	{"id": "kettle", "name": "Kettle Corn", "desc": "+20 Mult. Loses 4 Mult at the end of each round", "cost": 5, "rarity": 0},
+	{"id": "plantain", "name": "Plantain", "desc": "+15 Mult. 1 in 6 chance to spoil at the end of each round", "cost": 5, "rarity": 0},
+	{"id": "ripe", "name": "Ripe Plantain", "desc": "x3 Mult. 1 in 1000 chance to spoil at the end of each round", "cost": 4, "rarity": 0},
+	{"id": "fizz", "name": "Fizz", "desc": "Retrigger every played card for the next 10 hands", "cost": 6, "rarity": 1},
+	{"id": "cardshark", "name": "Card Shark", "desc": "x3 Mult if this hand type was already played this round", "cost": 6, "rarity": 1},
+	{"id": "loyal", "name": "Loyalty Stamp", "desc": "x4 Mult every 6th hand played", "cost": 5, "rarity": 1},
+	{"id": "slate", "name": "Slate", "desc": "x3 Mult if every card held in hand is a Spade or a Club", "cost": 6, "rarity": 1},
 ]
 
 # Card upgrades. Enhancements and seals live on playing cards; editions on cards and charms.

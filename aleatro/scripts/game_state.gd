@@ -39,6 +39,8 @@ var _next_id := 0
 var shop_card: Dictionary = {}
 ## Per-round boss bookkeeping; saved with the run.
 var boss_state := {}
+## Things that happened this run that charms care about (e.g. "plantain_spoiled").
+var run_flags := {}
 
 
 func _init() -> void:
@@ -148,7 +150,7 @@ func start_round() -> void:
 	shuffle(draw_pile)
 	hand = []
 	boss_state = {"used_hands": [], "only_hand": "", "disabled": false, "forced": -1,
-		"ember": -1, "sold": false, "hands_played": 0, "down": []}
+		"ember": -1, "sold": false, "hands_played": 0, "down": [], "round_hands": {}, "discarded": 0}
 	if hex() == "eclipse":
 		shuffle(charms)
 
@@ -269,9 +271,9 @@ func roll_shop() -> void:
 		var rarity := 2 if roll > 0.95 else (1 if roll > 0.7 else 0)
 		if rules.get("no_shop_charms", false):
 			break
-		var pool := Data.CHARMS.filter(func(c): return c.rarity == rarity and not owned.has(c.id) and not banned_charms.has(c.id))
+		var pool := Data.CHARMS.filter(func(c): return c.rarity == rarity and _offerable(c.id, owned))
 		if pool.is_empty():
-			pool = Data.CHARMS.filter(func(c): return not owned.has(c.id) and not banned_charms.has(c.id))
+			pool = Data.CHARMS.filter(func(c): return _offerable(c.id, owned))
 		if pool.is_empty():
 			break
 		var pick: Dictionary = pool[rng.randi_range(0, pool.size() - 1)].duplicate()
@@ -291,6 +293,93 @@ func roll_shop() -> void:
 	else:
 		shop_spells = [Data.SPELLS[rng.randi_range(0, Data.SPELLS.size() - 1)].id]
 	roll_shop_card()
+
+
+func _offerable(id: String, owned: Array) -> bool:
+	if owned.has(id) or banned_charms.has(id):
+		return false
+	return not Data.CHARM_UNLOCKS.has(id) or run_flags.get(Data.CHARM_UNLOCKS[id], false)
+
+
+# ---------------------------------------------------------------- charm upkeep
+
+## Charms that grow or count as a hand is played, just before it scores.
+func pre_score(ev: Dictionary, played: Array) -> void:
+	var rh: Dictionary = boss_state.get("round_hands", {})
+	rh[ev.name] = rh.get(ev.name, 0) + 1
+	boss_state.round_hands = rh
+	var face: bool = ev.scoring.any(func(c): return Scoring.is_face(c) and not is_debuffed(c))
+	for c in charms:
+		match c.id:
+			"snowball":
+				c.data.m = c.data.get("m", 0) + 1
+			"commuter":
+				c.data.m = 0 if face else c.data.get("m", 0) + 1
+			"sprinter":
+				if ev.contains.has("Straight"):
+					c.data.c = c.data.get("c", 0) + 15
+			"foursquare":
+				if played.size() == 4:
+					c.data.c = c.data.get("c", 0) + 4
+			"loyal":
+				c.data.n = c.data.get("n", 0) + 1
+
+
+## Charms that wear down after a hand has scored. Returns the names of any
+## that ran out and were removed.
+func after_hand() -> Array:
+	var gone := []
+	for i in range(charms.size() - 1, -1, -1):
+		var c: Dictionary = charms[i]
+		match c.id:
+			"sorbet":
+				c.data.c = c.data.get("c", 100) - 5
+				if c.data.c <= 0:
+					gone.append(_drop_charm(i))
+			"fizz":
+				c.data.n = c.data.get("n", 10) - 1
+				if c.data.n <= 0:
+					gone.append(_drop_charm(i))
+	return gone
+
+
+## End-of-round charm payouts and decay. Returns {rows: [[label, $]], gone: [names]}.
+func end_of_round() -> Dictionary:
+	var rows := []
+	var gone := []
+	for i in range(charms.size() - 1, -1, -1):
+		var c: Dictionary = charms[i]
+		var name: String = Data.charm_def(c.id).name
+		match c.id:
+			"gold":
+				rows.push_front([name, 4])
+			"patience":
+				if boss_state.get("discarded", 0) == 0 and discards_left > 0:
+					rows.push_front([name, 2 * discards_left])
+			"kettle":
+				c.data.m = c.data.get("m", 20) - 4
+				if c.data.m <= 0:
+					gone.append(_drop_charm(i))
+			"plantain":
+				if rng.randi_range(1, 6) == 1:
+					run_flags["plantain_spoiled"] = true
+					gone.append(_drop_charm(i))
+			"ripe":
+				if rng.randi_range(1, 1000) == 1:
+					gone.append(_drop_charm(i))
+	return {"rows": rows, "gone": gone}
+
+
+## Remove charm `i`, keeping the smothered-charm index pointing at the same charm.
+func _drop_charm(i: int) -> String:
+	var name: String = Data.charm_def(charms[i].id).name
+	charms.remove_at(i)
+	var ember: int = boss_state.get("ember", -1)
+	if ember == i:
+		boss_state.ember = -1
+	elif ember > i:
+		boss_state.ember = ember - 1
+	return name
 
 
 func sell_value(inst: Dictionary) -> int:
@@ -365,6 +454,7 @@ const SAVE_FIELDS := [
 	"round_score", "target", "endless", "reroll_cost", "best_hand", "shop_charms",
 	"shop_runes", "shop_card", "_last_hex", "_next_id", "boss_state", "spells", "shop_spells",
 	"challenge", "rules", "banned_charms", "banned_hexes", "inflation", "played_this_ante",
+	"run_flags",
 ]
 
 

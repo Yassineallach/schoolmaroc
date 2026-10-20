@@ -1175,9 +1175,6 @@ func play_selected() -> void:
 	var played: Array = sel.map(func(v): return v.card)
 	var ev := Poker.evaluate(played)
 	gs.hands_played_count[ev.name] += 1
-	for c in gs.charms:
-		if c.id == "snowball":
-			c.data.m = c.data.get("m", 0) + 1
 	var blocked := gs.hand_blocked(ev, played)
 	if gs.rules.get("played_debuffed", false):
 		for c in played:
@@ -1195,6 +1192,7 @@ func play_selected() -> void:
 			popup_text(Vector2(main_cx(), play_y() - 30), note, gs.boss_hex.color.lightened(0.45), 28)
 			sfx.play("boss_ping", 1.0, 0.8)
 			await wait(0.5)
+		gs.pre_score(ev, played)
 		refresh_charm_states()
 		update_hud()
 		var pt := Prof.begin()
@@ -1299,6 +1297,11 @@ func play_selected() -> void:
 		lbl_round_score.text = Data.fmt(x), from, gs.round_score, 0.4)
 	await wait(0.5)
 
+	if blocked == "":
+		var gone := gs.after_hand()
+		if not gone.is_empty():
+			await charms_gone(gone)
+
 	# Glass cards that broke leave the deck for good.
 	for c in result.shatter:
 		stats.cards_shattered += 1
@@ -1358,6 +1361,7 @@ func discard_selected() -> void:
 		return
 	busy = true
 	gs.discards_left -= 1
+	gs.boss_state.discarded = gs.boss_state.get("discarded", 0) + 1
 	if cost > 0:
 		gs.money -= cost
 		popup_text(Vector2(main_cx(), play_y() + 60), "-$%d" % cost, Data.MONEY_COLOR, 32)
@@ -1395,22 +1399,32 @@ func win_round() -> void:
 	var reward := gs.blind_reward()
 	var per_hand := 0 if gs.rules.get("no_hand_money", false) else gs.hands_left
 	var interest := gs.interest()
-	var charm_cash := 0
-	for c in gs.charms:
-		if c.id == "gold":
-			charm_cash += 4
+	var upkeep := gs.end_of_round()
 	var rows := [["Blind reward", reward]]
 	if per_hand > 0:
 		rows.append(["Remaining hands (%d)" % per_hand, per_hand])
 	if interest > 0:
 		rows.append(["Interest ($1 per $5)", interest])
-	if charm_cash > 0:
-		rows.append(["Gold Tooth", charm_cash])
+	rows.append_array(upkeep.rows)
 	if gilded > 0:
 		rows.append(["Gilded cards held", gilded])
-	var info := {"title": gs.blind_name() + " defeated!", "rows": rows, "total": reward + per_hand + interest + charm_cash + gilded}
+	var total := 0
+	for r in rows:
+		total += r[1]
+	if not upkeep.gone.is_empty():
+		await charms_gone(upkeep.gone)
+	var info := {"title": gs.blind_name() + " defeated!", "rows": rows, "total": total}
 	save_run("cashout", {"cashout": info})
 	show_cashout(info)
+
+
+## Announce charms that ran out (melted, spoiled, went flat) and redraw the row.
+func charms_gone(names: Array) -> void:
+	rebuild_charms()
+	for n in names:
+		popup_text(Vector2(main_cx(), play_y() - 30), "%s is gone!" % n, Color("ffdf6b"), 30)
+		sfx.play("boss_ping", 1.0, 0.8)
+		await wait(0.5)
 
 
 func show_cashout(info: Dictionary) -> void:
@@ -2312,7 +2326,10 @@ func show_challenge(id: String) -> void:
 	open_modal().add_child(UIBuild.build({"col": rows}))
 
 
-func show_collection(tab: String = "charms") -> void:
+const COLLECTION_PAGE := 36  # charms per collection page (12 x 3)
+
+
+func show_collection(tab: String = "charms", page: int = 0) -> void:
 	var vb := open_modal()
 	vb.add_child(_label("Collection  (Profile %d)" % saves.profile, 34, Color("ffdf6b")))
 	var tabs: Array = []
@@ -2323,12 +2340,14 @@ func show_collection(tab: String = "charms") -> void:
 	match tab:
 		"charms":
 			var seen: Array = profile_data.seen_charms
+			var pages := ceili(Data.CHARMS.size() / float(COLLECTION_PAGE))
+			page = clampi(page, 0, pages - 1)
 			vb.add_child(_label("%d / %d discovered" % [seen.size(), Data.CHARMS.size()], 20, Color(1, 1, 1, 0.7)))
 			var grid := GridContainer.new()
-			grid.columns = 7
+			grid.columns = 12
 			grid.add_theme_constant_override("h_separation", 10)
 			grid.add_theme_constant_override("v_separation", 8)
-			for c in Data.CHARMS:
+			for c in Data.CHARMS.slice(page * COLLECTION_PAGE, (page + 1) * COLLECTION_PAGE):
 				var cell := Control.new()
 				cell.custom_minimum_size = Vector2(CharmView.W, CharmView.H) * 0.62
 				cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -2349,6 +2368,12 @@ func show_collection(tab: String = "charms") -> void:
 					cell.add_child(lock)
 				grid.add_child(cell)
 			vb.add_child(_center(grid))
+			if pages > 1:
+				vb.add_child(UIBuild.build({"row": [
+					{"button": "<", "color": Color("4a4f63"), "on": func(): show_collection("charms", (page + pages - 1) % pages), "min": Vector2(80, 50), "size": 24},
+					{"text": "Page %d / %d" % [page + 1, pages], "size": 22},
+					{"button": ">", "color": Color("4a4f63"), "on": func(): show_collection("charms", (page + 1) % pages), "min": Vector2(80, 50), "size": 24},
+				], "sep": 18, "align": "center"}))
 		"bosses":
 			var seen: Array = profile_data.seen_hexes
 			vb.add_child(_label("%d / %d discovered" % [seen.size(), Data.HEXES.size()], 20, Color(1, 1, 1, 0.7)))
