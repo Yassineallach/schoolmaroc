@@ -1453,6 +1453,8 @@ func _shop_item(view: Control, cost: int, desc: String, tag: String, cb: Callabl
 
 
 func buy_charm(i: int) -> void:
+	if i < 0 or i >= gs.shop_charms.size():
+		return
 	var d: Dictionary = gs.shop_charms[i]
 	if gs.money < d.cost:
 		return
@@ -1481,6 +1483,8 @@ func buy_card() -> void:
 
 
 func buy_spell(i: int) -> void:
+	if i < 0 or i >= gs.shop_spells.size():
+		return
 	if gs.money < Data.SPELL_COST:
 		return
 	if gs.spells.size() >= gs.spell_slots:
@@ -1496,6 +1500,8 @@ func buy_spell(i: int) -> void:
 
 
 func buy_rune(i: int) -> void:
+	if i < 0 or i >= gs.shop_runes.size():
+		return
 	if gs.money < Data.RUNE_COST:
 		return
 	var h: String = gs.shop_runes[i]
