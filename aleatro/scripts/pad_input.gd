@@ -128,6 +128,14 @@ func current_layer() -> String:
 
 
 func focusables() -> Array:
+	var list := _focusables_for_layer()
+	# Ace's bubble buttons sit above everything but popups.
+	if _layer != "modal" and main.mascot != null and is_instance_valid(main.mascot):
+		list = main.mascot.buttons() + list
+	return list
+
+
+func _focusables_for_layer() -> Array:
 	match _layer:
 		"modal":
 			return _buttons(main.modal)

@@ -8,6 +8,7 @@ const RATE := 22050
 var _streams := {}
 var _players: Array[AudioStreamPlayer] = []
 var _next := 0
+var _voices: Array = []
 
 
 func _ready() -> void:
@@ -20,6 +21,7 @@ func _ready() -> void:
 	_streams.win = _tone([523.0, 659.0, 784.0, 1046.0], 0.5, 0.3)
 	_streams.lose = _tone([392.0, 311.0, 262.0], 0.7, 0.3)
 	_streams.deal = _tone([300.0], 0.04, 0.15)
+	_voices = [_voice(500, 1500), _voice(700, 1200), _voice(400, 2000), _voice(600, 1000), _voice(350, 900)]
 	Music._ensure_bus("SFX")
 	for i in 8:
 		var p := AudioStreamPlayer.new()
@@ -29,11 +31,12 @@ func _ready() -> void:
 
 
 func play(name: String, pitch: float = 1.0) -> void:
-	if not _streams.has(name):
+	var stream: AudioStream = _voices.pick_random() if name == "voice" else _streams.get(name)
+	if stream == null:
 		return
 	var p := _players[_next]
 	_next = (_next + 1) % _players.size()
-	p.stream = _streams[name]
+	p.stream = stream
 	# A little random detune keeps repeated sounds from feeling mechanical.
 	p.pitch_scale = pitch * randf_range(0.97, 1.03)
 	p.play()
@@ -51,6 +54,26 @@ func _tone(freqs: Array, dur: float, vol: float) -> AudioStreamWAV:
 		phase += TAU * f / RATE
 		var env := 1.0 - float(i) / n
 		var v := (sin(phase) * 0.7 + signf(sin(phase)) * 0.3) * env * env * vol
+		data.encode_s16(i * 2, int(clampf(v, -1.0, 1.0) * 32767))
+	var s := AudioStreamWAV.new()
+	s.format = AudioStreamWAV.FORMAT_16_BITS
+	s.mix_rate = RATE
+	s.stereo = false
+	s.data = data
+	return s
+
+
+## A short "talking" blip: a buzzy fundamental shaped by two vowel formants.
+func _voice(f1: float, f2: float) -> AudioStreamWAV:
+	var n := int(RATE * 0.07)
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	var base := 190.0
+	for i in n:
+		var t := float(i) / RATE
+		var env := sin(PI * float(i) / n)
+		var glottal := fmod(t * base, 1.0)
+		var v := (sin(TAU * f1 * t) * 0.6 + sin(TAU * f2 * t) * 0.3) * (1.0 - glottal) * env * 0.35
 		data.encode_s16(i * 2, int(clampf(v, -1.0, 1.0) * 32767))
 	var s := AudioStreamWAV.new()
 	s.format = AudioStreamWAV.FORMAT_16_BITS

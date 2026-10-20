@@ -65,6 +65,8 @@ var settings := {"master": 80.0, "music": 70.0, "sfx": 85.0, "vibration": true, 
 var on_title := false
 var sidebar_buttons: Array = []
 var pad: PadInput
+var mascot: Mascot = null
+var mascot_layer: Control
 var music: Music
 
 
@@ -267,12 +269,16 @@ func _build_ui() -> void:
 	overlay = Control.new()
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(overlay)
+	mascot_layer = Control.new()
+	mascot_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(mascot_layer)
 	modal = Control.new()
 	modal.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(modal)
 	# Cards use z_index for fanning and dragging; keep popups above them.
 	fx_layer.z_index = 300
 	overlay.z_index = 350
+	mascot_layer.z_index = 380
 	modal.z_index = 400
 
 
@@ -543,6 +549,7 @@ func _fit_overlay() -> void:
 
 ## Builds a centered panel in the overlay area and returns its VBox.
 func open_overlay(full_screen := false) -> VBoxContainer:
+	dismiss_ace()
 	clear_overlay()
 	_shop_open = false
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -629,6 +636,10 @@ func show_title() -> void:
 		_load_profile()
 		show_title(), Vector2(200, 64), 24))
 	vb.add_child(row)
+	var idle := summon_ace(Vector2(vw - Mascot.W - 60, vh - Mascot.H - 50))
+	idle.poked.connect(func():
+		if not idle.talking:
+			idle.say(TIPS.pick_random(), [["Thanks!", func(): idle.say_hide()]]))
 	if stats.runs > 0:
 		vb.add_child(_label("Best ante: %d   Best hand: %s   Wins: %d" % [stats.best_ante, Data.fmt(stats.best_hand), stats.wins], 20, Color(1, 1, 1, 0.7)))
 
@@ -713,11 +724,16 @@ func show_blind_select() -> void:
 	vb.add_child(_center(_button("Play " + gs.blind_name(), gs.blind_color(), start_blind, Vector2(360, 86), 30)))
 	discover("hex", gs.boss_hex.id)
 	save_run("blind")
+	if gs.blind_idx == 2:
+		tutorial("boss", "That's a boss blind! Bosses bend the rules. Tap the blind panel at the top left any time to read what this one does.")
+	else:
+		tutorial("welcome", "Hi, I'm Ace! Each ante has three blinds. Score at least the target before your hands run out to beat one and earn money.")
 
 
 # ---------------------------------------------------------------- round flow
 
 func start_blind() -> void:
+	dismiss_ace()
 	clear_overlay()
 	_shop_open = false
 	gs.start_round()
@@ -736,6 +752,7 @@ func start_blind() -> void:
 	busy = false
 	update_hud()
 	save_run("round")
+	tutorial("hand", "Tap up to 5 cards to make a poker hand, then press Play Hand. Your score is Chips x Mult, so stronger hands score more.")
 
 
 func clear_hand_views() -> void:
@@ -783,6 +800,8 @@ func deal() -> void:
 			k += 1
 	await wait(0.35 + 0.05 * k)
 	ensure_forced()
+	if in_round and hand_views.any(func(v): return v.card.enh != "" or v.card.ed != "" or v.card.seal != ""):
+		tutorial("upgrade", "Ooh, an upgraded card! Press and hold any card to see what it does.")
 
 
 ## The Lantern keeps one card selected at all times.
@@ -1073,6 +1092,7 @@ func play_selected() -> void:
 	busy = false
 	update_hud()
 	save_run("round")
+	tutorial("discard", "Not every hand is a winner. Discard swaps cards for new ones. Keep an eye on your Hands and Discards on the left.")
 
 
 func _fmt_mult(m: float) -> String:
@@ -1188,6 +1208,7 @@ func game_over() -> void:
 		if gs.hands_played_count[n] > gs.hands_played_count[most]:
 			most = n
 	_row_label(vb, "Most played", most, Color.WHITE)
+	ace_quip(["So close! Every run teaches something.", "Ouch. Want to deal again?", "The cards weren't with us this time.", "Shake it off, the next deck is lucky!"])
 	vb.add_child(_center(_button("New Run", Data.CHIP_COLOR, new_run, Vector2(320, 90), 34)))
 	vb.add_child(_center(_button("Main Menu", Color("5a5f73"), show_title, Vector2(320, 70), 26)))
 
@@ -1200,6 +1221,7 @@ func show_victory() -> void:
 	vb.add_child(_label("You Win!", 72, Color("ffdf6b")))
 	vb.add_child(_label("You beat ante %d." % Data.FINAL_ANTE, 28))
 	_row_label(vb, "Best hand", Data.fmt(gs.best_hand), Data.CHIP_COLOR.lightened(0.3))
+	ace_quip(["We did it! I knew you had it in you!", "Champion! Fancy seeing how far Endless goes?"])
 	vb.add_child(_center(_button("Endless Mode", Color("7b4fa0"), func():
 		gs.endless = true
 		open_shop(), Vector2(340, 84), 30)))
@@ -1259,6 +1281,7 @@ func show_shop() -> void:
 	for d in gs.shop_charms:
 		discover("charm", d.id)
 	save_run("shop")
+	tutorial("shop", "Welcome to the shop! Charms give a bonus every hand and Runes level up a hand type. Drag your charms to change the order they trigger in.")
 
 
 func _shop_item(view: Control, cost: int, desc: String, tag: String, cb: Callable) -> Control:
@@ -1447,6 +1470,59 @@ func shatter(v: CardView) -> void:
 		tw.chain().tween_callback(shard.queue_free)
 	popup_text(origin + Vector2(CardView.W / 2, -24), "Shattered!", Color("bff3ff"), 30)
 	v.queue_free()
+
+
+const TIPS := [
+	"Interest pays $1 for every $5 you hold, up to $5. Saving up pays off!",
+	"Charms trigger left to right, so put x Mult charms last.",
+	"Runes level up a hand type permanently for the run.",
+	"Glass cards hit hard but can shatter. Enjoy them while they last.",
+	"Iron cards help most when you keep them in your hand.",
+	"Sell a Warden during a boss blind to switch the boss off.",
+	"Hold a card to read its upgrades.",
+	"Tap the blind panel to see what the boss is up to.",
+]
+
+
+## Bring Ace onto the screen (or reuse him) at `pos`.
+func summon_ace(pos: Vector2) -> Mascot:
+	if mascot == null or not is_instance_valid(mascot) or mascot.is_queued_for_deletion():
+		mascot = Mascot.new(sfx)
+		mascot_layer.add_child(mascot)
+		mascot.position = pos
+		mascot.appear()
+	else:
+		create_tween().tween_property(mascot, "position", pos, 0.25)
+	return mascot
+
+
+func dismiss_ace() -> void:
+	if mascot != null and is_instance_valid(mascot):
+		mascot.leave()
+	mascot = null
+
+
+## A one-time tip from Ace, shown only once per profile.
+func tutorial(step: String, text: String) -> void:
+	if profile_data.get("tips_off", false):
+		return
+	if not profile_data.has("tutorial"):
+		profile_data.tutorial = []
+	if profile_data.tutorial.has(step):
+		return
+	profile_data.tutorial.append(step)
+	_save_stats()
+	var a := summon_ace(Vector2(vw - Mascot.W - 24, TOP_H + 24))
+	a.say(text, [["Got it", dismiss_ace], ["No more tips", func():
+		profile_data.tips_off = true
+		_save_stats()
+		dismiss_ace()]])
+
+
+## Ace reacts to how the run ended.
+func ace_quip(lines: Array) -> void:
+	var a := summon_ace(Vector2(36, 36))
+	a.say(lines.pick_random(), [["Thanks, Ace", dismiss_ace]], false)
 
 
 ## Large message across the table; play waits until it has been read.
@@ -1812,6 +1888,9 @@ func deselect_all() -> void:
 ## Back button / Escape / B: close a popup, then clear the selection, then
 ## open the menu. On the title screen it leaves the app.
 func go_back() -> void:
+	if mascot != null and is_instance_valid(mascot) and not mascot.buttons().is_empty():
+		mascot.buttons()[0].pressed.emit()
+		return
 	if not modal.get_children().filter(func(c): return not c.is_queued_for_deletion()).is_empty():
 		close_modal()
 		return
@@ -1987,6 +2066,12 @@ func show_menu() -> void:
 		show_menu(), Vector2(300, 64), 24))
 	grid.add_child(_button("How to play", Color("5a5f73"), show_help, Vector2(300, 64), 24))
 	grid.add_child(_button("Collection", Color("5a5f73"), show_collection, Vector2(300, 64), 24))
+	grid.add_child(_button("Replay tips", Color("5a5f73"), func():
+		profile_data.tutorial = []
+		profile_data.tips_off = false
+		_save_stats()
+		close_modal()
+		toast("Ace will show the tips again"), Vector2(300, 64), 24))
 	grid.add_child(_hold_button("Hold: New Run", Data.MULT_COLOR, func():
 		close_modal()
 		new_run()))
