@@ -404,24 +404,43 @@ def loop_ready(x, xfade=1.0):
 
 
 def ambient_table():
+    """A quiet card room: soft air, distant chip clinks, a faint shuffle and
+    light vinyl crackle. Kept above ~250 Hz so phone speakers render it cleanly."""
     d = 21.0
-    room = band(noise(d), 60, 400) * 0.35
-    hiss = band(noise(d), 2000, 6000) * 0.015
-    out = room + hiss
-    n = len(out)
-    for _ in range(420):
-        s = rng.integers(0, n - 400)
-        out[s:s + 320] += band(noise(0.01), 1200, 5000) * rng.uniform(0.03, 0.12)
-    return norm(loop_ready(out), 0.35)
+    n = int(d * SR)
+    t = t_axis(d)
+    # gently breathing room air, mid-band only
+    air = band(noise(d), 300, 1800) * (0.55 + 0.45 * np.sin(2 * np.pi * t / 10.5)) * 0.10
+    events = [(0, air)]
+    # distant chip clinks: small stacks of 1-3 clacks every second or two
+    tpos = 0.6
+    while tpos < d - 1.0:
+        for k in range(rng.integers(1, 4)):
+            events.append((tpos + k * rng.uniform(0.04, 0.09), chip(rng.uniform(1700, 2600)) * rng.uniform(0.12, 0.25)))
+        tpos += rng.uniform(1.1, 2.6)
+    # one soft shuffle in the background
+    events.append((9.0, shuffle() * 0.18))
+    # vinyl crackle: short clean ticks, clearly audible but sparse
+    for _ in range(140):
+        tick = band(noise(0.004), 1500, 6000) * np.hanning(int(0.004 * SR)) * rng.uniform(0.08, 0.22)
+        events.append((rng.uniform(0, d - 0.01), tick))
+    out = place(d, *events)
+    return norm(loop_ready(out), 0.5)
 
 
 def ambient_boss():
+    """A slow, uneasy drone: two close fifths beating against each other,
+    pitched where small speakers can still carry it."""
     d = 21.0
     t = t_axis(d)
-    drone = (np.sin(2 * np.pi * 55 * t) + 0.6 * np.sin(2 * np.pi * 55.6 * t) + 0.4 * np.sin(2 * np.pi * 82.4 * t)) / 2
-    swell = 0.6 + 0.4 * np.sin(2 * np.pi * t / 7.0)
-    air = band(noise(d), 100, 900) * 0.25
-    return norm(loop_ready(drone * swell + air), 0.4)
+    drone = (np.sin(2 * np.pi * 110 * t) + 0.7 * np.sin(2 * np.pi * 110.7 * t)
+             + 0.5 * np.sin(2 * np.pi * 164.8 * t) + 0.35 * np.sin(2 * np.pi * 220.4 * t)) / 2.5
+    swell = 0.55 + 0.45 * np.sin(2 * np.pi * t / 7.0)
+    # soft saturation adds upper harmonics, so small speakers still carry the pitch
+    body = band(np.tanh(2.5 * drone), 100, 3000) * swell
+    eerie = (np.sin(2 * np.pi * 659.3 * t) + 0.6 * np.sin(2 * np.pi * 663.0 * t)) * (0.5 + 0.5 * np.sin(2 * np.pi * t / 10.5)) * 0.06
+    air = band(noise(d), 400, 2000) * (0.5 + 0.5 * np.sin(2 * np.pi * t / 5.25)) * 0.12
+    return norm(loop_ready(body + eerie + air), 0.4)
 
 
 # ---------------------------------------------------------------- output
