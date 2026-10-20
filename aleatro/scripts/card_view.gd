@@ -126,8 +126,9 @@ func _paint() -> void:
 	_draw_enhancement(enh)
 	if selected:
 		draw_style_box(_select_box, Rect2(Vector2.ZERO, size))
-	# indices, pips and court figures: one cached pixel image
-	draw_texture_rect(DeckArt.face(card.rank, card.suit), Rect2(Vector2.ZERO, size), false)
+	# indices, pips and court figures: one cached pixel image (Stone has none)
+	if enh != "stone":
+		draw_texture_rect(DeckArt.face(card.rank, card.suit), Rect2(Vector2.ZERO, size), false)
 	if enh != "":
 		_draw_badge(Data.ENHANCEMENTS[enh].name, Data.ENHANCEMENTS[enh].badge)
 	if card.get("seal", "") != "":
@@ -166,6 +167,17 @@ func _draw_enhancement(enh: String) -> void:
 		"iron":
 			for p in [Vector2(9, 9), Vector2(size.x - 9, 9), Vector2(9, size.y - 9), Vector2(size.x - 9, size.y - 9)]:
 				draw_circle(p, 3, Color("8a929e"))
+		"stone":
+			# speckled rock with a few cracks
+			for i in 26:
+				var p := Vector2(fmod(i * 37.0, size.x - 16) + 8, fmod(i * 53.0, size.y - 24) + 8)
+				draw_rect(Rect2(p, Vector2(4, 4)), Color("6f6a64") if i % 3 else Color("bdb7af"))
+			draw_polyline(PackedVector2Array([Vector2(16, 30), Vector2(34, 44), Vector2(30, 62), Vector2(48, 78)]), Color("5d5852"), 3.0)
+			draw_polyline(PackedVector2Array([Vector2(size.x - 14, 90), Vector2(size.x - 34, 104), Vector2(size.x - 28, 122)]), Color("5d5852"), 3.0)
+		"wild":
+			var rainbow := [Color("e63946"), Color("f08a24"), Color("f5d742"), Color("3fb97a"), Color("42aaf0"), Color("9b5de5")]
+			for i in rainbow.size():
+				draw_rect(Rect2(8 + i * 6, size.y - 30, 6, 6), Color(rainbow[i], 0.8))
 		"lucky":
 			for p in [Vector2(80, 14), Vector2(20, 126)]:
 				for k in 4:

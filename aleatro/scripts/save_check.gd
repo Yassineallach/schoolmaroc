@@ -111,6 +111,14 @@ static func _items(d: Dictionary) -> String:
 	for r in d.get("shop_runes", []):
 		if not Data.HAND_BASE.has(r):
 			return "unknown rune"
+	for key in ["tags", "blind_tags"]:
+		for t in d.get(key, []):
+			if not (t is String) or Data.tag_def(t).is_empty():
+				return "unknown tag"
+	for key in ["shop_packs", "pending_packs"]:
+		for k in d.get(key, []):
+			if not Data.PACKS.has(k):
+				return "unknown pack"
 	var ch = d.get("challenge", "")
 	if ch != "" and Data.challenge_def(ch).is_empty():
 		return "unknown challenge"

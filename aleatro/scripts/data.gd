@@ -60,7 +60,7 @@ const CHARMS := [
 	{"id": "court", "name": "Royal Court", "desc": "Scored J, Q, K give +30 Chips", "cost": 5, "rarity": 0},
 	{"id": "spiral", "name": "Spiral", "desc": "Scored A, 2, 3, 5, 8 give +8 Mult", "cost": 7, "rarity": 1},
 	{"id": "gold", "name": "Gold Tooth", "desc": "Earn $4 at the end of each round", "cost": 6, "rarity": 1},
-	{"id": "snowball", "name": "Snowball", "desc": "Gains +1 Mult for every hand played", "cost": 6, "rarity": 1},
+	{"id": "snowball", "name": "Snowball", "desc": "Gains +1 Mult for every hand played and loses 1 Mult for every discard", "cost": 6, "rarity": 1},
 	{"id": "treasury", "name": "Treasury", "desc": "+2 Chips for every $1 you hold", "cost": 6, "rarity": 1},
 	{"id": "hollow", "name": "Hollow", "desc": "x1 Mult for each empty charm slot (counts itself)", "cost": 8, "rarity": 1},
 	{"id": "prism", "name": "Prism", "desc": "x3 Mult if played cards include all 4 suits", "cost": 7, "rarity": 1},
@@ -108,6 +108,87 @@ const CHARMS := [
 	{"id": "cardshark", "name": "Card Shark", "desc": "x3 Mult if this hand type was already played this round", "cost": 6, "rarity": 1},
 	{"id": "loyal", "name": "Loyalty Stamp", "desc": "x4 Mult every 6th hand played", "cost": 5, "rarity": 1},
 	{"id": "slate", "name": "Slate", "desc": "x3 Mult if every card held in hand is a Spade or a Club", "cost": 6, "rarity": 1},
+	{"id": "spread", "name": "Wide Grip", "desc": "Flushes and Straights can be made with 4 cards", "cost": 7, "rarity": 1},
+	{"id": "hopscotch", "name": "Hopscotch", "desc": "Straights may skip one rank between cards (like 3 5 6 8 9)", "cost": 7, "rarity": 1},
+	{"id": "blot", "name": "Ink Blot", "desc": "Hearts and Diamonds count as the same suit, and so do Spades and Clubs", "cost": 7, "rarity": 1},
+	{"id": "mirage", "name": "Mirage", "desc": "Every card counts as a face card", "cost": 5, "rarity": 1},
+	{"id": "puddle", "name": "Puddle", "desc": "Every played card counts in scoring", "cost": 3, "rarity": 0},
+	{"id": "mimic", "name": "Mimic", "desc": "Retrigger the abilities of cards held in hand", "cost": 5, "rarity": 1},
+	{"id": "ironwill", "name": "Iron Will", "desc": "x0.2 Mult for each Iron card in your full deck", "cost": 7, "rarity": 1},
+	{"id": "quarry", "name": "Quarry", "desc": "+25 Chips for each Stone card in your full deck", "cost": 6, "rarity": 1},
+	{"id": "mason", "name": "Mason", "desc": "Adds a Stone card to your deck when a blind starts", "cost": 6, "rarity": 1},
+	{"id": "midas", "name": "Gilded Touch", "desc": "Scored face cards turn Gilded", "cost": 7, "rarity": 1},
+	{"id": "leech", "name": "Leech", "desc": "Gains x0.1 Mult for each scored enhanced card, and strips the enhancement", "cost": 7, "rarity": 1},
+	{"id": "rambler", "name": "Rambler", "desc": "Every scored card permanently gains +5 Chips", "cost": 5, "rarity": 1},
+	{"id": "relic", "name": "Old Relic", "desc": "Scored cards of the round's suit give x1.5 Mult (suit changes every round)", "cost": 8, "rarity": 2},
+	{"id": "keep", "name": "Keep", "desc": "Gains +3 Chips per discarded card of the round's suit (suit changes every round)", "cost": 6, "rarity": 1},
+	{"id": "idol", "name": "Idol", "desc": "Scored copies of the round's card give x2 Mult (card changes every round)", "cost": 6, "rarity": 1},
+	{"id": "rebate", "name": "Rebate", "desc": "Earn $5 for each discarded card of the round's rank (rank changes every round)", "cost": 4, "rarity": 0},
+	{"id": "errand", "name": "Errand List", "desc": "Earn $4 when you play the listed hand type (it changes every round)", "cost": 4, "rarity": 0},
+	{"id": "trousers", "name": "Patched Trousers", "desc": "Gains +2 Mult each time the hand contains Two Pair", "cost": 6, "rarity": 1},
+	{"id": "flashcard", "name": "Flash Card", "desc": "Gains +2 Mult each time you reroll the shop", "cost": 5, "rarity": 1},
+	{"id": "monolith", "name": "Monolith", "desc": "Gains x0.2 Mult for each hand in a row that isn't your most played hand type; resets when it is", "cost": 8, "rarity": 2},
+	{"id": "frenzy", "name": "Frenzy", "desc": "When a Small or Big Blind starts, gains x0.5 Mult and destroys a random other charm", "cost": 7, "rarity": 1},
+	{"id": "dagger", "name": "Ritual Knife", "desc": "When a blind starts, destroys the charm to its right and gains double its sell value as Mult", "cost": 6, "rarity": 1},
+	{"id": "hologram", "name": "Hologram", "desc": "Gains x0.25 Mult each time a card is added to your deck", "cost": 7, "rarity": 1},
+	{"id": "starmap", "name": "Star Map", "desc": "Gains x0.1 Mult each time you use a Rune", "cost": 6, "rarity": 1},
+	{"id": "bonfire", "name": "Bonfire", "desc": "Gains x0.25 Mult for each charm sold; resets when a boss is beaten", "cost": 9, "rarity": 2},
+	{"id": "maneki", "name": "Beckoning Cat", "desc": "Gains x0.25 Mult each time a Lucky card pays out", "cost": 6, "rarity": 1},
+	{"id": "glazier", "name": "Glazier", "desc": "Gains x0.75 Mult each time a Glass card shatters", "cost": 6, "rarity": 1},
+	{"id": "iou", "name": "IOU", "desc": "You can go up to $20 into debt", "cost": 1, "rarity": 0},
+	{"id": "nestegg", "name": "Nest Egg", "desc": "Its sell value rises by $3 at the end of each round", "cost": 4, "rarity": 0},
+	{"id": "giftwrap", "name": "Gift Wrap", "desc": "At the end of each round, every charm's sell value rises by $1", "cost": 6, "rarity": 1},
+	{"id": "skyrocket", "name": "Skyrocket", "desc": "Earn $1 at the end of each round; the payout grows by $2 each time a boss is beaten", "cost": 6, "rarity": 1},
+	{"id": "ninelives", "name": "Nine Lives", "desc": "Earn $1 at the end of each round for each 9 in your full deck", "cost": 7, "rarity": 1},
+	{"id": "moonshot", "name": "Moonshot", "desc": "Interest is paid twice", "cost": 5, "rarity": 1},
+	{"id": "satellite", "name": "Satellite", "desc": "Earn $1 at the end of each round for each different Rune used this run", "cost": 6, "rarity": 1},
+	{"id": "valet", "name": "Valet", "desc": "Each face card held in hand has a 1 in 2 chance to earn $1", "cost": 6, "rarity": 0},
+	{"id": "bootstraps", "name": "Bootstraps", "desc": "+2 Mult for every $5 you hold", "cost": 7, "rarity": 1},
+	{"id": "toreador", "name": "Toreador", "desc": "Earn $8 each time a boss blind's effect hits your hand", "cost": 7, "rarity": 1},
+	{"id": "wanderer", "name": "Wanderer", "desc": "Create a Spell when you play a hand while holding $4 or less", "cost": 8, "rarity": 2},
+	{"id": "trader", "name": "Trader", "desc": "If the first discard of a round is a single card, destroy it and earn $3", "cost": 6, "rarity": 1},
+	{"id": "burglar", "name": "Cat Burglar", "desc": "When a blind starts, gain 3 hands and lose all discards", "cost": 6, "rarity": 1},
+	{"id": "tipsy", "name": "Tipsy", "desc": "+1 discard each round", "cost": 4, "rarity": 0},
+	{"id": "juggler", "name": "Juggler", "desc": "+1 hand size", "cost": 4, "rarity": 0},
+	{"id": "minstrel", "name": "Minstrel", "desc": "+2 hand size, but 1 fewer hand each round", "cost": 6, "rarity": 1},
+	{"id": "merry", "name": "Merry Fool", "desc": "+3 discards each round, but -1 hand size", "cost": 7, "rarity": 1},
+	{"id": "daredevil", "name": "Daredevil", "desc": "+250 Chips, but -2 hand size", "cost": 7, "rarity": 2},
+	{"id": "sprout", "name": "Bean Sprout", "desc": "+5 hand size, shrinking by 1 every round", "cost": 6, "rarity": 1},
+	{"id": "noodles", "name": "Noodle Bowl", "desc": "x2 Mult; loses x0.01 Mult for each card discarded", "cost": 6, "rarity": 1},
+	{"id": "chaos", "name": "Chaos", "desc": "1 free reroll in every shop", "cost": 4, "rarity": 0},
+	{"id": "stargazer", "name": "Stargazer", "desc": "Runes in the shop are free", "cost": 8, "rarity": 1},
+	{"id": "license", "name": "License", "desc": "x3 Mult if at least 16 cards in your full deck are enhanced", "cost": 7, "rarity": 2},
+	{"id": "pennant", "name": "Pennant", "desc": "Each Uncommon charm you own gives x1.5 Mult", "cost": 8, "rarity": 2},
+	{"id": "tracing", "name": "Tracing Paper", "desc": "Copies the ability of the charm to its right", "cost": 10, "rarity": 2},
+	{"id": "brainwave", "name": "Brainwave", "desc": "Copies the ability of your leftmost charm", "cost": 10, "rarity": 2},
+	{"id": "phantom", "name": "Phantom", "desc": "After 2 rounds, sell it to duplicate a random other charm", "cost": 8, "rarity": 2},
+	{"id": "loaded", "name": "Loaded Dice", "desc": "Doubles every listed chance (1 in 4 becomes 2 in 4)", "cost": 4, "rarity": 1},
+	{"id": "crystal", "name": "Crystal Ball", "desc": "Each scored 8 has a 1 in 4 chance to create a Spell", "cost": 5, "rarity": 0},
+	{"id": "secondsight", "name": "Second Sight", "desc": "If the first hand of a round is a single 6, destroy it and create an Omen", "cost": 6, "rarity": 1},
+	{"id": "ouija", "name": "Spirit Board", "desc": "Create an Omen when you play a Straight Flush", "cost": 6, "rarity": 1},
+	{"id": "quantum", "name": "Quantum", "desc": "Create a Spell when the hand contains both an Ace and a Straight", "cost": 4, "rarity": 0},
+	{"id": "diviner", "name": "Diviner", "desc": "Create a Spell when a blind starts", "cost": 6, "rarity": 1},
+	{"id": "notary", "name": "Notary", "desc": "When a round starts, add a random card with a random seal to your hand", "cost": 6, "rarity": 1},
+	{"id": "clone", "name": "Clone", "desc": "If the first hand of a round is a single card, add a copy of it to your deck and hand", "cost": 8, "rarity": 2},
+	{"id": "rabble", "name": "Rabble", "desc": "When a blind starts, create 2 Common charms (if there is room)", "cost": 6, "rarity": 0},
+	{"id": "kindling", "name": "Kindling", "desc": "Levels up the hand type of your first discard each round", "cost": 8, "rarity": 2},
+	{"id": "orbit", "name": "Orbit", "desc": "1 in 4 chance to level up the hand type you play", "cost": 5, "rarity": 1},
+	{"id": "blankmask", "name": "Blank Mask", "desc": "Earn $5 when you discard 3 or more face cards at once", "cost": 4, "rarity": 0},
+	{"id": "roadtrip", "name": "Road Trip", "desc": "Gains x0.5 Mult for each Jack discarded this round", "cost": 8, "rarity": 2},
+	{"id": "doublevision", "name": "Double Vision", "desc": "x2 Mult if the scored cards include a Club and a card of another suit", "cost": 6, "rarity": 1},
+	{"id": "tiny", "name": "Tiny", "desc": "Gains +8 Chips each time a 2 is scored", "cost": 8, "rarity": 2},
+	{"id": "ringmaster", "name": "Ringmaster", "desc": "Charms and spells you already own can still show up in the shop", "cost": 5, "rarity": 1},
+	{"id": "lastlaugh", "name": "Last Laugh", "desc": "Saves you from losing a round if you scored at least a quarter of the target, then breaks", "cost": 5, "rarity": 1},
+	{"id": "wear", "name": "Wear and Tear", "desc": "+4 Mult for each card your deck is below its starting size", "cost": 6, "rarity": 1},
+	{"id": "bonecrown", "name": "Bone Crown", "desc": "Gains x1 Mult each time a face card is destroyed", "cost": 20, "rarity": 3},
+	{"id": "foolking", "name": "Fool King", "desc": "Scored Kings and Queens give x2 Mult", "cost": 20, "rarity": 3},
+	{"id": "skull", "name": "Skull", "desc": "Gains x1 Mult for every 23 cards discarded", "cost": 20, "rarity": 3},
+	{"id": "veto", "name": "Veto", "desc": "Disables the effect of every boss blind", "cost": 20, "rarity": 3},
+	{"id": "hoarder", "name": "Hoarder", "desc": "When you leave the shop, makes a Negative copy of a random spell you hold", "cost": 20, "rarity": 3},
+	{"id": "scrapbook", "name": "Scrapbook", "desc": "Gains +3 Mult each time you skip a booster pack", "cost": 5, "rarity": 0},
+	{"id": "daydream", "name": "Daydream", "desc": "1 in 2 chance to create a Spell when you open a booster pack", "cost": 4, "rarity": 0},
+	{"id": "rewind", "name": "Rewind", "desc": "x0.25 Mult for each blind skipped this run", "cost": 6, "rarity": 1},
+	{"id": "float", "name": "Root Float", "desc": "Sell this to get a Twin Tag", "cost": 6, "rarity": 1},
 ]
 
 # Card upgrades. Enhancements and seals live on playing cards; editions on cards and charms.
@@ -118,6 +199,8 @@ const ENHANCEMENTS := {
 	"iron": {"name": "Iron", "desc": "x1.5 Mult while held in hand", "face": Color("c8ced8"), "badge": Color("5d6675")},
 	"gilded": {"name": "Gilded", "desc": "Earn $3 if held in hand at end of round", "face": Color("ffe7a0"), "badge": Color("c08a12")},
 	"lucky": {"name": "Lucky", "desc": "1 in 5 chance of +20 Mult when scored", "face": Color("e2f6da"), "badge": Color("3b9a4a")},
+	"stone": {"name": "Stone", "desc": "+50 Chips; no rank or suit, always scores", "face": Color("9a9590"), "badge": Color("5d5852")},
+	"wild": {"name": "Wild", "desc": "Counts as every suit", "face": Color("f3e6ff"), "badge": Color("8a4fd0")},
 }
 const EDITIONS := {
 	"foil": {"name": "Foil", "desc": "+50 Chips", "cost": 2, "shader": 1},
@@ -147,7 +230,48 @@ const SPELLS := [
 	{"id": "mirror", "name": "Mirror", "desc": "Select 2 cards: the left one becomes a copy of the right one", "max": 2, "min": 2},
 	{"id": "sigil", "name": "Sigil", "desc": "Add a Crimson Seal to 1 selected card", "max": 1},
 	{"id": "windfall", "name": "Windfall", "desc": "Double your money (up to +$20)", "max": 0},
+	{"id": "petrify", "name": "Petrify", "desc": "Turn 1 selected card to Stone", "max": 1, "enh": "stone"},
+	{"id": "chimera", "name": "Chimera", "desc": "Make up to 2 selected cards Wild", "max": 2, "enh": "wild"},
+	# Omens: rare spells that only charms create; never sold in the shop.
+	{"id": "aura", "name": "Aura", "desc": "Give 1 selected card a random edition", "max": 1, "omen": true},
+	{"id": "talisman", "name": "Talisman", "desc": "Add a Golden Seal to 1 selected card", "max": 1, "omen": true},
+	{"id": "duplicate", "name": "Duplicate", "desc": "Add 2 copies of 1 selected card to your deck", "max": 1, "omen": true},
+	{"id": "wraith", "name": "Wraith", "desc": "Create a Rare charm, but your money drops to $0", "max": 0, "omen": true},
+	{"id": "soul", "name": "Soul", "desc": "Create a Legendary charm", "max": 0, "omen": true},
 ]
+const OMEN_COLOR := Color("4b3a8a")
+# Tags: the reward for skipping a Small or Big Blind.
+const TAGS := [
+	{"id": "riches", "name": "Riches Tag", "desc": "Double your money (up to +$40)", "color": Color("e0a526")},
+	{"id": "haste", "name": "Haste Tag", "desc": "Earn $5 for each blind skipped this run", "color": Color("d9572b")},
+	{"id": "rare", "name": "Rare Tag", "desc": "The next shop has a free Rare charm", "color": Color("b8334a")},
+	{"id": "uncommon", "name": "Uncommon Tag", "desc": "The next shop has a free Uncommon charm", "color": Color("3f9a5a")},
+	{"id": "coupon", "name": "Coupon Tag", "desc": "Everything first stocked in the next shop is free", "color": Color("f07a9a")},
+	{"id": "star", "name": "Star Tag", "desc": "Level up a random hand type 3 times", "color": Color("6c4ab6")},
+	{"id": "juggle", "name": "Juggle Tag", "desc": "+3 hand size for the next round", "color": Color("2ec4b6")},
+	{"id": "bundle", "name": "Bundle Tag", "desc": "Open a free Charm Pack", "color": Color("4a6fa5")},
+	{"id": "tome", "name": "Tome Tag", "desc": "Open a free Spell Pack", "color": Color("2f7f6f")},
+	{"id": "twin", "name": "Twin Tag", "desc": "Copies the next tag you get", "color": Color("8a96a3")},
+	{"id": "invest", "name": "Investment Tag", "desc": "Earn $15 after beating the next boss", "color": Color("c08a12")},
+	{"id": "dice", "name": "Dice Tag", "desc": "Rerolls in the next shop start at $0", "color": Color("3a7bd5")},
+]
+
+# Booster packs: pick one of a few, or skip.
+const PACKS := {
+	"charm": {"name": "Charm Pack", "desc": "Choose 1 of 2 charms", "cost": 4, "show": 2, "color": Color("4a6fa5")},
+	"spell": {"name": "Spell Pack", "desc": "Choose 1 of 3 spells", "cost": 4, "show": 3, "color": Color("2f7f6f")},
+	"rune": {"name": "Rune Pack", "desc": "Choose 1 of 3 runes", "cost": 4, "show": 3, "color": Color("6c4ab6")},
+	"card": {"name": "Card Pack", "desc": "Choose 1 of 3 playing cards", "cost": 4, "show": 3, "color": Color("c08a12")},
+}
+
+
+static func tag_def(id: String) -> Dictionary:
+	for t in TAGS:
+		if t.id == id:
+			return t
+	return {}
+
+
 const SPELL_COLOR := Color("2f7f6f")
 const SPELL_COST := 3
 
@@ -253,8 +377,8 @@ static func challenge_lines(ch: Dictionary) -> Array:
 	return out
 
 
-const RARITY_COLORS := [Color("4a6fa5"), Color("3f9a5a"), Color("b8334a")]
-const RARITY_NAMES := ["Common", "Uncommon", "Rare"]
+const RARITY_COLORS := [Color("4a6fa5"), Color("3f9a5a"), Color("b8334a"), Color("9b5de5")]
+const RARITY_NAMES := ["Common", "Uncommon", "Rare", "Legendary"]
 const RUNE_COLOR := Color("6c4ab6")
 const RUNE_COST := 3
 
@@ -312,6 +436,8 @@ static func card_mods(card: Dictionary) -> Array:
 	if card.get("seal", "") != "":
 		var sl: Dictionary = SEALS[card.seal]
 		out.append("%s: %s" % [sl.name, sl.desc])
+	if card.get("bonus", 0) > 0:
+		out.append("+%d bonus Chips" % card.bonus)
 	return out
 
 
