@@ -147,6 +147,19 @@ func delete_run() -> void:
 	_queue(_run_path(), null)
 
 
+## Move an unreadable run out of the way (kept as run.bad for inspection).
+func set_aside_run(p: int = profile) -> void:
+	flush()
+	var path := _run_path(p)
+	_io.lock()
+	if FileAccess.file_exists(path):
+		var bad := _dir(p) + "/run.bad"
+		if FileAccess.file_exists(bad):
+			DirAccess.remove_absolute(bad)
+		DirAccess.rename_absolute(path, bad)
+	_io.unlock()
+
+
 # ---------------------------------------------------------------- io
 
 func _queue(path: String, bytes) -> void:

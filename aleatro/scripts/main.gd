@@ -2056,7 +2056,7 @@ func _load_stats() -> void:
 
 
 func _load_profile() -> void:
-	profile_data = saves.load_profile()
+	profile_data = SaveCheck.profile(saves.load_profile(), STAT_DEFAULTS)
 	stats = STAT_DEFAULTS.duplicate()
 	stats.merge(profile_data.stats, true)
 
@@ -2088,6 +2088,13 @@ func resume_run() -> void:
 	var d := saves.load_run()
 	if d.is_empty():
 		new_run()
+		return
+	var why := SaveCheck.run(d)
+	if why != "":
+		push_warning("saved run set aside: " + why)
+		saves.set_aside_run()
+		new_run()
+		toast("Your saved run couldn't be read, so a new one has started")
 		return
 	on_title = false
 	music.pitch_target = 1.0
