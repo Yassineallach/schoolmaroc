@@ -29,6 +29,7 @@ automatically; a file's name is its sound code, and `name_1`, `name_2`, ... are 
 | `scripts/sfx.gd` | Synthesized sound effects |
 | `scripts/ui_build.gd` | Declarative menu builder: rows, columns, grids, live text and bars, delayed/hold/once buttons, choice tabs, tooltips |
 | `scripts/glide.gd` | Spring mover for cards and charms: chases a target with slight overshoot, leans into fast moves, wobbles when kicked; honours Reduced motion |
+| `scripts/motes.gd` | Pixel-square particle emitter: bursts and steady trickles, point or area spawn, drag and gravity, fade-out, prewarm |
 
 ## Building the Android package
 

@@ -78,6 +78,8 @@ var mascot: Mascot = null
 var mascot_layer: Control
 var music: Music
 var score_ratio := 0.0  # round score / target, drives the sidebar bar
+var score_box: Panel
+var boss_motes: Motes = null  # embers drifting up the blind panel during a boss
 
 
 func _ready() -> void:
@@ -192,7 +194,7 @@ func _build_ui() -> void:
 			sfx.play("chips", 0.6)
 			show_blind_info())
 
-	var score_box := _panel(Vector2(10, 160), Vector2(320, 70), Color(0, 0, 0, 0.35))
+	score_box = _panel(Vector2(10, 160), Vector2(320, 70), Color(0, 0, 0, 0.35))
 	_place(_label("Round score", 22, Color(1, 1, 1, 0.8), HORIZONTAL_ALIGNMENT_LEFT), score_box, Vector2(14, 0), Vector2(140, 70))
 	lbl_round_score = _place(_label("0", 36, Color.WHITE, HORIZONTAL_ALIGNMENT_RIGHT), score_box, Vector2(140, 0), Vector2(166, 62))
 	_place(UIBuild.build({"bar": [self, "score_ratio"], "fill": Data.CHIP_COLOR, "min": Vector2(292, 8)}), score_box, Vector2(14, 56), Vector2(292, 8))
@@ -384,6 +386,7 @@ func update_hud() -> void:
 	var boss_bed := gs != null and in_round and gs.hex() != ""
 	sfx.set_ambient("ambient_table", 0.25 if boss_bed else 0.55)
 	sfx.set_ambient("ambient_boss", 0.6 if boss_bed else 0.0)
+	_set_boss_motes(boss_bed)
 	if gs == null:
 		return
 	lbl_ante.text = "Ante %d/%d" % [gs.ante, Data.FINAL_ANTE]
@@ -420,6 +423,29 @@ func update_hud() -> void:
 	btn_play.disabled = busy or not in_round or selected_views().is_empty()
 	btn_discard.disabled = busy or not in_round or selected_views().is_empty() or gs.discards_left <= 0
 	update_preview()
+
+
+## Embers rise through the blind panel while a boss is in play.
+func _set_boss_motes(on: bool) -> void:
+	if on and boss_motes == null:
+		boss_motes = Motes.new()
+		boss_motes.position = blind_box.size / 2
+		boss_motes.area = blind_box.size - Vector2(16, 16)
+		var col: Color = gs.boss_hex.color
+		boss_motes.colors = [col.lightened(0.35), col.lightened(0.6), Color(1, 1, 1, 0.7)]
+		boss_motes.rate = 0.09
+		boss_motes.speed = 26.0
+		boss_motes.spread = 0.9
+		boss_motes.drag = 0.4
+		boss_motes.size = 5.0
+		boss_motes.life = 1.6
+		boss_motes.spin = 1.5
+		blind_box.add_child(boss_motes)
+		blind_box.move_child(boss_motes, 0)  # behind the labels, above the panel
+		boss_motes.prewarm(1.6)
+	elif not on and boss_motes != null:
+		boss_motes.fade_out(0.5)
+		boss_motes = null
 
 
 func update_preview() -> void:
@@ -657,6 +683,21 @@ func _on_drag_end(v: Control) -> void:
 
 func _charm_inst(v: CharmView) -> Dictionary:
 	return v.get_meta("inst")
+
+
+## A burst of motes at `pos` (fx layer space).
+func motes(pos: Vector2, palette: Array, n: int, cfg := {}) -> Motes:
+	return Motes.pop(fx_layer, pos, palette, n, cfg)
+
+
+## The centre of `c` in fx layer space.
+func fx_center(c: Control) -> Vector2:
+	return fx_layer.get_global_transform().affine_inverse() * c.get_global_rect().get_center()
+
+
+## Small, quick sparks for each scoring step.
+func score_motes(pos: Vector2, col: Color, n := 6) -> void:
+	motes(pos, [col, col.lightened(0.4)], n, {"speed": 110.0, "size": 7.0, "life": 0.5, "drag": 3.0})
 
 
 func popup_text(pos: Vector2, text: String, col: Color, fsize: int = 34) -> void:
@@ -1191,6 +1232,7 @@ func play_selected() -> void:
 			lbl_chips.text = Data.fmt(chips)
 			bump(lbl_chips.get_parent(), 1.08)
 			popup_text(anchor, "+%d" % e.chips, Data.CHIP_COLOR.lightened(0.2))
+			score_motes(anchor, Data.CHIP_COLOR)
 			sfx.play("chips", pitch)
 			line += 1
 		if e.has("mult"):
@@ -1198,6 +1240,7 @@ func play_selected() -> void:
 			lbl_mult.text = _fmt_mult(mult)
 			bump(lbl_mult.get_parent(), 1.08)
 			popup_text(anchor + Vector2(0, 36 * line), "+%d Mult" % e.mult, Data.MULT_COLOR)
+			score_motes(anchor + Vector2(0, 36 * line), Data.MULT_COLOR)
 			sfx.play("mult", pitch)
 			line += 1
 		if e.has("xmult"):
@@ -1205,6 +1248,7 @@ func play_selected() -> void:
 			lbl_mult.text = _fmt_mult(mult)
 			bump(lbl_mult.get_parent(), 1.08)
 			popup_text(anchor + Vector2(0, 36 * line), "x%s Mult" % str(e.xmult).trim_suffix(".0"), Data.XMULT_COLOR)
+			score_motes(anchor + Vector2(0, 36 * line), Data.XMULT_COLOR, 12)
 			sfx.play("xmult", pitch)
 			line += 1
 		if e.has("money"):
@@ -1213,6 +1257,7 @@ func play_selected() -> void:
 			update_hud()
 			bump(lbl_money, 1.2)
 			popup_text(anchor + Vector2(0, 36 * line), "$%d" % e.money, Data.MONEY_COLOR)
+			score_motes(anchor + Vector2(0, 36 * line), Data.MONEY_COLOR, 8)
 			sfx.play("coin", pitch)
 		pitch += 0.04
 		await wait(step_t)
@@ -1317,6 +1362,8 @@ func win_round() -> void:
 	in_round = false
 	sfx.play("round_win")
 	haptic(40, 0.5)
+	motes(fx_center(score_box), [Data.MONEY_COLOR, Color("fff1b8"), Data.CHIP_COLOR.lightened(0.3)], 34,
+		{"area": score_box.size * Vector2(0.8, 0.4), "speed": 260.0, "spread": 1.6, "gravity": Vector2(0, 380), "life": 1.1, "drag": 0.8})
 	refresh_charm_states()
 	await defeat_blind()
 	var gilded := 0
@@ -1423,10 +1470,20 @@ func show_victory() -> void:
 	vb.add_child(_label("You beat ante %d." % Data.FINAL_ANTE, 28))
 	_row_label(vb, "Best hand", Data.fmt(gs.best_hand), Data.CHIP_COLOR.lightened(0.3))
 	ace_quip(["We did it! I knew you had it in you!", "Champion! Fancy seeing how far Endless goes?"])
+	_confetti()
 	vb.add_child(_center(_button("Endless Mode", Color("7b4fa0"), func():
 		gs.endless = true
 		open_shop(), Vector2(340, 84), 30)))
 	vb.add_child(_center(_button("New Run", Data.CHIP_COLOR, new_run, Vector2(340, 84), 30)))
+
+
+## Waves of confetti falling across the screen.
+func _confetti() -> void:
+	var palette := [Data.CHIP_COLOR, Data.MULT_COLOR, Data.MONEY_COLOR, Color("3f9a5a"), Color("b07cff"), Color.WHITE]
+	for wave in 3:
+		motes(Vector2(vw / 2, -20), palette, 50, {"area": Vector2(vw, 10), "heading": PI / 2, "spread": 0.8, "speed": 140.0,
+			"gravity": Vector2(0, 120), "drag": 0.6, "life": 3.2, "size": 11.0, "spin": 6.0, "cap": 60})
+		await wait(0.6)
 
 
 # ---------------------------------------------------------------- shop
@@ -1658,6 +1715,7 @@ func _on_charm_tapped(v: CharmView) -> void:
 					hv.set_debuffed(gs.is_debuffed(hv.card))
 				toast("Jade Wreath lifted: cards work again")
 		charm_views.erase(v)
+		motes(fx_center(v), [Data.MONEY_COLOR, Color("fff1b8")], 14, {"speed": 160.0, "gravity": Vector2(0, 260), "life": 0.8})
 		v.dissolve()
 		sfx.play("dissolve")
 		sfx.play("charm_sell")
@@ -1700,6 +1758,8 @@ func shatter(v: CardView) -> void:
 		tw.tween_property(shard, "rotation", randf_range(-4, 4), 0.6)
 		tw.tween_property(shard, "modulate:a", 0.0, 0.6).set_delay(0.2)
 		tw.chain().tween_callback(shard.queue_free)
+	motes(origin + Vector2(CardView.W, CardView.H) / 2, [Color("bff3ff"), Color.WHITE, face], 18,
+		{"area": Vector2(CardView.W, CardView.H) * 0.6, "speed": 200.0, "size": 6.0, "gravity": Vector2(0, 300), "life": 0.8})
 	popup_text(origin + Vector2(CardView.W / 2, -24), "Shattered!", Color("bff3ff"), 30)
 	v.queue_free()
 
@@ -1810,6 +1870,8 @@ func defeat_blind() -> void:
 	for i in pings:
 		sfx.play("blind_defeat") if i == 0 else sfx.play("tally", 1.3 - 0.05 * i)
 		m.set_shader_parameter("dissolve", float(i + 1) / pings)
+		motes(fx_center(blind_chip), [gs.blind_color().lightened(0.4), gs.blind_color().lightened(0.7), Color.WHITE], 6,
+			{"speed": 90.0, "size": 6.0, "life": 0.7, "gravity": Vector2(0, -60)})
 		await wait(0.12)
 	var tw := create_tween()
 	tw.tween_property(lbl_blind, "modulate:a", 0.0, 0.2)
@@ -2092,6 +2154,7 @@ func _apply_settings() -> void:
 	Engine.time_scale = settings.speed
 	Glide.calm = settings.reduced_motion
 	Anim.calm = settings.reduced_motion
+	Motes.calm = settings.reduced_motion
 
 
 # ---------------------------------------------------------------- input helpers
