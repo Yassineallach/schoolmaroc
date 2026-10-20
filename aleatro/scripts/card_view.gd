@@ -31,7 +31,7 @@ func _init(c: Dictionary = {}) -> void:
 	custom_minimum_size = size
 	pivot_offset = size / 2
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST  # crisp 2x pixel art
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR  # face art is pre-scaled 2x, so this stays crisp
 	_tilt.attach(self)
 	if _face_box == null:
 		_face_box = PixelBox.new(Color("f7f3ea"), 4.0, 0.0, true)
@@ -126,7 +126,7 @@ func _paint() -> void:
 	_draw_enhancement(enh)
 	if selected:
 		draw_style_box(_select_box, Rect2(Vector2.ZERO, size))
-	# indices, pips and court figures: one cached pixel image at 2x
+	# indices, pips and court figures: one cached pixel image
 	draw_texture_rect(DeckArt.face(card.rank, card.suit), Rect2(Vector2.ZERO, size), false)
 	if enh != "":
 		_draw_badge(Data.ENHANCEMENTS[enh].name, Data.ENHANCEMENTS[enh].badge)
