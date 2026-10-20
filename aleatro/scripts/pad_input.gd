@@ -23,6 +23,7 @@ var last_joy := -1
 var ring := FocusRing.new()
 
 var _layer := ""
+var _auto := false  # focus was picked for the player, not moved by them
 var _remember := {}
 var _held_dir := ""
 var _dir_timer := 0.0
@@ -164,8 +165,17 @@ func _sync_layer(force: bool) -> void:
 			_remember[_layer] = focused
 		_layer = layer
 		var back = _remember.get(layer)
-		focused = back if back != null and is_instance_valid(back) and list.has(back) else _default(list)
+		if back != null and is_instance_valid(back) and list.has(back):
+			focused = back
+			_auto = false
+		else:
+			focused = _default(list)
+			_auto = true
 	elif force or focused == null or not is_instance_valid(focused) or not list.has(focused):
+		focused = _default(list)
+		_auto = true
+	elif _auto:
+		# e.g. the hand was still being dealt when focus was first placed
 		focused = _default(list)
 
 
@@ -202,6 +212,7 @@ func _buttons(node: Node) -> Array:
 func navigate(dir: Vector2) -> void:
 	if not pad_mode:
 		return
+	_auto = false
 	var list := focusables()
 	if focused == null:
 		focused = _default(list)
@@ -251,6 +262,7 @@ func navigate(dir: Vector2) -> void:
 func _accept_pressed() -> void:
 	if not pad_mode or focused == null or not is_instance_valid(focused):
 		return
+	_auto = false
 	_accept_down = true
 	_moved_card = false
 	if focused is BaseButton:
