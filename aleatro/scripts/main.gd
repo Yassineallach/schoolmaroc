@@ -948,6 +948,9 @@ func show_blind_select() -> void:
 		cols.add_child(p)
 	vb.add_child(cols)
 	var buttons: Array = [{"button": "Play " + gs.blind_name(), "color": gs.blind_color(), "on": start_blind, "min": Vector2(360, 86), "size": 30}]
+	if gs.can_reroll_boss():
+		buttons.append({"button": "Reroll Boss $10", "color": Color("8a3fb0"), "on": reroll_boss, "min": Vector2(230, 86), "size": 22,
+			"enabled": func(): return gs.can_afford(10)})
 	if gs.blind_idx < 2:
 		var tag := Data.tag_def(gs.blind_tags[gs.blind_idx])
 		buttons.append({"button": "Skip for %s" % tag.name, "color": Color("5a5f73"), "on": skip_blind, "min": Vector2(300, 86), "size": 22,
@@ -961,6 +964,15 @@ func show_blind_select() -> void:
 		tutorial("boss", "That's a boss blind! Bosses bend the rules. Tap the blind panel at the top left any time to read what this one does.")
 	else:
 		tutorial("welcome", "Hi, I'm Ace! Each ante has three blinds. Score at least the target before your hands run out to beat one and earn money.")
+
+
+func reroll_boss() -> void:
+	if not gs.can_reroll_boss() or not gs.can_afford(10):
+		return
+	gs.money -= 10
+	gs.reroll_boss()
+	sfx.play("reroll")
+	show_blind_select()
 
 
 func skip_blind() -> void:
@@ -978,27 +990,50 @@ func _open_pending_packs(then: Callable) -> void:
 	if gs.pending_packs.is_empty():
 		then.call()
 		return
-	var kind: String = gs.pending_packs.pop_front()
-	open_pack(kind, func(): _open_pending_packs(then))
+	var id: String = gs.pending_packs.pop_front()
+	open_pack(id, func(): _open_pending_packs(then))
 
 
-## Show an opened pack: take one of its choices, or skip it.
-func open_pack(kind: String, then: Callable) -> void:
-	var def: Dictionary = Data.PACKS[kind]
-	var choices := gs.open_pack(kind)
+## Open pack `id` and show what's inside; `then` runs once it is done.
+func open_pack(id: String, then: Callable) -> void:
+	var choices := gs.open_pack(id)
 	for note in gs.on_pack_opened():
 		toast(note)
 	rebuild_spells()
 	sfx.play("charm_buy", 0.9)
-	_show_pack(kind, choices, then)
+	_show_pack(id, choices, Data.PACKS[id].choose, then)
 
 
-func _show_pack(kind: String, choices: Array, then: Callable) -> void:
-	var def: Dictionary = Data.PACKS[kind]
+func _show_pack(id: String, choices: Array, picks: int, then: Callable) -> void:
+	var kind: String = Data.PACKS[id].kind
+	var color: Color = Data.PACK_KINDS[kind].color
 	busy = true
 	var vb := open_overlay()
-	vb.add_child(_label(def.name, 40, def.color.lightened(0.4)))
-	vb.add_child(_label(def.desc, 20, Color(1, 1, 1, 0.7)))
+	vb.add_theme_constant_override("separation", 6)
+	vb.add_child(_label("%s  -  %s, %d pick%s left" % [Data.pack_name(id), Data.pack_desc(id).to_lower(), picks, "" if picks == 1 else "s"], 24, color.lightened(0.45)))
+	# Spell and Omen packs are used on cards drawn from the deck.
+	var card_row := HBoxContainer.new()
+	card_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	card_row.add_theme_constant_override("separation", 6)
+	var picked: Array = []
+	for c in gs.pack_hand:
+		var cv := CardView.new(c)
+		cv.scale = Vector2(0.66, 0.66)
+		var holder := Control.new()
+		holder.custom_minimum_size = Vector2(CardView.W, CardView.H) * 0.66 + Vector2(0, 22)
+		cv.tapped.connect(func(v):
+			if picked.has(v.card):
+				picked.erase(v.card)
+				v.selected = false
+			elif picked.size() < MAX_SELECT:
+				picked.append(v.card)
+				v.selected = true
+			v.queue_redraw()
+			sfx.play("card_select"))
+		holder.add_child(cv)
+		card_row.add_child(holder)
+	if not gs.pack_hand.is_empty():
+		vb.add_child(card_row)
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 22)
@@ -1006,66 +1041,86 @@ func _show_pack(kind: String, choices: Array, then: Callable) -> void:
 		var view: Control
 		var title := ""
 		var desc := ""
+		var verb := "Take"
 		match kind:
-			"charm":
+			"buffoon":
 				var d := Data.charm_def(choice.id)
 				view = CharmView.new(choice.id, "", choice.ed)
 				title = d.name
 				desc = d.desc
 				discover("charm", choice.id)
-			"spell":
+			"arcana", "spectral", "celestial":
 				var d := Data.spell_def(choice)
 				view = SpellView.new(choice)
 				title = d.name
 				desc = d.desc
-			"rune":
-				view = SpellView.new(choice)
-				title = "Rune"
-				desc = Data.spell_def(choice).desc
-			"card":
+				verb = "Use"
+			"standard":
 				view = CardView.new(choice)
 				view.float_amount = 1.0
 				title = Data.card_name(choice)
 				desc = "\n".join(Data.card_mods(choice))
-		view.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var take := func():
-			var why := gs.take_from_pack(kind, choice)
+			var why := gs.take_from_pack(id, choice, picked)
 			if why != "":
 				popup_text(Vector2(main_cx(), TOP_H + 40), why, Color.WHITE, 28)
 				return
-			sfx.play("rune" if kind == "rune" else "charm_buy")
-			if kind == "charm":
+			sfx.play("spell_cast" if verb == "Use" else "charm_buy")
+			if gs.spell_note != "":
+				toast(gs.spell_note)
+				gs.spell_note = ""
+			if kind == "buffoon":
 				stats.charms_bought += 1
+			elif verb == "Use":
+				stats.spells_cast += 1
 			rebuild_charms()
 			rebuild_spells()
-			clear_overlay()
-			then.call()
+			update_hud()
+			choices.erase(choice)
+			if picks > 1 and not choices.is_empty():
+				_show_pack(id, choices, picks - 1, then)
+			else:
+				gs.pack_hand = []
+				clear_overlay()
+				then.call()
 		var col := UIBuild.build({"col": [
-			{"node": _center(view)},
-			{"text": title, "size": 16, "color": Color(1, 1, 1, 0.6), "fit": 150},
-			{"text": desc, "size": 16, "wrap": 150, "lines": 4, "id": "desc"},
-			{"button": "Take", "color": Color("3f9a5a"), "on": take, "min": Vector2(130, 60)},
-		], "sep": 6})
-		UIBuild.find(col, "desc").custom_minimum_size.y = 72
+			{"node": _center(_shrink(view, 0.72))},
+			{"text": title, "size": 14, "color": Color(1, 1, 1, 0.6), "fit": 140},
+			{"text": desc, "size": 14, "wrap": 140, "lines": 3, "id": "desc", "tooltip": {"title": title, "lines": desc.split("\n")}},
+			{"button": verb, "color": Color("3f9a5a"), "on": take, "min": Vector2(110, 46), "size": 22},
+		], "sep": 2})
+		UIBuild.find(col, "desc").custom_minimum_size.y = 52
 		row.add_child(col)
 	vb.add_child(row)
 	vb.add_child(_center(_button("Skip", Color("5a5f73"), func():
 		gs.skip_pack()
+		gs.pack_hand = []
 		clear_overlay()
-		then.call(), Vector2(200, 64), 24)))
+		then.call(), Vector2(160, 48), 20)))
 
 
 ## A booster pack as it sits in the shop.
-func _pack_view(kind: String) -> Control:
-	var def: Dictionary = Data.PACKS[kind]
+func _pack_view(id: String) -> Control:
+	var kind: String = Data.PACKS[id].kind
+	var col: Color = Data.PACK_KINDS[kind].color
 	var p := PanelContainer.new()
-	p.custom_minimum_size = Vector2(110, 140)
-	var sb := _box(def.color, 3.0, true)
+	p.custom_minimum_size = Vector2(96, 118)
+	var sb := _box(col, 3.0, true)
 	sb.outline = 3.0
-	sb.outline_color = def.color.lightened(0.5)
+	sb.outline_color = col.lightened(0.5) if Data.PACKS[id].size == "" else Color("ffdf6b")
 	p.add_theme_stylebox_override("panel", sb)
-	var l := _label(def.name.replace(" ", "\n"), 22, Color.WHITE)
-	p.add_child(l)
+	p.add_child(_label(Data.pack_name(id).replace(" ", "\n"), 18, Color.WHITE))
+	return p
+
+
+func _voucher_view(id: String) -> Control:
+	var p := PanelContainer.new()
+	p.custom_minimum_size = Vector2(96, 118)
+	var sb := _box(Color("8a5a1a"), 3.0, true)
+	sb.outline = 3.0
+	sb.outline_color = Color("ffdf6b")
+	p.add_theme_stylebox_override("panel", sb)
+	p.add_child(_label("VOUCHER\n\n" + Data.voucher_def(id).name.replace(" ", "\n"), 16, Color("fff1b8")))
 	return p
 
 
@@ -1352,8 +1407,12 @@ func play_selected() -> void:
 			bump(lbl_mult.get_parent())
 			await wait(step_t)
 			continue
-		# Popups go above a played card, below a charm, or above a held card.
+		# Popups go above a played card, below a charm or spell, or above a held card.
 		var anchor := Vector2.ZERO
+		if e.has("spell_index") and e.spell_index < spell_views.size():
+			var sv: SpellView = spell_views[e.spell_index]
+			bump(sv, 1.15)
+			anchor = sv.global_position + Vector2(SpellView.W / 2, SpellView.H + 18)
 		if e.has("charm_index"):
 			var cv: CharmView = charm_views[e.charm_index]
 			bump(cv, 1.15)
@@ -1715,7 +1774,7 @@ func _confetti() -> void:
 # ---------------------------------------------------------------- shop
 
 func open_shop() -> void:
-	gs.reroll_cost = 5
+	gs.reroll_cost = gs.reroll_base()
 	gs.free_rerolls = gs.charm_count("chaos")
 	gs.roll_shop()
 	for note in gs.apply_shop_tags():
@@ -1730,82 +1789,87 @@ func show_shop() -> void:
 	var vb := open_overlay()
 	_shop_open = true
 	music.set_track("shop")
-	vb.add_child(_label("Shop", 40, Color("ffdf6b")))
-	vb.add_child(_label("Tap a charm above to sell it. Bought cards join your deck.", 18, Color(1, 1, 1, 0.6)))
-	var body := HBoxContainer.new()
-	body.alignment = BoxContainer.ALIGNMENT_CENTER
-	body.add_theme_constant_override("separation", 24)
-	vb.add_child(body)
-	var grid := HBoxContainer.new()
-	grid.alignment = BoxContainer.ALIGNMENT_CENTER
-	grid.add_theme_constant_override("separation", 16)
-	for i in gs.shop_charms.size():
-		var d: Dictionary = gs.shop_charms[i]
-		var desc: String = d.desc
-		if d.get("ed", "") != "":
-			desc = "%s\n%s: %s" % [d.desc, Data.EDITIONS[d.ed].name, Data.EDITIONS[d.ed].desc]
-		grid.add_child(_shop_item(CharmView.new(d.id, "", d.get("ed", "")), gs.price(d.cost), desc, Data.RARITY_NAMES[d.rarity], func(): buy_charm(i)))
-	for i in gs.shop_runes.size():
-		var h: String = gs.shop_runes[i]
-		var b: Array = Data.HAND_BASE[h]
-		grid.add_child(_shop_item(CharmView.new("", h), rune_price(), "Level up %s\n+%d Chips +%d Mult" % [h, b[2], b[3]], "Rune", func(): buy_rune(i)))
-	for i in gs.shop_spells.size():
-		var sd := Data.spell_def(gs.shop_spells[i])
-		grid.add_child(_shop_item(SpellView.new(sd.id), spell_price(), sd.desc, "Spell", func(): buy_spell(i)))
+	vb.add_theme_constant_override("separation", 8)
+	vb.add_child(UIBuild.build({"row": [
+		{"text": "Shop", "size": 36, "color": Color("ffdf6b")},
+		{"space": Vector2(40, 0)},
+		{"button": "Next Round", "color": Data.MULT_COLOR, "on": leave_shop, "min": Vector2(200, 60), "size": 24},
+		{"button": "Reroll $%d" % reroll_price(), "color": Color("3f9a5a"), "on": reroll_shop, "min": Vector2(170, 60), "size": 24,
+			"enabled": func(): return gs.can_afford(reroll_price())},
+	], "sep": 14, "align": "center"}))
+	var cards := HBoxContainer.new()
+	cards.alignment = BoxContainer.ALIGNMENT_CENTER
+	cards.add_theme_constant_override("separation", 10)
+	for i in gs.shop_items.size():
+		var it: Dictionary = gs.shop_items[i]
+		var view: Control
+		var desc := ""
+		var tag := ""
+		match it.type:
+			"charm":
+				var d := Data.charm_def(it.id)
+				view = CharmView.new(it.id, "", it.get("ed", ""))
+				desc = d.desc
+				if it.get("ed", "") != "":
+					desc += "\n%s: %s" % [Data.EDITIONS[it.ed].name, Data.EDITIONS[it.ed].desc]
+				tag = "%s %s" % [Data.RARITY_NAMES[d.rarity], d.name]
+				discover("charm", it.id)
+			"spell":
+				var d := Data.spell_def(it.id)
+				view = SpellView.new(it.id)
+				desc = d.desc
+				tag = "Rune" if d.has("rune") else ("Omen" if d.get("omen", false) else "Spell")
+			"card":
+				view = CardView.new(it.card)
+				view.float_amount = 1.0
+				desc = "\n".join(Data.card_mods(it.card))
+				tag = Data.card_name(it.card)
+		cards.add_child(_shop_item(view, gs.item_price(it), desc, tag, func(): buy_item(i)))
+	if cards.get_child_count() == 0:
+		cards.add_child(_label("Sold out!", 28))
+	var lower := cards
+	lower.add_child(VSeparator.new())
+	for v in gs.shop_vouchers:
+		var vd := Data.voucher_def(v)
+		lower.add_child(_shop_item(_voucher_view(v), voucher_price(), vd.desc, "Voucher", func(): buy_voucher(v)))
 	for i in gs.shop_packs.size():
-		var kind: String = gs.shop_packs[i]
-		grid.add_child(_shop_item(_pack_view(kind), gs.pack_price(kind), Data.PACKS[kind].desc, "Booster", func(): buy_pack(i)))
-	if not gs.shop_card.is_empty():
-		var c: Dictionary = gs.shop_card.card
-		var cv := CardView.new(c)
-		cv.float_amount = 1.0
-		grid.add_child(_shop_item(cv, gs.price(gs.shop_card.cost), "\n".join(Data.card_mods(c)), Data.card_name(c), buy_card))
-	if grid.get_child_count() == 0:
-		grid.add_child(_label("Sold out!", 28))
-	body.add_child(grid)
-	var side := VBoxContainer.new()
-	side.alignment = BoxContainer.ALIGNMENT_CENTER
-	side.add_theme_constant_override("separation", 20)
-	side.add_child(_button("Next Round", Data.MULT_COLOR, leave_shop, Vector2(210, 110), 28))
-	side.add_child(UIBuild.build({"button": "Reroll $%d" % reroll_price(), "color": Color("3f9a5a"), "on": reroll_shop,
-		"min": Vector2(210, 90), "enabled": func(): return gs.can_afford(reroll_price())}))
-	body.add_child(side)
-	for d in gs.shop_charms:
-		discover("charm", d.id)
+		var pk: Dictionary = gs.shop_packs[i]
+		lower.add_child(_shop_item(_pack_view(pk.id), gs.pack_price(pk), Data.pack_desc(pk.id), Data.pack_name(pk.id), func(): buy_pack(i)))
+	vb.add_child(cards)
 	save_run("shop")
-	tutorial("shop", "Welcome to the shop! Charms give a bonus every hand and Runes level up a hand type. Drag your charms to change the order they trigger in.")
+	tutorial("shop", "Welcome to the shop! Charms give a bonus every hand, Spells and Runes go in the slots at the top right, and a Voucher upgrades your whole run. Drag your charms to change the order they trigger in.")
 
 
 func _shop_item(view: Control, cost: int, desc: String, tag: String, cb: Callable) -> Control:
-	view.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var col := UIBuild.build({"col": [
-		{"node": _center(view)},
-		{"text": tag, "size": 16, "color": Color(1, 1, 1, 0.6), "fit": 138},
-		{"text": desc, "size": 16, "wrap": 138, "lines": 4, "id": "desc", "tooltip": {"title": tag, "lines": desc.split("\n")}},
-		{"button": "$%d" % cost, "color": Color("e0a526"), "on": cb, "min": Vector2(130, 60), "enabled": func(): return gs.can_afford(cost)},
-	], "sep": 6})
-	UIBuild.find(col, "desc").custom_minimum_size.y = 92
+		{"node": _center(_shrink(view, 0.78))},
+		{"text": tag, "size": 14, "color": Color(1, 1, 1, 0.6), "fit": 118},
+		{"text": desc, "size": 14, "wrap": 118, "lines": 3, "id": "desc", "tooltip": {"title": tag, "lines": desc.split("\n")}},
+		{"button": "$%d" % cost, "color": Color("e0a526"), "on": cb, "min": Vector2(104, 46), "size": 22, "enabled": func(): return gs.can_afford(cost)},
+	], "sep": 2})
+	UIBuild.find(col, "desc").custom_minimum_size.y = 54
 	return col
 
 
-func buy_charm(i: int) -> void:
-	if i < 0 or i >= gs.shop_charms.size():
-		return
-	var d: Dictionary = gs.shop_charms[i]
-	var cost := gs.price(d.cost)
-	if not gs.can_afford(cost):
-		return
-	if gs.charms.size() >= gs.charm_slots:
-		popup_text(Vector2(main_cx(), TOP_H + 40), "No room for more charms", Color.WHITE, 28)
-		return
-	gs.money -= cost
-	_inflate()
-	gs.charms.append({"id": d.id, "data": {}, "ed": d.get("ed", "")})
-	stats.charms_bought += 1
-	gs.shop_charms.remove_at(i)
-	sfx.play("charm_buy")
-	rebuild_charms()
-	show_shop()
+## Wrap a card-like view so it lays out at `s` of its size.
+func _shrink(view: Control, s: float) -> Control:
+	var full := view.custom_minimum_size
+	if full == Vector2.ZERO:
+		full = view.size
+	if view is CharmView:
+		full = Vector2(CharmView.W, CharmView.H)
+	elif view is SpellView:
+		full = Vector2(SpellView.W, SpellView.H)
+	elif view is CardView:
+		full = Vector2(CardView.W, CardView.H)
+	view.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var holder := Control.new()
+	holder.custom_minimum_size = full * s
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	view.scale = Vector2(s, s)
+	view.pivot_offset = Vector2.ZERO
+	holder.add_child(view)
+	return holder
 
 
 ## Inflation challenge: each purchase raises every shop price by $1.
@@ -1815,96 +1879,103 @@ func _inflate() -> void:
 		toast("Prices rose to +$%d" % gs.inflation)
 
 
-func buy_card() -> void:
-	var cost := gs.price(gs.shop_card.cost)
+func buy_item(i: int) -> void:
+	if i < 0 or i >= gs.shop_items.size():
+		return
+	var it: Dictionary = gs.shop_items[i]
+	var cost := gs.item_price(it)
 	if not gs.can_afford(cost):
+		return
+	match it.type:
+		"charm":
+			if gs.charms.size() >= gs.charm_capacity() and it.get("ed", "") != "negative":
+				popup_text(Vector2(main_cx(), TOP_H + 40), "No room for more charms", Color.WHITE, 28)
+				return
+			gs.charms.append({"id": it.id, "data": {}, "ed": it.get("ed", "")})
+			stats.charms_bought += 1
+			sfx.play("charm_buy")
+			rebuild_charms()
+		"spell":
+			var d := Data.spell_def(it.id)
+			if gs.spells.size() < gs.spell_capacity():
+				gs.spells.append(it.id)
+			elif d.max == 0 and not d.get("hand", false) and gs.spell_blocked(it.id, [], false) == "":
+				# no room to keep it: use it right away
+				gs.spells.append(it.id)
+				gs.cast_spell(it.id, [])
+				if gs.spell_note != "":
+					toast(gs.spell_note)
+					gs.spell_note = ""
+				rebuild_charms()
+			else:
+				popup_text(Vector2(main_cx(), TOP_H + 40), "No room for more spells", Color.WHITE, 28)
+				return
+			sfx.play("rune" if d.has("rune") else "charm_buy", 1.15)
+			rebuild_spells()
+			tutorial("spell", "Spells and Runes wait in the slots at the top right. Select cards in your hand during a round, then tap a spell to cast it on them.")
+		"card":
+			gs.add_card(it.card)
+			sfx.play("card_place")
+			popup_text(Vector2(main_cx(), TOP_H + 40), "Added to deck (%d cards)" % gs.deck.size(), Color.WHITE, 30)
+	gs.money -= cost
+	_inflate()
+	gs.shop_items.remove_at(i)
+	show_shop()
+
+
+func voucher_price() -> int:
+	return gs.price(Data.VOUCHER_COST)
+
+
+func buy_voucher(id: String) -> void:
+	var cost := voucher_price()
+	if not gs.can_afford(cost) or not gs.shop_vouchers.has(id):
 		return
 	gs.money -= cost
 	_inflate()
-	gs.add_card(gs.shop_card.card)
-	gs.shop_card = {}
-	sfx.play("card_place")
+	gs.redeem_voucher(id)
+	sfx.play("cash_register")
+	toast("Voucher: " + Data.voucher_def(id).name)
+	rebuild_charms()
+	rebuild_spells()
 	show_shop()
-	popup_text(Vector2(main_cx(), TOP_H + 40), "Added to deck (%d cards)" % gs.deck.size(), Color.WHITE, 30)
 
 
 func buy_pack(i: int) -> void:
 	if i < 0 or i >= gs.shop_packs.size():
 		return
-	var kind: String = gs.shop_packs[i]
-	var cost := gs.pack_price(kind)
+	var pk: Dictionary = gs.shop_packs[i]
+	var cost := gs.pack_price(pk)
 	if not gs.can_afford(cost):
 		return
 	gs.money -= cost
 	_inflate()
 	gs.shop_packs.remove_at(i)
 	update_hud()
-	open_pack(kind, show_shop)
-
-
-func buy_spell(i: int) -> void:
-	if i < 0 or i >= gs.shop_spells.size():
-		return
-	if not gs.can_afford(spell_price()):
-		return
-	if gs.spells.size() >= gs.spell_capacity():
-		popup_text(Vector2(main_cx(), TOP_H + 40), "No room for more spells", Color.WHITE, 28)
-		return
-	gs.money -= spell_price()
-	_inflate()
-	gs.spells.append(gs.shop_spells[i])
-	gs.shop_spells.remove_at(i)
-	sfx.play("charm_buy", 1.15)
-	rebuild_spells()
-	show_shop()
-	tutorial("spell", "Spells wait in the slots at the top right. Select cards in your hand during a round, then tap a spell to cast it on them.")
-
-
-func buy_rune(i: int) -> void:
-	if i < 0 or i >= gs.shop_runes.size():
-		return
-	if not gs.can_afford(rune_price()):
-		return
-	var h: String = gs.shop_runes[i]
-	gs.money -= rune_price()
-	_inflate()
-	gs.shop_runes.remove_at(i)
-	sfx.play("rune")
-	if gs.give_rune(h) != "":
-		rebuild_spells()
-		show_shop()
-		return
-	# no room to keep it: use it right away
-	gs.hand_levels[h] += 1
-	gs.on_rune(h)
-	show_shop()
-	popup_text(Vector2(main_cx(), TOP_H + 40), "%s  lvl %d" % [h, gs.hand_levels[h]], Color("c9b3ff"), 32)
-
-
-func rune_price() -> int:
-	return 0 if gs.has_charm("stargazer") or gs.shop_coupon else gs.price(Data.RUNE_COST)
-
-
-func spell_price() -> int:
-	return 0 if gs.shop_coupon else gs.price(Data.SPELL_COST)
+	open_pack(pk.id, show_shop)
 
 
 func reroll_price() -> int:
-	return 0 if gs.free_rerolls > 0 else gs.price(gs.reroll_cost)
+	return 0 if gs.free_rerolls > 0 else gs.reroll_cost + gs.inflation
 
 
 func reroll_shop() -> void:
 	if not gs.can_afford(reroll_price()):
 		return
+	gs.money -= reroll_price()
 	if gs.free_rerolls > 0:
 		gs.free_rerolls -= 1
 	else:
-		gs.money -= gs.price(gs.reroll_cost)
 		gs.reroll_cost += 1
 	gs.on_reroll()
 	gs.shop_coupon = false
 	sfx.play("reroll")
-	gs.roll_shop()
+	# a reroll restocks the shelves only; packs and vouchers stay
+	gs.shop_items = []
+	for k in gs.shop_slots():
+		var it := gs.roll_shop_item()
+		if not it.is_empty():
+			gs.shop_items.append(it)
 	show_shop()
 
 

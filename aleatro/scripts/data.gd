@@ -263,8 +263,8 @@ const SPELLS := [
 	{"id": "lull", "name": "Lull", "desc": "Add an Azure Seal to 1 selected card", "max": 1, "omen": true},
 	{"id": "whisper", "name": "Whisper", "desc": "Add a Violet Seal to 1 selected card", "max": 1, "omen": true},
 	{"id": "duplicate", "name": "Duplicate", "desc": "Add 2 copies of 1 selected card to your deck", "max": 1, "omen": true},
-	{"id": "soul", "name": "Soul", "desc": "Create a Legendary charm", "max": 0, "omen": true},
-	{"id": "singularity", "name": "Singularity", "desc": "Level up every hand type", "max": 0, "omen": true},
+	{"id": "soul", "name": "Soul", "desc": "Create a Legendary charm", "max": 0, "omen": true, "hidden": true},
+	{"id": "singularity", "name": "Singularity", "desc": "Level up every hand type", "max": 0, "omen": true, "hidden": true},
 ]
 const OMEN_COLOR := Color("4b3a8a")
 # Tags: the reward for skipping a Small or Big Blind.
@@ -283,13 +283,90 @@ const TAGS := [
 	{"id": "dice", "name": "Dice Tag", "desc": "Rerolls in the next shop start at $0", "color": Color("3a7bd5")},
 ]
 
-# Booster packs: pick one of a few, or skip.
-const PACKS := {
-	"charm": {"name": "Charm Pack", "desc": "Choose 1 of 2 charms", "cost": 4, "show": 2, "color": Color("4a6fa5")},
-	"spell": {"name": "Spell Pack", "desc": "Choose 1 of 3 spells", "cost": 4, "show": 3, "color": Color("2f7f6f")},
-	"rune": {"name": "Rune Pack", "desc": "Choose 1 of 3 runes", "cost": 4, "show": 3, "color": Color("6c4ab6")},
-	"card": {"name": "Card Pack", "desc": "Choose 1 of 3 playing cards", "cost": 4, "show": 3, "color": Color("c08a12")},
+# Booster packs: open one, pick from what's inside (or skip). Arcana and
+# Omen packs are used on cards drawn from your deck right away; Celestial
+# packs level hands up right away.
+#   kind: what's inside   show/choose: how many shown / picked   weight: shop odds
+const PACK_KINDS := {
+	"standard": {"name": "Card Pack", "what": "playing cards", "color": Color("c08a12")},
+	"arcana": {"name": "Spell Pack", "what": "Spells", "color": Color("2f7f6f")},
+	"celestial": {"name": "Rune Pack", "what": "Runes", "color": Color("6c4ab6")},
+	"buffoon": {"name": "Charm Pack", "what": "charms", "color": Color("4a6fa5")},
+	"spectral": {"name": "Omen Pack", "what": "Omens", "color": Color("4b3a8a")},
 }
+const PACKS := {
+	"standard": {"kind": "standard", "size": "", "show": 3, "choose": 1, "cost": 4, "weight": 4.0},
+	"standard_jumbo": {"kind": "standard", "size": "Jumbo", "show": 5, "choose": 1, "cost": 6, "weight": 2.0},
+	"standard_mega": {"kind": "standard", "size": "Mega", "show": 5, "choose": 2, "cost": 8, "weight": 0.5},
+	"arcana": {"kind": "arcana", "size": "", "show": 3, "choose": 1, "cost": 4, "weight": 4.0},
+	"arcana_jumbo": {"kind": "arcana", "size": "Jumbo", "show": 5, "choose": 1, "cost": 6, "weight": 2.0},
+	"arcana_mega": {"kind": "arcana", "size": "Mega", "show": 5, "choose": 2, "cost": 8, "weight": 0.5},
+	"celestial": {"kind": "celestial", "size": "", "show": 3, "choose": 1, "cost": 4, "weight": 4.0},
+	"celestial_jumbo": {"kind": "celestial", "size": "Jumbo", "show": 5, "choose": 1, "cost": 6, "weight": 2.0},
+	"celestial_mega": {"kind": "celestial", "size": "Mega", "show": 5, "choose": 2, "cost": 8, "weight": 0.5},
+	"buffoon": {"kind": "buffoon", "size": "", "show": 2, "choose": 1, "cost": 4, "weight": 1.2},
+	"buffoon_jumbo": {"kind": "buffoon", "size": "Jumbo", "show": 4, "choose": 1, "cost": 6, "weight": 0.6},
+	"buffoon_mega": {"kind": "buffoon", "size": "Mega", "show": 4, "choose": 2, "cost": 8, "weight": 0.15},
+	"spectral": {"kind": "spectral", "size": "", "show": 2, "choose": 1, "cost": 4, "weight": 0.6},
+	"spectral_jumbo": {"kind": "spectral", "size": "Jumbo", "show": 4, "choose": 1, "cost": 6, "weight": 0.3},
+	"spectral_mega": {"kind": "spectral", "size": "Mega", "show": 4, "choose": 2, "cost": 8, "weight": 0.07},
+}
+
+
+static func pack_name(id: String) -> String:
+	var p: Dictionary = PACKS[id]
+	return ("%s %s" % [p.size, PACK_KINDS[p.kind].name]).strip_edges()
+
+
+static func pack_desc(id: String) -> String:
+	var p: Dictionary = PACKS[id]
+	return "Choose %d of %d %s" % [p.choose, p.show, PACK_KINDS[p.kind].what]
+
+
+# Vouchers: permanent upgrades, one offered per ante. The second of each
+# pair needs the first.
+const VOUCHER_COST := 10
+const VOUCHERS := [
+	{"id": "shelf", "name": "Extra Shelf", "desc": "+1 card slot in the shop"},
+	{"id": "shelves", "name": "Full Shelves", "desc": "+1 more card slot in the shop", "needs": "shelf"},
+	{"id": "clearance", "name": "Clearance", "desc": "Everything in the shop is 25% off"},
+	{"id": "firesale", "name": "Fire Sale", "desc": "Everything in the shop is 50% off", "needs": "clearance"},
+	{"id": "polish", "name": "Polish", "desc": "Foil, Holo and Chroma show up 2x more often"},
+	{"id": "shine", "name": "Shine", "desc": "Foil, Holo and Chroma show up 4x more often", "needs": "polish"},
+	{"id": "cheapdice", "name": "Cheap Dice", "desc": "Rerolls cost $2 less"},
+	{"id": "shaker", "name": "Loaded Shaker", "desc": "Rerolls cost another $2 less", "needs": "cheapdice"},
+	{"id": "satchel", "name": "Satchel", "desc": "+1 spell slot"},
+	{"id": "lamp", "name": "Spirit Lamp", "desc": "Omens can show up in Spell Packs", "needs": "satchel"},
+	{"id": "spyglass", "name": "Spyglass", "desc": "Rune Packs always hold the Rune for your most played hand"},
+	{"id": "planetarium", "name": "Planetarium", "desc": "Runes kept in your slots give x1.5 Mult when their hand is played", "needs": "spyglass"},
+	{"id": "grip", "name": "Extra Grip", "desc": "+1 hand every round"},
+	{"id": "tongs", "name": "Tongs", "desc": "+1 more hand every round", "needs": "grip"},
+	{"id": "wastebin", "name": "Wastebin", "desc": "+1 discard every round"},
+	{"id": "recycler", "name": "Recycler", "desc": "+1 more discard every round", "needs": "wastebin"},
+	{"id": "spellseller", "name": "Spell Seller", "desc": "Spells show up in the shop 2x more often"},
+	{"id": "spellbaron", "name": "Spell Baron", "desc": "Spells show up in the shop 4x more often", "needs": "spellseller"},
+	{"id": "runeseller", "name": "Rune Seller", "desc": "Runes show up in the shop 2x more often"},
+	{"id": "runebaron", "name": "Rune Baron", "desc": "Runes show up in the shop 4x more often", "needs": "runeseller"},
+	{"id": "nestbox", "name": "Nest Box", "desc": "Interest can reach $10 per round"},
+	{"id": "goldtree", "name": "Golden Tree", "desc": "Interest can reach $20 per round", "needs": "nestbox"},
+	{"id": "blank", "name": "Blank", "desc": "Does nothing?"},
+	{"id": "antimatter", "name": "Hollow Space", "desc": "+1 charm slot", "needs": "blank"},
+	{"id": "stall", "name": "Card Stall", "desc": "Playing cards can show up in the shop"},
+	{"id": "showcase", "name": "Showcase", "desc": "Playing cards in the shop may have an enhancement, edition or seal", "needs": "stall"},
+	{"id": "timeglyph", "name": "Time Glyph", "desc": "-1 ante, but 1 fewer hand every round"},
+	{"id": "stoneglyph", "name": "Stone Glyph", "desc": "-1 ante, but 1 fewer discard every round", "needs": "timeglyph"},
+	{"id": "bossswap", "name": "Boss Swap", "desc": "Reroll the boss blind once per ante ($10)"},
+	{"id": "rewrite", "name": "Rewrite", "desc": "Reroll the boss blind as often as you like ($10 each)", "needs": "bossswap"},
+	{"id": "brush", "name": "Brush", "desc": "+1 hand size"},
+	{"id": "palette", "name": "Palette", "desc": "+1 more hand size", "needs": "brush"},
+]
+
+
+static func voucher_def(id: String) -> Dictionary:
+	for v in VOUCHERS:
+		if v.id == id:
+			return v
+	return {}
 
 
 static func tag_def(id: String) -> Dictionary:

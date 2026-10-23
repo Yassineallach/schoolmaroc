@@ -31,12 +31,20 @@ var target := 0
 var endless := false
 var reroll_cost := 5
 var best_hand := 0
-var shop_charms: Array = []
-var shop_runes: Array = []
-var shop_spells: Array = []
+## What the shop has on its shelves: {type: "charm"|"spell"|"card", id or
+## card, ed, base (price before discounts), free}. Spells include Runes
+## ("rune:<hand>") and Omens.
+var shop_items: Array = []
+## Vouchers owned, the one offered this ante, and what the shop shows.
+var vouchers: Array = []
+var ante_voucher := ""
+var shop_vouchers: Array = []
+## Boss rerolls used this ante (Boss Swap allows one).
+var boss_rerolls := 0
+## Cards drawn from the deck to use an opened Spell or Omen pack on.
+var pack_hand: Array = []
 var _last_hex := ""
 var _next_id := 0
-var shop_card: Dictionary = {}
 ## Per-round boss bookkeeping; saved with the run.
 var boss_state := {}
 ## Things that happened this run that charms care about (e.g. "plantain_spoiled").
@@ -58,7 +66,7 @@ var spell_note := ""
 var tags: Array = []
 var blind_tags: Array = []
 var skips := 0
-## Booster packs in the shop (kinds), packs to open right away (from tags),
+## Booster packs in the shop ({id, free}), packs to open right away (from tags),
 ## and whether the Coupon Tag made this shop's first stock free.
 var shop_packs: Array = []
 var pending_packs: Array = []
@@ -78,6 +86,7 @@ func _init() -> void:
 	_next_id = id
 	pick_boss()
 	roll_blind_tags()
+	roll_voucher()
 
 
 static func make_card(rank: int, suit: int, id: int) -> Dictionary:
@@ -120,22 +129,6 @@ func random_edition(chance: float) -> String:
 	return "chroma" if r > 0.85 else ("holo" if r > 0.5 else "foil")
 
 
-## A random upgraded playing card for the shop, with its price.
-func roll_shop_card() -> void:
-	var c := make_card(rng.randi_range(2, 14), rng.randi_range(0, 3), new_card_id())
-	var enh := Data.ENHANCEMENTS.keys()
-	c.enh = enh[rng.randi_range(0, enh.size() - 1)]
-	c.ed = roll_edition(false, 2.0)
-	if rng.randf() < 0.2:
-		c.seal = Data.SEALS.keys()[rng.randi_range(0, Data.SEALS.size() - 1)]
-	var cost := 3
-	if c.ed != "":
-		cost += Data.EDITIONS[c.ed].cost
-	if c.seal != "":
-		cost += 2
-	shop_card = {"card": c, "cost": cost}
-
-
 func pick_boss() -> void:
 	var showdown := ante % Data.FINAL_ANTE == 0
 	var pool := Data.HEXES.filter(func(h): return h.get("showdown", false) == showdown \
@@ -161,11 +154,6 @@ func blind_reward(idx: int = blind_idx) -> int:
 	if rules.get("no_reward", []).has(idx):
 		return 0
 	return [3, 4, 5][idx]
-
-
-## A shop price after challenge inflation.
-func price(base: int) -> int:
-	return base + inflation
 
 
 ## The active boss effect, or "" outside boss blinds or once disabled.
@@ -260,7 +248,7 @@ func give_rune(hand: String) -> String:
 func give_spell(omen := false) -> String:
 	if spells.size() >= spell_capacity():
 		return ""
-	var pool := Data.SPELLS.filter(func(sp): return sp.get("omen", false) == omen)
+	var pool := Data.SPELLS.filter(func(sp): return sp.get("omen", false) == omen and not sp.get("hidden", false))
 	var id: String = pool[rng.randi_range(0, pool.size() - 1)].id
 	spells.append(id)
 	return id
@@ -506,7 +494,8 @@ func draw_cards() -> Array:
 func interest() -> int:
 	if rules.get("no_interest", false):
 		return 0
-	return clampi(money / 5, 0, 5)
+	var cap := 20 if has_voucher("goldtree") else (10 if has_voucher("nestbox") else 5)
+	return clampi(money / 5, 0, cap)
 
 
 func advance_blind() -> void:
@@ -517,49 +506,210 @@ func advance_blind() -> void:
 		played_this_ante = []
 		pick_boss()
 		roll_blind_tags()
+		roll_voucher()
+		boss_rerolls = 0
 
 
 func has_charm(id: String) -> bool:
 	return charms.any(func(c): return c.id == id)
 
 
+# ---------------------------------------------------------------- shop
+
+func has_voucher(id: String) -> bool:
+	return vouchers.has(id)
+
+
+## How much the shop knocks off: 25% with Clearance, 50% with Fire Sale.
+func discount() -> float:
+	return 0.5 if has_voucher("firesale") else (0.25 if has_voucher("clearance") else 0.0)
+
+
+## A shop price: discount (rounded, at least $1) plus challenge inflation.
+func price(base: int) -> int:
+	return maxi(1, int(floor((base + 0.5) * (1.0 - discount())))) + inflation
+
+
+func item_price(item: Dictionary) -> int:
+	if item.get("free", false):
+		return 0
+	if item.type == "spell" and item.id.begins_with("rune:") and has_charm("stargazer"):
+		return 0
+	return price(item.base)
+
+
+func pack_price(pack: Dictionary) -> int:
+	if pack.get("free", false):
+		return 0
+	if Data.PACKS[pack.id].kind == "celestial" and has_charm("stargazer"):
+		return 0
+	return price(Data.PACKS[pack.id].cost)
+
+
+func edition_boost() -> float:
+	return 4.0 if has_voucher("shine") else (2.0 if has_voucher("polish") else 1.0)
+
+
+func shop_slots() -> int:
+	return 2 + (1 if has_voucher("shelf") else 0) + (1 if has_voucher("shelves") else 0)
+
+
+func reroll_base() -> int:
+	return maxi(0, 5 - (2 if has_voucher("cheapdice") else 0) - (2 if has_voucher("shaker") else 0))
+
+
+## Restock the shelves and the pack slots.
 func roll_shop() -> void:
-	shop_charms = []
-	var owned := [] if has_charm("ringmaster") else charms.map(func(c): return c.id)
-	for i in 2:
-		var roll := rng.randf()
-		var rarity := 2 if roll > 0.95 else (1 if roll > 0.7 else 0)
-		if rules.get("no_shop_charms", false):
-			break
-		var pool := Data.CHARMS.filter(func(c): return c.rarity == rarity and _offerable(c.id, owned))
-		if pool.is_empty():
-			pool = Data.CHARMS.filter(func(c): return c.rarity < 3 and _offerable(c.id, owned))
-		if pool.is_empty():
-			break
-		var pick: Dictionary = pool[rng.randi_range(0, pool.size() - 1)].duplicate()
-		pick.ed = roll_edition()
-		if pick.ed != "":
-			pick.cost += Data.EDITIONS[pick.ed].cost
-		shop_charms.append(pick)
-		owned.append(pick.id)
-	shop_runes = []
-	var hands := visible_hands()
-	shuffle(hands)
-	# The magic slot holds either a rune or a spell.
-	shop_runes = []
-	shop_spells = []
+	shop_items = []
+	for i in shop_slots():
+		var item := roll_shop_item()
+		if not item.is_empty():
+			shop_items.append(item)
 	shop_packs = []
 	shop_coupon = false
 	for k in 2:
-		var kinds := Data.PACKS.keys()
-		shop_packs.append(kinds[rng.randi_range(0, kinds.size() - 1)])
-	if rng.randf() < 0.5:
-		shop_runes = [hands[0]]
-	else:
-		var pool := Data.SPELLS.filter(func(sp): return not sp.get("omen", false) \
-			and (has_charm("ringmaster") or not spells.has(sp.id)))
-		shop_spells = [pool[rng.randi_range(0, pool.size() - 1)].id]
-	roll_shop_card()
+		var id := roll_pack()
+		# the first shop of a run always has a Charm Pack
+		if k == 0 and not run_flags.get("first_shop", false):
+			id = "buffoon"
+		shop_packs.append({"id": id})
+	run_flags["first_shop"] = true
+	shop_vouchers = [ante_voucher] if ante_voucher != "" else []
+
+
+## One shelf item, picked with the usual weights: charms 20, spells 4,
+## runes 4, playing cards 4 (Card Stall), Omens 2 (Ghost Deck).
+func roll_shop_item() -> Dictionary:
+	var spell_w := 32.0 if has_voucher("spellbaron") else (9.6 if has_voucher("spellseller") else 4.0)
+	var rune_w := 32.0 if has_voucher("runebaron") else (9.6 if has_voucher("runeseller") else 4.0)
+	var weights := {
+		"charm": 0.0 if rules.get("no_shop_charms", false) else 20.0,
+		"spell": spell_w,
+		"rune": rune_w,
+		"card": 4.0 if has_voucher("stall") else 0.0,
+		"omen": 2.0 if rules.get("omens_in_shop", false) else 0.0,
+	}
+	var total := 0.0
+	for k in weights:
+		total += weights[k]
+	var r := rng.randf() * total
+	var kind := "charm"
+	for k in weights:
+		r -= weights[k]
+		if r <= 0.0 and weights[k] > 0.0:
+			kind = k
+			break
+	var held := [] if has_charm("ringmaster") else spells + shop_items.filter(func(it): return it.type == "spell").map(func(it): return it.id)
+	match kind:
+		"charm":
+			var owned := [] if has_charm("ringmaster") else charms.map(func(c): return c.id) + shop_items.filter(func(it): return it.type == "charm").map(func(it): return it.id)
+			var d := roll_charm_def(owned)
+			if d.is_empty():
+				return {}
+			var ed := roll_edition(true, edition_boost())
+			return {"type": "charm", "id": d.id, "ed": ed, "base": d.cost + (Data.EDITIONS[ed].cost if ed != "" else 0)}
+		"spell":
+			var pool := Data.SPELLS.filter(func(sp): return not sp.get("omen", false) and not held.has(sp.id))
+			return {"type": "spell", "id": pool[rng.randi_range(0, pool.size() - 1)].id, "base": 3}
+		"rune":
+			var hands := visible_hands().filter(func(h): return not held.has("rune:" + h))
+			if hands.is_empty():
+				hands = visible_hands()
+			return {"type": "spell", "id": "rune:" + hands[rng.randi_range(0, hands.size() - 1)], "base": 3}
+		"omen":
+			var pool := omen_pool().filter(func(sp): return not held.has(sp.id))
+			return {"type": "spell", "id": pool[rng.randi_range(0, pool.size() - 1)].id, "base": 4}
+		"card":
+			var c := random_card()
+			if has_voucher("showcase"):
+				_dress_card(c)
+			return {"type": "card", "card": c, "base": 1 + (Data.EDITIONS[c.ed].cost if c.ed != "" else 0)}
+	return {}
+
+
+## Maybe give a card an enhancement, edition and seal (packs and Showcase).
+func _dress_card(c: Dictionary) -> void:
+	if rng.randf() < 0.4:
+		var enh := Data.ENHANCEMENTS.keys()
+		c.enh = enh[rng.randi_range(0, enh.size() - 1)]
+	c.ed = roll_edition(false, 2.0 * edition_boost())
+	if rng.randf() < 0.2:
+		c.seal = Data.SEALS.keys()[rng.randi_range(0, Data.SEALS.size() - 1)]
+
+
+## A charm for the shop or a pack: 70% Common, 25% Uncommon, 5% Rare.
+func roll_charm_def(owned: Array, rarity := -1) -> Dictionary:
+	if rarity < 0:
+		var r := rng.randf()
+		rarity = 2 if r > 0.95 else (1 if r > 0.7 else 0)
+	var pool := Data.CHARMS.filter(func(c): return c.rarity == rarity and _offerable(c.id, owned))
+	if pool.is_empty():
+		pool = Data.CHARMS.filter(func(c): return c.rarity < 3 and _offerable(c.id, owned))
+	if pool.is_empty():
+		return {}
+	return pool[rng.randi_range(0, pool.size() - 1)]
+
+
+func omen_pool() -> Array:
+	return Data.SPELLS.filter(func(sp): return sp.get("omen", false) and not sp.get("hidden", false))
+
+
+func roll_pack() -> String:
+	var total := 0.0
+	for id in Data.PACKS:
+		total += Data.PACKS[id].weight
+	var r := rng.randf() * total
+	for id in Data.PACKS:
+		r -= Data.PACKS[id].weight
+		if r <= 0.0:
+			return id
+	return "standard"
+
+
+## Pick this ante's voucher.
+func roll_voucher() -> void:
+	ante_voucher = ""
+	var pool := Data.VOUCHERS.filter(func(v): return not vouchers.has(v.id) and (not v.has("needs") or vouchers.has(v.needs)))
+	if not pool.is_empty():
+		ante_voucher = pool[rng.randi_range(0, pool.size() - 1)].id
+
+
+## Buy and apply a voucher. Returns "" or why not.
+func redeem_voucher(id: String) -> String:
+	vouchers.append(id)
+	if id == ante_voucher:
+		ante_voucher = ""
+	shop_vouchers.erase(id)
+	match id:
+		"grip", "tongs":
+			max_hands += 1
+		"wastebin", "recycler":
+			max_discards += 1
+		"satchel":
+			spell_slots += 1
+		"antimatter":
+			charm_slots += 1
+		"brush", "palette":
+			hand_size += 1
+		"timeglyph":
+			ante = maxi(1, ante - 1)
+			max_hands = maxi(1, max_hands - 1)
+		"stoneglyph":
+			ante = maxi(1, ante - 1)
+			max_discards = maxi(0, max_discards - 1)
+	return ""
+
+
+## Whether the boss can be rerolled now (Boss Swap once per ante, Rewrite always).
+func can_reroll_boss() -> bool:
+	if blind_idx > 2:
+		return false
+	return has_voucher("rewrite") or (has_voucher("bossswap") and boss_rerolls == 0)
+
+
+func reroll_boss() -> void:
+	boss_rerolls += 1
+	pick_boss()
 
 
 func _offerable(id: String, owned: Array) -> bool:
@@ -693,10 +843,10 @@ func add_tag(id: String) -> Array:
 				hand_levels[h] += 3
 				notes.append("%s: %s lvl %d" % [name, h, hand_levels[h]])
 			"bundle":
-				pending_packs.append("charm")
+				pending_packs.append("buffoon_mega")
 				notes.append(name)
 			"tome":
-				pending_packs.append("spell")
+				pending_packs.append("arcana_mega")
 				notes.append(name)
 			_:
 				tags.append(id)
@@ -711,22 +861,18 @@ func apply_shop_tags() -> Array:
 	for t in ["rare", "uncommon"]:
 		while tags.has(t):
 			tags.erase(t)
-			var rarity := 2 if t == "rare" else 1
-			var owned := charms.map(func(c): return c.id) + shop_charms.map(func(c): return c.id)
-			var pool := Data.CHARMS.filter(func(c): return c.rarity == rarity and _offerable(c.id, owned))
-			if not pool.is_empty():
-				var pick: Dictionary = pool[rng.randi_range(0, pool.size() - 1)].duplicate()
-				pick.ed = ""
-				pick.cost = 0
-				shop_charms.push_front(pick)
-				notes.append("%s: free %s" % [Data.tag_def(t).name, pick.name])
+			var owned := charms.map(func(c): return c.id) + shop_items.filter(func(it): return it.type == "charm").map(func(it): return it.id)
+			var d := roll_charm_def(owned, 2 if t == "rare" else 1)
+			if not d.is_empty():
+				shop_items.push_front({"type": "charm", "id": d.id, "ed": "", "base": d.cost, "free": true})
+				notes.append("%s: free %s" % [Data.tag_def(t).name, d.name])
 	if tags.has("coupon"):
 		tags.erase("coupon")
 		shop_coupon = true
-		for c in shop_charms:
-			c.cost = 0
-		if not shop_card.is_empty():
-			shop_card.cost = 0
+		for it in shop_items:
+			it.free = true
+		for pk in shop_packs:
+			pk.free = true
 		notes.append(Data.tag_def("coupon").name + ": everything is free")
 	if tags.has("dice"):
 		tags.erase("dice")
@@ -735,46 +881,71 @@ func apply_shop_tags() -> Array:
 	return notes
 
 
-func pack_price(kind: String) -> int:
-	return 0 if shop_coupon else price(Data.PACKS[kind].cost)
-
-
-## The choices inside a freshly opened pack of `kind`.
-func open_pack(kind: String) -> Array:
+## The choices inside a freshly opened pack `id`. Spell and Omen packs also
+## draw cards from the deck into `pack_hand` to use them on.
+func open_pack(id: String) -> Array:
+	var def: Dictionary = Data.PACKS[id]
 	var out := []
-	var n: int = Data.PACKS[kind].show
-	match kind:
-		"charm":
+	var n: int = def.show
+	match def.kind:
+		"buffoon":
 			var owned := [] if has_charm("ringmaster") else charms.map(func(c): return c.id)
 			for i in n:
-				var roll := rng.randf()
-				var rarity := 2 if roll > 0.95 else (1 if roll > 0.7 else 0)
-				var pool := Data.CHARMS.filter(func(c): return c.rarity == rarity and _offerable(c.id, owned))
-				if pool.is_empty():
+				var d := roll_charm_def(owned)
+				if d.is_empty():
 					continue
-				var pick: Dictionary = pool[rng.randi_range(0, pool.size() - 1)]
-				out.append({"id": pick.id, "data": {}, "ed": roll_edition()})
-				owned.append(pick.id)
-		"spell":
+				out.append({"id": d.id, "data": {}, "ed": roll_edition(true, edition_boost())})
+				owned.append(d.id)
+		"arcana":
 			var pool := Data.SPELLS.filter(func(sp): return not sp.get("omen", false))
 			shuffle(pool)
+			var omens := omen_pool()
 			for i in n:
-				out.append(pool[i].id)
-		"rune":
+				if has_voucher("lamp") and rng.randf() < 0.2:
+					out.append(omens[rng.randi_range(0, omens.size() - 1)].id)
+				elif rng.randf() < 0.003:
+					out.append("soul")
+				else:
+					out.append(pool[i].id)
+		"spectral":
+			var pool := omen_pool()
+			shuffle(pool)
+			for i in n:
+				if rng.randf() < 0.003:
+					out.append("soul")
+				elif rng.randf() < 0.003:
+					out.append("singularity")
+				else:
+					out.append(pool[i].id)
+		"celestial":
 			var hands := visible_hands()
 			shuffle(hands)
+			if has_voucher("spyglass"):
+				var most := most_played()
+				hands.erase(most)
+				hands.push_front(most)
 			out = hands.slice(0, n).map(func(h): return "rune:" + h)
-		"card":
+			if rng.randf() < 0.003:
+				out[n - 1] = "singularity"
+		"standard":
 			for i in n:
 				var c := random_card()
-				if rng.randf() < 0.4:
-					var enh := Data.ENHANCEMENTS.keys()
-					c.enh = enh[rng.randi_range(0, enh.size() - 1)]
-				c.ed = roll_edition(false, 2.0)
-				if rng.randf() < 0.15:
-					c.seal = Data.SEALS.keys()[rng.randi_range(0, Data.SEALS.size() - 1)]
+				_dress_card(c)
 				out.append(c)
+	pack_hand = []
+	if def.kind in ["arcana", "spectral"]:
+		var pool := deck.duplicate()
+		shuffle(pool)
+		pack_hand = pool.slice(0, current_hand_size())
 	return out
+
+
+func most_played() -> String:
+	var most := "High Card"
+	for h in hands_played_count:
+		if hands_played_count[h] > hands_played_count[most]:
+			most = h
+	return most
 
 
 ## Charms that react to opening a pack. Returns notes.
@@ -786,22 +957,28 @@ func on_pack_opened() -> Array:
 	return notes
 
 
-## Take `choice` from an opened pack of `kind`. Returns "" or why it can't be taken.
-func take_from_pack(kind: String, choice) -> String:
-	match kind:
-		"charm":
-			if charms.size() >= charm_capacity():
+## Take `choice` from an opened pack `id`; Spells and Omens are cast on the
+## selected `pack_hand` cards. Returns "" or why it can't be taken.
+func take_from_pack(id: String, choice, selected: Array = []) -> String:
+	match Data.PACKS[id].kind:
+		"buffoon":
+			if charms.size() >= charm_capacity() and choice.get("ed", "") != "negative":
 				return "No room for more charms"
 			charms.append(choice)
-		"spell":
-			if spells.size() >= spell_capacity():
-				return "No room for more spells"
-			spells.append(choice)
-		"rune":
-			var h: String = choice.substr(5)
-			hand_levels[h] += 1
-			on_rune(h)
-		"card":
+		"arcana", "spectral", "celestial":
+			var why := spell_blocked(choice, selected, true)
+			if why != "":
+				return why
+			# cast it on the pack's cards as if they were the hand
+			var real_hand := hand
+			hand = pack_hand
+			var removed := cast_spell(choice, selected)
+			hand = real_hand
+			for c in removed:
+				pack_hand.erase(c)
+			pack_hand.append_array(pending_hand)
+			pending_hand = []
+		"standard":
 			add_card(choice)
 	return ""
 
@@ -1231,8 +1408,8 @@ func remove_from_deck(card: Dictionary) -> void:
 const SAVE_FIELDS := [
 	"ante", "blind_idx", "money", "hand_size", "max_hands", "max_discards", "hands_left",
 	"discards_left", "charm_slots", "charms", "hand_levels", "hands_played_count", "deck",
-	"round_score", "target", "endless", "reroll_cost", "best_hand", "shop_charms",
-	"shop_runes", "shop_card", "_last_hex", "_next_id", "boss_state", "spells", "shop_spells",
+	"round_score", "target", "endless", "reroll_cost", "best_hand", "shop_items",
+	"vouchers", "ante_voucher", "shop_vouchers", "boss_rerolls", "_last_hex", "_next_id", "boss_state", "spells",
 	"challenge", "rules", "banned_charms", "banned_hexes", "inflation", "played_this_ante",
 	"run_flags", "neg_spells", "start_deck_size", "tags", "blind_tags", "skips", "shop_packs",
 	"pending_packs", "shop_coupon",

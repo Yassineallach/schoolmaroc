@@ -131,6 +131,11 @@ static func compute(gs: GameState, played: Array, ev: Dictionary, held: Array) -
 			ed.kind = "charm"
 			ed.charm_index = i
 			events.append(ed)
+	# Planetarium: Runes kept for this hand give x1.5 each
+	if gs.has_voucher("planetarium"):
+		for k in gs.spells.size():
+			if gs.spells[k] == "rune:" + hand_name:
+				events.append({"kind": "spell", "spell_index": k, "xmult": 1.5})
 	return {"events": events, "shatter": shatter}
 
 

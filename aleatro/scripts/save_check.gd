@@ -36,14 +36,11 @@ static func run(d: Dictionary) -> String:
 
 ## Carry charms that were renamed between versions over to their new ids.
 static func _rename_charms(d: Dictionary) -> void:
-	for key in ["charms", "shop_charms"]:
+	for key in ["charms", "shop_items"]:
 		for c in d.get(key, []):
 			if c is Dictionary and Data.RENAMED_CHARMS.has(c.get("id")):
 				c.id = Data.RENAMED_CHARMS[c.id]
-				if key == "shop_charms":
-					c.merge(Data.charm_def(c.id), true)
-				else:
-					c.data = {}
+				c.data = {}
 
 
 static func _same_type(v, like) -> bool:
@@ -98,9 +95,8 @@ static func _cards(d: Dictionary) -> String:
 		for i in d.get(key, []):
 			if not (i is int):
 				return "%s has a bad card id" % key
-	var shop_card = d.get("shop_card", {})
-	if shop_card is Dictionary and not shop_card.is_empty():
-		if not _card_ok(shop_card.get("card")) or not (shop_card.get("cost") is int):
+	for it in d.get("shop_items", []):
+		if it is Dictionary and it.get("type") == "card" and not _card_ok(it.get("card")):
 			return "shop card is broken"
 	return ""
 
@@ -114,24 +110,33 @@ static func _items(d: Dictionary) -> String:
 	for c in d.get("charms", []):
 		if not _charm_ok(c):
 			return "unknown charm"
-	for c in d.get("shop_charms", []):
-		if not (c is Dictionary and c.get("id") is String and not Data.charm_def(c.id).is_empty()):
+	for it in d.get("shop_items", []):
+		if not (it is Dictionary and it.get("base") is int and it.get("type") in ["charm", "spell", "card"]):
+			return "broken shop item"
+		if it.type == "charm" and (not (it.get("id") is String) or Data.charm_def(it.id).is_empty()):
 			return "unknown charm in shop"
-	for key in ["spells", "shop_spells"]:
-		for s in d.get(key, []):
-			if not (s is String) or Data.spell_def(s).is_empty():
-				return "unknown spell"
-	for r in d.get("shop_runes", []):
-		if not Data.HAND_BASE.has(r):
-			return "unknown rune"
+		if it.type == "spell" and (not (it.get("id") is String) or Data.spell_def(it.id).is_empty()):
+			return "unknown spell in shop"
+	for s in d.get("spells", []):
+		if not (s is String) or Data.spell_def(s).is_empty():
+			return "unknown spell"
+	for key in ["vouchers", "shop_vouchers"]:
+		for v in d.get(key, []):
+			if not (v is String) or Data.voucher_def(v).is_empty():
+				return "unknown voucher"
+	var av = d.get("ante_voucher", "")
+	if not (av is String) or (av != "" and Data.voucher_def(av).is_empty()):
+		return "unknown voucher"
 	for key in ["tags", "blind_tags"]:
 		for t in d.get(key, []):
 			if not (t is String) or Data.tag_def(t).is_empty():
 				return "unknown tag"
-	for key in ["shop_packs", "pending_packs"]:
-		for k in d.get(key, []):
-			if not Data.PACKS.has(k):
-				return "unknown pack"
+	for k in d.get("pending_packs", []):
+		if not Data.PACKS.has(k):
+			return "unknown pack"
+	for pk in d.get("shop_packs", []):
+		if not (pk is Dictionary and Data.PACKS.has(pk.get("id"))):
+			return "unknown pack"
 	var ch = d.get("challenge", "")
 	if ch != "" and Data.challenge_def(ch).is_empty():
 		return "unknown challenge"
