@@ -1355,10 +1355,6 @@ func play_selected() -> void:
 	var ev := Poker.evaluate(played, gs.poker_opts())
 	gs.hands_played_count[ev.name] += 1
 	var blocked := gs.hand_blocked(ev, played)
-	if gs.rules.get("played_debuffed", false):
-		for c in played:
-			if not gs.played_this_ante.has(c.id):
-				gs.played_this_ante.append(c.id)
 	var result := {"events": [], "shatter": []}
 	if blocked != "":
 		juice(blind_chip, 0.3)
@@ -1378,6 +1374,10 @@ func play_selected() -> void:
 		var pt := Prof.begin()
 		result = Scoring.compute(gs, played, ev, hand_views.map(func(v): return v.card))
 		Prof.end("scoring", pt)
+	# remembered for The Pillar and the Burnout challenge
+	for c in played:
+		if not gs.played_this_ante.has(c.id):
+			gs.played_this_ante.append(c.id)
 	if gs.has_charm("toreador") and gs.boss_hit(played, blocked):
 		gs.money += 8 * gs.charm_count("toreador")
 		await charm_notes(range(gs.charms.size()).filter(func(i): return gs.charms[i].id == "toreador") \

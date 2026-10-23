@@ -327,7 +327,8 @@ func start_round() -> Array:
 		"drought":
 			discards_left = 0
 	boss_state = {"used_hands": [], "only_hand": "", "disabled": false, "forced": -1,
-		"ember": -1, "sold": false, "hands_played": 0, "down": [], "round_hands": {}, "discarded": 0}
+		"ember": -1, "sold": false, "hands_played": 0, "down": [], "round_hands": {}, "discarded": 0,
+		"ox": most_played(), "fish": false}
 	if tags.has("juggle"):
 		tags.erase("juggle")
 		boss_state.juggle = 3
@@ -420,6 +421,8 @@ func is_debuffed(card: Dictionary) -> bool:
 			return is_face(card)
 		"jade":
 			return not boss_state.get("sold", false)
+		"pillar":
+			return played_this_ante.has(card.id)
 	if boss_hex.has("suit"):
 		return suit_is(card, boss_hex.suit)
 	return false
@@ -432,6 +435,10 @@ func draws_face_down(card: Dictionary) -> bool:
 	match hex():
 		"mask":
 			return is_face(card)
+		"wheel":
+			return roll(7)
+		"fish":
+			return boss_state.get("fish", false)
 		"shroud":
 			return boss_state.get("hands_played", 0) == 0
 	return false
@@ -460,7 +467,12 @@ func hand_blocked(ev: Dictionary, played: Array) -> String:
 func on_hand_played(ev: Dictionary, played: Array) -> Array:
 	var notes := []
 	boss_state.hands_played = boss_state.get("hands_played", 0) + 1
+	boss_state.fish = true
 	match hex():
+		"ox":
+			if ev.name == boss_state.get("ox", "") and money > 0:
+				money = 0
+				notes.append("The Ox took your money")
 		"echo":
 			boss_state.used_hands.append(ev.name)
 		"monotone":
@@ -484,7 +496,9 @@ func on_hand_played(ev: Dictionary, played: Array) -> Array:
 
 func draw_cards() -> Array:
 	var drawn := []
-	while hand.size() < current_hand_size() and not draw_pile.is_empty():
+	# The Serpent: after the first deal, always exactly 3 cards
+	var serpent: bool = hex() == "serpent" and (boss_state.get("hands_played", 0) > 0 or boss_state.get("discarded", 0) > 0)
+	while (drawn.size() < 3 if serpent else hand.size() < current_hand_size()) and not draw_pile.is_empty():
 		var c = draw_pile.pop_back()
 		hand.append(c)
 		drawn.append(c)
@@ -801,15 +815,16 @@ func boss_hit(played: Array, blocked: String) -> bool:
 	if hex() == "":
 		return false
 	return blocked != "" or played.any(func(k): return is_debuffed(k)) \
-		or hex() in ["toll", "erosion", "ember", "halving", "grip"]
+		or hex() in ["toll", "erosion", "ember", "halving", "grip", "ox"]
 
 
 # ---------------------------------------------------------------- skips, tags, packs
 
 func roll_blind_tags() -> void:
 	blind_tags = []
+	var pool := Data.TAGS.filter(func(t): return t.get("min_ante", 1) <= ante)
 	for i in 2:
-		blind_tags.append(Data.TAGS[rng.randi_range(0, Data.TAGS.size() - 1)].id)
+		blind_tags.append(pool[rng.randi_range(0, pool.size() - 1)].id)
 
 
 ## Skip the current Small or Big Blind for its tag. Returns notes (strings).
@@ -848,6 +863,34 @@ func add_tag(id: String) -> Array:
 			"tome":
 				pending_packs.append("arcana_mega")
 				notes.append(name)
+			"standard":
+				pending_packs.append("standard_mega")
+				notes.append(name)
+			"meteor":
+				pending_packs.append("celestial_mega")
+				notes.append(name)
+			"ethereal":
+				pending_packs.append("spectral")
+				notes.append(name)
+			"handy":
+				var n := 0
+				for h in hands_played_count:
+					n += hands_played_count[h]
+				money += n
+				notes.append("%s: +$%d" % [name, n])
+			"garbage":
+				var n: int = run_flags.get("unused_discards", 0)
+				money += n
+				notes.append("%s: +$%d" % [name, n])
+			"topup":
+				var made := 0
+				for t in 2:
+					if give_charm(0) != "":
+						made += 1
+				notes.append("%s: +%d charm%s" % [name, made, "" if made == 1 else "s"])
+			"boss":
+				pick_boss()
+				notes.append("%s: the boss is now %s" % [name, boss_hex.name])
 			_:
 				tags.append(id)
 				notes.append(name)
@@ -866,6 +909,22 @@ func apply_shop_tags() -> Array:
 			if not d.is_empty():
 				shop_items.push_front({"type": "charm", "id": d.id, "ed": "", "base": d.cost, "free": true})
 				notes.append("%s: free %s" % [Data.tag_def(t).name, d.name])
+	for t in ["negative", "foil", "holo", "chroma"]:
+		while tags.has(t):
+			tags.erase(t)
+			for it in shop_items:
+				if it.type == "charm" and it.get("ed", "") == "" and not it.get("free", false):
+					it.ed = t
+					it.free = true
+					notes.append("%s: %s" % [Data.tag_def(t).name, Data.charm_def(it.id).name])
+					break
+	while tags.has("voucher"):
+		tags.erase("voucher")
+		var pool := Data.VOUCHERS.filter(func(v): return not vouchers.has(v.id) and not shop_vouchers.has(v.id) \
+			and (not v.has("needs") or vouchers.has(v.needs)))
+		if not pool.is_empty():
+			shop_vouchers.append(pool[rng.randi_range(0, pool.size() - 1)].id)
+			notes.append(Data.tag_def("voucher").name)
 	if tags.has("coupon"):
 		tags.erase("coupon")
 		shop_coupon = true
@@ -994,6 +1053,7 @@ func on_discard(cards: Array) -> Array:
 	var notes := []
 	var first: bool = boss_state.get("discarded", 0) == 0
 	boss_state.discarded = boss_state.get("discarded", 0) + 1
+	boss_state.fish = false
 	var faces := cards.filter(func(k): return is_face(k)).size()
 	for k in cards:
 		if k.get("seal", "") == "violet" and not is_debuffed(k) and give_spell() != "":
@@ -1129,6 +1189,7 @@ func end_of_round() -> Dictionary:
 				give_rune(boss_state.last_hand)
 	if gilded > 0:
 		rows.append(["Gilded cards held", gilded])
+	run_flags["unused_discards"] = run_flags.get("unused_discards", 0) + discards_left
 	for i in range(charms.size() - 1, -1, -1):
 		var c: Dictionary = charms[i]
 		var name: String = Data.charm_def(c.id).name
