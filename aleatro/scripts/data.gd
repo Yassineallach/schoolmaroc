@@ -11,12 +11,15 @@ const MONEY_COLOR := Color("ffcc33")
 const XMULT_COLOR := Color("ff9f1c")
 
 const HAND_ORDER := [
-	"Straight Flush", "Four of a Kind", "Full House", "Flush", "Straight",
+	"Flush Five", "Flush House", "Five of a Kind", "Straight Flush", "Four of a Kind", "Full House", "Flush", "Straight",
 	"Three of a Kind", "Two Pair", "Pair", "High Card",
 ]
 
 # name -> [base chips, base mult, chips per level, mult per level]
 const HAND_BASE := {
+	"Flush Five": [160, 16, 50, 3],
+	"Flush House": [140, 14, 40, 4],
+	"Five of a Kind": [120, 12, 35, 3],
 	"Straight Flush": [100, 8, 40, 4],
 	"Four of a Kind": [60, 7, 30, 3],
 	"Full House": [40, 4, 25, 2],
@@ -200,7 +203,7 @@ const ENHANCEMENTS := {
 	"glass": {"name": "Glass", "desc": "x2 Mult when scored; 1 in 4 chance to shatter", "face": Color("e3fbff"), "badge": Color("3aa6c4")},
 	"iron": {"name": "Iron", "desc": "x1.5 Mult while held in hand", "face": Color("c8ced8"), "badge": Color("5d6675")},
 	"gilded": {"name": "Gilded", "desc": "Earn $3 if held in hand at end of round", "face": Color("ffe7a0"), "badge": Color("c08a12")},
-	"lucky": {"name": "Lucky", "desc": "1 in 5 chance of +20 Mult when scored", "face": Color("e2f6da"), "badge": Color("3b9a4a")},
+	"lucky": {"name": "Lucky", "desc": "1 in 5 chance of +20 Mult and 1 in 15 chance of $20 when scored", "face": Color("e2f6da"), "badge": Color("3b9a4a")},
 	"stone": {"name": "Stone", "desc": "+50 Chips; no rank or suit, always scores", "face": Color("9a9590"), "badge": Color("5d5852")},
 	"wild": {"name": "Wild", "desc": "Counts as every suit", "face": Color("f3e6ff"), "badge": Color("8a4fd0")},
 }
@@ -208,10 +211,13 @@ const EDITIONS := {
 	"foil": {"name": "Foil", "desc": "+50 Chips", "cost": 2, "shader": 1},
 	"holo": {"name": "Holo", "desc": "+10 Mult", "cost": 3, "shader": 2},
 	"chroma": {"name": "Chroma", "desc": "x1.5 Mult", "cost": 5, "shader": 3},
+	"negative": {"name": "Negative", "desc": "+1 slot", "cost": 5, "shader": 4},
 }
 const SEALS := {
 	"crimson": {"name": "Crimson Seal", "desc": "Retrigger this card", "color": Color("d6283c")},
 	"golden": {"name": "Golden Seal", "desc": "Earn $3 when this card is scored", "color": Color("f2b415")},
+	"azure": {"name": "Azure Seal", "desc": "Creates the Rune for the last hand played if held in hand at end of round", "color": Color("2f8fe8")},
+	"violet": {"name": "Violet Seal", "desc": "Creates a Spell when discarded", "color": Color("9b5de5")},
 }
 
 # Spells: held in two slots and cast on the cards selected in hand.
@@ -234,18 +240,31 @@ const SPELLS := [
 	{"id": "petrify", "name": "Petrify", "desc": "Turn 1 selected card to Stone", "max": 1, "enh": "stone"},
 	{"id": "chimera", "name": "Chimera", "desc": "Make 1 selected card Wild", "max": 1, "enh": "wild"},
 	{"id": "replay", "name": "Replay", "desc": "Create a copy of the last Spell cast this run (not Replay)", "max": 0},
-	{"id": "oracle", "name": "Oracle", "desc": "Level up 2 random hand types", "max": 0},
+	{"id": "oracle", "name": "Oracle", "desc": "Create up to 2 random Runes", "max": 0},
 	{"id": "summon", "name": "Summon", "desc": "Create up to 2 random Spells", "max": 0},
 	{"id": "fortune", "name": "Fortune", "desc": "1 in 4 chance to give a random charm Foil, Holo or Chroma", "max": 0},
 	{"id": "barter", "name": "Barter", "desc": "Earn the total sell value of your charms (up to $50)", "max": 0},
 	{"id": "conjure", "name": "Conjure", "desc": "Create a random charm", "max": 0},
-	# Omens: rare spells that only charms create; never sold in the shop.
-	{"id": "sigil", "name": "Sigil", "desc": "Add a Crimson Seal to 1 selected card", "max": 1, "omen": true},
-	{"id": "aura", "name": "Aura", "desc": "Give 1 selected card a random edition", "max": 1, "omen": true},
+	# Omens: rare spells that come from packs and charms, never the regular shop.
+	# "hand": acts on the cards in hand, so only during a round.
+	{"id": "courtiers", "name": "Courtiers", "desc": "Destroy 1 random card in hand; add 3 random enhanced face cards to your hand", "max": 0, "omen": true, "hand": true},
+	{"id": "reaper", "name": "Reaper", "desc": "Destroy 1 random card in hand; add 2 random enhanced Aces to your hand", "max": 0, "omen": true, "hand": true},
+	{"id": "chant", "name": "Chant", "desc": "Destroy 1 random card in hand; add 4 random enhanced numbered cards to your hand", "max": 0, "omen": true, "hand": true},
 	{"id": "talisman", "name": "Talisman", "desc": "Add a Golden Seal to 1 selected card", "max": 1, "omen": true},
-	{"id": "duplicate", "name": "Duplicate", "desc": "Add 2 copies of 1 selected card to your deck", "max": 1, "omen": true},
+	{"id": "aura", "name": "Aura", "desc": "Give 1 selected card Foil, Holo or Chroma", "max": 1, "omen": true},
 	{"id": "wraith", "name": "Wraith", "desc": "Create a Rare charm, but your money drops to $0", "max": 0, "omen": true},
+	{"id": "converge", "name": "Converge", "desc": "Turn every card in hand into one random suit", "max": 0, "omen": true, "hand": true},
+	{"id": "mono", "name": "Mono", "desc": "Turn every card in hand into one random rank; -1 hand size", "max": 0, "omen": true, "hand": true},
+	{"id": "void", "name": "Void", "desc": "Make a random charm Negative; -1 hand size", "max": 0, "omen": true},
+	{"id": "pyre", "name": "Pyre", "desc": "Destroy 5 random cards in hand; earn $20", "max": 0, "omen": true, "hand": true},
+	{"id": "rebirth", "name": "Rebirth", "desc": "Copy a random charm and destroy all the others", "max": 0, "omen": true},
+	{"id": "sigil", "name": "Sigil", "desc": "Add a Crimson Seal to 1 selected card", "max": 1, "omen": true},
+	{"id": "curse", "name": "Curse", "desc": "Make a random charm Chroma and destroy all the others", "max": 0, "omen": true},
+	{"id": "lull", "name": "Lull", "desc": "Add an Azure Seal to 1 selected card", "max": 1, "omen": true},
+	{"id": "whisper", "name": "Whisper", "desc": "Add a Violet Seal to 1 selected card", "max": 1, "omen": true},
+	{"id": "duplicate", "name": "Duplicate", "desc": "Add 2 copies of 1 selected card to your deck", "max": 1, "omen": true},
 	{"id": "soul", "name": "Soul", "desc": "Create a Legendary charm", "max": 0, "omen": true},
+	{"id": "singularity", "name": "Singularity", "desc": "Level up every hand type", "max": 0, "omen": true},
 ]
 const OMEN_COLOR := Color("4b3a8a")
 # Tags: the reward for skipping a Small or Big Blind.
@@ -284,7 +303,16 @@ const SPELL_COLOR := Color("2f7f6f")
 const SPELL_COST := 3
 
 
+## Spells, Omens and Runes all live in the same slots. A Rune's id is
+## "rune:<hand>"; its definition is built here.
 static func spell_def(id: String) -> Dictionary:
+	if id.begins_with("rune:"):
+		var hand := id.substr(5)
+		if not HAND_BASE.has(hand):
+			return {}
+		var b: Array = HAND_BASE[hand]
+		return {"id": id, "name": hand, "desc": "Level up %s: +%d Chips, +%d Mult" % [hand, b[2], b[3]],
+			"max": 0, "rune": hand}
 	for s in SPELLS:
 		if s.id == id:
 			return s

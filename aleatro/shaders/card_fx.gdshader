@@ -52,6 +52,11 @@ void fragment() {
 	} else if (edition == 3) {
 		float h = fract(uv.x * 0.6 + uv.y * 0.4 + t * 0.25);
 		c.rgb = mix(c.rgb, c.rgb * (0.6 + 0.7 * hue(h)), face * 0.6);
+	} else if (edition == 4) {
+		// negative: inverted colours with a slow violet sheen
+		vec3 inv = vec3(1.0) - c.rgb;
+		float s = 0.5 + 0.5 * sin((uv.x + uv.y) * 6.0 - t * 1.5);
+		c.rgb = mix(c.rgb, inv * vec3(0.85, 0.8, 1.0) + vec3(0.08, 0.0, 0.15) * s, face);
 	}
 	if (tilt_amt > 0.0) {
 		// raised side brighter, sunken side a touch darker

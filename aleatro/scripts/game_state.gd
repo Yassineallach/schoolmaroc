@@ -89,6 +89,30 @@ func new_card_id() -> int:
 	return _next_id - 1
 
 
+## Hands that stay hidden (no Runes, no lists) until played once.
+const SECRET_HANDS := ["Flush Five", "Flush House", "Five of a Kind"]
+
+
+func visible_hands() -> Array:
+	return Data.HAND_ORDER.filter(func(h): return not SECRET_HANDS.has(h) or hands_played_count.get(h, 0) > 0)
+
+
+## The usual odds of an edition on a shop or pack item: Foil 2%, Holo 1.4%,
+## Chroma 0.3%, Negative 0.3% (charms only). `boost` multiplies the first three.
+func roll_edition(negative_ok := true, boost := 1.0) -> String:
+	var r := rng.randf()
+	if negative_ok and r > 0.997:
+		return "negative"
+	if r > 1.0 - 0.006 * boost:
+		return "chroma"
+	if r > 1.0 - 0.02 * boost:
+		return "holo"
+	if r > 1.0 - 0.04 * boost:
+		return "foil"
+	return ""
+
+
+## A Foil, Holo or Chroma edition with probability `chance`.
 func random_edition(chance: float) -> String:
 	if rng.randf() >= chance:
 		return ""
@@ -101,9 +125,9 @@ func roll_shop_card() -> void:
 	var c := make_card(rng.randi_range(2, 14), rng.randi_range(0, 3), new_card_id())
 	var enh := Data.ENHANCEMENTS.keys()
 	c.enh = enh[rng.randi_range(0, enh.size() - 1)]
-	c.ed = random_edition(0.25)
-	if rng.randf() < 0.25:
-		c.seal = "crimson" if rng.randf() < 0.5 else "golden"
+	c.ed = roll_edition(false, 2.0)
+	if rng.randf() < 0.2:
+		c.seal = Data.SEALS.keys()[rng.randi_range(0, Data.SEALS.size() - 1)]
 	var cost := 3
 	if c.ed != "":
 		cost += Data.EDITIONS[c.ed].cost
@@ -201,6 +225,11 @@ func can_afford(cost: int) -> bool:
 	return money - cost >= (-20 if has_charm("iou") else 0)
 
 
+## Charm slots, plus one for each Negative charm.
+func charm_capacity() -> int:
+	return charm_slots + charms.filter(func(c): return c.get("ed", "") == "negative").size()
+
+
 func spell_capacity() -> int:
 	return spell_slots + neg_spells
 
@@ -219,6 +248,14 @@ func effective(i: int, depth := 0) -> Dictionary:
 	return inst
 
 
+## Add the Rune for `hand` if there is room. Returns its id or "".
+func give_rune(hand: String) -> String:
+	if spells.size() >= spell_capacity():
+		return ""
+	spells.append("rune:" + hand)
+	return spells[-1]
+
+
 ## Add a random spell (or Omen) if there is room. Returns its id or "".
 func give_spell(omen := false) -> String:
 	if spells.size() >= spell_capacity():
@@ -231,7 +268,7 @@ func give_spell(omen := false) -> String:
 
 ## Add a random charm of `rarity` if there is room. Returns its name or "".
 func give_charm(rarity: int) -> String:
-	if charms.size() >= charm_slots:
+	if charms.size() >= charm_capacity():
 		return ""
 	var owned := charms.map(func(c): return c.id)
 	var pool := Data.CHARMS.filter(func(c): return c.rarity == rarity and _offerable(c.id, owned))
@@ -283,7 +320,7 @@ func _reroll_target(c: Dictionary) -> void:
 			c.data.rank = pick.rank
 			c.data.suit = pick.suit
 		"errand":
-			var hands := Data.HAND_ORDER.filter(func(h): return h != c.data.get("hand", ""))
+			var hands := visible_hands().filter(func(h): return h != c.data.get("hand", ""))
 			c.data.hand = hands[rng.randi_range(0, hands.size() - 1)]
 
 
@@ -500,13 +537,13 @@ func roll_shop() -> void:
 		if pool.is_empty():
 			break
 		var pick: Dictionary = pool[rng.randi_range(0, pool.size() - 1)].duplicate()
-		pick.ed = random_edition(0.12)
+		pick.ed = roll_edition()
 		if pick.ed != "":
 			pick.cost += Data.EDITIONS[pick.ed].cost
 		shop_charms.append(pick)
 		owned.append(pick.id)
 	shop_runes = []
-	var hands := Data.HAND_ORDER.duplicate()
+	var hands := visible_hands()
 	shuffle(hands)
 	# The magic slot holds either a rune or a spell.
 	shop_runes = []
@@ -540,6 +577,7 @@ func pre_score(ev: Dictionary, played: Array) -> Array:
 	var rh: Dictionary = boss_state.get("round_hands", {})
 	rh[ev.name] = rh.get(ev.name, 0) + 1
 	boss_state.round_hands = rh
+	boss_state.last_hand = ev.name
 	var first: bool = boss_state.get("hands_played", 0) <= 1
 	var live: Array = ev.scoring.filter(func(c): return not is_debuffed(c))
 	var face: bool = live.any(func(c): return is_face(c))
@@ -650,7 +688,8 @@ func add_tag(id: String) -> Array:
 				money += 5 * skips
 				notes.append("%s: +$%d" % [name, 5 * skips])
 			"star":
-				var h: String = Data.HAND_ORDER[rng.randi_range(0, Data.HAND_ORDER.size() - 1)]
+				var vis := visible_hands()
+				var h: String = vis[rng.randi_range(0, vis.size() - 1)]
 				hand_levels[h] += 3
 				notes.append("%s: %s lvl %d" % [name, h, hand_levels[h]])
 			"bundle":
@@ -714,7 +753,7 @@ func open_pack(kind: String) -> Array:
 				if pool.is_empty():
 					continue
 				var pick: Dictionary = pool[rng.randi_range(0, pool.size() - 1)]
-				out.append({"id": pick.id, "data": {}, "ed": random_edition(0.12)})
+				out.append({"id": pick.id, "data": {}, "ed": roll_edition()})
 				owned.append(pick.id)
 		"spell":
 			var pool := Data.SPELLS.filter(func(sp): return not sp.get("omen", false))
@@ -722,16 +761,16 @@ func open_pack(kind: String) -> Array:
 			for i in n:
 				out.append(pool[i].id)
 		"rune":
-			var hands := Data.HAND_ORDER.duplicate()
+			var hands := visible_hands()
 			shuffle(hands)
-			out = hands.slice(0, n)
+			out = hands.slice(0, n).map(func(h): return "rune:" + h)
 		"card":
 			for i in n:
 				var c := random_card()
 				if rng.randf() < 0.4:
 					var enh := Data.ENHANCEMENTS.keys()
 					c.enh = enh[rng.randi_range(0, enh.size() - 1)]
-				c.ed = random_edition(0.1)
+				c.ed = roll_edition(false, 2.0)
 				if rng.randf() < 0.15:
 					c.seal = Data.SEALS.keys()[rng.randi_range(0, Data.SEALS.size() - 1)]
 				out.append(c)
@@ -751,7 +790,7 @@ func on_pack_opened() -> Array:
 func take_from_pack(kind: String, choice) -> String:
 	match kind:
 		"charm":
-			if charms.size() >= charm_slots:
+			if charms.size() >= charm_capacity():
 				return "No room for more charms"
 			charms.append(choice)
 		"spell":
@@ -759,8 +798,9 @@ func take_from_pack(kind: String, choice) -> String:
 				return "No room for more spells"
 			spells.append(choice)
 		"rune":
-			hand_levels[choice] += 1
-			on_rune(choice)
+			var h: String = choice.substr(5)
+			hand_levels[h] += 1
+			on_rune(h)
 		"card":
 			add_card(choice)
 	return ""
@@ -778,6 +818,9 @@ func on_discard(cards: Array) -> Array:
 	var first: bool = boss_state.get("discarded", 0) == 0
 	boss_state.discarded = boss_state.get("discarded", 0) + 1
 	var faces := cards.filter(func(k): return is_face(k)).size()
+	for k in cards:
+		if k.get("seal", "") == "violet" and not is_debuffed(k) and give_spell() != "":
+			notes.append({"text": "+1 Spell"})
 	var i := 0
 	while i < charms.size():
 		var c: Dictionary = charms[i]
@@ -854,7 +897,7 @@ func on_sell(inst: Dictionary) -> Array:
 		notes.append_array(add_tag("twin"))
 	if inst.id == "phantom" and inst.data.get("r", 0) >= 2:
 		var others := charms.filter(func(c): return c.id != "phantom")
-		if not others.is_empty() and charms.size() < charm_slots:
+		if not others.is_empty() and charms.size() < charm_capacity():
 			var pick: Dictionary = others[rng.randi_range(0, others.size() - 1)].duplicate(true)
 			pick.erase("locked")
 			charms.append(pick)
@@ -895,6 +938,20 @@ func after_hand() -> Array:
 func end_of_round() -> Dictionary:
 	var rows := []
 	var gone := []
+	# cards held in hand: Gilded pays, an Azure Seal makes a Rune
+	var reps := 1 + charms.filter(func(c): return c.id == "mimic").size()
+	var gilded := 0
+	for k in hand:
+		if is_debuffed(k):
+			continue
+		var times := reps + (1 if k.get("seal", "") == "crimson" else 0)
+		if k.get("enh", "") == "gilded":
+			gilded += 3 * times
+		if k.get("seal", "") == "azure" and boss_state.get("last_hand", "") != "":
+			for t in times:
+				give_rune(boss_state.last_hand)
+	if gilded > 0:
+		rows.append(["Gilded cards held", gilded])
 	for i in range(charms.size() - 1, -1, -1):
 		var c: Dictionary = charms[i]
 		var name: String = Data.charm_def(c.id).name
@@ -973,13 +1030,21 @@ func sell_value(inst: Dictionary) -> int:
 ## Why a spell can't be cast on these cards right now, or "".
 func spell_blocked(id: String, selected: Array, in_round: bool) -> String:
 	var d := Data.spell_def(id)
+	if d.get("hand", false) and not in_round:
+		return "Cast it during a round"
 	if d.max == 0:
 		match id:
+			"rebirth", "curse":
+				if charms.is_empty():
+					return "You have no charms"
+			"void":
+				if not charms.any(func(c): return c.get("ed", "") == ""):
+					return "No charm without an edition"
 			"replay":
 				if run_flags.get("last_spell", "") == "":
 					return "No spell has been cast yet this run"
 			"conjure":
-				if charms.size() >= charm_slots:
+				if charms.size() >= charm_capacity():
 					return "No room for another charm"
 			"fortune":
 				if not charms.any(func(c): return c.get("ed", "") == ""):
@@ -1002,7 +1067,11 @@ func cast_spell(id: String, selected: Array) -> Array:
 	var removed := []
 	spells.erase(id)  # first, so spells it creates have its slot
 	spell_note = ""
-	if d.has("enh"):
+	if d.has("rune"):
+		hand_levels[d.rune] += 1
+		on_rune(d.rune)
+		spell_note = "%s lvl %d" % [d.rune, hand_levels[d.rune]]
+	elif d.has("enh"):
 		for c in selected:
 			c.enh = d.enh
 	elif d.has("suit"):
@@ -1043,19 +1112,80 @@ func cast_spell(id: String, selected: Array) -> Array:
 				money = mini(money, 0)
 			"soul":
 				give_charm(3)
+			"courtiers", "reaper", "chant":
+				if not hand.is_empty():
+					var gone_card: Dictionary = hand[rng.randi_range(0, hand.size() - 1)]
+					destroy_card(gone_card)
+					removed.append(gone_card)
+				var count: int = {"courtiers": 3, "reaper": 2, "chant": 4}[id]
+				var enh := Data.ENHANCEMENTS.keys()
+				for k in count:
+					var c := random_card()
+					match id:
+						"courtiers":
+							c.rank = rng.randi_range(11, 13)
+						"reaper":
+							c.rank = 14
+						"chant":
+							c.rank = rng.randi_range(2, 10)
+					c.enh = enh[rng.randi_range(0, enh.size() - 1)]
+					add_card(c, true)
+			"converge":
+				var suit := rng.randi_range(0, 3)
+				for c in hand:
+					c.suit = suit
+			"mono":
+				var rank := rng.randi_range(2, 14)
+				for c in hand:
+					c.rank = rank
+				hand_size = maxi(1, hand_size - 1)
+			"void":
+				var bare := charms.filter(func(c): return c.get("ed", "") == "")
+				if not bare.is_empty():
+					bare[rng.randi_range(0, bare.size() - 1)].ed = "negative"
+				hand_size = maxi(1, hand_size - 1)
+			"pyre":
+				var pool := hand.duplicate()
+				shuffle(pool)
+				for c in pool.slice(0, 5):
+					destroy_card(c)
+					removed.append(c)
+				money += 20
+			"rebirth", "curse":
+				var keep: Dictionary = charms[rng.randi_range(0, charms.size() - 1)]
+				var kept := []
+				for c in charms:
+					if c == keep or c.get("eternal", false):
+						kept.append(c)
+				if id == "rebirth":
+					var copy: Dictionary = keep.duplicate(true)
+					if copy.get("ed", "") == "negative":
+						copy.ed = ""
+					kept.append(copy)
+				else:
+					keep.ed = "chroma"
+				charms = kept
+			"lull":
+				for c in selected:
+					c.seal = "azure"
+			"whisper":
+				for c in selected:
+					c.seal = "violet"
+			"singularity":
+				for h in hand_levels:
+					hand_levels[h] += 1
 			"replay":
 				var last: String = run_flags.get("last_spell", "")
 				if last != "" and spells.size() < spell_capacity():
 					spells.append(last)
 					spell_note = "+" + Data.spell_def(last).name
 			"oracle":
-				var picked := []
+				var vis := visible_hands()
+				var made := 0
 				for k in 2:
-					var h: String = Data.HAND_ORDER[rng.randi_range(0, Data.HAND_ORDER.size() - 1)]
-					hand_levels[h] += 1
-					on_rune(h)
-					picked.append("%s lvl %d" % [h, hand_levels[h]])
-				spell_note = ", ".join(picked)
+					if give_rune(vis[rng.randi_range(0, vis.size() - 1)]) != "":
+						made += 1
+				spell_note = "+%d Rune%s" % [made, "" if made == 1 else "s"]
 			"summon":
 				var made := 0
 				for k in 2:
@@ -1082,7 +1212,8 @@ func cast_spell(id: String, selected: Array) -> Array:
 					spell_note = "+" + name
 	if id != "replay" and not d.get("omen", false):
 		run_flags["last_spell"] = id
-	run_flags["spells_cast"] = run_flags.get("spells_cast", 0) + 1
+	if not d.get("omen", false) and not d.has("rune"):
+		run_flags["spells_cast"] = run_flags.get("spells_cast", 0) + 1
 	# casting a spell beyond the normal slots uses up a Negative slot
 	neg_spells = clampi(neg_spells, 0, maxi(0, spells.size() - spell_slots))
 	return removed

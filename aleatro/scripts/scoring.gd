@@ -154,11 +154,16 @@ static func _enhancement(gs: GameState, card: Dictionary) -> Dictionary:
 		"glass":
 			return {"xmult": 2.0}
 		"lucky":
+			var fx := {}
 			if gs.roll(5):
+				fx.mult = 20
+			if gs.roll(15):
+				fx.money = 20
+			if not fx.is_empty():
 				for c in gs.charms:
 					if c.id == "maneki":
 						c.data.x = c.data.get("x", 1.0) + 0.25
-				return {"mult": 20}
+			return fx
 	return {}
 
 

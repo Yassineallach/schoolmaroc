@@ -593,13 +593,14 @@ func cast_spell(v: SpellView) -> void:
 	var vt := create_tween()
 	vt.tween_property(v, "modulate:a", 0.0, 0.25)
 	vt.tween_callback(v.queue_free)
-	for h in sel:
+	for h in hand_views.duplicate():
 		if removed.has(h.card):
 			hand_views.erase(h)
 			h.dissolve()
-		else:
+		elif sel.has(h) or Data.spell_def(id).get("hand", false):
 			h.selected = false
 			h.flip_up(0.0)
+			h.queue_redraw()
 			juice(h, 0.2)
 	if gs.money != before_money:
 		popup_text(Vector2(main_cx(), play_y()), "+$%d" % (gs.money - before_money), Data.MONEY_COLOR, 40)
@@ -610,6 +611,7 @@ func cast_spell(v: SpellView) -> void:
 	jiggle += 0.8
 	await wait(0.4)
 	gs.hand = hand_views.map(func(h): return h.card)
+	await take_new_cards()
 	rebuild_spells()
 	rebuild_charms()
 	layout_hand(true)
@@ -1017,10 +1019,9 @@ func _show_pack(kind: String, choices: Array, then: Callable) -> void:
 				title = d.name
 				desc = d.desc
 			"rune":
-				var b: Array = Data.HAND_BASE[choice]
-				view = CharmView.new("", choice)
+				view = SpellView.new(choice)
 				title = "Rune"
-				desc = "Level up %s\n+%d Chips +%d Mult" % [choice, b[2], b[3]]
+				desc = Data.spell_def(choice).desc
 			"card":
 				view = CardView.new(choice)
 				view.float_amount = 1.0
@@ -1546,10 +1547,6 @@ func win_round() -> void:
 		{"area": score_box.size * Vector2(0.8, 0.4), "speed": 260.0, "spread": 1.6, "gravity": Vector2(0, 380), "life": 1.1, "drag": 0.8})
 	refresh_charm_states()
 	await defeat_blind()
-	var gilded := 0
-	for v in hand_views:
-		if v.card.get("enh", "") == "gilded" and not gs.is_debuffed(v.card):
-			gilded += 3
 	for i in hand_views.size():
 		send_to_discard(hand_views[i], i * 0.03)
 	hand_views = []
@@ -1565,8 +1562,6 @@ func win_round() -> void:
 	if interest > 0:
 		rows.append(["Interest ($1 per $5)", interest])
 	rows.append_array(upkeep.rows)
-	if gilded > 0:
-		rows.append(["Gilded cards held", gilded])
 	var total := 0
 	for r in rows:
 		total += r[1]
@@ -1873,10 +1868,15 @@ func buy_rune(i: int) -> void:
 	var h: String = gs.shop_runes[i]
 	gs.money -= rune_price()
 	_inflate()
-	gs.hand_levels[h] += 1
-	gs.on_rune(h)
 	gs.shop_runes.remove_at(i)
 	sfx.play("rune")
+	if gs.give_rune(h) != "":
+		rebuild_spells()
+		show_shop()
+		return
+	# no room to keep it: use it right away
+	gs.hand_levels[h] += 1
+	gs.on_rune(h)
 	show_shop()
 	popup_text(Vector2(main_cx(), TOP_H + 40), "%s  lvl %d" % [h, gs.hand_levels[h]], Color("c9b3ff"), 32)
 
@@ -2288,7 +2288,7 @@ func show_hand_info() -> void:
 		return
 	var vb := open_modal()
 	vb.add_child(_label("Poker Hands", 38, Color("ffdf6b")))
-	for n in Data.HAND_ORDER:
+	for n in gs.visible_hands():
 		var lvl: int = gs.hand_levels[n]
 		var hb := HBoxContainer.new()
 		hb.add_theme_constant_override("separation", 10)

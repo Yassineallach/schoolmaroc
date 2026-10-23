@@ -52,10 +52,25 @@ static func evaluate(cards: Array, opts: Dictionary = {}) -> Dictionary:
 		contains.append("Four of a Kind")
 	if straight and flush:
 		contains.append("Straight Flush")
+	if top >= 5:
+		contains.append("Five of a Kind")
+	if top >= 3 and second >= 2 and flush:
+		contains.append("Flush House")
+	if top >= 5 and flush:
+		contains.append("Flush Five")
 
 	var name := "High Card"
 	var scoring: Array = [groups[0][0]] if top > 0 else []
-	if straight and flush:
+	if top >= 5 and flush:
+		name = "Flush Five"
+		scoring = groups[0]
+	elif top == 3 and second >= 2 and flush:
+		name = "Flush House"
+		scoring = groups[0] + groups[1]
+	elif top >= 5:
+		name = "Five of a Kind"
+		scoring = groups[0]
+	elif straight and flush:
 		name = "Straight Flush"
 		scoring = straight_cards + flush_cards
 	elif top >= 4:

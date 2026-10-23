@@ -38,7 +38,11 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	var d := Data.spell_def(spell_id)
-	var col := Data.OMEN_COLOR if d.get("omen", false) else Data.SPELL_COLOR
+	var col := Data.SPELL_COLOR
+	if d.get("omen", false):
+		col = Data.OMEN_COLOR
+	elif d.has("rune"):
+		col = Data.RUNE_COLOR
 	var font := ThemeDB.fallback_font
 	draw_set_transform_matrix(Anim.float_xform(size, _phase, float_amount))
 	var sb := PixelBox.new(col, 4.0, 0.0, true)
