@@ -136,6 +136,9 @@ static func compute(gs: GameState, played: Array, ev: Dictionary, held: Array) -
 		for k in gs.spells.size():
 			if gs.spells[k] == "rune:" + hand_name:
 				events.append({"kind": "spell", "spell_index": k, "xmult": 1.5})
+	# Plasma Deck: Chips and Mult meet in the middle before the total
+	if gs.deck_id == "plasma":
+		events.append({"kind": "balance"})
 	return {"events": events, "shatter": shatter}
 
 
@@ -444,4 +447,10 @@ static func describe(inst: Dictionary) -> String:
 	if inst.get("ed", "") != "":
 		var e: Dictionary = Data.EDITIONS[inst.ed]
 		text += "\n%s: %s" % [e.name, e.desc]
+	if inst.get("eternal", false):
+		text += "\nEternal: can't be sold or destroyed"
+	if inst.has("perish"):
+		text += "\nPerishable: %s" % ("worn out" if inst.perish == 0 else "%d rounds left" % inst.perish)
+	if inst.get("rental", false):
+		text += "\nRental: costs $3 at the end of every round"
 	return text

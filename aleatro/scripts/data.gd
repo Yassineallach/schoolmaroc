@@ -267,6 +267,54 @@ const SPELLS := [
 	{"id": "singularity", "name": "Singularity", "desc": "Level up every hand type", "max": 0, "omen": true, "hidden": true},
 ]
 const OMEN_COLOR := Color("4b3a8a")
+# Starting decks. "unlock": how a deck becomes available
+#   {"seen": n} discover n charms and bosses   {"win": deck}  win a run with that deck
+#   {"stake": n} win a run on that stake (any deck)
+const DECKS := [
+	{"id": "crimson", "name": "Crimson Deck", "desc": "+1 discard every round", "back": Color("b3364e")},
+	{"id": "azure", "name": "Azure Deck", "desc": "+1 hand every round", "back": Color("2f6fd1"), "unlock": {"seen": 20}},
+	{"id": "gold", "name": "Gold Deck", "desc": "Start with an extra $10", "back": Color("c08a12"), "unlock": {"seen": 50}},
+	{"id": "grove", "name": "Grove Deck", "desc": "No interest; at the end of each round earn $2 per hand and $1 per discard left", "back": Color("3f9a5a"), "unlock": {"seen": 75}},
+	{"id": "ink", "name": "Ink Deck", "desc": "+1 charm slot, but 1 fewer hand every round", "back": Color("2b2d42"), "unlock": {"seen": 100}},
+	{"id": "arcane", "name": "Arcane Deck", "desc": "Start with the Satchel voucher and 2 copies of Replay", "back": Color("6c4ab6"), "unlock": {"win": "crimson"}},
+	{"id": "star", "name": "Star Deck", "desc": "Start with the Spyglass voucher, but -1 spell slot", "back": Color("1d1f3a"), "unlock": {"win": "azure"}},
+	{"id": "spirit", "name": "Spirit Deck", "desc": "Omens can show up in the shop; start with a Curse", "back": Color("8fa3b8"), "unlock": {"win": "gold"}},
+	{"id": "bare", "name": "Bare Deck", "desc": "No face cards in the deck", "back": Color("8a7a6a"), "unlock": {"win": "grove"}},
+	{"id": "checker", "name": "Checker Deck", "desc": "26 Spades and 26 Hearts", "back": Color("d6283c"), "unlock": {"win": "ink"}},
+	{"id": "zodiac", "name": "Zodiac Deck", "desc": "Start with the Spell Seller, Rune Seller and Extra Shelf vouchers", "back": Color("4b3a8a"), "unlock": {"stake": 2}},
+	{"id": "painted", "name": "Painted Deck", "desc": "+2 hand size, but -1 charm slot", "back": Color("f07a9a"), "unlock": {"stake": 3}},
+	{"id": "twin", "name": "Twin Deck", "desc": "Gain a Twin Tag after beating each boss", "back": Color("2ec4b6"), "unlock": {"stake": 4}},
+	{"id": "plasma", "name": "Plasma Deck", "desc": "Chips and Mult are balanced before each hand's total; blinds need 2x the score", "back": Color("9b5de5"), "unlock": {"stake": 5}},
+	{"id": "chaos", "name": "Chaos Deck", "desc": "Every card's rank and suit is random", "back": Color("f08a24"), "unlock": {"stake": 7}},
+]
+
+# Stakes: difficulty levels, each adding to the ones before it. Winning on
+# a stake with a deck unlocks the next stake for that deck.
+const STAKES := [
+	{"name": "White Chip", "desc": "The base game", "color": Color("e8e8e8")},
+	{"name": "Red Chip", "desc": "The Small Blind pays no reward", "color": Color("d6283c")},
+	{"name": "Green Chip", "desc": "Blind scores rise faster", "color": Color("3f9a5a")},
+	{"name": "Black Chip", "desc": "Shop charms can be Eternal (can't be sold or destroyed)", "color": Color("2b2d42")},
+	{"name": "Blue Chip", "desc": "-1 discard every round", "color": Color("2f6fd1")},
+	{"name": "Purple Chip", "desc": "Blind scores rise faster still", "color": Color("7b4fa0")},
+	{"name": "Orange Chip", "desc": "Shop charms can be Perishable (stop working after 5 rounds)", "color": Color("f08a24")},
+	{"name": "Gold Chip", "desc": "Shop charms can be Rentals ($1 to buy, $3 every round)", "color": Color("e0a526")},
+]
+## Blind base scores for antes 1-8: White/Red, Green+, Purple+.
+const ANTE_SCALES := [
+	[300, 800, 2000, 5000, 11000, 20000, 35000, 50000],
+	[300, 900, 2600, 8000, 20000, 36000, 60000, 100000],
+	[300, 1000, 3200, 9000, 25000, 60000, 110000, 200000],
+]
+
+
+static func deck_def(id: String) -> Dictionary:
+	for d in DECKS:
+		if d.id == id:
+			return d
+	return {}
+
+
 # Tags: the reward for skipping a Small or Big Blind.
 const TAGS := [
 	{"id": "riches", "name": "Riches Tag", "desc": "Double your money (up to +$40)", "color": Color("e0a526")},
@@ -541,10 +589,11 @@ const HEXES := [
 ]
 
 
-static func ante_target(ante: int) -> int:
+static func ante_target(ante: int, scale := 0) -> int:
+	var base: Array = ANTE_SCALES[scale]
 	if ante <= FINAL_ANTE:
-		return ANTE_BASE[ante - 1]
-	var raw := float(ANTE_BASE[FINAL_ANTE - 1]) * pow(1.75, ante - FINAL_ANTE)
+		return base[maxi(ante, 1) - 1]
+	var raw := float(base[FINAL_ANTE - 1]) * pow(1.75, ante - FINAL_ANTE)
 	var mag := pow(10.0, floor(log(raw) / log(10.0)) - 1)
 	return int(floor(raw / mag) * mag)
 

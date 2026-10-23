@@ -9,7 +9,8 @@ signal drag_ended(view)
 
 const W := 100.0
 const H := 140.0
-const BACK_COLOR := Color("b3364e")
+## The card back colour: the run's starting deck sets it.
+static var back_color := Color("b3364e")
 
 var card: Dictionary
 var selected := false
@@ -145,9 +146,9 @@ func _paint() -> void:
 
 
 func _draw_back() -> void:
-	_face_box.color = BACK_COLOR
+	_face_box.color = back_color
 	draw_style_box(_face_box, Rect2(Vector2.ZERO, size))
-	var inner := PixelBox.new(BACK_COLOR.darkened(0.25), 3.0)
+	var inner := PixelBox.new(back_color.darkened(0.25), 3.0)
 	inner.outline = 2.0
 	inner.outline_color = Color(1, 1, 1, 0.5)
 	draw_style_box(inner, Rect2(8, 8, size.x - 16, size.y - 16))

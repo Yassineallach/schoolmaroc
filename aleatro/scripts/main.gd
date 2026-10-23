@@ -483,6 +483,7 @@ func rebuild_charms() -> void:
 	var n := gs.charms.size() if gs else 0
 	for i in n:
 		var v := CharmView.new(gs.charms[i].id, "", gs.charms[i].get("ed", ""))
+		v.sticker = sticker_text(gs.charms[i])
 		v.set_meta("inst", gs.charms[i])
 		v.locked = gs.charms[i].get("locked", false)
 		v.tapped.connect(_on_charm_tapped)
@@ -496,6 +497,17 @@ func rebuild_charms() -> void:
 	layout_charms(false)
 	refresh_charm_states()
 	update_hud()
+
+
+func sticker_text(inst: Dictionary) -> String:
+	var parts := []
+	if inst.get("eternal", false):
+		parts.append("ETERNAL")
+	if inst.has("perish"):
+		parts.append("PERISH %d" % inst.perish)
+	if inst.get("rental", false):
+		parts.append("RENTAL")
+	return " ".join(parts)
 
 
 ## Hover text for a charm in the row; nothing while the boss hides it.
@@ -835,9 +847,9 @@ func show_title() -> void:
 	if saves.has_run():
 		var run := saves.load_run()
 		main_row.add_child(_button("Continue\nAnte %d  $%d" % [run.get("ante", 1), run.get("money", 0)], Color("3f9a5a"), resume_run, Vector2(300, 96), 28))
-		main_row.add_child(_hold_button("Hold: New Run", Data.CHIP_COLOR, new_run, 0.6, Vector2(300, 96)))
+		main_row.add_child(_hold_button("Hold: New Run", Data.CHIP_COLOR, show_run_setup, 0.6, Vector2(300, 96)))
 	else:
-		main_row.add_child(_button("Play", Data.CHIP_COLOR, new_run, Vector2(320, 96), 40))
+		main_row.add_child(_button("Play", Data.CHIP_COLOR, show_run_setup, Vector2(320, 96), 40))
 	vb.add_child(main_row)
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -876,13 +888,18 @@ func _center(c: Control) -> Control:
 	return c
 
 
-func new_run(challenge_id: String = "") -> void:
+func new_run(challenge_id: String = "", deck_id: String = "crimson", stake: int = 1) -> void:
 	on_title = false
 	music.pitch_target = 1.0
 	gs = GameState.new()
 	if challenge_id != "":
 		gs.apply_challenge(challenge_id)
+		gs.deck_id = ""
 		toast("Challenge: " + Data.challenge_def(challenge_id).name)
+	else:
+		gs.apply_deck(deck_id)
+		gs.apply_stake(stake)
+	_apply_deck_look()
 	stats.runs += 1
 	_save_stats()
 	saves.delete_run()
@@ -894,6 +911,91 @@ func new_run(challenge_id: String = "") -> void:
 	lbl_chips.text = "0"
 	lbl_mult.text = "0"
 	show_blind_select()
+
+
+func _apply_deck_look() -> void:
+	var d := Data.deck_def(gs.deck_id) if gs != null else {}
+	CardView.back_color = d.get("back", Color("b3364e"))
+	deck_pile.queue_redraw()
+
+
+# ---------------------------------------------------------------- run setup
+
+var _setup_deck := 0
+var _setup_stake := 1
+
+
+## Highest stake won with each deck: {deck id: stake}.
+func _deck_wins() -> Dictionary:
+	var w = profile_data.get("deck_stakes", {})
+	return w if w is Dictionary else {}
+
+
+## "" when deck `d` can be played, else how to unlock it.
+func deck_locked(d: Dictionary) -> String:
+	var u: Dictionary = d.get("unlock", {})
+	var wins := _deck_wins()
+	if u.has("seen"):
+		var seen: int = profile_data.seen_charms.size() + profile_data.seen_hexes.size()
+		return "" if seen >= u.seen else "Discover %d charms and bosses (%d so far)" % [u.seen, seen]
+	if u.has("win"):
+		return "" if wins.has(u.win) else "Win a run with the %s" % Data.deck_def(u.win).name
+	if u.has("stake"):
+		return "" if wins.values().any(func(v): return v >= u.stake) else "Win a run on %s" % Data.STAKES[u.stake - 1].name
+	return ""
+
+
+## Stakes open for a deck: one past the highest it has won.
+func stake_limit(deck_id: String) -> int:
+	return mini(Data.STAKES.size(), _deck_wins().get(deck_id, 0) + 1)
+
+
+## Pick a deck and stake, then start.
+func show_run_setup() -> void:
+	close_modal()
+	var d: Dictionary = Data.DECKS[_setup_deck]
+	var why := deck_locked(d)
+	_setup_stake = clampi(_setup_stake, 1, stake_limit(d.id))
+	var st: Dictionary = Data.STAKES[_setup_stake - 1]
+	var vb := open_modal()
+	vb.add_child(_label("New Run", 36, Color("ffdf6b")))
+	var swatch := PanelContainer.new()
+	swatch.custom_minimum_size = Vector2(90, 120)
+	var sb := _box(d.back if why == "" else Color("4a4f63"), 4.0, true)
+	sb.outline = 3.0
+	sb.outline_color = Color(1, 1, 1, 0.5)
+	swatch.add_theme_stylebox_override("panel", sb)
+	swatch.add_child(_label("?" if why != "" else "", 40))
+	var desc := _label(d.desc if why == "" else "Locked: " + why, 20, Color.WHITE if why == "" else Color(1, 1, 1, 0.55))
+	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc.custom_minimum_size = Vector2(360, 0)
+	var step := func(dir: int):
+		_setup_deck = (_setup_deck + dir + Data.DECKS.size()) % Data.DECKS.size()
+		sfx.play("card_slide")
+		show_run_setup()
+	vb.add_child(UIBuild.build({"row": [
+		{"button": "<", "color": Color("4a4f63"), "on": func(): step.call(-1), "min": Vector2(64, 64), "size": 28},
+		{"node": swatch},
+		{"col": [{"text": d.name, "size": 28, "color": d.back.lightened(0.4)}, {"node": desc}], "sep": 6},
+		{"button": ">", "color": Color("4a4f63"), "on": func(): step.call(1), "min": Vector2(64, 64), "size": 28},
+	], "sep": 14, "align": "center"}))
+	var stake_step := func(dir: int):
+		_setup_stake = clampi(_setup_stake + dir, 1, stake_limit(d.id))
+		sfx.play("card_slide")
+		show_run_setup()
+	vb.add_child(UIBuild.build({"row": [
+		{"button": "<", "color": Color("4a4f63"), "on": func(): stake_step.call(-1), "min": Vector2(64, 56), "size": 26},
+		{"col": [{"text": st.name, "size": 24, "color": st.color if st.color.get_luminance() > 0.3 else st.color.lightened(0.55)}, {"text": st.desc + ("" if _setup_stake == 1 else ", plus every lower stake"), "size": 17, "wrap": 420}], "sep": 2},
+		{"button": ">", "color": Color("4a4f63"), "on": func(): stake_step.call(1), "min": Vector2(64, 56), "size": 26},
+	], "sep": 14, "align": "center"}))
+	vb.add_child(_label("Stake %d of %d unlocked for this deck" % [stake_limit(d.id), Data.STAKES.size()], 16, Color(1, 1, 1, 0.55)))
+	var go := func():
+		close_modal()
+		new_run("", d.id, _setup_stake)
+	vb.add_child(UIBuild.build({"row": [
+		{"button": "Start", "color": Data.CHIP_COLOR, "on": go, "min": Vector2(220, 70), "size": 30, "enabled": func(): return why == ""},
+		{"button": "Back", "color": Color("5a5f73"), "on": close_modal, "min": Vector2(160, 70), "size": 24},
+	], "sep": 14, "align": "center"}))
 
 
 func show_blind_select() -> void:
@@ -1046,6 +1148,7 @@ func _show_pack(id: String, choices: Array, picks: int, then: Callable) -> void:
 			"buffoon":
 				var d := Data.charm_def(choice.id)
 				view = CharmView.new(choice.id, "", choice.ed)
+				view.sticker = sticker_text(choice)
 				title = d.name
 				desc = d.desc
 				discover("charm", choice.id)
@@ -1398,6 +1501,18 @@ func play_selected() -> void:
 	lbl_hand_name.text = "%s  lvl %d" % [ev.name, gs.hand_levels[ev.name]]
 	music.pitch_target = 1.03
 	for e in result.events:
+		if e.kind == "balance":
+			var mid := floorf((chips + mult) / 2.0)
+			chips = mid
+			mult = mid
+			lbl_chips.text = Data.fmt(chips)
+			lbl_mult.text = _fmt_mult(mult)
+			bump(lbl_chips.get_parent(), 1.2)
+			bump(lbl_mult.get_parent(), 1.2)
+			popup_text(Vector2(main_cx(), play_y() - 40), "Balanced!", Color("c9b3ff"), 34)
+			sfx.play("xmult", 0.8)
+			await wait(step_t * 1.5)
+			continue
 		if e.kind == "base":
 			chips = e.chips
 			mult = e.mult
@@ -1612,12 +1727,14 @@ func win_round() -> void:
 	clear_hand_views()
 	lbl_hand_name.text = ""
 	var reward := gs.blind_reward()
-	var per_hand := 0 if gs.rules.get("no_hand_money", false) else gs.hands_left
+	var per_hand := 0 if gs.rules.get("no_hand_money", false) else gs.hands_left * (2 if gs.deck_id == "grove" else 1)
 	var interest := gs.interest() * (1 + gs.charm_count("moonshot"))
 	var upkeep := gs.end_of_round()
 	var rows := [["Blind reward", reward]]
 	if per_hand > 0:
-		rows.append(["Remaining hands (%d)" % per_hand, per_hand])
+		rows.append(["Remaining hands (%d)" % gs.hands_left, per_hand])
+	if gs.deck_id == "grove" and gs.discards_left > 0:
+		rows.append(["Remaining discards (%d)" % gs.discards_left, gs.discards_left])
 	if interest > 0:
 		rows.append(["Interest ($1 per $5)", interest])
 	rows.append_array(upkeep.rows)
@@ -1688,7 +1805,7 @@ func show_cashout(info: Dictionary) -> void:
 	var vb := open_overlay()
 	vb.add_child(_label(info.title, 38, Color("ffdf6b")))
 	for r in info.rows:
-		_row_label(vb, r[0], "$%d" % r[1])
+		_row_label(vb, r[0], ("$%d" % r[1]) if r[1] >= 0 else ("-$%d" % -r[1]), Data.MONEY_COLOR if r[1] >= 0 else Data.MULT_COLOR)
 	var total: int = info.total
 	vb.add_child(_center(_button("Cash Out: $%d" % total, Color("e0a526"), func():
 		gs.money += total
@@ -1733,7 +1850,7 @@ func game_over() -> void:
 	_row_label(vb, "Most played", most, Color.WHITE)
 	ace_quip(["So close! Every run teaches something.", "Ouch. Want to deal again?", "The cards weren't with us this time.", "Shake it off, the next deck is lucky!"])
 	vb.add_child(UIBuild.build({"col": [
-		{"button": "New Run", "color": Data.CHIP_COLOR, "on": new_run, "min": Vector2(320, 90), "size": 34, "delay": 1.0, "once": true},
+		{"button": "New Run", "color": Data.CHIP_COLOR, "on": show_run_setup, "min": Vector2(320, 90), "size": 34, "delay": 1.0},
 		{"button": "Main Menu", "color": Color("5a5f73"), "on": show_title, "min": Vector2(320, 70), "size": 26, "delay": 1.0, "once": true},
 	]}))
 
@@ -1748,6 +1865,14 @@ func show_victory() -> void:
 			profile_data.challenges_won.append(gs.challenge)
 			_save_stats()
 		toast("Challenge complete: " + Data.challenge_def(gs.challenge).name)
+	if gs.deck_id != "":
+		var wins := _deck_wins()
+		if gs.stake > wins.get(gs.deck_id, 0):
+			wins[gs.deck_id] = gs.stake
+			profile_data.deck_stakes = wins
+			_save_stats()
+			if gs.stake < Data.STAKES.size():
+				toast("%s unlocked for the %s" % [Data.STAKES[gs.stake].name, Data.deck_def(gs.deck_id).name])
 	saves.delete_run()
 	music.set_track("shop")
 	var vb := open_overlay(true)
@@ -1759,7 +1884,7 @@ func show_victory() -> void:
 	vb.add_child(_center(_button("Endless Mode", Color("7b4fa0"), func():
 		gs.endless = true
 		open_shop(), Vector2(340, 84), 30)))
-	vb.add_child(_center(_button("New Run", Data.CHIP_COLOR, new_run, Vector2(340, 84), 30)))
+	vb.add_child(_center(_button("New Run", Data.CHIP_COLOR, show_run_setup, Vector2(340, 84), 30)))
 
 
 ## Waves of confetti falling across the screen.
@@ -1809,6 +1934,7 @@ func show_shop() -> void:
 			"charm":
 				var d := Data.charm_def(it.id)
 				view = CharmView.new(it.id, "", it.get("ed", ""))
+				view.sticker = sticker_text(it)
 				desc = d.desc
 				if it.get("ed", "") != "":
 					desc += "\n%s: %s" % [Data.EDITIONS[it.ed].name, Data.EDITIONS[it.ed].desc]
@@ -1891,7 +2017,11 @@ func buy_item(i: int) -> void:
 			if gs.charms.size() >= gs.charm_capacity() and it.get("ed", "") != "negative":
 				popup_text(Vector2(main_cx(), TOP_H + 40), "No room for more charms", Color.WHITE, 28)
 				return
-			gs.charms.append({"id": it.id, "data": {}, "ed": it.get("ed", "")})
+			var inst := {"id": it.id, "data": {}, "ed": it.get("ed", "")}
+			for k in ["eternal", "perish", "rental"]:
+				if it.has(k):
+					inst[k] = it[k]
+			gs.charms.append(inst)
 			stats.charms_bought += 1
 			sfx.play("charm_buy")
 			rebuild_charms()
@@ -2076,9 +2206,11 @@ func _on_charm_tapped(v: CharmView) -> void:
 		close_modal()
 		if _shop_open:
 			show_shop(), Vector2(170, 70), 24)
-	sell.disabled = (busy and in_round) or inst.get("locked", false)
+	sell.disabled = (busy and in_round) or inst.get("locked", false) or inst.get("eternal", false)
 	if inst.get("locked", false):
 		sell.text = "Locked"
+	elif inst.get("eternal", false):
+		sell.text = "Eternal"
 	row.add_child(sell)
 	row.add_child(_button("Close", Color("5a5f73"), close_modal, Vector2(150, 70), 24))
 	vb.add_child(row)
@@ -2434,6 +2566,7 @@ func resume_run() -> void:
 	on_title = false
 	music.pitch_target = 1.0
 	gs = GameState.from_dict(d)
+	_apply_deck_look()
 	sort_mode = d.get("sort_mode", "rank")
 	_place_marker()
 	clear_hand_views()
@@ -2788,7 +2921,7 @@ func show_menu() -> void:
 				toast("Ace will show the tips again"), {"once": true}),
 			b.call("Hold: New Run", func():
 				close_modal()
-				new_run(), {"color": Data.MULT_COLOR, "hold": 0.8}),
+				show_run_setup(), {"color": Data.MULT_COLOR, "hold": 0.8}),
 			b.call("Hold: Main Menu", func():
 				close_modal()
 				clear_hand_views()

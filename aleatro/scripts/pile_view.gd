@@ -77,7 +77,7 @@ func _draw() -> void:
 		for i in layers:
 			var jitter := _shuffle * (12.0 if i % 2 else -12.0)
 			var off := Vector2(-i * 1.2 + jitter, -i * 1.6)
-			var back := PixelBox.new(CardView.BACK_COLOR if i < layers - 1 else CardView.BACK_COLOR.lightened(0.06), 4.0, 0.0, i == 0)
+			var back := PixelBox.new(CardView.back_color if i < layers - 1 else CardView.back_color.lightened(0.06), 4.0, 0.0, i == 0)
 			back.outline = 2.0
 			back.outline_color = Color(1, 1, 1, 0.35)
 			draw_style_box(back, Rect2(off + Vector2(2, 2), Vector2(W - 4, H - 4)))

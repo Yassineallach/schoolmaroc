@@ -2,6 +2,9 @@ class_name GameState
 extends RefCounted
 
 var rng := RandomNumberGenerator.new()
+## The starting deck and stake (1 White .. 8 Gold) this run was begun with.
+var deck_id := "crimson"
+var stake := 1
 var ante := 1
 var blind_idx := 0  # 0 small, 1 big, 2 boss
 var money := 4
@@ -147,11 +150,14 @@ func blind_color(idx: int = blind_idx) -> Color:
 
 func blind_target(idx: int = blind_idx) -> int:
 	var m: float = [1.0, 1.5, boss_hex.mult][idx]
-	return int(Data.ante_target(ante) * m)
+	if deck_id == "plasma":
+		m *= 2.0
+	var scale := 2 if stake >= 6 else (1 if stake >= 3 else 0)
+	return int(Data.ante_target(ante, scale) * m)
 
 
 func blind_reward(idx: int = blind_idx) -> int:
-	if rules.get("no_reward", []).has(idx):
+	if rules.get("no_reward", []).has(idx) or (stake >= 2 and idx == 0):
 		return 0
 	return [3, 4, 5][idx]
 
@@ -360,7 +366,7 @@ func start_round() -> Array:
 					c.data.x = c.data.get("x", 1.0) + 0.5
 					var others := []
 					for j in charms.size():
-						if j != i and not charms[j].get("locked", false):
+						if j != i and not charms[j].get("locked", false) and not charms[j].get("eternal", false):
 							others.append(j)
 					var text := "x%s Mult" % str(c.data.x)
 					if not others.is_empty():
@@ -370,7 +376,7 @@ func start_round() -> Array:
 							i -= 1
 					notes.append({"text": text, "charm": i})
 			"dagger":
-				if i + 1 < charms.size() and not charms[i + 1].get("locked", false):
+				if i + 1 < charms.size() and not charms[i + 1].get("locked", false) and not charms[i + 1].get("eternal", false):
 					c.data.m = c.data.get("m", 0) + 2 * sell_value(charms[i + 1])
 					var gone := _drop_charm(i + 1)
 					notes.append({"text": "Cut %s: +%d Mult" % [gone, c.data.m], "charm": i})
@@ -445,6 +451,8 @@ func draws_face_down(card: Dictionary) -> bool:
 
 
 func charm_disabled(i: int) -> bool:
+	if i >= 0 and i < charms.size() and charms[i].get("perish", -1) == 0:
+		return true  # a Perishable charm that ran out
 	return hex() == "ember" and boss_state.get("ember", -1) == i
 
 
@@ -621,7 +629,11 @@ func roll_shop_item() -> Dictionary:
 			if d.is_empty():
 				return {}
 			var ed := roll_edition(true, edition_boost())
-			return {"type": "charm", "id": d.id, "ed": ed, "base": d.cost + (Data.EDITIONS[ed].cost if ed != "" else 0)}
+			var item := {"type": "charm", "id": d.id, "ed": ed, "base": d.cost + (Data.EDITIONS[ed].cost if ed != "" else 0)}
+			roll_stickers(item)
+			if item.get("rental", false):
+				item.base = 1
+			return item
 		"spell":
 			var pool := Data.SPELLS.filter(func(sp): return not sp.get("omen", false) and not held.has(sp.id))
 			return {"type": "spell", "id": pool[rng.randi_range(0, pool.size() - 1)].id, "base": 3}
@@ -639,6 +651,25 @@ func roll_shop_item() -> Dictionary:
 				_dress_card(c)
 			return {"type": "card", "card": c, "base": 1 + (Data.EDITIONS[c.ed].cost if c.ed != "" else 0)}
 	return {}
+
+
+## Charms that remove themselves can't be Eternal or Perishable.
+const NO_STICKERS := ["plantain", "ripe", "sorbet", "kettle", "fizz", "sprout", "noodles", "lastlaugh",
+	"phantom", "float", "warden"]
+
+
+## Stake stickers for a shop or pack charm: Eternal (Black+), Perishable
+## (Orange+), Rental (Gold+), 30% each; Eternal and Perishable never together.
+func roll_stickers(inst: Dictionary) -> void:
+	if NO_STICKERS.has(inst.id):
+		return
+	var r := rng.randf()
+	if stake >= 4 and r < 0.3:
+		inst.eternal = true
+	elif stake >= 7 and r < 0.6:
+		inst.perish = 5
+	if stake >= 8 and rng.randf() < 0.3:
+		inst.rental = true
 
 
 ## Maybe give a card an enhancement, edition and seal (packs and Showcase).
@@ -953,7 +984,9 @@ func open_pack(id: String) -> Array:
 				var d := roll_charm_def(owned)
 				if d.is_empty():
 					continue
-				out.append({"id": d.id, "data": {}, "ed": roll_edition(true, edition_boost())})
+				var inst := {"id": d.id, "data": {}, "ed": roll_edition(true, edition_boost())}
+				roll_stickers(inst)
+				out.append(inst)
 				owned.append(d.id)
 		"arcana":
 			var pool := Data.SPELLS.filter(func(sp): return not sp.get("omen", false))
@@ -1190,6 +1223,16 @@ func end_of_round() -> Dictionary:
 	if gilded > 0:
 		rows.append(["Gilded cards held", gilded])
 	run_flags["unused_discards"] = run_flags.get("unused_discards", 0) + discards_left
+	var rentals := 0
+	for c in charms:
+		if c.get("perish", -1) > 0:
+			c.perish -= 1
+		if c.get("rental", false):
+			rentals += 1
+	if rentals > 0:
+		rows.append(["Rentals (%d)" % rentals, -3 * rentals])
+	if deck_id == "twin" and blind_idx == 2:
+		add_tag("twin")
 	for i in range(charms.size() - 1, -1, -1):
 		var c: Dictionary = charms[i]
 		var name: String = Data.charm_def(c.id).name
@@ -1472,7 +1515,7 @@ const SAVE_FIELDS := [
 	"round_score", "target", "endless", "reroll_cost", "best_hand", "shop_items",
 	"vouchers", "ante_voucher", "shop_vouchers", "boss_rerolls", "_last_hex", "_next_id", "boss_state", "spells",
 	"challenge", "rules", "banned_charms", "banned_hexes", "inflation", "played_this_ante",
-	"run_flags", "neg_spells", "start_deck_size", "tags", "blind_tags", "skips", "shop_packs",
+	"run_flags", "neg_spells", "start_deck_size", "deck_id", "stake", "tags", "blind_tags", "skips", "shop_packs",
 	"pending_packs", "shop_coupon",
 ]
 
@@ -1506,6 +1549,59 @@ static func from_dict(d: Dictionary) -> GameState:
 	gs.rng.seed = d.get("rng_seed", gs.rng.seed)
 	gs.rng.state = d.get("rng_state", gs.rng.state)
 	return gs
+
+
+## Set up the starting deck's cards and rules (call on a fresh run).
+func apply_deck(id: String) -> void:
+	deck_id = id
+	match id:
+		"crimson":
+			max_discards += 1
+		"azure":
+			max_hands += 1
+		"gold":
+			money += 10
+		"grove":
+			rules["no_interest"] = true
+		"ink":
+			charm_slots += 1
+			max_hands -= 1
+		"arcane":
+			redeem_voucher("satchel")
+			spells.append_array(["replay", "replay"])
+		"star":
+			redeem_voucher("spyglass")
+			spell_slots -= 1
+		"spirit":
+			rules["omens_in_shop"] = true
+			spells.append("curse")
+		"bare":
+			deck = deck.filter(func(c): return c.rank < 11 or c.rank > 13)
+		"checker":
+			for c in deck:
+				c.suit = 0 if c.suit % 2 == 0 else 1
+		"zodiac":
+			for v in ["spellseller", "runeseller", "shelf"]:
+				redeem_voucher(v)
+		"painted":
+			hand_size += 2
+			charm_slots -= 1
+		"chaos":
+			for c in deck:
+				c.rank = rng.randi_range(2, 14)
+				c.suit = rng.randi_range(0, 3)
+	hands_left = max_hands
+	discards_left = max_discards
+	start_deck_size = deck.size()
+	if vouchers.has(ante_voucher):
+		roll_voucher()
+
+
+func apply_stake(n: int) -> void:
+	stake = n
+	if stake >= 5:
+		max_discards = maxi(0, max_discards - 1)
+		discards_left = max_discards
 
 
 ## Set this run up as a challenge: deck, slots, money, starting items, rules.

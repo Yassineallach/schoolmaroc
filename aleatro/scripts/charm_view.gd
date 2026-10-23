@@ -16,6 +16,8 @@ const H := 150.0
 var charm_id := ""
 var rune_hand := ""
 var edition := ""
+## Stake sticker text shown on the card ("ETERNAL", "PERISH 3", "RENTAL").
+var sticker := ""
 var face_up := true
 var smothered := false
 var locked := false
@@ -170,6 +172,10 @@ func _draw_overlays(font: Font) -> void:
 		var b := PixelBox.new(Color(0, 0, 0, 0.55), 2.0)
 		draw_style_box(b, Rect2(30, size.y - 22, 60, 16))
 		draw_string(font, Vector2(30, size.y - 9.5), tag, HORIZONTAL_ALIGNMENT_CENTER, 60, 11, Color.WHITE)
+	if sticker != "":
+		var sb := PixelBox.new(Color(0.1, 0.08, 0.15, 0.8), 2.0)
+		draw_style_box(sb, Rect2(24, 2, size.x - 48, 15))
+		draw_string(font, Vector2(24, 13.5), sticker, HORIZONTAL_ALIGNMENT_CENTER, size.x - 48, 10, Color("f2d675"))
 	if locked:
 		# a small padlock: this charm cannot be sold
 		var at := Vector2(size.x - 22, 10)

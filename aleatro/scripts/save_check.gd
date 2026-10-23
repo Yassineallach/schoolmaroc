@@ -182,6 +182,12 @@ static func profile(d: Dictionary, stat_defaults: Dictionary) -> Dictionary:
 	out.challenges_won = _strings(d.get("challenges_won"), func(id): return not Data.challenge_def(id).is_empty())
 	out.tutorial = _strings(d.get("tutorial"), func(_s): return true)
 	out.tips_off = d.get("tips_off") is bool and d.tips_off
+	out.deck_stakes = {}
+	var ds = d.get("deck_stakes", {})
+	if ds is Dictionary:
+		for k in ds:
+			if k is String and not Data.deck_def(k).is_empty() and ds[k] is int:
+				out.deck_stakes[k] = clampi(ds[k], 0, Data.STAKES.size())
 	# anything else the game stored keeps its value if it is plain data
 	for k in d:
 		if not out.has(k) and typeof(d[k]) in [TYPE_BOOL, TYPE_INT, TYPE_FLOAT, TYPE_STRING]:
