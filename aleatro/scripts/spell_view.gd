@@ -45,6 +45,9 @@ func _draw() -> void:
 	if spell_id.begins_with("rune:"):
 		_draw_rune()
 		return
+	if OmenSVG.has_art(spell_id):
+		_draw_omen()
+		return
 	var d := Data.spell_def(spell_id)
 	var col := Data.SPELL_COLOR
 	if d.get("omen", false):
@@ -121,3 +124,25 @@ func _draw_rune() -> void:
 		fs -= 1
 	var baseline := (plate.position.y + plate.size.y / 2.0) * k + font.get_ascent(fs) * 0.36
 	draw_string(font, Vector2(plate.position.x * k, baseline), name, HORIZONTAL_ALIGNMENT_CENTER, plate.size.x * k, fs, Color(RuneSVG.IVORY))
+
+
+## An Omen: its SVG card, with the name set on the bottom nameplate.
+func _draw_omen() -> void:
+	draw_set_transform_matrix(Anim.float_xform(size, _phase, float_amount))
+	var zoom := get_global_transform_with_canvas().get_scale().x
+	var tex := OmenSVG.texture(spell_id, int(clampf(zoom * size.x * 2.0, 192.0, 1024.0)))
+	var lift := Vector2(3, 5) + Vector2(1, 3) * Anim.lift(_phase, float_amount) + Anim.parallax(self)
+	draw_texture_rect(tex, Rect2(lift, size), false, Color(0, 0, 0, 0.35))
+	draw_texture_rect(tex, Rect2(Vector2.ZERO, size), false)
+	var base := Anim.float_xform(size, _phase, float_amount)
+	draw_set_transform_matrix(base * Transform2D(0.0, Vector2(1.0 / zoom, 1.0 / zoom), 0.0, Vector2.ZERO))
+	var k := size.x / OmenSVG.VIEW_W * zoom
+	var plate := OmenSVG.NAME
+	var font := ThemeDB.fallback_font
+	var name: String = Data.spell_def(spell_id).name.to_upper()
+	var room := (plate.size.x - 30) * k
+	var fs := int(20 * k)
+	while fs > 6 and font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
+		fs -= 1
+	var baseline := (plate.position.y + plate.size.y / 2.0) * k + font.get_ascent(fs) * 0.36
+	draw_string(font, Vector2(plate.position.x * k, baseline), name, HORIZONTAL_ALIGNMENT_CENTER, plate.size.x * k, fs, Color(OmenSVG.IVORY))
