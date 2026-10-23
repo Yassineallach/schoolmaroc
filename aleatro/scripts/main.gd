@@ -604,13 +604,14 @@ func cast_spell(v: SpellView) -> void:
 	if gs.money != before_money:
 		popup_text(Vector2(main_cx(), play_y()), "+$%d" % (gs.money - before_money), Data.MONEY_COLOR, 40)
 		sfx.play("coin_cascade")
+	if gs.spell_note != "":
+		popup_text(Vector2(main_cx(), play_y() - 50), gs.spell_note, Color("9fe3cf"), 34)
 	haptic(30, 0.5)
 	jiggle += 0.8
 	await wait(0.4)
 	gs.hand = hand_views.map(func(h): return h.card)
 	rebuild_spells()
-	if charm_views.size() != gs.charms.size():
-		rebuild_charms()
+	rebuild_charms()
 	layout_hand(true)
 	if in_round:
 		busy = false

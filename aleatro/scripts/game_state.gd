@@ -51,6 +51,8 @@ var free_rerolls := 0
 ## hand; main takes these after each step.
 var pending_destroy: Array = []
 var pending_hand: Array = []
+## What the last spell did, when it isn't visible on the cards ("Nope!").
+var spell_note := ""
 ## Tags waiting to take effect, the tag on offer for skipping the Small and
 ## Big Blind this ante, and how many blinds were skipped this run.
 var tags: Array = []
@@ -972,6 +974,16 @@ func sell_value(inst: Dictionary) -> int:
 func spell_blocked(id: String, selected: Array, in_round: bool) -> String:
 	var d := Data.spell_def(id)
 	if d.max == 0:
+		match id:
+			"replay":
+				if run_flags.get("last_spell", "") == "":
+					return "No spell has been cast yet this run"
+			"conjure":
+				if charms.size() >= charm_slots:
+					return "No room for another charm"
+			"fortune":
+				if not charms.any(func(c): return c.get("ed", "") == ""):
+					return "No charm without an edition"
 		return ""
 	if not in_round:
 		return "Cast it during a round, on cards in your hand"
@@ -988,6 +1000,8 @@ func spell_blocked(id: String, selected: Array, in_round: bool) -> String:
 func cast_spell(id: String, selected: Array) -> Array:
 	var d := Data.spell_def(id)
 	var removed := []
+	spells.erase(id)  # first, so spells it creates have its slot
+	spell_note = ""
 	if d.has("enh"):
 		for c in selected:
 			c.enh = d.enh
@@ -1029,7 +1043,45 @@ func cast_spell(id: String, selected: Array) -> Array:
 				money = mini(money, 0)
 			"soul":
 				give_charm(3)
-	spells.erase(id)
+			"replay":
+				var last: String = run_flags.get("last_spell", "")
+				if last != "" and spells.size() < spell_capacity():
+					spells.append(last)
+					spell_note = "+" + Data.spell_def(last).name
+			"oracle":
+				var picked := []
+				for k in 2:
+					var h: String = Data.HAND_ORDER[rng.randi_range(0, Data.HAND_ORDER.size() - 1)]
+					hand_levels[h] += 1
+					on_rune(h)
+					picked.append("%s lvl %d" % [h, hand_levels[h]])
+				spell_note = ", ".join(picked)
+			"summon":
+				var made := 0
+				for k in 2:
+					if give_spell() != "":
+						made += 1
+				spell_note = "+%d Spell%s" % [made, "" if made == 1 else "s"]
+			"fortune":
+				var bare := charms.filter(func(c): return c.get("ed", "") == "")
+				if not bare.is_empty() and roll(4):
+					var c: Dictionary = bare[rng.randi_range(0, bare.size() - 1)]
+					c.ed = random_edition(1.0)
+					spell_note = "%s turned %s" % [Data.charm_def(c.id).name, Data.EDITIONS[c.ed].name]
+				else:
+					spell_note = "Nope!"
+			"barter":
+				var total := 0
+				for c in charms:
+					total += sell_value(c)
+				money += mini(total, 50)
+			"conjure":
+				var r := rng.randf()
+				var name := give_charm(2 if r > 0.95 else (1 if r > 0.7 else 0))
+				if name != "":
+					spell_note = "+" + name
+	if id != "replay" and not d.get("omen", false):
+		run_flags["last_spell"] = id
 	run_flags["spells_cast"] = run_flags.get("spells_cast", 0) + 1
 	# casting a spell beyond the normal slots uses up a Negative slot
 	neg_spells = clampi(neg_spells, 0, maxi(0, spells.size() - spell_slots))
