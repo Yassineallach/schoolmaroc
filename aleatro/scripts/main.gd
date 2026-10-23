@@ -543,7 +543,7 @@ func rebuild_spells() -> void:
 		return
 	for i in gs.spells.size():
 		var v := SpellView.new(gs.spells[i])
-		v.position = Vector2(12 + i * (SpellView.W + 14), (CHARM_H - SpellView.H) / 2.0 - 6)
+		v.position = Vector2(12 + i * (SpellView.W + 14), 4)
 		v.tapped.connect(show_spell)
 		spell_row.add_child(v)
 		spell_views.append(v)

@@ -7,8 +7,8 @@ extends Control
 
 signal tapped(view)
 
-const W := 96.0
-const H := 144.0
+const W := 88.0
+const H := 132.0
 
 var spell_id := ""
 var float_amount := 1.0
