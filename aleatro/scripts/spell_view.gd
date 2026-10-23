@@ -1,12 +1,14 @@
 class_name SpellView
 extends Control
 
-## A spell tile: a small rune-inscribed card held in the spell slots.
+## A spell card held in the spell slots. Spells with SVG art (SpellSVG)
+## show their illustrated card with the numeral and name set in the game's
+## font; Omens and Runes use the plain rune tile.
 
 signal tapped(view)
 
 const W := 96.0
-const H := 128.0
+const H := 144.0
 
 var spell_id := ""
 var float_amount := 1.0
@@ -37,6 +39,9 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
+	if SpellSVG.has_art(spell_id):
+		_draw_card()
+		return
 	var d := Data.spell_def(spell_id)
 	var col := Data.SPELL_COLOR
 	if d.get("omen", false):
@@ -65,3 +70,27 @@ func _draw() -> void:
 	else:
 		draw_string(font, c + Vector2(-20, 11), d.name.substr(0, 1), HORIZONTAL_ALIGNMENT_CENTER, 40, 30, Color.WHITE)
 	draw_multiline_string(font, Vector2(4, 98), d.name, HORIZONTAL_ALIGNMENT_CENTER, size.x - 8, 18, 2, Color.WHITE)
+
+
+## The illustrated card: SVG frame and emblem, then numeral and name.
+func _draw_card() -> void:
+	draw_set_transform_matrix(Anim.float_xform(size, _phase, float_amount))
+	# rasterise at the size actually on screen (at least 2x for crisp lines)
+	var zoom := get_global_transform_with_canvas().get_scale().x
+	var tex := SpellSVG.texture(spell_id, int(clampf(zoom * size.x * 2.0, 192.0, 1024.0)))
+	var lift := Vector2(3, 5) + Vector2(1, 3) * Anim.lift(_phase, float_amount) + Anim.parallax(self)
+	draw_texture_rect(tex, Rect2(lift, size), false, Color(0, 0, 0, 0.35))
+	draw_texture_rect(tex, Rect2(Vector2.ZERO, size), false)
+	# text is set at screen resolution so it stays sharp when the card is zoomed
+	var base := Anim.float_xform(size, _phase, float_amount)
+	draw_set_transform_matrix(base * Transform2D(0.0, Vector2(1.0 / zoom, 1.0 / zoom), 0.0, Vector2.ZERO))
+	var font := ThemeDB.fallback_font
+	var k := size.x / SpellSVG.VIEW_W * zoom
+	var w := size.x * zoom
+	draw_string(font, Vector2(0, (SpellSVG.NUMERAL_Y + 5) * k), SpellSVG.roman(spell_id), HORIZONTAL_ALIGNMENT_CENTER, w,
+		maxi(6, int(17 * k)), Color(SpellSVG.GOLD))
+	var name: String = Data.spell_def(spell_id).name.to_upper()
+	var fs := int(24 * k)
+	while fs > 7 and font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > 118 * k:
+		fs -= 1
+	draw_string(font, Vector2(0, (SpellSVG.NAME_Y + 8) * k), name, HORIZONTAL_ALIGNMENT_CENTER, w, fs, Color(SpellSVG.IVORY))
