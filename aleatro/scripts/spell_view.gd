@@ -42,6 +42,9 @@ func _draw() -> void:
 	if SpellSVG.has_art(spell_id):
 		_draw_card()
 		return
+	if spell_id.begins_with("rune:"):
+		_draw_rune()
+		return
 	var d := Data.spell_def(spell_id)
 	var col := Data.SPELL_COLOR
 	if d.get("omen", false):
@@ -94,3 +97,27 @@ func _draw_card() -> void:
 	while fs > 7 and font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > 118 * k:
 		fs -= 1
 	draw_string(font, Vector2(0, (SpellSVG.NAME_Y + 8) * k), name, HORIZONTAL_ALIGNMENT_CENTER, w, fs, Color(SpellSVG.IVORY))
+
+
+## A Rune: its SVG card, with the hand's name set on the title plate.
+func _draw_rune() -> void:
+	draw_set_transform_matrix(Anim.float_xform(size, _phase, float_amount))
+	var hand := spell_id.substr(5)
+	var zoom := get_global_transform_with_canvas().get_scale().x
+	var tex := RuneSVG.texture(hand, int(clampf(zoom * size.x * 2.0, 192.0, 1024.0)))
+	var lift := Vector2(3, 5) + Vector2(1, 3) * Anim.lift(_phase, float_amount) + Anim.parallax(self)
+	draw_texture_rect(tex, Rect2(lift, size), false, Color(0, 0, 0, 0.35))
+	draw_texture_rect(tex, Rect2(Vector2.ZERO, size), false)
+	# the name, sharp at screen resolution, fitted to the plate
+	var base := Anim.float_xform(size, _phase, float_amount)
+	draw_set_transform_matrix(base * Transform2D(0.0, Vector2(1.0 / zoom, 1.0 / zoom), 0.0, Vector2.ZERO))
+	var k := size.x / RuneSVG.VIEW_W * zoom
+	var plate := RuneSVG.TITLE
+	var font := ThemeDB.fallback_font
+	var name: String = hand.to_upper()
+	var room := (plate.size.x - 10) * k
+	var fs := int(19 * k)
+	while fs > 6 and font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
+		fs -= 1
+	var baseline := (plate.position.y + plate.size.y / 2.0) * k + font.get_ascent(fs) * 0.36
+	draw_string(font, Vector2(plate.position.x * k, baseline), name, HORIZONTAL_ALIGNMENT_CENTER, plate.size.x * k, fs, Color(RuneSVG.IVORY))
