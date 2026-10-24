@@ -6,7 +6,7 @@ config_version=5
 
 config/name="Aleatro"
 config/description="A poker roguelike: build hands, collect charms, beat the blinds."
-config/version="1.21.0"
+config/version="1.21.1"
 run/main_scene="res://scenes/main.tscn"
 config/quit_on_go_back=false
 config/features=PackedStringArray("4.7", "GL Compatibility")
