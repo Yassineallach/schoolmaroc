@@ -144,6 +144,11 @@ func blind_name(idx: int = blind_idx) -> String:
 	return boss_hex.name if idx == 2 else Data.BLIND_NAMES[idx]
 
 
+## The art id of a blind: "small", "big" or the boss's id.
+func blind_art(idx: int = blind_idx) -> String:
+	return boss_hex.get("id", "") if idx == 2 else ["small", "big"][idx]
+
+
 func blind_color(idx: int = blind_idx) -> Color:
 	return boss_hex.color if idx == 2 else Data.BLIND_COLORS[idx]
 

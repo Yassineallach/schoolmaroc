@@ -417,6 +417,7 @@ func _update_hud() -> void:
 	lbl_reward.text = "Reward: " + "$".repeat(gs.blind_reward(shown_idx))
 	blind_box.add_theme_stylebox_override("panel", _box(gs.blind_color(shown_idx), 3.0, true))
 	blind_chip.color = gs.blind_color(shown_idx).lightened(0.3)
+	blind_chip.set_blind(gs.blind_art(shown_idx))
 	var boss := gs.blind_idx == 2
 	# The sidebar takes on the colour of the blind being faced.
 	var tint := Color(gs.blind_color(shown_idx).darkened(0.72), 0.55)
@@ -1027,7 +1028,7 @@ func show_blind_select() -> void:
 		elif current:
 			state = "Up next"
 		inner.add_child(_label(state, 18, Color(1, 1, 1, 0.75)))
-		inner.add_child(_center(BlindChip.new(col.lightened(0.3), 60.0)))
+		inner.add_child(_center(BlindChip.new(col.lightened(0.3), 60.0, gs.blind_art(i))))
 		inner.add_child(_label(gs.blind_name(i), 30))
 		inner.add_child(_label("Score at least", 18, Color(1, 1, 1, 0.8)))
 		inner.add_child(_label(Data.fmt(gs.blind_target(i)), 30, Color("ffdf6b")))
@@ -2864,7 +2865,9 @@ func show_collection(tab: String = "charms", page: int = 0) -> void:
 				var row := HBoxContainer.new()
 				row.add_theme_constant_override("separation", 10)
 				var known := seen.has(h.id)
-				row.add_child(BlindChip.new(h.color.lightened(0.3) if known else Color(0.4, 0.4, 0.4), 40.0))
+				var chip := BlindChip.new(h.color.lightened(0.3) if known else Color(0.4, 0.4, 0.4), 40.0, h.id if known else "")
+				chip.spin = false
+				row.add_child(chip)
 				var txt := _label("%s: %s" % [h.name, h.desc] if known else "???", 19, Color.WHITE if known else Color(1, 1, 1, 0.4), HORIZONTAL_ALIGNMENT_LEFT)
 				txt.custom_minimum_size = Vector2(380, 0)
 				txt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
