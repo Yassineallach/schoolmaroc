@@ -1204,7 +1204,7 @@ func _show_pack(id: String, choices: Array, picks: int, then: Callable) -> void:
 
 
 ## A booster pack as it sits in the shop: its art (assets/packs/<id>.png),
-## Jumbo and Mega packs a little taller, or a plain labelled box without art.
+## or a plain labelled box without art.
 func _pack_view(id: String) -> Control:
 	var path := "res://assets/packs/%s.png" % id
 	if ResourceLoader.exists(path):
@@ -1212,8 +1212,7 @@ func _pack_view(id: String) -> Control:
 		art.texture = load(path)
 		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		var h := 118.0 if Data.PACKS[id].size == "" else 140.0
-		art.custom_minimum_size = Vector2(h * art.texture.get_width() / art.texture.get_height(), h)
+		art.custom_minimum_size = Vector2(124.0 * art.texture.get_width() / art.texture.get_height(), 124.0)
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		return art
 	var kind: String = Data.PACKS[id].kind
