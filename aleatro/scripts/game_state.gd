@@ -20,6 +20,7 @@ var challenge := ""
 var rules := {}
 var banned_charms: Array = []
 var banned_hexes: Array = []
+var banned: Array = []  # spell, voucher, tag and pack ids a challenge never offers
 var inflation := 0
 var played_this_ante: Array = []  # card ids, for the Burnout rule
 var spell_slots := 2
@@ -193,6 +194,8 @@ func is_showdown(idx: int = blind_idx) -> bool:
 
 func current_hand_size() -> int:
 	var n: int = hand_size - (1 if hex() == "shackle" else 0) + boss_state.get("juggle", 0)
+	if rules.has("hand_tax"):
+		n -= maxi(money, 0) / int(rules.hand_tax)
 	for c in charms:
 		match c.id:
 			"juggler":
@@ -273,7 +276,7 @@ func give_rune(hand: String) -> String:
 func give_spell(omen := false) -> String:
 	if spells.size() >= spell_capacity():
 		return ""
-	var pool := Data.SPELLS.filter(func(sp): return sp.get("omen", false) == omen and not sp.get("hidden", false))
+	var pool := Data.SPELLS.filter(func(sp): return sp.get("omen", false) == omen and not sp.get("hidden", false) and not banned.has(sp.id))
 	var id: String = pool[rng.randi_range(0, pool.size() - 1)].id
 	spells.append(id)
 	return id
@@ -288,7 +291,10 @@ func give_charm(rarity: int) -> String:
 	if pool.is_empty():
 		return ""
 	var d: Dictionary = pool[rng.randi_range(0, pool.size() - 1)]
-	charms.append({"id": d.id, "data": {}, "ed": ""})
+	var inst := {"id": d.id, "data": {}, "ed": ""}
+	if rules.get("all_eternal", false):
+		inst.eternal = true
+	charms.append(inst)
 	return d.name
 
 
@@ -425,6 +431,9 @@ func start_round() -> Array:
 			notes.append({"text": "+" + Data.card_name(card), "charm": charms.find(c)})
 	if hex() == "eclipse":
 		shuffle(charms)
+		# pinned charms stay on the far left
+		var pinned := charms.filter(func(c): return c.get("pinned", false))
+		charms = pinned + charms.filter(func(c): return not c.get("pinned", false))
 	return notes
 
 
@@ -438,6 +447,8 @@ func shuffle(arr: Array) -> void:
 
 func is_debuffed(card: Dictionary) -> bool:
 	if rules.get("played_debuffed", false) and played_this_ante.has(card.id):
+		return true
+	if card.get("dead", false):
 		return true
 	match hex():
 		"":
@@ -545,6 +556,10 @@ func advance_blind() -> void:
 		blind_idx = 0
 		ante += 1
 		played_this_ante = []
+		if rules.get("lock_charms_ante", 0) == ante:
+			for c in charms:
+				c.eternal = true
+			charm_slots = 0
 		pick_boss()
 		roll_blind_tags()
 		roll_voucher()
@@ -654,7 +669,7 @@ func roll_shop_item() -> Dictionary:
 				item.base = 1
 			return item
 		"spell":
-			var pool := Data.SPELLS.filter(func(sp): return not sp.get("omen", false) and not held.has(sp.id))
+			var pool := Data.SPELLS.filter(func(sp): return not sp.get("omen", false) and not held.has(sp.id) and not banned.has(sp.id))
 			return {"type": "spell", "id": pool[rng.randi_range(0, pool.size() - 1)].id, "base": 3}
 		"rune":
 			var hands := visible_hands().filter(func(h): return not held.has("rune:" + h))
@@ -680,6 +695,9 @@ const NO_STICKERS := ["plantain", "ripe", "sorbet", "kettle", "fizz", "sprout", 
 ## Stake stickers for a shop or pack charm: Eternal (Black+), Perishable
 ## (Orange+), Rental (Gold+), 30% each; Eternal and Perishable never together.
 func roll_stickers(inst: Dictionary) -> void:
+	if rules.get("all_eternal", false):
+		inst.eternal = true
+		return
 	if NO_STICKERS.has(inst.id):
 		return
 	var r := rng.randf()
@@ -715,25 +733,26 @@ func roll_charm_def(owned: Array, rarity := -1) -> Dictionary:
 
 
 func omen_pool() -> Array:
-	return Data.SPELLS.filter(func(sp): return sp.get("omen", false) and not sp.get("hidden", false))
+	return Data.SPELLS.filter(func(sp): return sp.get("omen", false) and not sp.get("hidden", false) and not banned.has(sp.id))
 
 
 func roll_pack() -> String:
+	var ids := Data.PACKS.keys().filter(func(id): return not banned.has(id))
 	var total := 0.0
-	for id in Data.PACKS:
+	for id in ids:
 		total += Data.PACKS[id].weight
 	var r := rng.randf() * total
-	for id in Data.PACKS:
+	for id in ids:
 		r -= Data.PACKS[id].weight
 		if r <= 0.0:
 			return id
-	return "standard"
+	return ids[0]
 
 
 ## Pick this ante's voucher.
 func roll_voucher() -> void:
 	ante_voucher = ""
-	var pool := Data.VOUCHERS.filter(func(v): return not vouchers.has(v.id) and not locked.has(v.id) \
+	var pool := Data.VOUCHERS.filter(func(v): return not vouchers.has(v.id) and not locked.has(v.id) and not banned.has(v.id) \
 			and (not v.has("needs") or vouchers.has(v.needs)))
 	if not pool.is_empty():
 		ante_voucher = pool[rng.randi_range(0, pool.size() - 1)].id
@@ -873,7 +892,7 @@ func boss_hit(played: Array, blocked: String) -> bool:
 
 func roll_blind_tags() -> void:
 	blind_tags = []
-	var pool := Data.TAGS.filter(func(t): return t.get("min_ante", 1) <= ante)
+	var pool := Data.TAGS.filter(func(t): return t.get("min_ante", 1) <= ante and not banned.has(t.id))
 	for i in 2:
 		blind_tags.append(pool[rng.randi_range(0, pool.size() - 1)].id)
 
@@ -1009,7 +1028,7 @@ func open_pack(id: String) -> Array:
 				out.append(inst)
 				owned.append(d.id)
 		"arcana":
-			var pool := Data.SPELLS.filter(func(sp): return not sp.get("omen", false))
+			var pool := Data.SPELLS.filter(func(sp): return not sp.get("omen", false) and not banned.has(sp.id))
 			shuffle(pool)
 			var omens := omen_pool()
 			for i in n:
@@ -1534,7 +1553,7 @@ const SAVE_FIELDS := [
 	"discards_left", "charm_slots", "charms", "hand_levels", "hands_played_count", "deck",
 	"round_score", "target", "endless", "reroll_cost", "best_hand", "shop_items",
 	"vouchers", "ante_voucher", "shop_vouchers", "boss_rerolls", "_last_hex", "bosses_used", "rounds", "_next_id", "boss_state", "spells",
-	"challenge", "rules", "banned_charms", "banned_hexes", "inflation", "played_this_ante",
+	"challenge", "rules", "banned_charms", "banned_hexes", "banned", "inflation", "played_this_ante",
 	"run_flags", "neg_spells", "start_deck_size", "deck_id", "stake", "tags", "blind_tags", "skips", "shop_packs",
 	"pending_packs", "shop_coupon",
 ]
@@ -1633,6 +1652,7 @@ func apply_challenge(id: String) -> void:
 	rules = ch.get("rules", {}).duplicate(true)
 	banned_charms = ch.get("banned_charms", []).duplicate()
 	banned_hexes = ch.get("banned_hexes", []).duplicate()
+	banned = ch.get("banned", []).duplicate()
 	var mods: Dictionary = ch.get("mods", {})
 	money = mods.get("money", money)
 	max_hands = mods.get("hands", max_hands)
@@ -1646,16 +1666,24 @@ func apply_challenge(id: String) -> void:
 		_next_id = 0
 		for copy in spec.get("copies", 1):
 			for s in spec.get("suits", [0, 1, 2, 3]):
-				for r in spec.get("ranks", range(2, 15)):
+				for r in spec.get("ranks", range(2, 15)) + spec.get("extra_ranks", []):
 					var c := make_card(r, s, new_card_id())
-					c.enh = spec.get("enh", "")
+					c.enh = "stone" if spec.get("stone_ranks", []).has(r) else spec.get("enh", "")
 					c.ed = spec.get("ed", "")
 					c.seal = spec.get("seal", "")
 					deck.append(c)
 	start_deck_size = deck.size()
 	charms = []
 	for c in ch.get("charms", []):
-		charms.append({"id": c.id, "data": {}, "ed": c.get("ed", ""), "locked": c.get("locked", false)})
+		var inst := {"id": c.id, "data": {}, "ed": c.get("ed", ""), "locked": c.get("locked", false)}
+		for k in ["eternal", "pinned"]:
+			if c.get(k, false):
+				inst[k] = true
+		charms.append(inst)
 	spells = ch.get("spells", []).duplicate()
+	for v in ch.get("vouchers", []):
+		redeem_voucher(v)
+	if banned.has(ante_voucher):
+		roll_voucher()
 	if banned_hexes.has(boss_hex.id):
 		pick_boss()

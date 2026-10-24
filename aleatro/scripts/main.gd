@@ -677,6 +677,8 @@ func _on_drag_start(v: Control, pos: Vector2) -> void:
 		return
 	if v is CharmView and busy and in_round:
 		return
+	if v is CharmView and _charm_inst(v).get("pinned", false):
+		return  # a pinned charm stays on the far left
 	drag_view = v
 	# grab offset in the parent's unrotated space, so a tilted card doesn't jump
 	_drag_grab = pos - (v.get_parent() as Control).get_global_transform() * v.position
@@ -695,6 +697,9 @@ func _on_drag_move(v: Control, pos: Vector2) -> void:
 	for o in list:
 		if o != v and o.global_position.x + o.size.x / 2 < cx:
 			idx += 1
+	if v is CharmView:
+		# never in front of a pinned charm
+		idx = maxi(idx, list.filter(func(o): return o != v and _charm_inst(o).get("pinned", false)).size())
 	var cur := list.find(v)
 	if idx != cur:
 		list.remove_at(cur)
@@ -1604,6 +1609,10 @@ func play_selected() -> void:
 		var pt := Prof.begin()
 		result = Scoring.compute(gs, played, ev, hand_views.map(func(v): return v.card))
 		Prof.end("scoring", pt)
+	# Double or Nothing: scored cards are debuffed for the rest of the run
+	if gs.rules.get("played_dead", false) and blocked == "":
+		for c in ev.scoring:
+			c.dead = true
 	# remembered for The Pillar and the Burnout challenge
 	for c in played:
 		if not gs.played_this_ante.has(c.id):
@@ -1712,6 +1721,8 @@ func play_selected() -> void:
 		await wait(step_t)
 
 	music.pitch_target = 1.0
+	if gs.rules.get("chips_cap_money", false):
+		chips = minf(chips, maxf(gs.money, 0))  # Rich get Richer
 	var total := int(floor(chips * mult))
 	gs.best_hand = maxi(gs.best_hand, total)
 	if total > stats.best_hand:
@@ -2949,10 +2960,13 @@ func _volume_row(title: String, key: String) -> Control:
 	return hb
 
 
-func show_challenges() -> void:
+func show_challenges(page: int = 0) -> void:
 	var won: Array = profile_data.get("challenges_won", [])
+	var per := 15  # 5 rows of 3 fit the smallest screen
+	var pages := ceili(Data.CHALLENGES.size() / float(per))
+	page = clampi(page, 0, pages - 1)
 	var cells: Array = []
-	for ch in Data.CHALLENGES:
+	for ch in Data.CHALLENGES.slice(page * per, (page + 1) * per):
 		var done := won.has(ch.id)
 		cells.append({"button": ch.name + ("  [done]" if done else ""), "color": Color("3f9a5a") if done else Color("4a4f63"),
 			"on": func(): show_challenge(ch.id), "min": Vector2(260, 58), "size": 22, "fit": 236,
@@ -2961,7 +2975,12 @@ func show_challenges() -> void:
 		{"text": "Challenges", "size": 38, "color": Color("ffdf6b")},
 		{"text": "%d / %d complete  -  beat ante %d to complete one" % [won.size(), Data.CHALLENGES.size(), Data.FINAL_ANTE], "size": 20, "color": Color(1, 1, 1, 0.7)},
 		{"grid": cells, "columns": 3},
-		{"button": "Close", "color": Color("5a5f73"), "on": close_modal, "min": Vector2(200, 58), "size": 24},
+		{"row": [
+			{"button": "<", "color": Color("4a4f63"), "on": func(): show_challenges((page + pages - 1) % pages), "min": Vector2(80, 50), "size": 24},
+			{"text": "Page %d / %d" % [page + 1, pages], "size": 22},
+			{"button": ">", "color": Color("4a4f63"), "on": func(): show_challenges((page + 1) % pages), "min": Vector2(80, 50), "size": 24},
+			{"button": "Close", "color": Color("5a5f73"), "on": close_modal, "min": Vector2(170, 50), "size": 24},
+		], "sep": 18, "align": "center"},
 	]}))
 
 

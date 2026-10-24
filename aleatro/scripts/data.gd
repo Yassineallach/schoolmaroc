@@ -461,7 +461,9 @@ static func spell_def(id: String) -> Dictionary:
 # rules: no_interest, no_hand_money, no_reward [blind idx], flipped (1 in N face
 #   down), discard_cost, inflation, no_shop_charms, played_debuffed
 # deck: ranks, suits, copies, enh, ed, seal
-# charms: [{id, ed?, locked?}]   spells: [ids]   banned_charms / banned_hexes: [ids]
+# charms: [{id, ed?, locked?, eternal?, pinned?}]   spells: [ids]   vouchers: [ids] redeemed at the start
+# banned_charms / banned_hexes: [ids]   banned: spell, voucher, tag and pack ids never offered
+# deck: {ranks?, suits?, copies?, extra_ranks?, stone_ranks?, enh?, ed?, seal?}
 const CHALLENGES := [
 	{"id": "glass_house", "name": "Glass House", "desc": "Every card in the deck is Glass. Handle with care.",
 		"deck": {"enh": "glass"}},
@@ -482,12 +484,66 @@ const CHALLENGES := [
 		"spells": ["mirror", "etch"], "banned_hexes": ["ember", "eclipse", "jade"]},
 	{"id": "austerity", "name": "Austerity", "desc": "Small and Big Blinds pay nothing, and savings earn nothing.",
 		"mods": {"charm_slots": 4, "money": 8}, "rules": {"no_reward": [0, 1], "no_interest": true}},
-	{"id": "inflation", "name": "Inflation", "desc": "Every purchase makes the whole shop pricier.",
-		"mods": {"money": 10}, "rules": {"inflation": true}},
 	{"id": "burnout", "name": "Burnout", "desc": "Every card is sealed Crimson, but played cards burn out until the next ante.",
 		"deck": {"seal": "crimson"}, "rules": {"played_debuffed": true}},
 	{"id": "tycoon", "name": "Tycoon", "desc": "Start rich, but leftover hands pay nothing.",
 		"mods": {"money": 40}, "rules": {"no_hand_money": true}, "charms": [{"id": "treasury", "locked": true}]},
+	# ---- Balatro's 20 challenges (rules, starting items and bans as in its challenges.lua)
+	{"id": "omelette", "name": "The Omelette", "desc": "Five Nest Eggs, but no blind rewards, no money for leftover hands and no interest.",
+		"rules": {"no_reward": [0, 1, 2], "no_hand_money": true, "no_interest": true},
+		"charms": [{"id": "nestegg"}, {"id": "nestegg"}, {"id": "nestegg"}, {"id": "nestegg"}, {"id": "nestegg"}],
+		"banned_charms": ["moonshot", "skyrocket", "gold", "satellite"], "banned": ["nestbox", "goldtree"]},
+	{"id": "city", "name": "15 Minute City", "desc": "A deck of 4s to Kings with extra face cards, and an Eternal Commuter and Hopscotch.",
+		"deck": {"ranks": [4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "extra_ranks": [11, 12, 13]},
+		"charms": [{"id": "commuter", "eternal": true}, {"id": "hopscotch", "eternal": true}]},
+	{"id": "rich", "name": "Rich get Richer", "desc": "Start with $100, Nest Box and Golden Tree, but Chips can't be more than your money.",
+		"mods": {"money": 100}, "rules": {"chips_cap_money": true}, "vouchers": ["nestbox", "goldtree"]},
+	{"id": "knife", "name": "On a Knife's Edge", "desc": "An Eternal Ritual Knife pinned to the far left.",
+		"charms": [{"id": "dagger", "eternal": true, "pinned": true}]},
+	{"id": "xray", "name": "X-ray Vision", "desc": "1 in 4 cards are dealt face down.",
+		"rules": {"flipped": 4}},
+	{"id": "mad_world", "name": "Mad World", "desc": "Only 2s to 9s, but every card counts as a face card. No money for leftover hands, no interest.",
+		"deck": {"ranks": [2, 3, 4, 5, 6, 7, 8, 9]}, "rules": {"no_hand_money": true, "no_interest": true},
+		"charms": [{"id": "mirage", "ed": "negative", "eternal": true}, {"id": "callingcard", "eternal": true}], "banned_hexes": ["mute"]},
+	{"id": "luxury", "name": "Luxury Tax", "desc": "Hand size 10, but -1 hand size for every $5 you hold.",
+		"mods": {"hand_size": 10}, "rules": {"hand_tax": 5}},
+	{"id": "non_perishable", "name": "Non-Perishable", "desc": "Every charm is Eternal.",
+		"rules": {"all_eternal": true}, "banned_hexes": ["jade"],
+		"banned_charms": ["plantain", "sorbet", "ripe", "sprout", "noodles", "float", "fizz", "kettle", "lastlaugh", "phantom", "warden"]},
+	{"id": "medusa", "name": "Medusa", "desc": "Every Jack, Queen and King is Stone. An Eternal Mason starts the run.",
+		"deck": {"stone_ranks": [11, 12, 13]}, "charms": [{"id": "mason", "eternal": true}]},
+	{"id": "double_nothing", "name": "Double or Nothing", "desc": "Every card has a Crimson Seal, but cards are debuffed for good once played.",
+		"deck": {"seal": "crimson"}, "rules": {"played_dead": true}},
+	{"id": "typecast", "name": "Typecast", "desc": "When ante 4 begins, your charms become Eternal and you get no more charm slots.",
+		"rules": {"lock_charms_ante": 4}, "banned_hexes": ["jade"]},
+	{"id": "inflation", "name": "Inflation", "desc": "Every purchase raises shop prices by $1. Starts with an IOU.",
+		"rules": {"inflation": true}, "charms": [{"id": "iou"}], "banned": ["clearance", "firesale"]},
+	{"id": "bram_poker", "name": "Bram Poker", "desc": "No charms in the shop. An Eternal Leech, Charge and Summon, and playing cards for sale.",
+		"rules": {"no_shop_charms": true}, "charms": [{"id": "leech", "eternal": true}], "spells": ["charge", "summon"],
+		"vouchers": ["stall", "showcase"]},
+	{"id": "fragile", "name": "Fragile", "desc": "Every card is Glass, with two Eternal Negative Loaded Dice. No way to enhance more cards.",
+		"deck": {"enh": "glass"}, "charms": [{"id": "loaded", "ed": "negative", "eternal": true}, {"id": "loaded", "ed": "negative", "eternal": true}],
+		"banned_charms": ["mason", "leech", "midas", "notary"],
+		"banned": ["clover", "charge", "etch", "forge", "gild", "petrify", "chimera", "chant", "reaper", "courtiers",
+			"standard", "standard_jumbo", "standard_mega", "stall", "showcase"]},
+	{"id": "monolith_ch", "name": "Monolith", "desc": "An Eternal Monolith and an Eternal Negative Mason.",
+		"charms": [{"id": "monolith", "eternal": true}, {"id": "mason", "ed": "negative", "eternal": true}]},
+	{"id": "blast_off", "name": "Blast Off", "desc": "2 hands, 2 discards, 4 charm slots, but Rune Seller, Rune Baron, Star Map and Skyrocket.",
+		"mods": {"hands": 2, "discards": 2, "charm_slots": 4}, "vouchers": ["runeseller", "runebaron"],
+		"charms": [{"id": "starmap", "eternal": true}, {"id": "skyrocket", "eternal": true}],
+		"banned_charms": ["burglar"], "banned": ["grip", "tongs"]},
+	{"id": "five_card", "name": "Five-Card Draw", "desc": "Hand size 5, 6 discards and 7 charm slots. Starts with Card Shark and Jester.",
+		"mods": {"hand_size": 5, "discards": 6, "charm_slots": 7}, "charms": [{"id": "cardshark"}, {"id": "jester"}],
+		"banned_charms": ["juggler", "minstrel", "sprout"]},
+	{"id": "golden_needle", "name": "Golden Needle", "desc": "1 hand a round and 6 discards that cost $1 each. Starts with an IOU.",
+		"mods": {"hands": 1, "discards": 6, "money": 10}, "rules": {"discard_cost": 1}, "charms": [{"id": "iou"}],
+		"banned_charms": ["burglar"], "banned": ["grip", "tongs"]},
+	{"id": "cruelty", "name": "Cruelty", "desc": "Small and Big Blinds pay nothing. Only 3 charm slots.",
+		"mods": {"charm_slots": 3}, "rules": {"no_reward": [0, 1]}},
+	{"id": "jokerless", "name": "Jokerless", "desc": "No charms at all: none in the shop, no slots, no way to make them.",
+		"mods": {"charm_slots": 0}, "rules": {"no_shop_charms": true}, "banned_hexes": ["eclipse", "ember", "jade"],
+		"banned": ["conjure", "wraith", "soul", "antimatter", "buffoon", "buffoon_jumbo", "buffoon_mega",
+			"rare", "uncommon", "holo", "chroma", "negative", "foil", "bundle", "topup"]},
 ]
 
 
@@ -512,7 +568,7 @@ static func challenge_lines(ch: Dictionary) -> Array:
 	if rules.has("no_hand_money"):
 		out.append("No money for leftover hands")
 	if rules.has("no_reward"):
-		out.append("No reward from " + " or ".join(rules.no_reward.map(func(i): return BLIND_NAMES[i])))
+		out.append("No reward from " + " or ".join(rules.no_reward.map(func(i): return (BLIND_NAMES + ["Boss Blind"])[i])))
 	if rules.has("flipped"):
 		out.append("1 in %d cards dealt face down" % rules.flipped)
 	if rules.has("discard_cost"):
@@ -523,11 +579,25 @@ static func challenge_lines(ch: Dictionary) -> Array:
 		out.append("The shop sells no charms")
 	if rules.has("played_debuffed"):
 		out.append("Played cards are debuffed until the next ante")
+	if rules.has("played_dead"):
+		out.append("Scored cards are debuffed for the rest of the run")
+	if rules.has("chips_cap_money"):
+		out.append("Chips can't be more than your money")
+	if rules.has("hand_tax"):
+		out.append("-1 hand size for every $%d you hold" % rules.hand_tax)
+	if rules.has("all_eternal"):
+		out.append("Every charm is Eternal")
+	if rules.has("lock_charms_ante"):
+		out.append("When ante %d begins, your charms become Eternal and charm slots drop to 0" % rules.lock_charms_ante)
 	var deck: Dictionary = ch.get("deck", {})
 	if not deck.is_empty():
 		var parts := []
 		if deck.has("ranks"):
 			parts.append("ranks %s only" % ", ".join(deck.ranks.map(func(r): return RANK_LABELS[r])))
+		if deck.has("extra_ranks"):
+			parts.append("an extra %s of each suit" % ", ".join(deck.extra_ranks.map(func(r): return RANK_LABELS[r])))
+		if deck.has("stone_ranks"):
+			parts.append("every %s is Stone" % ", ".join(deck.stone_ranks.map(func(r): return RANK_LABELS[r])))
 		if deck.get("copies", 1) > 1:
 			parts.append("x%d copies" % deck.copies)
 		if deck.has("enh"):
@@ -536,7 +606,14 @@ static func challenge_lines(ch: Dictionary) -> Array:
 			parts.append("all with " + SEALS[deck.seal].name)
 		out.append("Deck: " + ", ".join(parts))
 	if ch.has("charms"):
-		out.append("Starting charms: " + ", ".join(ch.charms.map(func(c): return charm_def(c.id).name + (" (locked)" if c.get("locked", false) else ""))))
+		out.append("Starting charms: " + ", ".join(ch.charms.map(func(c):
+			var tags := []
+			for k in ["ed", "eternal", "pinned", "locked"]:
+				if c.get(k, false):
+					tags.append(EDITIONS[c.ed].name if k == "ed" else k.capitalize())
+			return charm_def(c.id).name + (" (%s)" % ", ".join(tags) if not tags.is_empty() else ""))))
+	if ch.has("vouchers"):
+		out.append("Starting vouchers: " + ", ".join(ch.vouchers.map(func(v): return voucher_def(v).name)))
 	if ch.has("spells"):
 		out.append("Starting spells: " + ", ".join(ch.spells.map(func(s): return spell_def(s).name)))
 	if ch.has("banned_charms"):
@@ -547,6 +624,18 @@ static func challenge_lines(ch: Dictionary) -> Array:
 			if ch.banned_hexes.has(h.id):
 				names.append(h.name)
 		out.append("Banned bosses: " + ", ".join(names))
+	if ch.has("banned"):
+		var names := []
+		for b in ch.banned:
+			if not spell_def(b).is_empty():
+				names.append(spell_def(b).name)
+			elif not voucher_def(b).is_empty():
+				names.append(voucher_def(b).name)
+			elif PACKS.has(b):
+				names.append(pack_name(b))
+			elif not tag_def(b).is_empty():
+				names.append(tag_def(b).name)
+		out.append("Also banned: " + ", ".join(names))
 	return out
 
 
