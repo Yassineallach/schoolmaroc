@@ -1228,7 +1228,18 @@ func _pack_view(id: String) -> Control:
 	return p
 
 
+## A voucher as it sits in the shop: its art (assets/vouchers/<id>.png), or a
+## plain labelled box without art.
 func _voucher_view(id: String) -> Control:
+	var path := "res://assets/vouchers/%s.png" % id
+	if ResourceLoader.exists(path):
+		var art := TextureRect.new()
+		art.texture = load(path)
+		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		art.custom_minimum_size = Vector2(124.0 * art.texture.get_width() / art.texture.get_height(), 124.0)
+		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		return art
 	var p := PanelContainer.new()
 	p.custom_minimum_size = Vector2(96, 118)
 	var sb := _box(Color("8a5a1a"), 3.0, true)
@@ -1971,7 +1982,7 @@ func show_shop() -> void:
 	lower.add_child(VSeparator.new())
 	for v in gs.shop_vouchers:
 		var vd := Data.voucher_def(v)
-		lower.add_child(_shop_item(_voucher_view(v), voucher_price(), vd.desc, "Voucher", func(): buy_voucher(v)))
+		lower.add_child(_shop_item(_voucher_view(v), voucher_price(), vd.desc, vd.name, func(): buy_voucher(v)))
 	for i in gs.shop_packs.size():
 		var pk: Dictionary = gs.shop_packs[i]
 		lower.add_child(_shop_item(_pack_view(pk.id), gs.pack_price(pk), Data.pack_desc(pk.id), Data.pack_name(pk.id), func(): buy_pack(i)))
