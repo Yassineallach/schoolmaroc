@@ -11,6 +11,7 @@ const W := 100.0
 const H := 140.0
 ## The card back colour: the run's starting deck sets it.
 static var back_color := Color("b3364e")
+static var back_art: Texture2D = null  # the current deck's card back, if it has art
 
 var card: Dictionary
 var selected := false
@@ -148,6 +149,11 @@ func _paint() -> void:
 
 
 func _draw_back() -> void:
+	if back_art != null:
+		_face_box.color = Color(0, 0, 0, 0)
+		draw_style_box(_face_box, Rect2(Vector2.ZERO, size))  # just its shadow
+		draw_texture_rect(back_art, Rect2(Vector2.ZERO, size), false)
+		return
 	_face_box.color = back_color
 	draw_style_box(_face_box, Rect2(Vector2.ZERO, size))
 	var inner := PixelBox.new(back_color.darkened(0.25), 3.0)
@@ -160,6 +166,12 @@ func _draw_back() -> void:
 			var c := Vector2(x + (9 if (y / 18) % 2 == 0 else 0), y)
 			if c.x < size.x - 12:
 				draw_colored_polygon(PackedVector2Array([c + Vector2(0, -5), c + Vector2(4, 0), c + Vector2(0, 5), c + Vector2(-4, 0)]), Color(1, 1, 1, 0.25))
+
+
+## The card back art for deck `id` (assets/decks/<id>.png), or null.
+static func deck_back(id: String) -> Texture2D:
+	var path := "res://assets/decks/%s.png" % id
+	return load(path) if ResourceLoader.exists(path) else null
 
 
 func _draw_enhancement(enh: String) -> void:

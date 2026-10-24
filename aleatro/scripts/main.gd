@@ -930,6 +930,7 @@ func new_run(challenge_id: String = "", deck_id: String = "crimson", stake: int 
 func _apply_deck_look() -> void:
 	var d := Data.deck_def(gs.deck_id) if gs != null else {}
 	CardView.back_color = d.get("back", Color("b3364e"))
+	CardView.back_art = CardView.deck_back(d.get("id", ""))
 	deck_pile.queue_redraw()
 
 
@@ -980,7 +981,18 @@ func show_run_setup() -> void:
 	sb.outline = 3.0
 	sb.outline_color = Color(1, 1, 1, 0.5)
 	swatch.add_theme_stylebox_override("panel", sb)
-	swatch.add_child(_label("?" if why != "" else "", 40))
+	var back_art := CardView.deck_back(d.id) if why == "" else null
+	if back_art != null:
+		sb.color = Color(0, 0, 0, 0)
+		sb.outline = 0.0
+		sb.set_content_margin_all(0)
+		var art := TextureRect.new()
+		art.texture = back_art
+		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art.stretch_mode = TextureRect.STRETCH_SCALE
+		swatch.add_child(art)
+	else:
+		swatch.add_child(_label("?" if why != "" else "", 40))
 	var desc := _label(d.desc if why == "" else "Locked: " + why, 20, Color.WHITE if why == "" else Color(1, 1, 1, 0.55))
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.custom_minimum_size = Vector2(360, 0)

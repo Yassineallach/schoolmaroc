@@ -82,8 +82,14 @@ func _draw() -> void:
 			back.rounded = true
 			back.outline = 2.0
 			back.outline_color = Color(1, 1, 1, 0.35)
-			draw_style_box(back, Rect2(off + Vector2(2, 2), Vector2(W - 4, H - 4)))
-		if layers > 0:
+			if CardView.back_art != null and i == layers - 1:
+				back.color = Color(0, 0, 0, 0)
+				back.outline = 0.0
+				draw_style_box(back, Rect2(off + Vector2(2, 2), Vector2(W - 4, H - 4)))
+				draw_texture_rect(CardView.back_art, Rect2(off + Vector2(2, 2), Vector2(W - 4, H - 4)), false)
+			else:
+				draw_style_box(back, Rect2(off + Vector2(2, 2), Vector2(W - 4, H - 4)))
+		if layers > 0 and CardView.back_art == null:
 			var top := Vector2(-(layers - 1) * 1.2, -(layers - 1) * 1.6)
 			draw_string(font, top + Vector2(0, H / 2 + 8), "A", HORIZONTAL_ALIGNMENT_CENTER, W, 28, Color(1, 1, 1, 0.5))
 	var label := ("%d/%d" % [count, total]) if not discard else "Discard"
