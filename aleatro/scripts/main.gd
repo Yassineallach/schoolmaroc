@@ -1283,6 +1283,7 @@ func clear_hand_views() -> void:
 
 func _make_hand_view(c: Dictionary) -> CardView:
 	var v := CardView.new(c)
+	v.float_amount = 0.0  # cards in hand hold still
 	v.set_debuffed(gs.is_debuffed(c))
 	v.position = deck_pile.card_target()
 	v.rotation_degrees = -8
