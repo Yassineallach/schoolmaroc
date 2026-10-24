@@ -884,6 +884,19 @@ func show_help() -> void:
 	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(220, 70))))
 
 
+## A stake's chip (assets/stakes/<n>.png), or an empty spacer without art.
+func _stake_chip(n: int, side: float) -> Control:
+	var path := "res://assets/stakes/%d.png" % n
+	var t := TextureRect.new()
+	if ResourceLoader.exists(path):
+		t.texture = load(path)
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	t.custom_minimum_size = Vector2(side, side)
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return t
+
+
 ## A tag's badge (assets/tags/<id>.png), or an empty spacer if it has none.
 func _tag_icon(id: String, side: float) -> Control:
 	var path := "res://assets/tags/%s.png" % id
@@ -1012,6 +1025,7 @@ func show_run_setup() -> void:
 		show_run_setup()
 	vb.add_child(UIBuild.build({"row": [
 		{"button": "<", "color": Color("4a4f63"), "on": func(): stake_step.call(-1), "min": Vector2(64, 56), "size": 26},
+		{"node": _stake_chip(_setup_stake, 52.0)},
 		{"col": [{"text": st.name, "size": 24, "color": st.color if st.color.get_luminance() > 0.3 else st.color.lightened(0.55)}, {"text": st.desc + ("" if _setup_stake == 1 else ", plus every lower stake"), "size": 17, "wrap": 420}], "sep": 2},
 		{"button": ">", "color": Color("4a4f63"), "on": func(): stake_step.call(1), "min": Vector2(64, 56), "size": 26},
 	], "sep": 14, "align": "center"}))
