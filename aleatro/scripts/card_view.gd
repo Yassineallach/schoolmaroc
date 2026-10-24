@@ -12,7 +12,8 @@ const H := 140.0
 ## The card back colour: the run's starting deck sets it.
 static var back_color := Color("b3364e")
 static var back_art: Texture2D = null
-static var _enh_faces := {}  # enhancement id -> Texture2D or null  # the current deck's card back, if it has art
+static var _enh_faces := {}
+static var _seal_art := {}  # seal id -> Texture2D or null  # enhancement id -> Texture2D or null  # the current deck's card back, if it has art
 
 var card: Dictionary
 var selected := false
@@ -148,10 +149,16 @@ func _paint() -> void:
 	if card.get("seal", "") != "":
 		var sc: Color = Data.SEALS[card.seal].color
 		var at := Vector2(size.x - 15, size.y / 2)
-		draw_circle(at + Vector2(1, 2), 10, Color(0, 0, 0, 0.3))
-		draw_circle(at, 10, sc.darkened(0.3))
-		draw_circle(at, 7, sc)
-		draw_circle(at + Vector2(-2, -2), 2.5, sc.lightened(0.5))
+		var stamp := seal_art(card.seal)
+		if stamp != null:
+			# the wax seal art, with a soft shadow
+			draw_texture_rect(stamp, Rect2(at - Vector2(13, 11), Vector2(28, 28)), false, Color(0, 0, 0, 0.35))
+			draw_texture_rect(stamp, Rect2(at - Vector2(14, 14), Vector2(28, 28)), false)
+		else:
+			draw_circle(at + Vector2(1, 2), 10, Color(0, 0, 0, 0.3))
+			draw_circle(at, 10, sc.darkened(0.3))
+			draw_circle(at, 7, sc)
+			draw_circle(at + Vector2(-2, -2), 2.5, sc.lightened(0.5))
 	if debuffed:
 		draw_rect(Rect2(Vector2.ZERO, size), Color(0.1, 0.1, 0.1, 0.55))
 		draw_line(Vector2(18, 18), size - Vector2(18, 18), Color("ff4d4d"), 6)
@@ -178,6 +185,14 @@ func _draw_back() -> void:
 			var c := Vector2(x + (9 if (y / 18) % 2 == 0 else 0), y)
 			if c.x < size.x - 12:
 				draw_colored_polygon(PackedVector2Array([c + Vector2(0, -5), c + Vector2(4, 0), c + Vector2(0, 5), c + Vector2(-4, 0)]), Color(1, 1, 1, 0.25))
+
+
+## The wax seal art for `seal` (assets/seals/<seal>.png), or null.
+static func seal_art(seal: String) -> Texture2D:
+	if not _seal_art.has(seal):
+		var path := "res://assets/seals/%s.png" % seal
+		_seal_art[seal] = load(path) if ResourceLoader.exists(path) else null
+	return _seal_art[seal]
 
 
 ## The card face art for enhancement `enh` (assets/enhancements/<enh>.png),
