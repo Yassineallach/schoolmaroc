@@ -151,7 +151,9 @@ func _paint() -> void:
 func _draw_back() -> void:
 	if back_art != null:
 		_face_box.color = Color(0, 0, 0, 0)
+		_face_box.outline = 0.0
 		draw_style_box(_face_box, Rect2(Vector2.ZERO, size))  # just its shadow
+		_face_box.outline = 2.0
 		draw_texture_rect(back_art, Rect2(Vector2.ZERO, size), false)
 		return
 	_face_box.color = back_color
