@@ -884,6 +884,19 @@ func show_help() -> void:
 	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(220, 70))))
 
 
+## A tag's badge (assets/tags/<id>.png), or an empty spacer if it has none.
+func _tag_icon(id: String, side: float) -> Control:
+	var path := "res://assets/tags/%s.png" % id
+	var t := TextureRect.new()
+	if ResourceLoader.exists(path):
+		t.texture = load(path)
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	t.custom_minimum_size = Vector2(side, side)
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return t
+
+
 func _center(c: Control) -> Control:
 	c.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	return c
@@ -1006,7 +1019,19 @@ func show_blind_select() -> void:
 	busy = true
 	update_hud()
 	var vb := open_overlay()
-	vb.add_child(_label("Ante %d" % gs.ante, 40, Color("ffdf6b")))
+	# the ante title, with any tags waiting to be used beside it
+	var head := HBoxContainer.new()
+	head.alignment = BoxContainer.ALIGNMENT_CENTER
+	head.add_theme_constant_override("separation", 6)
+	head.add_child(_label("Ante %d" % gs.ante, 40, Color("ffdf6b")))
+	if not gs.tags.is_empty():
+		head.add_child(_label("   Tags:", 18, Color(1, 1, 1, 0.7)))
+		for t in gs.tags:
+			var icon := _tag_icon(t, 34.0)
+			UIBuild.attach_tooltip(icon, {"title": Data.tag_def(t).name, "lines": [Data.tag_def(t).desc]})
+			icon.mouse_filter = Control.MOUSE_FILTER_STOP
+			head.add_child(icon)
+	vb.add_child(head)
 	var cols := HBoxContainer.new()
 	cols.alignment = BoxContainer.ALIGNMENT_CENTER
 	cols.add_theme_constant_override("separation", 16)
@@ -1042,10 +1067,15 @@ func show_blind_select() -> void:
 			inner.add_child(desc)
 		elif i >= gs.blind_idx and i < gs.blind_tags.size():
 			var tag := Data.tag_def(gs.blind_tags[i])
+			var row := HBoxContainer.new()
+			row.alignment = BoxContainer.ALIGNMENT_CENTER
+			row.add_theme_constant_override("separation", 6)
+			row.add_child(_tag_icon(gs.blind_tags[i], 30.0))
 			var tl := _label("Skip: " + tag.name, 17, tag.color.lightened(0.45))
-			UIBuild.attach_tooltip(tl, {"title": tag.name, "lines": [tag.desc]})
-			tl.mouse_filter = Control.MOUSE_FILTER_STOP
-			inner.add_child(tl)
+			row.add_child(tl)
+			UIBuild.attach_tooltip(row, {"title": tag.name, "lines": [tag.desc]})
+			row.mouse_filter = Control.MOUSE_FILTER_STOP
+			inner.add_child(row)
 		p.add_child(inner)
 		if i < gs.blind_idx:
 			p.modulate.a = 0.5
@@ -1060,8 +1090,6 @@ func show_blind_select() -> void:
 		buttons.append({"button": "Skip for %s" % tag.name, "color": Color("5a5f73"), "on": skip_blind, "min": Vector2(300, 86), "size": 22,
 			"tooltip": {"title": tag.name, "lines": [tag.desc]}})
 	vb.add_child(UIBuild.build({"row": buttons, "sep": 16, "align": "center"}))
-	if not gs.tags.is_empty():
-		vb.add_child(_label("Tags waiting: " + ", ".join(gs.tags.map(func(t): return Data.tag_def(t).name)), 18, Color(1, 1, 1, 0.7)))
 	discover("hex", gs.boss_hex.id)
 	save_run("blind")
 	if gs.blind_idx == 2:
