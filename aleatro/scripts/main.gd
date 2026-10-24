@@ -3064,12 +3064,15 @@ func show_collection(tab: String = "charms", page: int = 0) -> void:
 			vb.add_child(_center(grid))
 		"bosses":
 			var seen: Array = profile_data.seen_hexes
+			var per := 12  # 6 rows of 2 fit the smallest screen
+			var pages := ceili(Data.HEXES.size() / float(per))
+			page = clampi(page, 0, pages - 1)
 			vb.add_child(_label("%d / %d discovered" % [seen.size(), Data.HEXES.size()], 20, Color(1, 1, 1, 0.7)))
 			var grid := GridContainer.new()
 			grid.columns = 2
 			grid.add_theme_constant_override("h_separation", 24)
 			grid.add_theme_constant_override("v_separation", 6)
-			for h in Data.HEXES:
+			for h in Data.HEXES.slice(page * per, (page + 1) * per):
 				var row := HBoxContainer.new()
 				row.add_theme_constant_override("separation", 10)
 				var known := seen.has(h.id)
@@ -3082,16 +3085,27 @@ func show_collection(tab: String = "charms", page: int = 0) -> void:
 				row.add_child(txt)
 				grid.add_child(row)
 			vb.add_child(_center(grid))
+			vb.add_child(UIBuild.build({"row": [
+				{"button": "<", "color": Color("4a4f63"), "on": func(): show_collection("bosses", (page + pages - 1) % pages), "min": Vector2(80, 50), "size": 24},
+				{"text": "Page %d / %d" % [page + 1, pages], "size": 22},
+				{"button": ">", "color": Color("4a4f63"), "on": func(): show_collection("bosses", (page + 1) % pages), "min": Vector2(80, 50), "size": 24},
+			], "sep": 18, "align": "center"}))
 		"stats":
 			var labels := [["Runs", "runs"], ["Wins", "wins"], ["Best ante", "best_ante"], ["Best hand", "best_hand"],
 				["Hands played", "hands_played"], ["Cards played", "cards_played"], ["Money earned", "money_earned"],
 				["Charms bought", "charms_bought"], ["Spells cast", "spells_cast"], ["Challenges won", "challenges_won"], ["Glass cards shattered", "cards_shattered"]]
-			var box := VBoxContainer.new()
-			box.custom_minimum_size = Vector2(520, 0)
-			for l in labels:
-				var val = profile_data.get("challenges_won", []).size() if l[1] == "challenges_won" else stats[l[1]]
-				_row_label(box, l[0], ("$" if l[1] == "money_earned" else "") + Data.fmt(val), Color("ffdf6b"))
-			vb.add_child(_center(box))
+			# two columns so the list fits the screen
+			var cols := HBoxContainer.new()
+			cols.add_theme_constant_override("separation", 48)
+			var half := ceili(labels.size() / 2.0)
+			for part in [labels.slice(0, half), labels.slice(half)]:
+				var box := VBoxContainer.new()
+				box.custom_minimum_size = Vector2(380, 0)
+				for l in part:
+					var val = profile_data.get("challenges_won", []).size() if l[1] == "challenges_won" else stats[l[1]]
+					_row_label(box, l[0], ("$" if l[1] == "money_earned" else "") + Data.fmt(val), Color("ffdf6b"))
+				cols.add_child(box)
+			vb.add_child(_center(cols))
 		"credits":
 			var v := Engine.get_version_info()
 			vb.add_child(_label("Aleatro", 36, Color.WHITE))
