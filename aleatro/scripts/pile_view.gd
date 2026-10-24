@@ -105,7 +105,13 @@ func _draw_mini_face(card: Dictionary) -> void:
 	face.rounded = true
 	face.outline = 2.0
 	face.outline_color = Color("c9c2b0")
+	var art := CardView.enh_face(enh)
+	if art != null:
+		face.color = Color(0, 0, 0, 0)
+		face.outline = 0.0
 	draw_style_box(face, r)
+	if art != null:
+		draw_texture_rect(art, r, false)
 	var col: Color = Data.SUIT_COLORS[card.suit]
 	draw_string(ThemeDB.fallback_font, r.position + Vector2(8, 30), Data.RANK_LABELS[card.rank], HORIZONTAL_ALIGNMENT_LEFT, -1, 26, col)
 	CardView.draw_suit(self, card.suit, Vector2.ZERO, 40.0, col)

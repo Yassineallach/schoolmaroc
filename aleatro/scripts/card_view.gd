@@ -11,7 +11,8 @@ const W := 100.0
 const H := 140.0
 ## The card back colour: the run's starting deck sets it.
 static var back_color := Color("b3364e")
-static var back_art: Texture2D = null  # the current deck's card back, if it has art
+static var back_art: Texture2D = null
+static var _enh_faces := {}  # enhancement id -> Texture2D or null  # the current deck's card back, if it has art
 
 var card: Dictionary
 var selected := false
@@ -125,9 +126,18 @@ func _paint() -> void:
 		_draw_back()
 		return
 	var enh: String = card.get("enh", "")
-	_face_box.color = Data.ENHANCEMENTS[enh].face if enh != "" else Color("f7f3ea")
-	draw_style_box(_face_box, Rect2(Vector2.ZERO, size))
-	_draw_enhancement(enh)
+	var face_art := enh_face(enh)
+	if face_art != null:
+		# the enhancement's own card face, over the box's shadow
+		_face_box.color = Color(0, 0, 0, 0)
+		_face_box.outline = 0.0
+		draw_style_box(_face_box, Rect2(Vector2.ZERO, size))
+		_face_box.outline = 2.0
+		draw_texture_rect(face_art, Rect2(Vector2.ZERO, size), false)
+	else:
+		_face_box.color = Data.ENHANCEMENTS[enh].face if enh != "" else Color("f7f3ea")
+		draw_style_box(_face_box, Rect2(Vector2.ZERO, size))
+		_draw_enhancement(enh)
 	if selected:
 		draw_style_box(_select_box, Rect2(Vector2.ZERO, size))
 	# indices, pips and court figures: one cached pixel image (Stone has none)
@@ -168,6 +178,17 @@ func _draw_back() -> void:
 			var c := Vector2(x + (9 if (y / 18) % 2 == 0 else 0), y)
 			if c.x < size.x - 12:
 				draw_colored_polygon(PackedVector2Array([c + Vector2(0, -5), c + Vector2(4, 0), c + Vector2(0, 5), c + Vector2(-4, 0)]), Color(1, 1, 1, 0.25))
+
+
+## The card face art for enhancement `enh` (assets/enhancements/<enh>.png),
+## or null for a plain card or an enhancement without art.
+static func enh_face(enh: String) -> Texture2D:
+	if enh == "":
+		return null
+	if not _enh_faces.has(enh):
+		var path := "res://assets/enhancements/%s.png" % enh
+		_enh_faces[enh] = load(path) if ResourceLoader.exists(path) else null
+	return _enh_faces[enh]
 
 
 ## The card back art for deck `id` (assets/decks/<id>.png), or null.
