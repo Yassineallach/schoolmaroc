@@ -1,9 +1,9 @@
 class_name CharmView
 extends Control
 
-## Draws a charm as its painted card (assets/charms/<id>.png) when it has
-## one, else as its SVG card (see CharmSVG), or a rune as a tile when
-## `rune_hand` is set.
+## Draws a charm as its pixel-art card (assets/charms_pixel/<id>.png, made
+## from the painted cards by tools/pixelize_charms.py) when it has one, else
+## as its SVG card (see CharmSVG), or a rune as a tile when `rune_hand` is set.
 
 signal tapped(view)
 signal held(view)
@@ -152,10 +152,10 @@ func _paint() -> void:
 	_draw_overlays(font)
 
 
-## The charm's painted card, or null if it has none yet.
+## The charm's pixel-art card, or null if it has none yet.
 static func painted_art(id: String) -> Texture2D:
 	if not _painted.has(id):
-		var path := "res://assets/charms/%s.png" % id
+		var path := "res://assets/charms_pixel/%s.png" % id
 		_painted[id] = load(path) if ResourceLoader.exists(path) else null
 	return _painted[id]
 
