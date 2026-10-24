@@ -962,6 +962,7 @@ func show_run_setup() -> void:
 	var swatch := PanelContainer.new()
 	swatch.custom_minimum_size = Vector2(90, 120)
 	var sb := _box(d.back if why == "" else Color("4a4f63"), 4.0, true)
+	sb.rounded = true
 	sb.outline = 3.0
 	sb.outline_color = Color(1, 1, 1, 0.5)
 	swatch.add_theme_stylebox_override("panel", sb)
@@ -1209,6 +1210,7 @@ func _pack_view(id: String) -> Control:
 	var p := PanelContainer.new()
 	p.custom_minimum_size = Vector2(96, 118)
 	var sb := _box(col, 3.0, true)
+	sb.rounded = true
 	sb.outline = 3.0
 	sb.outline_color = col.lightened(0.5) if Data.PACKS[id].size == "" else Color("ffdf6b")
 	p.add_theme_stylebox_override("panel", sb)
@@ -1220,6 +1222,7 @@ func _voucher_view(id: String) -> Control:
 	var p := PanelContainer.new()
 	p.custom_minimum_size = Vector2(96, 118)
 	var sb := _box(Color("8a5a1a"), 3.0, true)
+	sb.rounded = true
 	sb.outline = 3.0
 	sb.outline_color = Color("ffdf6b")
 	p.add_theme_stylebox_override("panel", sb)

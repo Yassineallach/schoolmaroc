@@ -36,9 +36,11 @@ func _init(c: Dictionary = {}) -> void:
 	_tilt.attach(self)
 	if _face_box == null:
 		_face_box = PixelBox.new(Color("f7f3ea"), 4.0, 0.0, true)
+		_face_box.rounded = true
 		_face_box.outline = 2.0
 		_face_box.outline_color = Color("c9c2b0")
 		_select_box = PixelBox.new(Color(0, 0, 0, 0), 4.0)
+		_select_box.rounded = true
 		_select_box.outline = 4.0
 		_select_box.outline_color = Color("ffcc33")
 		_fx_shader = load("res://shaders/card_fx.gdshader")
@@ -149,6 +151,7 @@ func _draw_back() -> void:
 	_face_box.color = back_color
 	draw_style_box(_face_box, Rect2(Vector2.ZERO, size))
 	var inner := PixelBox.new(back_color.darkened(0.25), 3.0)
+	inner.rounded = true
 	inner.outline = 2.0
 	inner.outline_color = Color(1, 1, 1, 0.5)
 	draw_style_box(inner, Rect2(8, 8, size.x - 16, size.y - 16))
@@ -191,6 +194,7 @@ func _draw_badge(text: String, col: Color) -> void:
 	# bottom middle, below the lowest pips and clear of the corner index
 	var r := Rect2(22, size.y - 17, 56, 13)
 	var b := PixelBox.new(col, 2.0)
+	b.rounded = true
 	draw_style_box(b, r)
 	draw_string(font, Vector2(r.position.x, r.position.y + 10.5), text.to_upper(), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 9, Color.WHITE)
 

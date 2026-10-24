@@ -4,6 +4,7 @@ extends StyleBox
 
 ## A box with stair-stepped "pixel" corners, an optional embossed lower lip,
 ## a drop shadow and an outline. Used for every panel, button, card and charm.
+## Cards set `rounded` for smooth, anti-aliased round corners instead.
 
 @export var color := Color.WHITE
 @export var step := 3.0  # size of one corner "pixel"
@@ -14,6 +15,7 @@ extends StyleBox
 @export var outline := 0.0
 @export var outline_color := Color(1, 1, 1, 0.8)
 @export var pressed := false  # sink the face into the emboss lip
+@export var rounded := false  # smooth round corners (radius 3 * step) instead of pixel steps
 
 
 func _init(c: Color = Color.WHITE, s: float = 3.0, e: float = 0.0, sh: bool = false) -> void:
@@ -24,7 +26,9 @@ func _init(c: Color = Color.WHITE, s: float = 3.0, e: float = 0.0, sh: bool = fa
 	set_content_margin_all(12)
 
 
-static func outline_points(rect: Rect2, s: float) -> PackedVector2Array:
+static func outline_points(rect: Rect2, s: float, round_corners := false) -> PackedVector2Array:
+	if round_corners:
+		return round_points(rect, 3.0 * s)
 	var x0 := rect.position.x
 	var y0 := rect.position.y
 	var x1 := rect.end.x
@@ -38,6 +42,19 @@ static func outline_points(rect: Rect2, s: float) -> PackedVector2Array:
 	])
 
 
+## The outline of a rectangle with round corners of radius `r`.
+static func round_points(rect: Rect2, r: float) -> PackedVector2Array:
+	r = minf(r, minf(rect.size.x, rect.size.y) / 2.0)
+	var pts := PackedVector2Array()
+	var centres := [Vector2(rect.end.x - r, rect.position.y + r), Vector2(rect.end.x - r, rect.end.y - r),
+		Vector2(rect.position.x + r, rect.end.y - r), Vector2(rect.position.x + r, rect.position.y + r)]
+	for k in 4:
+		for i in 7:
+			var a := -PI / 2 + (k + i / 6.0) * PI / 2
+			pts.append(centres[k] + Vector2(cos(a), sin(a)) * r)
+	return pts
+
+
 func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 	var face := rect
 	face.size.y -= emboss
@@ -45,21 +62,26 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 	if shadow and color.a > 0.01:
 		var sr := rect
 		sr.position += shadow_offset * (0.4 if pressed else 1.0)
-		_poly(to_canvas_item, outline_points(sr, step), Color(shadow_color, shadow_color.a * color.a))
+		_poly(to_canvas_item, outline_points(sr, step, rounded), Color(shadow_color, shadow_color.a * color.a))
 	if emboss > 0.0:
 		var er := face
 		er.position.y += emboss
-		_poly(to_canvas_item, outline_points(er, step), color.darkened(0.4))
+		_poly(to_canvas_item, outline_points(er, step, rounded), color.darkened(0.4))
 	face.position.y += sink
-	var pts := outline_points(face, step)
+	var pts := outline_points(face, step, rounded)
 	_poly(to_canvas_item, pts, color)
 	if outline > 0.0:
 		var loop := pts.duplicate()
 		loop.append(pts[0])
-		RenderingServer.canvas_item_add_polyline(to_canvas_item, loop, PackedColorArray([outline_color]), outline)
+		RenderingServer.canvas_item_add_polyline(to_canvas_item, loop, PackedColorArray([outline_color]), outline, rounded)
 
 
 func _poly(ci: RID, pts: PackedVector2Array, c: Color) -> void:
 	if c.a <= 0.0:
 		return
 	RenderingServer.canvas_item_add_polygon(ci, pts, PackedColorArray([c]))
+	if rounded:
+		# polygons are not anti-aliased: a thin smooth edge in the same colour softens the curve
+		var loop := pts.duplicate()
+		loop.append(pts[0])
+		RenderingServer.canvas_item_add_polyline(ci, loop, PackedColorArray([c]), 1.0, true)

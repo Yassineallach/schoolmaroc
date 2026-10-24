@@ -63,6 +63,7 @@ func card_target() -> Vector2:
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	var slot := PixelBox.new(Color(0, 0, 0, 0.22), 4.0)
+	slot.rounded = true
 	slot.outline = 2.0
 	slot.outline_color = Color(1, 1, 1, 0.12)
 	draw_style_box(slot, Rect2(Vector2.ZERO, Vector2(W, H)))
@@ -78,6 +79,7 @@ func _draw() -> void:
 			var jitter := _shuffle * (12.0 if i % 2 else -12.0)
 			var off := Vector2(-i * 1.2 + jitter, -i * 1.6)
 			var back := PixelBox.new(CardView.back_color if i < layers - 1 else CardView.back_color.lightened(0.06), 4.0, 0.0, i == 0)
+			back.rounded = true
 			back.outline = 2.0
 			back.outline_color = Color(1, 1, 1, 0.35)
 			draw_style_box(back, Rect2(off + Vector2(2, 2), Vector2(W - 4, H - 4)))
@@ -92,6 +94,7 @@ func _draw_mini_face(card: Dictionary) -> void:
 	var r := Rect2(-Vector2(CardView.W, CardView.H) / 2, Vector2(CardView.W, CardView.H))
 	var enh: String = card.get("enh", "")
 	var face := PixelBox.new(Data.ENHANCEMENTS[enh].face if enh != "" else Color("f7f3ea"), 4.0, 0.0, true)
+	face.rounded = true
 	face.outline = 2.0
 	face.outline_color = Color("c9c2b0")
 	draw_style_box(face, r)

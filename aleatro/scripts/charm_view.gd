@@ -109,6 +109,7 @@ func _paint() -> void:
 		_draw_back()
 		return
 	var sb := PixelBox.new(col, 4.0, 0.0, true)
+	sb.rounded = true
 	sb.shadow_offset = Vector2(3, 5) + Vector2(1, 3) * Anim.lift(_phase, float_amount) + Anim.parallax(self)
 	var painted := painted_art(charm_id) if rune_hand == "" else null
 	if painted != null:
@@ -184,6 +185,7 @@ func _draw_overlays(font: Font) -> void:
 
 func _draw_back() -> void:
 	var back := PixelBox.new(Color("3b2f4f"), 4.0, 0.0, true)
+	back.rounded = true
 	back.outline = 4.0
 	back.outline_color = Color("c9a227")
 	draw_style_box(back, Rect2(Vector2.ZERO, size))
