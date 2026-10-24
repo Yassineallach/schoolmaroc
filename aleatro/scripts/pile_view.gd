@@ -82,11 +82,13 @@ func _draw() -> void:
 			back.rounded = true
 			back.outline = 2.0
 			back.outline_color = Color(1, 1, 1, 0.35)
-			if CardView.back_art != null and i == layers - 1:
+			if CardView.back_art != null:
+				# every card in the stack shows the deck's back; the ones below are shaded
 				back.color = Color(0, 0, 0, 0)
 				back.outline = 0.0
 				draw_style_box(back, Rect2(off + Vector2(2, 2), Vector2(W - 4, H - 4)))
-				draw_texture_rect(CardView.back_art, Rect2(off + Vector2(2, 2), Vector2(W - 4, H - 4)), false)
+				var shade := Color.WHITE if i == layers - 1 else Color(0.6, 0.6, 0.6)
+				draw_texture_rect(CardView.back_art, Rect2(off + Vector2(2, 2), Vector2(W - 4, H - 4)), false, shade)
 			else:
 				draw_style_box(back, Rect2(off + Vector2(2, 2), Vector2(W - 4, H - 4)))
 		if layers > 0 and CardView.back_art == null:
