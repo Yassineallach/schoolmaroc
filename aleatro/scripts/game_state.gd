@@ -46,7 +46,8 @@ var shop_vouchers: Array = []
 var boss_rerolls := 0
 ## Cards drawn from the deck to use an opened Spell or Omen pack on.
 var pack_hand: Array = []
-var _last_hex := ""
+var _last_hex := ""  # kept for old saves; bosses_used now spreads bosses out
+var bosses_used := {}  # boss id -> times it has come up this run
 var _next_id := 0
 ## Per-round boss bookkeeping; saved with the run.
 var boss_state := {}
@@ -132,11 +133,19 @@ func random_edition(chance: float) -> String:
 	return "chroma" if r > 0.85 else ("holo" if r > 0.5 else "foil")
 
 
+## Pick this ante's boss as Balatro does: showdown bosses on every 8th ante
+## (from ante 8), others once their ante is reached, and always one of the
+## least used so far, so every boss comes up before any repeats.
 func pick_boss() -> void:
-	var showdown := ante % Data.FINAL_ANTE == 0
+	var showdown := ante % Data.FINAL_ANTE == 0 and ante >= 2
 	var pool := Data.HEXES.filter(func(h): return h.get("showdown", false) == showdown \
-			and h.min_ante <= maxi(ante, 1) and h.id != _last_hex and not banned_hexes.has(h.id))
+			and (showdown or h.min_ante <= maxi(ante, 1)) and not banned_hexes.has(h.id))
+	var least := 1 << 30
+	for h in pool:
+		least = mini(least, int(bosses_used.get(h.id, 0)))
+	pool = pool.filter(func(h): return int(bosses_used.get(h.id, 0)) == least)
 	boss_hex = pool[rng.randi_range(0, pool.size() - 1)]
+	bosses_used[boss_hex.id] = int(bosses_used.get(boss_hex.id, 0)) + 1
 	_last_hex = boss_hex.id
 
 
@@ -164,7 +173,7 @@ func blind_target(idx: int = blind_idx) -> int:
 func blind_reward(idx: int = blind_idx) -> int:
 	if rules.get("no_reward", []).has(idx) or (stake >= 2 and idx == 0):
 		return 0
-	return [3, 4, 5][idx]
+	return [3, 4, 8 if is_showdown(idx) else 5][idx]
 
 
 ## The active boss effect, or "" outside boss blinds or once disabled.
@@ -742,10 +751,10 @@ func redeem_voucher(id: String) -> String:
 		"brush", "palette":
 			hand_size += 1
 		"timeglyph":
-			ante = maxi(1, ante - 1)
+			ante -= 1
 			max_hands = maxi(1, max_hands - 1)
 		"stoneglyph":
-			ante = maxi(1, ante - 1)
+			ante -= 1
 			max_discards = maxi(0, max_discards - 1)
 	return ""
 
@@ -1518,7 +1527,7 @@ const SAVE_FIELDS := [
 	"ante", "blind_idx", "money", "hand_size", "max_hands", "max_discards", "hands_left",
 	"discards_left", "charm_slots", "charms", "hand_levels", "hands_played_count", "deck",
 	"round_score", "target", "endless", "reroll_cost", "best_hand", "shop_items",
-	"vouchers", "ante_voucher", "shop_vouchers", "boss_rerolls", "_last_hex", "_next_id", "boss_state", "spells",
+	"vouchers", "ante_voucher", "shop_vouchers", "boss_rerolls", "_last_hex", "bosses_used", "_next_id", "boss_state", "spells",
 	"challenge", "rules", "banned_charms", "banned_hexes", "inflation", "played_this_ante",
 	"run_flags", "neg_spells", "start_deck_size", "deck_id", "stake", "tags", "blind_tags", "skips", "shop_packs",
 	"pending_packs", "shop_coupon",

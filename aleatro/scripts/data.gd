@@ -589,13 +589,22 @@ const HEXES := [
 ]
 
 
+## A blind's base score at `ante` (Balatro's get_blind_amount): 100 below
+## ante 1, the table up to ante 8, then a steep curve rounded down to two
+## significant figures.
 static func ante_target(ante: int, scale := 0) -> int:
 	var base: Array = ANTE_SCALES[scale]
+	if ante < 1:
+		return 100
 	if ante <= FINAL_ANTE:
-		return base[maxi(ante, 1) - 1]
-	var raw := float(base[FINAL_ANTE - 1]) * pow(1.75, ante - FINAL_ANTE)
-	var mag := pow(10.0, floor(log(raw) / log(10.0)) - 1)
-	return int(floor(raw / mag) * mag)
+		return base[ante - 1]
+	var c := float(ante - FINAL_ANTE)
+	var d := 1.0 + 0.2 * c
+	var amount: float = floor(float(base[FINAL_ANTE - 1]) * pow(1.6 + pow(0.75 * c, d), c))
+	if amount >= 9.0e18:
+		return 9000000000000000000
+	amount -= fmod(amount, pow(10.0, floor(log(amount) / log(10.0) - 1.0)))
+	return int(amount)
 
 
 static func card_name(card: Dictionary) -> String:
