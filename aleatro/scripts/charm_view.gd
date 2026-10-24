@@ -22,6 +22,7 @@ var sticker := ""
 var face_up := true
 var smothered := false
 var locked := false
+var _lock_badge := TextureRect.new()
 var float_amount := 1.0
 var _phase := randf() * TAU
 var _touch := TouchTracker.new()
@@ -38,6 +39,13 @@ func _init(id: String = "", rune: String = "", ed: String = "") -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	_tilt.attach(self)
+	_lock_badge.texture = load("res://assets/ui/lock_badge.png")
+	_lock_badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_lock_badge.position = Vector2(W - 30, 2)
+	_lock_badge.size = Vector2(28, 28)
+	_lock_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_lock_badge.visible = false
+	add_child(_lock_badge)
 	if edition != "":
 		_ensure_material().set_shader_parameter("edition", Data.EDITIONS[edition].shader)
 
@@ -172,12 +180,14 @@ func _draw_overlays(font: Font) -> void:
 		var sb := PixelBox.new(Color(0.1, 0.08, 0.15, 0.8), 2.0)
 		draw_style_box(sb, Rect2(24, 2, size.x - 48, 15))
 		draw_string(font, Vector2(24, 13.5), sticker, HORIZONTAL_ALIGNMENT_CENTER, size.x - 48, 10, Color("f2d675"))
+	# the padlock badge (this charm cannot be sold) is a child, so the card's
+	# shader, which maps UV to the whole face, leaves it alone
+	_lock_badge.visible = locked
 	if locked:
-		# a small padlock: this charm cannot be sold
-		var at := Vector2(size.x - 22, 10)
-		draw_circle(at + Vector2(7, 10), 12, Color(0.1, 0.08, 0.15, 0.85))
-		draw_arc(at + Vector2(7, 7), 5, PI, TAU, 10, Color("f2d675"), 2.5)
-		draw_rect(Rect2(at + Vector2(0, 7), Vector2(14, 10)), Color("f2d675"))
+		# ride along with the card's hover and sway
+		var xf := Anim.float_xform(size, _phase, float_amount)
+		_lock_badge.position = xf * Vector2(W - 30, 2)
+		_lock_badge.rotation = xf.get_rotation()
 	if smothered:
 		draw_rect(Rect2(Vector2.ZERO, size), Color(0.1, 0.05, 0.05, 0.6))
 		draw_string(font, Vector2(0, size.y / 2 + 8), "DISABLED", HORIZONTAL_ALIGNMENT_CENTER, size.x, 18, Color("ff8a5c"))

@@ -904,16 +904,20 @@ func show_help() -> void:
 
 ## A dark card face with a padlock, for something still locked.
 func _locked_cell(sz: Vector2, _title: String, _goal: String) -> Control:
-	var lock := Panel.new()
+	var lock := _ui_art("locked_charm")
 	lock.size = sz
-	var sb := _box(Color(0.08, 0.07, 0.12, 0.85), 3.0)
-	sb.rounded = true
-	sb.outline = 2.0
-	sb.outline_color = Color("f2d675", 0.5)
-	lock.add_theme_stylebox_override("panel", sb)
-	_place(_label("LOCKED", 14, Color("f2d675")), lock, Vector2(0, sz.y / 2 - 10), Vector2(sz.x, 20))
-	lock.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lock.stretch_mode = TextureRect.STRETCH_SCALE
 	return lock
+
+
+## A picture from assets/ui (padlock, locked_charm, locked_deck, lock_badge ...).
+func _ui_art(name: String) -> TextureRect:
+	var t := TextureRect.new()
+	t.texture = load("res://assets/ui/%s.png" % name)
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return t
 
 
 ## A stake's chip (assets/stakes/<n>.png), or an empty spacer without art.
@@ -1037,8 +1041,13 @@ func show_run_setup() -> void:
 		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		art.stretch_mode = TextureRect.STRETCH_SCALE
 		swatch.add_child(art)
-	else:
-		swatch.add_child(_label("?" if why != "" else "", 40))
+	elif why != "":
+		sb.color = Color(0, 0, 0, 0)
+		sb.outline = 0.0
+		sb.set_content_margin_all(0)
+		var locked_art := _ui_art("locked_deck")
+		locked_art.stretch_mode = TextureRect.STRETCH_SCALE
+		swatch.add_child(locked_art)
 	var desc := _label(d.desc if why == "" else "Locked: " + why, 20, Color.WHITE if why == "" else Color(1, 1, 1, 0.55))
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.custom_minimum_size = Vector2(360, 0)
@@ -3075,7 +3084,10 @@ func show_collection(tab: String = "charms", page: int = 0) -> void:
 				cell.add_child(art)
 				if is_locked:
 					art.modulate = Color(0.25, 0.25, 0.3)
-					_place(_label("LOCKED", 13, Color("f2d675")), cell, Vector2(0, 40), Vector2(60, 20))
+					var pad := _ui_art("padlock")
+					pad.position = Vector2(12, 32)
+					pad.size = Vector2(36, 36)
+					cell.add_child(pad)
 					UIBuild.attach_tooltip(cell, {"title": vd.name + " (locked)", "lines": [Unlocks.goal_text(vd.id)]})
 				else:
 					UIBuild.attach_tooltip(cell, {"title": vd.name, "lines": [vd.desc]})
@@ -3095,7 +3107,7 @@ func show_collection(tab: String = "charms", page: int = 0) -> void:
 				var row := HBoxContainer.new()
 				row.add_theme_constant_override("separation", 10)
 				var known := seen.has(h.id)
-				var chip := BlindChip.new(h.color.lightened(0.3) if known else Color(0.4, 0.4, 0.4), 40.0, h.id if known else "")
+				var chip := BlindChip.new(h.color.lightened(0.3) if known else Color(0.4, 0.4, 0.4), 40.0, h.id if known else "unknown")
 				chip.spin = false
 				row.add_child(chip)
 				var txt := _label("%s: %s" % [h.name, h.desc] if known else "???", 19, Color.WHITE if known else Color(1, 1, 1, 0.4), HORIZONTAL_ALIGNMENT_LEFT)
