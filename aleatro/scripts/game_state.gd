@@ -48,6 +48,10 @@ var boss_rerolls := 0
 var pack_hand: Array = []
 var _last_hex := ""  # kept for old saves; bosses_used now spreads bosses out
 var bosses_used := {}  # boss id -> times it has come up this run
+var rounds := 0  # blinds played this run (skipped ones don't count)
+## Charms and vouchers this profile hasn't unlocked yet (see Unlocks); set by
+## main.gd, never offered in shops, packs or as the ante's voucher.
+var locked: Array = []
 var _next_id := 0
 ## Per-round boss bookkeeping; saved with the run.
 var boss_state := {}
@@ -728,7 +732,8 @@ func roll_pack() -> String:
 ## Pick this ante's voucher.
 func roll_voucher() -> void:
 	ante_voucher = ""
-	var pool := Data.VOUCHERS.filter(func(v): return not vouchers.has(v.id) and (not v.has("needs") or vouchers.has(v.needs)))
+	var pool := Data.VOUCHERS.filter(func(v): return not vouchers.has(v.id) and not locked.has(v.id) \
+			and (not v.has("needs") or vouchers.has(v.needs)))
 	if not pool.is_empty():
 		ante_voucher = pool[rng.randi_range(0, pool.size() - 1)].id
 
@@ -772,7 +777,7 @@ func reroll_boss() -> void:
 
 
 func _offerable(id: String, owned: Array) -> bool:
-	if owned.has(id) or banned_charms.has(id):
+	if owned.has(id) or banned_charms.has(id) or locked.has(id):
 		return false
 	return not Data.CHARM_UNLOCKS.has(id) or run_flags.get(Data.CHARM_UNLOCKS[id], false)
 
@@ -1527,7 +1532,7 @@ const SAVE_FIELDS := [
 	"ante", "blind_idx", "money", "hand_size", "max_hands", "max_discards", "hands_left",
 	"discards_left", "charm_slots", "charms", "hand_levels", "hands_played_count", "deck",
 	"round_score", "target", "endless", "reroll_cost", "best_hand", "shop_items",
-	"vouchers", "ante_voucher", "shop_vouchers", "boss_rerolls", "_last_hex", "bosses_used", "_next_id", "boss_state", "spells",
+	"vouchers", "ante_voucher", "shop_vouchers", "boss_rerolls", "_last_hex", "bosses_used", "rounds", "_next_id", "boss_state", "spells",
 	"challenge", "rules", "banned_charms", "banned_hexes", "inflation", "played_this_ante",
 	"run_flags", "neg_spells", "start_deck_size", "deck_id", "stake", "tags", "blind_tags", "skips", "shop_packs",
 	"pending_packs", "shop_coupon",

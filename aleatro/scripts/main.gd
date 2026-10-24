@@ -66,6 +66,10 @@ var vh := 720.0
 const STAT_DEFAULTS := {
 	"runs": 0, "wins": 0, "best_ante": 0, "best_hand": 0, "hands_played": 0,
 	"cards_played": 0, "money_earned": 0, "charms_bought": 0, "cards_shattered": 0, "spells_cast": 0,
+	# career counters behind the unlock goals (see Unlocks)
+	"losses": 0, "faces_played": 0, "charms_sold": 0, "items_sold": 0, "cards_discarded": 0, "rerolls": 0,
+	"shop_spent": 0, "pack_spells_used": 0, "pack_runes_used": 0, "spells_bought": 0, "runes_bought": 0,
+	"cards_bought": 0, "blanks_redeemed": 0, "one_hand_streak": 0, "interest_streak": 0,
 }
 var stats := STAT_DEFAULTS.duplicate()
 var saves: SaveManager
@@ -79,6 +83,12 @@ var mascot_layer: Control
 var music: Music
 var score_ratio := 0.0  # round score / target, drives the sidebar bar
 var score_box: Panel
+# this round, for the unlock goals: hands and discards used, the last hand
+# type played and which Hearts have been played
+var round_plays := 0
+var round_discards := 0
+var round_last_hand := ""
+var round_hearts := {}
 var boss_motes: Motes = null
 var debug_boxes: DebugBoxes  # embers drifting up the blind panel during a boss
 
@@ -542,6 +552,7 @@ func rebuild_spells() -> void:
 	spell_views = []
 	if gs == null:
 		return
+	see_spells(gs.spells)
 	for i in gs.spells.size():
 		var v := SpellView.new(gs.spells[i])
 		v.position = Vector2(12 + i * (SpellView.W + 14), 4)
@@ -574,6 +585,8 @@ func show_spell(v: SpellView) -> void:
 	row.add_child(use)
 	row.add_child(_button("Sell $1", Color("3f9a5a"), func():
 		gs.money += 1
+		stats.items_sold += 1
+		check_unlocks()
 		gs.spells.erase(v.spell_id)
 		sfx.play("charm_sell")
 		close_modal()
@@ -879,9 +892,23 @@ func show_help() -> void:
 	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	t.custom_minimum_size = Vector2(820, 0)
 	t.add_theme_font_size_override("font_size", 23)
-	t.text = "Select up to 5 cards and play a poker hand. Each hand type has base Chips and Mult; scored cards add their rank in Chips (faces 10, Aces 11).\n\nScore = Chips x Mult. Reach the blind's target before you run out of hands. Discards let you swap cards.\n\nEach ante has a Small Blind, a Big Blind and a Boss Blind with a nasty twist. Beat ante %d to win.\n\nSpend money in the shop on Charms (passive bonuses, up to 5) and Runes (level up a hand type). You earn $1 interest per $5 held, up to $5.\n\nDrag cards or charms to reorder them; hold a card to see its details. Gamepad: d-pad moves, A selects (hold A + left/right to move a card), X plays, Y discards, LB/RB sort, Start opens the menu. Keyboard: arrows, Enter, P, D, Q/E, Esc; hold R to restart." % Data.FINAL_ANTE
+	t.text = "Select up to 5 cards and play a poker hand. Each hand type has base Chips and Mult; scored cards add their rank in Chips (faces 10, Aces 11).\n\nScore = Chips x Mult. Reach the blind's target before you run out of hands. Discards let you swap cards.\n\nEach ante has a Small Blind, a Big Blind and a Boss Blind with a nasty twist. Beat ante %d to win.\n\nSpend money in the shop on Charms (passive bonuses, up to 5) and Runes (level up a hand type). You earn $1 interest per $5 held, up to $5.\n\nSome charms and vouchers start locked: the Collection shows what unlocks each one.\n\nDrag cards or charms to reorder them; hold a card to see its details. Gamepad: d-pad moves, A selects (hold A + left/right to move a card), X plays, Y discards, LB/RB sort, Start opens the menu. Keyboard: arrows, Enter, P, D, Q/E, Esc; hold R to restart." % Data.FINAL_ANTE
 	vb.add_child(t)
 	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(220, 70))))
+
+
+## A dark card face with a padlock, for something still locked.
+func _locked_cell(sz: Vector2, _title: String, _goal: String) -> Control:
+	var lock := Panel.new()
+	lock.size = sz
+	var sb := _box(Color(0.08, 0.07, 0.12, 0.85), 3.0)
+	sb.rounded = true
+	sb.outline = 2.0
+	sb.outline_color = Color("f2d675", 0.5)
+	lock.add_theme_stylebox_override("panel", sb)
+	_place(_label("LOCKED", 14, Color("f2d675")), lock, Vector2(0, sz.y / 2 - 10), Vector2(sz.x, 20))
+	lock.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return lock
 
 
 ## A stake's chip (assets/stakes/<n>.png), or an empty spacer without art.
@@ -919,6 +946,7 @@ func new_run(challenge_id: String = "", deck_id: String = "crimson", stake: int 
 	on_title = false
 	music.pitch_target = 1.0
 	gs = GameState.new()
+	gs.locked = Unlocks.locked(profile_data.get("unlocked", []))
 	if challenge_id != "":
 		gs.apply_challenge(challenge_id)
 		gs.deck_id = ""
@@ -1195,6 +1223,8 @@ func _show_pack(id: String, choices: Array, picks: int, then: Callable) -> void:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 22)
+	if Data.PACKS[id].kind in ["arcana", "spectral", "celestial"]:
+		see_spells(choices)
 	for choice in choices:
 		var view: Control
 		var title := ""
@@ -1232,6 +1262,11 @@ func _show_pack(id: String, choices: Array, picks: int, then: Callable) -> void:
 				stats.charms_bought += 1
 			elif verb == "Use":
 				stats.spells_cast += 1
+				if kind == "arcana":
+					stats.pack_spells_used += 1
+				elif kind == "celestial":
+					stats.pack_runes_used += 1
+			check_unlocks()
 			rebuild_charms()
 			rebuild_spells()
 			update_hud()
@@ -1313,6 +1348,11 @@ func start_blind() -> void:
 	clear_overlay()
 	_shop_open = false
 	var notes := gs.start_round()
+	gs.rounds += 1
+	round_plays = 0
+	round_discards = 0
+	round_last_hand = ""
+	round_hearts = {}
 	in_round = true
 	busy = true
 	lbl_hand_name.text = gs.blind_name()
@@ -1537,6 +1577,13 @@ func play_selected() -> void:
 	var played: Array = sel.map(func(v): return v.card)
 	var ev := Poker.evaluate(played, gs.poker_opts())
 	gs.hands_played_count[ev.name] += 1
+	round_plays += 1
+	round_last_hand = ev.name
+	stats.faces_played += played.filter(func(k): return gs.is_face(k)).size()
+	for k in played:
+		if k.get("enh", "") != "stone" and k.suit == 1:
+			round_hearts[k.id] = true
+	check_unlocks("hand", {"cards": played})
 	var blocked := gs.hand_blocked(ev, played)
 	var result := {"events": [], "shatter": []}
 	if blocked != "":
@@ -1670,6 +1717,7 @@ func play_selected() -> void:
 	if total > stats.best_hand:
 		stats.best_hand = total
 		_save_stats()
+	check_unlocks()
 	lbl_hand_name.text = Data.fmt(total)
 	bump(lbl_hand_name, 1.3)
 	sfx.play("score_total")
@@ -1770,6 +1818,9 @@ func discard_selected() -> void:
 		popup_text(Vector2(main_cx(), play_y() + 60), "-$%d" % cost, Data.MONEY_COLOR, 32)
 	sfx.play("discard")
 	var count := gs.charms.size()
+	round_discards += 1
+	stats.cards_discarded += sel.size()
+	check_unlocks("discard", {"cards": sel.map(func(v): return v.card)})
 	var notes := gs.on_discard(sel.map(func(v): return v.card))
 	for i in sel.size():
 		var v: CardView = sel[i]
@@ -1809,6 +1860,10 @@ func win_round() -> void:
 	var reward := gs.blind_reward()
 	var per_hand := 0 if gs.rules.get("no_hand_money", false) else gs.hands_left * (2 if gs.deck_id == "grove" else 1)
 	var interest := gs.interest() * (1 + gs.charm_count("moonshot"))
+	var cap := 20 if gs.has_voucher("goldtree") else (10 if gs.has_voucher("nestbox") else 5)
+	stats.interest_streak = stats.interest_streak + 1 if gs.interest() >= cap else 0
+	stats.one_hand_streak = stats.one_hand_streak + 1 if round_plays == 1 else 0
+	check_unlocks("round_won", {"boss": gs.blind_idx == 2, "plays": round_plays, "discards": round_discards, "last_hand": round_last_hand})
 	var upkeep := gs.end_of_round()
 	var rows := [["Blind reward", reward]]
 	if per_hand > 0:
@@ -1901,6 +1956,7 @@ func cash_out() -> void:
 	_save_stats()
 	if won_run:
 		stats.wins += 1
+		check_unlocks("won_run")
 		_save_stats()
 		show_victory()
 		return
@@ -1916,6 +1972,8 @@ func game_over() -> void:
 	music.pitch_target = 0.85
 	saves.delete_run()
 	stats.best_ante = maxi(stats.best_ante, gs.ante)
+	stats.losses += 1
+	check_unlocks()
 	_save_stats()
 	clear_hand_views()
 	lbl_hand_name.text = ""
@@ -2005,6 +2063,7 @@ func show_shop() -> void:
 	var cards := HBoxContainer.new()
 	cards.alignment = BoxContainer.ALIGNMENT_CENTER
 	cards.add_theme_constant_override("separation", 10)
+	see_spells(gs.shop_items.filter(func(it): return it.type == "spell").map(func(it): return it.id))
 	for i in gs.shop_items.size():
 		var it: Dictionary = gs.shop_items[i]
 		var view: Control
@@ -2121,15 +2180,22 @@ func buy_item(i: int) -> void:
 				popup_text(Vector2(main_cx(), TOP_H + 40), "No room for more spells", Color.WHITE, 28)
 				return
 			sfx.play("rune" if d.has("rune") else "charm_buy", 1.15)
+			if it.id.begins_with("rune:"):
+				stats.runes_bought += 1
+			elif not d.get("omen", false):
+				stats.spells_bought += 1
 			rebuild_spells()
 			tutorial("spell", "Spells and Runes wait in the slots at the top right. Select cards in your hand during a round, then tap a spell to cast it on them.")
 		"card":
+			stats.cards_bought += 1
 			gs.add_card(it.card)
 			sfx.play("card_place")
 			popup_text(Vector2(main_cx(), TOP_H + 40), "Added to deck (%d cards)" % gs.deck.size(), Color.WHITE, 30)
 	gs.money -= cost
+	stats.shop_spent += cost
 	_inflate()
 	gs.shop_items.remove_at(i)
+	check_unlocks()
 	show_shop()
 
 
@@ -2142,8 +2208,12 @@ func buy_voucher(id: String) -> void:
 	if not gs.can_afford(cost) or not gs.shop_vouchers.has(id):
 		return
 	gs.money -= cost
+	stats.shop_spent += cost
+	if id == "blank":
+		stats.blanks_redeemed += 1
 	_inflate()
 	gs.redeem_voucher(id)
+	check_unlocks()
 	sfx.play("cash_register")
 	toast("Voucher: " + Data.voucher_def(id).name)
 	rebuild_charms()
@@ -2159,6 +2229,7 @@ func buy_pack(i: int) -> void:
 	if not gs.can_afford(cost):
 		return
 	gs.money -= cost
+	stats.shop_spent += cost
 	_inflate()
 	gs.shop_packs.remove_at(i)
 	update_hud()
@@ -2172,12 +2243,15 @@ func reroll_price() -> int:
 func reroll_shop() -> void:
 	if not gs.can_afford(reroll_price()):
 		return
+	stats.shop_spent += reroll_price()
+	stats.rerolls += 1
 	gs.money -= reroll_price()
 	if gs.free_rerolls > 0:
 		gs.free_rerolls -= 1
 	else:
 		gs.reroll_cost += 1
 	gs.on_reroll()
+	check_unlocks()
 	gs.shop_coupon = false
 	sfx.play("reroll")
 	# a reroll restocks the shelves only; packs and vouchers stay
@@ -2259,6 +2333,9 @@ func _on_charm_tapped(v: CharmView) -> void:
 	row.add_theme_constant_override("separation", 14)
 	var sell := _button("Sell $%d" % gs.sell_value(inst), Color("3f9a5a"), func():
 		gs.money += gs.sell_value(inst)
+		stats.charms_sold += 1
+		stats.items_sold += 1
+		check_unlocks()
 		var was_ember := gs.charm_disabled(gs.charms.find(inst))
 		gs.charms.erase(inst)
 		var sold_notes := gs.on_sell(inst)
@@ -2604,8 +2681,11 @@ func _load_stats() -> void:
 
 func _load_profile() -> void:
 	profile_data = SaveCheck.profile(saves.load_profile(), STAT_DEFAULTS)
+	profile_data.merge({"unlocked": [], "seen_spells": []})
 	stats = STAT_DEFAULTS.duplicate()
 	stats.merge(profile_data.stats, true)
+	# goals already met by this profile's past play unlock right away
+	check_unlocks("", {}, true)
 
 
 func _save_stats() -> void:
@@ -2646,7 +2726,9 @@ func resume_run() -> void:
 	on_title = false
 	music.pitch_target = 1.0
 	gs = GameState.from_dict(d)
+	gs.locked = Unlocks.locked(profile_data.get("unlocked", []))
 	_apply_deck_look()
+	check_unlocks("continue")
 	sort_mode = d.get("sort_mode", "rank")
 	_place_marker()
 	clear_hand_views()
@@ -2687,6 +2769,47 @@ func resume_round() -> void:
 
 
 ## Record a charm or boss the player has now seen; announce new ones.
+## Unlock every charm and voucher whose goal (see Unlocks) is now met.
+## `event` and `data` describe what just happened; quiet skips the toasts.
+func check_unlocks(event: String = "", data := {}, quiet := false) -> void:
+	if gs != null:
+		gs.run_flags["max_charms"] = maxi(int(gs.run_flags.get("max_charms", 0)), gs.charms.size())
+	var unlocked: Array = profile_data.get("unlocked", [])
+	var c := {"stats": stats, "profile": profile_data, "gs": gs, "event": event, "in_round": in_round, "hearts_played": round_hearts}
+	c.merge(data)
+	var fresh := []
+	for id in Unlocks.GOALS:
+		if not unlocked.has(id) and Unlocks.met(id, c):
+			unlocked.append(id)
+			fresh.append(id)
+	if fresh.is_empty():
+		return
+	profile_data.unlocked = unlocked
+	if gs != null:
+		gs.locked = Unlocks.locked(unlocked)
+	_save_stats()
+	if quiet:
+		return
+	for id in fresh:
+		var what := "Voucher" if Unlocks.is_voucher(id) else "Charm"
+		var name: String = Data.voucher_def(id).name if what == "Voucher" else Data.charm_def(id).name
+		toast("%s unlocked: %s" % [what, name])
+
+
+## Remember that these Spells and Runes have been seen (two unlock goals
+## count them).
+func see_spells(ids: Array) -> void:
+	var seen: Array = profile_data.get("seen_spells", [])
+	var added := false
+	for id in ids:
+		if id is String and not seen.has(id):
+			seen.append(id)
+			added = true
+	if added:
+		profile_data.seen_spells = seen
+		check_unlocks()
+
+
 func discover(kind: String, id: String) -> void:
 	var key := "seen_charms" if kind == "charm" else "seen_hexes"
 	if profile_data[key].has(id):
@@ -2867,16 +2990,18 @@ func show_collection(tab: String = "charms", page: int = 0) -> void:
 	var vb := open_modal()
 	vb.add_child(_label("Collection  (Profile %d)" % saves.profile, 34, Color("ffdf6b")))
 	var tabs: Array = []
-	for t in [["charms", "Charms"], ["bosses", "Bosses"], ["stats", "Stats"], ["credits", "Credits"]]:
+	for t in [["charms", "Charms"], ["vouchers", "Vouchers"], ["bosses", "Bosses"], ["stats", "Stats"], ["credits", "Credits"]]:
 		tabs.append({"button": t[1], "color": Data.CHIP_COLOR if t[0] == tab else Color("4a4f63"), "on": func(): show_collection(t[0]),
-			"min": Vector2(170, 54), "size": 22, "choice": "collection", "chosen": t[0] == tab})
+			"min": Vector2(150, 54), "size": 22, "choice": "collection", "chosen": t[0] == tab})
 	vb.add_child(UIBuild.build({"row": tabs, "sep": 12}))
 	match tab:
 		"charms":
 			var seen: Array = profile_data.seen_charms
+			var unlocked: Array = profile_data.get("unlocked", [])
 			var pages := ceili(Data.CHARMS.size() / float(COLLECTION_PAGE))
 			page = clampi(page, 0, pages - 1)
-			vb.add_child(_label("%d / %d discovered" % [seen.size(), Data.CHARMS.size()], 20, Color(1, 1, 1, 0.7)))
+			var n_locked := Data.CHARMS.filter(func(c): return Unlocks.GOALS.has(c.id) and not unlocked.has(c.id)).size()
+			vb.add_child(_label("%d / %d discovered   -   %d locked" % [seen.size(), Data.CHARMS.size(), n_locked], 20, Color(1, 1, 1, 0.7)))
 			var grid := GridContainer.new()
 			grid.columns = 12
 			grid.add_theme_constant_override("h_separation", 10)
@@ -2885,7 +3010,11 @@ func show_collection(tab: String = "charms", page: int = 0) -> void:
 				var cell := Control.new()
 				cell.custom_minimum_size = Vector2(CharmView.W, CharmView.H) * 0.62
 				cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				if seen.has(c.id):
+				if Unlocks.GOALS.has(c.id) and not unlocked.has(c.id):
+					cell.add_child(_locked_cell(cell.custom_minimum_size, "Locked charm", Unlocks.goal_text(c.id)))
+					cell.mouse_filter = Control.MOUSE_FILTER_STOP
+					UIBuild.attach_tooltip(cell, {"title": "Locked", "lines": [Unlocks.goal_text(c.id)]})
+				elif seen.has(c.id):
 					cell.mouse_filter = Control.MOUSE_FILTER_STOP
 					UIBuild.attach_tooltip(cell, {"title": c.name, "lines": [c.desc, Data.RARITY_NAMES[c.rarity]]})
 					var cv := CharmView.new(c.id)
@@ -2908,6 +3037,31 @@ func show_collection(tab: String = "charms", page: int = 0) -> void:
 					{"text": "Page %d / %d" % [page + 1, pages], "size": 22},
 					{"button": ">", "color": Color("4a4f63"), "on": func(): show_collection("charms", (page + 1) % pages), "min": Vector2(80, 50), "size": 24},
 				], "sep": 18, "align": "center"}))
+		"vouchers":
+			var unlocked: Array = profile_data.get("unlocked", [])
+			var n_locked := Data.VOUCHERS.filter(func(v): return Unlocks.GOALS.has(v.id) and not unlocked.has(v.id)).size()
+			vb.add_child(_label("%d vouchers   -   %d locked" % [Data.VOUCHERS.size(), n_locked], 20, Color(1, 1, 1, 0.7)))
+			var grid := GridContainer.new()
+			grid.columns = 11
+			grid.add_theme_constant_override("h_separation", 10)
+			grid.add_theme_constant_override("v_separation", 8)
+			for vd in Data.VOUCHERS:
+				var cell := Control.new()
+				cell.custom_minimum_size = Vector2(60, 100)
+				cell.mouse_filter = Control.MOUSE_FILTER_STOP
+				var is_locked: bool = Unlocks.GOALS.has(vd.id) and not unlocked.has(vd.id)
+				var art := _voucher_view(vd.id)
+				art.custom_minimum_size = Vector2(60, 100)
+				art.size = Vector2(60, 100)
+				cell.add_child(art)
+				if is_locked:
+					art.modulate = Color(0.25, 0.25, 0.3)
+					_place(_label("LOCKED", 13, Color("f2d675")), cell, Vector2(0, 40), Vector2(60, 20))
+					UIBuild.attach_tooltip(cell, {"title": vd.name + " (locked)", "lines": [Unlocks.goal_text(vd.id)]})
+				else:
+					UIBuild.attach_tooltip(cell, {"title": vd.name, "lines": [vd.desc]})
+				grid.add_child(cell)
+			vb.add_child(_center(grid))
 		"bosses":
 			var seen: Array = profile_data.seen_hexes
 			vb.add_child(_label("%d / %d discovered" % [seen.size(), Data.HEXES.size()], 20, Color(1, 1, 1, 0.7)))

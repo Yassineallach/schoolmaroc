@@ -182,6 +182,8 @@ static func profile(d: Dictionary, stat_defaults: Dictionary) -> Dictionary:
 	out.challenges_won = _strings(d.get("challenges_won"), func(id): return not Data.challenge_def(id).is_empty())
 	out.tutorial = _strings(d.get("tutorial"), func(_s): return true)
 	out.tips_off = d.get("tips_off") is bool and d.tips_off
+	out.unlocked = _strings(d.get("unlocked"), func(id): return Unlocks.GOALS.has(id))
+	out.seen_spells = _strings(d.get("seen_spells"), func(id): return not Data.spell_def(id).is_empty())
 	out.deck_stakes = {}
 	var ds = d.get("deck_stakes", {})
 	if ds is Dictionary:
