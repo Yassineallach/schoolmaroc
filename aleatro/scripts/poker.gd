@@ -8,6 +8,7 @@ extends RefCounted
 ##   skip    Straights may skip one rank between cards
 ##   blot    Hearts/Diamonds and Spades/Clubs count as one suit each
 ##   all     every played card scores
+##   dead_wilds  ids of debuffed Wild cards (they keep only their own suit)
 ## Wild cards count as every suit; Stone cards have no rank or suit and
 ## always score.
 static func evaluate(cards: Array, opts: Dictionary = {}) -> Dictionary:
@@ -27,7 +28,7 @@ static func evaluate(cards: Array, opts: Dictionary = {}) -> Dictionary:
 		return a[0].rank > b[0].rank)
 
 	var need := 4 if opts.get("four", false) else 5
-	var flush_cards := _flush(ranked, need, opts.get("blot", false))
+	var flush_cards := _flush(ranked, need, opts.get("blot", false), opts.get("dead_wilds", []))
 	var straight_cards := _straight(ranked, by_rank, need, opts.get("skip", false))
 	var flush := not flush_cards.is_empty()
 	var straight := not straight_cards.is_empty()
@@ -113,11 +114,16 @@ static func suit_is(card: Dictionary, s: int, blot := false) -> bool:
 
 
 ## The cards making a flush of at least `need`, or [].
-static func _flush(cards: Array, need: int, blot: bool) -> Array:
+## A debuffed Wild card (id in `dead_wilds`) only counts as its own suit,
+## as in Balatro's flush check.
+static func _flush(cards: Array, need: int, blot: bool, dead_wilds: Array = []) -> Array:
 	if cards.size() < need:
 		return []
 	for s in 4:
-		var members := cards.filter(func(c): return suit_is(c, s, blot))
+		var members := cards.filter(func(c):
+			if dead_wilds.has(c.get("id", -1)):
+				return (c.suit % 2 == s % 2) if blot else c.suit == s
+			return suit_is(c, s, blot))
 		if members.size() >= need:
 			return members
 	return []

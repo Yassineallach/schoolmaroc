@@ -46,7 +46,7 @@ static func compute(gs: GameState, played: Array, ev: Dictionary, held: Array) -
 					a.charm_index = again[rep - 1]
 				events.append(a)
 			var stone: bool = card.get("enh", "") == "stone"
-			events.append({"kind": "card", "card": card, "chips": 50 if stone else Data.card_chips(card.rank) + card.get("bonus", 0)})
+			events.append({"kind": "card", "card": card, "chips": (50 if stone else Data.card_chips(card.rank)) + card.get("bonus", 0)})
 			var enh := _enhancement(gs, card)
 			if not enh.is_empty():
 				enh.kind = "card"

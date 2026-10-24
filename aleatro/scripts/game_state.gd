@@ -229,7 +229,8 @@ func suit_is(card: Dictionary, s: int) -> bool:
 
 func poker_opts() -> Dictionary:
 	return {"four": has_charm("spread"), "skip": has_charm("hopscotch"), "blot": has_charm("blot"),
-		"all": has_charm("puddle")}
+		"all": has_charm("puddle"),
+		"dead_wilds": deck.filter(func(k): return k.get("enh", "") == "wild" and is_debuffed(k)).map(func(k): return k.id)}
 
 
 ## Whether buying something for `cost` is allowed (an IOU allows $20 of debt).
