@@ -1,8 +1,9 @@
 class_name CharmView
 extends Control
 
-## Draws a charm as its SVG card (see CharmSVG), or a rune as a tile
-## when `rune_hand` is set.
+## Draws a charm as its painted card (assets/charms/<id>.png) when it has
+## one, else as its SVG card (see CharmSVG), or a rune as a tile when
+## `rune_hand` is set.
 
 signal tapped(view)
 signal held(view)
@@ -24,6 +25,7 @@ var locked := false
 var float_amount := 1.0
 var _phase := randf() * TAU
 var _touch := TouchTracker.new()
+static var _painted := {}  # charm id -> Texture2D, or null when it has no painted card
 var _tilt := Tilt.new()
 
 func _init(id: String = "", rune: String = "", ed: String = "") -> void:
@@ -108,6 +110,12 @@ func _paint() -> void:
 		return
 	var sb := PixelBox.new(col, 4.0, 0.0, true)
 	sb.shadow_offset = Vector2(3, 5) + Vector2(1, 3) * Anim.lift(_phase, float_amount) + Anim.parallax(self)
+	var painted := painted_art(charm_id) if rune_hand == "" else null
+	if painted != null:
+		draw_texture_rect(painted, Rect2(sb.shadow_offset, size), false, Color(0, 0, 0, 0.35))
+		draw_texture_rect(painted, Rect2(Vector2.ZERO, size), false)
+		_draw_overlays(font)
+		return
 	if rune_hand == "" and CharmSVG.has_art(charm_id):
 		# the card art at screen resolution (snapped so tweens reuse textures),
 		# over a soft drop shadow of its own silhouette
@@ -144,9 +152,17 @@ func _paint() -> void:
 	_draw_overlays(font)
 
 
+## The charm's painted card, or null if it has none yet.
+static func painted_art(id: String) -> Texture2D:
+	if not _painted.has(id):
+		var path := "res://assets/charms/%s.png" % id
+		_painted[id] = load(path) if ResourceLoader.exists(path) else null
+	return _painted[id]
+
+
 ## Edition tag, padlock and the boss's "disabled" veil, over any face.
 func _draw_overlays(font: Font) -> void:
-	if edition != "" and rune_hand == "" and CharmSVG.has_art(charm_id):
+	if edition != "" and rune_hand == "" and (painted_art(charm_id) != null or CharmSVG.has_art(charm_id)):
 		var tag: String = Data.EDITIONS[edition].name.to_upper()
 		var b := PixelBox.new(Color(0, 0, 0, 0.55), 2.0)
 		draw_style_box(b, Rect2(30, size.y - 22, 60, 16))
