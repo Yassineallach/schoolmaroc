@@ -2180,19 +2180,28 @@ func charm_notes(notes: Array) -> void:
 		await wait(0.45)
 
 
-## Cards a charm put straight into the hand (Clone, Notary's extra card).
+## Cards a charm or spell put straight into the hand (Clone, Notary,
+## Courtiers, Reaper, Chant): made there, they materialize face up in their
+## place (Card:start_materialize, green) rather than being dealt.
 func take_new_cards() -> void:
 	if gs.pending_hand.is_empty():
 		return
+	var fresh: Array = []
 	for c in gs.pending_hand:
 		var v := _make_hand_view(c)
-		v.flip_up(0.1)
+		v.face_up = true
+		v.rotation_degrees = 0.0
+		fresh.append(v)
 	gs.pending_hand = []
 	gs.hand = hand_views.map(func(h): return h.card)
 	if not manual_order:
 		sort_hand()
 	layout_hand(true)
-	await wait(0.3)
+	for v in fresh:
+		var g := Glide.of(v)
+		g.snap(g.target, rad_to_deg(g.target_rot))
+		Fx.materialize(v, [Fx.PLAYING])
+	await wait(0.6)
 
 
 ## Announce charms that ran out (melted, spoiled, went flat) and redraw the row.
