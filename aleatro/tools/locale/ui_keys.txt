@@ -348,3 +348,7 @@ OPEN
 Ante %d Voucher
 SHOP
 Improve your run!
+# --- CRT setting
+CRT: On
+CRT: Off
+The old-screen look: slight curve, scanlines and grain

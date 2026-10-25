@@ -66,6 +66,7 @@ var _bg_key := ""
 var _bg_tween: Tween
 var bg_spin := {"real": 0.0, "eased": 0.0, "amount": 0.0}
 var bg_spin_time := 0.0
+var crt_rect: ColorRect  # Balatro's CRT pass over the whole screen
 var _shop_cells: Array = []  # see _shop_cell
 var shop_sign: Control = null
 var _overlay_full := false
@@ -84,7 +85,7 @@ const STAT_DEFAULTS := {
 var stats := STAT_DEFAULTS.duplicate()
 var saves: SaveManager
 var profile_data := {}
-var settings := {"master": 80.0, "music": 70.0, "sfx": 85.0, "vibration": true, "speed": 1.0, "reduced_motion": false, "language": "auto"}
+var settings := {"master": 80.0, "music": 70.0, "sfx": 85.0, "vibration": true, "speed": 1.0, "reduced_motion": false, "language": "auto", "crt": 70.0}
 var on_title := false
 var sidebar_buttons: Array = []
 var pad: PadInput
@@ -124,6 +125,17 @@ func _ready() -> void:
 	add_child(pad)
 	debug_boxes = DebugBoxes.new(self)
 	add_child(debug_boxes)
+	# drawn over everything, last, like Balatro's CRT canvas pass
+	var crt_layer := CanvasLayer.new()
+	crt_layer.layer = 128
+	add_child(crt_layer)
+	crt_rect = ColorRect.new()
+	crt_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	crt_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	crt_rect.material = ShaderMaterial.new()
+	crt_rect.material.shader = load("res://shaders/crt.gdshader")
+	crt_layer.add_child(crt_rect)
+	_apply_crt()
 	get_viewport().size_changed.connect(_on_resize)
 	_on_resize()
 	show_title()
@@ -334,6 +346,7 @@ func _build_ui() -> void:
 
 
 func _on_resize() -> void:
+	_apply_crt()
 	var s := get_viewport_rect().size
 	vw = s.x
 	vh = s.y
@@ -3217,7 +3230,23 @@ func toast(text: String) -> void:
 	tw.tween_callback(p.queue_free)
 
 
+## The CRT pass, set as Balatro's Game:draw does from its CRT setting
+## (0-100, default 70, used at 30%); bloom stays off as in its defaults.
+func _apply_crt() -> void:
+	if crt_rect == null:
+		return
+	var c: float = settings.crt * 0.3
+	crt_rect.visible = c > 0.0
+	var m: ShaderMaterial = crt_rect.material
+	m.set_shader_parameter("distortion_fac", Vector2(1.0 + 0.07 * c / 100.0, 1.0 + 0.1 * c / 100.0))
+	m.set_shader_parameter("scale_fac", Vector2(1.0 - 0.008 * c / 100.0, 1.0 - 0.008 * c / 100.0))
+	m.set_shader_parameter("noise_fac", 0.001 * c / 100.0)
+	m.set_shader_parameter("crt_intensity", 0.16 * c / 100.0)
+	m.set_shader_parameter("scanlines", get_window().size.y * 0.75)
+
+
 func _apply_settings() -> void:
+	_apply_crt()
 	Music.apply_volumes(settings.master, settings.music, settings.sfx)
 	Engine.time_scale = settings.speed
 	Glide.calm = settings.reduced_motion
@@ -3552,7 +3581,7 @@ func show_menu() -> void:
 	music.set_muffled(true)
 	sfx.play("pause_open")
 	var title: String = "Paused" + ("  -  " + Data.challenge_def(gs.challenge).name if gs != null and gs.challenge != "" else "")
-	var opt := {"color": Color("5a5f73"), "min": Vector2(300, 64), "size": 24}
+	var opt := {"color": Color("5a5f73"), "min": Vector2(250, 64), "size": 22}
 	var b := func(text: String, cb: Callable, extra := {}) -> Dictionary:
 		var d := opt.duplicate()
 		d.merge({"button": text, "on": cb})
@@ -3580,6 +3609,11 @@ func show_menu() -> void:
 				_apply_settings()
 				_save_stats()
 				show_menu(), {"color": Color("4a6fa5"), "tooltip": "Reduced turns off screen shake, wobble, lean and idle sway"}),
+			b.call("CRT: On" if settings.crt > 0 else "CRT: Off", func():
+				settings.crt = 0.0 if settings.crt > 0 else 70.0
+				_apply_settings()
+				_save_stats()
+				show_menu(), {"color": Color("4a6fa5"), "tooltip": "The old-screen look: slight curve, scanlines and grain"}),
 			b.call("How to play", show_help),
 			b.call("Collection", show_collection),
 			b.call("Language", show_language),
@@ -3596,6 +3630,6 @@ func show_menu() -> void:
 				close_modal()
 				clear_hand_views()
 				show_title(), {"color": Color("7b4fa0"), "hold": 0.8}),
-		], "columns": 3, "sep": 14},
+		], "columns": 4, "sep": 14},
 		{"button": "Resume", "color": Data.CHIP_COLOR, "on": close_modal, "min": Vector2(320, 76), "size": 30},
 	]}))
