@@ -89,12 +89,43 @@ static func face(rank: int, suit: int) -> Texture2D:
 	if not _cache.has(key) and rank >= 11:
 		var path := "res://assets/cards/%d_%d.png" % [rank, suit]
 		if ResourceLoader.exists(path):
-			_cache[key] = load(path)
+			_cache[key] = ImageTexture.create_from_image(_painted(load(path).get_image(), rank, suit))
 	if not _cache.has(key):
 		var img := paint(rank, suit)
 		img.resize(W * 2, H * 2, Image.INTERPOLATE_NEAREST)
 		_cache[key] = ImageTexture.create_from_image(img)
 	return _cache[key]
+
+
+## A painted face (4x, 280x392) with its own corner marks replaced by the
+## deck's pixel index, in the ink colour the painting uses for its suit.
+static func _painted(art: Image, rank: int, suit: int) -> Image:
+	art.convert(Image.FORMAT_RGBA8)
+	var k := art.get_width() / W
+	var cw := 15 * k  # the corner box: x < 15, y < 33 in face pixels
+	var ch := 33 * k
+	var counts := {}
+	for y in ch:
+		for x in cw:
+			var c := art.get_pixel(x, y)
+			if c.a > 0.8 and c.get_luminance() > 0.15:
+				var q := Color(snappedf(c.r, 0.1), snappedf(c.g, 0.1), snappedf(c.b, 0.1))
+				counts[q] = counts.get(q, 0) + 1
+	var ink: Color = Data.SUIT_COLORS[suit]
+	var best := 0
+	for q in counts:
+		if counts[q] > best:
+			best = counts[q]
+			ink = q
+	var clear := Color(0, 0, 0, 0)
+	art.fill_rect(Rect2i(0, 0, cw, ch), clear)
+	art.fill_rect(Rect2i(art.get_width() - cw, art.get_height() - ch, cw, ch), clear)
+	var idx := Image.create(W, H, false, Image.FORMAT_RGBA8)
+	idx.fill(clear)
+	_index(idx, rank, suit, ink)
+	idx.resize(W * k, H * k, Image.INTERPOLATE_NEAREST)
+	art.blend_rect(idx, Rect2i(0, 0, W * k, H * k), Vector2i.ZERO)
+	return art
 
 
 ## The face at its native 70x98, for tools and previews.
