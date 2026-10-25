@@ -147,7 +147,12 @@ func _ready() -> void:
 	_apply_crt()
 	get_viewport().size_changed.connect(_on_resize)
 	_on_resize()
-	show_title()
+	# Balatro's splash plays when the game is launched, not when a test
+	# script drops the scene into a tree of its own
+	if get_tree().current_scene == self:
+		show_splash()
+	else:
+		show_title()
 
 
 # ---------------------------------------------------------------- UI building
@@ -433,6 +438,7 @@ func juice(node: Control, amount: float = 0.12) -> void:
 func _process(delta: float) -> void:
 	_spin_background(delta)
 	_update_flames(delta)
+	_update_splash(delta)
 	if jiggle > 0.0 and Anim.calm:
 		jiggle = 0.0
 	if jiggle > 0.0:
@@ -462,6 +468,8 @@ func update_background() -> void:
 	match bg_mode:
 		"title":
 			ease_background(Color("009dff"), Color("fe5f55"), BG_BLACK, 1.0)
+		"splash":  # starts at black; the splash eases in the swirl
+			ease_background(Color.BLACK, Color.BLACK, Color.BLACK, 1.0)
 		"won":
 			ease_background(Color("4f6367"))
 		"arcana":
@@ -1056,6 +1064,153 @@ func _row_label(vb: Container, left: String, right: String, right_col := Data.MO
 	hb.add_child(l)
 	hb.add_child(_label(right, 28, right_col, HORIZONTAL_ALIGNMENT_RIGHT))
 	vb.add_child(hb)
+
+
+# ---------------------------------------------------------------- splash
+
+## Unit of Balatro's room in pixels: G.CARD_W is 2.049 units.
+const SPLASH_UNIT := CardView.W / 2.049
+const SPLASH_END := 13.9  # the last vortex card at ~11.9s, then 2s more
+
+var splash_layer: CanvasLayer = null
+var flash_rect: ColorRect = null
+var _splash_t := -1.0  # seconds since the splash began; -1 when not running
+var _splash_spawns: Array[float] = []  # when each vortex card flies in
+var _splash_hero: CharmView = null
+var _flash_fade: Tween = null
+
+
+## Game:splash_screen: a charm rises, burns away in white while a vortex
+## swallows 200 cards, and the white flash (flash.gdshader) swells from the
+## middle until it fills the screen and gives way to the title. A tap, a key
+## or a pad button skips it, as Escape and clicks do in Balatro.
+func show_splash() -> void:
+	busy = true
+	on_title = false
+	set_bg_mode("splash")
+	pad.process_mode = Node.PROCESS_MODE_DISABLED
+	splash_layer = CanvasLayer.new()
+	splash_layer.layer = 100
+	add_child(splash_layer)
+	# the swirl alone, over the table, until the title appears
+	var catcher := ColorRect.new()
+	catcher.material = bg_mat
+	catcher.set_anchors_preset(Control.PRESET_FULL_RECT)
+	catcher.mouse_filter = Control.MOUSE_FILTER_STOP
+	catcher.gui_input.connect(func(e: InputEvent):
+		if (e is InputEventMouseButton or e is InputEventScreenTouch) and e.pressed:
+			_end_splash(false))
+	splash_layer.add_child(catcher)
+	flash_rect = ColorRect.new()
+	flash_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flash_rect.material = ShaderMaterial.new()
+	flash_rect.material.shader = load("res://shaders/flash.gdshader")
+	splash_layer.add_child(flash_rect)
+	# the vortex schedule from splash_screen's loop
+	_splash_spawns.clear()
+	var t := 3.0
+	for i in range(1, 201):
+		_splash_spawns.append(t)
+		t += maxf(1.0 / i, maxf(0.2 * (170 - i) / 500.0, 0.016))
+	_splash_t = 0.0
+
+
+func _update_splash(delta: float) -> void:
+	if _splash_t < 0.0:
+		return
+	var before := _splash_t
+	_splash_t += minf(delta, 0.1)
+	var now := _splash_t
+	flash_rect.material.set_shader_parameter("time", now)
+	var centre := Vector2(vw, vh) / 2.0
+	# the splash charm rises into the middle
+	if before < 0.2 and now >= 0.2:
+		_splash_hero = CharmView.new("jester")
+		_splash_hero.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_splash_hero.scale = Vector2.ONE * 1.2
+		_splash_hero.position = centre - _splash_hero.size / 2.0 + Vector2(0, 10.0 * SPLASH_UNIT)
+		splash_layer.add_child(_splash_hero)
+		splash_layer.move_child(_splash_hero, 1)
+		_splash_hero.create_tween().tween_property(_splash_hero, "position", centre - _splash_hero.size / 2.0, 0.6) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		haptic(60, 0.6)
+		sfx.play("card_slide", 0.7, 0.2)
+	# ...then burns away in white while the swirl fades in
+	if before < 2.0 and now >= 2.0:
+		if is_instance_valid(_splash_hero):
+			_splash_hero.dissolve(0.7 * 12.0, [Color.WHITE, Color.WHITE])
+		sfx.play("dissolve", 1.0, 0.5)
+		ease_background(Color("009dff"), Color.WHITE, Color("009dff").darkened(0.6), 1.0)
+		if not settings.reduced_motion:
+			bg_spin.real = 1.0
+	for i in _splash_spawns.size():
+		var at: float = _splash_spawns[i]
+		if before < at and at <= now:
+			_splash_card(i + 1, centre)
+	if now >= SPLASH_END:
+		_end_splash(true)
+
+
+func _input(event: InputEvent) -> void:
+	if _splash_t >= 0.0 and event.is_pressed() and not event.is_echo() \
+			and (event is InputEventKey or event is InputEventJoypadButton):
+		get_viewport().set_input_as_handled()
+		_end_splash(false)
+
+
+## make_splash_card: a card thrown in from beyond the edge, sucked into the
+## middle as it shrinks away.
+func _splash_card(i: int, centre: Vector2) -> void:
+	var angle := randf() * TAU
+	var card_size := (2.0 - i / 300.0) * (randf() + 1.0)
+	var from := Vector2(sin(angle), cos(angle)) * (18.0 + card_size) * SPLASH_UNIT
+	var cv := CardView.new({"rank": randi_range(2, 14), "suit": randi_range(0, 3), "id": -1})
+	cv.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if randf() > 0.8:
+		cv.face_up = false
+	cv.scale = Vector2.ONE * card_size
+	cv.rotation = angle
+	cv.position = centre + from - cv.size / 2.0
+	splash_layer.add_child(cv)
+	splash_layer.move_child(cv, 1)
+	var speed := maxf(2.0 - i * 0.005, 0.001)
+	var tw := cv.create_tween().set_parallel()
+	tw.tween_property(cv, "scale", Vector2.ZERO, speed).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_IN)
+	tw.tween_property(cv, "position", centre - cv.size / 2.0, 0.9 * speed)
+	tw.chain().tween_callback(func():
+		if i < 30:
+			sfx.play("card_slide", i * 0.007 + 0.6 + randf() * 0.05, 0.25 * (1.0 - i / 50.0))
+		cv.queue_free())
+
+
+## Into the title. From the full splash the white holds a moment and fades
+## (main_menu('splash'): mid_flash 1.6 eased to 0 over 4s); skipped, the
+## title just appears.
+func _end_splash(flash: bool) -> void:
+	if _splash_t < 0.0:
+		return
+	_splash_t = -1.0
+	pad.process_mode = Node.PROCESS_MODE_INHERIT
+	for c in splash_layer.get_children():
+		if c != flash_rect:
+			c.queue_free()
+	bg_spin.real = 0.0
+	show_title()
+	var m: ShaderMaterial = flash_rect.material
+	m.set_shader_parameter("time", 20.0)
+	if not flash:
+		splash_layer.queue_free()
+		splash_layer = null
+		flash_rect = null
+		return
+	m.set_shader_parameter("mid_flash", 1.6)
+	_flash_fade = create_tween()
+	_flash_fade.tween_method(func(v): m.set_shader_parameter("mid_flash", v), 1.6, 0.0, 4.0)
+	_flash_fade.tween_callback(func():
+		splash_layer.queue_free()
+		splash_layer = null
+		flash_rect = null)
 
 
 func show_title() -> void:
