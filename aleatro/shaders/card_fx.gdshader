@@ -20,6 +20,8 @@ uniform vec2 tilt = vec2(0.0);
 uniform float tilt_amt = 0.0;
 // Balatro's debuff.fs: a dull red veil and a red X over a debuffed card
 uniform bool debuff = false;
+// Balatro's played.fs: a card already drawn this round, greyed in the deck view
+uniform bool played = false;
 // the card's rotation in radians, which Balatro adds into its edition sweeps
 uniform float rot = 0.0;
 // a fixed number per card: Balatro sends each card's shaders a `time` from
@@ -233,6 +235,14 @@ void fragment() {
 			sat.z *= 0.7;
 		}
 		c.rgb = mix(c.rgb, hsl_to_rgb(sat), (on_x ? 1.0 : 0.3) * face);
+	}
+	if (played) {
+		// played.fs, drawn in place of the card: half the saturation, 80%
+		// of the lightness, half see-through
+		vec3 hsl = rgb_to_hsl(c.rgb);
+		hsl.y *= 0.5;
+		hsl.z *= 0.8;
+		c = vec4(hsl_to_rgb(hsl), c.a * 0.5);
 	}
 	if (tilt_amt > 0.0) {
 		// raised side brighter, sunken side a touch darker

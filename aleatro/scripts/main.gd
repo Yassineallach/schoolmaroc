@@ -3289,7 +3289,7 @@ func show_deck() -> void:
 		cv.pivot_offset = Vector2.ZERO
 		cv.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		if in_round and not remaining.has(c.id):
-			cv.modulate = Color(1, 1, 1, 0.3)
+			cv.set_greyed(true)
 		cell.add_child(cv)
 		grid.add_child(cell)
 	scroll.add_child(grid)

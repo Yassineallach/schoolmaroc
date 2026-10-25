@@ -18,6 +18,7 @@ static var _seal_art := {}  # seal id -> Texture2D or null  # enhancement id -> 
 var card: Dictionary
 var selected := false
 var debuffed := false
+var greyed := false  # drawn already this round (the deck view); see set_greyed
 var face_up := true
 var float_amount := 0.5
 var _phase := randf() * TAU
@@ -86,6 +87,14 @@ func _process(delta: float) -> void:
 		queue_redraw()
 
 
+## Balatro's greyed card: played.fs in place of the face, and no shadow.
+func set_greyed(v: bool) -> void:
+	greyed = v
+	if v or material != null:
+		_ensure_material().set_shader_parameter("played", v)
+	queue_redraw()
+
+
 func set_debuffed(v: bool) -> void:
 	debuffed = v
 	if v or material != null:
@@ -133,6 +142,7 @@ func _paint() -> void:
 	var base := Anim.float_xform(size, _phase, amount)
 	draw_set_transform_matrix(base)
 	var lift := Anim.lift(_phase, amount)
+	_face_box.shadow = not greyed  # shared by every card, so set per draw
 	# lifted cards cast a longer shadow
 	_face_box.shadow_offset = (Vector2(6, 12) if selected else Vector2(3, 6)) + Vector2(1, 3) * lift + Anim.parallax(self)
 	if not face_up:
