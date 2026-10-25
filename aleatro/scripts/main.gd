@@ -70,6 +70,12 @@ var crt_rect: ColorRect  # Balatro's CRT pass over the whole screen
 # Balatro's flame_handler: flames rise from the Chips and Mult boxes while
 # the hand's score beats the blind. Each: {rect, intensity, real, vel, timer}
 var flames: Array = []
+# Materialize (Fx): new shop stock, pack contents and newly made charms and
+# spells burn into view. What was on screen last time, to tell new from old:
+var _shop_fresh := ""  # "all" when the shop opens, "shelf" after a reroll
+var _seen_charms: Array = []  # [GameState, its charms as last shown]
+var _seen_spells: Array = []  # [GameState, its spells as last shown]
+var _quiet_new := {"charms": false, "spells": false}  # bought or taken: no effect
 var _shop_cells: Array = []  # see _shop_cell
 var shop_sign: Control = null
 var _overlay_full := false
@@ -695,6 +701,10 @@ func rebuild_charms() -> void:
 		UIBuild.attach_tooltip(v, func(): return _charm_tip(v), false)
 		charm_row.add_child(v)
 		charm_views.append(v)
+		if _is_new("charms", gs.charms[i]):
+			Fx.materialize(v, [Fx.colour_for("charm", gs.charms[i].id)])
+	_seen_charms = [gs, gs.charms.duplicate()] if gs != null else []
+	_quiet_new.charms = false
 	layout_charms(false)
 	refresh_charm_states()
 	update_hud()
@@ -743,13 +753,36 @@ func rebuild_spells() -> void:
 	if gs == null:
 		return
 	see_spells(gs.spells)
+	var known: bool = not _seen_spells.is_empty() and is_same(_seen_spells[0], gs) and not _quiet_new.spells
+	var before: Array = _seen_spells[1].duplicate() if known else gs.spells.duplicate()
 	for i in gs.spells.size():
 		var v := SpellView.new(gs.spells[i])
 		v.position = Vector2(12 + i * (SpellView.W + 14), 4)
 		v.tapped.connect(show_spell)
 		spell_row.add_child(v)
 		spell_views.append(v)
+		if before.has(gs.spells[i]):
+			before.erase(gs.spells[i])
+		else:
+			Fx.materialize(v, [Fx.colour_for("spell", gs.spells[i])])
+	_seen_spells = [gs, gs.spells.duplicate()]
+	_quiet_new.spells = false
 	update_hud()
+
+
+## Whether charm `inst` is new since the charms were last shown: made by a
+## charm, spell or tag mid-run (those materialize), not bought or taken,
+## and not the start of a run or a loaded one.
+func _is_new(what: String, inst) -> bool:
+	if _quiet_new[what] or _seen_charms.is_empty() or not is_same(_seen_charms[0], gs):
+		return false
+	return not _seen_charms[1].any(func(c): return is_same(c, inst))
+
+
+## The next new charms and spells were bought or taken: no materialize.
+func _quiet_next() -> void:
+	_quiet_new.charms = true
+	_quiet_new.spells = true
 
 
 func show_spell(v: SpellView) -> void:
@@ -1476,7 +1509,11 @@ func _show_pack(id: String, choices: Array, picks: int, then: Callable) -> void:
 				view.float_amount = 1.0
 				title = Data.card_name(choice)
 				desc = "\n".join(Data.card_mods(choice))
+		if picks == Data.PACKS[id].choose:  # the pack has just been opened
+			Fx.materialize(view, [Fx.colour_for("charm", choice.id) if kind == "buffoon"
+				else Fx.colour_for("spell", choice) if kind != "standard" else Fx.PLAYING])
 		var take := func():
+			_quiet_next()  # taken from the pack, not made
 			var why := gs.take_from_pack(id, choice, picked)
 			if why != "":
 				popup_text(Vector2(main_cx(), TOP_H + 40), why, Color.WHITE, 28)
@@ -2272,6 +2309,7 @@ func _confetti() -> void:
 # ---------------------------------------------------------------- shop
 
 func open_shop() -> void:
+	_shop_fresh = "all"
 	gs.reroll_cost = gs.reroll_base()
 	gs.free_rerolls = gs.charm_count("chaos")
 	gs.roll_shop()
@@ -2325,6 +2363,7 @@ func show_shop() -> void:
 		{"node": _shop_well(_shop_well(vouchers, Color("1a242b"), 8), Color("2c3a44"))},
 		{"node": _shop_well(packs, Color("2c3a44"))},
 	], "sep": 10}))
+	_shop_fresh = ""
 	save_run("shop")
 	tutorial("shop", "Welcome to the shop! Charms give a bonus every hand, Spells and Runes go in the slots at the top right, and a Voucher upgrades your whole run. Drag your charms to change the order they trigger in.")
 
@@ -2428,6 +2467,9 @@ func _shop_cell(it: Dictionary, i: int) -> Control:
 	if it.type in ["charm", "spell", "card"]:
 		cost = gs.item_price(it)
 		on_buy = func(): buy_item(i)
+	if _shop_fresh == "all" or (_shop_fresh == "shelf" and it.type in ["charm", "spell", "card"]):
+		var kind: String = it.type
+		Fx.materialize(view, [Fx.colour_for("pack" if kind == "pack" else kind, it.get("id"))])
 	var art := _shrink(view, scale)
 	var art_size: Vector2 = art.custom_minimum_size
 	# the cell: room for the price tag above and the button below
@@ -2594,6 +2636,7 @@ func buy_item(i: int, use := false) -> void:
 	var cost := gs.item_price(it)
 	if not gs.can_afford(cost):
 		return
+	_quiet_next()  # bought, not made
 	match it.type:
 		"charm":
 			if gs.charms.size() >= gs.charm_capacity() and it.get("ed", "") != "negative":
@@ -2699,6 +2742,7 @@ func reroll_shop() -> void:
 	gs.shop_coupon = false
 	sfx.play("reroll")
 	# a reroll restocks the shelves only; packs and vouchers stay
+	_shop_fresh = "shelf"
 	gs.shop_items = []
 	for k in gs.shop_slots():
 		var it := gs.roll_shop_item()

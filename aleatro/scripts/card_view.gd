@@ -109,9 +109,10 @@ func dissolve(time: float = 0.7, colours: Array = []) -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var m := _ensure_material()
 	m.set_shader_parameter("dissolve_seed", randf() * 3000.0)
-	if colours.size() > 0:
-		m.set_shader_parameter("burn_colour_1", colours[0])
-		m.set_shader_parameter("burn_colour_2", colours[1] if colours.size() > 1 else Color(0, 0, 0, 0))
+	if colours.is_empty():
+		colours = [Color("374244"), Color("fda200")]  # G.C.BLACK, G.C.ORANGE
+	m.set_shader_parameter("burn_colour_1", colours[0])
+	m.set_shader_parameter("burn_colour_2", colours[1] if colours.size() > 1 else Color(0, 0, 0, 0))
 	var tw := create_tween()
 	tw.tween_method(func(v): m.set_shader_parameter("dissolve", v), 0.0, 1.0, time)
 	tw.tween_interval(0.05 * time)
