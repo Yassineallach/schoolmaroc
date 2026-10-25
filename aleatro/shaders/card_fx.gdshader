@@ -8,7 +8,13 @@ shader_type canvas_item;
 uniform int edition = 0;
 uniform vec2 size = vec2(100.0, 140.0);
 uniform float dissolve : hint_range(0.0, 1.0) = 0.0;
-uniform vec4 burn : source_color = vec4(1.0, 0.75, 0.3, 1.0);
+// Balatro's dissolve.fs: burn_colour_1 rims the edge, burn_colour_2 the
+// band behind it and tints the card as it goes (alpha 0 = unused)
+uniform vec4 burn_colour_1 : source_color = vec4(0.216, 0.259, 0.267, 1.0);
+uniform vec4 burn_colour_2 : source_color = vec4(0.992, 0.635, 0.0, 1.0);
+uniform float dissolve_seed = 0.0;  // Balatro's per-card `time`
+// the sprite's pixel grid the dissolve works on (a Balatro card at 2x)
+const vec2 DISSOLVE_PX = vec2(142.0, 190.0);
 uniform float phase = 0.0;
 uniform vec2 tilt = vec2(0.0);
 uniform float tilt_amt = 0.0;
@@ -112,14 +118,40 @@ void fragment() {
 		float lit = dot(uv - 0.5, -tilt) * tilt_amt;
 		c.rgb = clamp(c.rgb + face * vec3(lit * 0.22), 0.0, 1.0);
 	}
-	if (dissolve > 0.0) {
-		// Blocky noise so the dissolve reads as pixels burning away.
-		float n = hash(floor(local / 5.0));
-		float edge = dissolve * 1.15 - 0.075;
-		if (n < edge) {
+	if (dissolve > 0.001) {
+		// dissolve.fs: tint toward the burn colour, then a drifting field,
+		// pulled down near the edges, eats the card from the outside in
+		if (burn_colour_2.a > 0.01) {
+			c.rgb = mix(c.rgb, c.rgb * (1.0 - 0.6 * dissolve) + 0.6 * burn_colour_2.rgb * dissolve, face);
+		} else if (burn_colour_1.a > 0.01) {
+			c.rgb = mix(c.rgb, c.rgb * (1.0 - 0.6 * dissolve) + 0.6 * burn_colour_1.rgb * dissolve, face);
+		}
+		float adjusted = (dissolve * dissolve * (3.0 - 2.0 * dissolve)) * 1.02 - 0.01;
+		float t = dissolve_seed * 10.0 + 2003.0;
+		float px = max(DISSOLVE_PX.x, DISSOLVE_PX.y);
+		vec2 floored_uv = floor(uv * DISSOLVE_PX) / px;
+		vec2 centred = (floored_uv - 0.5) * 2.3 * px;
+		vec2 f1 = centred + 50.0 * vec2(sin(-t / 143.6340), cos(-t / 99.4324));
+		vec2 f2 = centred + 50.0 * vec2(cos(t / 53.1532), cos(t / 61.4532));
+		vec2 f3 = centred + 50.0 * vec2(sin(-t / 87.53218), sin(-t / 49.0000));
+		float field = (1.0 + (cos(length(f1) / 19.483) + sin(length(f2) / 33.155) * cos(f2.y / 15.73)
+				+ cos(length(f3) / 27.193) * sin(f3.x / 21.92))) / 2.0;
+		vec2 borders = vec2(0.2, 0.8);
+		float res = (0.5 + 0.5 * cos(adjusted / 82.612 + (field - 0.5) * 3.14))
+			- (floored_uv.x > borders.y ? (floored_uv.x - borders.y) * (5.0 + 5.0 * dissolve) : 0.0) * dissolve
+			- (floored_uv.y > borders.y ? (floored_uv.y - borders.y) * (5.0 + 5.0 * dissolve) : 0.0) * dissolve
+			- (floored_uv.x < borders.x ? (borders.x - floored_uv.x) * (5.0 + 5.0 * dissolve) : 0.0) * dissolve
+			- (floored_uv.y < borders.x ? (borders.x - floored_uv.y) * (5.0 + 5.0 * dissolve) : 0.0) * dissolve;
+		if (face > 0.5 && burn_colour_1.a > 0.01 && res > adjusted && res < adjusted + 0.8 * (0.5 - abs(adjusted - 0.5))) {
+			if (res < adjusted + 0.5 * (0.5 - abs(adjusted - 0.5))) {
+				c.rgb = burn_colour_1.rgb;
+			} else if (burn_colour_2.a > 0.01) {
+				c.rgb = burn_colour_2.rgb;
+			}
+		}
+		if (res <= adjusted) {
 			discard;
 		}
-		c.rgb = mix(c.rgb, burn.rgb, step(n, edge + 0.08) * face);
 	}
 	COLOR = c;
 }

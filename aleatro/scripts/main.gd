@@ -2887,7 +2887,10 @@ func defeat_blind() -> void:
 	var m := ShaderMaterial.new()
 	m.shader = load("res://shaders/card_fx.gdshader")
 	m.set_shader_parameter("size", blind_chip.size)
-	m.set_shader_parameter("burn", gs.blind_color().lightened(0.4))
+	# Blind:defeat burns the token in black and red
+	m.set_shader_parameter("burn_colour_1", Color("374244"))
+	m.set_shader_parameter("burn_colour_2", Color("fe5f55"))
+	m.set_shader_parameter("dissolve_seed", randf() * 3000.0)
 	blind_chip.material = m
 	juice(blind_chip, 0.3)
 	var pings := mini(gs.blind_reward() + 2, 7)
