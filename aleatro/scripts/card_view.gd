@@ -80,7 +80,7 @@ func _process(delta: float) -> void:
 	if _touch.tick(delta):
 		held.emit(self)
 	_tilt.update(self, delta, _touch.pressing or _touch.dragging, _ensure_material)
-	if card.get("ed", "") in ["foil", "holo"] or card.get("seal", "") == "golden":
+	if card.get("ed", "") in ["foil", "holo", "negative"] or card.get("seal", "") == "golden":
 		_ensure_material().set_shader_parameter("rot", rotation)
 	if float_amount > 0.0 and is_visible_in_tree():
 		queue_redraw()

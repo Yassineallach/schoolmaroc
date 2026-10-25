@@ -147,6 +147,32 @@ vec4 holo_pass(vec4 tex, vec2 uv) {
 	return tex;
 }
 
+// Balatro's negative_shine.fs, the pass it lays over a Negative card: the
+// original colours pushed toward lavender, see-through except where waves
+// of light roll across, tinted red and green as they pass
+vec4 negative_shine_pass(vec4 tex, vec2 uv) {
+	float r = min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_amt;
+	float low = min(tex.r, min(tex.g, tex.b));
+	float high = max(tex.r, max(tex.g, tex.b));
+	float delta = high - low - 0.1;
+
+	float fac = 0.8 + 0.9 * sin(11.0 * uv.x + 4.32 * uv.y + r * 12.0 + cos(r * 5.3 + uv.y * 4.2 - uv.x * 4.0));
+	float fac2 = 0.5 + 0.5 * sin(8.0 * uv.x + 2.32 * uv.y + r * 5.0 - cos(r * 2.3 + uv.x * 8.2));
+	float fac3 = 0.5 + 0.5 * sin(10.0 * uv.x + 5.32 * uv.y + r * 6.111 + sin(r * 5.3 + uv.y * 3.2));
+	float fac4 = 0.5 + 0.5 * sin(3.0 * uv.x + 2.32 * uv.y + r * 8.111 + sin(r * 1.3 + uv.y * 11.2));
+	float fac5 = sin(0.9 * 16.0 * uv.x + 5.32 * uv.y + r * 12.0 + cos(r * 5.3 + uv.y * 4.2 - uv.x * 4.0));
+
+	float maxfac = 0.7 * max(max(fac, max(fac2, max(fac3, 0.0))) + (fac + fac2 + fac3 * fac4), 0.0);
+
+	tex.rgb = tex.rgb * 0.5 + vec3(0.4, 0.4, 0.8);
+
+	tex.r = tex.r - delta + delta * maxfac * (0.7 + fac5 * 0.27) - 0.1;
+	tex.g = tex.g - delta + delta * maxfac * (0.7 - fac5 * 0.27) - 0.1;
+	tex.b = tex.b - delta + delta * maxfac * 0.7 - 0.1;
+	tex.a = tex.a * (0.5 * max(min(1.0, max(0.0, 0.3 * max(low * 0.2, delta) + min(max(maxfac * 0.1, 0.0), 0.4))), 0.0) + 0.15 * maxfac * (0.1 + delta));
+	return tex;
+}
+
 // Balatro's gold_seal.fs: bright bands sweeping across the seal, lifting
 // each colour toward white by up to half its brightest channel
 vec4 gold_seal_pass(vec4 pixel, vec2 tc, float r) {
@@ -188,7 +214,9 @@ void fragment() {
 		sat.z = 1.0 - sat.z;
 		sat.x = -sat.x + 0.2;
 		vec3 neg = hsl_to_rgb(vec3(fract(sat.x), sat.y, sat.z)) + 0.8 * vec3(79.0, 99.0, 103.0) / 255.0;
-		c.rgb = mix(c.rgb, clamp(neg, 0.0, 1.0), face);
+		vec4 shine = negative_shine_pass(c, uv);
+		neg = mix(clamp(neg, 0.0, 1.0), clamp(shine.rgb, 0.0, 1.0), clamp(shine.a, 0.0, 1.0));
+		c.rgb = mix(c.rgb, neg, face);
 	}
 	if (debuff) {
 		// debuff.fs, drawn over the card: everything dimmed and pulled
