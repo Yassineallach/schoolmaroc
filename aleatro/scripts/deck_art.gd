@@ -82,8 +82,14 @@ static var _cache := {}
 ## The face texture for `rank` (2-14) of `suit` (0 spade, 1 heart, 2 club, 3 diamond).
 ## The 70x98 art is enlarged 2x with nearest sampling, so CardView can draw it
 ## with linear filtering at any size and the pixels stay sharp and even.
-static func face(rank: int, suit: int) -> ImageTexture:
+## Jacks, Queens, Kings and Aces use their painted faces from assets/cards
+## (<rank>_<suit>.png, 4x size, transparent apart from the ink) when present.
+static func face(rank: int, suit: int) -> Texture2D:
 	var key := rank * 4 + suit
+	if not _cache.has(key) and rank >= 11:
+		var path := "res://assets/cards/%d_%d.png" % [rank, suit]
+		if ResourceLoader.exists(path):
+			_cache[key] = load(path)
 	if not _cache.has(key):
 		var img := paint(rank, suit)
 		img.resize(W * 2, H * 2, Image.INTERPOLATE_NEAREST)
