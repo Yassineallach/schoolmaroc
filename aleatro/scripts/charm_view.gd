@@ -56,6 +56,7 @@ func _ensure_material() -> ShaderMaterial:
 		m.shader = load("res://shaders/card_fx.gdshader")
 		m.set_shader_parameter("size", size)
 		m.set_shader_parameter("phase", _phase)
+		m.set_shader_parameter("card_seed", randf() * 3000.0)
 		material = m
 	return material
 
@@ -78,7 +79,7 @@ func _process(delta: float) -> void:
 	if _touch.tick(delta):
 		held.emit(self)
 	_tilt.update(self, delta, _touch.pressing or _touch.dragging, _ensure_material)
-	if material != null and edition == "foil":
+	if material != null and edition in ["foil", "holo"]:
 		material.set_shader_parameter("rot", rotation)
 	if float_amount > 0.0 and is_visible_in_tree():
 		queue_redraw()

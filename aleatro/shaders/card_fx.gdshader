@@ -22,6 +22,9 @@ uniform float tilt_amt = 0.0;
 uniform bool debuff = false;
 // the card's rotation in radians, which Balatro adds into its edition sweeps
 uniform float rot = 0.0;
+// a fixed number per card: Balatro sends each card's shaders a `time` from
+// its ID, so no two Holo cards ripple alike
+uniform float card_seed = 0.0;
 
 const float TILT_DEPTH = 0.22;
 
@@ -108,6 +111,42 @@ vec4 foil_pass(vec4 tex, vec2 uv) {
 	return tex;
 }
 
+// Balatro's holo.fs: the card's hue pushed round by a slow drifting field
+// and a fine diamond grid, lifted and blue-tinted, blended over the card
+vec4 holo_pass(vec4 tex, vec2 uv) {
+	vec2 holo = vec2(min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_amt, TIME);
+	vec3 hsl = rgb_to_hsl(0.5 * tex.rgb + 0.5 * vec3(0.0, 0.0, 1.0));
+
+	float t = holo.y * 7.221 + card_seed;
+	vec2 floored_uv = floor(uv * DISSOLVE_PX) / DISSOLVE_PX;
+	vec2 uv_scaled_centered = (floored_uv - 0.5) * 250.0;
+	vec2 f1 = uv_scaled_centered + 50.0 * vec2(sin(-t / 143.6340), cos(-t / 99.4324));
+	vec2 f2 = uv_scaled_centered + 50.0 * vec2(cos(t / 53.1532), cos(t / 61.4532));
+	vec2 f3 = uv_scaled_centered + 50.0 * vec2(sin(-t / 87.53218), sin(-t / 49.0000));
+	float field = (1.0 + (cos(length(f1) / 19.483) + sin(length(f2) / 33.155) * cos(f2.y / 15.73)
+			+ cos(length(f3) / 27.193) * sin(f3.x / 21.92))) / 2.0;
+	float res = 0.5 + 0.5 * cos(holo.x * 2.612 + (field - 0.5) * 3.14);
+
+	float low = min(tex.r, min(tex.g, tex.b));
+	float high = max(tex.r, max(tex.g, tex.b));
+	float delta = 0.2 + 0.3 * (high - low) + 0.1 * high;
+
+	float gridsize = 0.79;
+	float fac = 0.5 * max(max(max(0.0, 7.0 * abs(cos(uv.x * gridsize * 20.0)) - 6.0),
+			max(0.0, 7.0 * cos(uv.y * gridsize * 45.0 + uv.x * gridsize * 20.0) - 6.0)),
+			max(0.0, 7.0 * cos(uv.y * gridsize * 45.0 - uv.x * gridsize * 20.0) - 6.0));
+
+	hsl.x = hsl.x + res + fac;
+	hsl.y = hsl.y * 1.3;
+	hsl.z = hsl.z * 0.6 + 0.4;
+
+	tex = (1.0 - delta) * tex + delta * vec4(hsl_to_rgb(hsl), tex.a) * vec4(0.9, 0.8, 1.2, tex.a);
+	if (tex.a < 0.7) {
+		tex.a = tex.a / 3.0;
+	}
+	return tex;
+}
+
 // Balatro's gold_seal.fs: bright bands sweeping across the seal, lifting
 // each colour toward white by up to half its brightest channel
 vec4 gold_seal_pass(vec4 pixel, vec2 tc, float r) {
@@ -137,9 +176,8 @@ void fragment() {
 		vec4 f = foil_pass(c, uv);
 		c.rgb = mix(c.rgb, clamp(f.rgb, 0.0, 1.0), clamp(f.a, 0.0, 1.0) * face);
 	} else if (ed == 2) {
-		float h = 0.55 + 0.12 * sin(uv.y * 6.0 + t * 2.0) + 0.1 * uv.x;
-		float s = 0.5 + 0.5 * sin((uv.x - uv.y) * 14.0 + t * 2.5);
-		c.rgb = mix(c.rgb, c.rgb * hue(h) * 1.25 + hue(h + 0.5) * 0.12, face * (0.35 + 0.2 * s));
+		vec4 h = holo_pass(c, uv);
+		c.rgb = mix(c.rgb, clamp(h.rgb, 0.0, 1.0), clamp(h.a, 0.0, 1.0) * face);
 	} else if (ed == 3) {
 		float h = fract(uv.x * 0.6 + uv.y * 0.4 + t * 0.25);
 		c.rgb = mix(c.rgb, c.rgb * (0.6 + 0.7 * hue(h)), face * 0.6);
