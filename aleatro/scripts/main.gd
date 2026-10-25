@@ -58,6 +58,8 @@ var manual_order := false
 var charm_views: Array = []
 var busy := true
 var _shop_open := false
+var _shop_cells: Array = []  # see _shop_cell
+var shop_sign: Control = null
 var _overlay_full := false
 var in_round := false
 var sort_mode := "rank"
@@ -846,6 +848,7 @@ func _row_label(vb: Container, left: String, right: String, right_col := Data.MO
 
 
 func show_title() -> void:
+	_hide_shop_sign()
 	on_title = true
 	sfx.set_ambient("ambient_table", 0.55)
 	sfx.set_ambient("ambient_boss", 0.0)
@@ -1107,6 +1110,7 @@ func show_run_setup() -> void:
 
 
 func show_blind_select() -> void:
+	_hide_shop_sign()
 	music.set_track("boss" if gs.blind_idx == 2 else "table")
 	in_round = false
 	busy = true
@@ -2096,69 +2100,275 @@ func show_shop() -> void:
 	update_hud()
 	var vb := open_overlay()
 	_shop_open = true
+	_shop_cells = []
 	music.set_track("shop")
-	vb.add_theme_constant_override("separation", 8)
-	vb.add_child(UIBuild.build({"row": [
-		{"text": "Shop", "size": 36, "color": Color("ffdf6b")},
-		{"space": Vector2(40, 0)},
-		{"button": "Next Round", "color": Data.MULT_COLOR, "on": leave_shop, "min": Vector2(200, 60), "size": 24},
-		{"button": "Reroll $%d" % reroll_price(), "color": Color("3f9a5a"), "on": reroll_shop, "min": Vector2(170, 60), "size": 24,
+	_show_shop_sign()
+	vb.add_theme_constant_override("separation", 10)
+	# Laid out as Balatro's G.UIDEF.shop: Next Round over Reroll beside the
+	# shelf of charms, then the ante's voucher and the booster packs below.
+	var buttons := UIBuild.build({"col": [
+		{"button": "Next Round", "color": Data.MULT_COLOR, "on": leave_shop, "min": Vector2(164, 88), "size": 24, "once": true},
+		{"button": "Reroll\n$%d" % reroll_price(), "color": Color("3f9a5a"), "on": reroll_shop, "min": Vector2(164, 94), "size": 24,
 			"enabled": func(): return gs.can_afford(reroll_price())},
-	], "sep": 14, "align": "center"}))
-	var cards := HBoxContainer.new()
-	cards.alignment = BoxContainer.ALIGNMENT_CENTER
-	cards.add_theme_constant_override("separation", 10)
+	], "sep": 10})
+	var shelf := HBoxContainer.new()
+	shelf.alignment = BoxContainer.ALIGNMENT_CENTER
+	shelf.add_theme_constant_override("separation", 4)
 	see_spells(gs.shop_items.filter(func(it): return it.type == "spell").map(func(it): return it.id))
 	for i in gs.shop_items.size():
-		var it: Dictionary = gs.shop_items[i]
-		var view: Control
-		var desc := ""
-		var tag := ""
-		match it.type:
-			"charm":
-				var d := Data.charm_def(it.id)
-				view = CharmView.new(it.id, "", it.get("ed", ""))
-				view.sticker = sticker_text(it)
-				desc = d.desc
-				if it.get("ed", "") != "":
-					desc += "\n%s: %s" % [Data.EDITIONS[it.ed].name, Data.EDITIONS[it.ed].desc]
-				tag = "%s %s" % [Data.RARITY_NAMES[d.rarity], d.name]
-				discover("charm", it.id)
-			"spell":
-				var d := Data.spell_def(it.id)
-				view = SpellView.new(it.id)
-				desc = d.desc
-				tag = "Rune" if d.has("rune") else ("Omen" if d.get("omen", false) else "Spell")
-			"card":
-				view = CardView.new(it.card)
-				view.float_amount = 1.0
-				desc = "\n".join(Data.card_mods(it.card))
-				tag = Data.card_name(it.card)
-		cards.add_child(_shop_item(view, gs.item_price(it), desc, tag, func(): buy_item(i)))
-	if cards.get_child_count() == 0:
-		cards.add_child(_label("Sold out!", 28))
-	var lower := cards
-	lower.add_child(VSeparator.new())
+		shelf.add_child(_shop_cell(gs.shop_items[i], i))
+	if gs.shop_items.is_empty():
+		shelf.add_child(_label("Sold out!", 28))
+	var shelf_well := _shop_well(shelf, Color("2c3a44"))
+	shelf_well.custom_minimum_size.x = maxf(480.0, gs.shop_slots() * 128.0 + 40.0)
+	vb.add_child(UIBuild.build({"row": [{"node": buttons}, {"node": shelf_well}], "sep": 10}))
+	var vouchers := HBoxContainer.new()
+	vouchers.add_theme_constant_override("separation", 8)
+	vouchers.add_child(_vertical_label(tr("Ante %d Voucher" % gs.ante), 18, Color(1, 1, 1, 0.45)))
 	for v in gs.shop_vouchers:
-		var vd := Data.voucher_def(v)
-		lower.add_child(_shop_item(_voucher_view(v), voucher_price(), vd.desc, vd.name, func(): buy_voucher(v)))
+		vouchers.add_child(_shop_cell({"type": "voucher", "id": v}, -1))
+	if gs.shop_vouchers.is_empty():
+		vouchers.add_child(_label("Sold out!", 22, Color(1, 1, 1, 0.5)))
+	var packs := HBoxContainer.new()
+	packs.add_theme_constant_override("separation", 10)
 	for i in gs.shop_packs.size():
-		var pk: Dictionary = gs.shop_packs[i]
-		lower.add_child(_shop_item(_pack_view(pk.id), gs.pack_price(pk), Data.pack_desc(pk.id), Data.pack_name(pk.id), func(): buy_pack(i)))
-	vb.add_child(cards)
+		packs.add_child(_shop_cell({"type": "pack", "pack": gs.shop_packs[i]}, i))
+	if gs.shop_packs.is_empty():
+		packs.add_child(_label("Sold out!", 22, Color(1, 1, 1, 0.5)))
+	vb.add_child(UIBuild.build({"row": [
+		{"node": _shop_well(_shop_well(vouchers, Color("1a242b"), 8), Color("2c3a44"))},
+		{"node": _shop_well(packs, Color("2c3a44"))},
+	], "sep": 10}))
 	save_run("shop")
 	tutorial("shop", "Welcome to the shop! Charms give a bonus every hand, Spells and Runes go in the slots at the top right, and a Voucher upgrades your whole run. Drag your charms to change the order they trigger in.")
 
 
-func _shop_item(view: Control, cost: int, desc: String, tag: String, cb: Callable) -> Control:
-	var col := UIBuild.build({"col": [
-		{"node": _center(_shrink(view, 0.78))},
-		{"text": tag, "size": 14, "color": Color(1, 1, 1, 0.6), "fit": 118},
-		{"text": desc, "size": 14, "wrap": 118, "lines": 3, "id": "desc", "tooltip": {"title": tag, "lines": desc.split("\n")}},
-		{"button": "$%d" % cost, "color": Color("e0a526"), "on": cb, "min": Vector2(104, 46), "size": 22, "enabled": func(): return gs.can_afford(cost)},
-	], "sep": 2})
-	UIBuild.find(col, "desc").custom_minimum_size.y = 54
-	return col
+## A rounded tray the shop's cards sit in.
+func _shop_well(inner: Control, col: Color, pad := 12) -> PanelContainer:
+	var p := PanelContainer.new()
+	var sb := _box(col, 3.0)
+	sb.rounded = true
+	sb.set_content_margin_all(pad)
+	p.add_theme_stylebox_override("panel", sb)
+	p.add_child(inner)
+	return p
+
+
+## Text running bottom to top, like Balatro's "ANTE 1 VOUCHER".
+func _vertical_label(text: String, fsize: int, col: Color) -> Control:
+	var l := _label(text.to_upper(), fsize, col)
+	l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	var w := l.get_theme_font("font").get_string_size(l.text, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize).x + 8
+	var holder := Control.new()
+	holder.custom_minimum_size = Vector2(fsize + 10, w)
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	l.size = Vector2(w, fsize + 10)
+	l.rotation = -PI / 2
+	l.position = Vector2(0, w)
+	holder.add_child(l)
+	return holder
+
+
+## One thing for sale, as Balatro's create_shop_card_ui dresses it: the
+## price tag on top, and once tapped (selected) its description to the left
+## with BUY below (REDEEM for a voucher, OPEN for a pack) and, for a spell,
+## BUY AND USE on the right. `it` is a shop item, {type: voucher, id} or
+## {type: pack, pack}; `i` its index.
+func _shop_cell(it: Dictionary, i: int) -> Control:
+	var view: Control
+	var cost := 0
+	var title := ""
+	var lines: Array = []
+	var badge := ["", Color.WHITE]
+	var verb := "BUY"
+	var verb_col := Color("e0a526")
+	var on_buy: Callable
+	var on_use := Callable()
+	var scale := 0.92
+	match it.type:
+		"charm":
+			var d := Data.charm_def(it.id)
+			var cv := CharmView.new(it.id, "", it.get("ed", ""))
+			cv.sticker = sticker_text(it)
+			view = cv
+			title = d.name
+			lines = [Scoring.describe({"id": it.id, "data": {}})]
+			if it.get("ed", "") != "":
+				lines.append("%s: %s" % [Data.EDITIONS[it.ed].name, Data.EDITIONS[it.ed].desc])
+			badge = [Data.RARITY_NAMES[d.rarity], Data.RARITY_COLORS[d.rarity]]
+			discover("charm", it.id)
+		"spell":
+			var d := Data.spell_def(it.id)
+			view = SpellView.new(it.id)
+			title = d.name
+			lines = [d.desc]
+			if d.has("rune"):
+				badge = ["Rune", Data.RUNE_COLOR]
+			elif d.get("omen", false):
+				badge = ["Omen", Data.OMEN_COLOR]
+			else:
+				badge = ["Spell", Data.SPELL_COLOR]
+			scale = 1.0
+			if d.max == 0 and not d.get("hand", false):
+				on_use = func(): buy_item(i, true)
+		"card":
+			var cv := CardView.new(it.card)
+			cv.float_amount = 1.0
+			view = cv
+			title = Data.card_name(it.card)
+			lines = ["+%d Chips" % Data.card_chips(it.card.rank)] + Data.card_mods(it.card)
+			scale = 0.95
+		"voucher":
+			view = _voucher_view(it.id)
+			var vd := Data.voucher_def(it.id)
+			title = vd.name
+			lines = [vd.desc]
+			badge = ["Voucher", Color("c08a12")]
+			cost = voucher_price()
+			verb = "REDEEM"
+			verb_col = Color("3f9a5a")
+			on_buy = func(): buy_voucher(it.id)
+			scale = 1.08
+		"pack":
+			var pk: Dictionary = it.pack
+			view = _pack_view(pk.id)
+			title = Data.pack_name(pk.id)
+			lines = [Data.pack_desc(pk.id)]
+			cost = gs.pack_price(pk)
+			verb = "OPEN"
+			verb_col = Color("3f9a5a")
+			on_buy = func(): buy_pack(i)
+			scale = 1.18  # packs sit 1.27x a card (G.CARD_W*1.27)
+	if it.type in ["charm", "spell", "card"]:
+		cost = gs.item_price(it)
+		on_buy = func(): buy_item(i)
+	var art := _shrink(view, scale)
+	var art_size: Vector2 = art.custom_minimum_size
+	# the cell: room for the price tag above and the button below
+	var cell := Button.new()
+	cell.flat = true
+	cell.focus_mode = Control.FOCUS_NONE
+	for st in ["normal", "hover", "pressed", "focus", "disabled", "hover_pressed"]:
+		cell.add_theme_stylebox_override(st, StyleBoxEmpty.new())
+	cell.custom_minimum_size = art_size + Vector2(12, 54)
+	art.position = Vector2(6, 20)
+	cell.add_child(art)
+	var tag := _shop_price_tag(cost)
+	cell.add_child(tag)
+	tag.resized.connect(func(): tag.position = Vector2((cell.custom_minimum_size.x - tag.size.x) / 2, 2))
+	var buy := UIBuild.build({"button": verb, "color": verb_col, "on": on_buy, "min": Vector2(minf(art_size.x, 110), 50), "size": 20,
+		"fit": minf(art_size.x, 110) - 16, "once": true, "enabled": func(): return gs.can_afford(cost)})
+	buy.visible = false
+	cell.add_child(buy)
+	buy.resized.connect(func(): buy.position = Vector2((cell.custom_minimum_size.x - buy.size.x) / 2, 20 + art_size.y - 16))
+	var use: Control = null
+	if on_use.is_valid():
+		use = UIBuild.build({"button": "BUY\nAND USE", "color": Data.MULT_COLOR, "on": on_use, "min": Vector2(74, 64), "size": 15,
+			"fit": 62, "once": true, "enabled": func(): return gs.can_afford(cost) and gs.spell_blocked(it.id, [], false) == ""})
+		use.visible = false
+		cell.add_child(use)
+		use.resized.connect(func(): use.position = Vector2(6 + art_size.x - 18, 20 + (art_size.y - use.size.y) / 2))
+	var entry := {"cell": cell, "art": art, "buy": buy, "use": use, "popup": null,
+		"title": title, "lines": lines, "badge": badge}
+	_shop_cells.append(entry)
+	cell.pressed.connect(func(): _shop_select(entry))
+	return cell
+
+
+## The dark price tag over a shop card (create_shop_card_ui's t1).
+func _shop_price_tag(cost: int) -> Control:
+	var p := PanelContainer.new()
+	var sb := _box(Color("1a2026"), 2.0, true)
+	sb.rounded = true
+	sb.set_content_margin_all(4)
+	sb.content_margin_left = 12
+	sb.content_margin_right = 12
+	p.add_theme_stylebox_override("panel", sb)
+	p.add_child(_label("$%d" % cost, 22, Data.MONEY_COLOR))
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return p
+
+
+## Tap a shop card to select it (and again to let go): only the selected
+## card shows its buttons and its description.
+func _shop_select(entry: Dictionary) -> void:
+	var was_on: bool = entry.buy.visible
+	for e in _shop_cells:
+		if not is_instance_valid(e.cell):
+			continue
+		e.buy.visible = false
+		if e.use != null:
+			e.use.visible = false
+		e.art.position.y = 20
+		if e.popup != null and is_instance_valid(e.popup):
+			e.popup.queue_free()
+		e.popup = null
+	if was_on:
+		sfx.play("card_deselect")
+		return
+	sfx.play("card_select")
+	entry.buy.visible = true
+	if entry.use != null:
+		entry.use.visible = true
+	entry.art.position.y = 12  # lifted, like a highlighted card
+	entry.popup = _shop_popup(entry)
+
+
+## The card's description, to its left (Balatro's 'cl' popup in the shop).
+func _shop_popup(entry: Dictionary) -> Control:
+	var rows: Array = [{"text": entry.title, "size": 24, "color": Color("2b2d42"), "shadow": Color.TRANSPARENT}]
+	for line in entry.lines:
+		for part in str(line).split("\n"):
+			rows.append({"text": part, "size": 18, "color": Color("4f6367"), "wrap": 300, "shadow": Color.TRANSPARENT})
+	if entry.badge[0] != "":
+		rows.append({"text": entry.badge[0], "size": 17, "color": Color.WHITE, "panel": entry.badge[1], "pad": 6})
+	var p := UIBuild.build({"col": rows, "sep": 6, "panel": Color("f7f3ea"), "pad": 12, "outline": Color("2b2d42")})
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	p.top_level = true
+	p.z_index = 900
+	var cell: Control = entry.cell
+	cell.add_child(p)
+	var place := func():
+		var r := (entry.art as Control).get_global_rect()
+		var vp := get_viewport_rect().size
+		var x := r.position.x - p.size.x - 10
+		if x < 8:  # no room on the left: show it on the right
+			x = r.end.x + 10
+		p.position = Vector2(clampf(x, 8, vp.x - p.size.x - 8), clampf(r.get_center().y - p.size.y / 2, 8, vp.y - p.size.y - 8))
+	p.resized.connect(place)
+	place.call_deferred()
+	return p
+
+
+## Balatro's SHOP sign, over the blind panel while the shop is open.
+func _show_shop_sign() -> void:
+	if shop_sign != null and is_instance_valid(shop_sign):
+		return
+	shop_sign = PanelContainer.new()
+	var sb := _box(Color("1d2a33"), 4.0)
+	sb.set_content_margin_all(6)
+	sb.outline = 3.0
+	sb.outline_color = Color("b3364e")
+	shop_sign.add_theme_stylebox_override("panel", sb)
+	shop_sign.position = Vector2.ZERO
+	shop_sign.size = blind_box.size
+	shop_sign.mouse_filter = Control.MOUSE_FILTER_STOP
+	var title := _label("SHOP", 46, Color("ffdf6b"))
+	title.add_theme_color_override("font_outline_color", Color("b3364e"))
+	title.add_theme_constant_override("outline_size", 10)
+	shop_sign.add_child(UIBuild.build({"col": [
+		{"node": title},
+		{"text": "Improve your run!", "size": 20, "color": Color("ffe7a0"), "fit": 290},
+	], "sep": 0}))
+	blind_box.add_child(shop_sign)
+	shop_sign.scale = Vector2(1, 0.2)
+	create_tween().tween_property(shop_sign, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func _hide_shop_sign() -> void:
+	if shop_sign != null and is_instance_valid(shop_sign):
+		shop_sign.queue_free()
+	shop_sign = null
 
 
 ## Wrap a card-like view so it lays out at `s` of its size.
@@ -2189,7 +2399,9 @@ func _inflate() -> void:
 		toast("Prices rose to +$%d" % gs.inflation)
 
 
-func buy_item(i: int) -> void:
+## Buy shop item `i`; `use` (spells only): cast it at once instead of
+## keeping it (Balatro's BUY AND USE).
+func buy_item(i: int, use := false) -> void:
 	if i < 0 or i >= gs.shop_items.size():
 		return
 	var it: Dictionary = gs.shop_items[i]
@@ -2211,16 +2423,17 @@ func buy_item(i: int) -> void:
 			rebuild_charms()
 		"spell":
 			var d := Data.spell_def(it.id)
-			if gs.spells.size() < gs.spell_capacity():
-				gs.spells.append(it.id)
-			elif d.max == 0 and not d.get("hand", false) and gs.spell_blocked(it.id, [], false) == "":
-				# no room to keep it: use it right away
+			if use:
+				if d.max != 0 or d.get("hand", false) or gs.spell_blocked(it.id, [], false) != "":
+					return
 				gs.spells.append(it.id)
 				gs.cast_spell(it.id, [])
 				if gs.spell_note != "":
 					toast(gs.spell_note)
 					gs.spell_note = ""
 				rebuild_charms()
+			elif gs.spells.size() < gs.spell_capacity():
+				gs.spells.append(it.id)
 			else:
 				popup_text(Vector2(main_cx(), TOP_H + 40), "No room for more spells", Color.WHITE, 28)
 				return
@@ -2309,6 +2522,7 @@ func reroll_shop() -> void:
 
 
 func leave_shop() -> void:
+	_hide_shop_sign()
 	for note in gs.on_leave_shop():
 		toast(note)
 	rebuild_spells()

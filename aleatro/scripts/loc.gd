@@ -46,14 +46,18 @@ static func apply(choice: String) -> void:
 		_tr = null
 	var dump := OS.get_environment("ALEATRO_LOC_DUMP")
 	# English is the source text: no translator, unless collecting strings
+	# Godot mirrors every hand-placed control while the locale is a right-to-
+	# left one; the table keeps its layout, so Arabic runs under a stand-in
+	# locale (its text still reads right to left, see main._on_node_added)
+	var server_locale := "en_ZZ" if is_rtl() else lang
 	if lang != "en" or dump != "":
 		_tr = Translator.new()
-		_tr.locale = lang
+		_tr.locale = server_locale
 		if lang != "en":
 			_tr.load_json("res://locale/%s.json" % lang)
 		_tr.dump_path = dump
 		TranslationServer.add_translation(_tr)
-	TranslationServer.set_locale(lang)
+	TranslationServer.set_locale(server_locale)
 	_set_fonts()
 
 

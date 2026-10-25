@@ -339,3 +339,12 @@ Also banned: %s
 # --- list separators, written {comma} and {semicolon} here (", " and "; ")
 {comma}
 {semicolon}
+# --- shop (Balatro layout)
+Reroll
+BUY
+AND USE
+REDEEM
+OPEN
+Ante %d Voucher
+SHOP
+Improve your run!
