@@ -58,6 +58,14 @@ var manual_order := false
 var charm_views: Array = []
 var busy := true
 var _shop_open := false
+# The background, as Balatro drives its background shader: three colours
+# (G.C.BACKGROUND C/L/D) and a contrast eased to suit the moment, and a
+# centre spin (G.ARGS.spin) that winds up during boss blinds.
+var bg_mode := ""  # "" follows the blind; else "title", "won" or a pack kind
+var _bg_key := ""
+var _bg_tween: Tween
+var bg_spin := {"real": 0.0, "eased": 0.0, "amount": 0.0}
+var bg_spin_time := 0.0
 var _shop_cells: Array = []  # see _shop_cell
 var shop_sign: Control = null
 var _overlay_full := false
@@ -194,6 +202,10 @@ func _build_ui() -> void:
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg_mat = ShaderMaterial.new()
 	bg_mat.shader = load("res://shaders/background.gdshader")
+	for k in ["colour_1", "colour_2", "colour_3"]:
+		bg_mat.set_shader_parameter(k, RenderingServer.shader_get_parameter_default(bg_mat.shader.get_rid(), k))
+	bg_mat.set_shader_parameter("contrast", 1.0)
+	bg_mat.set_shader_parameter("time_offset", randf() * 100.0)
 	bg.material = bg_mat
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
@@ -325,7 +337,6 @@ func _on_resize() -> void:
 	var s := get_viewport_rect().size
 	vw = s.x
 	vh = s.y
-	bg_mat.set_shader_parameter("aspect", vw / vh)
 	var mw := main_w()
 	charm_bg.size = Vector2(mw - 30 - SPELL_AREA, CHARM_H)
 	charm_row.size = charm_bg.size
@@ -395,6 +406,7 @@ func juice(node: Control, amount: float = 0.12) -> void:
 
 ## Small screen shake that decays every frame.
 func _process(delta: float) -> void:
+	_spin_background(delta)
 	if jiggle > 0.0 and Anim.calm:
 		jiggle = 0.0
 	if jiggle > 0.0:
@@ -402,6 +414,98 @@ func _process(delta: float) -> void:
 		position = Vector2(randf_range(-1, 1), randf_range(-1, 1)) * jiggle * 4.0
 	elif position != Vector2.ZERO:
 		position = Vector2.ZERO
+
+
+# ---------------------------------------------------------------- background
+
+const BG_BLACK := Color("374244")
+const BG_BLIND := Color("50846e")
+
+## Pick the background for the moment, as Balatro's ease_background_colour_blind.
+func update_background() -> void:
+	var boss := gs != null and in_round and gs.blind_idx == 2 and bg_mode == ""
+	var showdown: bool = boss and gs.boss_hex.get("showdown", false)
+	var key := bg_mode
+	if key == "":
+		key = ("showdown:" if showdown else "boss:") + str(gs.boss_hex.id) if boss else "blind"
+	bg_spin.real = 0.0 if settings.reduced_motion else (0.5 if showdown else 0.25 if boss else 0.0)
+	if key == _bg_key:
+		return
+	_bg_key = key
+	var dark := BG_BLACK.darkened(0.2)
+	match bg_mode:
+		"title":
+			ease_background(Color("009dff"), Color("fe5f55"), BG_BLACK, 1.0)
+		"won":
+			ease_background(Color("4f6367"))
+		"arcana":
+			ease_background(Color("8867a5"), dark, null, 1.5)
+		"spectral":
+			ease_background(Color("4584fa"), dark, null, 2.0)
+		"standard":
+			ease_background(dark, Color("fe5f55"), null, 3.0)
+		"buffoon":
+			ease_background(Color("ff9a00"), Color("009dff"), null, 2.0)
+		"celestial":
+			ease_background(BG_BLACK, null, null, 3.0)
+		_:
+			if boss:
+				var col: Color = gs.boss_hex.color
+				if showdown:
+					var dark_new := col.lerp(BG_BLACK, 0.4)
+					ease_background(dark_new, col, dark_new.darkened(0.3), 1.8)
+				else:
+					ease_background(col.lerp(BG_BLACK, 0.3).lightened(0.1), col, null, 2.0)
+			else:
+				ease_background(BG_BLIND)
+
+
+## Balatro's ease_background_colour: L = new x1.3, D = new x0.7 (x0.4 next to
+## a special colour), C = new x0.9 (or the special colour x0.9); or all three
+## given (new, special, tertiary) as L, C, D.
+func ease_background(new: Color, special = null, tertiary = null, contrast := 1.0) -> void:
+	var to := {}
+	if special != null and tertiary != null:
+		to = {"colour_2": new, "colour_1": special, "colour_3": tertiary}
+	else:
+		var main_col: Color = special if special != null else new
+		to = {"colour_2": _bright(new, 1.3), "colour_3": _bright(new, 0.4 if special != null else 0.7), "colour_1": _bright(main_col, 0.9)}
+	var from := {}
+	for k in to:
+		from[k] = bg_mat.get_shader_parameter(k)
+	var c0: float = bg_mat.get_shader_parameter("contrast")
+	if _bg_tween != null and _bg_tween.is_valid():
+		_bg_tween.kill()
+	_bg_tween = create_tween()
+	_bg_tween.tween_method(func(t: float):
+		for k in to:
+			bg_mat.set_shader_parameter(k, (from[k] as Color).lerp(to[k], t))
+		bg_mat.set_shader_parameter("contrast", lerpf(c0, contrast, t)), 0.0, 1.0, 0.8)
+
+
+static func _bright(c: Color, k: float) -> Color:
+	return Color(minf(c.r * k, 1.0), minf(c.g * k, 1.0), minf(c.b * k, 1.0), 1.0)
+
+
+## G.ARGS.spin: eases toward the target spin, winding the swirl as it goes.
+func _spin_background(delta: float) -> void:
+	var dt := minf(delta, 0.1)
+	var sp := bg_spin
+	var step: float = dt * 2.0 if sp.amount > sp.eased else 0.3 * dt
+	var d: float = sp.real - sp.eased
+	if absf(d) > step:
+		d = d * step / absf(d)
+	sp.eased += d
+	sp.amount = step * sp.eased + (1.0 - step) * sp.amount
+	bg_spin_time -= 60.0 * (sp.eased - sp.amount) * step
+	bg_spin_time += dt * sp.amount
+	bg_mat.set_shader_parameter("spin_amount", sp.amount)
+	bg_mat.set_shader_parameter("spin_time", bg_spin_time)
+
+
+func set_bg_mode(mode: String) -> void:
+	bg_mode = mode
+	update_background()
 
 
 # ---------------------------------------------------------------- HUD
@@ -450,8 +554,7 @@ func _update_hud() -> void:
 			side_box.color = c
 			side_panel.queue_redraw(), side_box.color, tint, 0.5)
 		tw.tween_callback(func(): side_panel.remove_meta("tinting"))
-	bg_mat.set_shader_parameter("base_a", gs.boss_hex.color.darkened(0.45) if boss else Color(0.09, 0.30, 0.22))
-	bg_mat.set_shader_parameter("base_b", gs.boss_hex.color.darkened(0.8) if boss else Color(0.04, 0.15, 0.12))
+	update_background()
 	btn_play.disabled = busy or not in_round or selected_views().is_empty()
 	btn_discard.disabled = busy or not in_round or selected_views().is_empty() or gs.discards_left <= 0
 	update_preview()
@@ -849,6 +952,7 @@ func _row_label(vb: Container, left: String, right: String, right_col := Data.MO
 
 func show_title() -> void:
 	_hide_shop_sign()
+	set_bg_mode("title")
 	on_title = true
 	sfx.set_ambient("ambient_table", 0.55)
 	sfx.set_ambient("ambient_boss", 0.0)
@@ -981,6 +1085,7 @@ func _center(c: Control) -> Control:
 
 func new_run(challenge_id: String = "", deck_id: String = "crimson", stake: int = 1) -> void:
 	on_title = false
+	bg_mode = ""
 	music.pitch_target = 1.0
 	gs = GameState.new()
 	gs.locked = Unlocks.locked(profile_data.get("unlocked", []))
@@ -1111,6 +1216,7 @@ func show_run_setup() -> void:
 
 func show_blind_select() -> void:
 	_hide_shop_sign()
+	set_bg_mode("")
 	music.set_track("boss" if gs.blind_idx == 2 else "table")
 	in_round = false
 	busy = true
@@ -1230,7 +1336,10 @@ func open_pack(id: String, then: Callable) -> void:
 		toast(note)
 	rebuild_spells()
 	sfx.play("charm_buy", 0.9)
-	_show_pack(id, choices, Data.PACKS[id].choose, then)
+	set_bg_mode(Data.PACKS[id].kind)
+	_show_pack(id, choices, Data.PACKS[id].choose, func():
+		set_bg_mode("")
+		then.call())
 
 
 func _show_pack(id: String, choices: Array, picks: int, then: Callable) -> void:
@@ -2044,6 +2153,7 @@ func game_over() -> void:
 
 func show_victory() -> void:
 	busy = true
+	set_bg_mode("won")
 	sfx.play("victory")
 	if gs.challenge != "":
 		if not profile_data.has("challenges_won"):
@@ -2971,6 +3081,7 @@ func save_run(screen: String, extra := {}) -> void:
 
 
 func resume_run() -> void:
+	bg_mode = ""
 	var d := saves.load_run()
 	if d.is_empty():
 		new_run()
