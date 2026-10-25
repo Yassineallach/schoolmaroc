@@ -26,9 +26,17 @@ uniform float rot = 0.0;
 const float TILT_DEPTH = 0.22;
 
 varying vec2 local;
+// 1 on a seal's pixels, 2 on a Gold seal's: card_view tags the seal draw
+// with a blue channel of 254/255 or 253/255 so it can be told apart
+varying float seal;
 
 void vertex() {
 	local = VERTEX;
+	seal = 0.0;
+	if (COLOR.r > 0.999 && COLOR.g > 0.999 && COLOR.b < 0.999 && COLOR.b > 0.985) {
+		seal = COLOR.b > 0.994 ? 1.0 : 2.0;
+		COLOR.b = 1.0;
+	}
 	if (tilt_amt > 0.0) {
 		vec2 half_size = size * 0.5;
 		vec2 p = VERTEX - half_size;
@@ -100,6 +108,15 @@ vec4 foil_pass(vec4 tex, vec2 uv) {
 	return tex;
 }
 
+// Balatro's gold_seal.fs: bright bands sweeping across the seal, lifting
+// each colour toward white by up to half its brightest channel
+vec4 gold_seal_pass(vec4 pixel, vec2 tc, float r) {
+	float delta = max(pixel.r, max(pixel.g, pixel.b)) * 0.5;
+	float fac = 0.3 + sin((tc.x * 450.0 + sin(r * 6.0) * 180.0) - 700.0 * r) - sin((tc.x * 190.0 + tc.y * 30.0) + 1080.3 * r);
+	pixel.rgb = max(pixel.rgb, (1.0 - pixel.rgb) * delta * fac + pixel.rgb);
+	return pixel;
+}
+
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
 }
@@ -110,17 +127,23 @@ void fragment() {
 	float t = TIME * 0.6 + phase;
 	// Only the opaque face shimmers; soft shadows stay plain.
 	float face = step(0.9, c.a);
-	if (edition == 1) {
+	if (seal > 1.5) {
+		// the timer Balatro sends its card shaders (Card:draw's send_to_shader)
+		c = gold_seal_pass(c, UV, min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_amt);
+	}
+	// editions shine on the card, not on the seal drawn over it
+	int ed = seal > 0.5 ? 0 : edition;
+	if (ed == 1) {
 		vec4 f = foil_pass(c, uv);
 		c.rgb = mix(c.rgb, clamp(f.rgb, 0.0, 1.0), clamp(f.a, 0.0, 1.0) * face);
-	} else if (edition == 2) {
+	} else if (ed == 2) {
 		float h = 0.55 + 0.12 * sin(uv.y * 6.0 + t * 2.0) + 0.1 * uv.x;
 		float s = 0.5 + 0.5 * sin((uv.x - uv.y) * 14.0 + t * 2.5);
 		c.rgb = mix(c.rgb, c.rgb * hue(h) * 1.25 + hue(h + 0.5) * 0.12, face * (0.35 + 0.2 * s));
-	} else if (edition == 3) {
+	} else if (ed == 3) {
 		float h = fract(uv.x * 0.6 + uv.y * 0.4 + t * 0.25);
 		c.rgb = mix(c.rgb, c.rgb * (0.6 + 0.7 * hue(h)), face * 0.6);
-	} else if (edition == 4) {
+	} else if (ed == 4) {
 		// negative: inverted colours with a slow violet sheen
 		vec3 inv = vec3(1.0) - c.rgb;
 		float s = 0.5 + 0.5 * sin((uv.x + uv.y) * 6.0 - t * 1.5);

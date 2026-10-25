@@ -79,8 +79,8 @@ func _process(delta: float) -> void:
 	if _touch.tick(delta):
 		held.emit(self)
 	_tilt.update(self, delta, _touch.pressing or _touch.dragging, _ensure_material)
-	if material != null and card.get("ed", "") == "foil":
-		material.set_shader_parameter("rot", rotation)
+	if card.get("ed", "") == "foil" or card.get("seal", "") == "golden":
+		_ensure_material().set_shader_parameter("rot", rotation)
 	if float_amount > 0.0 and is_visible_in_tree():
 		queue_redraw()
 
@@ -164,7 +164,9 @@ func _paint() -> void:
 		if stamp != null:
 			# the wax seal art, with a soft shadow
 			draw_texture_rect(stamp, Rect2(at - Vector2(13, 11), Vector2(28, 28)), false, Color(0, 0, 0, 0.35))
-			draw_texture_rect(stamp, Rect2(at - Vector2(14, 14), Vector2(28, 28)), false)
+			# the tint tags the seal for card_fx.gdshader (254: a seal, 253: Gold)
+			var tag := Color(1, 1, (253.0 if card.seal == "golden" else 254.0) / 255.0)
+			draw_texture_rect(stamp, Rect2(at - Vector2(14, 14), Vector2(28, 28)), false, tag)
 		else:
 			draw_circle(at + Vector2(1, 2), 10, Color(0, 0, 0, 0.3))
 			draw_circle(at, 10, sc.darkened(0.3))
