@@ -102,8 +102,23 @@ static func face(rank: int, suit: int) -> Texture2D:
 static func _painted(art: Image, rank: int, suit: int) -> Image:
 	art.convert(Image.FORMAT_RGBA8)
 	var k := art.get_width() / W
-	var cw := 15 * k  # the corner box: x < 15, y < 33 in face pixels
-	var ch := 33 * k
+	var ch := 33 * k  # the corner marks end above this row
+	# the figure's frame line: just below the marks (rows 32-35) it is the
+	# only thing in the corner, so the first solid column there; a fixed box
+	# for faces without a frame (Aces)
+	var cw := 15 * k
+	for x in range(9 * k, 23 * k):
+		var solid := true
+		for y in range(32 * k, 32 * k + 11):
+			if art.get_pixel(x, y).a < 0.5:
+				solid = false
+				break
+		if solid:
+			cw = x
+			break
+	var top := 0  # where the frame line starts
+	while top < ch and art.get_pixel(cw + 2, top).a < 0.5:
+		top += 1
 	var counts := {}
 	for y in ch:
 		for x in cw:
@@ -120,6 +135,11 @@ static func _painted(art: Image, rank: int, suit: int) -> Image:
 	var clear := Color(0, 0, 0, 0)
 	art.fill_rect(Rect2i(0, 0, cw, ch), clear)
 	art.fill_rect(Rect2i(art.get_width() - cw, art.get_height() - ch, cw, ch), clear)
+	# marks overhanging the frame's corner, above (and below) the frame line
+	var over := 6
+	if top > k and top < ch:
+		art.fill_rect(Rect2i(cw, 0, over, top - k / 2), clear)
+		art.fill_rect(Rect2i(art.get_width() - cw - over, art.get_height() - top + k / 2, over, top - k / 2), clear)
 	var idx := Image.create(W, H, false, Image.FORMAT_RGBA8)
 	idx.fill(clear)
 	_index(idx, rank, suit, ink)
