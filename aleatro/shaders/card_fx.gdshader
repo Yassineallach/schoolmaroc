@@ -182,10 +182,13 @@ void fragment() {
 		float h = fract(uv.x * 0.6 + uv.y * 0.4 + t * 0.25);
 		c.rgb = mix(c.rgb, c.rgb * (0.6 + 0.7 * hue(h)), face * 0.6);
 	} else if (ed == 4) {
-		// negative: inverted colours with a slow violet sheen
-		vec3 inv = vec3(1.0) - c.rgb;
-		float s = 0.5 + 0.5 * sin((uv.x + uv.y) * 6.0 - t * 1.5);
-		c.rgb = mix(c.rgb, inv * vec3(0.85, 0.8, 1.0) + vec3(0.08, 0.0, 0.15) * s, face);
+		// Balatro's negative.fs, drawn in place of the card: lightness
+		// flipped, hue mirrored about 0.2, and a slate grey added on top
+		vec3 sat = rgb_to_hsl(c.rgb);
+		sat.z = 1.0 - sat.z;
+		sat.x = -sat.x + 0.2;
+		vec3 neg = hsl_to_rgb(vec3(fract(sat.x), sat.y, sat.z)) + 0.8 * vec3(79.0, 99.0, 103.0) / 255.0;
+		c.rgb = mix(c.rgb, clamp(neg, 0.0, 1.0), face);
 	}
 	if (debuff) {
 		// debuff.fs, drawn over the card: everything dimmed and pulled
