@@ -14,6 +14,7 @@ var spell_id := ""
 var float_amount := 1.0
 var _phase := randf() * TAU
 var _touch := TouchTracker.new()
+var _sheen: TextureRect = null  # Omens: the booster shine over the card
 
 
 func _init(id: String = "") -> void:
@@ -136,6 +137,18 @@ func _draw_omen() -> void:
 	draw_texture_rect(tex, Rect2(lift, size), false, Color(0, 0, 0, 0.35))
 	draw_texture_rect(tex, Rect2(Vector2.ZERO, size), false)
 	var base := Anim.float_xform(size, _phase, float_amount)
+	# Balatro draws Spectral cards a second time through its booster shine;
+	# the sheen is a child, so it follows the card's sway here
+	if _sheen == null:
+		_sheen = booster_sheen(tex)
+		_sheen.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		_sheen.stretch_mode = TextureRect.STRETCH_SCALE
+		add_child(_sheen)
+	_sheen.texture = tex
+	_sheen.size = size
+	_sheen.position = base.origin
+	_sheen.rotation = base.get_rotation()
+	_sheen.scale = base.get_scale()
 	draw_set_transform_matrix(base * Transform2D(0.0, Vector2(1.0 / zoom, 1.0 / zoom), 0.0, Vector2.ZERO))
 	var k := size.x / OmenSVG.VIEW_W * zoom
 	var plate := OmenSVG.NAME
@@ -147,3 +160,19 @@ func _draw_omen() -> void:
 		fs -= 1
 	var baseline := (plate.position.y + plate.size.y / 2.0) * k + font.get_ascent(fs) * 0.36
 	draw_string(font, Vector2(plate.position.x * k, baseline), name, HORIZONTAL_ALIGNMENT_CENTER, plate.size.x * k, fs, Color(OmenSVG.IVORY))
+
+
+## Balatro's booster shine: the art again, through shaders/booster.gdshader,
+## laid over it.
+static func booster_sheen(tex: Texture2D) -> TextureRect:
+	var sheen := TextureRect.new()
+	sheen.texture = tex
+	sheen.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	sheen.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	sheen.set_anchors_preset(Control.PRESET_FULL_RECT)
+	sheen.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://shaders/booster.gdshader")
+	m.set_shader_parameter("phase", randf() * 10.0)
+	sheen.material = m
+	return sheen

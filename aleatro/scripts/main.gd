@@ -1456,6 +1456,7 @@ func _pack_view(id: String) -> Control:
 		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		art.custom_minimum_size = Vector2(124.0 * art.texture.get_width() / art.texture.get_height(), 124.0)
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		art.add_child(SpellView.booster_sheen(art.texture))
 		return art
 	var kind: String = Data.PACKS[id].kind
 	var col: Color = Data.PACK_KINDS[kind].color
