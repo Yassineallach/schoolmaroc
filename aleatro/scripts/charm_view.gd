@@ -26,8 +26,11 @@ var _lock_badge := TextureRect.new()
 var float_amount := 1.0
 var _phase := randf() * TAU
 var _touch := TouchTracker.new()
+const FRAME_ART := "res://assets/charms_pixel/hologram_frame.png"
+const SOUL_ART := "res://assets/charms_pixel/hologram_soul.png"
 static var _painted := {}  # charm id -> Texture2D, or null when it has no painted card
 var _tilt := Tilt.new()
+var _soul: HoloSoul = null  # Hologram's floating projection (hologram.gdshader)
 
 func _init(id: String = "", rune: String = "", ed: String = "") -> void:
 	charm_id = id
@@ -46,6 +49,10 @@ func _init(id: String = "", rune: String = "", ed: String = "") -> void:
 	_lock_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_lock_badge.visible = false
 	add_child(_lock_badge)
+	if charm_id == "hologram" and rune_hand == "" and ResourceLoader.exists(SOUL_ART):
+		_soul = HoloSoul.new(load(SOUL_ART), load(FRAME_ART), size)
+		add_child(_soul)
+		move_child(_soul, 0)
 	if edition != "":
 		_ensure_material().set_shader_parameter("edition", Data.EDITIONS[edition].shader)
 
@@ -83,6 +90,15 @@ func _process(delta: float) -> void:
 		material.set_shader_parameter("rot", rotation)
 	if float_amount > 0.0 and is_visible_in_tree():
 		queue_redraw()
+	if _soul != null:
+		_soul.visible = face_up
+		# Card:draw floats the sprite at 2x scale_mod and rotate_mod
+		var t := 0.0 if Anim.calm else Anim.now()
+		var grow := 2.0 * (0.07 + 0.02 * sin(1.8 * t))
+		var sway := 2.0 * 0.05 * sin(1.219 * t)
+		_soul.transform = Anim.float_xform(size, _phase, float_amount) \
+				* Transform2D(sway, Vector2.ONE * (1.0 + grow), 0.0, size / 2.0)
+		_soul.material.set_shader_parameter("spin", rotation)
 
 
 ## Burn away, then free (Balatro's Card:start_dissolve: 0.7 s, rimmed in
@@ -99,6 +115,8 @@ func dissolve(time: float = 0.7, colours: Array = []) -> void:
 	tw.tween_method(func(v): m.set_shader_parameter("dissolve", v), 0.0, 1.0, time)
 	tw.tween_interval(0.05 * time)
 	tw.tween_callback(queue_free)
+	if _soul != null:
+		create_tween().tween_property(_soul, "modulate:a", 0.0, 0.5 * time)
 
 
 func title() -> String:
@@ -130,6 +148,8 @@ func _paint() -> void:
 	sb.rounded = true
 	sb.shadow_offset = Vector2(3, 5) + Vector2(1, 3) * Anim.lift(_phase, float_amount) + Anim.parallax(self)
 	var painted := painted_art(charm_id) if rune_hand == "" else null
+	if _soul != null:
+		painted = _soul.frame  # the figure floats above it instead
 	if painted != null:
 		draw_texture_rect(painted, Rect2(sb.shadow_offset, size), false, Color(0, 0, 0, 0.35))
 		draw_texture_rect(painted, Rect2(Vector2.ZERO, size), false)
@@ -233,3 +253,23 @@ func flip_up(delay: float = 0.0) -> void:
 		face_up = true
 		queue_redraw())
 	tw.tween_property(self, "scale:x", 1.0, 0.09)
+
+
+## Hologram's figure, drawn centred on the card's middle so the float and
+## sway turn it about there.
+class HoloSoul extends Node2D:
+	var tex: Texture2D
+	var frame: Texture2D  # the card it floats over, held here so it stays loaded
+	var sz: Vector2
+
+	func _init(t: Texture2D, f: Texture2D, card_size: Vector2) -> void:
+		tex = t
+		frame = f
+		sz = card_size
+		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		var m := ShaderMaterial.new()
+		m.shader = load("res://shaders/hologram.gdshader")
+		material = m
+
+	func _draw() -> void:
+		draw_texture_rect(tex, Rect2(-sz / 2.0, sz), false)
