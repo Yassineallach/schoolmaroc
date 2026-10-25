@@ -67,6 +67,9 @@ var _bg_tween: Tween
 var bg_spin := {"real": 0.0, "eased": 0.0, "amount": 0.0}
 var bg_spin_time := 0.0
 var crt_rect: ColorRect  # Balatro's CRT pass over the whole screen
+# Balatro's flame_handler: flames rise from the Chips and Mult boxes while
+# the hand's score beats the blind. Each: {rect, intensity, real, vel, timer}
+var flames: Array = []
 var _shop_cells: Array = []  # see _shop_cell
 var shop_sign: Control = null
 var _overlay_full := false
@@ -251,10 +254,13 @@ func _build_ui() -> void:
 	var sbox := _panel(Vector2(10, 240), Vector2(320, 120), Color(0, 0, 0, 0.35))
 	lbl_hand_name = _place(_label("", 26), sbox, Vector2(0, 4), Vector2(320, 38))
 	var cbox := _panel(Vector2(10, 46), Vector2(138, 62), Data.CHIP_COLOR, sbox)
+	_add_flame(cbox, Data.CHIP_COLOR)
 	lbl_chips = _place(_label("0", 34), cbox, Vector2(0, 0), Vector2(138, 62))
 	_place(_label("x", 34, Color("ff6b6b")), sbox, Vector2(148, 46), Vector2(24, 62))
 	var mbox := _panel(Vector2(172, 46), Vector2(138, 62), Data.MULT_COLOR, sbox)
+	_add_flame(mbox, Data.MULT_COLOR)
 	lbl_mult = _place(_label("0", 34), mbox, Vector2(0, 0), Vector2(138, 62))
+	sbox.move_child(lbl_hand_name, -1)  # the hand's name stays readable over the flames
 
 	var hb := _panel(Vector2(10, 370), Vector2(155, 100), Data.CHIP_COLOR.darkened(0.35))
 	_place(_label("Hands", 20), hb, Vector2(0, 6), Vector2(155, 26))
@@ -420,6 +426,7 @@ func juice(node: Control, amount: float = 0.12) -> void:
 ## Small screen shake that decays every frame.
 func _process(delta: float) -> void:
 	_spin_background(delta)
+	_update_flames(delta)
 	if jiggle > 0.0 and Anim.calm:
 		jiggle = 0.0
 	if jiggle > 0.0:
@@ -519,6 +526,61 @@ func _spin_background(delta: float) -> void:
 func set_bg_mode(mode: String) -> void:
 	bg_mode = mode
 	update_background()
+
+
+# ---------------------------------------------------------------- flames
+
+## A flame behind a score box's number (G.FUNCS.flame_handler): a 2.5-box-
+## high square sitting on the box's bottom edge, in the box's colour with a
+## tip mixed toward yellow.
+func _add_flame(box: Control, col: Color) -> void:
+	var side := box.size.y * 2.5
+	var r := ColorRect.new()
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.position = Vector2((box.size.x - side) / 2.0, box.size.y - side)
+	r.size = Vector2(side, side)
+	var m := ShaderMaterial.new()
+	m.shader = load("res://shaders/flame.gdshader")
+	var lick := Color(1, 1, 1)
+	for i in 3:
+		lick[i] = clampf(pow((col[i] * 0.5 + Color.YELLOW[i] * 0.5) + 0.1, 2.0), 0.1, 1.0)
+	m.set_shader_parameter("colour_1", col)
+	m.set_shader_parameter("colour_2", lick)
+	m.set_shader_parameter("id", randf() * 1000.0)
+	r.material = m
+	r.visible = false
+	box.add_child(r)
+	flames.append({"rect": r, "intensity": 0.0, "real": 0.0, "vel": 0.0, "timer": randf() * 100.0})
+
+
+## The score shown in the boxes against the blind: flames burn while it
+## reaches the target, harder the bigger it is (log5(score) - 2).
+func _update_flames(delta: float) -> void:
+	if flames.is_empty():
+		return
+	var dt := minf(delta, 0.1)
+	var target := 0.0
+	if gs != null and in_round and gs.target > 0 and bg_mode == "":
+		var earned := _box_value(lbl_chips) * _box_value(lbl_mult)
+		if earned >= gs.target:
+			target = maxf(0.0, log(earned) / log(5.0) - 2.0)
+	var exptime := exp(-0.4 * dt)
+	for f in flames:
+		f.intensity = target
+		f.timer += dt * (1.0 + f.intensity * 0.2)
+		if f.vel < 0.0:
+			f.vel *= 1.0 - 10.0 * dt
+		f.vel = (1.0 - exptime) * (f.intensity - f.real) * dt * 25.0 + exptime * f.vel
+		f.real = maxf(0.0, f.real + f.vel)
+		var r: ColorRect = f.rect
+		r.visible = f.real >= 0.1
+		if r.visible:
+			r.material.set_shader_parameter("amount", f.real)
+			r.material.set_shader_parameter("time", f.timer)
+
+
+static func _box_value(l: Label) -> float:
+	return l.text.replace(",", "").to_float()
 
 
 # ---------------------------------------------------------------- HUD
