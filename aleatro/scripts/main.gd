@@ -911,13 +911,19 @@ func show_help() -> void:
 	t.custom_minimum_size = Vector2(820, 0)
 	t.add_theme_font_size_override("font_size", 23)
 	t.text = "Select up to 5 cards and play a poker hand. Each hand type has base Chips and Mult; scored cards add their rank in Chips (faces 10, Aces 11).\n\nScore = Chips x Mult. Reach the blind's target before you run out of hands. Discards let you swap cards.\n\nEach ante has a Small Blind, a Big Blind and a Boss Blind with a nasty twist. Beat ante %d to win.\n\nSpend money in the shop on Charms (passive bonuses, up to 5) and Runes (level up a hand type). You earn $1 interest per $5 held, up to $5.\n\nSome charms and vouchers start locked: the Collection shows what unlocks each one.\n\nDrag cards or charms to reorder them; hold a card to see its details. Gamepad: d-pad moves, A selects (hold A + left/right to move a card), X plays, Y discards, LB/RB sort, Start opens the menu. Keyboard: arrows, Enter, P, D, Q/E, Esc; hold R to restart." % Data.FINAL_ANTE
-	# shrink to fit the screen (translations run longer than the English)
+	# shrink to fit the screen (translations run longer than the English),
+	# and scroll whatever still does not fit
+	var room := vh - 260.0
 	var font := t.get_theme_font("font")
 	var fs := 23
-	while fs > 14 and font.get_multiline_string_size(tr(t.text), HORIZONTAL_ALIGNMENT_LEFT, 820, fs).y > vh - 230:
+	while fs > 19 and font.get_multiline_string_size(tr(t.text), HORIZONTAL_ALIGNMENT_LEFT, 820, fs).y * 1.15 > room:
 		fs -= 1
 	t.add_theme_font_size_override("font_size", fs)
-	vb.add_child(t)
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.custom_minimum_size = Vector2(840, minf(room, font.get_multiline_string_size(tr(t.text), HORIZONTAL_ALIGNMENT_LEFT, 820, fs).y * 1.15 + 20))
+	scroll.add_child(t)
+	vb.add_child(scroll)
 	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(220, 70))))
 
 
