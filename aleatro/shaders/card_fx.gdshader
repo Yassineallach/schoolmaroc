@@ -175,6 +175,36 @@ vec4 negative_shine_pass(vec4 tex, vec2 uv) {
 	return tex;
 }
 
+// Balatro's polychrome.fs (Chroma here), drawn in place of the card: each
+// pixel's hue pushed round by a slow drifting field and its saturation
+// lifted, so the card washes through the rainbow
+vec4 polychrome_pass(vec4 tex, vec2 uv) {
+	vec2 polychrome = vec2(min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_amt, TIME);
+	float low = min(tex.r, min(tex.g, tex.b));
+	float high = max(tex.r, max(tex.g, tex.b));
+	float delta = high - low;
+	float saturation_fac = 1.0 - max(0.0, 0.05 * (1.1 - delta));
+	vec3 hsl = rgb_to_hsl(vec3(tex.r * saturation_fac, tex.g * saturation_fac, tex.b));
+
+	float t = polychrome.y * 2.221 + card_seed;
+	vec2 floored_uv = floor(uv * DISSOLVE_PX) / DISSOLVE_PX;
+	vec2 uv_scaled_centered = (floored_uv - 0.5) * 50.0;
+	vec2 f1 = uv_scaled_centered + 50.0 * vec2(sin(-t / 143.6340), cos(-t / 99.4324));
+	vec2 f2 = uv_scaled_centered + 50.0 * vec2(cos(t / 53.1532), cos(t / 61.4532));
+	vec2 f3 = uv_scaled_centered + 50.0 * vec2(sin(-t / 87.53218), sin(-t / 49.0000));
+	float field = (1.0 + (cos(length(f1) / 19.483) + sin(length(f2) / 33.155) * cos(f2.y / 15.73)
+			+ cos(length(f3) / 27.193) * sin(f3.x / 21.92))) / 2.0;
+	float res = 0.5 + 0.5 * cos(polychrome.x * 2.612 + (field - 0.5) * 3.14);
+	hsl.x = hsl.x + res + polychrome.y * 0.04;
+	hsl.y = min(0.6, hsl.y + 0.5);
+
+	tex.rgb = hsl_to_rgb(hsl);
+	if (tex.a < 0.7) {
+		tex.a = tex.a / 3.0;
+	}
+	return tex;
+}
+
 // Balatro's gold_seal.fs: bright bands sweeping across the seal, lifting
 // each colour toward white by up to half its brightest channel
 vec4 gold_seal_pass(vec4 pixel, vec2 tc, float r) {
@@ -207,8 +237,7 @@ void fragment() {
 		vec4 h = holo_pass(c, uv);
 		c.rgb = mix(c.rgb, clamp(h.rgb, 0.0, 1.0), clamp(h.a, 0.0, 1.0) * face);
 	} else if (ed == 3) {
-		float h = fract(uv.x * 0.6 + uv.y * 0.4 + t * 0.25);
-		c.rgb = mix(c.rgb, c.rgb * (0.6 + 0.7 * hue(h)), face * 0.6);
+		c.rgb = mix(c.rgb, polychrome_pass(c, uv).rgb, face);
 	} else if (ed == 4) {
 		// Balatro's negative.fs, drawn in place of the card: lightness
 		// flipped, hue mirrored about 0.2, and a slate grey added on top
