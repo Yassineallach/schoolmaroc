@@ -1,0 +1,1114 @@
+1	Mindestpunktzahl
+2	Rundenpunkte
+3	Hände
+4	Abwürfe
+5	Menü
+6	Deck
+7	Hand spielen
+8	Abwerfen
+9	Rang
+10	Farbe
+11	Ante {0}/{1}
+12	Deck {0}/{1}
+13	Hand {0}/{1}
+14	Belohnung: {0}
+15	Belohnung {0}
+16	{0}  Lvl {1}
+17	{0} Lvl {1}
+18	Lvl {0}
+19	{0}  (nicht erlaubt)
+20	EWIG
+21	VERDERBLICH {0}
+22	MIETE
+23	DEAKTIVIERT
+24	Vom Boss deaktiviert
+25	Zauber
+26	Rune
+27	Omen
+28	Talisman
+29	Gutschein
+30	Wirken
+31	Verkaufen ${0}
+32	Schließen
+33	Wähle zuerst Karten auf der Hand, dann wirke den Zauber.
+34	+${0}
+35	-${0}
+36	${0}
+37	+{0}
+38	+{0} Mult
+39	+{0} Chips
+40	x{0} Mult
+41	Rune: {0}
+42	Ein Poker-Roguelike
+43	Fortsetzen
+44	Ante {0}  ${1}
+45	Halten: Neuer Lauf
+46	Spielen
+47	Spielanleitung
+48	Sammlung
+49	Herausforderungen
+50	Profil {0}
+51	Danke!
+52	OK
+53	Beste Ante: {0}   Beste Hand: {1}   Siege: {2}
+54	Sprache
+55	Automatisch ({0})
+56	Wähle bis zu 5 Karten und spiele eine Pokerhand. Jede Handart hat Grund-Chips und -Mult; gewertete Karten geben ihren Rang als Chips dazu (Bildkarten 10, Asse 11).
+57	Punkte = Chips x Mult. Erreiche das Ziel des Blinds, bevor dir die Hände ausgehen. Mit Abwürfen tauschst du Karten.
+58	Jede Ante hat einen Small Blind, einen Big Blind und einen Boss Blind mit einer fiesen Wendung. Schlage Ante 8, um zu gewinnen.
+59	Gib im Laden Geld für Talismane (passive Boni, bis zu 5) und Runen (verbessern eine Handart) aus. Pro gehaltenen $5 bekommst du $1 Zinsen, bis zu $5.
+60	Manche Talismane und Gutscheine sind anfangs gesperrt: Die Sammlung zeigt, was sie freischaltet.
+61	Ziehe Karten oder Talismane, um sie umzusortieren; halte eine Karte gedrückt für Details. Gamepad: Steuerkreuz bewegt, A wählt (A halten + links/rechts verschiebt eine Karte), X spielt, Y wirft ab, LB/RB sortiert, Start öffnet das Menü. Tastatur: Pfeile, Enter, P, D, Q/E, Esc; R halten für Neustart.
+62	Neuer Lauf
+63	Herausforderung: {0}
+64	Entdecke {0} Talismane und Bosse (bisher {1})
+65	Gewinne einen Lauf mit dem {0}
+66	Gewinne einen Lauf auf {0}
+67	Gesperrt: {0}
+68	{0}, dazu alle niedrigeren Einsätze
+69	Einsatz {0} von {1} für dieses Deck freigeschaltet
+70	Start
+71	Zurück
+72	Halten: Start (beendet den aktuellen Lauf)
+73	Ante {0}
+74	Marken:
+75	Demnächst
+76	Besiegt
+77	Als Nächstes
+78	SHOWDOWN
+79	Überspringen: {0}
+80	{0} spielen
+81	Boss neu würfeln $10
+82	Überspringen für {0}
+83	Das ist ein Boss Blind! Bosse verbiegen die Regeln. Tippe jederzeit oben links auf die Blind-Anzeige, um zu lesen, was dieser hier tut.
+84	Hi, ich bin Ace! Jede Ante hat drei Blinds. Erreiche das Ziel, bevor dir die Hände ausgehen, um einen zu schlagen und Geld zu verdienen.
+85	{0}  -  {1}, noch 1 Wahl
+86	{0}  -  {1}, noch {2} Wahlen
+87	Nehmen
+88	Benutzen
+89	Überspringen
+90	GUTSCHEIN
+91	Tippe bis zu 5 Karten an, um eine Pokerhand zu bilden, und drücke dann Hand spielen. Deine Punkte sind Chips x Mult, stärkere Hände bringen also mehr.
+92	Oh, eine verbesserte Karte! Halte eine Karte gedrückt, um zu sehen, was sie tut.
+93	Von der Laterne gehalten
+94	Nicht erlaubt!
+95	Ausgeglichen!
+96	Geschwächt
+97	Nochmal!
+98	Gerettet von {0}!
+99	Der Griff!
+100	Nicht jede Hand gewinnt. Abwerfen tauscht Karten gegen neue. Behalte links deine Hände und Abwürfe im Blick.
+101	Abwerfen kostet ${0}
+102	Zersplittert!
+103	Blind-Belohnung
+104	Übrige Hände ({0})
+105	Übrige Abwürfe ({0})
+106	Zinsen ($1 pro $5)
+107	{0} besiegt!
+108	{0} ist weg!
+109	Auszahlen: ${0}
+110	Spiel vorbei
+111	Erreicht
+112	Beste Hand
+113	Am häufigsten gespielt
+114	So knapp! Jeder Lauf lehrt etwas.
+115	Autsch. Noch eine Runde?
+116	Die Karten waren diesmal nicht auf unserer Seite.
+117	Abschütteln, das nächste Deck bringt Glück!
+118	Hauptmenü
+119	Herausforderung geschafft: {0}
+120	Herausforderung geschafft
+121	{0} freigeschaltet für das {1}
+122	Gewonnen!
+123	Du hast Ante {0} geschlagen.
+124	Wir haben es geschafft! Ich wusste, dass du es draufhast!
+125	Champion! Lust zu sehen, wie weit Endlos geht?
+126	Endlosmodus
+127	Laden
+128	Nächste Runde
+129	Neu würfeln ${0}
+130	Gewöhnlich: {0}
+131	Ungewöhnlich: {0}
+132	Selten: {0}
+133	Legendär: {0}
+134	Ausverkauft!
+135	Willkommen im Laden! Talismane geben jede Hand einen Bonus, Zauber und Runen kommen in die Plätze oben rechts, und ein Gutschein verbessert deinen ganzen Lauf. Ziehe deine Talismane, um ihre Auslösereihenfolge zu ändern.
+136	Preise gestiegen auf +${0}
+137	Kein Platz für weitere Zauber
+138	Zauber und Runen warten in den Plätzen oben rechts. Wähle während einer Runde Karten auf deiner Hand und tippe dann einen Zauber an, um ihn auf sie zu wirken.
+139	Zum Deck hinzugefügt ({0} Karten)
+140	Gutschein: {0}
+141	Verdeckt
+142	{0} verdeckt deine Talismane, bis er besiegt ist.
+143	Jadekranz gelöst: Karten funktionieren wieder
+144	Gesperrt
+145	Ewig
+146	Angeheftet
+147	Talismane lösen von links nach rechts aus. Zum Umsortieren ziehen.
+148	Für je $5, die du hast, gibt es $1 Zinsen, bis zu $5. Sparen lohnt sich!
+149	Talismane lösen von links nach rechts aus, also setze x-Mult-Talismane ans Ende.
+150	Runen verbessern eine Handart dauerhaft für den Lauf.
+151	Glaskarten schlagen hart zu, können aber zersplittern. Genieße sie, solange sie halten.
+152	Eisenkarten helfen am meisten, wenn du sie auf der Hand behältst.
+153	Verkaufe einen Wächter während eines Boss Blinds, um den Boss abzuschalten.
+154	Halte eine Karte gedrückt, um ihre Verbesserungen zu lesen.
+155	Tippe auf die Blind-Anzeige, um zu sehen, was der Boss vorhat.
+156	Verstanden
+157	Keine Tipps mehr
+158	Danke, Ace
+159	Showdown: {0}
+160	Wächter hat {0} deaktiviert
+161	Mindestens {0}   Belohnung {1}
+162	Showdown-Boss
+163	Vom Wächter deaktiviert
+164	Bereits gespielt: {0}
+165	keine
+166	Erlaubte Hand: {0}
+167	was du zuerst spielst
+168	Keine besonderen Regeln
+169	+{0} Chips bei Wertung
+170	+{0} Bonus-Chips
+171	Geschwächt durch {0}
+172	Deck: {0} Karten
+173	Blasse Karten wurden in dieser Runde schon gezogen
+174	{0} verbesserte Karten. Halte eine Karte auf der Hand gedrückt für Details.
+175	Pokerhände
+176	Dein gespeicherter Lauf konnte nicht gelesen werden, daher hat ein neuer begonnen
+177	{0} freigeschaltet: {1}
+178	Neuer Talisman entdeckt: {0}
+179	Neuer Boss entdeckt: {0}
+180	{0}  [geschafft]
+181	{0} / {1} geschafft  -  schlage Ante {2}, um eine abzuschließen
+182	Seite {0} / {1}
+183	Sammlung  (Profil {0})
+184	Talismane
+185	Gutscheine
+186	Bosse
+187	Statistik
+188	Mitwirkende
+189	{0} / {1} entdeckt   -   {2} gesperrt
+190	Gesperrter Talisman
+191	{0} Gutscheine   -   {1} gesperrt
+192	{0} (gesperrt)
+193	{0} / {1} entdeckt
+194	Läufe
+195	Siege
+196	Beste Ante
+197	Gespielte Hände
+198	Gespielte Karten
+199	Verdientes Geld
+200	Gekaufte Talismane
+201	Gewirkte Zauber
+202	Gewonnene Herausforderungen
+203	Zersplitterte Glaskarten
+204	Erstellt mit der Godot Engine {0}.{1}
+205	Musik, Sound und Grafik werden vom eigenen Code des Spiels erzeugt.
+206	Pausiert
+207	Pausiert  -  {0}
+208	Gesamt
+209	Musik
+210	Sounds
+211	Vibration: An
+212	Vibration: Aus
+213	Tempo: {0}x
+214	Bewegung: Reduziert
+215	Bewegung: Voll
+216	Beschleunigt Wertungs- und Austeilanimationen
+217	Reduziert schaltet Bildschirmwackeln, Schwanken, Neigen und Leerlaufbewegung ab
+218	Tipps wiederholen
+219	Halten: Hauptmenü
+220	Ace zeigt die Tipps wieder
+221	Weiter
+222	(Aktuell +{0} Mult)
+223	(Aktuell +{0} Chips)
+224	(noch {0} Hände)
+225	(noch {0} Hände bis dahin)
+226	(Aktuell x{0} Mult)
+227	(Aktuell +{0} Handgröße)
+228	(Aktuell ${0})
+229	(Bereit zum Verkauf)
+230	({0} von 2 Runden)
+231	(Diese Runde: {0})
+232	{0}: {1}
+233	Ewig: kann nicht verkauft oder zerstört werden
+234	Verderblich: verbraucht
+235	Verderblich: noch {0} Runden
+236	Miete: kostet $3 am Ende jeder Runde
+237	Jongliermarke: +3 Handgröße
+238	+1 Steinkarte
+239	x{0} Mult, hat {1} gefressen
+240	{0} geschnitten: +{1} Mult
+241	+1 Zauber
+242	+{0} Zauber
+243	+1 Rune
+244	+{0} Runen
+245	+1 Omen
+246	+3 Hände
+247	{0} wurde schon gespielt
+248	Nur {0} ist erlaubt
+249	Hände müssen 5 Karten nutzen
+250	Der Ochse hat dein Geld genommen
+251	{0} auf Lvl {1} erodiert
+252	Maut: -${0}
+253	{0} ist erstickt
+254	Kopiert!
+255	{0}: +${1}
+256	{0}: {1} Lvl {2}
+257	{0}: +1 Talisman
+258	{0}: +{1} Talismane
+259	{0}: Der Boss ist jetzt {1}
+260	{0}: gratis {1}
+261	{0}: alles gratis
+262	{0}: Neu würfeln ab $0
+263	Tagtraum: +1 Zauber
+264	Kein Platz für weitere Talismane
+265	{0} dupliziert
+266	Negative Kopie von {0}
+267	Gehaltene vergoldete Karten
+268	Mieten ({0})
+269	Wirke ihn während einer Runde
+270	Du hast keine Talismane
+271	Kein Talisman ohne Edition
+272	In diesem Lauf wurde noch kein Zauber gewirkt
+273	Kein Platz für einen weiteren Talisman
+274	Wirke ihn während einer Runde auf Karten auf deiner Hand
+275	Wähle zuerst eine Karte
+276	Wähle zuerst bis zu {0} Karten
+277	Wähle nur 1 Karte
+278	Wähle höchstens {0} Karten
+279	Wähle genau {0} Karten
+280	{0} wurde zu {1}
+281	Nö!
+282	{1}-{0}
+283	{0} verbessern: +{1} Chips, +{2} Mult
+284	-  {0}
+285	Start mit ${0}
+286	{0} Hände pro Runde
+287	{0} Abwürfe pro Runde
+288	Handgröße {0}
+289	{0} Talisman-Plätze
+290	{0} Zauber-Plätze
+291	Keine Zinsen
+292	Kein Geld für übrige Hände
+293	Keine Belohnung vom {0}
+294	{0} oder {1}
+295	1 von {0} Karten wird verdeckt ausgeteilt
+296	Jeder Abwurf kostet ${0}
+297	Ladenpreise steigen nach jedem Kauf um $1
+298	Der Laden verkauft keine Talismane
+299	Gespielte Karten sind bis zur nächsten Ante geschwächt
+300	Gewertete Karten sind für den Rest des Laufs geschwächt
+301	Chips können nicht mehr sein als dein Geld
+302	-1 Handgröße für je ${0}, die du hast
+303	Jeder Talisman ist ewig
+304	Wenn Ante {0} beginnt, werden deine Talismane ewig und die Talisman-Plätze fallen auf 0
+305	Deck: {0}
+306	nur Ränge {0}
+307	ein zusätzlicher {0} pro Farbe
+308	jeder {0} ist Stein
+309	x{0} Kopien
+310	alle {0}
+311	alle mit {0}
+312	{0} ({1})
+313	Start-Talismane: {0}
+314	Start-Gutscheine: {0}
+315	Start-Zauber: {0}
+316	Verbotene Talismane: {0}
+317	Verbotene Bosse: {0}
+318	Ebenfalls verboten: {0}
+319	,
+320	;
+321	Narr
+322	+4 Mult
+323	Rubinring
+324	Gewertete Herzen geben +3 Mult
+325	Topasring
+326	Gewertete Karos geben +3 Mult
+327	Onyxring
+328	Gewertete Piks geben +3 Mult
+329	Jadering
+330	Gewertete Kreuze geben +3 Mult
+331	Zwillingsmaske
+332	+8 Mult, wenn die Hand ein Paar enthält
+333	Triadenmaske
+334	+12 Mult, wenn die Hand einen Drilling enthält
+335	Duomaske
+336	+10 Mult, wenn die Hand zwei Paare enthält
+337	Leiter
+338	+12 Mult, wenn die Hand eine Straße enthält
+339	Gezeiten
+340	+10 Mult, wenn die Hand einen Flush enthält
+341	Pfefferminz
+342	+20 Mult, wenn 3 oder weniger Karten gespielt werden
+343	Flagge
+344	+30 Chips pro übrigem Abwurf
+345	Glitch
+346	+0 bis +23 Mult, zufällig
+347	Kiel
+348	Gewertete 10, 8, 6, 4, 2 geben +4 Mult
+349	Komischer Kauz
+350	Gewertete A, 9, 7, 5, 3 geben +31 Chips
+351	Schreiber
+352	Gewertete Asse geben +20 Chips und +4 Mult
+353	Tiefer Brunnen
+354	+2 Chips pro Karte im Nachziehstapel
+355	Menge
+356	+3 Mult pro Talisman im Besitz
+357	Letztes Gefecht
+358	+15 Mult, wenn keine Abwürfe mehr übrig sind
+359	Königshof
+360	Gewertete B, D, K geben +30 Chips
+361	Spirale
+362	Gewertete A, 2, 3, 5, 8 geben +8 Mult
+363	Goldzahn
+364	Verdiene $4 am Ende jeder Runde
+365	Schneeball
+366	Erhält +1 Mult für jede gespielte Hand und verliert 1 Mult für jeden Abwurf
+367	Schatzkammer
+368	+2 Chips für jeden $1, den du hast
+369	Hohlraum
+370	x1 Mult für jeden leeren Talisman-Platz (zählt sich selbst)
+371	Prisma
+372	x3 Mult, wenn die gespielten Karten alle 4 Farben enthalten
+373	Wächter
+374	Während eines Boss Blinds verkaufen, um ihn zu deaktivieren
+375	Duett
+376	x2 Mult, wenn die Hand ein Paar enthält
+377	Seher
+378	+1 Mult für jeden in diesem Lauf gewirkten Zauber
+379	Zwillingsschleier
+380	+50 Chips, wenn die Hand ein Paar enthält
+381	Duoschleier
+382	+80 Chips, wenn die Hand zwei Paare enthält
+383	Triadenschleier
+384	+100 Chips, wenn die Hand einen Drilling enthält
+385	Schienenschleier
+386	+100 Chips, wenn die Hand eine Straße enthält
+387	Gezeitenschleier
+388	+80 Chips, wenn die Hand einen Flush enthält
+389	Triadenkrone
+390	x3 Mult, wenn die Hand einen Drilling enthält
+391	Quadrakrone
+392	x4 Mult, wenn die Hand einen Vierling enthält
+393	Schienenkrone
+394	x3 Mult, wenn die Hand eine Straße enthält
+395	Gezeitenkrone
+396	x2 Mult, wenn die Hand einen Flush enthält
+397	Grinsen
+398	Gewertete Bildkarten geben +5 Mult
+399	Radio
+400	Gewertete 10er und 4er geben +10 Chips und +4 Mult
+401	Speerspitze
+402	Gewertete Piks geben +50 Chips
+403	Kleestein
+404	Gewertete Kreuze geben +7 Mult
+405	Roher Topas
+406	Gewertete Karos bringen $1
+407	Herzstein
+408	Gewertete Herzen haben eine 1-zu-2-Chance auf x1,5 Mult
+409	Porträt
+410	Die erste gewertete Bildkarte gibt x2 Mult
+411	Drahtseil
+412	x3 Mult bei der letzten Hand der Runde
+413	Eiserne Faust
+414	Die niedrigste Karte auf der Hand gibt Mult in Höhe ihres doppelten Werts
+415	Regent
+416	Jeder König auf der Hand gibt x1,5 Mult
+417	Mondaufgang
+418	Jede Dame auf der Hand gibt +13 Mult
+419	Zugabe
+420	Gewertete 2er, 3er, 4er und 5er erneut auslösen
+421	Maskenball
+422	Gewertete Bildkarten erneut auslösen
+423	Lochkarte
+424	Die erste gewertete Karte 2 weitere Male auslösen
+425	Dämmerung
+426	Bei der letzten Hand der Runde jede gewertete Karte erneut auslösen
+427	Visitenkarte
+428	Gewertete Bildkarten haben eine 1-zu-2-Chance, $2 zu bringen
+429	Goldticket
+430	Gewertete vergoldete Karten bringen $4
+431	Geduld
+432	Am Rundenende $2 pro übrigem Abwurf, wenn du keinen benutzt hast
+433	Korsar
+434	+Mult in Höhe des Verkaufswerts deiner anderen Talismane
+435	Ruhm
+436	+Mult so hoch, wie oft diese Handart in diesem Lauf gespielt wurde
+437	Pendler
+438	Erhält +1 Mult für jede Hand in Folge ohne gewertete Bildkarte; zurückgesetzt bei einer Bildkarte
+439	Sprinter
+440	Erhält +15 Chips jedes Mal, wenn die Hand eine Straße enthält
+441	Viereck
+442	Erhält +4 Chips jedes Mal, wenn genau 4 Karten gespielt werden
+443	Sorbet
+444	+100 Chips. Verliert 5 Chips pro gespielter Hand
+445	Kesselmais
+446	+20 Mult. Verliert 4 Mult am Ende jeder Runde
+447	Kochbanane
+448	+15 Mult. 1-zu-6-Chance, am Ende jeder Runde zu verderben
+449	Reife Kochbanane
+450	x3 Mult. 1-zu-1000-Chance, am Ende jeder Runde zu verderben
+451	Sprudel
+452	Löst jede gespielte Karte in den nächsten 10 Händen erneut aus
+453	Kartenhai
+454	x3 Mult, wenn diese Handart in dieser Runde schon gespielt wurde
+455	Treuestempel
+456	x4 Mult bei jeder 6. gespielten Hand
+457	Schiefertafel
+458	x3 Mult, wenn jede Karte auf der Hand Pik oder Kreuz ist
+459	Weiter Griff
+460	Flushs und Straßen können aus 4 Karten bestehen
+461	Himmel und Hölle
+462	Straßen dürfen zwischen Karten einen Rang überspringen (z. B. 3 5 6 8 9)
+463	Tintenklecks
+464	Herz und Karo gelten als dieselbe Farbe, ebenso Pik und Kreuz
+465	Fata Morgana
+466	Jede Karte gilt als Bildkarte
+467	Pfütze
+468	Jede gespielte Karte zählt zur Wertung
+469	Nachahmer
+470	Löst die Fähigkeiten der Karten auf der Hand erneut aus
+471	Eiserner Wille
+472	x0,2 Mult für jede Eisenkarte in deinem ganzen Deck
+473	Steinbruch
+474	+25 Chips für jede Steinkarte in deinem ganzen Deck
+475	Steinmetz
+476	Fügt deinem Deck eine Steinkarte hinzu, wenn ein Blind beginnt
+477	Goldene Berührung
+478	Gewertete Bildkarten werden vergoldet
+479	Blutegel
+480	Erhält x0,1 Mult für jede gewertete verbesserte Karte und entfernt die Verbesserung
+481	Wanderbursche
+482	Jede gewertete Karte erhält dauerhaft +5 Chips
+483	Altes Relikt
+484	Gewertete Karten der Rundenfarbe geben x1,5 Mult (Farbe wechselt jede Runde)
+485	Bergfried
+486	Erhält +3 Chips pro abgeworfener Karte der Rundenfarbe (Farbe wechselt jede Runde)
+487	Idol
+488	Gewertete Kopien der Rundenkarte geben x2 Mult (Karte wechselt jede Runde)
+489	Rabatt
+490	Verdiene $5 für jede abgeworfene Karte des Rundenrangs (Rang wechselt jede Runde)
+491	Einkaufszettel
+492	Verdiene $4, wenn du die gelistete Handart spielst (wechselt jede Runde)
+493	Geflickte Hose
+494	Erhält +2 Mult jedes Mal, wenn die Hand zwei Paare enthält
+495	Lernkarte
+496	Erhält +2 Mult jedes Mal, wenn du den Laden neu würfelst
+497	Monolith
+498	Erhält x0,2 Mult für jede Hand in Folge, die nicht deine meistgespielte Handart ist; zurückgesetzt, wenn sie es ist
+499	Raserei
+500	Wenn ein Small oder Big Blind beginnt, erhält er x0,5 Mult und zerstört einen zufälligen anderen Talisman
+501	Ritualmesser
+502	Wenn ein Blind beginnt, zerstört es den Talisman rechts davon und erhält dessen doppelten Verkaufswert als Mult
+503	Hologramm
+504	Erhält x0,25 Mult jedes Mal, wenn deinem Deck eine Karte hinzugefügt wird
+505	Sternkarte
+506	Erhält x0,1 Mult jedes Mal, wenn du eine Rune benutzt
+507	Freudenfeuer
+508	Erhält x0,25 Mult für jeden verkauften Talisman; zurückgesetzt, wenn ein Boss besiegt wird
+509	Winkekatze
+510	Erhält x0,25 Mult jedes Mal, wenn eine Glückskarte auszahlt
+511	Glaser
+512	Erhält x0,75 Mult jedes Mal, wenn eine Glaskarte zersplittert
+513	Schuldschein
+514	Du kannst bis zu $20 Schulden machen
+515	Notgroschen
+516	Sein Verkaufswert steigt am Ende jeder Runde um $3
+517	Geschenkpapier
+518	Am Ende jeder Runde steigt der Verkaufswert jedes Talismans um $1
+519	Himmelsrakete
+520	Verdiene $1 am Ende jeder Runde; die Auszahlung steigt um $2 für jeden besiegten Boss
+521	Neun Leben
+522	Verdiene am Ende jeder Runde $1 für jede 9 in deinem ganzen Deck
+523	Mondschuss
+524	Zinsen werden doppelt gezahlt
+525	Satellit
+526	Verdiene am Ende jeder Runde $1 für jede verschiedene in diesem Lauf benutzte Rune
+527	Kammerdiener
+528	Jede Bildkarte auf der Hand hat eine 1-zu-2-Chance, $1 zu bringen
+529	Stiefelriemen
+530	+2 Mult für je $5, die du hast
+531	Torero
+532	Verdiene $8 jedes Mal, wenn der Effekt eines Boss Blinds deine Hand trifft
+533	Wanderer
+534	Erschafft einen Zauber, wenn du eine Hand spielst, während du $4 oder weniger hast
+535	Händler
+536	Ist der erste Abwurf einer Runde eine einzelne Karte, zerstöre sie und verdiene $3
+537	Katzeneinbrecher
+538	Wenn ein Blind beginnt, erhalte 3 Hände und verliere alle Abwürfe
+539	Beschwipst
+540	+1 Abwurf pro Runde
+541	Jongleur
+542	+1 Handgröße
+543	Spielmann
+544	+2 Handgröße, aber 1 Hand weniger pro Runde
+545	Fröhlicher Narr
+546	+3 Abwürfe pro Runde, aber -1 Handgröße
+547	Draufgänger
+548	+250 Chips, aber -2 Handgröße
+549	Bohnensprosse
+550	+5 Handgröße, schrumpft jede Runde um 1
+551	Nudelschüssel
+552	x2 Mult; verliert x0,01 Mult für jede abgeworfene Karte
+553	Chaos
+554	1 kostenloses Neuwürfeln in jedem Laden
+555	Sterngucker
+556	Runen im Laden sind gratis
+557	Lizenz
+558	x3 Mult, wenn mindestens 16 Karten in deinem ganzen Deck verbessert sind
+559	Wimpel
+560	Jeder ungewöhnliche Talisman in deinem Besitz gibt x1,5 Mult
+561	Pauspapier
+562	Kopiert die Fähigkeit des Talismans rechts daneben
+563	Geistesblitz
+564	Kopiert die Fähigkeit deines Talismans ganz links
+565	Phantom
+566	Nach 2 Runden verkaufen, um einen zufälligen anderen Talisman zu duplizieren
+567	Gezinkte Würfel
+568	Verdoppelt jede angegebene Chance (1 zu 4 wird 2 zu 4)
+569	Kristallkugel
+570	Jede gewertete 8 hat eine 1-zu-4-Chance, einen Zauber zu erschaffen
+571	Zweites Gesicht
+572	Ist die erste Hand einer Runde eine einzelne 6, zerstöre sie und erschaffe ein Omen
+573	Hexenbrett
+574	Erschafft ein Omen, wenn du einen Straight Flush spielst
+575	Quanten
+576	Erschafft einen Zauber, wenn die Hand ein Ass und eine Straße enthält
+577	Wahrsager
+578	Erschafft einen Zauber, wenn ein Blind beginnt
+579	Notar
+580	Wenn eine Runde beginnt, füge deiner Hand eine zufällige Karte mit zufälligem Siegel hinzu
+581	Klon
+582	Ist die erste Hand einer Runde eine einzelne Karte, füge eine Kopie davon deinem Deck und deiner Hand hinzu
+583	Pöbel
+584	Wenn ein Blind beginnt, erschaffe 2 gewöhnliche Talismane (falls Platz ist)
+585	Zunder
+586	Verbessert jede Runde die Handart deines ersten Abwurfs
+587	Umlaufbahn
+588	1-zu-4-Chance, die gespielte Handart zu verbessern
+589	Leere Maske
+590	Verdiene $5, wenn du 3 oder mehr Bildkarten auf einmal abwirfst
+591	Spritztour
+592	Erhält x0,5 Mult für jeden in dieser Runde abgeworfenen Buben
+593	Doppelblick
+594	x2 Mult, wenn die gewerteten Karten ein Kreuz und eine Karte einer anderen Farbe enthalten
+595	Winzling
+596	Erhält +8 Chips jedes Mal, wenn eine 2 gewertet wird
+597	Zirkusdirektor
+598	Talismane und Zauber, die du schon besitzt, können weiterhin im Laden auftauchen
+599	Letztes Lachen
+600	Rettet dich vor einer verlorenen Runde, wenn du mindestens ein Viertel des Ziels erreicht hast, und zerbricht dann
+601	Verschleiß
+602	+4 Mult für jede Karte, die dein Deck unter seiner Startgröße liegt
+603	Knochenkrone
+604	Erhält x1 Mult jedes Mal, wenn eine Bildkarte zerstört wird
+605	Narrenkönig
+606	Gewertete Könige und Damen geben x2 Mult
+607	Schädel
+608	Erhält x1 Mult für je 23 abgeworfene Karten
+609	Veto
+610	Deaktiviert den Effekt jedes Boss Blinds
+611	Hamsterer
+612	Wenn du den Laden verlässt, erschafft er eine negative Kopie eines zufälligen Zaubers in deinem Besitz
+613	Sammelalbum
+614	Erhält +3 Mult jedes Mal, wenn du ein Booster-Pack überspringst
+615	Tagtraum
+616	1-zu-2-Chance, einen Zauber zu erschaffen, wenn du ein Booster-Pack öffnest
+617	Zurückspulen
+618	x0,25 Mult für jeden in diesem Lauf übersprungenen Blind
+619	Root-Beer-Float
+620	Verkaufe ihn, um eine Zwillingsmarke zu erhalten
+621	Geätzt
+622	+30 Chips bei Wertung
+623	Geladen
+624	+4 Mult bei Wertung
+625	Glas
+626	x2 Mult bei Wertung; 1-zu-4-Chance zu zersplittern
+627	Eisen
+628	x1,5 Mult, solange auf der Hand
+629	Vergoldet
+630	Verdiene $3, wenn sie am Rundenende auf der Hand ist
+631	Glück
+632	1-zu-5-Chance auf +20 Mult und 1-zu-15-Chance auf $20 bei Wertung
+633	Stein
+634	+50 Chips; kein Rang, keine Farbe, wird immer gewertet
+635	Joker
+636	Zählt als jede Farbe
+637	Folie
+638	+50 Chips
+639	Holo
+640	+10 Mult
+641	Chroma
+642	x1,5 Mult
+643	Negativ
+644	+1 Platz
+645	Purpursiegel
+646	Löst diese Karte erneut aus
+647	Goldsiegel
+648	Verdiene $3, wenn diese Karte gewertet wird
+649	Azursiegel
+650	Erschafft die Rune der zuletzt gespielten Hand, wenn sie am Rundenende auf der Hand ist
+651	Veilchensiegel
+652	Erschafft einen Zauber, wenn sie abgeworfen wird
+653	Karten-Pack
+654	Zauber-Pack
+655	Runen-Pack
+656	Talisman-Pack
+657	Omen-Pack
+658	Wähle 1 von 3 Spielkarten
+659	Jumbo-Karten-Pack
+660	Wähle 1 von 5 Spielkarten
+661	Mega-Karten-Pack
+662	Wähle 2 von 5 Spielkarten
+663	Wähle 1 von 3 Zaubern
+664	Jumbo-Zauber-Pack
+665	Wähle 1 von 5 Zaubern
+666	Mega-Zauber-Pack
+667	Wähle 2 von 5 Zaubern
+668	Wähle 1 von 3 Runen
+669	Jumbo-Runen-Pack
+670	Wähle 1 von 5 Runen
+671	Mega-Runen-Pack
+672	Wähle 2 von 5 Runen
+673	Wähle 1 von 2 Talismanen
+674	Jumbo-Talisman-Pack
+675	Wähle 1 von 4 Talismanen
+676	Mega-Talisman-Pack
+677	Wähle 2 von 4 Talismanen
+678	Wähle 1 von 2 Omen
+679	Jumbo-Omen-Pack
+680	Wähle 1 von 4 Omen
+681	Mega-Omen-Pack
+682	Wähle 2 von 4 Omen
+683	Ätzen
+684	Mache bis zu 2 gewählte Karten geätzt
+685	Laden
+686	Mache bis zu 2 gewählte Karten geladen
+687	Glasur
+688	Mache 1 gewählte Karte zu Glas
+689	Schmieden
+690	Mache 1 gewählte Karte zu Eisen
+691	Vergolden
+692	Mache 1 gewählte Karte vergoldet
+693	Kleeblatt
+694	Mache bis zu 2 gewählte Karten zu Glückskarten
+695	Blüte
+696	Verwandle bis zu 3 gewählte Karten in Herz
+697	Schatten
+698	Verwandle bis zu 3 gewählte Karten in Pik
+699	Dornbusch
+700	Verwandle bis zu 3 gewählte Karten in Kreuz
+701	Entfachen
+702	Verwandle bis zu 3 gewählte Karten in Karo
+703	Aufstieg
+704	Erhöhe bis zu 2 gewählte Karten um einen Rang
+705	Säubern
+706	Zerstöre bis zu 2 gewählte Karten
+707	Spiegel
+708	Wähle 2 Karten: Die linke wird eine Kopie der rechten
+709	Geldsegen
+710	Verdopple dein Geld (bis zu +$20)
+711	Versteinern
+712	Verwandle 1 gewählte Karte in Stein
+713	Chimäre
+714	Mache 1 gewählte Karte zum Joker
+715	Wiederholung
+716	Erschafft eine Kopie des zuletzt gewirkten Zaubers dieses Laufs (nicht Wiederholung)
+717	Orakel
+718	Erschafft bis zu 2 zufällige Runen
+719	Beschwören
+720	Erschafft bis zu 2 zufällige Zauber
+721	Fortuna
+722	1-zu-4-Chance, einem zufälligen Talisman Folie, Holo oder Chroma zu geben
+723	Tauschhandel
+724	Verdiene den gesamten Verkaufswert deiner Talismane (bis zu $50)
+725	Beschwörung
+726	Erschafft einen zufälligen Talisman
+727	Höflinge
+728	Zerstöre 1 zufällige Karte auf der Hand; füge 3 zufällige verbesserte Bildkarten hinzu
+729	Sensenmann
+730	Zerstöre 1 zufällige Karte auf der Hand; füge 2 zufällige verbesserte Asse hinzu
+731	Gesang
+732	Zerstöre 1 zufällige Karte auf der Hand; füge 4 zufällige verbesserte Zahlenkarten hinzu
+733	Amulett
+734	Füge 1 gewählten Karte ein Goldsiegel hinzu
+735	Aura
+736	Gib 1 gewählten Karte Folie, Holo oder Chroma
+737	Gespenst
+738	Erschafft einen seltenen Talisman, aber dein Geld fällt auf $0
+739	Konvergenz
+740	Verwandle jede Karte auf der Hand in eine zufällige Farbe
+741	Mono
+742	Verwandle jede Karte auf der Hand in einen zufälligen Rang; -1 Handgröße
+743	Leere
+744	Mache einen zufälligen Talisman negativ; -1 Handgröße
+745	Scheiterhaufen
+746	Zerstöre 5 zufällige Karten auf der Hand; verdiene $20
+747	Wiedergeburt
+748	Kopiere einen zufälligen Talisman und zerstöre alle anderen
+749	Sigille
+750	Füge 1 gewählten Karte ein Purpursiegel hinzu
+751	Fluch
+752	Mache einen zufälligen Talisman zu Chroma und zerstöre alle anderen
+753	Flaute
+754	Füge 1 gewählten Karte ein Azursiegel hinzu
+755	Flüstern
+756	Füge 1 gewählten Karte ein Veilchensiegel hinzu
+757	Duplikat
+758	Füge deinem Deck 2 Kopien von 1 gewählten Karte hinzu
+759	Seele
+760	Erschafft einen legendären Talisman
+761	Singularität
+762	Verbessert jede Handart
+763	Purpurdeck
+764	+1 Abwurf jede Runde
+765	Azurdeck
+766	+1 Hand jede Runde
+767	Golddeck
+768	Starte mit zusätzlichen $10
+769	Haindeck
+770	Keine Zinsen; am Ende jeder Runde $2 pro übriger Hand und $1 pro übrigem Abwurf
+771	Tintendeck
+772	+1 Talisman-Platz, aber 1 Hand weniger jede Runde
+773	Arkandeck
+774	Starte mit dem Gutschein Umhängetasche und 2 Kopien von Wiederholung
+775	Sternendeck
+776	Starte mit dem Gutschein Fernrohr, aber -1 Zauber-Platz
+777	Geisterdeck
+778	Omen können im Laden auftauchen; starte mit einem Fluch
+779	Kahles Deck
+780	Keine Bildkarten im Deck
+781	Schachbrettdeck
+782	26 Pik und 26 Herz
+783	Tierkreisdeck
+784	Starte mit den Gutscheinen Zauberhändler, Runenhändler und Extraregal
+785	Bemaltes Deck
+786	+2 Handgröße, aber -1 Talisman-Platz
+787	Zwillingsdeck
+788	Erhalte nach jedem besiegten Boss eine Zwillingsmarke
+789	Plasmadeck
+790	Chips und Mult werden vor jeder Handsumme ausgeglichen; Blinds brauchen 2x die Punkte
+791	Chaosdeck
+792	Rang und Farbe jeder Karte sind zufällig
+793	Weißer Chip
+794	Das Grundspiel
+795	Roter Chip
+796	Der Small Blind zahlt keine Belohnung
+797	Grüner Chip
+798	Blind-Ziele steigen schneller
+799	Schwarzer Chip
+800	Laden-Talismane können ewig sein (nicht verkauf- oder zerstörbar)
+801	Blauer Chip
+802	-1 Abwurf jede Runde
+803	Lila Chip
+804	Blind-Ziele steigen noch schneller
+805	Oranger Chip
+806	Laden-Talismane können verderblich sein (wirken nach 5 Runden nicht mehr)
+807	Goldener Chip
+808	Laden-Talismane können Mieten sein ($1 Kaufpreis, $3 jede Runde)
+809	Reichtumsmarke
+810	Verdopple dein Geld (bis zu +$40)
+811	Eilmarke
+812	Verdiene $5 für jeden in diesem Lauf übersprungenen Blind
+813	Seltene Marke
+814	Der nächste Laden hat einen kostenlosen seltenen Talisman
+815	Ungewöhnliche Marke
+816	Der nächste Laden hat einen kostenlosen ungewöhnlichen Talisman
+817	Couponmarke
+818	Alles, was im nächsten Laden zuerst ausliegt, ist gratis
+819	Sternmarke
+820	Verbessere eine zufällige Handart 3-mal
+821	Jongliermarke
+822	+3 Handgröße für die nächste Runde
+823	Bündelmarke
+824	Öffne ein kostenloses Mega-Talisman-Pack
+825	Foliantenmarke
+826	Öffne ein kostenloses Mega-Zauber-Pack
+827	Zwillingsmarke
+828	Kopiert die nächste Marke, die du bekommst
+829	Investitionsmarke
+830	Verdiene $15, nachdem du den nächsten Boss besiegt hast
+831	Würfelmarke
+832	Neuwürfeln im nächsten Laden beginnt bei $0
+833	Negativmarke
+834	Der nächste einfache Talisman im Laden ist gratis und negativ
+835	Folienmarke
+836	Der nächste einfache Talisman im Laden ist gratis und Folie
+837	Holomarke
+838	Der nächste einfache Talisman im Laden ist gratis und Holo
+839	Chromamarke
+840	Der nächste einfache Talisman im Laden ist gratis und Chroma
+841	Gutscheinmarke
+842	Fügt dem nächsten Laden einen Gutschein hinzu
+843	Bossmarke
+844	Würfelt den Boss Blind dieser Ante neu
+845	Kartenmarke
+846	Öffne ein kostenloses Mega-Karten-Pack
+847	Meteormarke
+848	Öffne ein kostenloses Mega-Runen-Pack
+849	Ätherische Marke
+850	Öffne ein kostenloses Omen-Pack
+851	Handliche Marke
+852	Verdiene $1 für jede in diesem Lauf gespielte Hand
+853	Abfallmarke
+854	Verdiene $1 für jeden in diesem Lauf ungenutzten Abwurf
+855	Auffüllmarke
+856	Erschafft bis zu 2 gewöhnliche Talismane
+857	Extraregal
+858	+1 Kartenplatz im Laden
+859	Volle Regale
+860	+1 weiterer Kartenplatz im Laden
+861	Ausverkauf
+862	Alles im Laden ist 25 % billiger
+863	Räumungsverkauf
+864	Alles im Laden ist 50 % billiger
+865	Politur
+866	Folie, Holo und Chroma erscheinen 2x häufiger
+867	Glanz
+868	Folie, Holo und Chroma erscheinen 4x häufiger
+869	Billige Würfel
+870	Neuwürfeln kostet $2 weniger
+871	Gezinkter Becher
+872	Neuwürfeln kostet weitere $2 weniger
+873	Umhängetasche
+874	+1 Zauber-Platz
+875	Geisterlampe
+876	Omen können in Zauber-Packs auftauchen
+877	Fernrohr
+878	Runen-Packs enthalten immer die Rune deiner meistgespielten Hand
+879	Planetarium
+880	Runen in deinen Plätzen geben x1,5 Mult, wenn ihre Hand gespielt wird
+881	Extragriff
+882	Zange
+883	+1 weitere Hand jede Runde
+884	Mülleimer
+885	Wiederverwerter
+886	+1 weiterer Abwurf jede Runde
+887	Zauberhändler
+888	Zauber erscheinen 2x häufiger im Laden
+889	Zauberbaron
+890	Zauber erscheinen 4x häufiger im Laden
+891	Runenhändler
+892	Runen erscheinen 2x häufiger im Laden
+893	Runenbaron
+894	Runen erscheinen 4x häufiger im Laden
+895	Nistkasten
+896	Zinsen können $10 pro Runde erreichen
+897	Goldener Baum
+898	Zinsen können $20 pro Runde erreichen
+899	Leer
+900	Tut nichts?
+901	Leerer Raum
+902	+1 Talisman-Platz
+903	Kartenstand
+904	Spielkarten können im Laden auftauchen
+905	Vitrine
+906	Spielkarten im Laden können eine Verbesserung, Edition oder ein Siegel haben
+907	Zeitglyphe
+908	-1 Ante, aber 1 Hand weniger jede Runde
+909	Steinglyphe
+910	-1 Ante, aber 1 Abwurf weniger jede Runde
+911	Bosstausch
+912	Würfle den Boss Blind einmal pro Ante neu ($10)
+913	Umschreiben
+914	Würfle den Boss Blind so oft du willst neu (je $10)
+915	Pinsel
+916	Palette
+917	+1 weitere Handgröße
+918	Glashaus
+919	Jede Karte im Deck ist aus Glas. Vorsicht, zerbrechlich.
+920	Niedrige Decke
+921	Nichts über einer 9 im Deck.
+922	Nur Hof
+923	Nur 10er und höher, je zweimal.
+924	Augenbinde
+925	Manche Karten werden verdeckt ausgeteilt.
+926	Eine Hand pro Runde, aber reichlich Abwürfe - gegen Bezahlung.
+927	Kurze Hand
+928	Eine kleinere Hand, aber Platz für mehr Talismane.
+929	Mit bloßen Händen
+930	Gar keine Talismane. Gewinne mit Zaubern und Runen.
+931	Sparkurs
+932	Small und Big Blinds zahlen nichts, und Erspartes bringt nichts.
+933	Ausgebrannt
+934	Jede Karte trägt ein Purpursiegel, aber gespielte Karten brennen bis zur nächsten Ante aus.
+935	Magnat
+936	Starte reich, aber übrige Hände bringen nichts.
+937	Das Omelett
+938	Fünf Notgroschen, aber keine Blind-Belohnungen, kein Geld für übrige Hände und keine Zinsen.
+939	15-Minuten-Stadt
+940	Ein Deck von 4 bis König mit zusätzlichen Bildkarten, dazu ein ewiger Pendler und Himmel und Hölle.
+941	Die Reichen werden reicher
+942	Starte mit $100, Nistkasten und Goldenem Baum, aber Chips können nicht mehr sein als dein Geld.
+943	Auf Messers Schneide
+944	Ein ewiges Ritualmesser, ganz links angeheftet.
+945	Röntgenblick
+946	1 von 4 Karten wird verdeckt ausgeteilt.
+947	Verrückte Welt
+948	Nur 2 bis 9, aber jede Karte gilt als Bildkarte. Kein Geld für übrige Hände, keine Zinsen.
+949	Luxussteuer
+950	Handgröße 10, aber -1 Handgröße für je $5, die du hast.
+951	Unverderblich
+952	Jeder Talisman ist ewig.
+953	Medusa
+954	Jeder Bube, jede Dame und jeder König ist Stein. Ein ewiger Steinmetz beginnt den Lauf.
+955	Doppelt oder nichts
+956	Jede Karte hat ein Purpursiegel, aber Karten sind nach dem Spielen für immer geschwächt.
+957	Festgelegt
+958	Wenn Ante 4 beginnt, werden deine Talismane ewig und du bekommst keine Talisman-Plätze mehr.
+959	Inflation
+960	Jeder Kauf erhöht die Ladenpreise um $1. Beginnt mit einem Schuldschein.
+961	Bram-Poker
+962	Keine Talismane im Laden. Ein ewiger Blutegel, Laden und Beschwören, und Spielkarten zum Kauf.
+963	Zerbrechlich
+964	Jede Karte ist aus Glas, dazu zwei ewige negative gezinkte Würfel. Keine Möglichkeit, weitere Karten zu verbessern.
+965	Ein ewiger Monolith und ein ewiger negativer Steinmetz.
+966	Abheben
+967	2 Hände, 2 Abwürfe, 4 Talisman-Plätze, aber Runenhändler, Runenbaron, Sternkarte und Himmelsrakete.
+968	Five Card Draw
+969	Handgröße 5, 6 Abwürfe und 7 Talisman-Plätze. Beginnt mit Kartenhai und Narr.
+970	Goldene Nadel
+971	1 Hand pro Runde und 6 Abwürfe für je $1. Beginnt mit einem Schuldschein.
+972	Grausamkeit
+973	Small und Big Blinds zahlen nichts. Nur 3 Talisman-Plätze.
+974	Ohne Joker
+975	Gar keine Talismane: keine im Laden, keine Plätze, keine Möglichkeit, welche zu erschaffen.
+976	Der Rost
+977	Alle Kreuze sind geschwächt
+978	Der Dorn
+979	Alle Herzen sind geschwächt
+980	Die Asche
+981	Alle Piks sind geschwächt
+982	Die Fäulnis
+983	Alle Karos sind geschwächt
+984	Die Halbierung
+985	Grund-Chips und -Mult werden halbiert
+986	Der Griff
+987	Wirft nach jeder Hand 2 zufällige gehaltene Karten ab
+988	Das Bollwerk
+989	Extragroßer Blind
+990	Die Nadel
+991	Spiele nur 1 Hand
+992	Der Stumme
+993	Alle Bildkarten sind geschwächt
+994	Die Dürre
+995	Keine Abwürfe in dieser Runde
+996	Die Maut
+997	Verliere $1 für jede gespielte Karte
+998	Das Leichentuch
+999	Deine erste Hand wird verdeckt ausgeteilt
+1000	Die Fessel
+1001	-1 Handgröße
+1002	Der Zehnte
+1003	Jede Hand muss 5 Karten nutzen
+1004	Das Echo
+1005	Jede Handart darf nur einmal gespielt werden
+1006	Die Monotonie
+1007	Nur eine Handart darf gespielt werden
+1008	Die Erosion
+1009	Verbesserte Hände verlieren beim Spielen eine Stufe
+1010	Die Maske
+1011	Bildkarten werden verdeckt ausgeteilt
+1012	Der Ochse
+1013	Spielst du deine meistgespielte Handart, fällt dein Geld auf $0
+1014	Das Rad
+1015	1 von 7 Karten wird verdeckt ausgeteilt
+1016	Der Fisch
+1017	Karten, die du nach dem Spielen einer Hand ziehst, kommen verdeckt
+1018	Die Schlange
+1019	Nach einem Spiel oder Abwurf ziehst du immer genau 3 Karten
+1020	Die Säule
+1021	In dieser Ante bereits gespielte Karten sind geschwächt
+1022	Azurlaterne
+1023	Eine Karte ist immer ausgewählt
+1024	Glutkrone
+1025	Jede Hand wird ein zufälliger Talisman deaktiviert
+1026	Jadekranz
+1027	Alle Karten sind geschwächt, bis ein Talisman verkauft wird
+1028	Violetter Abgrund
+1029	Riesiger Blind
+1030	Vergoldete Finsternis
+1031	Talismane werden umgedreht und gemischt
+1032	Flush-Fünfling
+1033	Flush House
+1034	Fünfling
+1035	Straight Flush
+1036	Vierling
+1037	Full House
+1038	Flush
+1039	Straße
+1040	Drilling
+1041	Zwei Paare
+1042	Paar
+1043	Höchste Karte
+1044	Pik
+1045	Herz
+1046	Kreuz
+1047	Karo
+1048	Gewöhnlich
+1049	Ungewöhnlich
+1050	Selten
+1051	Legendär
+1052	Small Blind
+1053	Big Blind
+1054	Boss Blind
+1055	Bube
+1056	Dame
+1057	König
+1058	Ass
+1059	Spiele eine 5-Karten-Hand nur aus vergoldeten Karten
+1060	Verliere 5 Läufe
+1061	Spiele 200 Hände
+1062	Spiele 300 Bildkarten
+1063	Verkaufe 20 Talismane
+1064	Gewinne 5 Runden in Folge mit jeweils nur 1 Hand
+1065	Besitze eine vergoldete Karte mit Goldsiegel
+1066	Habe 3 Joker-Karten in deinem Deck
+1067	Setze einen gespeicherten Lauf fort
+1068	Besiege einen Boss Blind mit einer höchsten Karte
+1069	Habe 30 Karos in deinem Deck
+1070	Habe 30 Herzen in deinem Deck
+1071	Habe 30 Piks in deinem Deck
+1072	Habe 30 Kreuze in deinem Deck
+1073	Habe 5 Glaskarten in deinem Deck
+1074	Erreiche Ante 4
+1075	Erreiche Ante 8
+1076	Gewinne einen Lauf
+1077	Gewinne einen Lauf in 18 Runden oder weniger
+1078	Gewinne einen Lauf in 12 Runden oder weniger
+1079	Erziele 10.000 mit einer Hand
+1080	Erziele 1.000.000 mit einer Hand
+1081	Erziele 100.000.000 mit einer Hand
+1082	Spiele eine Hand mit vier Kreuz-7ern
+1083	Besiege einen Boss Blind mit einer Hand ohne Abwurf
+1084	Wirf 5 Buben auf einmal ab
+1085	Gewinne einen Lauf, ohne ein Paar zu spielen
+1086	Gewinne einen Lauf, ohne einen Drilling zu spielen
+1087	Gewinne einen Lauf, ohne einen Vierling zu spielen
+1088	Gewinne einen Lauf, ohne eine Straße zu spielen
+1089	Gewinne einen Lauf, ohne einen Flush zu spielen
+1090	Gewinne einen Lauf, ohne je mehr als 4 Talismane zu haben
+1091	Wirf einen Royal Flush ab
+1092	Besitze $400
+1093	Spiele jedes Herz deines Decks in einer Runde
+1094	Habe 16 verbesserte Karten in deinem Deck
+1095	Entdecke jeden Zauber
+1096	Entdecke jede Rune
+1097	Verkaufe 50 Talismane oder Zauber
+1098	Besitze 2 Chroma-Talismane gleichzeitig
+1099	Gib $2.500 in Läden aus
+1100	Löse 10 Gutscheine in einem Lauf ein
+1101	Besitze 5 Folie-, Holo- oder Chroma-Talismane gleichzeitig
+1102	Würfle den Laden 100-mal neu
+1103	Benutze 25 Zauber aus Zauber-Packs
+1104	Benutze 25 Runen aus Runen-Packs
+1105	Spiele 2.500 Karten
+1106	Wirf 2.500 Karten ab
+1107	Kaufe 50 Zauber im Laden
+1108	Kaufe 50 Runen im Laden
+1109	Erhalte 10 Runden in Folge die höchsten Zinsen
+1110	Löse Leer 10-mal ein
+1111	Kaufe 20 Spielkarten im Laden
+1112	Erreiche Ante 12
+1113	Entdecke 25 Blinds
+1114	Senke deine Handgröße auf 5

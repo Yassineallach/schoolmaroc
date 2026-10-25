@@ -94,8 +94,11 @@ func _draw() -> void:
 		if layers > 0 and CardView.back_art == null:
 			var top := Vector2(-(layers - 1) * 1.2, -(layers - 1) * 1.6)
 			draw_string(font, top + Vector2(0, H / 2 + 8), "A", HORIZONTAL_ALIGNMENT_CENTER, W, 28, Color(1, 1, 1, 0.5))
-	var label := ("%d/%d" % [count, total]) if not discard else "Discard"
-	draw_string(font, Vector2(0, H + 21), label, HORIZONTAL_ALIGNMENT_CENTER, W, 18, Color(1, 1, 1, 0.75))
+	var label := ("%d/%d" % [count, total]) if not discard else tr("Discard")
+	var fs := 18
+	while fs > 10 and font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > W + 16:
+		fs -= 1
+	draw_string(font, Vector2(-8, H + 21), label, HORIZONTAL_ALIGNMENT_CENTER, W + 16, fs, Color(1, 1, 1, 0.75))
 
 
 func _draw_mini_face(card: Dictionary) -> void:

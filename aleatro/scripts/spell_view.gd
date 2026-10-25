@@ -75,8 +75,8 @@ func _draw() -> void:
 	if d.has("suit"):
 		CardView.draw_suit(self, d.suit, c, 26.0, Data.SUIT_COLORS[d.suit].lightened(0.3))
 	else:
-		draw_string(font, c + Vector2(-20, 11), d.name.substr(0, 1), HORIZONTAL_ALIGNMENT_CENTER, 40, 30, Color.WHITE)
-	draw_multiline_string(font, Vector2(4, 98), d.name, HORIZONTAL_ALIGNMENT_CENTER, size.x - 8, 18, 2, Color.WHITE)
+		draw_string(font, c + Vector2(-20, 11), tr(d.name).substr(0, 1), HORIZONTAL_ALIGNMENT_CENTER, 40, 30, Color.WHITE)
+	draw_multiline_string(font, Vector2(4, 98), tr(d.name), HORIZONTAL_ALIGNMENT_CENTER, size.x - 8, 18, 2, Color.WHITE)
 
 
 ## The illustrated card: SVG frame and emblem, then numeral and name.
@@ -96,7 +96,7 @@ func _draw_card() -> void:
 	var w := size.x * zoom
 	draw_string(font, Vector2(0, (SpellSVG.NUMERAL_Y + 5) * k), SpellSVG.roman(spell_id), HORIZONTAL_ALIGNMENT_CENTER, w,
 		maxi(6, int(17 * k)), Color(SpellSVG.GOLD))
-	var name: String = Data.spell_def(spell_id).name.to_upper()
+	var name: String = tr(Data.spell_def(spell_id).name).to_upper()
 	var fs := int(24 * k)
 	while fs > 7 and font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > 118 * k:
 		fs -= 1
@@ -118,7 +118,7 @@ func _draw_rune() -> void:
 	var k := size.x / RuneSVG.VIEW_W * zoom
 	var plate := RuneSVG.TITLE
 	var font := ThemeDB.fallback_font
-	var name: String = hand.to_upper()
+	var name: String = tr(hand).to_upper()
 	var room := (plate.size.x - 10) * k
 	var fs := int(19 * k)
 	while fs > 6 and font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
@@ -140,7 +140,7 @@ func _draw_omen() -> void:
 	var k := size.x / OmenSVG.VIEW_W * zoom
 	var plate := OmenSVG.NAME
 	var font := ThemeDB.fallback_font
-	var name: String = Data.spell_def(spell_id).name.to_upper()
+	var name: String = tr(Data.spell_def(spell_id).name).to_upper()
 	var room := (plate.size.x - 30) * k
 	var fs := int(20 * k)
 	while fs > 6 and font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:

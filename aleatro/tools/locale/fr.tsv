@@ -1,0 +1,1114 @@
+1	Score minimum
+2	Score de la manche
+3	Mains
+4	Défausses
+5	Menu
+6	Paquet
+7	Jouer la main
+8	Défausser
+9	Valeur
+10	Couleur
+11	Mise {0}/{1}
+12	Paquet {0}/{1}
+13	Main {0}/{1}
+14	Récompense : {0}
+15	Récompense {0}
+16	{0}  niv. {1}
+17	{0} niv. {1}
+18	niv. {0}
+19	{0}  (interdit)
+20	ÉTERNEL
+21	PÉRISSABLE {0}
+22	LOCATION
+23	DÉSACTIVÉ
+24	Désactivé par le boss
+25	Sort
+26	Rune
+27	Présage
+28	Charme
+29	Bon
+30	Lancer
+31	Vendre {0} $
+32	Fermer
+33	Sélectionnez d'abord des cartes dans votre main, puis lancez.
+34	+{0} $
+35	-{0} $
+36	{0} $
+37	+{0}
+38	+{0} Multi
+39	+{0} Jetons
+40	x{0} Multi
+41	Rune : {0}
+42	Un roguelike de poker
+43	Continuer
+44	Mise {0}  {1} $
+45	Maintenir : nouvelle partie
+46	Jouer
+47	Comment jouer
+48	Collection
+49	Défis
+50	Profil {0}
+51	Merci !
+52	OK
+53	Meilleure mise : {0}   Meilleure main : {1}   Victoires : {2}
+54	Langue
+55	Auto ({0})
+56	Sélectionnez jusqu'à 5 cartes et jouez une main de poker. Chaque type de main a des Jetons et un Multi de base ; les cartes comptées ajoutent leur valeur en Jetons (figures 10, As 11).
+57	Score = Jetons x Multi. Atteignez l'objectif de la blinde avant d'épuiser vos mains. Les défausses permettent d'échanger des cartes.
+58	Chaque mise comporte une petite blinde, une grosse blinde et une blinde de boss avec un vilain twist. Battez la mise 8 pour gagner.
+59	Dépensez votre argent en boutique pour des Charmes (bonus passifs, jusqu'à 5) et des Runes (améliorent un type de main). Vous gagnez 1 $ d'intérêts par tranche de 5 $, jusqu'à 5 $.
+60	Certains charmes et bons sont verrouillés au départ : la Collection indique comment débloquer chacun.
+61	Faites glisser cartes ou charmes pour les réordonner ; maintenez une carte pour voir ses détails. Manette : croix pour bouger, A sélectionne (maintenir A + gauche/droite déplace une carte), X joue, Y défausse, LB/RB trient, Start ouvre le menu. Clavier : flèches, Entrée, P, D, Q/E, Échap ; maintenir R pour recommencer.
+62	Nouvelle partie
+63	Défi : {0}
+64	Découvrir {0} charmes et boss ({1} pour l'instant)
+65	Gagner une partie avec le {0}
+66	Gagner une partie en {0}
+67	Verrouillé : {0}
+68	{0}, plus tous les enjeux inférieurs
+69	Enjeu {0} sur {1} débloqué pour ce paquet
+70	Commencer
+71	Retour
+72	Maintenir : commencer (termine la partie en cours)
+73	Mise {0}
+74	Étiquettes :
+75	À venir
+76	Vaincue
+77	Ensuite
+78	AFFRONTEMENT
+79	Passer : {0}
+80	Jouer {0}
+81	Changer de boss 10 $
+82	Passer pour {0}
+83	C'est une blinde de boss ! Les boss tordent les règles. Touchez le panneau de blinde en haut à gauche à tout moment pour lire ce que fait celui-ci.
+84	Salut, moi c'est Ace ! Chaque mise a trois blindes. Atteignez au moins l'objectif avant d'épuiser vos mains pour en battre une et gagner de l'argent.
+85	{0}  -  {1}, encore 1 choix
+86	{0}  -  {1}, encore {2} choix
+87	Prendre
+88	Utiliser
+89	Passer
+90	BON
+91	Touchez jusqu'à 5 cartes pour former une main de poker, puis appuyez sur Jouer la main. Votre score vaut Jetons x Multi, donc les mains fortes rapportent plus.
+92	Oh, une carte améliorée ! Maintenez une carte pour voir ce qu'elle fait.
+93	Retenue par la Lanterne
+94	Interdit !
+95	Équilibré !
+96	Affaiblie
+97	Encore !
+98	Sauvé par {0} !
+99	L'Étreinte !
+100	Toutes les mains ne gagnent pas. La défausse échange des cartes contre des nouvelles. Gardez un œil sur vos Mains et Défausses à gauche.
+101	Défausser coûte {0} $
+102	Brisée !
+103	Récompense de la blinde
+104	Mains restantes ({0})
+105	Défausses restantes ({0})
+106	Intérêts (1 $ par 5 $)
+107	{0} vaincue !
+108	{0} a disparu !
+109	Encaisser : {0} $
+110	Partie terminée
+111	Atteint
+112	Meilleure main
+113	La plus jouée
+114	Si près ! Chaque partie apprend quelque chose.
+115	Aïe. On redistribue ?
+116	Les cartes n'étaient pas avec nous cette fois.
+117	On se secoue, le prochain paquet sera le bon !
+118	Menu principal
+119	Défi réussi : {0}
+120	Défi réussi
+121	{0} débloqué pour le {1}
+122	Victoire !
+123	Vous avez battu la mise {0}.
+124	On l'a fait ! Je savais que tu en étais capable !
+125	Champion ! Envie de voir jusqu'où va le mode Infini ?
+126	Mode Infini
+127	Boutique
+128	Manche suivante
+129	Relancer {0} $
+130	{0} commun
+131	{0} peu commun
+132	{0} rare
+133	{0} légendaire
+134	Épuisé !
+135	Bienvenue à la boutique ! Les Charmes donnent un bonus à chaque main, les Sorts et Runes vont dans les emplacements en haut à droite, et un Bon améliore toute votre partie. Faites glisser vos charmes pour changer leur ordre de déclenchement.
+136	Les prix ont augmenté de +{0} $
+137	Plus de place pour des sorts
+138	Les Sorts et Runes attendent dans les emplacements en haut à droite. Pendant une manche, sélectionnez des cartes de votre main, puis touchez un sort pour le lancer dessus.
+139	Ajoutée au paquet ({0} cartes)
+140	Bon : {0}
+141	Face cachée
+142	{0} cache vos charmes jusqu'à sa défaite.
+143	Couronne de jade levée : les cartes fonctionnent à nouveau
+144	Verrouillé
+145	Éternel
+146	Épinglé
+147	Les charmes se déclenchent de gauche à droite. Faites glisser pour réordonner.
+148	Les intérêts rapportent 1 $ par tranche de 5 $, jusqu'à 5 $. Épargner, ça paie !
+149	Les charmes se déclenchent de gauche à droite : placez les charmes x Multi en dernier.
+150	Les Runes améliorent un type de main pour toute la partie.
+151	Les cartes de verre frappent fort mais peuvent se briser. Profitez-en tant qu'elles durent.
+152	Les cartes de fer sont les plus utiles quand vous les gardez en main.
+153	Vendez un Gardien pendant une blinde de boss pour désactiver le boss.
+154	Maintenez une carte pour lire ses améliorations.
+155	Touchez le panneau de blinde pour voir ce que mijote le boss.
+156	Compris
+157	Plus de conseils
+158	Merci, Ace
+159	Affrontement : {0}
+160	Le Gardien a désactivé {0}
+161	Score minimum {0}   Récompense {1}
+162	Boss de l'affrontement
+163	Désactivé par le Gardien
+164	Déjà jouées : {0}
+165	aucune
+166	Main autorisée : {0}
+167	celle que vous jouez en premier
+168	Aucune règle spéciale
+169	+{0} Jetons quand comptée
+170	+{0} Jetons bonus
+171	Affaiblie par {0}
+172	Paquet : {0} cartes
+173	Les cartes estompées ont déjà été piochées cette manche
+174	{0} cartes améliorées. Maintenez une carte en main pour voir ses détails.
+175	Mains de poker
+176	Votre partie sauvegardée n'a pas pu être lue, une nouvelle a commencé
+177	{0} débloqué : {1}
+178	Nouveau charme découvert : {0}
+179	Nouveau boss découvert : {0}
+180	{0}  [réussi]
+181	{0} / {1} réussis  -  battez la mise {2} pour en réussir un
+182	Page {0} / {1}
+183	Collection  (Profil {0})
+184	Charmes
+185	Bons
+186	Boss
+187	Statistiques
+188	Crédits
+189	{0} / {1} découverts   -   {2} verrouillés
+190	Charme verrouillé
+191	{0} bons   -   {1} verrouillés
+192	{0} (verrouillé)
+193	{0} / {1} découverts
+194	Parties
+195	Victoires
+196	Meilleure mise
+197	Mains jouées
+198	Cartes jouées
+199	Argent gagné
+200	Charmes achetés
+201	Sorts lancés
+202	Défis réussis
+203	Cartes de verre brisées
+204	Créé avec Godot Engine {0}.{1}
+205	La musique, le son et les graphismes sont générés par le propre code du jeu.
+206	Pause
+207	Pause  -  {0}
+208	Général
+209	Musique
+210	Sons
+211	Vibration : oui
+212	Vibration : non
+213	Vitesse : {0}x
+214	Mouvement : réduit
+215	Mouvement : complet
+216	Accélère les animations de score et de distribution
+217	Réduit coupe les secousses d'écran, l'oscillation, l'inclinaison et le balancement au repos
+218	Revoir les conseils
+219	Maintenir : menu principal
+220	Ace montrera de nouveau les conseils
+221	Reprendre
+222	(Actuellement +{0} Multi)
+223	(Actuellement +{0} Jetons)
+224	({0} mains restantes)
+225	(encore {0} mains)
+226	(Actuellement x{0} Multi)
+227	(Actuellement +{0} taille de main)
+228	(Actuellement {0} $)
+229	(Prêt à vendre)
+230	({0} manches sur 2)
+231	(Cette manche : {0})
+232	{0} : {1}
+233	Éternel : ne peut être ni vendu ni détruit
+234	Périssable : usé
+235	Périssable : {0} manches restantes
+236	Location : coûte 3 $ à la fin de chaque manche
+237	Étiquette Jonglage : +3 taille de main
+238	+1 carte de pierre
+239	x{0} Multi, a mangé {1}
+240	{0} coupé : +{1} Multi
+241	+1 Sort
+242	+{0} Sorts
+243	+1 Rune
+244	+{0} Runes
+245	+1 Présage
+246	+3 Mains
+247	{0} a déjà été jouée
+248	Seule {0} est autorisée
+249	Les mains doivent utiliser 5 cartes
+250	Le Bœuf a pris votre argent
+251	{0} érodée au niv. {1}
+252	Péage : -{0} $
+253	{0} est étouffé
+254	Copié !
+255	{0} : +{1} $
+256	{0} : {1} niv. {2}
+257	{0} : +1 charme
+258	{0} : +{1} charmes
+259	{0} : le boss est maintenant {1}
+260	{0} : {1} gratuit
+261	{0} : tout est gratuit
+262	{0} : les relances commencent à 0 $
+263	Rêverie : +1 Sort
+264	Plus de place pour des charmes
+265	{0} dupliqué
+266	Copie négative de {0}
+267	Cartes dorées gardées
+268	Locations ({0})
+269	Lancez-le pendant une manche
+270	Vous n'avez aucun charme
+271	Aucun charme sans édition
+272	Aucun sort n'a encore été lancé cette partie
+273	Pas de place pour un autre charme
+274	Lancez-le pendant une manche, sur des cartes de votre main
+275	Sélectionnez d'abord une carte
+276	Sélectionnez d'abord jusqu'à {0} cartes
+277	Sélectionnez une seule carte
+278	Sélectionnez au plus {0} cartes
+279	Sélectionnez exactement {0} cartes
+280	{0} est devenue {1}
+281	Raté !
+282	{0} de {1}
+283	Améliorer {0} : +{1} Jetons, +{2} Multi
+284	-  {0}
+285	Commencer avec {0} $
+286	{0} mains par manche
+287	{0} défausses par manche
+288	Taille de main {0}
+289	{0} emplacements de charme
+290	{0} emplacements de sort
+291	Pas d'intérêts
+292	Pas d'argent pour les mains restantes
+293	Pas de récompense pour {0}
+294	{0} ou {1}
+295	1 carte sur {0} distribuée face cachée
+296	Chaque défausse coûte {0} $
+297	Les prix de la boutique augmentent de 1 $ après chaque achat
+298	La boutique ne vend aucun charme
+299	Les cartes jouées sont affaiblies jusqu'à la mise suivante
+300	Les cartes comptées sont affaiblies pour le reste de la partie
+301	Les Jetons ne peuvent pas dépasser votre argent
+302	-1 taille de main par tranche de {0} $ possédés
+303	Tous les charmes sont éternels
+304	Au début de la mise {0}, vos charmes deviennent éternels et vos emplacements de charme tombent à 0
+305	Paquet : {0}
+306	valeurs {0} uniquement
+307	un {0} de plus par couleur
+308	chaque {0} est en pierre
+309	x{0} exemplaires
+310	tout en {0}
+311	tout avec {0}
+312	{0} ({1})
+313	Charmes de départ : {0}
+314	Bons de départ : {0}
+315	Sorts de départ : {0}
+316	Charmes interdits : {0}
+317	Boss interdits : {0}
+318	Également interdits : {0}
+319	,
+320	 ;
+321	Bouffon
+322	+4 Multi
+323	Bague de rubis
+324	Les Cœurs comptés donnent +3 Multi
+325	Bague de topaze
+326	Les Carreaux comptés donnent +3 Multi
+327	Bague d'onyx
+328	Les Piques comptés donnent +3 Multi
+329	Bague de jade
+330	Les Trèfles comptés donnent +3 Multi
+331	Masque jumeau
+332	+8 Multi si la main contient une Paire
+333	Masque triade
+334	+12 Multi si la main contient un Brelan
+335	Masque duo
+336	+10 Multi si la main contient une Double paire
+337	Échelle
+338	+12 Multi si la main contient une Suite
+339	Marée
+340	+10 Multi si la main contient une Couleur
+341	Pastille de menthe
+342	+20 Multi si 3 cartes ou moins sont jouées
+343	Drapeau
+344	+30 Jetons par défausse restante
+345	Bug
+346	+0 à +23 Multi, au hasard
+347	Quille
+348	Les 10, 8, 6, 4, 2 comptés donnent +4 Multi
+349	Drôle d'oiseau
+350	Les A, 9, 7, 5, 3 comptés donnent +31 Jetons
+351	Scribe
+352	Les As comptés donnent +20 Jetons et +4 Multi
+353	Puits profond
+354	+2 Jetons par carte restant dans la pioche
+355	Foule
+356	+3 Multi par charme possédé
+357	Baroud d'honneur
+358	+15 Multi quand il ne reste aucune défausse
+359	Cour royale
+360	Les V, D, R comptés donnent +30 Jetons
+361	Spirale
+362	Les A, 2, 3, 5, 8 comptés donnent +8 Multi
+363	Dent en or
+364	Gagnez 4 $ à la fin de chaque manche
+365	Boule de neige
+366	Gagne +1 Multi par main jouée et perd 1 Multi par défausse
+367	Trésor
+368	+2 Jetons par dollar possédé
+369	Creux
+370	x1 Multi par emplacement de charme vide (se compte lui-même)
+371	Prisme
+372	x3 Multi si les cartes jouées comprennent les 4 couleurs
+373	Gardien
+374	À vendre pendant une blinde de boss pour la désactiver
+375	Duo
+376	x2 Multi si la main contient une Paire
+377	Voyant
+378	+1 Multi par Sort lancé pendant cette partie
+379	Voile jumeau
+380	+50 Jetons si la main contient une Paire
+381	Voile duo
+382	+80 Jetons si la main contient une Double paire
+383	Voile triade
+384	+100 Jetons si la main contient un Brelan
+385	Voile du rail
+386	+100 Jetons si la main contient une Suite
+387	Voile des marées
+388	+80 Jetons si la main contient une Couleur
+389	Couronne triade
+390	x3 Multi si la main contient un Brelan
+391	Couronne carrée
+392	x4 Multi si la main contient un Carré
+393	Couronne du rail
+394	x3 Multi si la main contient une Suite
+395	Couronne des marées
+396	x2 Multi si la main contient une Couleur
+397	Rictus
+398	Les figures comptées donnent +5 Multi
+399	Radio
+400	Les 10 et 4 comptés donnent +10 Jetons et +4 Multi
+401	Fer de lance
+402	Les Piques comptés donnent +50 Jetons
+403	Pierre de trèfle
+404	Les Trèfles comptés donnent +7 Multi
+405	Topaze brute
+406	Les Carreaux comptés rapportent 1 $
+407	Pierre de cœur
+408	Les Cœurs comptés ont 1 chance sur 2 de donner x1,5 Multi
+409	Portrait
+410	La première figure comptée donne x2 Multi
+411	Funambule
+412	x3 Multi sur la dernière main de la manche
+413	Poing de fer
+414	La plus petite carte en main donne un Multi égal au double de sa valeur
+415	Régent
+416	Chaque Roi en main donne x1,5 Multi
+417	Lever de lune
+418	Chaque Dame en main donne +13 Multi
+419	Rappel
+420	Redéclenche les 2, 3, 4 et 5 comptés
+421	Mascarade
+422	Redéclenche les figures comptées
+423	Carte perforée
+424	Redéclenche 2 fois de plus la première carte comptée
+425	Crépuscule
+426	Redéclenche chaque carte comptée lors de la dernière main de la manche
+427	Carte de visite
+428	Les figures comptées ont 1 chance sur 2 de rapporter 2 $
+429	Ticket doré
+430	Les cartes dorées comptées rapportent 4 $
+431	Patience
+432	En fin de manche, gagnez 2 $ par défausse restante si vous n'en avez utilisé aucune
+433	Corsaire
+434	+Multi égal à la valeur de revente de vos autres charmes
+435	Célébrité
+436	+Multi égal au nombre de fois que ce type de main a été joué cette partie
+437	Navetteur
+438	Gagne +1 Multi par main d'affilée sans figure comptée ; remis à zéro par une figure
+439	Sprinteur
+440	Gagne +15 Jetons chaque fois que la main contient une Suite
+441	Carré magique
+442	Gagne +4 Jetons chaque fois qu'exactement 4 cartes sont jouées
+443	Sorbet
+444	+100 Jetons. Perd 5 Jetons à chaque main jouée
+445	Pop-corn
+446	+20 Multi. Perd 4 Multi à la fin de chaque manche
+447	Banane plantain
+448	+15 Multi. 1 chance sur 6 de pourrir à la fin de chaque manche
+449	Plantain mûr
+450	x3 Multi. 1 chance sur 1000 de pourrir à la fin de chaque manche
+451	Pétillant
+452	Redéclenche chaque carte jouée pendant les 10 prochaines mains
+453	Requin des cartes
+454	x3 Multi si ce type de main a déjà été joué cette manche
+455	Tampon fidélité
+456	x4 Multi toutes les 6 mains jouées
+457	Ardoise
+458	x3 Multi si chaque carte en main est un Pique ou un Trèfle
+459	Prise large
+460	Les Couleurs et les Suites peuvent se faire avec 4 cartes
+461	Marelle
+462	Les Suites peuvent sauter une valeur entre deux cartes (comme 3 5 6 8 9)
+463	Tache d'encre
+464	Cœurs et Carreaux comptent comme la même couleur, tout comme Piques et Trèfles
+465	Mirage
+466	Chaque carte compte comme une figure
+467	Flaque
+468	Chaque carte jouée compte dans le score
+469	Mime
+470	Redéclenche les capacités des cartes en main
+471	Volonté de fer
+472	x0,2 Multi par carte de fer dans tout votre paquet
+473	Carrière
+474	+25 Jetons par carte de pierre dans tout votre paquet
+475	Maçon
+476	Ajoute une carte de pierre à votre paquet au début d'une blinde
+477	Toucher doré
+478	Les figures comptées deviennent dorées
+479	Sangsue
+480	Gagne x0,1 Multi par carte améliorée comptée, et lui retire son amélioration
+481	Vagabond
+482	Chaque carte comptée gagne définitivement +5 Jetons
+483	Vieille relique
+484	Les cartes comptées de la couleur de la manche donnent x1,5 Multi (la couleur change à chaque manche)
+485	Donjon
+486	Gagne +3 Jetons par carte défaussée de la couleur de la manche (la couleur change à chaque manche)
+487	Idole
+488	Les copies comptées de la carte de la manche donnent x2 Multi (la carte change à chaque manche)
+489	Remise
+490	Gagnez 5 $ par carte défaussée de la valeur de la manche (la valeur change à chaque manche)
+491	Liste de courses
+492	Gagnez 4 $ en jouant le type de main indiqué (il change à chaque manche)
+493	Pantalon rapiécé
+494	Gagne +2 Multi chaque fois que la main contient une Double paire
+495	Carte mémo
+496	Gagne +2 Multi chaque fois que vous relancez la boutique
+497	Monolithe
+498	Gagne x0,2 Multi par main d'affilée qui n'est pas votre type de main le plus joué ; remis à zéro quand c'en est un
+499	Frénésie
+500	Au début d'une petite ou grosse blinde, gagne x0,5 Multi et détruit un autre charme au hasard
+501	Couteau rituel
+502	Au début d'une blinde, détruit le charme à sa droite et gagne le double de sa valeur de revente en Multi
+503	Hologramme
+504	Gagne x0,25 Multi chaque fois qu'une carte est ajoutée à votre paquet
+505	Carte du ciel
+506	Gagne x0,1 Multi chaque fois que vous utilisez une Rune
+507	Feu de joie
+508	Gagne x0,25 Multi par charme vendu ; remis à zéro quand un boss est battu
+509	Chat porte-bonheur
+510	Gagne x0,25 Multi chaque fois qu'une carte chanceuse paie
+511	Vitrier
+512	Gagne x0,75 Multi chaque fois qu'une carte de verre se brise
+513	Reconnaissance de dette
+514	Vous pouvez vous endetter jusqu'à 20 $
+515	Bas de laine
+516	Sa valeur de revente augmente de 3 $ à la fin de chaque manche
+517	Papier cadeau
+518	À la fin de chaque manche, la valeur de revente de chaque charme augmente de 1 $
+519	Fusée
+520	Gagnez 1 $ à la fin de chaque manche ; le gain augmente de 2 $ à chaque boss battu
+521	Neuf vies
+522	Gagnez 1 $ à la fin de chaque manche pour chaque 9 dans tout votre paquet
+523	Coup de lune
+524	Les intérêts sont versés deux fois
+525	Satellite
+526	Gagnez 1 $ à la fin de chaque manche pour chaque Rune différente utilisée cette partie
+527	Valet de chambre
+528	Chaque figure en main a 1 chance sur 2 de rapporter 1 $
+529	À la force du poignet
+530	+2 Multi par tranche de 5 $ possédés
+531	Toréador
+532	Gagnez 8 $ chaque fois que l'effet d'une blinde de boss touche votre main
+533	Errant
+534	Crée un Sort quand vous jouez une main en possédant 4 $ ou moins
+535	Marchand
+536	Si la première défausse d'une manche est une seule carte, détruisez-la et gagnez 3 $
+537	Chat cambrioleur
+538	Au début d'une blinde, gagnez 3 mains et perdez toutes vos défausses
+539	Pompette
+540	+1 défausse par manche
+541	Jongleur
+542	+1 taille de main
+543	Ménestrel
+544	+2 taille de main, mais 1 main de moins par manche
+545	Joyeux fou
+546	+3 défausses par manche, mais -1 taille de main
+547	Casse-cou
+548	+250 Jetons, mais -2 taille de main
+549	Pousse de haricot
+550	+5 taille de main, diminue de 1 à chaque manche
+551	Bol de nouilles
+552	x2 Multi ; perd x0,01 Multi par carte défaussée
+553	Chaos
+554	1 relance gratuite dans chaque boutique
+555	Astronome
+556	Les Runes de la boutique sont gratuites
+557	Permis
+558	x3 Multi si au moins 16 cartes de tout votre paquet sont améliorées
+559	Fanion
+560	Chaque charme peu commun que vous possédez donne x1,5 Multi
+561	Papier calque
+562	Copie la capacité du charme à sa droite
+563	Éclair de génie
+564	Copie la capacité de votre charme le plus à gauche
+565	Fantôme
+566	Après 2 manches, vendez-le pour dupliquer un autre charme au hasard
+567	Dés pipés
+568	Double toutes les chances indiquées (1 sur 4 devient 2 sur 4)
+569	Boule de cristal
+570	Chaque 8 compté a 1 chance sur 4 de créer un Sort
+571	Seconde vue
+572	Si la première main d'une manche est un 6 seul, détruisez-le et créez un Présage
+573	Planche Ouija
+574	Crée un Présage quand vous jouez une Quinte flush
+575	Quantique
+576	Crée un Sort quand la main contient à la fois un As et une Suite
+577	Devin
+578	Crée un Sort au début d'une blinde
+579	Notaire
+580	Au début d'une manche, ajoute à votre main une carte au hasard avec un sceau au hasard
+581	Clone
+582	Si la première main d'une manche est une seule carte, ajoute une copie à votre paquet et à votre main
+583	Racaille
+584	Au début d'une blinde, crée 2 charmes communs (s'il y a de la place)
+585	Petit bois
+586	Améliore le type de main de votre première défausse de chaque manche
+587	Orbite
+588	1 chance sur 4 d'améliorer le type de main joué
+589	Masque vierge
+590	Gagnez 5 $ en défaussant 3 figures ou plus d'un coup
+591	Road trip
+592	Gagne x0,5 Multi par Valet défaussé cette manche
+593	Vision double
+594	x2 Multi si les cartes comptées comprennent un Trèfle et une carte d'une autre couleur
+595	Minus
+596	Gagne +8 Jetons chaque fois qu'un 2 est compté
+597	Monsieur Loyal
+598	Les charmes et sorts que vous possédez déjà peuvent encore apparaître en boutique
+599	Dernier rire
+600	Vous sauve d'une manche perdue si vous avez atteint au moins un quart de l'objectif, puis se brise
+601	Usure
+602	+4 Multi par carte manquante dans votre paquet par rapport à sa taille de départ
+603	Couronne d'os
+604	Gagne x1 Multi chaque fois qu'une figure est détruite
+605	Roi des fous
+606	Les Rois et Dames comptés donnent x2 Multi
+607	Crâne
+608	Gagne x1 Multi toutes les 23 cartes défaussées
+609	Veto
+610	Désactive l'effet de toutes les blindes de boss
+611	Accumulateur
+612	Quand vous quittez la boutique, crée une copie négative d'un sort au hasard que vous possédez
+613	Album
+614	Gagne +3 Multi chaque fois que vous passez un booster
+615	Rêverie
+616	1 chance sur 2 de créer un Sort quand vous ouvrez un booster
+617	Rembobinage
+618	x0,25 Multi par blinde passée cette partie
+619	Root beer float
+620	Vendez-le pour obtenir une Étiquette Jumelle
+621	Gravée
+622	+30 Jetons quand comptée
+623	Chargée
+624	+4 Multi quand comptée
+625	Verre
+626	x2 Multi quand comptée ; 1 chance sur 4 de se briser
+627	Fer
+628	x1,5 Multi tant qu'elle est en main
+629	Dorée
+630	Gagnez 3 $ si elle est en main en fin de manche
+631	Chanceuse
+632	1 chance sur 5 de +20 Multi et 1 chance sur 15 de 20 $ quand comptée
+633	Pierre
+634	+50 Jetons ; ni valeur ni couleur, compte toujours
+635	Joker
+636	Compte comme toutes les couleurs
+637	Brillant
+638	+50 Jetons
+639	Holo
+640	+10 Multi
+641	Chroma
+642	x1,5 Multi
+643	Négatif
+644	+1 emplacement
+645	Sceau cramoisi
+646	Redéclenche cette carte
+647	Sceau doré
+648	Gagnez 3 $ quand cette carte est comptée
+649	Sceau azur
+650	Crée la Rune de la dernière main jouée si elle est en main en fin de manche
+651	Sceau violet
+652	Crée un Sort quand elle est défaussée
+653	Pochette de cartes
+654	Pochette de sorts
+655	Pochette de runes
+656	Pochette de charmes
+657	Pochette de présages
+658	Choisissez 1 carte à jouer parmi 3
+659	Pochette de cartes jumbo
+660	Choisissez 1 carte à jouer parmi 5
+661	Pochette de cartes méga
+662	Choisissez 2 cartes à jouer parmi 5
+663	Choisissez 1 Sort parmi 3
+664	Pochette de sorts jumbo
+665	Choisissez 1 Sort parmi 5
+666	Pochette de sorts méga
+667	Choisissez 2 Sorts parmi 5
+668	Choisissez 1 Rune parmi 3
+669	Pochette de runes jumbo
+670	Choisissez 1 Rune parmi 5
+671	Pochette de runes méga
+672	Choisissez 2 Runes parmi 5
+673	Choisissez 1 charme parmi 2
+674	Pochette de charmes jumbo
+675	Choisissez 1 charme parmi 4
+676	Pochette de charmes méga
+677	Choisissez 2 charmes parmi 4
+678	Choisissez 1 Présage parmi 2
+679	Pochette de présages jumbo
+680	Choisissez 1 Présage parmi 4
+681	Pochette de présages méga
+682	Choisissez 2 Présages parmi 4
+683	Gravure
+684	Rend gravées jusqu'à 2 cartes sélectionnées
+685	Charge
+686	Rend chargées jusqu'à 2 cartes sélectionnées
+687	Glaçure
+688	Transforme 1 carte sélectionnée en verre
+689	Forge
+690	Transforme 1 carte sélectionnée en fer
+691	Dorure
+692	Rend dorée 1 carte sélectionnée
+693	Trèfle
+694	Rend chanceuses jusqu'à 2 cartes sélectionnées
+695	Floraison
+696	Transforme jusqu'à 3 cartes sélectionnées en Cœurs
+697	Ombre
+698	Transforme jusqu'à 3 cartes sélectionnées en Piques
+699	Ronce
+700	Transforme jusqu'à 3 cartes sélectionnées en Trèfles
+701	Embrasement
+702	Transforme jusqu'à 3 cartes sélectionnées en Carreaux
+703	Ascension
+704	Augmente d'une valeur jusqu'à 2 cartes sélectionnées
+705	Purge
+706	Détruit jusqu'à 2 cartes sélectionnées
+707	Miroir
+708	Sélectionnez 2 cartes : celle de gauche devient une copie de celle de droite
+709	Aubaine
+710	Double votre argent (jusqu'à +20 $)
+711	Pétrification
+712	Transforme 1 carte sélectionnée en pierre
+713	Chimère
+714	Rend joker 1 carte sélectionnée
+715	Rejouer
+716	Crée une copie du dernier Sort lancé cette partie (sauf Rejouer)
+717	Oracle
+718	Crée jusqu'à 2 Runes au hasard
+719	Invocation
+720	Crée jusqu'à 2 Sorts au hasard
+721	Fortune
+722	1 chance sur 4 de donner Brillant, Holo ou Chroma à un charme au hasard
+723	Troc
+724	Gagnez la valeur de revente totale de vos charmes (jusqu'à 50 $)
+725	Conjuration
+726	Crée un charme au hasard
+727	Courtisans
+728	Détruit 1 carte au hasard en main ; ajoute 3 figures améliorées au hasard à votre main
+729	Faucheuse
+730	Détruit 1 carte au hasard en main ; ajoute 2 As améliorés au hasard à votre main
+731	Psalmodie
+732	Détruit 1 carte au hasard en main ; ajoute 4 cartes numérotées améliorées au hasard à votre main
+733	Talisman
+734	Ajoute un Sceau doré à 1 carte sélectionnée
+735	Aura
+736	Donne Brillant, Holo ou Chroma à 1 carte sélectionnée
+737	Spectre
+738	Crée un charme rare, mais votre argent tombe à 0 $
+739	Convergence
+740	Transforme toutes les cartes en main en une même couleur au hasard
+741	Mono
+742	Transforme toutes les cartes en main en une même valeur au hasard ; -1 taille de main
+743	Néant
+744	Rend négatif un charme au hasard ; -1 taille de main
+745	Bûcher
+746	Détruit 5 cartes au hasard en main ; gagnez 20 $
+747	Renaissance
+748	Copie un charme au hasard et détruit tous les autres
+749	Sigille
+750	Ajoute un Sceau cramoisi à 1 carte sélectionnée
+751	Malédiction
+752	Rend Chroma un charme au hasard et détruit tous les autres
+753	Accalmie
+754	Ajoute un Sceau azur à 1 carte sélectionnée
+755	Murmure
+756	Ajoute un Sceau violet à 1 carte sélectionnée
+757	Duplication
+758	Ajoute 2 copies d'1 carte sélectionnée à votre paquet
+759	Âme
+760	Crée un charme légendaire
+761	Singularité
+762	Améliore tous les types de main
+763	Paquet cramoisi
+764	+1 défausse à chaque manche
+765	Paquet azur
+766	+1 main à chaque manche
+767	Paquet doré
+768	Commencez avec 10 $ de plus
+769	Paquet du bosquet
+770	Pas d'intérêts ; à la fin de chaque manche, gagnez 2 $ par main et 1 $ par défausse restantes
+771	Paquet d'encre
+772	+1 emplacement de charme, mais 1 main de moins à chaque manche
+773	Paquet arcanique
+774	Commencez avec le bon Besace et 2 copies de Rejouer
+775	Paquet étoilé
+776	Commencez avec le bon Longue-vue, mais -1 emplacement de sort
+777	Paquet des esprits
+778	Des Présages peuvent apparaître en boutique ; commencez avec une Malédiction
+779	Paquet nu
+780	Aucune figure dans le paquet
+781	Paquet damier
+782	26 Piques et 26 Cœurs
+783	Paquet du zodiaque
+784	Commencez avec les bons Marchand de sorts, Marchand de runes et Étagère supplémentaire
+785	Paquet peint
+786	+2 taille de main, mais -1 emplacement de charme
+787	Paquet jumeau
+788	Gagnez une Étiquette Jumelle après chaque boss battu
+789	Paquet plasma
+790	Jetons et Multi sont équilibrés avant le total de chaque main ; les blindes demandent 2x le score
+791	Paquet du chaos
+792	La valeur et la couleur de chaque carte sont aléatoires
+793	Jeton blanc
+794	Le jeu de base
+795	Jeton rouge
+796	La petite blinde ne rapporte rien
+797	Jeton vert
+798	Les scores des blindes montent plus vite
+799	Jeton noir
+800	Les charmes en boutique peuvent être Éternels (ni vendus ni détruits)
+801	Jeton bleu
+802	-1 défausse à chaque manche
+803	Jeton violet
+804	Les scores des blindes montent encore plus vite
+805	Jeton orange
+806	Les charmes en boutique peuvent être Périssables (cessent de fonctionner après 5 manches)
+807	Jeton doré
+808	Les charmes en boutique peuvent être en Location (1 $ à l'achat, 3 $ par manche)
+809	Étiquette Richesse
+810	Double votre argent (jusqu'à +40 $)
+811	Étiquette Hâte
+812	Gagnez 5 $ par blinde passée cette partie
+813	Étiquette Rare
+814	La prochaine boutique a un charme rare gratuit
+815	Étiquette Peu commune
+816	La prochaine boutique a un charme peu commun gratuit
+817	Étiquette Coupon
+818	Tout ce qui est proposé d'abord dans la prochaine boutique est gratuit
+819	Étiquette Étoile
+820	Améliore 3 fois un type de main au hasard
+821	Étiquette Jonglage
+822	+3 taille de main pour la prochaine manche
+823	Étiquette Lot
+824	Ouvrez une Pochette de charmes méga gratuite
+825	Étiquette Grimoire
+826	Ouvrez une Pochette de sorts méga gratuite
+827	Étiquette Jumelle
+828	Copie la prochaine étiquette obtenue
+829	Étiquette Investissement
+830	Gagnez 15 $ après avoir battu le prochain boss
+831	Étiquette Dés
+832	Les relances de la prochaine boutique commencent à 0 $
+833	Étiquette Négative
+834	Le prochain charme simple de la boutique est gratuit et Négatif
+835	Étiquette Brillante
+836	Le prochain charme simple de la boutique est gratuit et Brillant
+837	Étiquette Holo
+838	Le prochain charme simple de la boutique est gratuit et Holo
+839	Étiquette Chroma
+840	Le prochain charme simple de la boutique est gratuit et Chroma
+841	Étiquette Bon
+842	Ajoute un Bon à la prochaine boutique
+843	Étiquette Boss
+844	Change la blinde de boss de cette mise
+845	Étiquette Carte
+846	Ouvrez une Pochette de cartes méga gratuite
+847	Étiquette Météore
+848	Ouvrez une Pochette de runes méga gratuite
+849	Étiquette Éthérée
+850	Ouvrez une Pochette de présages gratuite
+851	Étiquette Pratique
+852	Gagnez 1 $ par main jouée cette partie
+853	Étiquette Rebut
+854	Gagnez 1 $ par défausse inutilisée cette partie
+855	Étiquette Recharge
+856	Crée jusqu'à 2 charmes communs
+857	Étagère supplémentaire
+858	+1 emplacement de carte en boutique
+859	Étagères pleines
+860	+1 emplacement de carte de plus en boutique
+861	Liquidation
+862	Tout est à -25 % en boutique
+863	Soldes monstres
+864	Tout est à -50 % en boutique
+865	Polissage
+866	Brillant, Holo et Chroma apparaissent 2x plus souvent
+867	Éclat
+868	Brillant, Holo et Chroma apparaissent 4x plus souvent
+869	Dés bon marché
+870	Les relances coûtent 2 $ de moins
+871	Gobelet pipé
+872	Les relances coûtent encore 2 $ de moins
+873	Besace
+874	+1 emplacement de sort
+875	Lampe des esprits
+876	Des Présages peuvent apparaître dans les Pochettes de sorts
+877	Longue-vue
+878	Les Pochettes de runes contiennent toujours la Rune de votre main la plus jouée
+879	Planétarium
+880	Les Runes gardées dans vos emplacements donnent x1,5 Multi quand leur main est jouée
+881	Prise supplémentaire
+882	Pinces
+883	+1 main de plus à chaque manche
+884	Corbeille
+885	Recycleur
+886	+1 défausse de plus à chaque manche
+887	Marchand de sorts
+888	Les Sorts apparaissent 2x plus souvent en boutique
+889	Baron des sorts
+890	Les Sorts apparaissent 4x plus souvent en boutique
+891	Marchand de runes
+892	Les Runes apparaissent 2x plus souvent en boutique
+893	Baron des runes
+894	Les Runes apparaissent 4x plus souvent en boutique
+895	Nichoir
+896	Les intérêts peuvent atteindre 10 $ par manche
+897	Arbre d'or
+898	Les intérêts peuvent atteindre 20 $ par manche
+899	Vierge
+900	Ne fait rien ?
+901	Espace vide
+902	+1 emplacement de charme
+903	Étal de cartes
+904	Des cartes à jouer peuvent apparaître en boutique
+905	Vitrine
+906	Les cartes à jouer en boutique peuvent avoir une amélioration, une édition ou un sceau
+907	Glyphe du temps
+908	-1 mise, mais 1 main de moins à chaque manche
+909	Glyphe de pierre
+910	-1 mise, mais 1 défausse de moins à chaque manche
+911	Échange de boss
+912	Changez la blinde de boss une fois par mise (10 $)
+913	Réécriture
+914	Changez la blinde de boss autant que vous voulez (10 $ chaque fois)
+915	Pinceau
+916	Palette
+917	+1 taille de main de plus
+918	Maison de verre
+919	Chaque carte du paquet est en verre. Fragile.
+920	Plafond bas
+921	Rien au-dessus de 9 dans le paquet.
+922	Rien que la cour
+923	Seulement des 10 et plus, deux de chaque.
+924	Bandeau
+925	Certaines cartes sont distribuées face cachée.
+926	Une main par manche, mais plein de défausses - payantes.
+927	Main courte
+928	Une main plus petite mais de la place pour plus de charmes.
+929	Mains nues
+930	Aucun charme. Gagnez avec les sorts et les runes.
+931	Austérité
+932	Petites et grosses blindes ne rapportent rien, et l'épargne non plus.
+933	Épuisement
+934	Chaque carte a un Sceau cramoisi, mais les cartes jouées s'épuisent jusqu'à la mise suivante.
+935	Magnat
+936	Commencez riche, mais les mains restantes ne rapportent rien.
+937	L'omelette
+938	Cinq Bas de laine, mais pas de récompense de blinde, rien pour les mains restantes et pas d'intérêts.
+939	Ville du quart d'heure
+940	Un paquet du 4 au Roi avec des figures en plus, un Navetteur et une Marelle éternels.
+941	Les riches s'enrichissent
+942	Commencez avec 100 $, Nichoir et Arbre d'or, mais les Jetons ne peuvent pas dépasser votre argent.
+943	Sur le fil du rasoir
+944	Un Couteau rituel éternel épinglé tout à gauche.
+945	Vision aux rayons X
+946	1 carte sur 4 est distribuée face cachée.
+947	Monde fou
+948	Seulement du 2 au 9, mais chaque carte compte comme une figure. Rien pour les mains restantes, pas d'intérêts.
+949	Taxe de luxe
+950	Taille de main 10, mais -1 taille de main par tranche de 5 $ possédés.
+951	Impérissable
+952	Tous les charmes sont éternels.
+953	Méduse
+954	Chaque Valet, Dame et Roi est en pierre. Un Maçon éternel commence la partie.
+955	Quitte ou double
+956	Chaque carte a un Sceau cramoisi, mais les cartes sont affaiblies pour de bon une fois jouées.
+957	Rôle figé
+958	Au début de la mise 4, vos charmes deviennent éternels et vous n'avez plus d'emplacements de charme.
+959	Inflation
+960	Chaque achat augmente les prix de la boutique de 1 $. Commence avec une Reconnaissance de dette.
+961	Bram Poker
+962	Aucun charme en boutique. Une Sangsue, une Charge et une Invocation éternelles, et des cartes à jouer en vente.
+963	Fragile
+964	Chaque carte est en verre, avec deux Dés pipés négatifs éternels. Impossible d'améliorer d'autres cartes.
+965	Un Monolithe éternel et un Maçon négatif éternel.
+966	Décollage
+967	2 mains, 2 défausses, 4 emplacements de charme, mais Marchand de runes, Baron des runes, Carte du ciel et Fusée.
+968	Poker fermé
+969	Taille de main 5, 6 défausses et 7 emplacements de charme. Commence avec Requin des cartes et Bouffon.
+970	Aiguille d'or
+971	1 main par manche et 6 défausses à 1 $ chacune. Commence avec une Reconnaissance de dette.
+972	Cruauté
+973	Petites et grosses blindes ne rapportent rien. Seulement 3 emplacements de charme.
+974	Sans joker
+975	Aucun charme : aucun en boutique, aucun emplacement, aucun moyen d'en créer.
+976	La Rouille
+977	Tous les Trèfles sont affaiblis
+978	L'Épine
+979	Tous les Cœurs sont affaiblis
+980	La Cendre
+981	Tous les Piques sont affaiblis
+982	La Pourriture
+983	Tous les Carreaux sont affaiblis
+984	La Moitié
+985	Les Jetons et le Multi de base sont divisés par deux
+986	L'Étreinte
+987	Défausse 2 cartes en main au hasard après chaque main
+988	Le Rempart
+989	Blinde extra-large
+990	L'Aiguille
+991	Jouez une seule main
+992	Le Muet
+993	Toutes les figures sont affaiblies
+994	La Sécheresse
+995	Aucune défausse cette manche
+996	Le Péage
+997	Perdez 1 $ par carte jouée
+998	Le Linceul
+999	Votre première main est distribuée face cachée
+1000	L'Entrave
+1001	-1 taille de main
+1002	La Dîme
+1003	Chaque main doit utiliser 5 cartes
+1004	L'Écho
+1005	Chaque type de main ne peut être joué qu'une fois
+1006	La Monotonie
+1007	Un seul type de main peut être joué
+1008	L'Érosion
+1009	Les mains améliorées perdent un niveau quand elles sont jouées
+1010	Le Masque
+1011	Les figures sont distribuées face cachée
+1012	Le Bœuf
+1013	Jouer votre type de main le plus joué ramène votre argent à 0 $
+1014	La Roue
+1015	1 carte sur 7 est distribuée face cachée
+1016	Le Poisson
+1017	Les cartes piochées après avoir joué une main arrivent face cachée
+1018	Le Serpent
+1019	Après avoir joué ou défaussé, vous piochez toujours exactement 3 cartes
+1020	Le Pilier
+1021	Les cartes déjà jouées pendant cette mise sont affaiblies
+1022	Lanterne azur
+1023	Une carte est toujours sélectionnée
+1024	Couronne de braise
+1025	Un charme au hasard est désactivé à chaque main
+1026	Couronne de jade
+1027	Toutes les cartes sont affaiblies jusqu'à la vente d'un charme
+1028	Abîme violet
+1029	Blinde énorme
+1030	Éclipse dorée
+1031	Les charmes sont retournés face cachée et mélangés
+1032	Quinte couleur
+1033	Full couleur
+1034	Quinte
+1035	Quinte flush
+1036	Carré
+1037	Full
+1038	Couleur
+1039	Suite
+1040	Brelan
+1041	Double paire
+1042	Paire
+1043	Carte haute
+1044	Piques
+1045	Cœurs
+1046	Trèfles
+1047	Carreaux
+1048	Commun
+1049	Peu commun
+1050	Rare
+1051	Légendaire
+1052	Petite blinde
+1053	Grosse blinde
+1054	Blinde de boss
+1055	Valet
+1056	Dame
+1057	Roi
+1058	As
+1059	Jouez une main de 5 cartes faite uniquement de cartes dorées
+1060	Perdez 5 parties
+1061	Jouez 200 mains
+1062	Jouez 300 figures
+1063	Vendez 20 charmes
+1064	Gagnez 5 manches d'affilée en une seule main chacune
+1065	Possédez une carte dorée avec un Sceau doré
+1066	Ayez 3 cartes joker dans votre paquet
+1067	Reprenez une partie sauvegardée
+1068	Battez une blinde de boss avec une Carte haute
+1069	Ayez 30 Carreaux dans votre paquet
+1070	Ayez 30 Cœurs dans votre paquet
+1071	Ayez 30 Piques dans votre paquet
+1072	Ayez 30 Trèfles dans votre paquet
+1073	Ayez 5 cartes de verre dans votre paquet
+1074	Atteignez la mise 4
+1075	Atteignez la mise 8
+1076	Gagnez une partie
+1077	Gagnez une partie en 18 manches ou moins
+1078	Gagnez une partie en 12 manches ou moins
+1079	Marquez 10 000 en une main
+1080	Marquez 1 000 000 en une main
+1081	Marquez 100 000 000 en une main
+1082	Jouez une main avec quatre 7 de Trèfle
+1083	Battez une blinde de boss en une main sans défausser
+1084	Défaussez 5 Valets d'un coup
+1085	Gagnez une partie sans jouer de Paire
+1086	Gagnez une partie sans jouer de Brelan
+1087	Gagnez une partie sans jouer de Carré
+1088	Gagnez une partie sans jouer de Suite
+1089	Gagnez une partie sans jouer de Couleur
+1090	Gagnez une partie sans jamais avoir plus de 4 charmes
+1091	Défaussez une Quinte flush royale
+1092	Possédez 400 $
+1093	Jouez tous les Cœurs de votre paquet en une manche
+1094	Ayez 16 cartes améliorées dans votre paquet
+1095	Découvrez tous les Sorts
+1096	Découvrez toutes les Runes
+1097	Vendez 50 charmes ou sorts
+1098	Possédez 2 charmes Chroma à la fois
+1099	Dépensez 2 500 $ en boutique
+1100	Utilisez 10 bons en une partie
+1101	Possédez 5 charmes Brillant, Holo ou Chroma à la fois
+1102	Relancez la boutique 100 fois
+1103	Utilisez 25 Sorts issus de Pochettes de sorts
+1104	Utilisez 25 Runes issues de Pochettes de runes
+1105	Jouez 2 500 cartes
+1106	Défaussez 2 500 cartes
+1107	Achetez 50 Sorts en boutique
+1108	Achetez 50 Runes en boutique
+1109	Touchez les intérêts maximum 10 manches d'affilée
+1110	Utilisez Vierge 10 fois
+1111	Achetez 20 cartes à jouer en boutique
+1112	Atteignez la mise 12
+1113	Découvrez 25 blindes
+1114	Descendez à une taille de main de 5

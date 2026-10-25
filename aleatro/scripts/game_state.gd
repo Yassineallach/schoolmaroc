@@ -957,7 +957,7 @@ func add_tag(id: String) -> Array:
 				for t in 2:
 					if give_charm(0) != "":
 						made += 1
-				notes.append("%s: +%d charm%s" % [name, made, "" if made == 1 else "s"])
+				notes.append(("%s: +1 charm" % name) if made == 1 else ("%s: +%d charms" % [name, made]))
 			"boss":
 				pick_boss()
 				notes.append("%s: the boss is now %s" % [name, boss_hex.name])
@@ -1373,9 +1373,9 @@ func spell_blocked(id: String, selected: Array, in_round: bool) -> String:
 	if not in_round:
 		return "Cast it during a round, on cards in your hand"
 	if selected.is_empty():
-		return "Select up to %d card%s first" % [d.max, "" if d.max == 1 else "s"]
+		return "Select a card first" if d.max == 1 else "Select up to %d cards first" % d.max
 	if selected.size() > d.max:
-		return "Select at most %d card%s" % [d.max, "" if d.max == 1 else "s"]
+		return "Select only 1 card" if d.max == 1 else "Select at most %d cards" % d.max
 	if selected.size() < d.get("min", 1):
 		return "Select exactly %d cards" % d.min
 	return ""
@@ -1505,13 +1505,13 @@ func cast_spell(id: String, selected: Array) -> Array:
 				for k in 2:
 					if give_rune(vis[rng.randi_range(0, vis.size() - 1)]) != "":
 						made += 1
-				spell_note = "+%d Rune%s" % [made, "" if made == 1 else "s"]
+				spell_note = "+1 Rune" if made == 1 else "+%d Runes" % made
 			"summon":
 				var made := 0
 				for k in 2:
 					if give_spell() != "":
 						made += 1
-				spell_note = "+%d Spell%s" % [made, "" if made == 1 else "s"]
+				spell_note = "+1 Spell" if made == 1 else "+%d Spells" % made
 			"fortune":
 				var bare := charms.filter(func(c): return c.get("ed", "") == "")
 				if not bare.is_empty() and roll(4):

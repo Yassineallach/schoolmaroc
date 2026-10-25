@@ -246,7 +246,11 @@ func _draw_badge(text: String, col: Color) -> void:
 	var b := PixelBox.new(col, 2.0)
 	b.rounded = true
 	draw_style_box(b, r)
-	draw_string(font, Vector2(r.position.x, r.position.y + 10.5), text.to_upper(), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 9, Color.WHITE)
+	var label := tr(text).to_upper()
+	var fs := 9
+	while fs > 6 and font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > r.size.x - 2:
+		fs -= 1
+	draw_string(font, Vector2(r.position.x, r.position.y + 10.5), label, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, fs, Color.WHITE)
 
 
 static func draw_suit(ci: CanvasItem, suit: int, c: Vector2, s: float, col: Color) -> void:

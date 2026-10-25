@@ -107,11 +107,11 @@ func _paint() -> void:
 	var name: String
 	if rune_hand != "":
 		col = Data.RUNE_COLOR
-		name = rune_hand
+		name = tr(rune_hand)
 	else:
 		var d := Data.charm_def(charm_id)
 		col = Data.RARITY_COLORS[d.rarity]
-		name = d.name
+		name = tr(d.name)
 	draw_set_transform_matrix(Anim.float_xform(size, _phase, float_amount))
 	if not face_up:
 		_draw_back()
@@ -153,7 +153,7 @@ func _paint() -> void:
 		draw_arc(center, 34, 0, TAU, 32, Color(1, 1, 1, 0.8), 3)
 		draw_string(font, center + Vector2(-34, 13), name.substr(0, 1), HORIZONTAL_ALIGNMENT_CENTER, 68, 38, Color.WHITE)
 	if edition != "":
-		var tag: String = Data.EDITIONS[edition].name.to_upper()
+		var tag: String = tr(Data.EDITIONS[edition].name).to_upper()
 		var b := PixelBox.new(Color(0, 0, 0, 0.45), 2.0)
 		draw_style_box(b, Rect2(30, 6, 60, 16))
 		draw_string(font, Vector2(30, 18.5), tag, HORIZONTAL_ALIGNMENT_CENTER, 60, 11, Color.WHITE)
@@ -172,14 +172,14 @@ static func painted_art(id: String) -> Texture2D:
 ## Edition tag, padlock and the boss's "disabled" veil, over any face.
 func _draw_overlays(font: Font) -> void:
 	if edition != "" and rune_hand == "" and (painted_art(charm_id) != null or CharmSVG.has_art(charm_id)):
-		var tag: String = Data.EDITIONS[edition].name.to_upper()
+		var tag: String = tr(Data.EDITIONS[edition].name).to_upper()
 		var b := PixelBox.new(Color(0, 0, 0, 0.55), 2.0)
 		draw_style_box(b, Rect2(30, size.y - 22, 60, 16))
-		draw_string(font, Vector2(30, size.y - 9.5), tag, HORIZONTAL_ALIGNMENT_CENTER, 60, 11, Color.WHITE)
+		draw_string(font, Vector2(30, size.y - 9.5), tag, HORIZONTAL_ALIGNMENT_CENTER, 60, _fit(font, tag, 11, 58), Color.WHITE)
 	if sticker != "":
 		var sb := PixelBox.new(Color(0.1, 0.08, 0.15, 0.8), 2.0)
 		draw_style_box(sb, Rect2(24, 2, size.x - 48, 15))
-		draw_string(font, Vector2(24, 13.5), sticker, HORIZONTAL_ALIGNMENT_CENTER, size.x - 48, 10, Color("f2d675"))
+		draw_string(font, Vector2(24, 13.5), tr(sticker), HORIZONTAL_ALIGNMENT_CENTER, size.x - 48, _fit(font, tr(sticker), 10, size.x - 50), Color("f2d675"))
 	# the padlock badge (this charm cannot be sold) is a child, so the card's
 	# shader, which maps UV to the whole face, leaves it alone
 	_lock_badge.visible = locked
@@ -190,7 +190,14 @@ func _draw_overlays(font: Font) -> void:
 		_lock_badge.rotation = xf.get_rotation()
 	if smothered:
 		draw_rect(Rect2(Vector2.ZERO, size), Color(0.1, 0.05, 0.05, 0.6))
-		draw_string(font, Vector2(0, size.y / 2 + 8), "DISABLED", HORIZONTAL_ALIGNMENT_CENTER, size.x, 18, Color("ff8a5c"))
+		draw_string(font, Vector2(0, size.y / 2 + 8), tr("DISABLED"), HORIZONTAL_ALIGNMENT_CENTER, size.x, 18, Color("ff8a5c"))
+
+
+## The font size, at most `fs`, at which `text` fits in `w` pixels.
+static func _fit(font: Font, text: String, fs: int, w: float) -> int:
+	while fs > 6 and font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > w:
+		fs -= 1
+	return fs
 
 
 func _draw_back() -> void:

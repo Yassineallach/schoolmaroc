@@ -180,11 +180,17 @@ static func _text(def: Dictionary, jobs: Array) -> Label:
 
 ## Shrink a label's font until its text fits in `max_w` pixels.
 static func _fit_label(l: Label, size: int, max_w: float) -> void:
-	var font := l.get_theme_font("font")
+	l.add_theme_font_size_override("font_size", fit_size(l.get_theme_font("font"), l.text, size, max_w))
+
+
+## The largest font size up to `size` at which every line of `text`, as
+## translated, fits in `max_w` pixels.
+static func fit_size(font: Font, text: String, size: int, max_w: float) -> int:
+	var lines := TranslationServer.translate(text).split("\n")
 	var s := size
-	while s > 10 and font.get_string_size(l.text, HORIZONTAL_ALIGNMENT_LEFT, -1, s).x > max_w:
+	while s > 10 and Array(lines).any(func(t): return font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, s).x > max_w):
 		s -= 1
-	l.add_theme_font_size_override("font_size", s)
+	return s
 
 
 static func _read(src, key):
@@ -222,12 +228,11 @@ static func make_button(def: Dictionary, jobs: Array = []) -> Button:
 	for k in ["font_color", "font_hover_color", "font_pressed_color"]:
 		b.add_theme_color_override(k, Color.WHITE)
 	b.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.4))
-	if def.has("fit"):
-		var font := b.get_theme_font("font")
-		var s := size
-		while s > 10 and font.get_string_size(b.text, HORIZONTAL_ALIGNMENT_LEFT, -1, s).x > float(def.fit):
-			s -= 1
-		b.add_theme_font_size_override("font_size", s)
+	# translated text can run longer than the English: shrink it to the
+	# button's width (or the given fit) rather than stretch the layout
+	var fit_w: float = float(def.fit) if def.has("fit") else (b.custom_minimum_size.x - 24.0 if Loc.lang != "en" else 0.0)
+	if fit_w > 0:
+		b.add_theme_font_size_override("font_size", fit_size(b.get_theme_font("font"), b.text, size, fit_w))
 	b.resized.connect(func(): b.pivot_offset = b.size / 2)
 	var on: Callable = def.get("on", Callable())
 

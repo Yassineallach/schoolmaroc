@@ -604,14 +604,14 @@ static func challenge_lines(ch: Dictionary) -> Array:
 			parts.append("all " + ENHANCEMENTS[deck.enh].name)
 		if deck.has("seal"):
 			parts.append("all with " + SEALS[deck.seal].name)
-		out.append("Deck: " + ", ".join(parts))
+		out.append("Deck: " + "; ".join(parts))
 	if ch.has("charms"):
 		out.append("Starting charms: " + ", ".join(ch.charms.map(func(c):
 			var tags := []
 			for k in ["ed", "eternal", "pinned", "locked"]:
 				if c.get(k, false):
 					tags.append(EDITIONS[c.ed].name if k == "ed" else k.capitalize())
-			return charm_def(c.id).name + (" (%s)" % ", ".join(tags) if not tags.is_empty() else ""))))
+			return charm_def(c.id).name + (" (%s)" % " / ".join(tags) if not tags.is_empty() else ""))))
 	if ch.has("vouchers"):
 		out.append("Starting vouchers: " + ", ".join(ch.vouchers.map(func(v): return voucher_def(v).name)))
 	if ch.has("spells"):

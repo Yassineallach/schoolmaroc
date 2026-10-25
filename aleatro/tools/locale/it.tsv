@@ -1,0 +1,1114 @@
+1	Punteggio minimo
+2	Punti del round
+3	Mani
+4	Scarti
+5	Menu
+6	Mazzo
+7	Gioca mano
+8	Scarta
+9	Valore
+10	Seme
+11	Ante {0}/{1}
+12	Mazzo {0}/{1}
+13	Mano {0}/{1}
+14	Ricompensa: {0}
+15	Ricompensa {0}
+16	{0}  liv. {1}
+17	{0} liv. {1}
+18	liv. {0}
+19	{0}  (non consentita)
+20	ETERNO
+21	DEPERIBILE {0}
+22	NOLEGGIO
+23	DISATTIVATO
+24	Disattivato dal boss
+25	Incantesimo
+26	Runa
+27	Presagio
+28	Amuleto
+29	Buono
+30	Lancia
+31	Vendi ${0}
+32	Chiudi
+33	Prima seleziona le carte nella tua mano, poi lancia.
+34	+${0}
+35	-${0}
+36	${0}
+37	+{0}
+38	+{0} Molt
+39	+{0} Fiches
+40	x{0} Molt
+41	Runa: {0}
+42	Un roguelike di poker
+43	Continua
+44	Ante {0}  ${1}
+45	Tieni premuto: nuova partita
+46	Gioca
+47	Come si gioca
+48	Collezione
+49	Sfide
+50	Profilo {0}
+51	Grazie!
+52	OK
+53	Ante migliore: {0}   Mano migliore: {1}   Vittorie: {2}
+54	Lingua
+55	Automatica ({0})
+56	Seleziona fino a 5 carte e gioca una mano di poker. Ogni tipo di mano ha Fiches e Molt di base; le carte a punteggio aggiungono il loro valore in Fiches (figure 10, assi 11).
+57	Punti = Fiches x Molt. Raggiungi l'obiettivo del buio prima di finire le mani. Gli scarti ti permettono di cambiare carte.
+58	Ogni ante ha un piccolo buio, un grande buio e un buio boss con una brutta sorpresa. Supera l'ante 8 per vincere.
+59	Spendi soldi nel negozio in Amuleti (bonus passivi, fino a 5) e Rune (aumentano il livello di un tipo di mano). Guadagni $1 di interesse ogni $5 posseduti, fino a $5.
+60	Alcuni amuleti e buoni sono bloccati all'inizio: la Collezione mostra cosa sblocca ciascuno.
+61	Trascina carte o amuleti per riordinarli; tieni premuta una carta per vederne i dettagli. Gamepad: croce direzionale per muoverti, A seleziona (tieni A + sinistra/destra per spostare una carta), X gioca, Y scarta, LB/RB ordinano, Start apre il menu. Tastiera: frecce, Invio, P, D, Q/E, Esc; tieni premuto R per ricominciare.
+62	Nuova partita
+63	Sfida: {0}
+64	Scopri {0} amuleti e boss ({1} finora)
+65	Vinci una partita con il {0}
+66	Vinci una partita con la {0}
+67	Bloccato: {0}
+68	{0}, più tutte le poste inferiori
+69	Posta {0} di {1} sbloccata per questo mazzo
+70	Inizia
+71	Indietro
+72	Tieni premuto: inizia (termina la partita in corso)
+73	Ante {0}
+74	Etichette:
+75	In arrivo
+76	Sconfitto
+77	Prossimo
+78	RESA DEI CONTI
+79	Salta: {0}
+80	Gioca {0}
+81	Cambia boss $10
+82	Salta per {0}
+83	È un buio boss! I boss piegano le regole. Tocca il pannello del buio in alto a sinistra quando vuoi per leggere cosa fa questo.
+84	Ciao, sono Ace! Ogni ante ha tre bui. Raggiungi almeno l'obiettivo prima di finire le mani per superarne uno e guadagnare soldi.
+85	{0}  -  {1}, ancora 1 scelta
+86	{0}  -  {1}, ancora {2} scelte
+87	Prendi
+88	Usa
+89	Salta
+90	BUONO
+91	Tocca fino a 5 carte per formare una mano di poker, poi premi Gioca mano. Il tuo punteggio è Fiches x Molt, quindi le mani più forti valgono di più.
+92	Oh, una carta potenziata! Tieni premuta una carta per vedere cosa fa.
+93	Trattenuta dalla Lanterna
+94	Non consentito!
+95	Bilanciato!
+96	Indebolita
+97	Ancora!
+98	Salvato da {0}!
+99	La Morsa!
+100	Non tutte le mani vincono. Scartare cambia le carte con altre nuove. Tieni d'occhio le tue Mani e i tuoi Scarti a sinistra.
+101	Scartare costa ${0}
+102	In frantumi!
+103	Ricompensa del buio
+104	Mani rimaste ({0})
+105	Scarti rimasti ({0})
+106	Interesse ($1 ogni $5)
+107	{0} sconfitto!
+108	{0} è sparito!
+109	Incassa: ${0}
+110	Partita finita
+111	Raggiunto
+112	Mano migliore
+113	Più giocata
+114	Per un soffio! Ogni partita insegna qualcosa.
+115	Ahi. Ridistribuiamo?
+116	Stavolta le carte non erano dalla nostra parte.
+117	Scrollatelo di dosso, il prossimo mazzo porta fortuna!
+118	Menu principale
+119	Sfida completata: {0}
+120	Sfida completata
+121	{0} sbloccata per il {1}
+122	Hai vinto!
+123	Hai superato l'ante {0}.
+124	Ce l'abbiamo fatta! Lo sapevo che ce l'avresti fatta!
+125	Campione! Vuoi vedere fin dove arriva la modalità Infinita?
+126	Modalità Infinita
+127	Negozio
+128	Round successivo
+129	Rinnova ${0}
+130	{0} comune
+131	{0} non comune
+132	{0} raro
+133	{0} leggendario
+134	Esaurito!
+135	Benvenuto nel negozio! Gli Amuleti danno un bonus a ogni mano, Incantesimi e Rune vanno negli spazi in alto a destra e un Buono potenzia l'intera partita. Trascina i tuoi amuleti per cambiare l'ordine in cui si attivano.
+136	I prezzi sono saliti a +${0}
+137	Nessuno spazio per altri incantesimi
+138	Incantesimi e Rune aspettano negli spazi in alto a destra. Durante un round seleziona le carte nella tua mano, poi tocca un incantesimo per lanciarlo su di esse.
+139	Aggiunta al mazzo ({0} carte)
+140	Buono: {0}
+141	A faccia in giù
+142	{0} nasconde i tuoi amuleti finché non viene sconfitto.
+143	Ghirlanda di giada rimossa: le carte funzionano di nuovo
+144	Bloccato
+145	Eterno
+146	Fissato
+147	Gli amuleti si attivano da sinistra a destra. Trascina per riordinare.
+148	L'interesse paga $1 ogni $5 posseduti, fino a $5. Risparmiare ripaga!
+149	Gli amuleti si attivano da sinistra a destra, quindi metti per ultimi quelli x Molt.
+150	Le Rune aumentano il livello di un tipo di mano per tutta la partita.
+151	Le carte di vetro colpiscono forte ma possono rompersi. Goditele finché durano.
+152	Le carte di ferro aiutano di più se le tieni in mano.
+153	Vendi un Guardiano durante un buio boss per spegnere il boss.
+154	Tieni premuta una carta per leggerne i potenziamenti.
+155	Tocca il pannello del buio per vedere cosa trama il boss.
+156	Capito
+157	Basta consigli
+158	Grazie, Ace
+159	Resa dei conti: {0}
+160	Il Guardiano ha disattivato {0}
+161	Minimo {0}   Ricompensa {1}
+162	Boss finale
+163	Disattivato dal Guardiano
+164	Già giocate: {0}
+165	nessuna
+166	Mano consentita: {0}
+167	quella che giochi per prima
+168	Nessuna regola speciale
+169	+{0} Fiches quando conta
+170	+{0} Fiches bonus
+171	Indebolita da {0}
+172	Mazzo: {0} carte
+173	Le carte sbiadite sono già state pescate in questo round
+174	{0} carte potenziate. Tieni premuta una carta in mano per vederne i dettagli.
+175	Mani di poker
+176	Non è stato possibile leggere la partita salvata, quindi ne è iniziata una nuova
+177	{0} sbloccato: {1}
+178	Nuovo amuleto scoperto: {0}
+179	Nuovo boss scoperto: {0}
+180	{0}  [fatta]
+181	{0} / {1} completate  -  supera l'ante {2} per completarne una
+182	Pagina {0} / {1}
+183	Collezione  (Profilo {0})
+184	Amuleti
+185	Buoni
+186	Boss
+187	Statistiche
+188	Riconoscimenti
+189	{0} / {1} scoperti   -   {2} bloccati
+190	Amuleto bloccato
+191	{0} buoni   -   {1} bloccati
+192	{0} (bloccato)
+193	{0} / {1} scoperti
+194	Partite
+195	Vittorie
+196	Ante migliore
+197	Mani giocate
+198	Carte giocate
+199	Soldi guadagnati
+200	Amuleti comprati
+201	Incantesimi lanciati
+202	Sfide vinte
+203	Carte di vetro rotte
+204	Creato con Godot Engine {0}.{1}
+205	Musica, suoni e grafica sono generati dal codice stesso del gioco.
+206	In pausa
+207	In pausa  -  {0}
+208	Generale
+209	Musica
+210	Suoni
+211	Vibrazione: sì
+212	Vibrazione: no
+213	Velocità: {0}x
+214	Movimento: ridotto
+215	Movimento: completo
+216	Accelera le animazioni di punteggio e distribuzione
+217	Ridotto disattiva il tremolio dello schermo, l'oscillazione, l'inclinazione e il dondolio a riposo
+218	Rivedi i consigli
+219	Tieni premuto: menu principale
+220	Ace mostrerà di nuovo i consigli
+221	Riprendi
+222	(Attualmente +{0} Molt)
+223	(Attualmente +{0} Fiches)
+224	({0} mani rimaste)
+225	(ancora {0} mani)
+226	(Attualmente x{0} Molt)
+227	(Attualmente +{0} dimensione della mano)
+228	(Attualmente ${0})
+229	(Pronto da vendere)
+230	({0} di 2 round)
+231	(Questo round: {0})
+232	{0}: {1}
+233	Eterno: non può essere venduto né distrutto
+234	Deperibile: esaurito
+235	Deperibile: {0} round rimasti
+236	Noleggio: costa $3 alla fine di ogni round
+237	Etichetta Giocoliere: +3 dimensione della mano
+238	+1 carta di pietra
+239	x{0} Molt, ha mangiato {1}
+240	{0} tagliato: +{1} Molt
+241	+1 Incantesimo
+242	+{0} Incantesimi
+243	+1 Runa
+244	+{0} Rune
+245	+1 Presagio
+246	+3 Mani
+247	{0} è già stata giocata
+248	È consentita solo {0}
+249	Le mani devono usare 5 carte
+250	Il Bue si è preso i tuoi soldi
+251	{0} erosa al liv. {1}
+252	Pedaggio: -${0}
+253	{0} è soffocato
+254	Copiato!
+255	{0}: +${1}
+256	{0}: {1} liv. {2}
+257	{0}: +1 amuleto
+258	{0}: +{1} amuleti
+259	{0}: ora il boss è {1}
+260	{0}: {1} gratis
+261	{0}: tutto gratis
+262	{0}: i rinnovi partono da $0
+263	Sogno a occhi aperti: +1 Incantesimo
+264	Nessuno spazio per altri amuleti
+265	{0} duplicato
+266	Copia negativa di {0}
+267	Carte dorate tenute
+268	Noleggi ({0})
+269	Lancialo durante un round
+270	Non hai amuleti
+271	Nessun amuleto senza edizione
+272	In questa partita non è ancora stato lanciato nessun incantesimo
+273	Nessuno spazio per un altro amuleto
+274	Lancialo durante un round, sulle carte nella tua mano
+275	Prima seleziona una carta
+276	Prima seleziona fino a {0} carte
+277	Seleziona solo 1 carta
+278	Seleziona al massimo {0} carte
+279	Seleziona esattamente {0} carte
+280	{0} è diventata {1}
+281	Niente da fare!
+282	{0} di {1}
+283	Potenzia {0}: +{1} Fiches, +{2} Molt
+284	-  {0}
+285	Inizi con ${0}
+286	{0} mani per round
+287	{0} scarti per round
+288	Dimensione della mano {0}
+289	{0} spazi per amuleti
+290	{0} spazi per incantesimi
+291	Niente interesse
+292	Niente soldi per le mani avanzate
+293	Nessuna ricompensa dal {0}
+294	{0} o {1}
+295	1 carta su {0} distribuita a faccia in giù
+296	Ogni scarto costa ${0}
+297	I prezzi del negozio salgono di $1 dopo ogni acquisto
+298	Il negozio non vende amuleti
+299	Le carte giocate restano indebolite fino all'ante successivo
+300	Le carte a punteggio restano indebolite per il resto della partita
+301	Le Fiches non possono superare i tuoi soldi
+302	-1 dimensione della mano ogni ${0} posseduti
+303	Ogni amuleto è eterno
+304	All'inizio dell'ante {0}, i tuoi amuleti diventano eterni e gli spazi per amuleti scendono a 0
+305	Mazzo: {0}
+306	solo valori {0}
+307	un {0} in più per seme
+308	ogni {0} è di pietra
+309	x{0} copie
+310	tutte {0}
+311	tutte con {0}
+312	{0} ({1})
+313	Amuleti iniziali: {0}
+314	Buoni iniziali: {0}
+315	Incantesimi iniziali: {0}
+316	Amuleti vietati: {0}
+317	Boss vietati: {0}
+318	Vietati anche: {0}
+319	,
+320	;
+321	Giullare
+322	+4 Molt
+323	Anello di rubino
+324	I Cuori a punteggio danno +3 Molt
+325	Anello di topazio
+326	I Quadri a punteggio danno +3 Molt
+327	Anello di onice
+328	Le Picche a punteggio danno +3 Molt
+329	Anello di giada
+330	I Fiori a punteggio danno +3 Molt
+331	Maschera gemella
+332	+8 Molt se la mano contiene una Coppia
+333	Maschera triade
+334	+12 Molt se la mano contiene un Tris
+335	Maschera duo
+336	+10 Molt se la mano contiene una Doppia coppia
+337	Scala a pioli
+338	+12 Molt se la mano contiene una Scala
+339	Marea
+340	+10 Molt se la mano contiene un Colore
+341	Mentina
+342	+20 Molt se si giocano 3 carte o meno
+343	Bandiera
+344	+30 Fiches per ogni scarto rimasto
+345	Glitch
+346	Da +0 a +23 Molt, a caso
+347	Chiglia
+348	I 10, 8, 6, 4, 2 a punteggio danno +4 Molt
+349	Strano tipo
+350	Gli A, 9, 7, 5, 3 a punteggio danno +31 Fiches
+351	Scriba
+352	Gli assi a punteggio danno +20 Fiches e +4 Molt
+353	Pozzo profondo
+354	+2 Fiches per ogni carta rimasta nel mazzo da pesca
+355	Folla
+356	+3 Molt per ogni amuleto posseduto
+357	Ultima difesa
+358	+15 Molt quando non restano scarti
+359	Corte reale
+360	J, Q, K a punteggio danno +30 Fiches
+361	Spirale
+362	A, 2, 3, 5, 8 a punteggio danno +8 Molt
+363	Dente d'oro
+364	Guadagna $4 alla fine di ogni round
+365	Palla di neve
+366	Ottiene +1 Molt per ogni mano giocata e perde 1 Molt per ogni scarto
+367	Tesoreria
+368	+2 Fiches per ogni $1 posseduto
+369	Vuoto
+370	x1 Molt per ogni spazio amuleto vuoto (conta se stesso)
+371	Prisma
+372	x3 Molt se le carte giocate includono tutti e 4 i semi
+373	Guardiano
+374	Vendilo durante un buio boss per disattivarlo
+375	Duetto
+376	x2 Molt se la mano contiene una Coppia
+377	Veggente
+378	+1 Molt per ogni Incantesimo lanciato in questa partita
+379	Velo gemello
+380	+50 Fiches se la mano contiene una Coppia
+381	Velo duo
+382	+80 Fiches se la mano contiene una Doppia coppia
+383	Velo triade
+384	+100 Fiches se la mano contiene un Tris
+385	Velo del binario
+386	+100 Fiches se la mano contiene una Scala
+387	Velo della marea
+388	+80 Fiches se la mano contiene un Colore
+389	Corona triade
+390	x3 Molt se la mano contiene un Tris
+391	Corona quadrupla
+392	x4 Molt se la mano contiene un Poker
+393	Corona del binario
+394	x3 Molt se la mano contiene una Scala
+395	Corona della marea
+396	x2 Molt se la mano contiene un Colore
+397	Ghigno
+398	Le figure a punteggio danno +5 Molt
+399	Radio
+400	I 10 e i 4 a punteggio danno +10 Fiches e +4 Molt
+401	Punta di lancia
+402	Le Picche a punteggio danno +50 Fiches
+403	Pietra di trifoglio
+404	I Fiori a punteggio danno +7 Molt
+405	Topazio grezzo
+406	I Quadri a punteggio fanno guadagnare $1
+407	Pietra del cuore
+408	I Cuori a punteggio hanno 1 probabilità su 2 di dare x1,5 Molt
+409	Ritratto
+410	La prima figura a punteggio dà x2 Molt
+411	Funambolo
+412	x3 Molt nell'ultima mano del round
+413	Pugno di ferro
+414	La carta più bassa in mano dà Molt pari al doppio del suo valore
+415	Reggente
+416	Ogni Re in mano dà x1,5 Molt
+417	Sorgere della luna
+418	Ogni Donna in mano dà +13 Molt
+419	Bis
+420	Riattiva i 2, 3, 4 e 5 a punteggio
+421	Ballo in maschera
+422	Riattiva le figure a punteggio
+423	Scheda perforata
+424	Riattiva la prima carta a punteggio altre 2 volte
+425	Crepuscolo
+426	Riattiva ogni carta a punteggio nell'ultima mano del round
+427	Biglietto da visita
+428	Le figure a punteggio hanno 1 probabilità su 2 di far guadagnare $2
+429	Biglietto dorato
+430	Le carte dorate a punteggio fanno guadagnare $4
+431	Pazienza
+432	A fine round, guadagna $2 per ogni scarto rimasto se non ne hai usati
+433	Corsaro
+434	+Molt pari al valore di vendita degli altri tuoi amuleti
+435	Fama
+436	+Molt pari a quante volte questo tipo di mano è stato giocato in questa partita
+437	Pendolare
+438	Ottiene +1 Molt per ogni mano di fila senza figure a punteggio; si azzera con una figura
+439	Velocista
+440	Ottiene +15 Fiches ogni volta che la mano contiene una Scala
+441	Quattro quadrati
+442	Ottiene +4 Fiches ogni volta che si giocano esattamente 4 carte
+443	Sorbetto
+444	+100 Fiches. Perde 5 Fiches per ogni mano giocata
+445	Popcorn dolci
+446	+20 Molt. Perde 4 Molt alla fine di ogni round
+447	Platano
+448	+15 Molt. 1 probabilità su 6 di marcire alla fine di ogni round
+449	Platano maturo
+450	x3 Molt. 1 probabilità su 1000 di marcire alla fine di ogni round
+451	Frizzante
+452	Riattiva ogni carta giocata per le prossime 10 mani
+453	Squalo delle carte
+454	x3 Molt se questo tipo di mano è già stato giocato in questo round
+455	Timbro fedeltà
+456	x4 Molt ogni 6ª mano giocata
+457	Lavagna
+458	x3 Molt se ogni carta in mano è di Picche o Fiori
+459	Presa larga
+460	Colori e Scale si possono fare con 4 carte
+461	Campana
+462	Le Scale possono saltare un valore tra le carte (come 3 5 6 8 9)
+463	Macchia d'inchiostro
+464	Cuori e Quadri contano come lo stesso seme, e così Picche e Fiori
+465	Miraggio
+466	Ogni carta conta come figura
+467	Pozzanghera
+468	Ogni carta giocata conta per il punteggio
+469	Mimo
+470	Riattiva le abilità delle carte in mano
+471	Volontà di ferro
+472	x0,2 Molt per ogni carta di ferro nel tuo mazzo completo
+473	Cava
+474	+25 Fiches per ogni carta di pietra nel tuo mazzo completo
+475	Scalpellino
+476	Aggiunge una carta di pietra al tuo mazzo quando inizia un buio
+477	Tocco d'oro
+478	Le figure a punteggio diventano dorate
+479	Sanguisuga
+480	Ottiene x0,1 Molt per ogni carta potenziata a punteggio e ne rimuove il potenziamento
+481	Vagabondo
+482	Ogni carta a punteggio ottiene permanentemente +5 Fiches
+483	Antica reliquia
+484	Le carte a punteggio del seme del round danno x1,5 Molt (il seme cambia ogni round)
+485	Mastio
+486	Ottiene +3 Fiches per ogni carta scartata del seme del round (il seme cambia ogni round)
+487	Idolo
+488	Le copie a punteggio della carta del round danno x2 Molt (la carta cambia ogni round)
+489	Rimborso
+490	Guadagna $5 per ogni carta scartata del valore del round (il valore cambia ogni round)
+491	Lista delle commissioni
+492	Guadagna $4 quando giochi il tipo di mano indicato (cambia ogni round)
+493	Pantaloni rattoppati
+494	Ottiene +2 Molt ogni volta che la mano contiene una Doppia coppia
+495	Scheda di studio
+496	Ottiene +2 Molt ogni volta che rinnovi il negozio
+497	Monolito
+498	Ottiene x0,2 Molt per ogni mano di fila che non è la tua mano più giocata; si azzera quando lo è
+499	Frenesia
+500	Quando inizia un piccolo o grande buio, ottiene x0,5 Molt e distrugge un altro amuleto a caso
+501	Coltello rituale
+502	Quando inizia un buio, distrugge l'amuleto alla sua destra e ottiene il doppio del suo valore di vendita come Molt
+503	Ologramma
+504	Ottiene x0,25 Molt ogni volta che una carta viene aggiunta al tuo mazzo
+505	Mappa stellare
+506	Ottiene x0,1 Molt ogni volta che usi una Runa
+507	Falò
+508	Ottiene x0,25 Molt per ogni amuleto venduto; si azzera quando un boss viene sconfitto
+509	Gatto della fortuna
+510	Ottiene x0,25 Molt ogni volta che una carta fortunata paga
+511	Vetraio
+512	Ottiene x0,75 Molt ogni volta che una carta di vetro si rompe
+513	Pagherò
+514	Puoi indebitarti fino a $20
+515	Gruzzolo
+516	Il suo valore di vendita aumenta di $3 alla fine di ogni round
+517	Carta regalo
+518	Alla fine di ogni round, il valore di vendita di ogni amuleto aumenta di $1
+519	Razzo
+520	Guadagna $1 alla fine di ogni round; il guadagno cresce di $2 ogni volta che sconfiggi un boss
+521	Nove vite
+522	Guadagna $1 alla fine di ogni round per ogni 9 nel tuo mazzo completo
+523	Colpo di luna
+524	L'interesse viene pagato due volte
+525	Satellite
+526	Guadagna $1 alla fine di ogni round per ogni Runa diversa usata in questa partita
+527	Valletto
+528	Ogni figura in mano ha 1 probabilità su 2 di far guadagnare $1
+529	Fai da te
+530	+2 Molt ogni $5 posseduti
+531	Torero
+532	Guadagna $8 ogni volta che l'effetto di un buio boss colpisce la tua mano
+533	Viandante
+534	Crea un Incantesimo quando giochi una mano possedendo $4 o meno
+535	Mercante
+536	Se il primo scarto di un round è una sola carta, distruggila e guadagna $3
+537	Gatto ladro
+538	Quando inizia un buio, ottieni 3 mani e perdi tutti gli scarti
+539	Brillo
+540	+1 scarto per round
+541	Giocoliere
+542	+1 dimensione della mano
+543	Menestrello
+544	+2 dimensione della mano, ma 1 mano in meno per round
+545	Allegro buffone
+546	+3 scarti per round, ma -1 dimensione della mano
+547	Temerario
+548	+250 Fiches, ma -2 dimensione della mano
+549	Germoglio di soia
+550	+5 dimensione della mano, cala di 1 ogni round
+551	Ciotola di noodle
+552	x2 Molt; perde x0,01 Molt per ogni carta scartata
+553	Caos
+554	1 rinnovo gratis in ogni negozio
+555	Astronomo
+556	Le Rune nel negozio sono gratis
+557	Patente
+558	x3 Molt se almeno 16 carte del tuo mazzo completo sono potenziate
+559	Gagliardetto
+560	Ogni amuleto non comune che possiedi dà x1,5 Molt
+561	Carta da lucido
+562	Copia l'abilità dell'amuleto alla sua destra
+563	Lampo di genio
+564	Copia l'abilità del tuo amuleto più a sinistra
+565	Fantasma
+566	Dopo 2 round, vendilo per duplicare un altro amuleto a caso
+567	Dadi truccati
+568	Raddoppia ogni probabilità indicata (1 su 4 diventa 2 su 4)
+569	Sfera di cristallo
+570	Ogni 8 a punteggio ha 1 probabilità su 4 di creare un Incantesimo
+571	Seconda vista
+572	Se la prima mano di un round è un 6 da solo, distruggilo e crea un Presagio
+573	Tavola ouija
+574	Crea un Presagio quando giochi una Scala colore
+575	Quantistico
+576	Crea un Incantesimo quando la mano contiene sia un Asso sia una Scala
+577	Indovino
+578	Crea un Incantesimo quando inizia un buio
+579	Notaio
+580	Quando inizia un round, aggiunge alla tua mano una carta a caso con un sigillo a caso
+581	Clone
+582	Se la prima mano di un round è una sola carta, ne aggiunge una copia al mazzo e alla mano
+583	Plebaglia
+584	Quando inizia un buio, crea 2 amuleti comuni (se c'è spazio)
+585	Legnetti
+586	Aumenta il livello del tipo di mano del tuo primo scarto di ogni round
+587	Orbita
+588	1 probabilità su 4 di aumentare il livello del tipo di mano giocato
+589	Maschera bianca
+590	Guadagna $5 quando scarti 3 o più figure insieme
+591	Viaggio on the road
+592	Ottiene x0,5 Molt per ogni Fante scartato in questo round
+593	Visione doppia
+594	x2 Molt se le carte a punteggio includono un Fiori e una carta di un altro seme
+595	Piccoletto
+596	Ottiene +8 Fiches ogni volta che un 2 va a punteggio
+597	Direttore di circo
+598	Gli amuleti e gli incantesimi che possiedi possono ancora comparire nel negozio
+599	Ultima risata
+600	Ti salva dalla sconfitta in un round se hai fatto almeno un quarto dell'obiettivo, poi si rompe
+601	Logorio
+602	+4 Molt per ogni carta in meno del tuo mazzo rispetto alla dimensione iniziale
+603	Corona d'ossa
+604	Ottiene x1 Molt ogni volta che una figura viene distrutta
+605	Re dei folli
+606	I Re e le Donne a punteggio danno x2 Molt
+607	Teschio
+608	Ottiene x1 Molt ogni 23 carte scartate
+609	Veto
+610	Disattiva l'effetto di ogni buio boss
+611	Accumulatore
+612	Quando lasci il negozio, crea una copia negativa di un incantesimo a caso che possiedi
+613	Album di ritagli
+614	Ottiene +3 Molt ogni volta che salti una busta
+615	Sogno a occhi aperti
+616	1 probabilità su 2 di creare un Incantesimo quando apri una busta
+617	Riavvolgi
+618	x0,25 Molt per ogni buio saltato in questa partita
+619	Root beer float
+620	Vendilo per ottenere un'Etichetta Gemella
+621	Incisa
+622	+30 Fiches quando conta
+623	Carica
+624	+4 Molt quando conta
+625	Vetro
+626	x2 Molt quando conta; 1 probabilità su 4 di rompersi
+627	Ferro
+628	x1,5 Molt mentre è in mano
+629	Dorata
+630	Guadagna $3 se è in mano a fine round
+631	Fortunata
+632	1 probabilità su 5 di +20 Molt e 1 su 15 di $20 quando conta
+633	Pietra
+634	+50 Fiches; nessun valore né seme, conta sempre
+635	Jolly
+636	Conta come ogni seme
+637	Laminata
+638	+50 Fiches
+639	Olografica
+640	+10 Molt
+641	Croma
+642	x1,5 Molt
+643	Negativa
+644	+1 spazio
+645	Sigillo cremisi
+646	Riattiva questa carta
+647	Sigillo dorato
+648	Guadagna $3 quando questa carta va a punteggio
+649	Sigillo azzurro
+650	Crea la Runa dell'ultima mano giocata se è in mano a fine round
+651	Sigillo viola
+652	Crea un Incantesimo quando viene scartata
+653	Busta di carte
+654	Busta di incantesimi
+655	Busta di rune
+656	Busta di amuleti
+657	Busta di presagi
+658	Scegli 1 di 3 carte da gioco
+659	Busta di carte jumbo
+660	Scegli 1 di 5 carte da gioco
+661	Busta di carte mega
+662	Scegli 2 di 5 carte da gioco
+663	Scegli 1 di 3 Incantesimi
+664	Busta di incantesimi jumbo
+665	Scegli 1 di 5 Incantesimi
+666	Busta di incantesimi mega
+667	Scegli 2 di 5 Incantesimi
+668	Scegli 1 di 3 Rune
+669	Busta di rune jumbo
+670	Scegli 1 di 5 Rune
+671	Busta di rune mega
+672	Scegli 2 di 5 Rune
+673	Scegli 1 di 2 amuleti
+674	Busta di amuleti jumbo
+675	Scegli 1 di 4 amuleti
+676	Busta di amuleti mega
+677	Scegli 2 di 4 amuleti
+678	Scegli 1 di 2 Presagi
+679	Busta di presagi jumbo
+680	Scegli 1 di 4 Presagi
+681	Busta di presagi mega
+682	Scegli 2 di 4 Presagi
+683	Incidi
+684	Rende incise fino a 2 carte selezionate
+685	Carica
+686	Rende cariche fino a 2 carte selezionate
+687	Smalto
+688	Trasforma 1 carta selezionata in vetro
+689	Forgia
+690	Trasforma 1 carta selezionata in ferro
+691	Doratura
+692	Rende dorata 1 carta selezionata
+693	Quadrifoglio
+694	Rende fortunate fino a 2 carte selezionate
+695	Fioritura
+696	Trasforma fino a 3 carte selezionate in Cuori
+697	Ombra
+698	Trasforma fino a 3 carte selezionate in Picche
+699	Rovo
+700	Trasforma fino a 3 carte selezionate in Fiori
+701	Accendi
+702	Trasforma fino a 3 carte selezionate in Quadri
+703	Ascesa
+704	Alza di un valore fino a 2 carte selezionate
+705	Epurazione
+706	Distrugge fino a 2 carte selezionate
+707	Specchio
+708	Seleziona 2 carte: quella a sinistra diventa una copia di quella a destra
+709	Colpo di fortuna
+710	Raddoppia i tuoi soldi (fino a +$20)
+711	Pietrifica
+712	Trasforma 1 carta selezionata in pietra
+713	Chimera
+714	Rende jolly 1 carta selezionata
+715	Replica
+716	Crea una copia dell'ultimo Incantesimo lanciato in questa partita (tranne Replica)
+717	Oracolo
+718	Crea fino a 2 Rune a caso
+719	Evoca
+720	Crea fino a 2 Incantesimi a caso
+721	Fortuna
+722	1 probabilità su 4 di dare Laminata, Olografica o Croma a un amuleto a caso
+723	Baratto
+724	Guadagna il valore di vendita totale dei tuoi amuleti (fino a $50)
+725	Evocazione
+726	Crea un amuleto a caso
+727	Cortigiani
+728	Distrugge 1 carta a caso in mano; aggiunge alla mano 3 figure potenziate a caso
+729	Mietitore
+730	Distrugge 1 carta a caso in mano; aggiunge alla mano 2 assi potenziati a caso
+731	Canto
+732	Distrugge 1 carta a caso in mano; aggiunge alla mano 4 carte numeriche potenziate a caso
+733	Talismano
+734	Aggiunge un Sigillo dorato a 1 carta selezionata
+735	Aura
+736	Dà Laminata, Olografica o Croma a 1 carta selezionata
+737	Spettro
+738	Crea un amuleto raro, ma i tuoi soldi scendono a $0
+739	Convergenza
+740	Trasforma ogni carta in mano in uno stesso seme a caso
+741	Mono
+742	Trasforma ogni carta in mano in uno stesso valore a caso; -1 dimensione della mano
+743	Vuoto cosmico
+744	Rende negativo un amuleto a caso; -1 dimensione della mano
+745	Pira
+746	Distrugge 5 carte a caso in mano; guadagna $20
+747	Rinascita
+748	Copia un amuleto a caso e distrugge tutti gli altri
+749	Sigillo arcano
+750	Aggiunge un Sigillo cremisi a 1 carta selezionata
+751	Maledizione
+752	Rende Croma un amuleto a caso e distrugge tutti gli altri
+753	Bonaccia
+754	Aggiunge un Sigillo azzurro a 1 carta selezionata
+755	Sussurro
+756	Aggiunge un Sigillo viola a 1 carta selezionata
+757	Duplica
+758	Aggiunge al tuo mazzo 2 copie di 1 carta selezionata
+759	Anima
+760	Crea un amuleto leggendario
+761	Singolarità
+762	Aumenta il livello di ogni tipo di mano
+763	Mazzo cremisi
+764	+1 scarto ogni round
+765	Mazzo azzurro
+766	+1 mano ogni round
+767	Mazzo dorato
+768	Inizi con $10 in più
+769	Mazzo del boschetto
+770	Niente interesse; alla fine di ogni round guadagni $2 per mano e $1 per scarto rimasti
+771	Mazzo d'inchiostro
+772	+1 spazio per amuleti, ma 1 mano in meno ogni round
+773	Mazzo arcano
+774	Inizi con il buono Bisaccia e 2 copie di Replica
+775	Mazzo stellare
+776	Inizi con il buono Cannocchiale, ma -1 spazio per incantesimi
+777	Mazzo degli spiriti
+778	I Presagi possono comparire nel negozio; inizi con una Maledizione
+779	Mazzo spoglio
+780	Nessuna figura nel mazzo
+781	Mazzo a scacchi
+782	26 Picche e 26 Cuori
+783	Mazzo dello zodiaco
+784	Inizi con i buoni Venditore di incantesimi, Venditore di rune e Scaffale extra
+785	Mazzo dipinto
+786	+2 dimensione della mano, ma -1 spazio per amuleti
+787	Mazzo gemello
+788	Ottieni un'Etichetta Gemella dopo ogni boss sconfitto
+789	Mazzo al plasma
+790	Fiches e Molt vengono bilanciati prima del totale di ogni mano; i bui richiedono il doppio dei punti
+791	Mazzo del caos
+792	Valore e seme di ogni carta sono casuali
+793	Fiche bianca
+794	Il gioco base
+795	Fiche rossa
+796	Il piccolo buio non dà ricompensa
+797	Fiche verde
+798	I punteggi dei bui salgono più in fretta
+799	Fiche nera
+800	Gli amuleti del negozio possono essere Eterni (non vendibili né distruttibili)
+801	Fiche blu
+802	-1 scarto ogni round
+803	Fiche viola
+804	I punteggi dei bui salgono ancora più in fretta
+805	Fiche arancione
+806	Gli amuleti del negozio possono essere Deperibili (smettono di funzionare dopo 5 round)
+807	Fiche dorata
+808	Gli amuleti del negozio possono essere a Noleggio ($1 per comprarli, $3 ogni round)
+809	Etichetta Ricchezza
+810	Raddoppia i tuoi soldi (fino a +$40)
+811	Etichetta Fretta
+812	Guadagna $5 per ogni buio saltato in questa partita
+813	Etichetta Rara
+814	Il prossimo negozio ha un amuleto raro gratis
+815	Etichetta Non comune
+816	Il prossimo negozio ha un amuleto non comune gratis
+817	Etichetta Coupon
+818	Tutto ciò che compare per primo nel prossimo negozio è gratis
+819	Etichetta Stella
+820	Aumenta 3 volte il livello di un tipo di mano a caso
+821	Etichetta Giocoliere
+822	+3 dimensione della mano nel prossimo round
+823	Etichetta Pacchetto
+824	Apri una Busta di amuleti mega gratis
+825	Etichetta Tomo
+826	Apri una Busta di incantesimi mega gratis
+827	Etichetta Gemella
+828	Copia la prossima etichetta che ottieni
+829	Etichetta Investimento
+830	Guadagna $15 dopo aver sconfitto il prossimo boss
+831	Etichetta Dado
+832	I rinnovi del prossimo negozio partono da $0
+833	Etichetta Negativa
+834	Il prossimo amuleto semplice del negozio è gratis e Negativo
+835	Etichetta Laminata
+836	Il prossimo amuleto semplice del negozio è gratis e Laminato
+837	Etichetta Olografica
+838	Il prossimo amuleto semplice del negozio è gratis e Olografico
+839	Etichetta Croma
+840	Il prossimo amuleto semplice del negozio è gratis e Croma
+841	Etichetta Buono
+842	Aggiunge un Buono al prossimo negozio
+843	Etichetta Boss
+844	Cambia il buio boss di questo ante
+845	Etichetta Carta
+846	Apri una Busta di carte mega gratis
+847	Etichetta Meteora
+848	Apri una Busta di rune mega gratis
+849	Etichetta Eterea
+850	Apri una Busta di presagi gratis
+851	Etichetta Pratica
+852	Guadagna $1 per ogni mano giocata in questa partita
+853	Etichetta Rifiuti
+854	Guadagna $1 per ogni scarto non usato in questa partita
+855	Etichetta Ricarica
+856	Crea fino a 2 amuleti comuni
+857	Scaffale extra
+858	+1 spazio carta nel negozio
+859	Scaffali pieni
+860	+1 altro spazio carta nel negozio
+861	Saldi
+862	Tutto nel negozio è scontato del 25%
+863	Svendita totale
+864	Tutto nel negozio è scontato del 50%
+865	Lucidatura
+866	Laminata, Olografica e Croma compaiono 2x più spesso
+867	Splendore
+868	Laminata, Olografica e Croma compaiono 4x più spesso
+869	Dadi economici
+870	I rinnovi costano $2 in meno
+871	Bussolotto truccato
+872	I rinnovi costano altri $2 in meno
+873	Bisaccia
+874	+1 spazio per incantesimi
+875	Lampada degli spiriti
+876	I Presagi possono comparire nelle Buste di incantesimi
+877	Cannocchiale
+878	Le Buste di rune contengono sempre la Runa della tua mano più giocata
+879	Planetario
+880	Le Rune tenute negli spazi danno x1,5 Molt quando si gioca la loro mano
+881	Presa extra
+882	Pinze
+883	+1 altra mano ogni round
+884	Cestino
+885	Riciclatore
+886	+1 altro scarto ogni round
+887	Venditore di incantesimi
+888	Gli Incantesimi compaiono nel negozio 2x più spesso
+889	Barone degli incantesimi
+890	Gli Incantesimi compaiono nel negozio 4x più spesso
+891	Venditore di rune
+892	Le Rune compaiono nel negozio 2x più spesso
+893	Barone delle rune
+894	Le Rune compaiono nel negozio 4x più spesso
+895	Nido
+896	L'interesse può arrivare a $10 per round
+897	Albero d'oro
+898	L'interesse può arrivare a $20 per round
+899	In bianco
+900	Non fa niente?
+901	Spazio vuoto
+902	+1 spazio per amuleti
+903	Bancarella di carte
+904	Le carte da gioco possono comparire nel negozio
+905	Vetrina
+906	Le carte da gioco nel negozio possono avere un potenziamento, un'edizione o un sigillo
+907	Glifo del tempo
+908	-1 ante, ma 1 mano in meno ogni round
+909	Glifo di pietra
+910	-1 ante, ma 1 scarto in meno ogni round
+911	Scambio di boss
+912	Cambia il buio boss una volta per ante ($10)
+913	Riscrivi
+914	Cambia il buio boss quante volte vuoi ($10 ciascuna)
+915	Pennello
+916	Tavolozza
+917	+1 altra dimensione della mano
+918	Casa di vetro
+919	Ogni carta del mazzo è di vetro. Maneggiare con cura.
+920	Soffitto basso
+921	Niente sopra il 9 nel mazzo.
+922	Solo la corte
+923	Solo 10 e superiori, due per tipo.
+924	Benda
+925	Alcune carte vengono distribuite a faccia in giù.
+926	Una mano per round, ma tanti scarti - a pagamento.
+927	Mano corta
+928	Una mano più piccola ma spazio per più amuleti.
+929	A mani nude
+930	Nessun amuleto. Vinci con incantesimi e rune.
+931	Austerità
+932	Piccolo e grande buio non pagano nulla, e i risparmi non rendono.
+933	Esaurimento
+934	Ogni carta ha un Sigillo cremisi, ma le carte giocate si esauriscono fino all'ante successivo.
+935	Magnate
+936	Inizi ricco, ma le mani avanzate non pagano nulla.
+937	La frittata
+938	Cinque Gruzzoli, ma niente ricompense dei bui, niente soldi per le mani avanzate e niente interesse.
+939	Città dei 15 minuti
+940	Un mazzo dal 4 al Re con figure extra, più un Pendolare e una Campana eterni.
+941	I ricchi più ricchi
+942	Inizi con $100, Nido e Albero d'oro, ma le Fiches non possono superare i tuoi soldi.
+943	Sul filo del coltello
+944	Un Coltello rituale eterno fissato all'estrema sinistra.
+945	Vista a raggi X
+946	1 carta su 4 viene distribuita a faccia in giù.
+947	Mondo folle
+948	Solo dal 2 al 9, ma ogni carta conta come figura. Niente soldi per le mani avanzate, niente interesse.
+949	Tassa sul lusso
+950	Dimensione della mano 10, ma -1 dimensione della mano ogni $5 posseduti.
+951	Imperituro
+952	Ogni amuleto è eterno.
+953	Medusa
+954	Ogni Fante, Donna e Re è di pietra. Uno Scalpellino eterno inizia la partita.
+955	Lascia o raddoppia
+956	Ogni carta ha un Sigillo cremisi, ma le carte restano indebolite per sempre una volta giocate.
+957	Ruolo fisso
+958	All'inizio dell'ante 4, i tuoi amuleti diventano eterni e non hai più spazi per amuleti.
+959	Inflazione
+960	Ogni acquisto alza i prezzi del negozio di $1. Si inizia con un Pagherò.
+961	Bram Poker
+962	Nessun amuleto nel negozio. Una Sanguisuga, Carica ed Evoca eterni, e carte da gioco in vendita.
+963	Fragile
+964	Ogni carta è di vetro, con due Dadi truccati negativi eterni. Nessun modo di potenziare altre carte.
+965	Un Monolito eterno e uno Scalpellino negativo eterno.
+966	Decollo
+967	2 mani, 2 scarti, 4 spazi per amuleti, ma Venditore di rune, Barone delle rune, Mappa stellare e Razzo.
+968	Poker a cinque carte
+969	Dimensione della mano 5, 6 scarti e 7 spazi per amuleti. Si inizia con Squalo delle carte e Giullare.
+970	Ago d'oro
+971	1 mano per round e 6 scarti da $1 ciascuno. Si inizia con un Pagherò.
+972	Crudeltà
+973	Piccolo e grande buio non pagano nulla. Solo 3 spazi per amuleti.
+974	Senza jolly
+975	Nessun amuleto: nessuno nel negozio, nessuno spazio, nessun modo di crearne.
+976	La Ruggine
+977	Tutti i Fiori sono indeboliti
+978	La Spina
+979	Tutti i Cuori sono indeboliti
+980	La Cenere
+981	Tutte le Picche sono indebolite
+982	Il Marciume
+983	Tutti i Quadri sono indeboliti
+984	Il Dimezzamento
+985	Fiches e Molt base sono dimezzati
+986	La Morsa
+987	Scarta 2 carte a caso dalla mano dopo ogni mano
+988	Il Baluardo
+989	Buio extra large
+990	L'Ago
+991	Gioca solo 1 mano
+992	Il Muto
+993	Tutte le figure sono indebolite
+994	La Siccità
+995	Niente scarti in questo round
+996	Il Pedaggio
+997	Perdi $1 per ogni carta giocata
+998	Il Sudario
+999	La tua prima mano viene distribuita a faccia in giù
+1000	La Catena
+1001	-1 dimensione della mano
+1002	La Decima
+1003	Ogni mano deve usare 5 carte
+1004	L'Eco
+1005	Ogni tipo di mano può essere giocato una sola volta
+1006	La Monotonia
+1007	Si può giocare un solo tipo di mano
+1008	L'Erosione
+1009	Le mani potenziate perdono un livello quando vengono giocate
+1010	La Maschera
+1011	Le figure vengono distribuite a faccia in giù
+1012	Il Bue
+1013	Giocare il tuo tipo di mano più giocato porta i tuoi soldi a $0
+1014	La Ruota
+1015	1 carta su 7 viene distribuita a faccia in giù
+1016	Il Pesce
+1017	Le carte pescate dopo aver giocato una mano arrivano a faccia in giù
+1018	Il Serpente
+1019	Dopo una giocata o uno scarto, peschi sempre esattamente 3 carte
+1020	Il Pilastro
+1021	Le carte già giocate in questo ante sono indebolite
+1022	Lanterna azzurra
+1023	Una carta è sempre selezionata
+1024	Corona di brace
+1025	A ogni mano viene disattivato un amuleto a caso
+1026	Ghirlanda di giada
+1027	Tutte le carte sono indebolite finché non vendi un amuleto
+1028	Abisso viola
+1029	Buio enorme
+1030	Eclissi dorata
+1031	Gli amuleti vengono girati a faccia in giù e mescolati
+1032	Colore quintuplo
+1033	Full colore
+1034	Pokerissimo
+1035	Scala colore
+1036	Poker
+1037	Full
+1038	Colore
+1039	Scala
+1040	Tris
+1041	Doppia coppia
+1042	Coppia
+1043	Carta alta
+1044	Picche
+1045	Cuori
+1046	Fiori
+1047	Quadri
+1048	Comune
+1049	Non comune
+1050	Raro
+1051	Leggendario
+1052	Piccolo buio
+1053	Grande buio
+1054	Buio boss
+1055	Fante
+1056	Donna
+1057	Re
+1058	Asso
+1059	Gioca una mano di 5 carte fatta solo di carte dorate
+1060	Perdi 5 partite
+1061	Gioca 200 mani
+1062	Gioca 300 figure
+1063	Vendi 20 amuleti
+1064	Vinci 5 round di fila usando solo 1 mano ciascuno
+1065	Possiedi una carta dorata con Sigillo dorato
+1066	Abbi 3 carte jolly nel tuo mazzo
+1067	Continua una partita salvata
+1068	Sconfiggi un buio boss con una Carta alta
+1069	Abbi 30 Quadri nel tuo mazzo
+1070	Abbi 30 Cuori nel tuo mazzo
+1071	Abbi 30 Picche nel tuo mazzo
+1072	Abbi 30 Fiori nel tuo mazzo
+1073	Abbi 5 carte di vetro nel tuo mazzo
+1074	Raggiungi l'ante 4
+1075	Raggiungi l'ante 8
+1076	Vinci una partita
+1077	Vinci una partita in 18 round o meno
+1078	Vinci una partita in 12 round o meno
+1079	Fai 10.000 punti in una mano
+1080	Fai 1.000.000 di punti in una mano
+1081	Fai 100.000.000 di punti in una mano
+1082	Gioca una mano con quattro 7 di Fiori
+1083	Sconfiggi un buio boss in una mano senza scartare
+1084	Scarta 5 Fanti in una volta
+1085	Vinci una partita senza giocare una Coppia
+1086	Vinci una partita senza giocare un Tris
+1087	Vinci una partita senza giocare un Poker
+1088	Vinci una partita senza giocare una Scala
+1089	Vinci una partita senza giocare un Colore
+1090	Vinci una partita senza mai avere più di 4 amuleti
+1091	Scarta una Scala reale
+1092	Possiedi $400
+1093	Gioca tutti i Cuori del tuo mazzo in un round
+1094	Abbi 16 carte potenziate nel tuo mazzo
+1095	Scopri ogni Incantesimo
+1096	Scopri ogni Runa
+1097	Vendi 50 amuleti o incantesimi
+1098	Possiedi 2 amuleti Croma contemporaneamente
+1099	Spendi $2.500 nei negozi
+1100	Riscatta 10 buoni in una partita
+1101	Possiedi 5 amuleti Laminati, Olografici o Croma contemporaneamente
+1102	Rinnova il negozio 100 volte
+1103	Usa 25 Incantesimi dalle Buste di incantesimi
+1104	Usa 25 Rune dalle Buste di rune
+1105	Gioca 2.500 carte
+1106	Scarta 2.500 carte
+1107	Compra 50 Incantesimi nel negozio
+1108	Compra 50 Rune nel negozio
+1109	Ottieni l'interesse massimo per 10 round di fila
+1110	Riscatta In bianco 10 volte
+1111	Compra 20 carte da gioco nel negozio
+1112	Raggiungi l'ante 12
+1113	Scopri 25 bui
+1114	Scendi a una dimensione della mano di 5

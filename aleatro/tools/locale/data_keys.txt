@@ -1,0 +1,810 @@
+# Game content: names and descriptions, generated from scripts/data.gd and scripts/unlocks.gd.
+# --- charm
+Jester
++4 Mult
+Ruby Ring
+Scored Hearts give +3 Mult
+Topaz Ring
+Scored Diamonds give +3 Mult
+Onyx Ring
+Scored Spades give +3 Mult
+Jade Ring
+Scored Clubs give +3 Mult
+Twin Mask
++8 Mult if hand contains a Pair
+Triad Mask
++12 Mult if hand contains Three of a Kind
+Duo Mask
++10 Mult if hand contains Two Pair
+Ladder
++12 Mult if hand contains a Straight
+Tide
++10 Mult if hand contains a Flush
+Thin Mint
++20 Mult if 3 or fewer cards are played
+Flag
++30 Chips per remaining discard
+Glitch
++0 to +23 Mult, at random
+Even Keel
+Scored 10, 8, 6, 4, 2 give +4 Mult
+Odd Duck
+Scored A, 9, 7, 5, 3 give +31 Chips
+Scribe
+Scored Aces give +20 Chips and +4 Mult
+Deep Well
++2 Chips per card left in the draw pile
+Crowd
++3 Mult per charm owned
+Last Stand
++15 Mult when no discards remain
+Royal Court
+Scored J, Q, K give +30 Chips
+Spiral
+Scored A, 2, 3, 5, 8 give +8 Mult
+Gold Tooth
+Earn $4 at the end of each round
+Snowball
+Gains +1 Mult for every hand played and loses 1 Mult for every discard
+Treasury
++2 Chips for every $1 you hold
+Hollow
+x1 Mult for each empty charm slot (counts itself)
+Prism
+x3 Mult if played cards include all 4 suits
+Warden
+Sell during a boss blind to disable it
+Duet
+x2 Mult if hand contains a Pair
+Seer
++1 Mult for every Spell cast this run
+Twin Veil
++50 Chips if the hand contains a Pair
+Duo Veil
++80 Chips if the hand contains Two Pair
+Triad Veil
++100 Chips if the hand contains Three of a Kind
+Rail Veil
++100 Chips if the hand contains a Straight
+Tide Veil
++80 Chips if the hand contains a Flush
+Triad Crown
+x3 Mult if the hand contains Three of a Kind
+Quad Crown
+x4 Mult if the hand contains Four of a Kind
+Rail Crown
+x3 Mult if the hand contains a Straight
+Tide Crown
+x2 Mult if the hand contains a Flush
+Grin
+Scored face cards give +5 Mult
+Radio
+Scored 10s and 4s give +10 Chips and +4 Mult
+Spearhead
+Scored Spades give +50 Chips
+Clover Stone
+Scored Clubs give +7 Mult
+Raw Topaz
+Scored Diamonds earn $1
+Heartstone
+Scored Hearts have a 1 in 2 chance to give x1.5 Mult
+Portrait
+The first scored face card gives x2 Mult
+Tightrope
+x3 Mult on the final hand of the round
+Iron Fist
+The lowest card held in hand gives Mult equal to twice its value
+Regent
+Each King held in hand gives x1.5 Mult
+Moonrise
+Each Queen held in hand gives +13 Mult
+Encore
+Retrigger scored 2s, 3s, 4s and 5s
+Masquerade
+Retrigger scored face cards
+Punch Card
+Retrigger the first scored card 2 more times
+Twilight
+Retrigger every scored card on the final hand of the round
+Calling Card
+Scored face cards have a 1 in 2 chance to earn $2
+Gilt Ticket
+Scored Gilded cards earn $4
+Patience
+At end of round, earn $2 per discard left if you used none
+Corsair
++Mult equal to the sell value of your other charms
+Fame
++Mult equal to how many times this hand type has been played this run
+Commuter
+Gains +1 Mult for each hand in a row with no scored face card; resets on a face card
+Sprinter
+Gains +15 Chips each time the hand contains a Straight
+Four Square
+Gains +4 Chips each time exactly 4 cards are played
+Sorbet
++100 Chips. Loses 5 Chips every hand played
+Kettle Corn
++20 Mult. Loses 4 Mult at the end of each round
+Plantain
++15 Mult. 1 in 6 chance to spoil at the end of each round
+Ripe Plantain
+x3 Mult. 1 in 1000 chance to spoil at the end of each round
+Fizz
+Retrigger every played card for the next 10 hands
+Card Shark
+x3 Mult if this hand type was already played this round
+Loyalty Stamp
+x4 Mult every 6th hand played
+Slate
+x3 Mult if every card held in hand is a Spade or a Club
+Wide Grip
+Flushes and Straights can be made with 4 cards
+Hopscotch
+Straights may skip one rank between cards (like 3 5 6 8 9)
+Ink Blot
+Hearts and Diamonds count as the same suit, and so do Spades and Clubs
+Mirage
+Every card counts as a face card
+Puddle
+Every played card counts in scoring
+Mimic
+Retrigger the abilities of cards held in hand
+Iron Will
+x0.2 Mult for each Iron card in your full deck
+Quarry
++25 Chips for each Stone card in your full deck
+Mason
+Adds a Stone card to your deck when a blind starts
+Gilded Touch
+Scored face cards turn Gilded
+Leech
+Gains x0.1 Mult for each scored enhanced card, and strips the enhancement
+Rambler
+Every scored card permanently gains +5 Chips
+Old Relic
+Scored cards of the round's suit give x1.5 Mult (suit changes every round)
+Keep
+Gains +3 Chips per discarded card of the round's suit (suit changes every round)
+Idol
+Scored copies of the round's card give x2 Mult (card changes every round)
+Rebate
+Earn $5 for each discarded card of the round's rank (rank changes every round)
+Errand List
+Earn $4 when you play the listed hand type (it changes every round)
+Patched Trousers
+Gains +2 Mult each time the hand contains Two Pair
+Flash Card
+Gains +2 Mult each time you reroll the shop
+Monolith
+Gains x0.2 Mult for each hand in a row that isn't your most played hand type; resets when it is
+Frenzy
+When a Small or Big Blind starts, gains x0.5 Mult and destroys a random other charm
+Ritual Knife
+When a blind starts, destroys the charm to its right and gains double its sell value as Mult
+Hologram
+Gains x0.25 Mult each time a card is added to your deck
+Star Map
+Gains x0.1 Mult each time you use a Rune
+Bonfire
+Gains x0.25 Mult for each charm sold; resets when a boss is beaten
+Beckoning Cat
+Gains x0.25 Mult each time a Lucky card pays out
+Glazier
+Gains x0.75 Mult each time a Glass card shatters
+IOU
+You can go up to $20 into debt
+Nest Egg
+Its sell value rises by $3 at the end of each round
+Gift Wrap
+At the end of each round, every charm's sell value rises by $1
+Skyrocket
+Earn $1 at the end of each round; the payout grows by $2 each time a boss is beaten
+Nine Lives
+Earn $1 at the end of each round for each 9 in your full deck
+Moonshot
+Interest is paid twice
+Satellite
+Earn $1 at the end of each round for each different Rune used this run
+Valet
+Each face card held in hand has a 1 in 2 chance to earn $1
+Bootstraps
++2 Mult for every $5 you hold
+Toreador
+Earn $8 each time a boss blind's effect hits your hand
+Wanderer
+Create a Spell when you play a hand while holding $4 or less
+Trader
+If the first discard of a round is a single card, destroy it and earn $3
+Cat Burglar
+When a blind starts, gain 3 hands and lose all discards
+Tipsy
++1 discard each round
+Juggler
++1 hand size
+Minstrel
++2 hand size, but 1 fewer hand each round
+Merry Fool
++3 discards each round, but -1 hand size
+Daredevil
++250 Chips, but -2 hand size
+Bean Sprout
++5 hand size, shrinking by 1 every round
+Noodle Bowl
+x2 Mult; loses x0.01 Mult for each card discarded
+Chaos
+1 free reroll in every shop
+Stargazer
+Runes in the shop are free
+License
+x3 Mult if at least 16 cards in your full deck are enhanced
+Pennant
+Each Uncommon charm you own gives x1.5 Mult
+Tracing Paper
+Copies the ability of the charm to its right
+Brainwave
+Copies the ability of your leftmost charm
+Phantom
+After 2 rounds, sell it to duplicate a random other charm
+Loaded Dice
+Doubles every listed chance (1 in 4 becomes 2 in 4)
+Crystal Ball
+Each scored 8 has a 1 in 4 chance to create a Spell
+Second Sight
+If the first hand of a round is a single 6, destroy it and create an Omen
+Spirit Board
+Create an Omen when you play a Straight Flush
+Quantum
+Create a Spell when the hand contains both an Ace and a Straight
+Diviner
+Create a Spell when a blind starts
+Notary
+When a round starts, add a random card with a random seal to your hand
+Clone
+If the first hand of a round is a single card, add a copy of it to your deck and hand
+Rabble
+When a blind starts, create 2 Common charms (if there is room)
+Kindling
+Levels up the hand type of your first discard each round
+Orbit
+1 in 4 chance to level up the hand type you play
+Blank Mask
+Earn $5 when you discard 3 or more face cards at once
+Road Trip
+Gains x0.5 Mult for each Jack discarded this round
+Double Vision
+x2 Mult if the scored cards include a Club and a card of another suit
+Tiny
+Gains +8 Chips each time a 2 is scored
+Ringmaster
+Charms and spells you already own can still show up in the shop
+Last Laugh
+Saves you from losing a round if you scored at least a quarter of the target, then breaks
+Wear and Tear
++4 Mult for each card your deck is below its starting size
+Bone Crown
+Gains x1 Mult each time a face card is destroyed
+Fool King
+Scored Kings and Queens give x2 Mult
+Skull
+Gains x1 Mult for every 23 cards discarded
+Veto
+Disables the effect of every boss blind
+Hoarder
+When you leave the shop, makes a Negative copy of a random spell you hold
+Scrapbook
+Gains +3 Mult each time you skip a booster pack
+Daydream
+1 in 2 chance to create a Spell when you open a booster pack
+Rewind
+x0.25 Mult for each blind skipped this run
+Root Float
+Sell this to get a Twin Tag
+# --- enhancements
+Etched
++30 Chips when scored
+Charged
++4 Mult when scored
+Glass
+x2 Mult when scored; 1 in 4 chance to shatter
+Iron
+x1.5 Mult while held in hand
+Gilded
+Earn $3 if held in hand at end of round
+Lucky
+1 in 5 chance of +20 Mult and 1 in 15 chance of $20 when scored
+Stone
++50 Chips; no rank or suit, always scores
+Wild
+Counts as every suit
+# --- editions
+Foil
++50 Chips
+Holo
++10 Mult
+Chroma
+x1.5 Mult
+Negative
++1 slot
+# --- seals
+Crimson Seal
+Retrigger this card
+Golden Seal
+Earn $3 when this card is scored
+Azure Seal
+Creates the Rune for the last hand played if held in hand at end of round
+Violet Seal
+Creates a Spell when discarded
+# --- pack
+Card Pack
+Spell Pack
+Rune Pack
+Charm Pack
+Omen Pack
+Choose 1 of 3 playing cards
+Jumbo Card Pack
+Choose 1 of 5 playing cards
+Mega Card Pack
+Choose 2 of 5 playing cards
+Choose 1 of 3 Spells
+Jumbo Spell Pack
+Choose 1 of 5 Spells
+Mega Spell Pack
+Choose 2 of 5 Spells
+Choose 1 of 3 Runes
+Jumbo Rune Pack
+Choose 1 of 5 Runes
+Mega Rune Pack
+Choose 2 of 5 Runes
+Choose 1 of 2 charms
+Jumbo Charm Pack
+Choose 1 of 4 charms
+Mega Charm Pack
+Choose 2 of 4 charms
+Choose 1 of 2 Omens
+Jumbo Omen Pack
+Choose 1 of 4 Omens
+Mega Omen Pack
+Choose 2 of 4 Omens
+# --- spell
+Etch
+Make up to 2 selected cards Etched
+Charge
+Make up to 2 selected cards Charged
+Glaze
+Make 1 selected card Glass
+Forge
+Make 1 selected card Iron
+Gild
+Make 1 selected card Gilded
+Clover
+Make up to 2 selected cards Lucky
+Bloom
+Turn up to 3 selected cards into Hearts
+Shade
+Turn up to 3 selected cards into Spades
+Bramble
+Turn up to 3 selected cards into Clubs
+Kindle
+Turn up to 3 selected cards into Diamonds
+Ascend
+Raise up to 2 selected cards by one rank
+Purge
+Destroy up to 2 selected cards
+Mirror
+Select 2 cards: the left one becomes a copy of the right one
+Windfall
+Double your money (up to +$20)
+Petrify
+Turn 1 selected card to Stone
+Chimera
+Make 1 selected card Wild
+Replay
+Create a copy of the last Spell cast this run (not Replay)
+Oracle
+Create up to 2 random Runes
+Summon
+Create up to 2 random Spells
+Fortune
+1 in 4 chance to give a random charm Foil, Holo or Chroma
+Barter
+Earn the total sell value of your charms (up to $50)
+Conjure
+Create a random charm
+Courtiers
+Destroy 1 random card in hand; add 3 random enhanced face cards to your hand
+Reaper
+Destroy 1 random card in hand; add 2 random enhanced Aces to your hand
+Chant
+Destroy 1 random card in hand; add 4 random enhanced numbered cards to your hand
+Talisman
+Add a Golden Seal to 1 selected card
+Aura
+Give 1 selected card Foil, Holo or Chroma
+Wraith
+Create a Rare charm, but your money drops to $0
+Converge
+Turn every card in hand into one random suit
+Mono
+Turn every card in hand into one random rank; -1 hand size
+Void
+Make a random charm Negative; -1 hand size
+Pyre
+Destroy 5 random cards in hand; earn $20
+Rebirth
+Copy a random charm and destroy all the others
+Sigil
+Add a Crimson Seal to 1 selected card
+Curse
+Make a random charm Chroma and destroy all the others
+Lull
+Add an Azure Seal to 1 selected card
+Whisper
+Add a Violet Seal to 1 selected card
+Duplicate
+Add 2 copies of 1 selected card to your deck
+Soul
+Create a Legendary charm
+Singularity
+Level up every hand type
+# --- deck
+Crimson Deck
++1 discard every round
+Azure Deck
++1 hand every round
+Gold Deck
+Start with an extra $10
+Grove Deck
+No interest; at the end of each round earn $2 per hand and $1 per discard left
+Ink Deck
++1 charm slot, but 1 fewer hand every round
+Arcane Deck
+Start with the Satchel voucher and 2 copies of Replay
+Star Deck
+Start with the Spyglass voucher, but -1 spell slot
+Spirit Deck
+Omens can show up in the shop; start with a Curse
+Bare Deck
+No face cards in the deck
+Checker Deck
+26 Spades and 26 Hearts
+Zodiac Deck
+Start with the Spell Seller, Rune Seller and Extra Shelf vouchers
+Painted Deck
++2 hand size, but -1 charm slot
+Twin Deck
+Gain a Twin Tag after beating each boss
+Plasma Deck
+Chips and Mult are balanced before each hand's total; blinds need 2x the score
+Chaos Deck
+Every card's rank and suit is random
+# --- stake
+White Chip
+The base game
+Red Chip
+The Small Blind pays no reward
+Green Chip
+Blind scores rise faster
+Black Chip
+Shop charms can be Eternal (can't be sold or destroyed)
+Blue Chip
+-1 discard every round
+Purple Chip
+Blind scores rise faster still
+Orange Chip
+Shop charms can be Perishable (stop working after 5 rounds)
+Gold Chip
+Shop charms can be Rentals ($1 to buy, $3 every round)
+# --- tag
+Riches Tag
+Double your money (up to +$40)
+Haste Tag
+Earn $5 for each blind skipped this run
+Rare Tag
+The next shop has a free Rare charm
+Uncommon Tag
+The next shop has a free Uncommon charm
+Coupon Tag
+Everything first stocked in the next shop is free
+Star Tag
+Level up a random hand type 3 times
+Juggle Tag
++3 hand size for the next round
+Bundle Tag
+Open a free Mega Charm Pack
+Tome Tag
+Open a free Mega Spell Pack
+Twin Tag
+Copies the next tag you get
+Investment Tag
+Earn $15 after beating the next boss
+Dice Tag
+Rerolls in the next shop start at $0
+Negative Tag
+The next plain charm in the shop is free and Negative
+Foil Tag
+The next plain charm in the shop is free and Foil
+Holo Tag
+The next plain charm in the shop is free and Holo
+Chroma Tag
+The next plain charm in the shop is free and Chroma
+Voucher Tag
+Adds a Voucher to the next shop
+Boss Tag
+Rerolls this ante's boss blind
+Card Tag
+Open a free Mega Card Pack
+Meteor Tag
+Open a free Mega Rune Pack
+Ethereal Tag
+Open a free Omen Pack
+Handy Tag
+Earn $1 for every hand played this run
+Garbage Tag
+Earn $1 for every discard left unused this run
+Top-up Tag
+Create up to 2 Common charms
+# --- voucher
+Extra Shelf
++1 card slot in the shop
+Full Shelves
++1 more card slot in the shop
+Clearance
+Everything in the shop is 25% off
+Fire Sale
+Everything in the shop is 50% off
+Polish
+Foil, Holo and Chroma show up 2x more often
+Shine
+Foil, Holo and Chroma show up 4x more often
+Cheap Dice
+Rerolls cost $2 less
+Loaded Shaker
+Rerolls cost another $2 less
+Satchel
++1 spell slot
+Spirit Lamp
+Omens can show up in Spell Packs
+Spyglass
+Rune Packs always hold the Rune for your most played hand
+Planetarium
+Runes kept in your slots give x1.5 Mult when their hand is played
+Extra Grip
+Tongs
++1 more hand every round
+Wastebin
+Recycler
++1 more discard every round
+Spell Seller
+Spells show up in the shop 2x more often
+Spell Baron
+Spells show up in the shop 4x more often
+Rune Seller
+Runes show up in the shop 2x more often
+Rune Baron
+Runes show up in the shop 4x more often
+Nest Box
+Interest can reach $10 per round
+Golden Tree
+Interest can reach $20 per round
+Blank
+Does nothing?
+Hollow Space
++1 charm slot
+Card Stall
+Playing cards can show up in the shop
+Showcase
+Playing cards in the shop may have an enhancement, edition or seal
+Time Glyph
+-1 ante, but 1 fewer hand every round
+Stone Glyph
+-1 ante, but 1 fewer discard every round
+Boss Swap
+Reroll the boss blind once per ante ($10)
+Rewrite
+Reroll the boss blind as often as you like ($10 each)
+Brush
+Palette
++1 more hand size
+# --- challenge
+Glass House
+Every card in the deck is Glass. Handle with care.
+Low Ceiling
+Nothing above a 9 in the deck.
+Court Only
+Only 10s and higher, two of each.
+Blindfold
+Some cards are dealt face down.
+One hand a round, but plenty of discards - for a price.
+Short Hand
+A smaller hand but room for more charms.
+Bare Hands
+No charms at all. Win with spells and runes.
+Austerity
+Small and Big Blinds pay nothing, and savings earn nothing.
+Burnout
+Every card is sealed Crimson, but played cards burn out until the next ante.
+Tycoon
+Start rich, but leftover hands pay nothing.
+The Omelette
+Five Nest Eggs, but no blind rewards, no money for leftover hands and no interest.
+15 Minute City
+A deck of 4s to Kings with extra face cards, and an Eternal Commuter and Hopscotch.
+Rich get Richer
+Start with $100, Nest Box and Golden Tree, but Chips can't be more than your money.
+On a Knife's Edge
+An Eternal Ritual Knife pinned to the far left.
+X-ray Vision
+1 in 4 cards are dealt face down.
+Mad World
+Only 2s to 9s, but every card counts as a face card. No money for leftover hands, no interest.
+Luxury Tax
+Hand size 10, but -1 hand size for every $5 you hold.
+Non-Perishable
+Every charm is Eternal.
+Medusa
+Every Jack, Queen and King is Stone. An Eternal Mason starts the run.
+Double or Nothing
+Every card has a Crimson Seal, but cards are debuffed for good once played.
+Typecast
+When ante 4 begins, your charms become Eternal and you get no more charm slots.
+Inflation
+Every purchase raises shop prices by $1. Starts with an IOU.
+Bram Poker
+No charms in the shop. An Eternal Leech, Charge and Summon, and playing cards for sale.
+Fragile
+Every card is Glass, with two Eternal Negative Loaded Dice. No way to enhance more cards.
+An Eternal Monolith and an Eternal Negative Mason.
+Blast Off
+2 hands, 2 discards, 4 charm slots, but Rune Seller, Rune Baron, Star Map and Skyrocket.
+Five-Card Draw
+Hand size 5, 6 discards and 7 charm slots. Starts with Card Shark and Jester.
+Golden Needle
+1 hand a round and 6 discards that cost $1 each. Starts with an IOU.
+Cruelty
+Small and Big Blinds pay nothing. Only 3 charm slots.
+Jokerless
+No charms at all: none in the shop, no slots, no way to make them.
+# --- boss
+The Rust
+All Clubs are debuffed
+The Thorn
+All Hearts are debuffed
+The Ash
+All Spades are debuffed
+The Rot
+All Diamonds are debuffed
+The Halving
+Base Chips and Mult are halved
+The Grip
+Discards 2 random held cards after every hand
+The Bulwark
+Extra large blind
+The Needle
+Play only 1 hand
+The Mute
+All face cards are debuffed
+The Drought
+No discards this round
+The Toll
+Lose $1 for every card played
+The Shroud
+Your first hand is dealt face down
+The Shackle
+-1 hand size
+The Tithe
+Every hand must use 5 cards
+The Echo
+Each hand type may be played only once
+The Monotone
+Only one hand type may be played
+The Erosion
+Leveled hands lose a level when played
+The Mask
+Face cards are dealt face down
+The Ox
+Playing your most played hand type sets your money to $0
+The Wheel
+1 in 7 cards are dealt face down
+The Fish
+Cards drawn after you play a hand arrive face down
+The Serpent
+After a play or discard, you always draw exactly 3 cards
+The Pillar
+Cards already played this ante are debuffed
+Azure Lantern
+One card is always selected
+Ember Crown
+A random charm is disabled every hand
+Jade Wreath
+All cards are debuffed until a charm is sold
+Violet Abyss
+Enormous blind
+Gilded Eclipse
+Charms are flipped face down and shuffled
+# --- hand
+Flush Five
+Flush House
+Five of a Kind
+Straight Flush
+Four of a Kind
+Full House
+Flush
+Straight
+Three of a Kind
+Two Pair
+Pair
+High Card
+# --- misc
+Spades
+Hearts
+Clubs
+Diamonds
+Common
+Uncommon
+Rare
+Legendary
+Small Blind
+Big Blind
+Boss Blind
+Jack
+Queen
+King
+Ace
+# --- unlock
+Play a 5 card hand made only of Gilded cards
+Lose 5 runs
+Play 200 hands
+Play 300 face cards
+Sell 20 charms
+Win 5 rounds in a row using only 1 hand each
+Have a Gilded card with a Golden Seal
+Have 3 Wild cards in your deck
+Continue a saved run
+Beat a boss blind with a High Card
+Have 30 Diamonds in your deck
+Have 30 Hearts in your deck
+Have 30 Spades in your deck
+Have 30 Clubs in your deck
+Have 5 Glass cards in your deck
+Reach ante 4
+Reach ante 8
+Win a run
+Win a run in 18 rounds or fewer
+Win a run in 12 rounds or fewer
+Score 10,000 in one hand
+Score 1,000,000 in one hand
+Score 100,000,000 in one hand
+Play a hand with four 7 of Clubs
+Beat a boss blind in one hand without discarding
+Discard 5 Jacks at once
+Win a run without playing a Pair
+Win a run without playing Three of a Kind
+Win a run without playing Four of a Kind
+Win a run without playing a Straight
+Win a run without playing a Flush
+Win a run without ever having more than 4 charms
+Discard a Royal Flush
+Have $400
+Play every Heart in your deck in one round
+Have 16 enhanced cards in your deck
+Discover every Spell
+Discover every Rune
+Sell 50 charms or spells
+Have 2 Chroma charms at once
+Spend $2,500 in shops
+Redeem 10 vouchers in one run
+Have 5 Foil, Holo or Chroma charms at once
+Reroll the shop 100 times
+Use 25 Spells from Spell Packs
+Use 25 Runes from Rune Packs
+Play 2,500 cards
+Discard 2,500 cards
+Buy 50 Spells from the shop
+Buy 50 Runes from the shop
+Earn the most interest 10 rounds in a row
+Redeem Blank 10 times
+Buy 20 playing cards from the shop
+Reach ante 12
+Discover 25 blinds
+Get down to a hand size of 5

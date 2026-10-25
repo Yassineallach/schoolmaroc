@@ -1,0 +1,341 @@
+# Interface text and templates (%d = a number, %s = text translated in turn).
+# One key per line; lines starting with # are notes for translators.
+# --- table and sidebar
+Score at least
+Round score
+Hands
+Discards
+Menu
+Deck
+Play Hand
+Discard
+Rank
+Suit
+Ante %d/%d
+Deck %d/%d
+Hand %d/%d
+Reward: %s
+Reward %s
+%s  lvl %d
+%s lvl %d
+lvl %d
+%s  (not allowed)
+ETERNAL
+PERISH %d
+RENTAL
+DISABLED
+Disabled by the boss
+Spell
+Rune
+Omen
+Charm
+Voucher
+Cast
+Sell $%d
+Close
+Select cards in your hand first, then cast.
++$%d
+-$%d
+$%d
++%d
++%d Mult
++%d Chips
+x%s Mult
+Rune: %s
+# --- title
+A poker roguelike
+Continue
+Ante %d  $%d
+Hold: New Run
+Play
+How to play
+Collection
+Challenges
+Profile %d
+Thanks!
+OK
+Best ante: %d   Best hand: %s   Wins: %d
+Language
+Auto (%s)
+# --- how to play (one paragraph per key)
+Select up to 5 cards and play a poker hand. Each hand type has base Chips and Mult; scored cards add their rank in Chips (faces 10, Aces 11).
+Score = Chips x Mult. Reach the blind's target before you run out of hands. Discards let you swap cards.
+Each ante has a Small Blind, a Big Blind and a Boss Blind with a nasty twist. Beat ante 8 to win.
+Spend money in the shop on Charms (passive bonuses, up to 5) and Runes (level up a hand type). You earn $1 interest per $5 held, up to $5.
+Some charms and vouchers start locked: the Collection shows what unlocks each one.
+Drag cards or charms to reorder them; hold a card to see its details. Gamepad: d-pad moves, A selects (hold A + left/right to move a card), X plays, Y discards, LB/RB sort, Start opens the menu. Keyboard: arrows, Enter, P, D, Q/E, Esc; hold R to restart.
+# --- new run
+New Run
+Challenge: %s
+Discover %d charms and bosses (%d so far)
+Win a run with the %s
+Win a run on %s
+Locked: %s
+%s, plus every lower stake
+Stake %d of %d unlocked for this deck
+Start
+Back
+Hold: Start (ends current run)
+# --- blind select
+Ante %d
+Tags:
+Upcoming
+Defeated
+Up next
+SHOWDOWN
+Skip: %s
+Play %s
+Reroll Boss $10
+Skip for %s
+That's a boss blind! Bosses bend the rules. Tap the blind panel at the top left any time to read what this one does.
+Hi, I'm Ace! Each ante has three blinds. Score at least the target before your hands run out to beat one and earn money.
+# --- packs
+%s  -  %s, 1 pick left
+%s  -  %s, %d picks left
+Take
+Use
+Skip
+VOUCHER
+# --- round
+Tap up to 5 cards to make a poker hand, then press Play Hand. Your score is Chips x Mult, so stronger hands score more.
+Ooh, an upgraded card! Press and hold any card to see what it does.
+Held by the Lantern
+Not allowed!
+Balanced!
+Debuffed
+Again!
+Saved by %s!
+The Grip!
+Not every hand is a winner. Discard swaps cards for new ones. Keep an eye on your Hands and Discards on the left.
+Discarding costs $%d
+Shattered!
+# --- cash out and game over
+Blind reward
+Remaining hands (%d)
+Remaining discards (%d)
+Interest ($1 per $5)
+%s defeated!
+%s is gone!
+Cash Out: $%d
+Game Over
+Reached
+Best hand
+Most played
+So close! Every run teaches something.
+Ouch. Want to deal again?
+The cards weren't with us this time.
+Shake it off, the next deck is lucky!
+Main Menu
+Challenge complete: %s
+Challenge complete
+%s unlocked for the %s
+You Win!
+You beat ante %d.
+We did it! I knew you had it in you!
+Champion! Fancy seeing how far Endless goes?
+Endless Mode
+# --- shop
+Shop
+Next Round
+Reroll $%d
+Common %s
+Uncommon %s
+Rare %s
+Legendary %s
+Sold out!
+Welcome to the shop! Charms give a bonus every hand, Spells and Runes go in the slots at the top right, and a Voucher upgrades your whole run. Drag your charms to change the order they trigger in.
+Prices rose to +$%d
+No room for more spells
+Spells and Runes wait in the slots at the top right. Select cards in your hand during a round, then tap a spell to cast it on them.
+Added to deck (%d cards)
+Voucher: %s
+# --- charms
+Face down
+%s hides your charms until it is defeated.
+Jade Wreath lifted: cards work again
+Locked
+Eternal
+Pinned
+Charms trigger left to right. Drag to reorder.
+# --- Ace's tips
+Interest pays $1 for every $5 you hold, up to $5. Saving up pays off!
+Charms trigger left to right, so put x Mult charms last.
+Runes level up a hand type permanently for the run.
+Glass cards hit hard but can shatter. Enjoy them while they last.
+Iron cards help most when you keep them in your hand.
+Sell a Warden during a boss blind to switch the boss off.
+Hold a card to read its upgrades.
+Tap the blind panel to see what the boss is up to.
+Got it
+No more tips
+Thanks, Ace
+# --- blind info
+Showdown: %s
+Warden disabled %s
+Score at least %s   Reward %s
+Showdown boss
+Disabled by the Warden
+Already played: %s
+none
+Allowed hand: %s
+whatever you play first
+No special rules
++%d Chips when scored
++%d bonus Chips
+Debuffed by %s
+Deck: %d cards
+Faded cards have already been drawn this round
+%d upgraded cards. Hold a card in hand to see its details.
+Poker Hands
+#%d
+Your saved run couldn't be read, so a new one has started
+%s unlocked: %s
+New charm discovered: %s
+New boss discovered: %s
+# --- challenges and collection
+%s  [done]
+%d / %d complete  -  beat ante %d to complete one
+Page %d / %d
+Collection  (Profile %d)
+Charms
+Vouchers
+Bosses
+Stats
+Credits
+%d / %d discovered   -   %d locked
+Locked charm
+%d vouchers   -   %d locked
+%s (locked)
+%d / %d discovered
+Runs
+Wins
+Best ante
+Hands played
+Cards played
+Money earned
+Charms bought
+Spells cast
+Challenges won
+Glass cards shattered
+Made with Godot Engine %d.%d
+Music, sound and art are generated by the game's own code.
+# --- pause menu
+Paused
+Paused  -  %s
+Master
+Music
+Sounds
+Vibration: On
+Vibration: Off
+Speed: %sx
+Motion: Reduced
+Motion: Full
+Speeds up scoring and dealing animations
+Reduced turns off screen shake, wobble, lean and idle sway
+Replay tips
+Hold: Main Menu
+Ace will show the tips again
+Resume
+# --- charm descriptions: live values
+(Currently +%d Mult)
+(Currently +%d Chips)
+(%d hands left)
+(%d hands to go)
+(Currently x%s Mult)
+(Currently +%d hand size)
+(Currently $%d)
+(Ready to sell)
+(%d of 2 rounds)
+(This round: %s)
+%s: %s
+Eternal: can't be sold or destroyed
+Perishable: worn out
+Perishable: %d rounds left
+Rental: costs $3 at the end of every round
+# --- in-round notes
+Juggle Tag: +3 hand size
++1 Stone card
+x%s Mult, ate %s
+Cut %s: +%d Mult
++1 Spell
++%d Spells
++1 Rune
++%d Runes
++1 Omen
++3 Hands
+%s was already played
+Only %s is allowed
+Hands must use 5 cards
+The Ox took your money
+%s eroded to lvl %d
+Toll: -$%d
+%s is smothered
+Copied!
+%s: +$%d
+%s: %s lvl %d
+%s: +1 charm
+%s: +%d charms
+%s: the boss is now %s
+%s: free %s
+%s: everything is free
+%s: rerolls start at $0
+Daydream: +1 Spell
+No room for more charms
+Duplicated %s
+Negative copy of %s
+Gilded cards held
+Rentals (%d)
+Cast it during a round
+You have no charms
+No charm without an edition
+No spell has been cast yet this run
+No room for another charm
+Cast it during a round, on cards in your hand
+Select a card first
+Select up to %d cards first
+Select only 1 card
+Select at most %d cards
+Select exactly %d cards
+%s turned %s
+Nope!
+# --- cards, runes, challenge rules
+%s of %s
+Level up %s: +%d Chips, +%d Mult
+-  %s
+Start with $%d
+%d hands per round
+%d discards per round
+Hand size %d
+%d charm slots
+%d spell slots
+No interest
+No money for leftover hands
+No reward from %s
+%s or %s
+1 in %d cards dealt face down
+Each discard costs $%d
+Shop prices rise $1 after every purchase
+The shop sells no charms
+Played cards are debuffed until the next ante
+Scored cards are debuffed for the rest of the run
+Chips can't be more than your money
+-1 hand size for every $%d you hold
+Every charm is Eternal
+When ante %d begins, your charms become Eternal and charm slots drop to 0
+Deck: %s
+ranks %s only
+an extra %s of each suit
+every %s is Stone
+x%d copies
+all %s
+all with %s
+%s (%s)
+Starting charms: %s
+Starting vouchers: %s
+Starting spells: %s
+Banned charms: %s
+Banned bosses: %s
+Also banned: %s
+# --- list separators, written {comma} and {semicolon} here (", " and "; ")
+{comma}
+{semicolon}

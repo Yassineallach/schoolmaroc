@@ -74,7 +74,7 @@ const STAT_DEFAULTS := {
 var stats := STAT_DEFAULTS.duplicate()
 var saves: SaveManager
 var profile_data := {}
-var settings := {"master": 80.0, "music": 70.0, "sfx": 85.0, "vibration": true, "speed": 1.0, "reduced_motion": false}
+var settings := {"master": 80.0, "music": 70.0, "sfx": 85.0, "vibration": true, "speed": 1.0, "reduced_motion": false, "language": "auto"}
 var on_title := false
 var sidebar_buttons: Array = []
 var pad: PadInput
@@ -95,6 +95,10 @@ var debug_boxes: DebugBoxes  # embers drifting up the blind panel during a boss
 
 func _ready() -> void:
 	theme = _make_theme()
+	# the table is laid out by hand, so it keeps its shape in Arabic too;
+	# Arabic text still runs right to left within each label
+	layout_direction = Control.LAYOUT_DIRECTION_LTR
+	get_tree().node_added.connect(_on_node_added)
 	sfx = Sfx.new()
 	add_child(sfx)
 	music = Music.new()
@@ -102,6 +106,7 @@ func _ready() -> void:
 	saves = SaveManager.new()
 	add_child(saves)
 	_load_stats()
+	Loc.apply(settings.language)
 	_apply_settings()
 	UIBuild.feedback = _ui_feedback
 	_build_ui()
@@ -115,6 +120,11 @@ func _ready() -> void:
 
 
 # ---------------------------------------------------------------- UI building
+
+## Text set in a right-to-left language reads in its own direction.
+func _on_node_added(n: Node) -> void:
+	if n is Label or n is Button:
+		n.text_direction = Control.TEXT_DIRECTION_AUTO if Loc.is_rtl() else Control.TEXT_DIRECTION_INHERITED
 
 func _make_theme() -> Theme:
 	var t := Theme.new()
@@ -881,6 +891,9 @@ func show_title() -> void:
 		saves.save_settings(settings)
 		_load_profile()
 		show_title(), Vector2(200, 64), 24))
+	var lang_btn := _button(Loc.NATIVE[Loc.lang], Color("2f7f6f"), show_language, Vector2(200, 64), 24)
+	lang_btn.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	row.add_child(lang_btn)
 	vb.add_child(row)
 	var idle := summon_ace(Vector2(vw - Mascot.W - 60, vh - Mascot.H - 50))
 	idle.poked.connect(func():
@@ -898,6 +911,12 @@ func show_help() -> void:
 	t.custom_minimum_size = Vector2(820, 0)
 	t.add_theme_font_size_override("font_size", 23)
 	t.text = "Select up to 5 cards and play a poker hand. Each hand type has base Chips and Mult; scored cards add their rank in Chips (faces 10, Aces 11).\n\nScore = Chips x Mult. Reach the blind's target before you run out of hands. Discards let you swap cards.\n\nEach ante has a Small Blind, a Big Blind and a Boss Blind with a nasty twist. Beat ante %d to win.\n\nSpend money in the shop on Charms (passive bonuses, up to 5) and Runes (level up a hand type). You earn $1 interest per $5 held, up to $5.\n\nSome charms and vouchers start locked: the Collection shows what unlocks each one.\n\nDrag cards or charms to reorder them; hold a card to see its details. Gamepad: d-pad moves, A selects (hold A + left/right to move a card), X plays, Y discards, LB/RB sort, Start opens the menu. Keyboard: arrows, Enter, P, D, Q/E, Esc; hold R to restart." % Data.FINAL_ANTE
+	# shrink to fit the screen (translations run longer than the English)
+	var font := t.get_theme_font("font")
+	var fs := 23
+	while fs > 14 and font.get_multiline_string_size(tr(t.text), HORIZONTAL_ALIGNMENT_LEFT, 820, fs).y > vh - 230:
+		fs -= 1
+	t.add_theme_font_size_override("font_size", fs)
 	vb.add_child(t)
 	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(220, 70))))
 
@@ -1210,7 +1229,7 @@ func _show_pack(id: String, choices: Array, picks: int, then: Callable) -> void:
 	busy = true
 	var vb := open_overlay()
 	vb.add_theme_constant_override("separation", 6)
-	vb.add_child(_label("%s  -  %s, %d pick%s left" % [Data.pack_name(id), Data.pack_desc(id).to_lower(), picks, "" if picks == 1 else "s"], 24, color.lightened(0.45)))
+	vb.add_child(_label(("%s  -  %s, 1 pick left" % [Data.pack_name(id), Data.pack_desc(id)]) if picks == 1 else ("%s  -  %s, %d picks left" % [Data.pack_name(id), Data.pack_desc(id), picks]), 24, color.lightened(0.45)))
 	# Spell and Omen packs are used on cards drawn from the deck.
 	var card_row := HBoxContainer.new()
 	card_row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -1351,7 +1370,7 @@ func _voucher_view(id: String) -> Control:
 	sb.outline = 3.0
 	sb.outline_color = Color("ffdf6b")
 	p.add_theme_stylebox_override("panel", sb)
-	p.add_child(_label("VOUCHER\n\n" + Data.voucher_def(id).name.replace(" ", "\n"), 16, Color("fff1b8")))
+	p.add_child(_label("VOUCHER\n\n" + tr(Data.voucher_def(id).name).replace(" ", "\n"), 16, Color("fff1b8")))
 	return p
 
 
@@ -3157,6 +3176,43 @@ func show_collection(tab: String = "charms", page: int = 0) -> void:
 	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 58), 24)))
 
 
+## Switch the text to language `choice` ("auto" follows the device).
+func set_language(choice: String) -> void:
+	Loc.apply(choice)
+	for n in find_children("*", "", true, false):
+		_on_node_added(n)
+	get_tree().root.propagate_call("queue_redraw")
+
+
+## Pick the game's language; "Auto" follows the device.
+func show_language() -> void:
+	var vb := open_modal()
+	vb.add_child(_label("Language", 40, Color("ffdf6b")))
+	var grid := GridContainer.new()
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", 14)
+	grid.add_theme_constant_override("v_separation", 14)
+	var choices: Array = ["auto"] + Loc.LANGS
+	for c in choices:
+		var text: String = "Auto (%s)" % Loc.NATIVE[Loc.detect()] if c == "auto" else Loc.NATIVE[c]
+		var on: bool = settings.language == c
+		var btn := _button(text, Data.CHIP_COLOR if on else Color("5a5f73"), func():
+			settings.language = c
+			_save_stats()
+			set_language(c)
+			close_modal()
+			if on_title:
+				show_title()
+			else:
+				show_menu(), Vector2(280, 64), 24)
+		btn.add_theme_font_override("font", Loc.any_script_font())
+		if c != "auto":
+			btn.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+		grid.add_child(btn)
+	vb.add_child(_center(grid))
+	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 58), 24)))
+
+
 func show_menu() -> void:
 	if on_title:
 		return
@@ -3194,6 +3250,7 @@ func show_menu() -> void:
 				show_menu(), {"color": Color("4a6fa5"), "tooltip": "Reduced turns off screen shake, wobble, lean and idle sway"}),
 			b.call("How to play", show_help),
 			b.call("Collection", show_collection),
+			b.call("Language", show_language),
 			b.call("Replay tips", func():
 				profile_data.tutorial = []
 				profile_data.tips_off = false
@@ -3207,6 +3264,6 @@ func show_menu() -> void:
 				close_modal()
 				clear_hand_views()
 				show_title(), {"color": Color("7b4fa0"), "hold": 0.8}),
-		], "columns": 2, "sep": 14},
+		], "columns": 3, "sep": 14},
 		{"button": "Resume", "color": Data.CHIP_COLOR, "on": close_modal, "min": Vector2(320, 76), "size": 30},
 	]}))

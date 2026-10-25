@@ -1,0 +1,1114 @@
+1	Score at least
+2	Round score
+3	Hands
+4	Discards
+5	Menu
+6	Deck
+7	Play Hand
+8	Discard
+9	Rank
+10	Suit
+11	Ante %d/%d
+12	Deck %d/%d
+13	Hand %d/%d
+14	Reward: %s
+15	Reward %s
+16	%s  lvl %d
+17	%s lvl %d
+18	lvl %d
+19	%s  (not allowed)
+20	ETERNAL
+21	PERISH %d
+22	RENTAL
+23	DISABLED
+24	Disabled by the boss
+25	Spell
+26	Rune
+27	Omen
+28	Charm
+29	Voucher
+30	Cast
+31	Sell $%d
+32	Close
+33	Select cards in your hand first, then cast.
+34	+$%d
+35	-$%d
+36	$%d
+37	+%d
+38	+%d Mult
+39	+%d Chips
+40	x%s Mult
+41	Rune: %s
+42	A poker roguelike
+43	Continue
+44	Ante %d  $%d
+45	Hold: New Run
+46	Play
+47	How to play
+48	Collection
+49	Challenges
+50	Profile %d
+51	Thanks!
+52	OK
+53	Best ante: %d   Best hand: %s   Wins: %d
+54	Language
+55	Auto (%s)
+56	Select up to 5 cards and play a poker hand. Each hand type has base Chips and Mult; scored cards add their rank in Chips (faces 10, Aces 11).
+57	Score = Chips x Mult. Reach the blind's target before you run out of hands. Discards let you swap cards.
+58	Each ante has a Small Blind, a Big Blind and a Boss Blind with a nasty twist. Beat ante 8 to win.
+59	Spend money in the shop on Charms (passive bonuses, up to 5) and Runes (level up a hand type). You earn $1 interest per $5 held, up to $5.
+60	Some charms and vouchers start locked: the Collection shows what unlocks each one.
+61	Drag cards or charms to reorder them; hold a card to see its details. Gamepad: d-pad moves, A selects (hold A + left/right to move a card), X plays, Y discards, LB/RB sort, Start opens the menu. Keyboard: arrows, Enter, P, D, Q/E, Esc; hold R to restart.
+62	New Run
+63	Challenge: %s
+64	Discover %d charms and bosses (%d so far)
+65	Win a run with the %s
+66	Win a run on %s
+67	Locked: %s
+68	%s, plus every lower stake
+69	Stake %d of %d unlocked for this deck
+70	Start
+71	Back
+72	Hold: Start (ends current run)
+73	Ante %d
+74	Tags:
+75	Upcoming
+76	Defeated
+77	Up next
+78	SHOWDOWN
+79	Skip: %s
+80	Play %s
+81	Reroll Boss $10
+82	Skip for %s
+83	That's a boss blind! Bosses bend the rules. Tap the blind panel at the top left any time to read what this one does.
+84	Hi, I'm Ace! Each ante has three blinds. Score at least the target before your hands run out to beat one and earn money.
+85	%s  -  %s, 1 pick left
+86	%s  -  %s, %d picks left
+87	Take
+88	Use
+89	Skip
+90	VOUCHER
+91	Tap up to 5 cards to make a poker hand, then press Play Hand. Your score is Chips x Mult, so stronger hands score more.
+92	Ooh, an upgraded card! Press and hold any card to see what it does.
+93	Held by the Lantern
+94	Not allowed!
+95	Balanced!
+96	Debuffed
+97	Again!
+98	Saved by %s!
+99	The Grip!
+100	Not every hand is a winner. Discard swaps cards for new ones. Keep an eye on your Hands and Discards on the left.
+101	Discarding costs $%d
+102	Shattered!
+103	Blind reward
+104	Remaining hands (%d)
+105	Remaining discards (%d)
+106	Interest ($1 per $5)
+107	%s defeated!
+108	%s is gone!
+109	Cash Out: $%d
+110	Game Over
+111	Reached
+112	Best hand
+113	Most played
+114	So close! Every run teaches something.
+115	Ouch. Want to deal again?
+116	The cards weren't with us this time.
+117	Shake it off, the next deck is lucky!
+118	Main Menu
+119	Challenge complete: %s
+120	Challenge complete
+121	%s unlocked for the %s
+122	You Win!
+123	You beat ante %d.
+124	We did it! I knew you had it in you!
+125	Champion! Fancy seeing how far Endless goes?
+126	Endless Mode
+127	Shop
+128	Next Round
+129	Reroll $%d
+130	Common %s
+131	Uncommon %s
+132	Rare %s
+133	Legendary %s
+134	Sold out!
+135	Welcome to the shop! Charms give a bonus every hand, Spells and Runes go in the slots at the top right, and a Voucher upgrades your whole run. Drag your charms to change the order they trigger in.
+136	Prices rose to +$%d
+137	No room for more spells
+138	Spells and Runes wait in the slots at the top right. Select cards in your hand during a round, then tap a spell to cast it on them.
+139	Added to deck (%d cards)
+140	Voucher: %s
+141	Face down
+142	%s hides your charms until it is defeated.
+143	Jade Wreath lifted: cards work again
+144	Locked
+145	Eternal
+146	Pinned
+147	Charms trigger left to right. Drag to reorder.
+148	Interest pays $1 for every $5 you hold, up to $5. Saving up pays off!
+149	Charms trigger left to right, so put x Mult charms last.
+150	Runes level up a hand type permanently for the run.
+151	Glass cards hit hard but can shatter. Enjoy them while they last.
+152	Iron cards help most when you keep them in your hand.
+153	Sell a Warden during a boss blind to switch the boss off.
+154	Hold a card to read its upgrades.
+155	Tap the blind panel to see what the boss is up to.
+156	Got it
+157	No more tips
+158	Thanks, Ace
+159	Showdown: %s
+160	Warden disabled %s
+161	Score at least %s   Reward %s
+162	Showdown boss
+163	Disabled by the Warden
+164	Already played: %s
+165	none
+166	Allowed hand: %s
+167	whatever you play first
+168	No special rules
+169	+%d Chips when scored
+170	+%d bonus Chips
+171	Debuffed by %s
+172	Deck: %d cards
+173	Faded cards have already been drawn this round
+174	%d upgraded cards. Hold a card in hand to see its details.
+175	Poker Hands
+176	Your saved run couldn't be read, so a new one has started
+177	%s unlocked: %s
+178	New charm discovered: %s
+179	New boss discovered: %s
+180	%s  [done]
+181	%d / %d complete  -  beat ante %d to complete one
+182	Page %d / %d
+183	Collection  (Profile %d)
+184	Charms
+185	Vouchers
+186	Bosses
+187	Stats
+188	Credits
+189	%d / %d discovered   -   %d locked
+190	Locked charm
+191	%d vouchers   -   %d locked
+192	%s (locked)
+193	%d / %d discovered
+194	Runs
+195	Wins
+196	Best ante
+197	Hands played
+198	Cards played
+199	Money earned
+200	Charms bought
+201	Spells cast
+202	Challenges won
+203	Glass cards shattered
+204	Made with Godot Engine %d.%d
+205	Music, sound and art are generated by the game's own code.
+206	Paused
+207	Paused  -  %s
+208	Master
+209	Music
+210	Sounds
+211	Vibration: On
+212	Vibration: Off
+213	Speed: %sx
+214	Motion: Reduced
+215	Motion: Full
+216	Speeds up scoring and dealing animations
+217	Reduced turns off screen shake, wobble, lean and idle sway
+218	Replay tips
+219	Hold: Main Menu
+220	Ace will show the tips again
+221	Resume
+222	(Currently +%d Mult)
+223	(Currently +%d Chips)
+224	(%d hands left)
+225	(%d hands to go)
+226	(Currently x%s Mult)
+227	(Currently +%d hand size)
+228	(Currently $%d)
+229	(Ready to sell)
+230	(%d of 2 rounds)
+231	(This round: %s)
+232	%s: %s
+233	Eternal: can't be sold or destroyed
+234	Perishable: worn out
+235	Perishable: %d rounds left
+236	Rental: costs $3 at the end of every round
+237	Juggle Tag: +3 hand size
+238	+1 Stone card
+239	x%s Mult, ate %s
+240	Cut %s: +%d Mult
+241	+1 Spell
+242	+%d Spells
+243	+1 Rune
+244	+%d Runes
+245	+1 Omen
+246	+3 Hands
+247	%s was already played
+248	Only %s is allowed
+249	Hands must use 5 cards
+250	The Ox took your money
+251	%s eroded to lvl %d
+252	Toll: -$%d
+253	%s is smothered
+254	Copied!
+255	%s: +$%d
+256	%s: %s lvl %d
+257	%s: +1 charm
+258	%s: +%d charms
+259	%s: the boss is now %s
+260	%s: free %s
+261	%s: everything is free
+262	%s: rerolls start at $0
+263	Daydream: +1 Spell
+264	No room for more charms
+265	Duplicated %s
+266	Negative copy of %s
+267	Gilded cards held
+268	Rentals (%d)
+269	Cast it during a round
+270	You have no charms
+271	No charm without an edition
+272	No spell has been cast yet this run
+273	No room for another charm
+274	Cast it during a round, on cards in your hand
+275	Select a card first
+276	Select up to %d cards first
+277	Select only 1 card
+278	Select at most %d cards
+279	Select exactly %d cards
+280	%s turned %s
+281	Nope!
+282	%s of %s
+283	Level up %s: +%d Chips, +%d Mult
+284	-  %s
+285	Start with $%d
+286	%d hands per round
+287	%d discards per round
+288	Hand size %d
+289	%d charm slots
+290	%d spell slots
+291	No interest
+292	No money for leftover hands
+293	No reward from %s
+294	%s or %s
+295	1 in %d cards dealt face down
+296	Each discard costs $%d
+297	Shop prices rise $1 after every purchase
+298	The shop sells no charms
+299	Played cards are debuffed until the next ante
+300	Scored cards are debuffed for the rest of the run
+301	Chips can't be more than your money
+302	-1 hand size for every $%d you hold
+303	Every charm is Eternal
+304	When ante %d begins, your charms become Eternal and charm slots drop to 0
+305	Deck: %s
+306	ranks %s only
+307	an extra %s of each suit
+308	every %s is Stone
+309	x%d copies
+310	all %s
+311	all with %s
+312	%s (%s)
+313	Starting charms: %s
+314	Starting vouchers: %s
+315	Starting spells: %s
+316	Banned charms: %s
+317	Banned bosses: %s
+318	Also banned: %s
+319	, 
+320	; 
+321	Jester
+322	+4 Mult
+323	Ruby Ring
+324	Scored Hearts give +3 Mult
+325	Topaz Ring
+326	Scored Diamonds give +3 Mult
+327	Onyx Ring
+328	Scored Spades give +3 Mult
+329	Jade Ring
+330	Scored Clubs give +3 Mult
+331	Twin Mask
+332	+8 Mult if hand contains a Pair
+333	Triad Mask
+334	+12 Mult if hand contains Three of a Kind
+335	Duo Mask
+336	+10 Mult if hand contains Two Pair
+337	Ladder
+338	+12 Mult if hand contains a Straight
+339	Tide
+340	+10 Mult if hand contains a Flush
+341	Thin Mint
+342	+20 Mult if 3 or fewer cards are played
+343	Flag
+344	+30 Chips per remaining discard
+345	Glitch
+346	+0 to +23 Mult, at random
+347	Even Keel
+348	Scored 10, 8, 6, 4, 2 give +4 Mult
+349	Odd Duck
+350	Scored A, 9, 7, 5, 3 give +31 Chips
+351	Scribe
+352	Scored Aces give +20 Chips and +4 Mult
+353	Deep Well
+354	+2 Chips per card left in the draw pile
+355	Crowd
+356	+3 Mult per charm owned
+357	Last Stand
+358	+15 Mult when no discards remain
+359	Royal Court
+360	Scored J, Q, K give +30 Chips
+361	Spiral
+362	Scored A, 2, 3, 5, 8 give +8 Mult
+363	Gold Tooth
+364	Earn $4 at the end of each round
+365	Snowball
+366	Gains +1 Mult for every hand played and loses 1 Mult for every discard
+367	Treasury
+368	+2 Chips for every $1 you hold
+369	Hollow
+370	x1 Mult for each empty charm slot (counts itself)
+371	Prism
+372	x3 Mult if played cards include all 4 suits
+373	Warden
+374	Sell during a boss blind to disable it
+375	Duet
+376	x2 Mult if hand contains a Pair
+377	Seer
+378	+1 Mult for every Spell cast this run
+379	Twin Veil
+380	+50 Chips if the hand contains a Pair
+381	Duo Veil
+382	+80 Chips if the hand contains Two Pair
+383	Triad Veil
+384	+100 Chips if the hand contains Three of a Kind
+385	Rail Veil
+386	+100 Chips if the hand contains a Straight
+387	Tide Veil
+388	+80 Chips if the hand contains a Flush
+389	Triad Crown
+390	x3 Mult if the hand contains Three of a Kind
+391	Quad Crown
+392	x4 Mult if the hand contains Four of a Kind
+393	Rail Crown
+394	x3 Mult if the hand contains a Straight
+395	Tide Crown
+396	x2 Mult if the hand contains a Flush
+397	Grin
+398	Scored face cards give +5 Mult
+399	Radio
+400	Scored 10s and 4s give +10 Chips and +4 Mult
+401	Spearhead
+402	Scored Spades give +50 Chips
+403	Clover Stone
+404	Scored Clubs give +7 Mult
+405	Raw Topaz
+406	Scored Diamonds earn $1
+407	Heartstone
+408	Scored Hearts have a 1 in 2 chance to give x1.5 Mult
+409	Portrait
+410	The first scored face card gives x2 Mult
+411	Tightrope
+412	x3 Mult on the final hand of the round
+413	Iron Fist
+414	The lowest card held in hand gives Mult equal to twice its value
+415	Regent
+416	Each King held in hand gives x1.5 Mult
+417	Moonrise
+418	Each Queen held in hand gives +13 Mult
+419	Encore
+420	Retrigger scored 2s, 3s, 4s and 5s
+421	Masquerade
+422	Retrigger scored face cards
+423	Punch Card
+424	Retrigger the first scored card 2 more times
+425	Twilight
+426	Retrigger every scored card on the final hand of the round
+427	Calling Card
+428	Scored face cards have a 1 in 2 chance to earn $2
+429	Gilt Ticket
+430	Scored Gilded cards earn $4
+431	Patience
+432	At end of round, earn $2 per discard left if you used none
+433	Corsair
+434	+Mult equal to the sell value of your other charms
+435	Fame
+436	+Mult equal to how many times this hand type has been played this run
+437	Commuter
+438	Gains +1 Mult for each hand in a row with no scored face card; resets on a face card
+439	Sprinter
+440	Gains +15 Chips each time the hand contains a Straight
+441	Four Square
+442	Gains +4 Chips each time exactly 4 cards are played
+443	Sorbet
+444	+100 Chips. Loses 5 Chips every hand played
+445	Kettle Corn
+446	+20 Mult. Loses 4 Mult at the end of each round
+447	Plantain
+448	+15 Mult. 1 in 6 chance to spoil at the end of each round
+449	Ripe Plantain
+450	x3 Mult. 1 in 1000 chance to spoil at the end of each round
+451	Fizz
+452	Retrigger every played card for the next 10 hands
+453	Card Shark
+454	x3 Mult if this hand type was already played this round
+455	Loyalty Stamp
+456	x4 Mult every 6th hand played
+457	Slate
+458	x3 Mult if every card held in hand is a Spade or a Club
+459	Wide Grip
+460	Flushes and Straights can be made with 4 cards
+461	Hopscotch
+462	Straights may skip one rank between cards (like 3 5 6 8 9)
+463	Ink Blot
+464	Hearts and Diamonds count as the same suit, and so do Spades and Clubs
+465	Mirage
+466	Every card counts as a face card
+467	Puddle
+468	Every played card counts in scoring
+469	Mimic
+470	Retrigger the abilities of cards held in hand
+471	Iron Will
+472	x0.2 Mult for each Iron card in your full deck
+473	Quarry
+474	+25 Chips for each Stone card in your full deck
+475	Mason
+476	Adds a Stone card to your deck when a blind starts
+477	Gilded Touch
+478	Scored face cards turn Gilded
+479	Leech
+480	Gains x0.1 Mult for each scored enhanced card, and strips the enhancement
+481	Rambler
+482	Every scored card permanently gains +5 Chips
+483	Old Relic
+484	Scored cards of the round's suit give x1.5 Mult (suit changes every round)
+485	Keep
+486	Gains +3 Chips per discarded card of the round's suit (suit changes every round)
+487	Idol
+488	Scored copies of the round's card give x2 Mult (card changes every round)
+489	Rebate
+490	Earn $5 for each discarded card of the round's rank (rank changes every round)
+491	Errand List
+492	Earn $4 when you play the listed hand type (it changes every round)
+493	Patched Trousers
+494	Gains +2 Mult each time the hand contains Two Pair
+495	Flash Card
+496	Gains +2 Mult each time you reroll the shop
+497	Monolith
+498	Gains x0.2 Mult for each hand in a row that isn't your most played hand type; resets when it is
+499	Frenzy
+500	When a Small or Big Blind starts, gains x0.5 Mult and destroys a random other charm
+501	Ritual Knife
+502	When a blind starts, destroys the charm to its right and gains double its sell value as Mult
+503	Hologram
+504	Gains x0.25 Mult each time a card is added to your deck
+505	Star Map
+506	Gains x0.1 Mult each time you use a Rune
+507	Bonfire
+508	Gains x0.25 Mult for each charm sold; resets when a boss is beaten
+509	Beckoning Cat
+510	Gains x0.25 Mult each time a Lucky card pays out
+511	Glazier
+512	Gains x0.75 Mult each time a Glass card shatters
+513	IOU
+514	You can go up to $20 into debt
+515	Nest Egg
+516	Its sell value rises by $3 at the end of each round
+517	Gift Wrap
+518	At the end of each round, every charm's sell value rises by $1
+519	Skyrocket
+520	Earn $1 at the end of each round; the payout grows by $2 each time a boss is beaten
+521	Nine Lives
+522	Earn $1 at the end of each round for each 9 in your full deck
+523	Moonshot
+524	Interest is paid twice
+525	Satellite
+526	Earn $1 at the end of each round for each different Rune used this run
+527	Valet
+528	Each face card held in hand has a 1 in 2 chance to earn $1
+529	Bootstraps
+530	+2 Mult for every $5 you hold
+531	Toreador
+532	Earn $8 each time a boss blind's effect hits your hand
+533	Wanderer
+534	Create a Spell when you play a hand while holding $4 or less
+535	Trader
+536	If the first discard of a round is a single card, destroy it and earn $3
+537	Cat Burglar
+538	When a blind starts, gain 3 hands and lose all discards
+539	Tipsy
+540	+1 discard each round
+541	Juggler
+542	+1 hand size
+543	Minstrel
+544	+2 hand size, but 1 fewer hand each round
+545	Merry Fool
+546	+3 discards each round, but -1 hand size
+547	Daredevil
+548	+250 Chips, but -2 hand size
+549	Bean Sprout
+550	+5 hand size, shrinking by 1 every round
+551	Noodle Bowl
+552	x2 Mult; loses x0.01 Mult for each card discarded
+553	Chaos
+554	1 free reroll in every shop
+555	Stargazer
+556	Runes in the shop are free
+557	License
+558	x3 Mult if at least 16 cards in your full deck are enhanced
+559	Pennant
+560	Each Uncommon charm you own gives x1.5 Mult
+561	Tracing Paper
+562	Copies the ability of the charm to its right
+563	Brainwave
+564	Copies the ability of your leftmost charm
+565	Phantom
+566	After 2 rounds, sell it to duplicate a random other charm
+567	Loaded Dice
+568	Doubles every listed chance (1 in 4 becomes 2 in 4)
+569	Crystal Ball
+570	Each scored 8 has a 1 in 4 chance to create a Spell
+571	Second Sight
+572	If the first hand of a round is a single 6, destroy it and create an Omen
+573	Spirit Board
+574	Create an Omen when you play a Straight Flush
+575	Quantum
+576	Create a Spell when the hand contains both an Ace and a Straight
+577	Diviner
+578	Create a Spell when a blind starts
+579	Notary
+580	When a round starts, add a random card with a random seal to your hand
+581	Clone
+582	If the first hand of a round is a single card, add a copy of it to your deck and hand
+583	Rabble
+584	When a blind starts, create 2 Common charms (if there is room)
+585	Kindling
+586	Levels up the hand type of your first discard each round
+587	Orbit
+588	1 in 4 chance to level up the hand type you play
+589	Blank Mask
+590	Earn $5 when you discard 3 or more face cards at once
+591	Road Trip
+592	Gains x0.5 Mult for each Jack discarded this round
+593	Double Vision
+594	x2 Mult if the scored cards include a Club and a card of another suit
+595	Tiny
+596	Gains +8 Chips each time a 2 is scored
+597	Ringmaster
+598	Charms and spells you already own can still show up in the shop
+599	Last Laugh
+600	Saves you from losing a round if you scored at least a quarter of the target, then breaks
+601	Wear and Tear
+602	+4 Mult for each card your deck is below its starting size
+603	Bone Crown
+604	Gains x1 Mult each time a face card is destroyed
+605	Fool King
+606	Scored Kings and Queens give x2 Mult
+607	Skull
+608	Gains x1 Mult for every 23 cards discarded
+609	Veto
+610	Disables the effect of every boss blind
+611	Hoarder
+612	When you leave the shop, makes a Negative copy of a random spell you hold
+613	Scrapbook
+614	Gains +3 Mult each time you skip a booster pack
+615	Daydream
+616	1 in 2 chance to create a Spell when you open a booster pack
+617	Rewind
+618	x0.25 Mult for each blind skipped this run
+619	Root Float
+620	Sell this to get a Twin Tag
+621	Etched
+622	+30 Chips when scored
+623	Charged
+624	+4 Mult when scored
+625	Glass
+626	x2 Mult when scored; 1 in 4 chance to shatter
+627	Iron
+628	x1.5 Mult while held in hand
+629	Gilded
+630	Earn $3 if held in hand at end of round
+631	Lucky
+632	1 in 5 chance of +20 Mult and 1 in 15 chance of $20 when scored
+633	Stone
+634	+50 Chips; no rank or suit, always scores
+635	Wild
+636	Counts as every suit
+637	Foil
+638	+50 Chips
+639	Holo
+640	+10 Mult
+641	Chroma
+642	x1.5 Mult
+643	Negative
+644	+1 slot
+645	Crimson Seal
+646	Retrigger this card
+647	Golden Seal
+648	Earn $3 when this card is scored
+649	Azure Seal
+650	Creates the Rune for the last hand played if held in hand at end of round
+651	Violet Seal
+652	Creates a Spell when discarded
+653	Card Pack
+654	Spell Pack
+655	Rune Pack
+656	Charm Pack
+657	Omen Pack
+658	Choose 1 of 3 playing cards
+659	Jumbo Card Pack
+660	Choose 1 of 5 playing cards
+661	Mega Card Pack
+662	Choose 2 of 5 playing cards
+663	Choose 1 of 3 Spells
+664	Jumbo Spell Pack
+665	Choose 1 of 5 Spells
+666	Mega Spell Pack
+667	Choose 2 of 5 Spells
+668	Choose 1 of 3 Runes
+669	Jumbo Rune Pack
+670	Choose 1 of 5 Runes
+671	Mega Rune Pack
+672	Choose 2 of 5 Runes
+673	Choose 1 of 2 charms
+674	Jumbo Charm Pack
+675	Choose 1 of 4 charms
+676	Mega Charm Pack
+677	Choose 2 of 4 charms
+678	Choose 1 of 2 Omens
+679	Jumbo Omen Pack
+680	Choose 1 of 4 Omens
+681	Mega Omen Pack
+682	Choose 2 of 4 Omens
+683	Etch
+684	Make up to 2 selected cards Etched
+685	Charge
+686	Make up to 2 selected cards Charged
+687	Glaze
+688	Make 1 selected card Glass
+689	Forge
+690	Make 1 selected card Iron
+691	Gild
+692	Make 1 selected card Gilded
+693	Clover
+694	Make up to 2 selected cards Lucky
+695	Bloom
+696	Turn up to 3 selected cards into Hearts
+697	Shade
+698	Turn up to 3 selected cards into Spades
+699	Bramble
+700	Turn up to 3 selected cards into Clubs
+701	Kindle
+702	Turn up to 3 selected cards into Diamonds
+703	Ascend
+704	Raise up to 2 selected cards by one rank
+705	Purge
+706	Destroy up to 2 selected cards
+707	Mirror
+708	Select 2 cards: the left one becomes a copy of the right one
+709	Windfall
+710	Double your money (up to +$20)
+711	Petrify
+712	Turn 1 selected card to Stone
+713	Chimera
+714	Make 1 selected card Wild
+715	Replay
+716	Create a copy of the last Spell cast this run (not Replay)
+717	Oracle
+718	Create up to 2 random Runes
+719	Summon
+720	Create up to 2 random Spells
+721	Fortune
+722	1 in 4 chance to give a random charm Foil, Holo or Chroma
+723	Barter
+724	Earn the total sell value of your charms (up to $50)
+725	Conjure
+726	Create a random charm
+727	Courtiers
+728	Destroy 1 random card in hand; add 3 random enhanced face cards to your hand
+729	Reaper
+730	Destroy 1 random card in hand; add 2 random enhanced Aces to your hand
+731	Chant
+732	Destroy 1 random card in hand; add 4 random enhanced numbered cards to your hand
+733	Talisman
+734	Add a Golden Seal to 1 selected card
+735	Aura
+736	Give 1 selected card Foil, Holo or Chroma
+737	Wraith
+738	Create a Rare charm, but your money drops to $0
+739	Converge
+740	Turn every card in hand into one random suit
+741	Mono
+742	Turn every card in hand into one random rank; -1 hand size
+743	Void
+744	Make a random charm Negative; -1 hand size
+745	Pyre
+746	Destroy 5 random cards in hand; earn $20
+747	Rebirth
+748	Copy a random charm and destroy all the others
+749	Sigil
+750	Add a Crimson Seal to 1 selected card
+751	Curse
+752	Make a random charm Chroma and destroy all the others
+753	Lull
+754	Add an Azure Seal to 1 selected card
+755	Whisper
+756	Add a Violet Seal to 1 selected card
+757	Duplicate
+758	Add 2 copies of 1 selected card to your deck
+759	Soul
+760	Create a Legendary charm
+761	Singularity
+762	Level up every hand type
+763	Crimson Deck
+764	+1 discard every round
+765	Azure Deck
+766	+1 hand every round
+767	Gold Deck
+768	Start with an extra $10
+769	Grove Deck
+770	No interest; at the end of each round earn $2 per hand and $1 per discard left
+771	Ink Deck
+772	+1 charm slot, but 1 fewer hand every round
+773	Arcane Deck
+774	Start with the Satchel voucher and 2 copies of Replay
+775	Star Deck
+776	Start with the Spyglass voucher, but -1 spell slot
+777	Spirit Deck
+778	Omens can show up in the shop; start with a Curse
+779	Bare Deck
+780	No face cards in the deck
+781	Checker Deck
+782	26 Spades and 26 Hearts
+783	Zodiac Deck
+784	Start with the Spell Seller, Rune Seller and Extra Shelf vouchers
+785	Painted Deck
+786	+2 hand size, but -1 charm slot
+787	Twin Deck
+788	Gain a Twin Tag after beating each boss
+789	Plasma Deck
+790	Chips and Mult are balanced before each hand's total; blinds need 2x the score
+791	Chaos Deck
+792	Every card's rank and suit is random
+793	White Chip
+794	The base game
+795	Red Chip
+796	The Small Blind pays no reward
+797	Green Chip
+798	Blind scores rise faster
+799	Black Chip
+800	Shop charms can be Eternal (can't be sold or destroyed)
+801	Blue Chip
+802	-1 discard every round
+803	Purple Chip
+804	Blind scores rise faster still
+805	Orange Chip
+806	Shop charms can be Perishable (stop working after 5 rounds)
+807	Gold Chip
+808	Shop charms can be Rentals ($1 to buy, $3 every round)
+809	Riches Tag
+810	Double your money (up to +$40)
+811	Haste Tag
+812	Earn $5 for each blind skipped this run
+813	Rare Tag
+814	The next shop has a free Rare charm
+815	Uncommon Tag
+816	The next shop has a free Uncommon charm
+817	Coupon Tag
+818	Everything first stocked in the next shop is free
+819	Star Tag
+820	Level up a random hand type 3 times
+821	Juggle Tag
+822	+3 hand size for the next round
+823	Bundle Tag
+824	Open a free Mega Charm Pack
+825	Tome Tag
+826	Open a free Mega Spell Pack
+827	Twin Tag
+828	Copies the next tag you get
+829	Investment Tag
+830	Earn $15 after beating the next boss
+831	Dice Tag
+832	Rerolls in the next shop start at $0
+833	Negative Tag
+834	The next plain charm in the shop is free and Negative
+835	Foil Tag
+836	The next plain charm in the shop is free and Foil
+837	Holo Tag
+838	The next plain charm in the shop is free and Holo
+839	Chroma Tag
+840	The next plain charm in the shop is free and Chroma
+841	Voucher Tag
+842	Adds a Voucher to the next shop
+843	Boss Tag
+844	Rerolls this ante's boss blind
+845	Card Tag
+846	Open a free Mega Card Pack
+847	Meteor Tag
+848	Open a free Mega Rune Pack
+849	Ethereal Tag
+850	Open a free Omen Pack
+851	Handy Tag
+852	Earn $1 for every hand played this run
+853	Garbage Tag
+854	Earn $1 for every discard left unused this run
+855	Top-up Tag
+856	Create up to 2 Common charms
+857	Extra Shelf
+858	+1 card slot in the shop
+859	Full Shelves
+860	+1 more card slot in the shop
+861	Clearance
+862	Everything in the shop is 25% off
+863	Fire Sale
+864	Everything in the shop is 50% off
+865	Polish
+866	Foil, Holo and Chroma show up 2x more often
+867	Shine
+868	Foil, Holo and Chroma show up 4x more often
+869	Cheap Dice
+870	Rerolls cost $2 less
+871	Loaded Shaker
+872	Rerolls cost another $2 less
+873	Satchel
+874	+1 spell slot
+875	Spirit Lamp
+876	Omens can show up in Spell Packs
+877	Spyglass
+878	Rune Packs always hold the Rune for your most played hand
+879	Planetarium
+880	Runes kept in your slots give x1.5 Mult when their hand is played
+881	Extra Grip
+882	Tongs
+883	+1 more hand every round
+884	Wastebin
+885	Recycler
+886	+1 more discard every round
+887	Spell Seller
+888	Spells show up in the shop 2x more often
+889	Spell Baron
+890	Spells show up in the shop 4x more often
+891	Rune Seller
+892	Runes show up in the shop 2x more often
+893	Rune Baron
+894	Runes show up in the shop 4x more often
+895	Nest Box
+896	Interest can reach $10 per round
+897	Golden Tree
+898	Interest can reach $20 per round
+899	Blank
+900	Does nothing?
+901	Hollow Space
+902	+1 charm slot
+903	Card Stall
+904	Playing cards can show up in the shop
+905	Showcase
+906	Playing cards in the shop may have an enhancement, edition or seal
+907	Time Glyph
+908	-1 ante, but 1 fewer hand every round
+909	Stone Glyph
+910	-1 ante, but 1 fewer discard every round
+911	Boss Swap
+912	Reroll the boss blind once per ante ($10)
+913	Rewrite
+914	Reroll the boss blind as often as you like ($10 each)
+915	Brush
+916	Palette
+917	+1 more hand size
+918	Glass House
+919	Every card in the deck is Glass. Handle with care.
+920	Low Ceiling
+921	Nothing above a 9 in the deck.
+922	Court Only
+923	Only 10s and higher, two of each.
+924	Blindfold
+925	Some cards are dealt face down.
+926	One hand a round, but plenty of discards - for a price.
+927	Short Hand
+928	A smaller hand but room for more charms.
+929	Bare Hands
+930	No charms at all. Win with spells and runes.
+931	Austerity
+932	Small and Big Blinds pay nothing, and savings earn nothing.
+933	Burnout
+934	Every card is sealed Crimson, but played cards burn out until the next ante.
+935	Tycoon
+936	Start rich, but leftover hands pay nothing.
+937	The Omelette
+938	Five Nest Eggs, but no blind rewards, no money for leftover hands and no interest.
+939	15 Minute City
+940	A deck of 4s to Kings with extra face cards, and an Eternal Commuter and Hopscotch.
+941	Rich get Richer
+942	Start with $100, Nest Box and Golden Tree, but Chips can't be more than your money.
+943	On a Knife's Edge
+944	An Eternal Ritual Knife pinned to the far left.
+945	X-ray Vision
+946	1 in 4 cards are dealt face down.
+947	Mad World
+948	Only 2s to 9s, but every card counts as a face card. No money for leftover hands, no interest.
+949	Luxury Tax
+950	Hand size 10, but -1 hand size for every $5 you hold.
+951	Non-Perishable
+952	Every charm is Eternal.
+953	Medusa
+954	Every Jack, Queen and King is Stone. An Eternal Mason starts the run.
+955	Double or Nothing
+956	Every card has a Crimson Seal, but cards are debuffed for good once played.
+957	Typecast
+958	When ante 4 begins, your charms become Eternal and you get no more charm slots.
+959	Inflation
+960	Every purchase raises shop prices by $1. Starts with an IOU.
+961	Bram Poker
+962	No charms in the shop. An Eternal Leech, Charge and Summon, and playing cards for sale.
+963	Fragile
+964	Every card is Glass, with two Eternal Negative Loaded Dice. No way to enhance more cards.
+965	An Eternal Monolith and an Eternal Negative Mason.
+966	Blast Off
+967	2 hands, 2 discards, 4 charm slots, but Rune Seller, Rune Baron, Star Map and Skyrocket.
+968	Five-Card Draw
+969	Hand size 5, 6 discards and 7 charm slots. Starts with Card Shark and Jester.
+970	Golden Needle
+971	1 hand a round and 6 discards that cost $1 each. Starts with an IOU.
+972	Cruelty
+973	Small and Big Blinds pay nothing. Only 3 charm slots.
+974	Jokerless
+975	No charms at all: none in the shop, no slots, no way to make them.
+976	The Rust
+977	All Clubs are debuffed
+978	The Thorn
+979	All Hearts are debuffed
+980	The Ash
+981	All Spades are debuffed
+982	The Rot
+983	All Diamonds are debuffed
+984	The Halving
+985	Base Chips and Mult are halved
+986	The Grip
+987	Discards 2 random held cards after every hand
+988	The Bulwark
+989	Extra large blind
+990	The Needle
+991	Play only 1 hand
+992	The Mute
+993	All face cards are debuffed
+994	The Drought
+995	No discards this round
+996	The Toll
+997	Lose $1 for every card played
+998	The Shroud
+999	Your first hand is dealt face down
+1000	The Shackle
+1001	-1 hand size
+1002	The Tithe
+1003	Every hand must use 5 cards
+1004	The Echo
+1005	Each hand type may be played only once
+1006	The Monotone
+1007	Only one hand type may be played
+1008	The Erosion
+1009	Leveled hands lose a level when played
+1010	The Mask
+1011	Face cards are dealt face down
+1012	The Ox
+1013	Playing your most played hand type sets your money to $0
+1014	The Wheel
+1015	1 in 7 cards are dealt face down
+1016	The Fish
+1017	Cards drawn after you play a hand arrive face down
+1018	The Serpent
+1019	After a play or discard, you always draw exactly 3 cards
+1020	The Pillar
+1021	Cards already played this ante are debuffed
+1022	Azure Lantern
+1023	One card is always selected
+1024	Ember Crown
+1025	A random charm is disabled every hand
+1026	Jade Wreath
+1027	All cards are debuffed until a charm is sold
+1028	Violet Abyss
+1029	Enormous blind
+1030	Gilded Eclipse
+1031	Charms are flipped face down and shuffled
+1032	Flush Five
+1033	Flush House
+1034	Five of a Kind
+1035	Straight Flush
+1036	Four of a Kind
+1037	Full House
+1038	Flush
+1039	Straight
+1040	Three of a Kind
+1041	Two Pair
+1042	Pair
+1043	High Card
+1044	Spades
+1045	Hearts
+1046	Clubs
+1047	Diamonds
+1048	Common
+1049	Uncommon
+1050	Rare
+1051	Legendary
+1052	Small Blind
+1053	Big Blind
+1054	Boss Blind
+1055	Jack
+1056	Queen
+1057	King
+1058	Ace
+1059	Play a 5 card hand made only of Gilded cards
+1060	Lose 5 runs
+1061	Play 200 hands
+1062	Play 300 face cards
+1063	Sell 20 charms
+1064	Win 5 rounds in a row using only 1 hand each
+1065	Have a Gilded card with a Golden Seal
+1066	Have 3 Wild cards in your deck
+1067	Continue a saved run
+1068	Beat a boss blind with a High Card
+1069	Have 30 Diamonds in your deck
+1070	Have 30 Hearts in your deck
+1071	Have 30 Spades in your deck
+1072	Have 30 Clubs in your deck
+1073	Have 5 Glass cards in your deck
+1074	Reach ante 4
+1075	Reach ante 8
+1076	Win a run
+1077	Win a run in 18 rounds or fewer
+1078	Win a run in 12 rounds or fewer
+1079	Score 10,000 in one hand
+1080	Score 1,000,000 in one hand
+1081	Score 100,000,000 in one hand
+1082	Play a hand with four 7 of Clubs
+1083	Beat a boss blind in one hand without discarding
+1084	Discard 5 Jacks at once
+1085	Win a run without playing a Pair
+1086	Win a run without playing Three of a Kind
+1087	Win a run without playing Four of a Kind
+1088	Win a run without playing a Straight
+1089	Win a run without playing a Flush
+1090	Win a run without ever having more than 4 charms
+1091	Discard a Royal Flush
+1092	Have $400
+1093	Play every Heart in your deck in one round
+1094	Have 16 enhanced cards in your deck
+1095	Discover every Spell
+1096	Discover every Rune
+1097	Sell 50 charms or spells
+1098	Have 2 Chroma charms at once
+1099	Spend $2,500 in shops
+1100	Redeem 10 vouchers in one run
+1101	Have 5 Foil, Holo or Chroma charms at once
+1102	Reroll the shop 100 times
+1103	Use 25 Spells from Spell Packs
+1104	Use 25 Runes from Rune Packs
+1105	Play 2,500 cards
+1106	Discard 2,500 cards
+1107	Buy 50 Spells from the shop
+1108	Buy 50 Runes from the shop
+1109	Earn the most interest 10 rounds in a row
+1110	Redeem Blank 10 times
+1111	Buy 20 playing cards from the shop
+1112	Reach ante 12
+1113	Discover 25 blinds
+1114	Get down to a hand size of 5

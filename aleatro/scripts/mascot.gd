@@ -74,6 +74,7 @@ func _init(effects: Sfx) -> void:
 	var vb := VBoxContainer.new()
 	vb.add_theme_constant_override("separation", 12)
 	_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_text.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	_text.custom_minimum_size = Vector2(BUBBLE_W - 32, 0)
 	_text.add_theme_font_size_override("font_size", 22)
 	_text.add_theme_color_override("font_color", Color("2b2d42"))
@@ -121,6 +122,8 @@ func say(text: String, options: Array = [], bubble_left := true) -> void:
 	for b in _buttons.get_children():
 		b.queue_free()
 	_buttons.visible = false
+	# typed out letter by letter, so translate it here rather than in the label
+	text = tr(text)
 	_text.text = text
 	_text.visible_ratio = 0.0
 	_bubble.visible = true

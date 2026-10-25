@@ -1,0 +1,1114 @@
+1	Pontuação mínima
+2	Pontos da rodada
+3	Mãos
+4	Descartes
+5	Menu
+6	Baralho
+7	Jogar mão
+8	Descartar
+9	Valor
+10	Naipe
+11	Ante {0}/{1}
+12	Baralho {0}/{1}
+13	Mão {0}/{1}
+14	Recompensa: {0}
+15	Recompensa {0}
+16	{0}  nv. {1}
+17	{0} nv. {1}
+18	nv. {0}
+19	{0}  (não permitida)
+20	ETERNO
+21	PERECÍVEL {0}
+22	ALUGUEL
+23	DESATIVADO
+24	Desativado pelo chefe
+25	Feitiço
+26	Runa
+27	Presságio
+28	Amuleto
+29	Cupom
+30	Lançar
+31	Vender ${0}
+32	Fechar
+33	Primeiro selecione cartas da sua mão e depois lance.
+34	+${0}
+35	-${0}
+36	${0}
+37	+{0}
+38	+{0} Mult
+39	+{0} Fichas
+40	x{0} Mult
+41	Runa: {0}
+42	Um roguelike de pôquer
+43	Continuar
+44	Ante {0}  ${1}
+45	Segurar: novo jogo
+46	Jogar
+47	Como jogar
+48	Coleção
+49	Desafios
+50	Perfil {0}
+51	Valeu!
+52	OK
+53	Melhor ante: {0}   Melhor mão: {1}   Vitórias: {2}
+54	Idioma
+55	Automático ({0})
+56	Selecione até 5 cartas e jogue uma mão de pôquer. Cada tipo de mão tem Fichas e Mult base; as cartas pontuadas somam seu valor em Fichas (figuras 10, ases 11).
+57	Pontos = Fichas x Mult. Alcance a meta do blind antes de ficar sem mãos. Descartes deixam você trocar cartas.
+58	Cada ante tem um Blind Pequeno, um Blind Grande e um Blind Chefe com uma reviravolta cruel. Vença o ante 8 para ganhar.
+59	Gaste dinheiro na loja com Amuletos (bônus passivos, até 5) e Runas (sobem o nível de um tipo de mão). Você ganha $1 de juros a cada $5 guardados, até $5.
+60	Alguns amuletos e cupons começam bloqueados: a Coleção mostra o que desbloqueia cada um.
+61	Arraste cartas ou amuletos para reordenar; segure uma carta para ver os detalhes. Controle: direcional move, A seleciona (segure A + esquerda/direita para mover uma carta), X joga, Y descarta, LB/RB ordenam, Start abre o menu. Teclado: setas, Enter, P, D, Q/E, Esc; segure R para reiniciar.
+62	Novo jogo
+63	Desafio: {0}
+64	Descubra {0} amuletos e chefes ({1} até agora)
+65	Vença um jogo com o {0}
+66	Vença um jogo na {0}
+67	Bloqueado: {0}
+68	{0}, mais todas as apostas inferiores
+69	Aposta {0} de {1} desbloqueada para este baralho
+70	Começar
+71	Voltar
+72	Segurar: começar (encerra o jogo atual)
+73	Ante {0}
+74	Etiquetas:
+75	Em breve
+76	Vencido
+77	A seguir
+78	CONFRONTO
+79	Pular: {0}
+80	Jogar {0}
+81	Trocar chefe $10
+82	Pular por {0}
+83	Esse é um blind chefe! Chefes distorcem as regras. Toque no painel do blind no canto superior esquerdo a qualquer momento para ler o que este faz.
+84	Oi, eu sou o Ace! Cada ante tem três blinds. Alcance pelo menos a meta antes de suas mãos acabarem para vencer um e ganhar dinheiro.
+85	{0}  -  {1}, falta 1 escolha
+86	{0}  -  {1}, faltam {2} escolhas
+87	Pegar
+88	Usar
+89	Pular
+90	CUPOM
+91	Toque em até 5 cartas para formar uma mão de pôquer e aperte Jogar mão. Sua pontuação é Fichas x Mult, então mãos mais fortes pontuam mais.
+92	Opa, uma carta melhorada! Segure qualquer carta para ver o que ela faz.
+93	Presa pela Lanterna
+94	Não permitido!
+95	Equilibrado!
+96	Enfraquecida
+97	De novo!
+98	Salvo por {0}!
+99	O Aperto!
+100	Nem toda mão vence. Descartar troca cartas por novas. Fique de olho nas suas Mãos e Descartes à esquerda.
+101	Descartar custa ${0}
+102	Estilhaçada!
+103	Recompensa do blind
+104	Mãos restantes ({0})
+105	Descartes restantes ({0})
+106	Juros ($1 a cada $5)
+107	{0} vencido!
+108	{0} sumiu!
+109	Sacar: ${0}
+110	Fim de jogo
+111	Alcançado
+112	Melhor mão
+113	Mais jogada
+114	Foi por pouco! Todo jogo ensina algo.
+115	Ai. Quer dar as cartas de novo?
+116	As cartas não estavam do nosso lado desta vez.
+117	Sacode a poeira, o próximo baralho dá sorte!
+118	Menu principal
+119	Desafio concluído: {0}
+120	Desafio concluído
+121	{0} desbloqueada para o {1}
+122	Você venceu!
+123	Você venceu o ante {0}.
+124	Conseguimos! Eu sabia que você era capaz!
+125	Campeão! Que tal ver até onde vai o modo Infinito?
+126	Modo Infinito
+127	Loja
+128	Próxima rodada
+129	Renovar ${0}
+130	{0} comum
+131	{0} incomum
+132	{0} raro
+133	{0} lendário
+134	Esgotado!
+135	Bem-vindo à loja! Amuletos dão bônus a cada mão, Feitiços e Runas vão nos espaços do canto superior direito e um Cupom melhora todo o seu jogo. Arraste seus amuletos para mudar a ordem em que disparam.
+136	Os preços subiram para +${0}
+137	Sem espaço para mais feitiços
+138	Feitiços e Runas aguardam nos espaços do canto superior direito. Durante uma rodada, selecione cartas da sua mão e toque num feitiço para lançá-lo nelas.
+139	Adicionada ao baralho ({0} cartas)
+140	Cupom: {0}
+141	Virada para baixo
+142	{0} esconde seus amuletos até ser derrotado.
+143	Guirlanda de Jade desfeita: as cartas voltam a funcionar
+144	Bloqueado
+145	Eterno
+146	Fixado
+147	Amuletos disparam da esquerda para a direita. Arraste para reordenar.
+148	Os juros pagam $1 a cada $5 que você tem, até $5. Economizar vale a pena!
+149	Amuletos disparam da esquerda para a direita, então deixe os de x Mult por último.
+150	Runas sobem o nível de um tipo de mão permanentemente no jogo.
+151	Cartas de vidro batem forte, mas podem estilhaçar. Aproveite enquanto durarem.
+152	Cartas de ferro ajudam mais quando ficam na sua mão.
+153	Venda um Guardião durante um blind chefe para desligar o chefe.
+154	Segure uma carta para ler suas melhorias.
+155	Toque no painel do blind para ver o que o chefe está tramando.
+156	Entendi
+157	Sem mais dicas
+158	Valeu, Ace
+159	Confronto: {0}
+160	O Guardião desativou {0}
+161	Mínimo {0}   Recompensa {1}
+162	Chefe do confronto
+163	Desativado pelo Guardião
+164	Já jogadas: {0}
+165	nenhuma
+166	Mão permitida: {0}
+167	a que você jogar primeiro
+168	Sem regras especiais
+169	+{0} Fichas ao pontuar
+170	+{0} Fichas bônus
+171	Enfraquecida por {0}
+172	Baralho: {0} cartas
+173	Cartas apagadas já foram compradas nesta rodada
+174	{0} cartas melhoradas. Segure uma carta na mão para ver os detalhes.
+175	Mãos de pôquer
+176	Não foi possível ler seu jogo salvo, então um novo começou
+177	{0} desbloqueado: {1}
+178	Novo amuleto descoberto: {0}
+179	Novo chefe descoberto: {0}
+180	{0}  [feito]
+181	{0} / {1} concluídos  -  vença o ante {2} para concluir um
+182	Página {0} / {1}
+183	Coleção  (Perfil {0})
+184	Amuletos
+185	Cupons
+186	Chefes
+187	Estatísticas
+188	Créditos
+189	{0} / {1} descobertos   -   {2} bloqueados
+190	Amuleto bloqueado
+191	{0} cupons   -   {1} bloqueados
+192	{0} (bloqueado)
+193	{0} / {1} descobertos
+194	Jogos
+195	Vitórias
+196	Melhor ante
+197	Mãos jogadas
+198	Cartas jogadas
+199	Dinheiro ganho
+200	Amuletos comprados
+201	Feitiços lançados
+202	Desafios vencidos
+203	Cartas de vidro estilhaçadas
+204	Feito com Godot Engine {0}.{1}
+205	Música, som e arte são gerados pelo próprio código do jogo.
+206	Pausado
+207	Pausado  -  {0}
+208	Geral
+209	Música
+210	Sons
+211	Vibração: ligada
+212	Vibração: desligada
+213	Velocidade: {0}x
+214	Movimento: reduzido
+215	Movimento: completo
+216	Acelera as animações de pontuação e distribuição
+217	Reduzido desliga o tremor de tela, a oscilação, a inclinação e o balanço parado
+218	Rever dicas
+219	Segurar: menu principal
+220	O Ace vai mostrar as dicas de novo
+221	Retomar
+222	(Atualmente +{0} Mult)
+223	(Atualmente +{0} Fichas)
+224	(faltam {0} mãos)
+225	(mais {0} mãos)
+226	(Atualmente x{0} Mult)
+227	(Atualmente +{0} tamanho da mão)
+228	(Atualmente ${0})
+229	(Pronto para vender)
+230	({0} de 2 rodadas)
+231	(Nesta rodada: {0})
+232	{0}: {1}
+233	Eterno: não pode ser vendido nem destruído
+234	Perecível: esgotado
+235	Perecível: faltam {0} rodadas
+236	Aluguel: custa $3 no fim de cada rodada
+237	Etiqueta Malabarismo: +3 tamanho da mão
+238	+1 carta de pedra
+239	x{0} Mult, comeu {1}
+240	{0} cortado: +{1} Mult
+241	+1 Feitiço
+242	+{0} Feitiços
+243	+1 Runa
+244	+{0} Runas
+245	+1 Presságio
+246	+3 Mãos
+247	{0} já foi jogada
+248	Só {0} é permitida
+249	As mãos devem usar 5 cartas
+250	O Boi levou seu dinheiro
+251	{0} erodida para nv. {1}
+252	Pedágio: -${0}
+253	{0} está sufocado
+254	Copiado!
+255	{0}: +${1}
+256	{0}: {1} nv. {2}
+257	{0}: +1 amuleto
+258	{0}: +{1} amuletos
+259	{0}: agora o chefe é {1}
+260	{0}: {1} grátis
+261	{0}: tudo é grátis
+262	{0}: renovações começam em $0
+263	Devaneio: +1 Feitiço
+264	Sem espaço para mais amuletos
+265	{0} duplicado
+266	Cópia negativa de {0}
+267	Cartas douradas na mão
+268	Aluguéis ({0})
+269	Lance durante uma rodada
+270	Você não tem amuletos
+271	Nenhum amuleto sem edição
+272	Nenhum feitiço foi lançado neste jogo ainda
+273	Sem espaço para outro amuleto
+274	Lance durante uma rodada, em cartas da sua mão
+275	Selecione uma carta primeiro
+276	Selecione até {0} cartas primeiro
+277	Selecione só 1 carta
+278	Selecione no máximo {0} cartas
+279	Selecione exatamente {0} cartas
+280	{0} virou {1}
+281	Nada feito!
+282	{0} de {1}
+283	Subir nível de {0}: +{1} Fichas, +{2} Mult
+284	-  {0}
+285	Comece com ${0}
+286	{0} mãos por rodada
+287	{0} descartes por rodada
+288	Tamanho da mão {0}
+289	{0} espaços de amuleto
+290	{0} espaços de feitiço
+291	Sem juros
+292	Sem dinheiro por mãos restantes
+293	Sem recompensa do {0}
+294	{0} ou {1}
+295	1 em cada {0} cartas vem virada para baixo
+296	Cada descarte custa ${0}
+297	Os preços da loja sobem $1 após cada compra
+298	A loja não vende amuletos
+299	Cartas jogadas ficam enfraquecidas até o próximo ante
+300	Cartas pontuadas ficam enfraquecidas pelo resto do jogo
+301	As Fichas não podem passar do seu dinheiro
+302	-1 tamanho da mão a cada ${0} que você tem
+303	Todo amuleto é eterno
+304	Quando o ante {0} começa, seus amuletos viram eternos e os espaços de amuleto caem para 0
+305	Baralho: {0}
+306	só valores {0}
+307	um {0} extra de cada naipe
+308	todo {0} é de pedra
+309	x{0} cópias
+310	todas {0}
+311	todas com {0}
+312	{0} ({1})
+313	Amuletos iniciais: {0}
+314	Cupons iniciais: {0}
+315	Feitiços iniciais: {0}
+316	Amuletos banidos: {0}
+317	Chefes banidos: {0}
+318	Também banidos: {0}
+319	,
+320	;
+321	Bobo da corte
+322	+4 Mult
+323	Anel de rubi
+324	Copas pontuadas dão +3 Mult
+325	Anel de topázio
+326	Ouros pontuados dão +3 Mult
+327	Anel de ônix
+328	Espadas pontuadas dão +3 Mult
+329	Anel de jade
+330	Paus pontuados dão +3 Mult
+331	Máscara gêmea
+332	+8 Mult se a mão tiver um Par
+333	Máscara tríade
+334	+12 Mult se a mão tiver uma Trinca
+335	Máscara dupla
+336	+10 Mult se a mão tiver Dois pares
+337	Escada de mão
+338	+12 Mult se a mão tiver uma Sequência
+339	Maré
+340	+10 Mult se a mão tiver um Flush
+341	Pastilha de menta
+342	+20 Mult se 3 cartas ou menos forem jogadas
+343	Bandeira
+344	+30 Fichas por descarte restante
+345	Falha
+346	De +0 a +23 Mult, ao acaso
+347	Quilha
+348	10, 8, 6, 4, 2 pontuados dão +4 Mult
+349	Pato esquisito
+350	A, 9, 7, 5, 3 pontuados dão +31 Fichas
+351	Escriba
+352	Ases pontuados dão +20 Fichas e +4 Mult
+353	Poço fundo
+354	+2 Fichas por carta restante na pilha de compra
+355	Multidão
+356	+3 Mult por amuleto que você tem
+357	Última resistência
+358	+15 Mult quando não restam descartes
+359	Corte real
+360	J, Q, K pontuados dão +30 Fichas
+361	Espiral
+362	A, 2, 3, 5, 8 pontuados dão +8 Mult
+363	Dente de ouro
+364	Ganhe $4 no fim de cada rodada
+365	Bola de neve
+366	Ganha +1 Mult por mão jogada e perde 1 Mult por descarte
+367	Tesouraria
+368	+2 Fichas para cada $1 que você tem
+369	Oco
+370	x1 Mult por espaço de amuleto vazio (conta a si mesmo)
+371	Prisma
+372	x3 Mult se as cartas jogadas tiverem os 4 naipes
+373	Guardião
+374	Venda durante um blind chefe para desativá-lo
+375	Dueto
+376	x2 Mult se a mão tiver um Par
+377	Vidente
+378	+1 Mult para cada Feitiço lançado neste jogo
+379	Véu gêmeo
+380	+50 Fichas se a mão tiver um Par
+381	Véu duplo
+382	+80 Fichas se a mão tiver Dois pares
+383	Véu tríade
+384	+100 Fichas se a mão tiver uma Trinca
+385	Véu do trilho
+386	+100 Fichas se a mão tiver uma Sequência
+387	Véu da maré
+388	+80 Fichas se a mão tiver um Flush
+389	Coroa tríade
+390	x3 Mult se a mão tiver uma Trinca
+391	Coroa quádrupla
+392	x4 Mult se a mão tiver uma Quadra
+393	Coroa do trilho
+394	x3 Mult se a mão tiver uma Sequência
+395	Coroa da maré
+396	x2 Mult se a mão tiver um Flush
+397	Sorrisão
+398	Figuras pontuadas dão +5 Mult
+399	Rádio
+400	10 e 4 pontuados dão +10 Fichas e +4 Mult
+401	Ponta de lança
+402	Espadas pontuadas dão +50 Fichas
+403	Pedra de trevo
+404	Paus pontuados dão +7 Mult
+405	Topázio bruto
+406	Ouros pontuados rendem $1
+407	Pedra do coração
+408	Copas pontuadas têm 1 chance em 2 de dar x1,5 Mult
+409	Retrato
+410	A primeira figura pontuada dá x2 Mult
+411	Corda bamba
+412	x3 Mult na última mão da rodada
+413	Punho de ferro
+414	A carta mais baixa na mão dá Mult igual ao dobro do seu valor
+415	Regente
+416	Cada Rei na mão dá x1,5 Mult
+417	Nascer da lua
+418	Cada Dama na mão dá +13 Mult
+419	Bis
+420	Reativa 2, 3, 4 e 5 pontuados
+421	Baile de máscaras
+422	Reativa figuras pontuadas
+423	Cartão perfurado
+424	Reativa a primeira carta pontuada mais 2 vezes
+425	Crepúsculo
+426	Reativa toda carta pontuada na última mão da rodada
+427	Cartão de visita
+428	Figuras pontuadas têm 1 chance em 2 de render $2
+429	Bilhete dourado
+430	Cartas douradas pontuadas rendem $4
+431	Paciência
+432	No fim da rodada, ganhe $2 por descarte restante se não usou nenhum
+433	Corsário
+434	+Mult igual ao valor de venda dos seus outros amuletos
+435	Fama
+436	+Mult igual a quantas vezes este tipo de mão foi jogado neste jogo
+437	Viajante
+438	Ganha +1 Mult por mão seguida sem figura pontuada; zera com uma figura
+439	Velocista
+440	Ganha +15 Fichas cada vez que a mão tem uma Sequência
+441	Quatro quadrados
+442	Ganha +4 Fichas cada vez que exatamente 4 cartas são jogadas
+443	Sorvete
+444	+100 Fichas. Perde 5 Fichas a cada mão jogada
+445	Pipoca doce
+446	+20 Mult. Perde 4 Mult no fim de cada rodada
+447	Banana-da-terra
+448	+15 Mult. 1 chance em 6 de estragar no fim de cada rodada
+449	Banana-da-terra madura
+450	x3 Mult. 1 chance em 1000 de estragar no fim de cada rodada
+451	Gasosa
+452	Reativa toda carta jogada nas próximas 10 mãos
+453	Tubarão das cartas
+454	x3 Mult se este tipo de mão já foi jogado nesta rodada
+455	Selo de fidelidade
+456	x4 Mult a cada 6ª mão jogada
+457	Lousa
+458	x3 Mult se toda carta na mão for de Espadas ou Paus
+459	Pegada larga
+460	Flushes e Sequências podem ser feitos com 4 cartas
+461	Amarelinha
+462	Sequências podem pular um valor entre as cartas (como 3 5 6 8 9)
+463	Borrão de tinta
+464	Copas e Ouros contam como o mesmo naipe, assim como Espadas e Paus
+465	Miragem
+466	Toda carta conta como figura
+467	Poça
+468	Toda carta jogada conta na pontuação
+469	Imitador
+470	Reativa as habilidades das cartas na mão
+471	Vontade de ferro
+472	x0,2 Mult por carta de ferro no seu baralho inteiro
+473	Pedreira
+474	+25 Fichas por carta de pedra no seu baralho inteiro
+475	Pedreiro
+476	Adiciona uma carta de pedra ao seu baralho quando um blind começa
+477	Toque dourado
+478	Figuras pontuadas ficam douradas
+479	Sanguessuga
+480	Ganha x0,1 Mult por carta melhorada pontuada e remove a melhoria
+481	Andarilho
+482	Toda carta pontuada ganha +5 Fichas permanentemente
+483	Relíquia antiga
+484	Cartas pontuadas do naipe da rodada dão x1,5 Mult (o naipe muda a cada rodada)
+485	Fortaleza
+486	Ganha +3 Fichas por carta descartada do naipe da rodada (o naipe muda a cada rodada)
+487	Ídolo
+488	Cópias pontuadas da carta da rodada dão x2 Mult (a carta muda a cada rodada)
+489	Reembolso
+490	Ganhe $5 por carta descartada do valor da rodada (o valor muda a cada rodada)
+491	Lista de tarefas
+492	Ganhe $4 ao jogar o tipo de mão listado (muda a cada rodada)
+493	Calça remendada
+494	Ganha +2 Mult cada vez que a mão tem Dois pares
+495	Cartão de estudo
+496	Ganha +2 Mult cada vez que você renova a loja
+497	Monólito
+498	Ganha x0,2 Mult por mão seguida que não é sua mão mais jogada; zera quando é
+499	Frenesi
+500	Quando um Blind Pequeno ou Grande começa, ganha x0,5 Mult e destrói outro amuleto aleatório
+501	Faca ritual
+502	Quando um blind começa, destrói o amuleto à direita e ganha o dobro do valor de venda dele como Mult
+503	Holograma
+504	Ganha x0,25 Mult cada vez que uma carta é adicionada ao seu baralho
+505	Mapa estelar
+506	Ganha x0,1 Mult cada vez que você usa uma Runa
+507	Fogueira
+508	Ganha x0,25 Mult por amuleto vendido; zera quando um chefe é vencido
+509	Gato da sorte
+510	Ganha x0,25 Mult cada vez que uma carta da sorte paga
+511	Vidraceiro
+512	Ganha x0,75 Mult cada vez que uma carta de vidro estilhaça
+513	Vale
+514	Você pode ficar até $20 no negativo
+515	Pé-de-meia
+516	Seu valor de venda sobe $3 no fim de cada rodada
+517	Papel de presente
+518	No fim de cada rodada, o valor de venda de todo amuleto sobe $1
+519	Foguete
+520	Ganhe $1 no fim de cada rodada; o pagamento cresce $2 a cada chefe vencido
+521	Sete vidas
+522	Ganhe $1 no fim de cada rodada para cada 9 no seu baralho inteiro
+523	Tiro na lua
+524	Os juros são pagos duas vezes
+525	Satélite
+526	Ganhe $1 no fim de cada rodada para cada Runa diferente usada neste jogo
+527	Criado
+528	Cada figura na mão tem 1 chance em 2 de render $1
+529	Por conta própria
+530	+2 Mult para cada $5 que você tem
+531	Toureiro
+532	Ganhe $8 cada vez que o efeito de um blind chefe atinge sua mão
+533	Andarilho errante
+534	Cria um Feitiço quando você joga uma mão tendo $4 ou menos
+535	Comerciante
+536	Se o primeiro descarte de uma rodada for uma única carta, destrua-a e ganhe $3
+537	Gato ladrão
+538	Quando um blind começa, ganhe 3 mãos e perca todos os descartes
+539	Alegrinho
+540	+1 descarte por rodada
+541	Malabarista
+542	+1 tamanho da mão
+543	Menestrel
+544	+2 tamanho da mão, mas 1 mão a menos por rodada
+545	Bobo alegre
+546	+3 descartes por rodada, mas -1 tamanho da mão
+547	Destemido
+548	+250 Fichas, mas -2 tamanho da mão
+549	Broto de feijão
+550	+5 tamanho da mão, diminuindo 1 a cada rodada
+551	Tigela de lámen
+552	x2 Mult; perde x0,01 Mult por carta descartada
+553	Caos
+554	1 renovação grátis em cada loja
+555	Astrônomo
+556	As Runas da loja são grátis
+557	Licença
+558	x3 Mult se pelo menos 16 cartas do seu baralho inteiro estiverem melhoradas
+559	Flâmula
+560	Cada amuleto incomum que você tem dá x1,5 Mult
+561	Papel vegetal
+562	Copia a habilidade do amuleto à direita
+563	Estalo
+564	Copia a habilidade do seu amuleto mais à esquerda
+565	Fantasma
+566	Depois de 2 rodadas, venda-o para duplicar outro amuleto aleatório
+567	Dados viciados
+568	Dobra todas as chances indicadas (1 em 4 vira 2 em 4)
+569	Bola de cristal
+570	Cada 8 pontuado tem 1 chance em 4 de criar um Feitiço
+571	Segunda visão
+572	Se a primeira mão de uma rodada for um 6 sozinho, destrua-o e crie um Presságio
+573	Tabuleiro ouija
+574	Cria um Presságio quando você joga um Straight Flush
+575	Quântico
+576	Cria um Feitiço quando a mão tem um Ás e uma Sequência
+577	Adivinho
+578	Cria um Feitiço quando um blind começa
+579	Tabelião
+580	Quando uma rodada começa, adiciona à sua mão uma carta aleatória com um selo aleatório
+581	Clone
+582	Se a primeira mão de uma rodada for uma única carta, adiciona uma cópia dela ao baralho e à mão
+583	Ralé
+584	Quando um blind começa, cria 2 amuletos comuns (se houver espaço)
+585	Gravetos
+586	Sobe o nível do tipo de mão do seu primeiro descarte a cada rodada
+587	Órbita
+588	1 chance em 4 de subir o nível do tipo de mão jogado
+589	Máscara em branco
+590	Ganhe $5 ao descartar 3 ou mais figuras de uma vez
+591	Pé na estrada
+592	Ganha x0,5 Mult para cada Valete descartado nesta rodada
+593	Visão dupla
+594	x2 Mult se as cartas pontuadas tiverem um Paus e uma carta de outro naipe
+595	Miúdo
+596	Ganha +8 Fichas cada vez que um 2 é pontuado
+597	Mestre de picadeiro
+598	Amuletos e feitiços que você já tem ainda podem aparecer na loja
+599	Última risada
+600	Salva você de perder uma rodada se tiver feito pelo menos um quarto da meta, e então quebra
+601	Desgaste
+602	+4 Mult para cada carta que seu baralho tem a menos que o tamanho inicial
+603	Coroa de ossos
+604	Ganha x1 Mult cada vez que uma figura é destruída
+605	Rei dos tolos
+606	Reis e Damas pontuados dão x2 Mult
+607	Caveira
+608	Ganha x1 Mult a cada 23 cartas descartadas
+609	Veto
+610	Desativa o efeito de todo blind chefe
+611	Acumulador
+612	Ao sair da loja, faz uma cópia negativa de um feitiço aleatório que você tem
+613	Álbum de recortes
+614	Ganha +3 Mult cada vez que você pula um pacote
+615	Devaneio
+616	1 chance em 2 de criar um Feitiço ao abrir um pacote
+617	Rebobinar
+618	x0,25 Mult para cada blind pulado neste jogo
+619	Vaca-preta
+620	Venda para ganhar uma Etiqueta Gêmea
+621	Gravada
+622	+30 Fichas ao pontuar
+623	Carregada
+624	+4 Mult ao pontuar
+625	Vidro
+626	x2 Mult ao pontuar; 1 chance em 4 de estilhaçar
+627	Ferro
+628	x1,5 Mult enquanto está na mão
+629	Dourada
+630	Ganhe $3 se estiver na mão no fim da rodada
+631	Sorte
+632	1 chance em 5 de +20 Mult e 1 chance em 15 de $20 ao pontuar
+633	Pedra
+634	+50 Fichas; sem valor nem naipe, sempre pontua
+635	Curinga
+636	Conta como todos os naipes
+637	Laminado
+638	+50 Fichas
+639	Holo
+640	+10 Mult
+641	Croma
+642	x1,5 Mult
+643	Negativo
+644	+1 espaço
+645	Selo carmesim
+646	Reativa esta carta
+647	Selo dourado
+648	Ganhe $3 quando esta carta pontua
+649	Selo celeste
+650	Cria a Runa da última mão jogada se estiver na mão no fim da rodada
+651	Selo violeta
+652	Cria um Feitiço ao ser descartada
+653	Pacote de cartas
+654	Pacote de feitiços
+655	Pacote de runas
+656	Pacote de amuletos
+657	Pacote de presságios
+658	Escolha 1 de 3 cartas de jogo
+659	Pacote de cartas jumbo
+660	Escolha 1 de 5 cartas de jogo
+661	Pacote de cartas mega
+662	Escolha 2 de 5 cartas de jogo
+663	Escolha 1 de 3 Feitiços
+664	Pacote de feitiços jumbo
+665	Escolha 1 de 5 Feitiços
+666	Pacote de feitiços mega
+667	Escolha 2 de 5 Feitiços
+668	Escolha 1 de 3 Runas
+669	Pacote de runas jumbo
+670	Escolha 1 de 5 Runas
+671	Pacote de runas mega
+672	Escolha 2 de 5 Runas
+673	Escolha 1 de 2 amuletos
+674	Pacote de amuletos jumbo
+675	Escolha 1 de 4 amuletos
+676	Pacote de amuletos mega
+677	Escolha 2 de 4 amuletos
+678	Escolha 1 de 2 Presságios
+679	Pacote de presságios jumbo
+680	Escolha 1 de 4 Presságios
+681	Pacote de presságios mega
+682	Escolha 2 de 4 Presságios
+683	Gravar
+684	Torna gravadas até 2 cartas selecionadas
+685	Carregar
+686	Torna carregadas até 2 cartas selecionadas
+687	Vitrificar
+688	Transforma 1 carta selecionada em vidro
+689	Forjar
+690	Transforma 1 carta selecionada em ferro
+691	Dourar
+692	Torna dourada 1 carta selecionada
+693	Trevo
+694	Torna da sorte até 2 cartas selecionadas
+695	Florescer
+696	Transforma até 3 cartas selecionadas em Copas
+697	Sombra
+698	Transforma até 3 cartas selecionadas em Espadas
+699	Espinheiro
+700	Transforma até 3 cartas selecionadas em Paus
+701	Acender
+702	Transforma até 3 cartas selecionadas em Ouros
+703	Ascender
+704	Sobe em um valor até 2 cartas selecionadas
+705	Expurgar
+706	Destrói até 2 cartas selecionadas
+707	Espelho
+708	Selecione 2 cartas: a da esquerda vira uma cópia da da direita
+709	Bolada
+710	Dobra seu dinheiro (até +$20)
+711	Petrificar
+712	Transforma 1 carta selecionada em pedra
+713	Quimera
+714	Torna curinga 1 carta selecionada
+715	Replay
+716	Cria uma cópia do último Feitiço lançado neste jogo (exceto Replay)
+717	Oráculo
+718	Cria até 2 Runas aleatórias
+719	Invocar
+720	Cria até 2 Feitiços aleatórios
+721	Fortuna
+722	1 chance em 4 de dar Laminado, Holo ou Croma a um amuleto aleatório
+723	Escambo
+724	Ganhe o valor de venda total dos seus amuletos (até $50)
+725	Conjurar
+726	Cria um amuleto aleatório
+727	Cortesãos
+728	Destrói 1 carta aleatória da mão; adiciona 3 figuras melhoradas aleatórias à sua mão
+729	Ceifador
+730	Destrói 1 carta aleatória da mão; adiciona 2 ases melhorados aleatórios à sua mão
+731	Cântico
+732	Destrói 1 carta aleatória da mão; adiciona 4 cartas numeradas melhoradas aleatórias à sua mão
+733	Talismã
+734	Adiciona um Selo dourado a 1 carta selecionada
+735	Aura
+736	Dá Laminado, Holo ou Croma a 1 carta selecionada
+737	Espectro
+738	Cria um amuleto raro, mas seu dinheiro cai para $0
+739	Convergir
+740	Transforma toda carta da mão em um mesmo naipe aleatório
+741	Mono
+742	Transforma toda carta da mão em um mesmo valor aleatório; -1 tamanho da mão
+743	Vazio
+744	Torna negativo um amuleto aleatório; -1 tamanho da mão
+745	Pira
+746	Destrói 5 cartas aleatórias da mão; ganhe $20
+747	Renascer
+748	Copia um amuleto aleatório e destrói todos os outros
+749	Sigilo
+750	Adiciona um Selo carmesim a 1 carta selecionada
+751	Maldição
+752	Torna Croma um amuleto aleatório e destrói todos os outros
+753	Calmaria
+754	Adiciona um Selo celeste a 1 carta selecionada
+755	Sussurro
+756	Adiciona um Selo violeta a 1 carta selecionada
+757	Duplicar
+758	Adiciona 2 cópias de 1 carta selecionada ao seu baralho
+759	Alma
+760	Cria um amuleto lendário
+761	Singularidade
+762	Sobe o nível de todo tipo de mão
+763	Baralho carmesim
+764	+1 descarte a cada rodada
+765	Baralho celeste
+766	+1 mão a cada rodada
+767	Baralho dourado
+768	Comece com $10 a mais
+769	Baralho do bosque
+770	Sem juros; no fim de cada rodada ganhe $2 por mão e $1 por descarte restantes
+771	Baralho de tinta
+772	+1 espaço de amuleto, mas 1 mão a menos a cada rodada
+773	Baralho arcano
+774	Comece com o cupom Bolsa e 2 cópias de Replay
+775	Baralho estelar
+776	Comece com o cupom Luneta, mas -1 espaço de feitiço
+777	Baralho espiritual
+778	Presságios podem aparecer na loja; comece com uma Maldição
+779	Baralho nu
+780	Nenhuma figura no baralho
+781	Baralho xadrez
+782	26 Espadas e 26 Copas
+783	Baralho do zodíaco
+784	Comece com os cupons Vendedor de feitiços, Vendedor de runas e Prateleira extra
+785	Baralho pintado
+786	+2 tamanho da mão, mas -1 espaço de amuleto
+787	Baralho gêmeo
+788	Ganhe uma Etiqueta Gêmea após vencer cada chefe
+789	Baralho de plasma
+790	Fichas e Mult são equilibrados antes do total de cada mão; os blinds pedem 2x a pontuação
+791	Baralho do caos
+792	Valor e naipe de toda carta são aleatórios
+793	Ficha branca
+794	O jogo básico
+795	Ficha vermelha
+796	O Blind Pequeno não dá recompensa
+797	Ficha verde
+798	As metas dos blinds sobem mais rápido
+799	Ficha preta
+800	Amuletos da loja podem ser Eternos (não podem ser vendidos nem destruídos)
+801	Ficha azul
+802	-1 descarte a cada rodada
+803	Ficha roxa
+804	As metas dos blinds sobem mais rápido ainda
+805	Ficha laranja
+806	Amuletos da loja podem ser Perecíveis (param de funcionar após 5 rodadas)
+807	Ficha dourada
+808	Amuletos da loja podem ser de Aluguel ($1 para comprar, $3 a cada rodada)
+809	Etiqueta Riqueza
+810	Dobra seu dinheiro (até +$40)
+811	Etiqueta Pressa
+812	Ganhe $5 para cada blind pulado neste jogo
+813	Etiqueta Rara
+814	A próxima loja tem um amuleto raro grátis
+815	Etiqueta Incomum
+816	A próxima loja tem um amuleto incomum grátis
+817	Etiqueta Cupom de desconto
+818	Tudo o que aparecer primeiro na próxima loja é grátis
+819	Etiqueta Estrela
+820	Sobe 3 vezes o nível de um tipo de mão aleatório
+821	Etiqueta Malabarismo
+822	+3 tamanho da mão na próxima rodada
+823	Etiqueta Combo
+824	Abra um Pacote de amuletos mega grátis
+825	Etiqueta Tomo
+826	Abra um Pacote de feitiços mega grátis
+827	Etiqueta Gêmea
+828	Copia a próxima etiqueta que você ganhar
+829	Etiqueta Investimento
+830	Ganhe $15 depois de vencer o próximo chefe
+831	Etiqueta Dado
+832	As renovações da próxima loja começam em $0
+833	Etiqueta Negativa
+834	O próximo amuleto simples da loja é grátis e Negativo
+835	Etiqueta Laminada
+836	O próximo amuleto simples da loja é grátis e Laminado
+837	Etiqueta Holo
+838	O próximo amuleto simples da loja é grátis e Holo
+839	Etiqueta Croma
+840	O próximo amuleto simples da loja é grátis e Croma
+841	Etiqueta Cupom
+842	Adiciona um Cupom à próxima loja
+843	Etiqueta Chefe
+844	Troca o blind chefe deste ante
+845	Etiqueta Carta
+846	Abra um Pacote de cartas mega grátis
+847	Etiqueta Meteoro
+848	Abra um Pacote de runas mega grátis
+849	Etiqueta Etérea
+850	Abra um Pacote de presságios grátis
+851	Etiqueta Prática
+852	Ganhe $1 para cada mão jogada neste jogo
+853	Etiqueta Lixo
+854	Ganhe $1 para cada descarte não usado neste jogo
+855	Etiqueta Recarga
+856	Cria até 2 amuletos comuns
+857	Prateleira extra
+858	+1 espaço de carta na loja
+859	Prateleiras cheias
+860	+1 espaço de carta a mais na loja
+861	Liquidação
+862	Tudo na loja com 25% de desconto
+863	Queima total
+864	Tudo na loja com 50% de desconto
+865	Polimento
+866	Laminado, Holo e Croma aparecem 2x mais
+867	Brilho
+868	Laminado, Holo e Croma aparecem 4x mais
+869	Dados baratos
+870	Renovações custam $2 a menos
+871	Copo viciado
+872	Renovações custam mais $2 a menos
+873	Bolsa
+874	+1 espaço de feitiço
+875	Lâmpada espiritual
+876	Presságios podem aparecer nos Pacotes de feitiços
+877	Luneta
+878	Pacotes de runas sempre trazem a Runa da sua mão mais jogada
+879	Planetário
+880	Runas guardadas nos seus espaços dão x1,5 Mult quando a mão delas é jogada
+881	Pegada extra
+882	Pinças
+883	+1 mão a mais a cada rodada
+884	Lixeira
+885	Reciclador
+886	+1 descarte a mais a cada rodada
+887	Vendedor de feitiços
+888	Feitiços aparecem na loja 2x mais
+889	Barão dos feitiços
+890	Feitiços aparecem na loja 4x mais
+891	Vendedor de runas
+892	Runas aparecem na loja 2x mais
+893	Barão das runas
+894	Runas aparecem na loja 4x mais
+895	Ninho
+896	Os juros podem chegar a $10 por rodada
+897	Árvore dourada
+898	Os juros podem chegar a $20 por rodada
+899	Em branco
+900	Não faz nada?
+901	Espaço vazio
+902	+1 espaço de amuleto
+903	Banca de cartas
+904	Cartas de jogo podem aparecer na loja
+905	Vitrine
+906	Cartas de jogo na loja podem ter melhoria, edição ou selo
+907	Glifo do tempo
+908	-1 ante, mas 1 mão a menos a cada rodada
+909	Glifo de pedra
+910	-1 ante, mas 1 descarte a menos a cada rodada
+911	Troca de chefe
+912	Troque o blind chefe uma vez por ante ($10)
+913	Reescrever
+914	Troque o blind chefe quantas vezes quiser ($10 cada)
+915	Pincel
+916	Paleta
+917	+1 tamanho da mão a mais
+918	Casa de vidro
+919	Toda carta do baralho é de vidro. Cuidado, frágil.
+920	Teto baixo
+921	Nada acima de 9 no baralho.
+922	Só a corte
+923	Só 10 ou mais, dois de cada.
+924	Venda nos olhos
+925	Algumas cartas vêm viradas para baixo.
+926	Uma mão por rodada, mas muitos descartes - pagando.
+927	Mão curta
+928	Uma mão menor, mas espaço para mais amuletos.
+929	Mãos nuas
+930	Nenhum amuleto. Vença com feitiços e runas.
+931	Austeridade
+932	Blinds Pequeno e Grande não pagam nada, e a poupança não rende.
+933	Esgotamento
+934	Toda carta tem Selo carmesim, mas as cartas jogadas se esgotam até o próximo ante.
+935	Magnata
+936	Comece rico, mas mãos restantes não pagam nada.
+937	A omelete
+938	Cinco Pés-de-meia, mas sem recompensas de blind, sem dinheiro por mãos restantes e sem juros.
+939	Cidade de 15 minutos
+940	Um baralho do 4 ao Rei com figuras extras, e um Viajante e uma Amarelinha eternos.
+941	Rico fica mais rico
+942	Comece com $100, Ninho e Árvore dourada, mas as Fichas não podem passar do seu dinheiro.
+943	No fio da navalha
+944	Uma Faca ritual eterna fixada na extrema esquerda.
+945	Visão de raio X
+946	1 em cada 4 cartas vem virada para baixo.
+947	Mundo louco
+948	Só do 2 ao 9, mas toda carta conta como figura. Sem dinheiro por mãos restantes, sem juros.
+949	Imposto de luxo
+950	Tamanho da mão 10, mas -1 tamanho da mão a cada $5 que você tem.
+951	Imperecível
+952	Todo amuleto é eterno.
+953	Medusa
+954	Todo Valete, Dama e Rei é de pedra. Um Pedreiro eterno começa o jogo.
+955	Dobro ou nada
+956	Toda carta tem Selo carmesim, mas as cartas ficam enfraquecidas para sempre depois de jogadas.
+957	Estereótipo
+958	Quando o ante 4 começa, seus amuletos viram eternos e você não tem mais espaços de amuleto.
+959	Inflação
+960	Toda compra aumenta os preços da loja em $1. Começa com um Vale.
+961	Bram Poker
+962	Nenhum amuleto na loja. Uma Sanguessuga, Carregar e Invocar eternos, e cartas de jogo à venda.
+963	Frágil
+964	Toda carta é de vidro, com dois Dados viciados negativos e eternos. Sem como melhorar mais cartas.
+965	Um Monólito eterno e um Pedreiro negativo eterno.
+966	Decolagem
+967	2 mãos, 2 descartes, 4 espaços de amuleto, mas Vendedor de runas, Barão das runas, Mapa estelar e Foguete.
+968	Pôquer de cinco cartas
+969	Tamanho da mão 5, 6 descartes e 7 espaços de amuleto. Começa com Tubarão das cartas e Bobo da corte.
+970	Agulha dourada
+971	1 mão por rodada e 6 descartes que custam $1 cada. Começa com um Vale.
+972	Crueldade
+973	Blinds Pequeno e Grande não pagam nada. Só 3 espaços de amuleto.
+974	Sem curingas
+975	Nenhum amuleto: nenhum na loja, nenhum espaço, nenhum jeito de criá-los.
+976	A Ferrugem
+977	Todas as cartas de Paus estão enfraquecidas
+978	O Espinho
+979	Todas as cartas de Copas estão enfraquecidas
+980	A Cinza
+981	Todas as cartas de Espadas estão enfraquecidas
+982	A Podridão
+983	Todas as cartas de Ouros estão enfraquecidas
+984	A Metade
+985	Fichas e Mult base caem pela metade
+986	O Aperto
+987	Descarta 2 cartas aleatórias da mão depois de cada mão
+988	O Baluarte
+989	Blind extragrande
+990	A Agulha
+991	Jogue só 1 mão
+992	O Mudo
+993	Todas as figuras estão enfraquecidas
+994	A Seca
+995	Sem descartes nesta rodada
+996	O Pedágio
+997	Perca $1 por carta jogada
+998	A Mortalha
+999	Sua primeira mão vem virada para baixo
+1000	O Grilhão
+1001	-1 tamanho da mão
+1002	O Dízimo
+1003	Toda mão deve usar 5 cartas
+1004	O Eco
+1005	Cada tipo de mão só pode ser jogado uma vez
+1006	A Monotonia
+1007	Só um tipo de mão pode ser jogado
+1008	A Erosão
+1009	Mãos com nível perdem um nível ao serem jogadas
+1010	A Máscara
+1011	As figuras vêm viradas para baixo
+1012	O Boi
+1013	Jogar seu tipo de mão mais jogado zera seu dinheiro
+1014	A Roda
+1015	1 em cada 7 cartas vem virada para baixo
+1016	O Peixe
+1017	Cartas compradas depois de jogar uma mão vêm viradas para baixo
+1018	A Serpente
+1019	Depois de jogar ou descartar, você sempre compra exatamente 3 cartas
+1020	O Pilar
+1021	Cartas já jogadas neste ante estão enfraquecidas
+1022	Lanterna celeste
+1023	Uma carta está sempre selecionada
+1024	Coroa de brasas
+1025	Um amuleto aleatório é desativado a cada mão
+1026	Guirlanda de jade
+1027	Todas as cartas ficam enfraquecidas até um amuleto ser vendido
+1028	Abismo violeta
+1029	Blind enorme
+1030	Eclipse dourado
+1031	Os amuletos são virados para baixo e embaralhados
+1032	Flush quíntuplo
+1033	Flush full house
+1034	Quina
+1035	Straight flush
+1036	Quadra
+1037	Full house
+1038	Flush
+1039	Sequência
+1040	Trinca
+1041	Dois pares
+1042	Par
+1043	Carta alta
+1044	Espadas
+1045	Copas
+1046	Paus
+1047	Ouros
+1048	Comum
+1049	Incomum
+1050	Raro
+1051	Lendário
+1052	Blind Pequeno
+1053	Blind Grande
+1054	Blind Chefe
+1055	Valete
+1056	Dama
+1057	Rei
+1058	Ás
+1059	Jogue uma mão de 5 cartas feita só de cartas douradas
+1060	Perca 5 jogos
+1061	Jogue 200 mãos
+1062	Jogue 300 figuras
+1063	Venda 20 amuletos
+1064	Vença 5 rodadas seguidas usando só 1 mão em cada
+1065	Tenha uma carta dourada com Selo dourado
+1066	Tenha 3 cartas curinga no seu baralho
+1067	Continue um jogo salvo
+1068	Vença um blind chefe com uma Carta alta
+1069	Tenha 30 cartas de Ouros no seu baralho
+1070	Tenha 30 cartas de Copas no seu baralho
+1071	Tenha 30 cartas de Espadas no seu baralho
+1072	Tenha 30 cartas de Paus no seu baralho
+1073	Tenha 5 cartas de vidro no seu baralho
+1074	Chegue ao ante 4
+1075	Chegue ao ante 8
+1076	Vença um jogo
+1077	Vença um jogo em 18 rodadas ou menos
+1078	Vença um jogo em 12 rodadas ou menos
+1079	Faça 10.000 em uma mão
+1080	Faça 1.000.000 em uma mão
+1081	Faça 100.000.000 em uma mão
+1082	Jogue uma mão com quatro 7 de Paus
+1083	Vença um blind chefe em uma mão sem descartar
+1084	Descarte 5 Valetes de uma vez
+1085	Vença um jogo sem jogar um Par
+1086	Vença um jogo sem jogar uma Trinca
+1087	Vença um jogo sem jogar uma Quadra
+1088	Vença um jogo sem jogar uma Sequência
+1089	Vença um jogo sem jogar um Flush
+1090	Vença um jogo sem nunca ter mais de 4 amuletos
+1091	Descarte um Royal Flush
+1092	Tenha $400
+1093	Jogue todas as Copas do seu baralho em uma rodada
+1094	Tenha 16 cartas melhoradas no seu baralho
+1095	Descubra todos os Feitiços
+1096	Descubra todas as Runas
+1097	Venda 50 amuletos ou feitiços
+1098	Tenha 2 amuletos Croma ao mesmo tempo
+1099	Gaste $2.500 em lojas
+1100	Resgate 10 cupons em um jogo
+1101	Tenha 5 amuletos Laminados, Holo ou Croma ao mesmo tempo
+1102	Renove a loja 100 vezes
+1103	Use 25 Feitiços de Pacotes de feitiços
+1104	Use 25 Runas de Pacotes de runas
+1105	Jogue 2.500 cartas
+1106	Descarte 2.500 cartas
+1107	Compre 50 Feitiços na loja
+1108	Compre 50 Runas na loja
+1109	Ganhe o máximo de juros 10 rodadas seguidas
+1110	Resgate Em branco 10 vezes
+1111	Compre 20 cartas de jogo na loja
+1112	Chegue ao ante 12
+1113	Descubra 25 blinds
+1114	Reduza o tamanho da mão para 5

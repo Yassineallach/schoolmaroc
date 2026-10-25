@@ -1,0 +1,1114 @@
+1	Puntuación mínima
+2	Puntos de la ronda
+3	Manos
+4	Descartes
+5	Menú
+6	Baraja
+7	Jugar mano
+8	Descartar
+9	Valor
+10	Palo
+11	Ante {0}/{1}
+12	Baraja {0}/{1}
+13	Mano {0}/{1}
+14	Recompensa: {0}
+15	Recompensa {0}
+16	{0}  niv. {1}
+17	{0} niv. {1}
+18	niv. {0}
+19	{0}  (no permitida)
+20	ETERNO
+21	PERECEDERO {0}
+22	ALQUILER
+23	DESACTIVADO
+24	Desactivado por el jefe
+25	Hechizo
+26	Runa
+27	Augurio
+28	Amuleto
+29	Vale
+30	Lanzar
+31	Vender ${0}
+32	Cerrar
+33	Primero selecciona cartas de tu mano y luego lanza.
+34	+${0}
+35	-${0}
+36	${0}
+37	+{0}
+38	+{0} Multi
+39	+{0} Fichas
+40	x{0} Multi
+41	Runa: {0}
+42	Un roguelike de póker
+43	Continuar
+44	Ante {0}  ${1}
+45	Mantener: nueva partida
+46	Jugar
+47	Cómo jugar
+48	Colección
+49	Desafíos
+50	Perfil {0}
+51	¡Gracias!
+52	Vale
+53	Mejor ante: {0}   Mejor mano: {1}   Victorias: {2}
+54	Idioma
+55	Automático ({0})
+56	Selecciona hasta 5 cartas y juega una mano de póker. Cada tipo de mano tiene Fichas y Multi base; las cartas que puntúan suman su valor en Fichas (figuras 10, ases 11).
+57	Puntos = Fichas x Multi. Alcanza el objetivo de la ciega antes de quedarte sin manos. Los descartes te permiten cambiar cartas.
+58	Cada ante tiene una ciega pequeña, una ciega grande y una ciega jefe con un giro desagradable. Supera el ante 8 para ganar.
+59	Gasta dinero en la tienda en Amuletos (bonos pasivos, hasta 5) y Runas (suben de nivel un tipo de mano). Ganas $1 de interés por cada $5 que tengas, hasta $5.
+60	Algunos amuletos y vales empiezan bloqueados: la Colección muestra qué desbloquea cada uno.
+61	Arrastra cartas o amuletos para reordenarlos; mantén pulsada una carta para ver sus detalles. Mando: la cruceta mueve, A selecciona (mantén A + izquierda/derecha para mover una carta), X juega, Y descarta, LB/RB ordenan, Start abre el menú. Teclado: flechas, Intro, P, D, Q/E, Esc; mantén R para reiniciar.
+62	Nueva partida
+63	Desafío: {0}
+64	Descubre {0} amuletos y jefes ({1} hasta ahora)
+65	Gana una partida con la {0}
+66	Gana una partida en {0}
+67	Bloqueado: {0}
+68	{0}, más todas las apuestas inferiores
+69	Apuesta {0} de {1} desbloqueada para esta baraja
+70	Empezar
+71	Atrás
+72	Mantener: empezar (termina la partida actual)
+73	Ante {0}
+74	Etiquetas:
+75	Próxima
+76	Superada
+77	A continuación
+78	DUELO FINAL
+79	Saltar: {0}
+80	Jugar {0}
+81	Cambiar jefe $10
+82	Saltar por {0}
+83	¡Es una ciega jefe! Los jefes cambian las reglas. Toca el panel de la ciega arriba a la izquierda cuando quieras para leer lo que hace este.
+84	¡Hola, soy Ace! Cada ante tiene tres ciegas. Alcanza al menos el objetivo antes de quedarte sin manos para superar una y ganar dinero.
+85	{0}  -  {1}, queda 1 elección
+86	{0}  -  {1}, quedan {2} elecciones
+87	Tomar
+88	Usar
+89	Saltar
+90	VALE
+91	Toca hasta 5 cartas para formar una mano de póker y pulsa Jugar mano. Tu puntuación es Fichas x Multi, así que las manos fuertes puntúan más.
+92	¡Oh, una carta mejorada! Mantén pulsada cualquier carta para ver qué hace.
+93	Retenida por la Linterna
+94	¡No permitido!
+95	¡Equilibrado!
+96	Debilitada
+97	¡Otra vez!
+98	¡Salvado por {0}!
+99	¡El Agarre!
+100	No todas las manos ganan. Descartar cambia cartas por otras nuevas. Vigila tus Manos y Descartes a la izquierda.
+101	Descartar cuesta ${0}
+102	¡Hecha añicos!
+103	Recompensa de la ciega
+104	Manos restantes ({0})
+105	Descartes restantes ({0})
+106	Interés ($1 por cada $5)
+107	¡{0} superada!
+108	¡{0} ha desaparecido!
+109	Cobrar: ${0}
+110	Fin de la partida
+111	Alcanzado
+112	Mejor mano
+113	Más jugada
+114	¡Por poco! Cada partida enseña algo.
+115	Uf. ¿Repartimos otra vez?
+116	Esta vez las cartas no estaban de nuestro lado.
+117	¡Sacúdetelo, la próxima baraja trae suerte!
+118	Menú principal
+119	Desafío completado: {0}
+120	Desafío completado
+121	{0} desbloqueada para la {1}
+122	¡Has ganado!
+123	Superaste el ante {0}.
+124	¡Lo logramos! ¡Sabía que podías!
+125	¡Campeón! ¿Ves hasta dónde llega el modo Infinito?
+126	Modo Infinito
+127	Tienda
+128	Siguiente ronda
+129	Renovar ${0}
+130	{0} común
+131	{0} poco común
+132	{0} raro
+133	{0} legendario
+134	¡Agotado!
+135	¡Bienvenido a la tienda! Los Amuletos dan un bono en cada mano, los Hechizos y Runas van en las ranuras de arriba a la derecha y un Vale mejora toda tu partida. Arrastra tus amuletos para cambiar el orden en que se activan.
+136	Los precios subieron a +${0}
+137	No hay sitio para más hechizos
+138	Los Hechizos y Runas esperan en las ranuras de arriba a la derecha. Durante una ronda selecciona cartas de tu mano y toca un hechizo para lanzarlo sobre ellas.
+139	Añadida a la baraja ({0} cartas)
+140	Vale: {0}
+141	Boca abajo
+142	{0} oculta tus amuletos hasta ser derrotado.
+143	Corona de Jade levantada: las cartas vuelven a funcionar
+144	Bloqueado
+145	Eterno
+146	Fijado
+147	Los amuletos se activan de izquierda a derecha. Arrastra para reordenar.
+148	El interés paga $1 por cada $5 que tengas, hasta $5. ¡Ahorrar compensa!
+149	Los amuletos se activan de izquierda a derecha, así que pon los de x Multi al final.
+150	Las Runas suben de nivel un tipo de mano de forma permanente en la partida.
+151	Las cartas de cristal golpean fuerte pero pueden romperse. Disfrútalas mientras duren.
+152	Las cartas de hierro ayudan más cuando las mantienes en la mano.
+153	Vende un Guardián durante una ciega jefe para desactivar al jefe.
+154	Mantén pulsada una carta para leer sus mejoras.
+155	Toca el panel de la ciega para ver qué trama el jefe.
+156	Entendido
+157	No más consejos
+158	Gracias, Ace
+159	Duelo final: {0}
+160	El Guardián desactivó {0}
+161	Mínimo {0}   Recompensa {1}
+162	Jefe del duelo final
+163	Desactivado por el Guardián
+164	Ya jugadas: {0}
+165	ninguna
+166	Mano permitida: {0}
+167	la que juegues primero
+168	Sin reglas especiales
+169	+{0} Fichas al puntuar
+170	+{0} Fichas extra
+171	Debilitada por {0}
+172	Baraja: {0} cartas
+173	Las cartas atenuadas ya se robaron esta ronda
+174	{0} cartas mejoradas. Mantén pulsada una carta de la mano para ver sus detalles.
+175	Manos de póker
+176	No se pudo leer tu partida guardada, así que empezó una nueva
+177	{0} desbloqueado: {1}
+178	Nuevo amuleto descubierto: {0}
+179	Nuevo jefe descubierto: {0}
+180	{0}  [hecho]
+181	{0} / {1} completados  -  supera el ante {2} para completar uno
+182	Página {0} / {1}
+183	Colección  (Perfil {0})
+184	Amuletos
+185	Vales
+186	Jefes
+187	Estadísticas
+188	Créditos
+189	{0} / {1} descubiertos   -   {2} bloqueados
+190	Amuleto bloqueado
+191	{0} vales   -   {1} bloqueados
+192	{0} (bloqueado)
+193	{0} / {1} descubiertos
+194	Partidas
+195	Victorias
+196	Mejor ante
+197	Manos jugadas
+198	Cartas jugadas
+199	Dinero ganado
+200	Amuletos comprados
+201	Hechizos lanzados
+202	Desafíos ganados
+203	Cartas de cristal rotas
+204	Hecho con Godot Engine {0}.{1}
+205	La música, el sonido y el arte los genera el propio código del juego.
+206	En pausa
+207	En pausa  -  {0}
+208	General
+209	Música
+210	Sonidos
+211	Vibración: sí
+212	Vibración: no
+213	Velocidad: {0}x
+214	Movimiento: reducido
+215	Movimiento: completo
+216	Acelera las animaciones de puntuación y reparto
+217	Reducido desactiva la sacudida de pantalla, el bamboleo, la inclinación y el balanceo en reposo
+218	Repetir consejos
+219	Mantener: menú principal
+220	Ace volverá a mostrar los consejos
+221	Reanudar
+222	(Actualmente +{0} Multi)
+223	(Actualmente +{0} Fichas)
+224	(quedan {0} manos)
+225	(faltan {0} manos)
+226	(Actualmente x{0} Multi)
+227	(Actualmente +{0} tamaño de mano)
+228	(Actualmente ${0})
+229	(Listo para vender)
+230	({0} de 2 rondas)
+231	(Esta ronda: {0})
+232	{0}: {1}
+233	Eterno: no se puede vender ni destruir
+234	Perecedero: agotado
+235	Perecedero: quedan {0} rondas
+236	Alquiler: cuesta $3 al final de cada ronda
+237	Etiqueta Malabares: +3 tamaño de mano
+238	+1 carta de piedra
+239	x{0} Multi, se comió {1}
+240	{0} cortado: +{1} Multi
+241	+1 Hechizo
+242	+{0} Hechizos
+243	+1 Runa
+244	+{0} Runas
+245	+1 Augurio
+246	+3 Manos
+247	{0} ya se jugó
+248	Solo se permite {0}
+249	Las manos deben usar 5 cartas
+250	El Buey se llevó tu dinero
+251	{0} erosionada a niv. {1}
+252	Peaje: -${0}
+253	{0} está sofocado
+254	¡Copiado!
+255	{0}: +${1}
+256	{0}: {1} niv. {2}
+257	{0}: +1 amuleto
+258	{0}: +{1} amuletos
+259	{0}: ahora el jefe es {1}
+260	{0}: {1} gratis
+261	{0}: todo es gratis
+262	{0}: las renovaciones empiezan en $0
+263	Ensueño: +1 Hechizo
+264	No hay sitio para más amuletos
+265	{0} duplicado
+266	Copia negativa de {0}
+267	Cartas doradas en mano
+268	Alquileres ({0})
+269	Lánzalo durante una ronda
+270	No tienes amuletos
+271	No hay amuletos sin edición
+272	Todavía no se ha lanzado ningún hechizo en esta partida
+273	No hay sitio para otro amuleto
+274	Lánzalo durante una ronda, sobre cartas de tu mano
+275	Primero selecciona una carta
+276	Primero selecciona hasta {0} cartas
+277	Selecciona solo 1 carta
+278	Selecciona como máximo {0} cartas
+279	Selecciona exactamente {0} cartas
+280	{0} se convirtió en {1}
+281	¡Nop!
+282	{0} de {1}
+283	Subir de nivel {0}: +{1} Fichas, +{2} Multi
+284	-  {0}
+285	Empiezas con ${0}
+286	{0} manos por ronda
+287	{0} descartes por ronda
+288	Tamaño de mano {0}
+289	{0} ranuras de amuleto
+290	{0} ranuras de hechizo
+291	Sin interés
+292	Sin dinero por manos sobrantes
+293	Sin recompensa de {0}
+294	{0} o {1}
+295	1 de cada {0} cartas se reparte boca abajo
+296	Cada descarte cuesta ${0}
+297	Los precios de la tienda suben $1 tras cada compra
+298	La tienda no vende amuletos
+299	Las cartas jugadas quedan debilitadas hasta el siguiente ante
+300	Las cartas que puntúan quedan debilitadas el resto de la partida
+301	Las Fichas no pueden superar tu dinero
+302	-1 tamaño de mano por cada ${0} que tengas
+303	Todos los amuletos son eternos
+304	Al empezar el ante {0}, tus amuletos se vuelven eternos y las ranuras de amuleto bajan a 0
+305	Baraja: {0}
+306	solo valores {0}
+307	un {0} extra de cada palo
+308	cada {0} es de piedra
+309	x{0} copias
+310	todas {0}
+311	todas con {0}
+312	{0} ({1})
+313	Amuletos iniciales: {0}
+314	Vales iniciales: {0}
+315	Hechizos iniciales: {0}
+316	Amuletos prohibidos: {0}
+317	Jefes prohibidos: {0}
+318	También prohibidos: {0}
+319	,
+320	;
+321	Bufón
+322	+4 Multi
+323	Anillo de rubí
+324	Los Corazones que puntúan dan +3 Multi
+325	Anillo de topacio
+326	Los Diamantes que puntúan dan +3 Multi
+327	Anillo de ónice
+328	Las Picas que puntúan dan +3 Multi
+329	Anillo de jade
+330	Los Tréboles que puntúan dan +3 Multi
+331	Máscara gemela
+332	+8 Multi si la mano contiene una Pareja
+333	Máscara tríada
+334	+12 Multi si la mano contiene un Trío
+335	Máscara dúo
+336	+10 Multi si la mano contiene Doble pareja
+337	Escalera de mano
+338	+12 Multi si la mano contiene una Escalera
+339	Marea
+340	+10 Multi si la mano contiene un Color
+341	Pastilla de menta
+342	+20 Multi si se juegan 3 cartas o menos
+343	Bandera
+344	+30 Fichas por cada descarte restante
+345	Fallo
+346	De +0 a +23 Multi, al azar
+347	Quilla
+348	Los 10, 8, 6, 4, 2 que puntúan dan +4 Multi
+349	Pato raro
+350	Los A, 9, 7, 5, 3 que puntúan dan +31 Fichas
+351	Escriba
+352	Los ases que puntúan dan +20 Fichas y +4 Multi
+353	Pozo profundo
+354	+2 Fichas por cada carta que queda en el mazo de robo
+355	Multitud
+356	+3 Multi por cada amuleto que tengas
+357	Última resistencia
+358	+15 Multi cuando no quedan descartes
+359	Corte real
+360	Las J, Q, K que puntúan dan +30 Fichas
+361	Espiral
+362	Los A, 2, 3, 5, 8 que puntúan dan +8 Multi
+363	Diente de oro
+364	Gana $4 al final de cada ronda
+365	Bola de nieve
+366	Gana +1 Multi por cada mano jugada y pierde 1 Multi por cada descarte
+367	Tesoro
+368	+2 Fichas por cada $1 que tengas
+369	Hueco
+370	x1 Multi por cada ranura de amuleto vacía (se cuenta a sí mismo)
+371	Prisma
+372	x3 Multi si las cartas jugadas incluyen los 4 palos
+373	Guardián
+374	Véndelo durante una ciega jefe para desactivarla
+375	Dueto
+376	x2 Multi si la mano contiene una Pareja
+377	Vidente
+378	+1 Multi por cada Hechizo lanzado en esta partida
+379	Velo gemelo
+380	+50 Fichas si la mano contiene una Pareja
+381	Velo dúo
+382	+80 Fichas si la mano contiene Doble pareja
+383	Velo tríada
+384	+100 Fichas si la mano contiene un Trío
+385	Velo del riel
+386	+100 Fichas si la mano contiene una Escalera
+387	Velo de marea
+388	+80 Fichas si la mano contiene un Color
+389	Corona tríada
+390	x3 Multi si la mano contiene un Trío
+391	Corona cuádruple
+392	x4 Multi si la mano contiene un Póker
+393	Corona del riel
+394	x3 Multi si la mano contiene una Escalera
+395	Corona de marea
+396	x2 Multi si la mano contiene un Color
+397	Sonrisa
+398	Las figuras que puntúan dan +5 Multi
+399	Radio
+400	Los 10 y 4 que puntúan dan +10 Fichas y +4 Multi
+401	Punta de lanza
+402	Las Picas que puntúan dan +50 Fichas
+403	Piedra trébol
+404	Los Tréboles que puntúan dan +7 Multi
+405	Topacio en bruto
+406	Los Diamantes que puntúan dan $1
+407	Piedra corazón
+408	Los Corazones que puntúan tienen 1 entre 2 de dar x1,5 Multi
+409	Retrato
+410	La primera figura que puntúa da x2 Multi
+411	Cuerda floja
+412	x3 Multi en la última mano de la ronda
+413	Puño de hierro
+414	La carta más baja en la mano da Multi igual al doble de su valor
+415	Regente
+416	Cada Rey en la mano da x1,5 Multi
+417	Salida de la luna
+418	Cada Reina en la mano da +13 Multi
+419	Bis
+420	Reactiva los 2, 3, 4 y 5 que puntúan
+421	Mascarada
+422	Reactiva las figuras que puntúan
+423	Tarjeta perforada
+424	Reactiva 2 veces más la primera carta que puntúa
+425	Crepúsculo
+426	Reactiva cada carta que puntúa en la última mano de la ronda
+427	Tarjeta de visita
+428	Las figuras que puntúan tienen 1 entre 2 de dar $2
+429	Billete dorado
+430	Las cartas doradas que puntúan dan $4
+431	Paciencia
+432	Al final de la ronda, gana $2 por descarte restante si no usaste ninguno
+433	Corsario
+434	+Multi igual al valor de venta de tus otros amuletos
+435	Fama
+436	+Multi igual a las veces que se jugó este tipo de mano en la partida
+437	Viajero
+438	Gana +1 Multi por cada mano seguida sin figura que puntúe; se reinicia con una figura
+439	Velocista
+440	Gana +15 Fichas cada vez que la mano contiene una Escalera
+441	Cuatro cuadros
+442	Gana +4 Fichas cada vez que se juegan exactamente 4 cartas
+443	Sorbete
+444	+100 Fichas. Pierde 5 Fichas por cada mano jugada
+445	Palomitas dulces
+446	+20 Multi. Pierde 4 Multi al final de cada ronda
+447	Plátano macho
+448	+15 Multi. 1 entre 6 de pudrirse al final de cada ronda
+449	Plátano maduro
+450	x3 Multi. 1 entre 1000 de pudrirse al final de cada ronda
+451	Burbujas
+452	Reactiva cada carta jugada durante las próximas 10 manos
+453	Tiburón de cartas
+454	x3 Multi si este tipo de mano ya se jugó en esta ronda
+455	Sello de fidelidad
+456	x4 Multi cada 6.ª mano jugada
+457	Pizarra
+458	x3 Multi si todas las cartas en la mano son Picas o Tréboles
+459	Agarre amplio
+460	Los Colores y Escaleras pueden hacerse con 4 cartas
+461	Rayuela
+462	Las Escaleras pueden saltarse un valor entre cartas (como 3 5 6 8 9)
+463	Mancha de tinta
+464	Corazones y Diamantes cuentan como el mismo palo, igual que Picas y Tréboles
+465	Espejismo
+466	Todas las cartas cuentan como figuras
+467	Charco
+468	Todas las cartas jugadas puntúan
+469	Mimo
+470	Reactiva las habilidades de las cartas en la mano
+471	Voluntad de hierro
+472	x0,2 Multi por cada carta de hierro en toda tu baraja
+473	Cantera
+474	+25 Fichas por cada carta de piedra en toda tu baraja
+475	Cantero
+476	Añade una carta de piedra a tu baraja al empezar una ciega
+477	Toque dorado
+478	Las figuras que puntúan se vuelven doradas
+479	Sanguijuela
+480	Gana x0,1 Multi por cada carta mejorada que puntúa y le quita la mejora
+481	Trotamundos
+482	Cada carta que puntúa gana +5 Fichas para siempre
+483	Reliquia antigua
+484	Las cartas del palo de la ronda que puntúan dan x1,5 Multi (el palo cambia cada ronda)
+485	Torreón
+486	Gana +3 Fichas por cada carta descartada del palo de la ronda (el palo cambia cada ronda)
+487	Ídolo
+488	Las copias de la carta de la ronda que puntúan dan x2 Multi (la carta cambia cada ronda)
+489	Reembolso
+490	Gana $5 por cada carta descartada del valor de la ronda (el valor cambia cada ronda)
+491	Lista de recados
+492	Gana $4 al jugar el tipo de mano indicado (cambia cada ronda)
+493	Pantalones remendados
+494	Gana +2 Multi cada vez que la mano contiene Doble pareja
+495	Tarjeta de estudio
+496	Gana +2 Multi cada vez que renuevas la tienda
+497	Monolito
+498	Gana x0,2 Multi por cada mano seguida que no sea tu mano más jugada; se reinicia cuando lo es
+499	Frenesí
+500	Al empezar una ciega pequeña o grande, gana x0,5 Multi y destruye otro amuleto al azar
+501	Cuchillo ritual
+502	Al empezar una ciega, destruye el amuleto de su derecha y gana el doble de su valor de venta como Multi
+503	Holograma
+504	Gana x0,25 Multi cada vez que se añade una carta a tu baraja
+505	Mapa estelar
+506	Gana x0,1 Multi cada vez que usas una Runa
+507	Hoguera
+508	Gana x0,25 Multi por cada amuleto vendido; se reinicia al vencer a un jefe
+509	Gato de la suerte
+510	Gana x0,25 Multi cada vez que una carta de la suerte paga
+511	Vidriero
+512	Gana x0,75 Multi cada vez que una carta de cristal se rompe
+513	Pagaré
+514	Puedes endeudarte hasta $20
+515	Hucha
+516	Su valor de venta sube $3 al final de cada ronda
+517	Papel de regalo
+518	Al final de cada ronda, el valor de venta de cada amuleto sube $1
+519	Cohete
+520	Gana $1 al final de cada ronda; el pago crece $2 cada vez que vences a un jefe
+521	Siete vidas
+522	Gana $1 al final de cada ronda por cada 9 en toda tu baraja
+523	Tiro a la luna
+524	El interés se paga dos veces
+525	Satélite
+526	Gana $1 al final de cada ronda por cada Runa distinta usada en esta partida
+527	Ayuda de cámara
+528	Cada figura en la mano tiene 1 entre 2 de dar $1
+529	Hecho a sí mismo
+530	+2 Multi por cada $5 que tengas
+531	Torero
+532	Gana $8 cada vez que el efecto de una ciega jefe afecta a tu mano
+533	Vagabundo
+534	Crea un Hechizo al jugar una mano teniendo $4 o menos
+535	Comerciante
+536	Si el primer descarte de una ronda es una sola carta, destrúyela y gana $3
+537	Gato ladrón
+538	Al empezar una ciega, gana 3 manos y pierde todos los descartes
+539	Achispado
+540	+1 descarte por ronda
+541	Malabarista
+542	+1 tamaño de mano
+543	Juglar
+544	+2 tamaño de mano, pero 1 mano menos por ronda
+545	Bufón alegre
+546	+3 descartes por ronda, pero -1 tamaño de mano
+547	Temerario
+548	+250 Fichas, pero -2 tamaño de mano
+549	Brote de soja
+550	+5 tamaño de mano, se reduce en 1 cada ronda
+551	Cuenco de fideos
+552	x2 Multi; pierde x0,01 Multi por cada carta descartada
+553	Caos
+554	1 renovación gratis en cada tienda
+555	Astrónomo
+556	Las Runas de la tienda son gratis
+557	Licencia
+558	x3 Multi si al menos 16 cartas de toda tu baraja están mejoradas
+559	Banderín
+560	Cada amuleto poco común que tengas da x1,5 Multi
+561	Papel de calco
+562	Copia la habilidad del amuleto de su derecha
+563	Lluvia de ideas
+564	Copia la habilidad de tu amuleto más a la izquierda
+565	Fantasma
+566	Tras 2 rondas, véndelo para duplicar otro amuleto al azar
+567	Dados cargados
+568	Duplica todas las probabilidades indicadas (1 entre 4 pasa a 2 entre 4)
+569	Bola de cristal
+570	Cada 8 que puntúa tiene 1 entre 4 de crear un Hechizo
+571	Segunda vista
+572	Si la primera mano de una ronda es un 6 solo, destrúyelo y crea un Augurio
+573	Tablero ouija
+574	Crea un Augurio al jugar una Escalera de color
+575	Cuántico
+576	Crea un Hechizo cuando la mano contiene un As y una Escalera
+577	Adivino
+578	Crea un Hechizo al empezar una ciega
+579	Notario
+580	Al empezar una ronda, añade a tu mano una carta al azar con un sello al azar
+581	Clon
+582	Si la primera mano de una ronda es una sola carta, añade una copia a tu baraja y a tu mano
+583	Chusma
+584	Al empezar una ciega, crea 2 amuletos comunes (si hay sitio)
+585	Leña
+586	Sube de nivel el tipo de mano de tu primer descarte de cada ronda
+587	Órbita
+588	1 entre 4 de subir de nivel el tipo de mano que juegas
+589	Máscara en blanco
+590	Gana $5 al descartar 3 o más figuras a la vez
+591	Viaje por carretera
+592	Gana x0,5 Multi por cada J descartada esta ronda
+593	Visión doble
+594	x2 Multi si las cartas que puntúan incluyen un Trébol y una carta de otro palo
+595	Diminuto
+596	Gana +8 Fichas cada vez que puntúa un 2
+597	Maestro de pista
+598	Los amuletos y hechizos que ya tienes pueden seguir apareciendo en la tienda
+599	Última risa
+600	Te salva de perder una ronda si lograste al menos una cuarta parte del objetivo, y luego se rompe
+601	Desgaste
+602	+4 Multi por cada carta que tu baraja tenga menos que al empezar
+603	Corona de hueso
+604	Gana x1 Multi cada vez que se destruye una figura
+605	Rey bufón
+606	Los Reyes y Reinas que puntúan dan x2 Multi
+607	Calavera
+608	Gana x1 Multi por cada 23 cartas descartadas
+609	Veto
+610	Desactiva el efecto de todas las ciegas jefe
+611	Acaparador
+612	Al salir de la tienda, crea una copia negativa de un hechizo al azar que tengas
+613	Álbum de recortes
+614	Gana +3 Multi cada vez que saltas un sobre
+615	Ensueño
+616	1 entre 2 de crear un Hechizo al abrir un sobre
+617	Rebobinar
+618	x0,25 Multi por cada ciega saltada en esta partida
+619	Refresco flotante
+620	Véndelo para conseguir una Etiqueta Gemela
+621	Grabada
+622	+30 Fichas al puntuar
+623	Cargada
+624	+4 Multi al puntuar
+625	Cristal
+626	x2 Multi al puntuar; 1 entre 4 de romperse
+627	Hierro
+628	x1,5 Multi mientras está en la mano
+629	Dorada
+630	Gana $3 si está en la mano al final de la ronda
+631	Suerte
+632	1 entre 5 de +20 Multi y 1 entre 15 de $20 al puntuar
+633	Piedra
+634	+50 Fichas; sin valor ni palo, siempre puntúa
+635	Comodín
+636	Cuenta como todos los palos
+637	Laminado
+638	+50 Fichas
+639	Holo
+640	+10 Multi
+641	Croma
+642	x1,5 Multi
+643	Negativo
+644	+1 ranura
+645	Sello carmesí
+646	Reactiva esta carta
+647	Sello dorado
+648	Gana $3 cuando esta carta puntúa
+649	Sello azul
+650	Crea la Runa de la última mano jugada si está en la mano al final de la ronda
+651	Sello violeta
+652	Crea un Hechizo al descartarse
+653	Sobre de cartas
+654	Sobre de hechizos
+655	Sobre de runas
+656	Sobre de amuletos
+657	Sobre de augurios
+658	Elige 1 de 3 cartas de juego
+659	Sobre de cartas jumbo
+660	Elige 1 de 5 cartas de juego
+661	Sobre de cartas mega
+662	Elige 2 de 5 cartas de juego
+663	Elige 1 de 3 Hechizos
+664	Sobre de hechizos jumbo
+665	Elige 1 de 5 Hechizos
+666	Sobre de hechizos mega
+667	Elige 2 de 5 Hechizos
+668	Elige 1 de 3 Runas
+669	Sobre de runas jumbo
+670	Elige 1 de 5 Runas
+671	Sobre de runas mega
+672	Elige 2 de 5 Runas
+673	Elige 1 de 2 amuletos
+674	Sobre de amuletos jumbo
+675	Elige 1 de 4 amuletos
+676	Sobre de amuletos mega
+677	Elige 2 de 4 amuletos
+678	Elige 1 de 2 Augurios
+679	Sobre de augurios jumbo
+680	Elige 1 de 4 Augurios
+681	Sobre de augurios mega
+682	Elige 2 de 4 Augurios
+683	Grabar
+684	Vuelve grabadas hasta 2 cartas seleccionadas
+685	Cargar
+686	Vuelve cargadas hasta 2 cartas seleccionadas
+687	Vidriar
+688	Convierte 1 carta seleccionada en cristal
+689	Forjar
+690	Convierte 1 carta seleccionada en hierro
+691	Dorar
+692	Vuelve dorada 1 carta seleccionada
+693	Trébol de la suerte
+694	Vuelve de la suerte hasta 2 cartas seleccionadas
+695	Florecer
+696	Convierte hasta 3 cartas seleccionadas en Corazones
+697	Sombra
+698	Convierte hasta 3 cartas seleccionadas en Picas
+699	Zarza
+700	Convierte hasta 3 cartas seleccionadas en Tréboles
+701	Prender
+702	Convierte hasta 3 cartas seleccionadas en Diamantes
+703	Ascender
+704	Sube un valor hasta 2 cartas seleccionadas
+705	Purgar
+706	Destruye hasta 2 cartas seleccionadas
+707	Espejo
+708	Selecciona 2 cartas: la de la izquierda se convierte en copia de la de la derecha
+709	Golpe de suerte
+710	Duplica tu dinero (hasta +$20)
+711	Petrificar
+712	Convierte 1 carta seleccionada en piedra
+713	Quimera
+714	Convierte 1 carta seleccionada en comodín
+715	Repetición
+716	Crea una copia del último Hechizo lanzado en esta partida (salvo Repetición)
+717	Oráculo
+718	Crea hasta 2 Runas al azar
+719	Invocar
+720	Crea hasta 2 Hechizos al azar
+721	Fortuna
+722	1 entre 4 de dar Laminado, Holo o Croma a un amuleto al azar
+723	Trueque
+724	Gana el valor de venta total de tus amuletos (hasta $50)
+725	Conjurar
+726	Crea un amuleto al azar
+727	Cortesanos
+728	Destruye 1 carta al azar de la mano; añade 3 figuras mejoradas al azar a tu mano
+729	Parca
+730	Destruye 1 carta al azar de la mano; añade 2 ases mejorados al azar a tu mano
+731	Cántico
+732	Destruye 1 carta al azar de la mano; añade 4 cartas numéricas mejoradas al azar a tu mano
+733	Talismán
+734	Añade un Sello dorado a 1 carta seleccionada
+735	Aura
+736	Da Laminado, Holo o Croma a 1 carta seleccionada
+737	Espectro
+738	Crea un amuleto raro, pero tu dinero baja a $0
+739	Convergencia
+740	Convierte todas las cartas de la mano en un mismo palo al azar
+741	Mono
+742	Convierte todas las cartas de la mano en un mismo valor al azar; -1 tamaño de mano
+743	Vacío
+744	Vuelve negativo un amuleto al azar; -1 tamaño de mano
+745	Pira
+746	Destruye 5 cartas al azar de la mano; gana $20
+747	Renacer
+748	Copia un amuleto al azar y destruye todos los demás
+749	Sigilo
+750	Añade un Sello carmesí a 1 carta seleccionada
+751	Maldición
+752	Vuelve Croma un amuleto al azar y destruye todos los demás
+753	Calma
+754	Añade un Sello azul a 1 carta seleccionada
+755	Susurro
+756	Añade un Sello violeta a 1 carta seleccionada
+757	Duplicar
+758	Añade 2 copias de 1 carta seleccionada a tu baraja
+759	Alma
+760	Crea un amuleto legendario
+761	Singularidad
+762	Sube de nivel todos los tipos de mano
+763	Baraja carmesí
+764	+1 descarte cada ronda
+765	Baraja azul
+766	+1 mano cada ronda
+767	Baraja dorada
+768	Empiezas con $10 extra
+769	Baraja del bosque
+770	Sin interés; al final de cada ronda gana $2 por mano y $1 por descarte restantes
+771	Baraja de tinta
+772	+1 ranura de amuleto, pero 1 mano menos cada ronda
+773	Baraja arcana
+774	Empiezas con el vale Morral y 2 copias de Repetición
+775	Baraja estelar
+776	Empiezas con el vale Catalejo, pero -1 ranura de hechizo
+777	Baraja espiritual
+778	Pueden aparecer Augurios en la tienda; empiezas con una Maldición
+779	Baraja desnuda
+780	No hay figuras en la baraja
+781	Baraja de damas
+782	26 Picas y 26 Corazones
+783	Baraja del zodiaco
+784	Empiezas con los vales Vendedor de hechizos, Vendedor de runas y Estante extra
+785	Baraja pintada
+786	+2 tamaño de mano, pero -1 ranura de amuleto
+787	Baraja gemela
+788	Consigue una Etiqueta Gemela tras vencer a cada jefe
+789	Baraja de plasma
+790	Las Fichas y el Multi se equilibran antes del total de cada mano; las ciegas piden el doble de puntos
+791	Baraja del caos
+792	El valor y el palo de cada carta son aleatorios
+793	Ficha blanca
+794	El juego base
+795	Ficha roja
+796	La ciega pequeña no da recompensa
+797	Ficha verde
+798	Los puntos de las ciegas suben más rápido
+799	Ficha negra
+800	Los amuletos de la tienda pueden ser Eternos (no se pueden vender ni destruir)
+801	Ficha azul
+802	-1 descarte cada ronda
+803	Ficha morada
+804	Los puntos de las ciegas suben aún más rápido
+805	Ficha naranja
+806	Los amuletos de la tienda pueden ser Perecederos (dejan de funcionar tras 5 rondas)
+807	Ficha dorada
+808	Los amuletos de la tienda pueden ser de Alquiler ($1 al comprar, $3 cada ronda)
+809	Etiqueta Riqueza
+810	Duplica tu dinero (hasta +$40)
+811	Etiqueta Prisa
+812	Gana $5 por cada ciega saltada en esta partida
+813	Etiqueta Rara
+814	La próxima tienda tiene un amuleto raro gratis
+815	Etiqueta Poco común
+816	La próxima tienda tiene un amuleto poco común gratis
+817	Etiqueta Cupón
+818	Todo lo que salga primero en la próxima tienda es gratis
+819	Etiqueta Estrella
+820	Sube de nivel 3 veces un tipo de mano al azar
+821	Etiqueta Malabares
+822	+3 tamaño de mano en la próxima ronda
+823	Etiqueta Lote
+824	Abre un Sobre de amuletos mega gratis
+825	Etiqueta Tomo
+826	Abre un Sobre de hechizos mega gratis
+827	Etiqueta Gemela
+828	Copia la próxima etiqueta que consigas
+829	Etiqueta Inversión
+830	Gana $15 tras vencer al próximo jefe
+831	Etiqueta Dado
+832	Las renovaciones de la próxima tienda empiezan en $0
+833	Etiqueta Negativa
+834	El próximo amuleto simple de la tienda es gratis y Negativo
+835	Etiqueta Laminada
+836	El próximo amuleto simple de la tienda es gratis y Laminado
+837	Etiqueta Holo
+838	El próximo amuleto simple de la tienda es gratis y Holo
+839	Etiqueta Croma
+840	El próximo amuleto simple de la tienda es gratis y Croma
+841	Etiqueta Vale
+842	Añade un Vale a la próxima tienda
+843	Etiqueta Jefe
+844	Cambia la ciega jefe de este ante
+845	Etiqueta Carta
+846	Abre un Sobre de cartas mega gratis
+847	Etiqueta Meteoro
+848	Abre un Sobre de runas mega gratis
+849	Etiqueta Etérea
+850	Abre un Sobre de augurios gratis
+851	Etiqueta Práctica
+852	Gana $1 por cada mano jugada en esta partida
+853	Etiqueta Basura
+854	Gana $1 por cada descarte sin usar en esta partida
+855	Etiqueta Recarga
+856	Crea hasta 2 amuletos comunes
+857	Estante extra
+858	+1 espacio de carta en la tienda
+859	Estantes llenos
+860	+1 espacio de carta más en la tienda
+861	Liquidación
+862	Todo en la tienda tiene un 25 % de descuento
+863	Rebajas totales
+864	Todo en la tienda tiene un 50 % de descuento
+865	Pulido
+866	Laminado, Holo y Croma aparecen 2x más a menudo
+867	Brillo
+868	Laminado, Holo y Croma aparecen 4x más a menudo
+869	Dados baratos
+870	Las renovaciones cuestan $2 menos
+871	Cubilete trucado
+872	Las renovaciones cuestan otros $2 menos
+873	Morral
+874	+1 ranura de hechizo
+875	Lámpara espiritual
+876	Pueden aparecer Augurios en los Sobres de hechizos
+877	Catalejo
+878	Los Sobres de runas siempre traen la Runa de tu mano más jugada
+879	Planetario
+880	Las Runas guardadas en tus ranuras dan x1,5 Multi cuando se juega su mano
+881	Agarre extra
+882	Tenazas
+883	+1 mano más cada ronda
+884	Papelera
+885	Reciclador
+886	+1 descarte más cada ronda
+887	Vendedor de hechizos
+888	Los Hechizos aparecen en la tienda 2x más a menudo
+889	Barón de hechizos
+890	Los Hechizos aparecen en la tienda 4x más a menudo
+891	Vendedor de runas
+892	Las Runas aparecen en la tienda 2x más a menudo
+893	Barón de runas
+894	Las Runas aparecen en la tienda 4x más a menudo
+895	Caja nido
+896	El interés puede llegar a $10 por ronda
+897	Árbol dorado
+898	El interés puede llegar a $20 por ronda
+899	En blanco
+900	¿No hace nada?
+901	Espacio hueco
+902	+1 ranura de amuleto
+903	Puesto de cartas
+904	Pueden aparecer cartas de juego en la tienda
+905	Escaparate
+906	Las cartas de juego de la tienda pueden tener mejora, edición o sello
+907	Glifo del tiempo
+908	-1 ante, pero 1 mano menos cada ronda
+909	Glifo de piedra
+910	-1 ante, pero 1 descarte menos cada ronda
+911	Cambio de jefe
+912	Cambia la ciega jefe una vez por ante ($10)
+913	Reescribir
+914	Cambia la ciega jefe tantas veces como quieras ($10 cada vez)
+915	Pincel
+916	Paleta
+917	+1 tamaño de mano más
+918	Casa de cristal
+919	Todas las cartas de la baraja son de cristal. Frágil.
+920	Techo bajo
+921	Nada por encima del 9 en la baraja.
+922	Solo la corte
+923	Solo 10 o más, dos de cada.
+924	Venda
+925	Algunas cartas se reparten boca abajo.
+926	Una mano por ronda, pero muchos descartes... de pago.
+927	Mano corta
+928	Una mano más pequeña pero sitio para más amuletos.
+929	Manos desnudas
+930	Ningún amuleto. Gana con hechizos y runas.
+931	Austeridad
+932	Las ciegas pequeñas y grandes no pagan nada, y el ahorro no da interés.
+933	Agotamiento
+934	Todas las cartas llevan Sello carmesí, pero las jugadas se queman hasta el siguiente ante.
+935	Magnate
+936	Empiezas rico, pero las manos sobrantes no pagan nada.
+937	La tortilla
+938	Cinco Huchas, pero sin recompensas de ciega, sin dinero por manos sobrantes y sin interés.
+939	Ciudad de 15 minutos
+940	Una baraja del 4 al Rey con figuras extra, y un Viajero y una Rayuela eternos.
+941	Los ricos más ricos
+942	Empiezas con $100, Caja nido y Árbol dorado, pero las Fichas no pueden superar tu dinero.
+943	Al filo de la navaja
+944	Un Cuchillo ritual eterno fijado a la izquierda del todo.
+945	Visión de rayos X
+946	1 de cada 4 cartas se reparte boca abajo.
+947	Mundo loco
+948	Solo del 2 al 9, pero todas cuentan como figuras. Sin dinero por manos sobrantes, sin interés.
+949	Impuesto de lujo
+950	Tamaño de mano 10, pero -1 tamaño de mano por cada $5 que tengas.
+951	Imperecedero
+952	Todos los amuletos son eternos.
+953	Medusa
+954	Todas las J, Q y K son de piedra. Un Cantero eterno empieza la partida.
+955	Doble o nada
+956	Todas las cartas llevan Sello carmesí, pero quedan debilitadas para siempre al jugarse.
+957	Encasillado
+958	Al empezar el ante 4, tus amuletos se vuelven eternos y ya no tienes ranuras de amuleto.
+959	Inflación
+960	Cada compra sube $1 los precios de la tienda. Empiezas con un Pagaré.
+961	Bram Poker
+962	No hay amuletos en la tienda. Una Sanguijuela, Cargar e Invocar eternos, y cartas de juego a la venta.
+963	Frágil
+964	Todas las cartas son de cristal, con dos Dados cargados negativos y eternos. No hay forma de mejorar más cartas.
+965	Un Monolito eterno y un Cantero negativo eterno.
+966	Despegue
+967	2 manos, 2 descartes, 4 ranuras de amuleto, pero Vendedor de runas, Barón de runas, Mapa estelar y Cohete.
+968	Póker de cinco cartas
+969	Tamaño de mano 5, 6 descartes y 7 ranuras de amuleto. Empiezas con Tiburón de cartas y Bufón.
+970	Aguja dorada
+971	1 mano por ronda y 6 descartes que cuestan $1 cada uno. Empiezas con un Pagaré.
+972	Crueldad
+973	Las ciegas pequeñas y grandes no pagan nada. Solo 3 ranuras de amuleto.
+974	Sin comodines
+975	Ningún amuleto: ni en la tienda, ni ranuras, ni forma de crearlos.
+976	El Óxido
+977	Todos los Tréboles están debilitados
+978	La Espina
+979	Todos los Corazones están debilitados
+980	La Ceniza
+981	Todas las Picas están debilitadas
+982	La Podredumbre
+983	Todos los Diamantes están debilitados
+984	La Mitad
+985	Las Fichas y el Multi base se reducen a la mitad
+986	El Agarre
+987	Descarta 2 cartas de la mano al azar tras cada mano
+988	El Baluarte
+989	Ciega extragrande
+990	La Aguja
+991	Juega solo 1 mano
+992	El Mudo
+993	Todas las figuras están debilitadas
+994	La Sequía
+995	Sin descartes esta ronda
+996	El Peaje
+997	Pierdes $1 por cada carta jugada
+998	El Sudario
+999	Tu primera mano se reparte boca abajo
+1000	El Grillete
+1001	-1 tamaño de mano
+1002	El Diezmo
+1003	Cada mano debe usar 5 cartas
+1004	El Eco
+1005	Cada tipo de mano solo puede jugarse una vez
+1006	La Monotonía
+1007	Solo se puede jugar un tipo de mano
+1008	La Erosión
+1009	Las manos con nivel pierden uno al jugarse
+1010	La Máscara
+1011	Las figuras se reparten boca abajo
+1012	El Buey
+1013	Jugar tu tipo de mano más jugado deja tu dinero en $0
+1014	La Rueda
+1015	1 de cada 7 cartas se reparte boca abajo
+1016	El Pez
+1017	Las cartas robadas tras jugar una mano llegan boca abajo
+1018	La Serpiente
+1019	Tras jugar o descartar, siempre robas exactamente 3 cartas
+1020	El Pilar
+1021	Las cartas ya jugadas en este ante están debilitadas
+1022	Linterna azul
+1023	Siempre hay una carta seleccionada
+1024	Corona de ascuas
+1025	Un amuleto al azar se desactiva en cada mano
+1026	Corona de jade
+1027	Todas las cartas están debilitadas hasta que vendas un amuleto
+1028	Abismo violeta
+1029	Ciega enorme
+1030	Eclipse dorado
+1031	Los amuletos se ponen boca abajo y se barajan
+1032	Color quíntuple
+1033	Full de color
+1034	Repóker
+1035	Escalera de color
+1036	Póker
+1037	Full
+1038	Color
+1039	Escalera
+1040	Trío
+1041	Doble pareja
+1042	Pareja
+1043	Carta alta
+1044	Picas
+1045	Corazones
+1046	Tréboles
+1047	Diamantes
+1048	Común
+1049	Poco común
+1050	Raro
+1051	Legendario
+1052	Ciega pequeña
+1053	Ciega grande
+1054	Ciega jefe
+1055	Jota
+1056	Reina
+1057	Rey
+1058	As
+1059	Juega una mano de 5 cartas hecha solo de cartas doradas
+1060	Pierde 5 partidas
+1061	Juega 200 manos
+1062	Juega 300 figuras
+1063	Vende 20 amuletos
+1064	Gana 5 rondas seguidas usando solo 1 mano en cada una
+1065	Ten una carta dorada con Sello dorado
+1066	Ten 3 cartas comodín en tu baraja
+1067	Continúa una partida guardada
+1068	Vence a una ciega jefe con Carta alta
+1069	Ten 30 Diamantes en tu baraja
+1070	Ten 30 Corazones en tu baraja
+1071	Ten 30 Picas en tu baraja
+1072	Ten 30 Tréboles en tu baraja
+1073	Ten 5 cartas de cristal en tu baraja
+1074	Llega al ante 4
+1075	Llega al ante 8
+1076	Gana una partida
+1077	Gana una partida en 18 rondas o menos
+1078	Gana una partida en 12 rondas o menos
+1079	Consigue 10.000 en una mano
+1080	Consigue 1.000.000 en una mano
+1081	Consigue 100.000.000 en una mano
+1082	Juega una mano con cuatro 7 de Tréboles
+1083	Vence a una ciega jefe en una mano sin descartar
+1084	Descarta 5 J a la vez
+1085	Gana una partida sin jugar una Pareja
+1086	Gana una partida sin jugar un Trío
+1087	Gana una partida sin jugar un Póker
+1088	Gana una partida sin jugar una Escalera
+1089	Gana una partida sin jugar un Color
+1090	Gana una partida sin tener nunca más de 4 amuletos
+1091	Descarta una Escalera real
+1092	Ten $400
+1093	Juega todos los Corazones de tu baraja en una ronda
+1094	Ten 16 cartas mejoradas en tu baraja
+1095	Descubre todos los Hechizos
+1096	Descubre todas las Runas
+1097	Vende 50 amuletos o hechizos
+1098	Ten 2 amuletos Croma a la vez
+1099	Gasta $2.500 en tiendas
+1100	Canjea 10 vales en una partida
+1101	Ten 5 amuletos Laminados, Holo o Croma a la vez
+1102	Renueva la tienda 100 veces
+1103	Usa 25 Hechizos de Sobres de hechizos
+1104	Usa 25 Runas de Sobres de runas
+1105	Juega 2.500 cartas
+1106	Descarta 2.500 cartas
+1107	Compra 50 Hechizos en la tienda
+1108	Compra 50 Runas en la tienda
+1109	Consigue el máximo de interés 10 rondas seguidas
+1110	Canjea En blanco 10 veces
+1111	Compra 20 cartas de juego en la tienda
+1112	Llega al ante 12
+1113	Descubre 25 ciegas
+1114	Baja a un tamaño de mano de 5

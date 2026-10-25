@@ -441,7 +441,7 @@ static func describe(inst: Dictionary) -> String:
 			what = Data.card_name({"rank": data.rank, "suit": data.suit})
 		text += "\n(This round: %s)" % what
 	if inst.id == "rebate" and data.has("rank"):
-		text += "\n(This round: %ss)" % Data.RANK_LABELS[data.rank]
+		text += "\n(This round: %s)" % Data.RANK_LABELS[data.rank]
 	if inst.id == "errand" and data.has("hand"):
 		text += "\n(This round: %s)" % data.hand
 	if inst.get("ed", "") != "":
