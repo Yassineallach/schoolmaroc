@@ -85,6 +85,8 @@ func _process(delta: float) -> void:
 
 func set_debuffed(v: bool) -> void:
 	debuffed = v
+	if v or material != null:
+		_ensure_material().set_shader_parameter("debuff", v)
 	queue_redraw()
 
 
@@ -159,10 +161,6 @@ func _paint() -> void:
 			draw_circle(at, 10, sc.darkened(0.3))
 			draw_circle(at, 7, sc)
 			draw_circle(at + Vector2(-2, -2), 2.5, sc.lightened(0.5))
-	if debuffed:
-		draw_rect(Rect2(Vector2.ZERO, size), Color(0.1, 0.1, 0.1, 0.55))
-		draw_line(Vector2(18, 18), size - Vector2(18, 18), Color("ff4d4d"), 6)
-		draw_line(Vector2(size.x - 18, 18), Vector2(18, size.y - 18), Color("ff4d4d"), 6)
 
 
 func _draw_back() -> void:

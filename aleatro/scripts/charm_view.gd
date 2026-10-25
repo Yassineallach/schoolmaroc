@@ -188,9 +188,9 @@ func _draw_overlays(font: Font) -> void:
 		var xf := Anim.float_xform(size, _phase, float_amount)
 		_lock_badge.position = xf * Vector2(W - 30, 2)
 		_lock_badge.rotation = xf.get_rotation()
-	if smothered:
-		draw_rect(Rect2(Vector2.ZERO, size), Color(0.1, 0.05, 0.05, 0.6))
-		draw_string(font, Vector2(0, size.y / 2 + 8), tr("DISABLED"), HORIZONTAL_ALIGNMENT_CENTER, size.x, 18, Color("ff8a5c"))
+	# a disabled charm wears Balatro's debuff look (card_fx's debuff)
+	if smothered or material != null:
+		_ensure_material().set_shader_parameter("debuff", smothered)
 
 
 ## The font size, at most `fs`, at which `text` fits in `w` pixels.
