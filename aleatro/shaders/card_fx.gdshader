@@ -3,8 +3,7 @@ shader_type canvas_item;
 // Edition shimmer, dissolve and pointer tilt for cards and charms.
 // edition: 0 none, 1 foil, 2 holo, 3 chroma.
 // tilt: where the pointer sits on the face, -1..1 per axis; tilt_amt eases
-// it in and out. The side under the pointer sinks away (it draws smaller,
-// as if further off), the opposite side rises and catches a little light.
+// it in and out (Balatro's `hovering`). skew.fs warps the card about it.
 uniform int edition = 0;
 uniform vec2 size = vec2(100.0, 140.0);
 uniform float dissolve : hint_range(0.0, 1.0) = 0.0;
@@ -28,7 +27,8 @@ uniform float rot = 0.0;
 // its ID, so no two Holo cards ripple alike
 uniform float card_seed = 0.0;
 
-const float TILT_DEPTH = 0.22;
+// Balatro units: a card is 2.049 wide (G.CARD_W)
+const float CARD_UNITS = 2.049;
 
 varying vec2 local;
 // 1 on a seal's pixels, 2 on a Gold seal's: card_view tags the seal draw
@@ -43,11 +43,26 @@ void vertex() {
 		COLOR.b = 1.0;
 	}
 	if (tilt_amt > 0.0) {
-		vec2 half_size = size * 0.5;
-		vec2 p = VERTEX - half_size;
-		float depth = dot(p / half_size, tilt) * tilt_amt * TILT_DEPTH;
-		VERTEX = half_size + p / (1.0 + max(depth, -0.5));
+		// Balatro's skew.fs: each vertex's clip w grows by its squared
+		// distance from the pointer, so the card bulges away from where it
+		// is touched (Godot can't set w here, so the divide is done by hand)
+		mat4 to_clip = SCREEN_MATRIX * CANVAS_MATRIX * MODEL_MATRIX;
+		vec4 cp = to_clip * vec4(VERTEX, 0.0, 1.0);
+		vec2 screen = vec2(2.0 / SCREEN_MATRIX[0][0], 2.0 / abs(SCREEN_MATRIX[1][1]));
+		float mid_dist = length(cp.xy * 0.5 * screen) / length(screen);
+		vec2 pointer = size * 0.5 + tilt * size * 0.5;
+		vec2 mouse_offset = (VERTEX - pointer) / (size.x / CARD_UNITS);
+		float scale = 0.2 * (-0.03 - 0.3 * max(0.0, 0.3 - mid_dist))
+				* tilt_amt * dot(mouse_offset, mouse_offset) / (2.0 - mid_dist);
+		cp.xy /= 1.0 + scale;
+		VERTEX = (inverse(to_clip) * cp).xy;
 	}
+}
+
+// Card:draw's tilt_var.amt, added to the edition clocks: how far the
+// pointer sits off the face's falling diagonal, x0.3
+float tilt_var_amt() {
+	return abs(tilt.x + tilt.y) * 0.5 * 0.3 * tilt_amt;
 }
 
 vec3 hue(float h) {
@@ -89,7 +104,7 @@ vec3 rgb_to_hsl(vec3 c) {
 // toward blue, see-through at 30% and solid along the rings and sweeps that
 // turn with the clock, the card's tilt and its rotation
 vec4 foil_pass(vec4 tex, vec2 uv) {
-	vec2 foil = vec2(min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_amt, TIME);
+	vec2 foil = vec2(min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_var_amt(), TIME);
 	vec2 adjusted_uv = uv - vec2(0.5);
 	adjusted_uv.x = adjusted_uv.x * size.x / size.y;
 
@@ -116,7 +131,7 @@ vec4 foil_pass(vec4 tex, vec2 uv) {
 // Balatro's holo.fs: the card's hue pushed round by a slow drifting field
 // and a fine diamond grid, lifted and blue-tinted, blended over the card
 vec4 holo_pass(vec4 tex, vec2 uv) {
-	vec2 holo = vec2(min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_amt, TIME);
+	vec2 holo = vec2(min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_var_amt(), TIME);
 	vec3 hsl = rgb_to_hsl(0.5 * tex.rgb + 0.5 * vec3(0.0, 0.0, 1.0));
 
 	float t = holo.y * 7.221 + card_seed;
@@ -153,7 +168,7 @@ vec4 holo_pass(vec4 tex, vec2 uv) {
 // original colours pushed toward lavender, see-through except where waves
 // of light roll across, tinted red and green as they pass
 vec4 negative_shine_pass(vec4 tex, vec2 uv) {
-	float r = min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_amt;
+	float r = min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_var_amt();
 	float low = min(tex.r, min(tex.g, tex.b));
 	float high = max(tex.r, max(tex.g, tex.b));
 	float delta = high - low - 0.1;
@@ -179,7 +194,7 @@ vec4 negative_shine_pass(vec4 tex, vec2 uv) {
 // pixel's hue pushed round by a slow drifting field and its saturation
 // lifted, so the card washes through the rainbow
 vec4 polychrome_pass(vec4 tex, vec2 uv) {
-	vec2 polychrome = vec2(min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_amt, TIME);
+	vec2 polychrome = vec2(min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_var_amt(), TIME);
 	float low = min(tex.r, min(tex.g, tex.b));
 	float high = max(tex.r, max(tex.g, tex.b));
 	float delta = high - low;
@@ -226,7 +241,7 @@ void fragment() {
 	float face = step(0.9, c.a);
 	if (seal > 1.5) {
 		// the timer Balatro sends its card shaders (Card:draw's send_to_shader)
-		c = gold_seal_pass(c, UV, min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_amt);
+		c = gold_seal_pass(c, UV, min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_var_amt());
 	}
 	// editions shine on the card, not on the seal drawn over it
 	int ed = seal > 0.5 ? 0 : edition;
@@ -272,11 +287,6 @@ void fragment() {
 		hsl.y *= 0.5;
 		hsl.z *= 0.8;
 		c = vec4(hsl_to_rgb(hsl), c.a * 0.5);
-	}
-	if (tilt_amt > 0.0) {
-		// raised side brighter, sunken side a touch darker
-		float lit = dot(uv - 0.5, -tilt) * tilt_amt;
-		c.rgb = clamp(c.rgb + face * vec3(lit * 0.22), 0.0, 1.0);
 	}
 	if (dissolve > 0.001) {
 		// dissolve.fs: tint toward the burn colour, then a drifting field,
