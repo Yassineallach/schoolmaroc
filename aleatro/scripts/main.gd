@@ -2754,6 +2754,7 @@ func _shop_select(entry: Dictionary) -> void:
 	entry.cell.z_index = 10
 	if entry.use != null:
 		entry.use.reparent(overlay)
+		entry.use.z_index = 20  # over its own card too (raised to 10 above)
 	entry.popup = _shop_popup(entry)
 
 
