@@ -220,13 +220,28 @@ vec4 polychrome_pass(vec4 tex, vec2 uv) {
 	return tex;
 }
 
-// Balatro's gold_seal.fs: bright bands sweeping across the seal, lifting
-// each colour toward white by up to half its brightest channel
-vec4 gold_seal_pass(vec4 pixel, vec2 tc, float r) {
-	float delta = max(pixel.r, max(pixel.g, pixel.b)) * 0.5;
-	float fac = 0.3 + sin((tc.x * 450.0 + sin(r * 6.0) * 180.0) - 700.0 * r) - sin((tc.x * 190.0 + tc.y * 30.0) + 1080.3 * r);
-	pixel.rgb = max(pixel.rgb, (1.0 - pixel.rgb) * delta * fac + pixel.rgb);
-	return pixel;
+// Balatro's voucher.fs, the shine Card:draw lays over a Gold seal (and
+// over vouchers, in voucher.gdshader): the seal pushed toward lavender,
+// see-through except where waves of light roll across
+vec4 voucher_pass(vec4 tex, vec2 uv, float r) {
+	float low = min(tex.r, min(tex.g, tex.b));
+	float high = max(tex.r, max(tex.g, tex.b));
+	float delta = high - low;
+
+	float fac = 0.8 + 0.9 * sin(13.0 * uv.x + 5.32 * uv.y + r * 12.0 + cos(r * 5.3 + uv.y * 4.2 - uv.x * 4.0));
+	float fac2 = 0.5 + 0.5 * sin(10.0 * uv.x + 2.32 * uv.y + r * 5.0 - cos(r * 2.3 + uv.x * 8.2));
+	float fac3 = 0.5 + 0.5 * sin(12.0 * uv.x + 6.32 * uv.y + r * 6.111 + sin(r * 5.3 + uv.y * 3.2));
+	float fac4 = 0.5 + 0.5 * sin(4.0 * uv.x + 2.32 * uv.y + r * 8.111 + sin(r * 1.3 + uv.y * 13.2));
+	float fac5 = sin(0.5 * 16.0 * uv.x + 5.32 * uv.y + r * 12.0 + cos(r * 5.3 + uv.y * 4.2 - uv.x * 4.0));
+
+	float maxfac = 0.6 * max(max(fac, max(fac2, max(fac3, 0.0))) + (fac + fac2 + fac3 * fac4), 0.0);
+
+	tex.rgb = tex.rgb * 0.5 + vec3(0.4, 0.4, 0.8);
+	tex.r = tex.r - delta + delta * maxfac * (0.7 + fac5 * 0.07) - 0.1;
+	tex.g = tex.g - delta + delta * maxfac * (0.7 - fac5 * 0.17) - 0.1;
+	tex.b = tex.b - delta + delta * maxfac * 0.7 - 0.1;
+	tex.a = tex.a * (0.8 * max(min(1.0, max(0.0, 0.3 * max(low * 0.2, delta) + min(max(maxfac * 0.1, 0.0), 0.4))), 0.0) + 0.15 * maxfac * (0.1 + delta));
+	return tex;
 }
 
 float hash(vec2 p) {
@@ -241,7 +256,8 @@ void fragment() {
 	float face = step(0.9, c.a);
 	if (seal > 1.5) {
 		// the timer Balatro sends its card shaders (Card:draw's send_to_shader)
-		c = gold_seal_pass(c, UV, min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_var_amt());
+		vec4 v = voucher_pass(c, UV, min(rot * 3.0, 1.0) + TIME / 28.0 + tilt_var_amt());
+		c.rgb = mix(c.rgb, clamp(v.rgb, 0.0, 1.0), clamp(v.a, 0.0, 1.0));
 	}
 	// editions shine on the card, not on the seal drawn over it
 	int ed = seal > 0.5 ? 0 : edition;

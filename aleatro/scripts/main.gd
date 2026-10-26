@@ -9,6 +9,11 @@ const SPELL_AREA := 230.0  # spell slots, right of the charm row  # charm row; t
 var gs: GameState
 var sfx: Sfx
 var bg_mat: ShaderMaterial
+var bg_rect: ColorRect
+## Balatro's main menu backdrop: splash.fs in red and blue at vort_speed 0.4
+var title_mat: ShaderMaterial
+var title_time := 12.0  # its clock (G.TIMERS.REAL_SHADER; 12 when not from the splash)
+var _title_flash: Tween = null
 
 var lbl_blind: Label
 var lbl_target: Label
@@ -235,6 +240,12 @@ func _build_ui() -> void:
 	bg.material = bg_mat
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
+	bg_rect = bg
+	title_mat = ShaderMaterial.new()
+	title_mat.shader = load("res://shaders/splash.gdshader")
+	title_mat.set_shader_parameter("vort_speed", 0.4)
+	title_mat.set_shader_parameter("colour_1", Color("fe5f55"))  # G.C.RED
+	title_mat.set_shader_parameter("colour_2", Color("009dff"))  # G.C.BLUE
 
 	# Left sidebar: blind, round score, current hand, counters, money
 	side_panel = _panel(Vector2(0, 0), Vector2(SIDE_W, 720), Color(0, 0, 0, 0.3))
@@ -439,6 +450,9 @@ func _process(delta: float) -> void:
 	_spin_background(delta)
 	_update_flames(delta)
 	_update_splash(delta)
+	if bg_mode == "title":
+		title_time += minf(delta, 0.1)
+		title_mat.set_shader_parameter("time", title_time)
 	if jiggle > 0.0 and Anim.calm:
 		jiggle = 0.0
 	if jiggle > 0.0:
@@ -457,6 +471,7 @@ const BG_BLIND := Color("50846e")
 func update_background() -> void:
 	var boss := gs != null and in_round and gs.blind_idx == 2 and bg_mode == ""
 	var showdown: bool = boss and gs.boss_hex.get("showdown", false)
+	bg_rect.material = title_mat if bg_mode == "title" else bg_mat
 	var key := bg_mode
 	if key == "":
 		key = ("showdown:" if showdown else "boss:") + str(gs.boss_hex.id) if boss else "blind"
@@ -1077,7 +1092,8 @@ var flash_rect: ColorRect = null
 var _splash_t := -1.0  # seconds since the splash began; -1 when not running
 var _splash_spawns: Array[float] = []  # when each vortex card flies in
 var _splash_hero: CharmView = null
-var _flash_fade: Tween = null
+var _splash_back: ShaderMaterial = null  # splash.fs behind the splash
+var _vortex_mat: ShaderMaterial = null  # vortex.fs, shared by the flying cards
 
 
 ## Game:splash_screen: a charm rises, burns away in white while a vortex
@@ -1092,9 +1108,17 @@ func show_splash() -> void:
 	splash_layer = CanvasLayer.new()
 	splash_layer.layer = 100
 	add_child(splash_layer)
-	# the swirl alone, over the table, until the title appears
+	# splash.fs alone, over the table, until the title appears: blue and
+	# white, starting black, offset by the clock as Balatro does
 	var catcher := ColorRect.new()
-	catcher.material = bg_mat
+	var sm := ShaderMaterial.new()
+	sm.shader = load("res://shaders/splash.gdshader")
+	sm.set_shader_parameter("vort_speed", 1.0)
+	sm.set_shader_parameter("colour_1", Color("009dff"))  # G.C.BLUE
+	sm.set_shader_parameter("colour_2", Color.WHITE)
+	sm.set_shader_parameter("vort_offset", fmod(2.0 * 90.15315131 * Time.get_unix_time_from_system(), 100000.0))
+	catcher.material = sm
+	_splash_back = sm
 	catcher.set_anchors_preset(Control.PRESET_FULL_RECT)
 	catcher.mouse_filter = Control.MOUSE_FILTER_STOP
 	catcher.gui_input.connect(func(e: InputEvent):
@@ -1113,6 +1137,8 @@ func show_splash() -> void:
 	for i in range(1, 201):
 		_splash_spawns.append(t)
 		t += maxf(1.0 / i, maxf(0.2 * (170 - i) / 500.0, 0.016))
+	_vortex_mat = ShaderMaterial.new()
+	_vortex_mat.shader = load("res://shaders/vortex.gdshader")
 	_splash_t = 0.0
 
 
@@ -1123,6 +1149,8 @@ func _update_splash(delta: float) -> void:
 	_splash_t += minf(delta, 0.1)
 	var now := _splash_t
 	flash_rect.material.set_shader_parameter("time", now)
+	_splash_back.set_shader_parameter("time", now)
+	_vortex_mat.set_shader_parameter("vortex_amt", now)  # G.vortex_time is the splash's start
 	var centre := Vector2(vw, vh) / 2.0
 	# the splash charm rises into the middle
 	if before < 0.2 and now >= 0.2:
@@ -1141,9 +1169,6 @@ func _update_splash(delta: float) -> void:
 		if is_instance_valid(_splash_hero):
 			_splash_hero.dissolve(0.7 * 12.0, [Color.WHITE, Color.WHITE])
 		sfx.play("dissolve", 1.0, 0.5)
-		ease_background(Color("009dff"), Color.WHITE, Color("009dff").darkened(0.6), 1.0)
-		if not settings.reduced_motion:
-			bg_spin.real = 1.0
 	for i in _splash_spawns.size():
 		var at: float = _splash_spawns[i]
 		if before < at and at <= now:
@@ -1167,6 +1192,7 @@ func _splash_card(i: int, centre: Vector2) -> void:
 	var from := Vector2(sin(angle), cos(angle)) * (18.0 + card_size) * SPLASH_UNIT
 	var cv := CardView.new({"rank": randi_range(2, 14), "suit": randi_range(0, 3), "id": -1})
 	cv.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cv.material = _vortex_mat  # card.vortex: drawn through vortex.fs alone
 	if randf() > 0.8:
 		cv.face_up = false
 	cv.scale = Vector2.ONE * card_size
@@ -1184,37 +1210,34 @@ func _splash_card(i: int, centre: Vector2) -> void:
 		cv.queue_free())
 
 
-## Into the title. From the full splash the white holds a moment and fades
-## (main_menu('splash'): mid_flash 1.6 eased to 0 over 4s); skipped, the
-## title just appears.
+## Into the title. From the full splash, Game:main_menu('splash'): the menu's
+## swirl starts washed white (mid_flash 1.6) and clears over 4s, its clock
+## running on from the splash; skipped, the title just appears.
 func _end_splash(flash: bool) -> void:
 	if _splash_t < 0.0:
 		return
+	var at := _splash_t
 	_splash_t = -1.0
 	pad.process_mode = Node.PROCESS_MODE_INHERIT
-	for c in splash_layer.get_children():
-		if c != flash_rect:
-			c.queue_free()
-	bg_spin.real = 0.0
+	splash_layer.queue_free()
+	splash_layer = null
+	flash_rect = null
 	show_title()
-	var m: ShaderMaterial = flash_rect.material
-	m.set_shader_parameter("time", 20.0)
-	if not flash:
-		splash_layer.queue_free()
-		splash_layer = null
-		flash_rect = null
-		return
-	m.set_shader_parameter("mid_flash", 1.6)
-	_flash_fade = create_tween()
-	_flash_fade.tween_method(func(v): m.set_shader_parameter("mid_flash", v), 1.6, 0.0, 4.0)
-	_flash_fade.tween_callback(func():
-		splash_layer.queue_free()
-		splash_layer = null
-		flash_rect = null)
+	if flash:
+		title_time = at
+		title_mat.set_shader_parameter("mid_flash", 1.6)
+		_title_flash = create_tween()
+		_title_flash.tween_method(func(v): title_mat.set_shader_parameter("mid_flash", v), 1.6, 0.0, 4.0)
 
 
 func show_title() -> void:
 	_hide_shop_sign()
+	if bg_mode != "title":
+		# main_menu skips the shaders' clock to 12 when not from the splash
+		title_time = 12.0
+		if _title_flash != null and _title_flash.is_valid():
+			_title_flash.kill()
+		title_mat.set_shader_parameter("mid_flash", 0.0)
 	set_bg_mode("title")
 	on_title = true
 	sfx.set_ambient("ambient_table", 0.55)
@@ -1738,6 +1761,9 @@ func _pack_view(id: String) -> Control:
 	return p
 
 
+const VOUCHER_SHADER := preload("res://shaders/voucher.gdshader")
+
+
 ## A voucher as it sits in the shop: its art (assets/vouchers/<id>.png), or a
 ## plain labelled box without art.
 func _voucher_view(id: String) -> Control:
@@ -1749,6 +1775,16 @@ func _voucher_view(id: String) -> Control:
 		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		art.custom_minimum_size = Vector2(124.0 * art.texture.get_width() / art.texture.get_height(), 124.0)
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		# Card:draw lays voucher.fs over the art as a second pass
+		var shine := TextureRect.new()
+		shine.texture = art.texture
+		shine.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		shine.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		shine.set_anchors_preset(Control.PRESET_FULL_RECT)
+		shine.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		shine.material = ShaderMaterial.new()
+		shine.material.shader = VOUCHER_SHADER
+		art.add_child(shine)
 		return art
 	var p := PanelContainer.new()
 	p.custom_minimum_size = Vector2(96, 118)
