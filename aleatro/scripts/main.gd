@@ -2695,7 +2695,13 @@ func _shop_cell(it: Dictionary, i: int) -> Control:
 			"fit": 62, "once": true, "enabled": func(): return gs.can_afford(cost) and gs.spell_blocked(it.id, [], false) == ""})
 		use.visible = false
 		cell.add_child(use)
-		use.resized.connect(func(): use.position = Vector2(6 + art_size.x - 18, 20 + (art_size.y - use.size.y) / 2))
+		var place_use := func():
+			use.global_position = cell.global_position + Vector2(6 + art_size.x - 18, 20 + (art_size.y - use.size.y) / 2)
+		use.resized.connect(place_use)
+		# it can be up in the overlay when the shelf is rebuilt: leave with the card
+		cell.tree_exiting.connect(func():
+			if is_instance_valid(use) and use.get_parent() != cell:
+				use.queue_free())
 	var entry := {"cell": cell, "art": art, "buy": buy, "use": use, "popup": null,
 		"title": title, "lines": lines, "badge": badge}
 	_shop_cells.append(entry)
@@ -2728,6 +2734,9 @@ func _shop_select(entry: Dictionary) -> void:
 		if e.use != null:
 			e.use.visible = false
 		e.art.position.y = 20
+		e.cell.z_index = 0
+		if e.use != null and e.use.get_parent() != e.cell:
+			e.use.reparent(e.cell)
 		if e.popup != null and is_instance_valid(e.popup):
 			e.popup.queue_free()
 		e.popup = null
@@ -2739,6 +2748,12 @@ func _shop_select(entry: Dictionary) -> void:
 	if entry.use != null:
 		entry.use.visible = true
 	entry.art.position.y = 12  # lifted, like a highlighted card
+	# over its neighbours: BUY AND USE sticks out over the next card on the
+	# shelf, so it moves up to the overlay (same place on screen) to be drawn
+	# and tapped above it; z_index alone orders drawing, not taps
+	entry.cell.z_index = 10
+	if entry.use != null:
+		entry.use.reparent(overlay)
 	entry.popup = _shop_popup(entry)
 
 
