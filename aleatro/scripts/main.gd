@@ -102,7 +102,7 @@ var saves: SaveManager
 var play_games: PlayGames
 var _scores_sent := {}  # leaderboard key -> score last sent this session
 var profile_data := {}
-var settings := {"master": 80.0, "music": 70.0, "sfx": 85.0, "vibration": true, "speed": 1.0, "reduced_motion": false, "language": "auto", "crt": 70.0}
+var settings := {"master": 80.0, "music": 70.0, "sfx": 85.0, "vibration": true, "speed": 1.0, "reduced_motion": false, "language": "auto", "crt": 0.0, "crt_reset": false}
 var on_title := false
 var sidebar_buttons: Array = []
 var pad: PadInput
@@ -3420,6 +3420,12 @@ func show_hand_info() -> void:
 
 func _load_stats() -> void:
 	settings = saves.load_settings(settings)
+	# the CRT scanlines used to be on by default: switch them off once for
+	# installs that saved that default (the pause menu can still turn them on)
+	if not settings.crt_reset:
+		settings.crt = 0.0
+		settings.crt_reset = true
+		saves.save_settings(settings)
 	_load_profile()
 
 
