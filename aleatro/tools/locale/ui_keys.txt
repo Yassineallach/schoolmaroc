@@ -358,3 +358,4 @@ Leaderboards
 Sign in
 Signed in as %s
 Not signed in
+Logo font: %s

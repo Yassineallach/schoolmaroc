@@ -50,18 +50,9 @@ func _initialize() -> void:
 		ch.position = Vector2((40 + k * 135) if left else (1024 - 40 - CharmView.W - k * 135), 262 - k * 26)
 		ch.rotation_degrees = (-6 if left else 6) * (k + 1)
 		root_c.add_child(ch)
-	var logo := Label.new()
-	logo.text = "ALEATRO"
-	logo.add_theme_font_size_override("font_size", 128)
-	logo.add_theme_color_override("font_color", Color("ffdf6b"))
-	logo.add_theme_color_override("font_outline_color", Color("b3364e"))
-	logo.add_theme_constant_override("outline_size", 26)
-	logo.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.45))
-	logo.add_theme_constant_override("shadow_offset_x", 4)
-	logo.add_theme_constant_override("shadow_offset_y", 8)
-	logo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var logo: Label = load("res://scripts/main.gd").logo_label(162)
 	logo.size = Vector2(1024, 170)
-	logo.position = Vector2(0, 46)
+	logo.position = Vector2(0, 40)
 	root_c.add_child(logo)
 	_shoot.call_deferred()
 
