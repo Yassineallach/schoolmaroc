@@ -225,13 +225,18 @@ def build_import(achs):
             shutil.copy(HERE / "icons" / "achievements" / icon, out / icon)
             assert (out / icon).stat().st_size < 1_000_000
             f.write(plain_row([a["name"], icon]))
-    zpath = HERE / "AchievementsImport.zip"
-    with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
-        for p in sorted(out.iterdir()):
-            z.write(p, p.name)  # flat: no folders inside the zip
-    files = len(list(out.iterdir()))
-    assert files <= 403
-    print(f"{zpath.name}: {files} files, {zpath.stat().st_size // 1024} KB")
+    # with translations (every locale must first be added to the game's
+    # Play Games configuration), and without, for importing before that
+    for zname, skip in (("AchievementsImport.zip", None),
+                        ("AchievementsImport-no-translations.zip", "AchievementsLocalizations.csv")):
+        zpath = HERE / zname
+        with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
+            for p in sorted(out.iterdir()):
+                if p.name != skip:
+                    z.write(p, p.name)  # flat: no folders inside the zip
+        files = len(z.namelist())
+        assert files <= 403
+        print(f"{zpath.name}: {files} files, {zpath.stat().st_size // 1024} KB")
 
 
 if __name__ == "__main__":

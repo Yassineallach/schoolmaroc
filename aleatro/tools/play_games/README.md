@@ -24,7 +24,14 @@ Cloud project first (External, app name Aleatro, your support email).
 
 ## 2. Achievements: import them all at once
 
-Go to **Achievements > Import achievements** and upload
+**First add the game's languages.** Translations import only for languages
+the Play Games project already has; otherwise the import fails with "Locale
+not supported". Go to **Play Games Services > Setup and management >
+Configuration** and add translations for Chinese (Simplified) zh-CN, Japanese
+ja-JP, Korean ko-KR, German de-DE, French fr-FR, Spanish (Spain) es-ES,
+Portuguese (Brazil) pt-BR, Italian it-IT and Arabic ar.
+
+Then go to **Achievements > Import achievements** and upload
 [`AchievementsImport.zip`](AchievementsImport.zip). It's in Play Console's
 format: `AchievementsMetadata.csv`, `AchievementsLocalizations.csv`,
 `AchievementsIconsMappings.csv` and the 30 icons, all flat, with no header
@@ -38,6 +45,11 @@ rows. It creates all 30 achievements with:
 - **Translations**: zh-CN, ja-JP, ko-KR, de-DE, fr-FR, es-ES, pt-BR, it-IT and
   ar, matching the game's own wording.
 - **Icons**: 512×512 with no text, as Play asks.
+
+If a language can't be added, upload
+[`AchievementsImport-no-translations.zip`](AchievementsImport-no-translations.zip)
+instead. It has the same achievements and icons with no translations; enter
+those by hand from `translations.csv` on each achievement.
 
 The import only creates new achievements. It can't translate ones that
 already exist, so import before adding any by hand. To rebuild the zip, run
