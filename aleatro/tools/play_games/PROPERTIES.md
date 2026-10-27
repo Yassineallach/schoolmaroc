@@ -7,7 +7,7 @@ Configuration > Properties** (Edit properties).
 |---|---|
 | Display name | **Aleatro** (the same in every language) |
 | Category | **Card** |
-| Icon | [`properties/icon_512.png`](properties/icon_512.png): 512×512 PNG, square (Play rounds the corners itself) |
+| Icon | [`properties/icon_512.png`](properties/icon_512.png): 512×512 PNG, square (Play rounds the corners itself), rendered from the game's art |
 | Feature graphic | [`properties/feature_1024x500.png`](properties/feature_1024x500.png): 1024×500 PNG, no transparency |
 | Default language | English (United States) `en-US` |
 
@@ -79,8 +79,10 @@ Aleatro لعبة بوكر روغلايك. العب أيادي البوكر لت�
 
 ## Regenerating the art
 
-- Icon: the app icon (`res://icon.png`) over its own background
-  (`res://icon_background.png`), so the corners are filled.
+- Icon: `xvfb-run godot --rendering-driver opengl3 --resolution 512x512 -s tools/play_games/store_icon.gd`
+  (from the project folder). It draws the title's swirl, a Foil King, an Ace of
+  Spades with a Golden Seal, and the Jester with Chroma's shine, all with the
+  game's own code and no text.
 - Feature graphic: `xvfb-run godot --rendering-driver opengl3 --resolution 1024x500 -s tools/play_games/feature_graphic.gd`
   (from the project folder). It draws the title's swirl, logo, cards and charms
   with the game's own code.
