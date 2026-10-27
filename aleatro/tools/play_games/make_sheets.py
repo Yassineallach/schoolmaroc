@@ -7,6 +7,8 @@ below:
   tools/play_games/achievements.csv   one row per achievement, in list order
   tools/play_games/leaderboards.csv   one row per leaderboard
   tools/play_games/translations.csv   name and description in every language
+  tools/play_games/LEADERBOARDS.md     the four leaderboards, field by field, to
+                                      enter in Play Console (there's no import)
   tools/play_games/AchievementsImport.zip
       Play Console's "Import achievements" file: AchievementsMetadata.csv,
       AchievementsLocalizations.csv, AchievementsIconsMappings.csv and the
@@ -188,6 +190,61 @@ def main():
             w.writerow(row)
     print(f"{len(achs)} achievements ({sum(a['points'] for a in achs)} points), {len(boards)} leaderboards, {len(LANGS)} languages")
     build_import(achs)
+    write_leaderboards_md(boards)
+
+
+LANG_NAMES = {"zh-CN": "Chinese (Simplified)", "ja-JP": "Japanese", "ko-KR": "Korean", "de-DE": "German",
+              "fr-FR": "French", "es-ES": "Spanish (Spain)", "pt-BR": "Portuguese (Brazil)",
+              "it-IT": "Italian", "ar": "Arabic"}
+
+# Play Console fields the game's data doesn't hold. A run is won after 8
+# antes; skipped blinds don't count as rounds and Boss Blinds can't be
+# skipped, so no win takes fewer than 8 rounds. Endless mode goes past ante 8.
+BOARD_LIMITS = {
+    "best_hand": ("1", "", "The best single-hand score of your career (Career stats: Best hand)."),
+    "highest_ante": ("1", "", "The highest ante reached, endless mode included."),
+    "fastest_win": ("8", "", "Rounds played in your fastest winning run. Skipped blinds don't count."),
+    "career_wins": ("1", "", "Every run you've won."),
+}
+
+
+def write_leaderboards_md(boards):
+    lines = ["# Leaderboards for Play Console", "",
+             "Play Console has no import for leaderboards, so add these four by hand:",
+             "**Play Games Services > Setup and management > Leaderboards > Add leaderboard**.",
+             "Enter them in this order. That makes it the list order.", "",
+             "Every leaderboard uses the same settings:", "",
+             "- **Score formatting**: Numeric, 0 decimal places, no custom unit.",
+             "- **Enable tamper protection**: on.",
+             "- **Icon**: the file named below, from `icons/leaderboards/` (512×512, no text).", "",
+             "The game sends each score when you sign in and whenever it improves.", "",
+             "Keep each **English name** exactly as written. The game finds the",
+             "leaderboard's ID by its resource name (shown below) in the Get resources file.", ""]
+    for n, b in enumerate(boards, 1):
+        low, high, note = BOARD_LIMITS[b["key"]]
+        lines += [f"## {n}. {b['name']}", "",
+                  "| Field | Value |", "|---|---|",
+                  f"| Name | {b['name']} |",
+                  f"| Description | {b['desc']} |",
+                  f"| Icon | `{b['key']}.png` |",
+                  f"| Ordering | {'Smaller is better' if b['low'] else 'Larger is better'} |",
+                  f"| Score format | Numeric, 0 decimal places |",
+                  f"| Lower limit | {low} |",
+                  f"| Upper limit | {high or '(none)'} |",
+                  f"| Tamper protection | On |",
+                  f"| List order | {n} |",
+                  f"| Resource name | `{res_name('leaderboard_', b['name'])}` |", "",
+                  f"What it records: {note}", "",
+                  "**Translations** (Add translation, then one per language):", "",
+                  "| Language | Name | Description |", "|---|---|---|"]
+        for li, lang in enumerate(LANGS):
+            name, desc = T[b["key"]][li]
+            lines.append(f"| {LANG_NAMES[lang]} `{lang}` | {name} | {desc} |")
+        lines.append("")
+    lines += ["## After adding them", "",
+              "Click **Get resources > Android** (on the Leaderboards or Achievements page; it's the",
+              "same file) and paste it into `res://pgs/games-ids.xml`. Then build.", ""]
+    (HERE / "LEADERBOARDS.md").write_text("\n".join(lines), encoding="utf-8")
 
 
 def plain_row(values):

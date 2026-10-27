@@ -58,15 +58,10 @@ already exist, so import before adding any by hand. To rebuild the zip, run
 
 ## 3. Leaderboards
 
-Go to **Leaderboards > Add leaderboard** for each row of
-[`leaderboards.csv`](leaderboards.csv):
-
-- **Score format**: Numeric, no decimals.
-- **Ordering**: *Larger is better*, except **Fastest Win**, which is *Smaller
-  is better*.
-- **Icon**: `icons/leaderboards/<key>.png`.
-- **Translations**: the last four rows of `translations.csv`. There's no
-  import for leaderboards, so enter these four by hand.
+There's no import for leaderboards, so add the four by hand.
+[`LEADERBOARDS.md`](LEADERBOARDS.md) lists every field for each one, in
+order: name, description, icon, ordering (Fastest Win is *Smaller is
+better*), score limits and the 9 translations.
 
 ## 4. Paste the IDs into the game
 
