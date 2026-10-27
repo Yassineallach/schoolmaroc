@@ -1,0 +1,5 @@
+key,name,description,score format,ordering,icon,resource name
+best_hand,Best Hand,Highest score in a single hand,Numeric (no decimals),Larger is better,icons/leaderboards/best_hand.png,leaderboard_best_hand
+highest_ante,Highest Ante,Highest ante reached in a run,Numeric (no decimals),Larger is better,icons/leaderboards/highest_ante.png,leaderboard_highest_ante
+fastest_win,Fastest Win,Fewest rounds to win a run,Numeric (no decimals),Smaller is better,icons/leaderboards/fastest_win.png,leaderboard_fastest_win
+career_wins,Career Wins,Runs won,Numeric (no decimals),Larger is better,icons/leaderboards/career_wins.png,leaderboard_career_wins

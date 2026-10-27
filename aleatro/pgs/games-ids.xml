@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Replace this file with the one Play Console gives you:
+  Play Console > Grow users > Play Games Services > Setup and management >
+  Achievements (or Leaderboards) > Get resources > Android.
+  Until then the game earns achievements locally and sends them once the IDs
+  are here. See tools/play_games/README.md.
+-->
+<resources>
+    <string name="app_id" translatable="false">451331127820</string>
+    <string name="package_name" translatable="false">com.mardev.Aleatro</string>
+</resources>

@@ -1,0 +1,25 @@
+// Aleatro's Play Games Services plugin: a Godot 4 Android plugin (v2) built
+// as an AAR. Build with ./build.sh, which also copies the AAR into
+// res://addons/aleatro_pgs/bin, where the export plugin picks it up.
+plugins {
+    id 'com.android.library' version '8.6.1'
+}
+
+android {
+    namespace 'com.mardev.aleatro.pgs'
+    compileSdk 36
+    defaultConfig {
+        minSdk 24
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // Godot's own classes come from the app at runtime
+    compileOnly files('libs/godot-classes.jar')
+    // the app gets this from the export plugin (addons/aleatro_pgs)
+    compileOnly 'com.google.android.gms:play-services-games-v2:22.1.0'
+}

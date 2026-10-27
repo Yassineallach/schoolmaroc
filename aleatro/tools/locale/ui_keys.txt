@@ -352,3 +352,9 @@ Improve your run!
 CRT: On
 CRT: Off
 The old-screen look: slight curve, scanlines and grain
+Play Games
+Achievements
+Leaderboards
+Sign in
+Signed in as %s
+Not signed in

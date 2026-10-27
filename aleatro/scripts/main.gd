@@ -95,9 +95,12 @@ const STAT_DEFAULTS := {
 	"losses": 0, "faces_played": 0, "charms_sold": 0, "items_sold": 0, "cards_discarded": 0, "rerolls": 0,
 	"shop_spent": 0, "pack_spells_used": 0, "pack_runes_used": 0, "spells_bought": 0, "runes_bought": 0,
 	"cards_bought": 0, "blanks_redeemed": 0, "one_hand_streak": 0, "interest_streak": 0,
+	"fastest_win": 0,  # fewest rounds in a won run (0 = no win yet), for its leaderboard
 }
 var stats := STAT_DEFAULTS.duplicate()
 var saves: SaveManager
+var play_games: PlayGames
+var _scores_sent := {}  # leaderboard key -> score last sent this session
 var profile_data := {}
 var settings := {"master": 80.0, "music": 70.0, "sfx": 85.0, "vibration": true, "speed": 1.0, "reduced_motion": false, "language": "auto", "crt": 70.0}
 var on_title := false
@@ -130,6 +133,13 @@ func _ready() -> void:
 	add_child(music)
 	saves = SaveManager.new()
 	add_child(saves)
+	play_games = PlayGames.new()
+	add_child(play_games)
+	play_games.signed_in_changed.connect(func(ok: bool):
+		if ok:
+			_sync_play_games()
+		if on_title:
+			show_title())
 	_load_stats()
 	Loc.apply(settings.language)
 	_apply_settings()
@@ -1287,6 +1297,8 @@ func show_title() -> void:
 	var lang_btn := _button(Loc.NATIVE[Loc.lang], Color("2f7f6f"), show_language, Vector2(200, 64), 24)
 	lang_btn.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	row.add_child(lang_btn)
+	if play_games.available():
+		row.add_child(_button("Play Games", Color("01875f"), show_play_games, Vector2(200, 64), 24))
 	vb.add_child(row)
 	var idle := summon_ace(Vector2(vw - Mascot.W - 60, vh - Mascot.H - 50))
 	idle.poked.connect(func():
@@ -2039,7 +2051,7 @@ func play_selected() -> void:
 	for k in played:
 		if k.get("enh", "") != "stone" and k.suit == 1:
 			round_hearts[k.id] = true
-	check_unlocks("hand", {"cards": played})
+	check_unlocks("hand", {"cards": played, "hand_name": ev.name})
 	var blocked := gs.hand_blocked(ev, played)
 	var result := {"events": [], "shatter": []}
 	if blocked != "":
@@ -2207,6 +2219,7 @@ func play_selected() -> void:
 		gs.destroy_card(c, true)
 		shatter(v)
 	if not result.shatter.is_empty():
+		check_unlocks("shatter", {"count": result.shatter.size()})
 		await wait(0.4)
 	# ...and so do cards a charm destroyed.
 	for c in gs.pending_destroy:
@@ -2427,6 +2440,7 @@ func cash_out() -> void:
 	_save_stats()
 	if won_run:
 		stats.wins += 1
+		stats.fastest_win = gs.rounds if stats.fastest_win == 0 else mini(stats.fastest_win, gs.rounds)
 		check_unlocks("won_run")
 		_save_stats()
 		show_victory()
@@ -2483,6 +2497,7 @@ func show_victory() -> void:
 			_save_stats()
 			if gs.stake < Data.STAKES.size():
 				toast("%s unlocked for the %s" % [Data.STAKES[gs.stake].name, Data.deck_def(gs.deck_id).name])
+	check_unlocks()  # the challenge and deck win just recorded count for achievements
 	saves.delete_run()
 	music.set_track("shop")
 	var vb := open_overlay(true)
@@ -2948,6 +2963,7 @@ func reroll_shop() -> void:
 		return
 	stats.shop_spent += reroll_price()
 	stats.rerolls += 1
+	gs.run_flags["rerolled"] = true
 	gs.money -= reroll_price()
 	if gs.free_rerolls > 0:
 		gs.free_rerolls -= 1
@@ -3491,6 +3507,7 @@ func check_unlocks(event: String = "", data := {}, quiet := false) -> void:
 		if not unlocked.has(id) and Unlocks.met(id, c):
 			unlocked.append(id)
 			fresh.append(id)
+	_check_achievements(c)
 	if fresh.is_empty():
 		return
 	profile_data.unlocked = unlocked
@@ -3503,6 +3520,66 @@ func check_unlocks(event: String = "", data := {}, quiet := false) -> void:
 		var what := "Voucher" if Unlocks.is_voucher(id) else "Charm"
 		var name: String = Data.voucher_def(id).name if what == "Voucher" else Data.charm_def(id).name
 		toast("%s unlocked: %s" % [what, name])
+
+
+## Play Games achievements (see Achievements): earn the ones whose goal is now
+## met, keep the incremental ones' progress up to date, and send any new
+## career best to the leaderboards.
+func _check_achievements(c: Dictionary) -> void:
+	var earned: Array = profile_data.get("achievements", [])
+	var fresh := false
+	for a in Achievements.LIST:
+		if earned.has(a.key):
+			continue
+		if Achievements.met(a, c):
+			earned.append(a.key)
+			fresh = true
+			play_games.unlock(a)
+		elif a.get("steps", false):
+			play_games.set_steps(a, Achievements.progress(a, stats))
+	if fresh:
+		profile_data.achievements = earned
+		_save_stats()
+	_submit_scores()
+
+
+func _submit_scores() -> void:
+	if not play_games.signed_in:
+		return
+	for lb in Achievements.LEADERBOARDS:
+		var score := int(stats.get(lb.stat, 0))
+		if score > 0 and _scores_sent.get(lb.key, -1) != score:
+			_scores_sent[lb.key] = score
+			play_games.submit(lb.key, score)
+
+
+## Just signed in: send everything earned so far (unlocks are idempotent).
+func _sync_play_games() -> void:
+	var earned: Array = profile_data.get("achievements", [])
+	for a in Achievements.LIST:
+		if earned.has(a.key):
+			play_games.unlock(a)
+		elif a.get("steps", false):
+			play_games.set_steps(a, Achievements.progress(a, stats))
+	_scores_sent.clear()
+	_submit_scores()
+
+
+## Achievements, leaderboards and sign-in, from the title (Android only).
+func show_play_games() -> void:
+	var vb := open_modal()
+	vb.add_child(_label("Play Games", 40, Color("ffdf6b")))
+	if play_games.signed_in:
+		if play_games.player_name != "":
+			vb.add_child(_label("Signed in as %s" % play_games.player_name, 22, Color(1, 1, 1, 0.8)))
+		vb.add_child(_center(_button("Achievements", Color("3f9a5a"), play_games.show_achievements, Vector2(320, 70), 26)))
+		vb.add_child(_center(_button("Leaderboards", Data.CHIP_COLOR, play_games.show_leaderboards, Vector2(320, 70), 26)))
+	else:
+		vb.add_child(_label("Not signed in", 22, Color(1, 1, 1, 0.8)))
+		vb.add_child(_center(_button("Sign in", Color("3f9a5a"), func():
+			close_modal()
+			play_games.sign_in(), Vector2(320, 70), 26)))
+	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 60), 24)))
 
 
 ## Remember that these Spells and Runes have been seen (two unlock goals

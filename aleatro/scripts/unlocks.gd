@@ -85,7 +85,11 @@ static func goal_text(id: String) -> String:
 
 ## Whether goal `id` is met in context `c`.
 static func met(id: String, c: Dictionary) -> bool:
-	var g: Dictionary = GOALS[id]
+	return met_goal(GOALS[id], c)
+
+
+## Whether goal `g` (any {type, ...} above; achievements use them too) is met.
+static func met_goal(g: Dictionary, c: Dictionary) -> bool:
 	var stats: Dictionary = c.stats
 	var gs: GameState = c.get("gs")
 	var ev: String = c.get("event", "")
