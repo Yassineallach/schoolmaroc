@@ -22,7 +22,14 @@ credential for each key that signs the app. Both use package
 If Play Console asks, set up the OAuth consent screen in the linked Google
 Cloud project first (External, app name Aleatro, your support email).
 
-## 2. Achievements: import them all at once
+## 2. Properties and languages
+
+Fill in **Configuration > Properties** from [`PROPERTIES.md`](PROPERTIES.md):
+display name, category (Card), icon, feature graphic, and the description in
+English plus the 9 translations. Adding those translations also adds the
+game's languages, which the achievement import needs.
+
+## 3. Achievements: import them all at once
 
 **First add the game's languages.** Translations import only for languages
 the Play Games project already has; otherwise the import fails with "Locale
@@ -56,14 +63,14 @@ already exist, so import before adding any by hand. To rebuild the zip, run
 `python3 tools/play_games/make_icons.py`, then
 `python3 tools/play_games/make_sheets.py`.
 
-## 3. Leaderboards
+## 4. Leaderboards
 
 There's no import for leaderboards, so add the four by hand.
 [`LEADERBOARDS.md`](LEADERBOARDS.md) lists every field for each one, in
 order: name, description, icon, ordering (Fastest Win is *Smaller is
 better*), score limits and the 9 translations.
 
-## 4. Paste the IDs into the game
+## 5. Paste the IDs into the game
 
 On the Achievements page (or Leaderboards; it's the same file), click **Get
 resources**, choose **Android**, and copy the XML into
@@ -78,7 +85,7 @@ Until the IDs are in, players still earn achievements. They're kept on the
 device and sent on the next sign-in once a build has the IDs. Career bests go
 to the leaderboards the same way.
 
-## 5. Test, then publish
+## 6. Test, then publish
 
 - **Configuration > Testers**: add the Google accounts that should see Play
   Games before it's published.
