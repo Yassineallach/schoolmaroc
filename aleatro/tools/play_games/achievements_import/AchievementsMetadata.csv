@@ -1,0 +1,30 @@
+Climbing,Reach ante 4,False,,Revealed,10,1
+Summit,Reach ante 8,False,,Revealed,20,2
+Victory Lap,Win a run,False,,Revealed,30,3
+Red Chip,Win a run on Red Chip stake or higher,False,,Revealed,30,4
+Black Chip,Win a run on Black Chip stake or higher,False,,Revealed,50,5
+Gold Chip,Win a run on Gold Chip stake,False,,Revealed,100,6
+Card Sharp,Play 2500 cards,True,2500,Revealed,20,7
+Clean Sweep,Discard 2500 cards,True,2500,Revealed,20,8
+Nest Egg,Have $400 at once,False,,Revealed,30,9
+Speedrun,Win a run in 12 rounds or fewer,False,,Revealed,50,10
+Glass Cannon,Shatter 2 Glass cards in one hand,False,,Revealed,20,11
+Royalty,Play a Royal Flush,False,,Revealed,20,12
+Grandmaster,Level any poker hand up to level 10,False,,Revealed,30,13
+Collector,Discover every charm,False,,Revealed,50,14
+Living Legend,Discover a legendary charm,False,,Revealed,20,15
+Stargazer,Discover every Rune,False,,Revealed,20,16
+Fortune Teller,Discover every Spell,False,,Revealed,20,17
+Seer,Discover every Omen,False,,Revealed,20,18
+Hex Hunter,Face every boss blind,False,,Revealed,30,19
+Slim Pickings,Have 20 or fewer cards in your deck,False,,Revealed,20,20
+Overstuffed,Have 80 or more cards in your deck,False,,Revealed,20,21
+No Takebacks,Win a run without rerolling the shop,False,,Revealed,30,22
+Rule Bender,Win a challenge,False,,Revealed,30,23
+Rule Breaker,Win every challenge,False,,Revealed,80,24
+Five Figures,Score 10000 in one hand,False,,Revealed,10,25
+Millionaire,Score 1 million in one hand,False,,Revealed,30,26
+Astronomical,Score 100 million in one hand,False,,Revealed,50,27
+Deck Master,Win a run with every deck,False,,Revealed,100,28
+Five Alive,Play a Flush Five,False,,Revealed,20,29
+Big Spender,Spend $2500 in shops,True,2500,Revealed,20,30

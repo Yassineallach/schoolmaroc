@@ -24,43 +24,45 @@ FONT = "/usr/share/fonts/opentype/inter/InterDisplay-Bold.otf"
 TIERS = [(20, "c97b3c"), (30, "aeb8c4"), (50, "e0a526"), (1000, "b26cbb")]
 
 # key -> (emblem art under assets/, or "text:..."), points
+# Play Console asks for icons without text (one icon serves every language),
+# so every emblem is wordless art: tags, blind chips, stake chips, card backs.
 ACHIEVEMENTS = {
-    "climbing": ("blinds/big.png", 10),
+    "climbing": ("blinds/monotone.png", 10),
     "summit": ("blinds/eclipse.png", 20),
     "victory_lap": ("tags/star.png", 30),
     "red_chip": ("stakes/2.png", 30),
     "black_chip": ("stakes/4.png", 50),
     "gold_chip": ("stakes/8.png", 100),
-    "card_sharp": ("decks/crimson.png", 20),
-    "clean_sweep": ("vouchers/wastebin.png", 20),
-    "nest_egg": ("vouchers/nestbox.png", 30),
+    "card_sharp": ("tags/standard.png", 20),
+    "clean_sweep": ("tags/garbage.png", 20),
+    "nest_egg": ("tags/invest.png", 30),
     "speedrun": ("tags/haste.png", 50),
     "glass_cannon": ("enhancements/glass.png", 20),
-    "royalty": ("charms_pixel/foolking.png", 20),
-    "grandmaster": ("vouchers/runebaron.png", 30),
-    "collector": ("vouchers/showcase.png", 50),
-    "living_legend": ("charms_pixel/bonecrown.png", 20),
-    "stargazer": ("packs/celestial.png", 20),
-    "fortune_teller": ("packs/arcana.png", 20),
-    "seer": ("packs/spectral.png", 20),
+    "royalty": ("tags/foil.png", 20),
+    "grandmaster": ("tags/tome.png", 30),
+    "collector": ("tags/bundle.png", 50),
+    "living_legend": ("tags/rare.png", 20),
+    "stargazer": ("decks/star.png", 20),
+    "fortune_teller": ("decks/zodiac.png", 20),
+    "seer": ("tags/ethereal.png", 20),
     "hex_hunter": ("blinds/abyss.png", 30),
     "slim_pickings": ("decks/bare.png", 20),
-    "overstuffed": ("packs/standard_mega.png", 20),
+    "overstuffed": ("tags/topup.png", 20),
     "no_takebacks": ("tags/dice.png", 30),
-    "rule_bender": ("vouchers/rewrite.png", 30),
-    "rule_breaker": ("vouchers/antimatter.png", 80),
-    "five_figures": ("text:10K", 10),
-    "millionaire": ("text:1M", 30),
-    "astronomical": ("text:100M", 50),
-    "deck_master": ("decks/star.png", 100),
+    "rule_bender": ("tags/juggle.png", 30),
+    "rule_breaker": ("tags/boss.png", 80),
+    "five_figures": ("tags/uncommon.png", 10),
+    "millionaire": ("decks/gold.png", 30),
+    "astronomical": ("tags/meteor.png", 50),
+    "deck_master": ("decks/plasma.png", 100),
     "five_alive": ("enhancements/wild.png", 20),
-    "big_spender": ("vouchers/goldtree.png", 20),
+    "big_spender": ("tags/handy.png", 20),
 }
 LEADERBOARDS = {
-    "best_hand": "charms_pixel/jester.png",
-    "highest_ante": "blinds/big.png",
-    "fastest_win": "tags/haste.png",
-    "career_wins": "tags/star.png",
+    "best_hand": "blinds/rust.png",
+    "highest_ante": "stakes/3.png",
+    "fastest_win": "blinds/mute.png",
+    "career_wins": "tags/chroma.png",
 }
 LEADERBOARD_COLOUR = "009dff"  # G.C.BLUE
 
@@ -151,7 +153,7 @@ def main():
     made = []
     for key, (art, points) in ACHIEVEMENTS.items():
         colour = tier_colour(points)
-        emblem = emblem_text(art[5:], colour) if art.startswith("text:") else emblem_from_art(art, 300)
+        emblem = emblem_from_art(art, 300)
         out = OUT / "achievements" / f"{key}.png"
         out.parent.mkdir(parents=True, exist_ok=True)
         compose(colour, emblem).convert("RGB").save(out)

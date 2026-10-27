@@ -9,7 +9,8 @@ extends RefCounted
 ## Play Console gives each one an ID; the game finds it in
 ## res://pgs/games-ids.xml (Play Console > Achievements > Get resources) under
 ## "achievement_" + the key, or the snake_case English name. Points add up to
-## Play Games' limit of 1000. See tools/play_games/README.md.
+## Play Games' limit of 1000. Names and descriptions carry no commas (Play
+## Console's import files are plain CSV). See tools/play_games/README.md.
 
 const LIST := [
 	{"key": "climbing", "name": "Climbing", "desc": "Reach ante 4", "points": 10, "goal": {"type": "ante", "n": 4}},
@@ -18,8 +19,8 @@ const LIST := [
 	{"key": "red_chip", "name": "Red Chip", "desc": "Win a run on Red Chip stake or higher", "points": 30, "goal": {"type": "win_stake", "n": 2}},
 	{"key": "black_chip", "name": "Black Chip", "desc": "Win a run on Black Chip stake or higher", "points": 50, "goal": {"type": "win_stake", "n": 4}},
 	{"key": "gold_chip", "name": "Gold Chip", "desc": "Win a run on Gold Chip stake", "points": 100, "goal": {"type": "win_stake", "n": 8}},
-	{"key": "card_sharp", "name": "Card Sharp", "desc": "Play 2,500 cards", "points": 20, "goal": {"type": "stat", "stat": "cards_played", "n": 2500}, "steps": true},
-	{"key": "clean_sweep", "name": "Clean Sweep", "desc": "Discard 2,500 cards", "points": 20, "goal": {"type": "stat", "stat": "cards_discarded", "n": 2500}, "steps": true},
+	{"key": "card_sharp", "name": "Card Sharp", "desc": "Play 2500 cards", "points": 20, "goal": {"type": "stat", "stat": "cards_played", "n": 2500}, "steps": true},
+	{"key": "clean_sweep", "name": "Clean Sweep", "desc": "Discard 2500 cards", "points": 20, "goal": {"type": "stat", "stat": "cards_discarded", "n": 2500}, "steps": true},
 	{"key": "nest_egg", "name": "Nest Egg", "desc": "Have $400 at once", "points": 30, "goal": {"type": "money", "n": 400}},
 	{"key": "speedrun", "name": "Speedrun", "desc": "Win a run in 12 rounds or fewer", "points": 50, "goal": {"type": "win_rounds", "n": 12}},
 	{"key": "glass_cannon", "name": "Glass Cannon", "desc": "Shatter 2 Glass cards in one hand", "points": 20, "goal": {"type": "shatter_hand", "n": 2}},
@@ -36,12 +37,12 @@ const LIST := [
 	{"key": "no_takebacks", "name": "No Takebacks", "desc": "Win a run without rerolling the shop", "points": 30, "goal": {"type": "win_no_reroll"}},
 	{"key": "rule_bender", "name": "Rule Bender", "desc": "Win a challenge", "points": 30, "goal": {"type": "challenges", "n": 1}},
 	{"key": "rule_breaker", "name": "Rule Breaker", "desc": "Win every challenge", "points": 80, "goal": {"type": "challenges", "n": -1}},
-	{"key": "five_figures", "name": "Five Figures", "desc": "Score 10,000 in one hand", "points": 10, "goal": {"type": "stat", "stat": "best_hand", "n": 10000}},
-	{"key": "millionaire", "name": "Millionaire", "desc": "Score 1,000,000 in one hand", "points": 30, "goal": {"type": "stat", "stat": "best_hand", "n": 1000000}},
-	{"key": "astronomical", "name": "Astronomical", "desc": "Score 100,000,000 in one hand", "points": 50, "goal": {"type": "stat", "stat": "best_hand", "n": 100000000}},
+	{"key": "five_figures", "name": "Five Figures", "desc": "Score 10000 in one hand", "points": 10, "goal": {"type": "stat", "stat": "best_hand", "n": 10000}},
+	{"key": "millionaire", "name": "Millionaire", "desc": "Score 1 million in one hand", "points": 30, "goal": {"type": "stat", "stat": "best_hand", "n": 1000000}},
+	{"key": "astronomical", "name": "Astronomical", "desc": "Score 100 million in one hand", "points": 50, "goal": {"type": "stat", "stat": "best_hand", "n": 100000000}},
 	{"key": "deck_master", "name": "Deck Master", "desc": "Win a run with every deck", "points": 100, "goal": {"type": "decks_won"}},
 	{"key": "five_alive", "name": "Five Alive", "desc": "Play a Flush Five", "points": 20, "goal": {"type": "play_hand", "hand": "Flush Five"}},
-	{"key": "big_spender", "name": "Big Spender", "desc": "Spend $2,500 in shops", "points": 20, "goal": {"type": "stat", "stat": "shop_spent", "n": 2500}, "steps": true},
+	{"key": "big_spender", "name": "Big Spender", "desc": "Spend $2500 in shops", "points": 20, "goal": {"type": "stat", "stat": "shop_spent", "n": 2500}, "steps": true},
 ]
 
 ## `stat` is the career stat sent as the score; `low` when fewer is better.

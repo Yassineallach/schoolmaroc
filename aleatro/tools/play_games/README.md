@@ -22,22 +22,27 @@ credential for each key that signs the app. Both use package
 If Play Console asks, set up the OAuth consent screen in the linked Google
 Cloud project first (External, app name Aleatro, your support email).
 
-## 2. Achievements
+## 2. Achievements: import them all at once
 
-Go to **Achievements > Add achievement** for each row of
-[`achievements.csv`](achievements.csv), **in that order**:
+Go to **Achievements > Import achievements** and upload
+[`AchievementsImport.zip`](AchievementsImport.zip). It's in Play Console's
+format: `AchievementsMetadata.csv`, `AchievementsLocalizations.csv`,
+`AchievementsIconsMappings.csv` and the 30 icons, all flat, with no header
+rows. It creates all 30 achievements with:
 
-- **Name** and **Description**: from the sheet.
-- **Icon**: `icons/achievements/<key>.png` (512×512).
-- **Incremental**: on only for the three rows with *incremental steps*:
-  Card Sharp, Clean Sweep and Big Spender, each with **2500** steps.
+- **Names and descriptions** (no commas, as the format requires)
+- **Points**: 1000 in total, Play Games' limit.
+- **Incremental**: Card Sharp, Clean Sweep and Big Spender, each with 2500 steps.
 - **Initial state**: Revealed.
-- **Points**: from the sheet. They add up to exactly 1000, Play Games' limit.
-- **List order**: as in the sheet.
+- **List order**: as in [`achievements.csv`](achievements.csv).
+- **Translations**: zh-CN, ja-JP, ko-KR, de-DE, fr-FR, es-ES, pt-BR, it-IT and
+  ar, matching the game's own wording.
+- **Icons**: 512×512 with no text, as Play asks.
 
-Translations: on each achievement, **Add translations** for zh-CN, ja-JP,
-ko-KR, de-DE, fr-FR, es-ES, pt-BR, it-IT and ar from
-[`translations.csv`](translations.csv). These match the game's own wording.
+The import only creates new achievements. It can't translate ones that
+already exist, so import before adding any by hand. To rebuild the zip, run
+`python3 tools/play_games/make_icons.py`, then
+`python3 tools/play_games/make_sheets.py`.
 
 ## 3. Leaderboards
 
@@ -48,7 +53,8 @@ Go to **Leaderboards > Add leaderboard** for each row of
 - **Ordering**: *Larger is better*, except **Fastest Win**, which is *Smaller
   is better*.
 - **Icon**: `icons/leaderboards/<key>.png`.
-- **Translations**: the last four rows of `translations.csv`.
+- **Translations**: the last four rows of `translations.csv`. There's no
+  import for leaderboards, so enter these four by hand.
 
 ## 4. Paste the IDs into the game
 

@@ -5,8 +5,8 @@ order,key,name,description,points,incremental steps,initial state,icon,resource 
 4,red_chip,Red Chip,Win a run on Red Chip stake or higher,30,,Revealed,icons/achievements/red_chip.png,achievement_red_chip
 5,black_chip,Black Chip,Win a run on Black Chip stake or higher,50,,Revealed,icons/achievements/black_chip.png,achievement_black_chip
 6,gold_chip,Gold Chip,Win a run on Gold Chip stake,100,,Revealed,icons/achievements/gold_chip.png,achievement_gold_chip
-7,card_sharp,Card Sharp,"Play 2,500 cards",20,2500,Revealed,icons/achievements/card_sharp.png,achievement_card_sharp
-8,clean_sweep,Clean Sweep,"Discard 2,500 cards",20,2500,Revealed,icons/achievements/clean_sweep.png,achievement_clean_sweep
+7,card_sharp,Card Sharp,Play 2500 cards,20,2500,Revealed,icons/achievements/card_sharp.png,achievement_card_sharp
+8,clean_sweep,Clean Sweep,Discard 2500 cards,20,2500,Revealed,icons/achievements/clean_sweep.png,achievement_clean_sweep
 9,nest_egg,Nest Egg,Have $400 at once,30,,Revealed,icons/achievements/nest_egg.png,achievement_nest_egg
 10,speedrun,Speedrun,Win a run in 12 rounds or fewer,50,,Revealed,icons/achievements/speedrun.png,achievement_speedrun
 11,glass_cannon,Glass Cannon,Shatter 2 Glass cards in one hand,20,,Revealed,icons/achievements/glass_cannon.png,achievement_glass_cannon
@@ -23,9 +23,9 @@ order,key,name,description,points,incremental steps,initial state,icon,resource 
 22,no_takebacks,No Takebacks,Win a run without rerolling the shop,30,,Revealed,icons/achievements/no_takebacks.png,achievement_no_takebacks
 23,rule_bender,Rule Bender,Win a challenge,30,,Revealed,icons/achievements/rule_bender.png,achievement_rule_bender
 24,rule_breaker,Rule Breaker,Win every challenge,80,,Revealed,icons/achievements/rule_breaker.png,achievement_rule_breaker
-25,five_figures,Five Figures,"Score 10,000 in one hand",10,,Revealed,icons/achievements/five_figures.png,achievement_five_figures
-26,millionaire,Millionaire,"Score 1,000,000 in one hand",30,,Revealed,icons/achievements/millionaire.png,achievement_millionaire
-27,astronomical,Astronomical,"Score 100,000,000 in one hand",50,,Revealed,icons/achievements/astronomical.png,achievement_astronomical
+25,five_figures,Five Figures,Score 10000 in one hand,10,,Revealed,icons/achievements/five_figures.png,achievement_five_figures
+26,millionaire,Millionaire,Score 1 million in one hand,30,,Revealed,icons/achievements/millionaire.png,achievement_millionaire
+27,astronomical,Astronomical,Score 100 million in one hand,50,,Revealed,icons/achievements/astronomical.png,achievement_astronomical
 28,deck_master,Deck Master,Win a run with every deck,100,,Revealed,icons/achievements/deck_master.png,achievement_deck_master
 29,five_alive,Five Alive,Play a Flush Five,20,,Revealed,icons/achievements/five_alive.png,achievement_five_alive
-30,big_spender,Big Spender,"Spend $2,500 in shops",20,2500,Revealed,icons/achievements/big_spender.png,achievement_big_spender
+30,big_spender,Big Spender,Spend $2500 in shops,20,2500,Revealed,icons/achievements/big_spender.png,achievement_big_spender
