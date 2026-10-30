@@ -240,7 +240,7 @@ def stamp(layer, cx, cy, text, ang=-9, alpha=255):
     a = np.asarray(t).copy()
     holes = np.random.default_rng(5).random(a.shape[:2]) < 0.16
     a[holes, 3] = 0
-    a[..., 3] = (a[..., 3] * alpha / 255).astype(np.uint8)
+    a[..., 3] = (a[..., 3].astype(np.float32) * alpha / 255).astype(np.uint8)
     t = Image.fromarray(a, 'RGBA').rotate(ang, resample=Image.BICUBIC, expand=True)
     layer.alpha_composite(t, (int(cx - t.width / 2), int(cy - t.height / 2)))
 
