@@ -570,7 +570,7 @@ def gas_cloud(img, cx, cy, r, seed):
         shape(img, ellipse_pts(cx + dx * r, cy + dy * r, rr * r, rr * r * 0.8, 36)[:-1], GAS, seed=seed + i, outline=3, hatch=False, shade=0.2, amp=5, alpha=230)
 
 
-def s2(t, D):
+def s2_flat(t, D):
     k = ease(t / D)
     img = flat(BG_DARK)
     disc(img, 760, 560, 430, (74, 54, 42), seed=3)
@@ -695,7 +695,7 @@ def s8_flat(t, D):
 
 
 # (start, render_fn, vignette)
-SHOTS = [(0.0, s1, True), (5.5, s2, False), (9.5, s3, False),
+SHOTS = [(0.0, s1, True), (5.5, s2, True), (9.5, s3, False),
          (15.8, s4a, False), (18.6, s4b, False), (20.6, s4c, False),
          (22.5, s5, False), (27.0, s6, True), (31.5, s7, False), (36.1, s8, True), (43.0, s9, False), (49.0, s10, False)]
 CUTS = {18.6, 20.6}  # hard cuts inside the conversation (shot / reverse shot)
