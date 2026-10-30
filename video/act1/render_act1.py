@@ -480,10 +480,224 @@ def s10(t, D):
     return img.crop((x0, y0, x0 + cw, y0 + ch)).resize((W, H), Image.BICUBIC).convert('RGB')
 
 
+# ---------- flat explainer backgrounds (override the painted-environment shots) ----------
+BG = (92, 60, 42)          # warm mine brown, sampled from the mine environment so flat shots fit the painted ones
+BG_DISC = (132, 88, 56)
+BG_GROUND = (66, 42, 30)
+BG_DARK = (52, 38, 30)
+BG_DEEP = (43, 37, 34)
+GAS = (150, 168, 92)
+
+FIG_NAROL = fit_h(load(os.path.join(ROOT, 'src', 'narol34.png')), 900)
+FIG_DARROW_SIDE = ImageOps.mirror(fit_h(load(os.path.join(ROOT, 'src', 'darrowside.png')), 840))
+FIG_NAROL_CU = fit_h(load(os.path.join(ROOT, 'src', 'narolhead.png')), 900)
+FIG_DARROW_CU = fit_h(load(os.path.join(ROOT, 'src', 'darrowhead.png')), 940)
+FIG_CLIMB = fit_h(load(os.path.join(A3, 'C01B_climbing.png')), 900)
+
+
+def flat(color):
+    return Image.new('RGBA', (W, H), color + (255,))
+
+
+def disc(img, cx, cy, r, color=BG_DISC, seed=1):
+    shape(img, ellipse_pts(cx, cy, r, r, 60)[:-1], color, seed=seed, outline=0, hatch=False, shade=0, amp=4)
+
+
+def ground(img, y, seed=2):
+    shape(img, [(-20, y), (W + 20, y), (W + 20, H + 20), (-20, H + 20)], BG_GROUND, seed=seed, outline=3.5, hatch=False, shade=0, amp=3)
+
+
+def foot_shadow(img, cx, y, w):
+    d = ImageDraw.Draw(img)
+    d.ellipse((cx - w / 2, y - 14, cx + w / 2, y + 14), fill=(36, 22, 15, 150))
+
+
+STRATA = [((196, 120, 78), 260), ((168, 96, 62), 520), ((206, 150, 96), 760), ((150, 84, 58), 1020),
+          ((122, 72, 52), 1320), ((176, 108, 70), 1600), ((104, 64, 48), 1900), ((84, 54, 42), 2600)]
+
+
+def make_section():
+    """Flat, hand-inked cross-section of the Martian crust for the opening pan."""
+    Hh = 2600
+    img = Image.new('RGBA', (W, Hh), (226, 196, 160, 255))
+    ImageDraw.Draw(img).rectangle((0, 230, W, Hh), fill=(196, 120, 78, 255))
+    top = 230
+    prev = top
+    for i, (col, y) in enumerate(STRATA):
+        r = np.random.default_rng(i)
+        upper = [(x, prev + r.uniform(-18, 18)) for x in range(-200, W + 360, 160)] if i else [(x, top) for x in range(-200, W + 360, 160)]
+        lower = [(W + 200, Hh + 40), (-200, Hh + 40)]
+        shape(img, upper + lower, col, seed=100 + i, outline=3, hatch=False, shade=0, amp=6)
+        prev = y
+    d = ImageDraw.Draw(img)
+    # surface details: low hills and a small headframe over the shaft
+    shape(img, [(-20, top), (300, 170), (620, top)], (190, 112, 76), seed=120, outline=3, hatch=False, shade=0)
+    shape(img, [(1250, top), (1600, 150), (1950, top)], (190, 112, 76), seed=121, outline=3, hatch=False, shade=0)
+    for a, b in (((900, top), (960, 110)), ((1020, top), (960, 110)), ((925, 170), (995, 170))):
+        stroke(d, [a, b], 6, seed=a[0] + b[1], amp=0.8)
+    # the shaft
+    shape(img, [(938, top), (982, top), (982, 2560), (938, 2560)], (60, 40, 30), seed=130, outline=3, hatch=False, shade=0, amp=1.5)
+    for y in range(300, 2560, 140):
+        d.ellipse((953, y - 7, 967, y + 7), fill=(240, 196, 110, 255))
+    # side tunnels
+    for (x0, x1, y) in ((300, 938, 640), (982, 1640, 980), (420, 938, 1450), (982, 1500, 1880)):
+        shape(img, [(x0, y - 22), (x1, y - 22), (x1, y + 22), (x0, y + 22)], (60, 40, 30), seed=x0 + y, outline=2.5, hatch=False, shade=0, amp=2)
+    # gas pockets
+    for (cx, cy, rx, ry) in ((520, 1180, 150, 60), (1420, 1520, 180, 70), (700, 2050, 160, 60), (1250, 2300, 210, 80)):
+        shape(img, ellipse_pts(cx, cy, rx, ry, 40)[:-1], GAS, seed=cx, outline=3, hatch=True, shade=0.25, amp=8)
+    return img
+
+
+SECTION = make_section()
+
+
+def drill(img, cx, y):
+    shape(img, [(cx - 34, y - 70), (cx + 34, y - 70), (cx + 34, y), (cx - 34, y)], (200, 168, 96), seed=140, outline=3, hatch=False, amp=1)
+    shape(img, [(cx - 34, y), (cx + 34, y), (cx, y + 70)], (150, 150, 150), seed=141, outline=3, hatch=False, amp=1)
+    ImageDraw.Draw(img).ellipse((cx - 9, y - 58, cx + 9, y - 40), fill=(255, 220, 140, 255))
+
+
+def s1_flat(t, D):
+    k = ease(t / D)
+    y = lerp(0, 1480, k)
+    img = SECTION.copy()
+    drill(img, 960, lerp(320, 2100, ease(t / D)))
+    return img.crop((0, int(y), W, int(y) + H)).convert('RGB')
+
+
+def gas_cloud(img, cx, cy, r, seed):
+    for i, (dx, dy, rr) in enumerate(((0, 0, 1.0), (-0.6, 0.2, 0.7), (0.6, 0.15, 0.75), (0.1, -0.45, 0.65))):
+        shape(img, ellipse_pts(cx + dx * r, cy + dy * r, rr * r, rr * r * 0.8, 36)[:-1], GAS, seed=seed + i, outline=3, hatch=False, shade=0.2, amp=5, alpha=230)
+
+
+def s2(t, D):
+    k = ease(t / D)
+    img = flat(BG_DARK)
+    disc(img, 760, 560, 430, (74, 54, 42), seed=3)
+    gas_cloud(img, lerp(1750, 1450, k), 470, lerp(150, 230, k), seed=boil(t) * 5)
+    s = lerp(1.0, 1.06, k)
+    f = FIG_DARROW_CU.resize((int(FIG_DARROW_CU.width * s), int(FIG_DARROW_CU.height * s)), Image.BICUBIC)
+    img.alpha_composite(f, (int(720 - f.width / 2), H - f.height + 40))
+    return img.convert('RGB')
+
+
+def s4a(t, D):
+    k = ease(t / D)
+    img = flat(BG)
+    disc(img, 960, 500, 440, seed=4)
+    ground(img, 975, seed=5)
+    nx, dx = 770, 1180
+    foot_shadow(img, nx, 975, 340)
+    foot_shadow(img, dx, 978, 230)
+    breathe = 1 + 0.004 * math.sin(t * 2.2)
+    n = FIG_NAROL.resize((FIG_NAROL.width, int(FIG_NAROL.height * breathe)), Image.BILINEAR)
+    img.alpha_composite(n, (int(nx - n.width / 2), 982 - n.height))
+    img.alpha_composite(FIG_DARROW_SIDE, (int(dx - FIG_DARROW_SIDE.width / 2), 985 - FIG_DARROW_SIDE.height))
+    s = lerp(1.0, 1.05, k)
+    big = img.resize((int(W * s), int(H * s)), Image.BICUBIC)
+    ox, oy = int((big.width - W) / 2), int((big.height - H) * 0.4)
+    return big.crop((ox, oy, ox + W, oy + H)).convert('RGB')
+
+
+def flat_closeup(fig, cx, t, D, seed):
+    k = ease(t / D)
+    img = flat(BG)
+    disc(img, cx, 520, 470, seed=seed)
+    s = lerp(1.0, 1.05, k)
+    f = fig.resize((int(fig.width * s), int(fig.height * s)), Image.BICUBIC)
+    img.alpha_composite(f, (int(cx - f.width / 2), int(H - f.height + 50 * s)))
+    return img.convert('RGB')
+
+
+def s4b(t, D):
+    return flat_closeup(FIG_NAROL_CU, 820, t, D, 6)
+
+
+def s4c(t, D):
+    return flat_closeup(FIG_DARROW_CU, 1100, t, D, 7)
+
+
+def gauge(img, cx, cy, R, val, seed):
+    d = ImageDraw.Draw(img)
+    shape(img, ellipse_pts(cx, cy, R + 26, R + 26, 70)[:-1], (120, 98, 70), seed=seed, outline=5, hatch=False, shade=0.12)
+    shape(img, ellipse_pts(cx, cy, R, R, 70)[:-1], (236, 224, 198), seed=seed + 1, outline=4, hatch=False, shade=0)
+    a0, a1 = math.radians(150), math.radians(390)
+    red0 = a0 + (a1 - a0) * 0.72
+    pts = [(cx + math.cos(a) * (R - 18), cy + math.sin(a) * (R - 18)) for a in np.linspace(red0, a1, 30)]
+    pts += [(cx + math.cos(a) * (R - 60), cy + math.sin(a) * (R - 60)) for a in np.linspace(a1, red0, 30)]
+    shape(img, pts, RED, seed=seed + 2, outline=2.5, hatch=False, shade=0, amp=1.5)
+    for i in range(11):
+        a = a0 + (a1 - a0) * i / 10
+        stroke(d, [(cx + math.cos(a) * (R - 18), cy + math.sin(a) * (R - 18)), (cx + math.cos(a) * (R - 52), cy + math.sin(a) * (R - 52))], 4, seed=seed + 10 + i, amp=0.5)
+    ink_text(img, (cx, cy + R * 0.42), 'GAS', F_SIGN)
+    a = a0 + (a1 - a0) * val
+    stroke(d, [(cx, cy), (cx + math.cos(a) * (R - 40), cy + math.sin(a) * (R - 40))], 9, color=(40, 30, 24), seed=seed + 30, amp=0.4)
+    d.ellipse((cx - 18, cy - 18, cx + 18, cy + 18), fill=(40, 30, 24, 255))
+
+
+def s6_flat(t, D):
+    img = flat(BG_DEEP)
+    burst = 0
+    for b in (0.0, 1.5, 3.0):
+        if t >= b:
+            burst = max(burst, math.exp(-(t - b) * 3.0))
+    val = min(0.97, lerp(0.35, 0.93, ease(t / 3.2)) + 0.03 * math.sin(t * 23) * burst)
+    gauge(img, 960, 540, 330, val, seed=boil(t) * 7)
+    amp = 14 * burst
+    dx, dy = amp * math.sin(t * 61.0), amp * math.cos(t * 47.0)
+    img = img.transform((W, H), Image.AFFINE, (1, 0, -dx, 0, 1, -dy), resample=Image.BILINEAR, fillcolor=BG_DEEP + (255,))
+    pulse = 0.5 + 0.5 * math.sin(t * math.pi * 2 * 1.6)
+    return Image.blend(img.convert('RGB'), Image.new('RGB', (W, H), RED), 0.06 + 0.12 * pulse * ease((t - 1.0) / 1.0))
+
+
+FIG_STAND = fit_h(load(os.path.join(A3, 'C01A_standing.png')), 1000)
+
+
+def ledge(img, y, seed=12):
+    pts = [(-30, y + 20)] + [(x, y + np.random.default_rng(seed + x).uniform(-14, 14)) for x in range(60, W, 180)] + [(W + 30, y + 10), (W + 30, H + 30), (-30, H + 30)]
+    shape(img, pts, (124, 76, 48), seed=seed, outline=4, hatch=False, shade=0, amp=3)
+    lip = [(-30, y + 20)] + pts[1:-3] + [(W + 30, y + 10)] + [(W + 30, y + 46)] + [(x, yy + 34) for x, yy in reversed(pts[1:-3])] + [(-30, y + 54)]
+    shape(img, lip, (150, 96, 62), seed=seed + 1, outline=0, hatch=False, shade=0, amp=2)
+
+
+def s7(t, D):
+    img = flat(BG)
+    disc(img, 960, 300, 380, (176, 122, 72), seed=8)
+    rise = lerp(520, 0, ease(t / (D * 0.75)))
+    img.alpha_composite(FIG_STAND, (W // 2 - FIG_STAND.width // 2, int(90 + rise)))
+    ledge(img, 800)
+    return img.convert('RGB')
+
+
+def s8_flat(t, D):
+    img = flat(BG_DARK)
+    d = ImageDraw.Draw(img)
+    title = 'RED RISING'
+    widths = [d.textlength(ch, font=F_TITLE) for ch in title]
+    sp = 18
+    x = W / 2 - (sum(widths) + sp * (len(title) - 1)) / 2
+    for i, (ch, w) in enumerate(zip(title, widths)):
+        a = ease((t - 0.2 - i * 0.09) / 0.5)
+        if a > 0:
+            d.text((x, 470 + (1 - a) * 18), ch, font=F_TITLE, fill=IVORY + (int(255 * a),), anchor='lm')
+        x += w + sp
+    for i, wd in enumerate(['BRUTAL', 'DEFIANT', 'SOULFUL']):
+        t0 = 2.3 + i * 0.8
+        if t > t0:
+            a = int(255 * ease((t - t0) / 0.5))
+            cx = W / 2 - 420 + i * 420
+            ws = [d.textlength(c, font=F_WORDS) for c in wd]
+            x2 = cx - (sum(ws) + 8 * (len(wd) - 1)) / 2
+            for c, w in zip(wd, ws):
+                d.text((x2, 650), c, font=F_WORDS, fill=GOLD + (a,), anchor='lm')
+                x2 += w + 8
+    return img.convert('RGB')
+
+
 # (start, render_fn, vignette)
-SHOTS = [(0.0, s1, True), (5.5, s2, True), (9.5, s3, False),
-         (15.8, s4a, True), (18.6, s4b, True), (20.6, s4c, True),
-         (22.5, s5, False), (27.0, s6, True), (31.5, s7, True), (36.1, s8, True), (43.0, s9, True), (49.0, s10, False)]
+SHOTS = [(0.0, s1, True), (5.5, s2, False), (9.5, s3, False),
+         (15.8, s4a, False), (18.6, s4b, False), (20.6, s4c, False),
+         (22.5, s5, False), (27.0, s6, True), (31.5, s7, False), (36.1, s8, True), (43.0, s9, False), (49.0, s10, False)]
 CUTS = {18.6, 20.6}  # hard cuts inside the conversation (shot / reverse shot)
 END = 57.7
 XF = 0.25
