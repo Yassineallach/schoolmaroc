@@ -5,7 +5,10 @@ Usage: python3 render_act1.py stills t1 t2 ...   -> writes still_<t>.png
 """
 import math, os, subprocess, sys
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageEnhance
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageEnhance, ImageOps
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import ink
+from ink import INK, shape, stroke, ink_text, ellipse_pts, wobble
 
 W, H, FPS = 1920, 1080, 30
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -16,11 +19,12 @@ AUD = os.path.join(SCR, 'rar', 'ac0d80b8-voxcpm_clips_texts_20261029_1949')
 FONTS = os.path.join(SCR, 'fonts')
 
 IVORY = (243, 235, 221)
-BROWN = (59, 42, 32)
 GOLD = (196, 154, 69)
 RED = (163, 59, 46)
 RUST = (184, 100, 63)
-MUTED = (90, 70, 54)
+MUTED = (96, 74, 56)
+STONE = (150, 132, 112)
+WOOD = (150, 102, 62)
 
 
 def font(name, size):
@@ -28,9 +32,10 @@ def font(name, size):
 
 
 F_TITLE = font('Fraunces700.woff2', 190)
-F_HEAD = font('Fraunces700.woff2', 72)
-F_LABEL = font('Inter600.woff2', 34)
-F_SMALL = font('Inter600.woff2', 24)
+F_HEAD = font('Fraunces700.woff2', 76)
+F_SIGN = font('Fraunces700.woff2', 38)
+F_CAP = font('Fraunces500i.woff2', 40)
+F_CRATE = font('Fraunces700.woff2', 26)
 F_WORDS = font('Inter600.woff2', 44)
 
 
@@ -43,18 +48,23 @@ def lerp(a, b, t):
     return a + (b - a) * t
 
 
+def boil(t):
+    return int(t * 8)
+
+
 def load(path):
-    return Image.open(path).convert('RGBA' if path.endswith('.png') else 'RGB')
+    return Image.open(path).convert('RGBA')
 
 
 # ---------- shared textures ----------
 rng = np.random.default_rng(7)
-_grain = rng.normal(0, 1, (H // 2, W // 2)).astype(np.float32)
-_grain = np.asarray(Image.fromarray(((_grain * 40) + 128).clip(0, 255).astype(np.uint8)).resize((W, H), Image.BILINEAR).filter(ImageFilter.GaussianBlur(0.8)), np.float32)
-GRAIN = ((_grain - 128) / 128.0)[..., None]
+_g = rng.normal(0, 1, (H // 2, W // 2)).astype(np.float32)
+_g = np.asarray(Image.fromarray(((_g * 40) + 128).clip(0, 255).astype(np.uint8)).resize((W, H), Image.BILINEAR).filter(ImageFilter.GaussianBlur(0.8)), np.float32)
+GRAIN = ((_g - 128) / 128.0)[..., None]
 yy, xx = np.mgrid[0:H, 0:W]
 _r = np.sqrt(((xx - W / 2) / (W / 2)) ** 2 + ((yy - H / 2) / (H / 2)) ** 2)
 VIGNETTE = (1 - 0.32 * np.clip(_r - 0.55, 0, 1) ** 1.4)[..., None].astype(np.float32)
+PAPER = ink.make_paper()
 
 
 def finish(img, vignette=True):
@@ -65,29 +75,29 @@ def finish(img, vignette=True):
     return a.clip(0, 255).astype(np.uint8)
 
 
-def paper():
-    base = Image.new('RGB', (W, H), IVORY)
-    return base
+def paper_layer():
+    return PAPER.convert('RGBA')
 
 
-def kenburns(img, t, s0, s1, c0, c1):
-    """img larger than frame; s = zoom (1 = fit width), c = centre in img fraction."""
+def kenburns(img, t, s0, s1, c0, c1, out=(W, H)):
     iw, ih = img.size
     s = lerp(s0, s1, t)
     cw = iw / s
-    ch = cw * H / W
+    ch = cw * out[1] / out[0]
     cx = lerp(c0[0], c1[0], t) * iw
     cy = lerp(c0[1], c1[1], t) * ih
     x0 = min(max(cx - cw / 2, 0), iw - cw)
     y0 = min(max(cy - ch / 2, 0), ih - ch)
-    return img.crop((x0, y0, x0 + cw, y0 + ch)).resize((W, H), Image.BICUBIC)
+    return img.crop((x0, y0, x0 + cw, y0 + ch)).resize(out, Image.BICUBIC)
 
 
-def tint(fig, mult=0.9, warm=(1.0, 0.95, 0.88)):
+def grade(fig, mult=0.88, warm=(1.0, 0.94, 0.84), floor_dark=0.35):
+    """Match a cut-out to the amber mine light: warm tint plus darker legs (light comes from the helmet lamps)."""
     a = np.asarray(fig, np.float32).copy()
-    a[..., 0] *= mult * warm[0]
-    a[..., 1] *= mult * warm[1]
-    a[..., 2] *= mult * warm[2]
+    h = a.shape[0]
+    g = np.linspace(1.0, 1.0 - floor_dark, h)[:, None]
+    for c in range(3):
+        a[..., c] *= mult * warm[c] * g
     return Image.fromarray(a.clip(0, 255).astype(np.uint8), 'RGBA')
 
 
@@ -95,13 +105,21 @@ def fit_h(fig, h):
     return fig.resize((round(fig.width * h / fig.height), h), Image.LANCZOS)
 
 
-def shadow(canvas, cx, y, w):
-    sh = Image.new('L', (int(w * 1.4), 60), 0)
-    ImageDraw.Draw(sh).ellipse((0, 0, sh.width - 1, 59), fill=120)
-    sh = sh.filter(ImageFilter.GaussianBlur(14))
-    blk = Image.new('RGBA', sh.size, (20, 12, 8, 0))
-    blk.putalpha(sh)
-    canvas.alpha_composite(blk, (int(cx - sh.width / 2), int(y - 30)))
+def alpha_scale(img, k):
+    if k >= 1:
+        return img
+    a = np.asarray(img).copy()
+    a[..., 3] = (a[..., 3].astype(np.float32) * max(k, 0)).astype(np.uint8)
+    return Image.fromarray(a, 'RGBA')
+
+
+def glow(canvas, cx, cy, r, color=(255, 196, 120), strength=0.45):
+    g = Image.new('L', canvas.size, 0)
+    ImageDraw.Draw(g).ellipse((cx - r, cy - r, cx + r, cy + r), fill=int(255 * strength))
+    g = g.filter(ImageFilter.GaussianBlur(r * 0.6))
+    col = Image.new('RGBA', canvas.size, color + (0,))
+    col.putalpha(g)
+    canvas.alpha_composite(col)
 
 
 # ---------- assets ----------
@@ -110,21 +128,37 @@ E01 = E01.resize((1920, round(E01.height * 1920 / E01.width)), Image.LANCZOS)
 VISOR = load(os.path.join(A3, 'C01C_visor_v2.png')).resize((2304, 1296), Image.LANCZOS)
 E02 = load(os.path.join(B2, 'E02.png')).resize((2304, 1296), Image.LANCZOS)
 E03 = load(os.path.join(B2, 'E03.png')).resize((2496, 1404), Image.LANCZOS)
-E03_DARK = ImageEnhance.Brightness(E03.filter(ImageFilter.GaussianBlur(3))).enhance(0.55)
-DARROW = tint(fit_h(load(os.path.join(A3, 'C01A_standing.png')), 800), 0.88)
-NAROL = tint(fit_h(load(os.path.join(ROOT, 'src', 'narol.png')), 760), 0.88)
-CLIMB = tint(fit_h(load(os.path.join(A3, 'C01B_climbing.png')), 1080), 0.92)
+TUNNEL = ImageEnhance.Brightness(E03.crop((0, 120, 1500, 964)).resize((2304, 1296), Image.LANCZOS).filter(ImageFilter.GaussianBlur(4))).enhance(0.62)
+TUNNEL_CU = ImageEnhance.Brightness(TUNNEL.filter(ImageFilter.GaussianBlur(10))).enhance(0.8)
+NAROL = grade(fit_h(load(os.path.join(ROOT, 'src', 'narol34.png')), 1500))
+DARROW_SIDE = grade(ImageOps.mirror(fit_h(load(os.path.join(ROOT, 'src', 'darrowside.png')), 1400)))
+NAROL_CU = grade(fit_h(load(os.path.join(ROOT, 'src', 'narolhead.png')), 1000), 0.9, floor_dark=0.2)
+DARROW_CU = grade(fit_h(load(os.path.join(ROOT, 'src', 'darrowhead.png')), 1060), 0.95, (1.0, 0.96, 0.88), floor_dark=0.2)
+CLIMB = grade(fit_h(load(os.path.join(A3, 'C01B_climbing.png')), 1080), 0.92, floor_dark=0.15)
 REAPER = fit_h(load(os.path.join(ROOT, 'src', 'reaper.png')), 900)
 MINER_SIL = fit_h(load(os.path.join(A3, 'C01A_standing.png')), 820)
 TITLE_BG = ImageEnhance.Brightness(E01.crop((0, 1500, 1920, 2580)).filter(ImageFilter.GaussianBlur(5))).enhance(0.42)
+
+
+def fg_rocks(seed=11):
+    """Dark, soft foreground rock silhouettes (the guide's foreground layer)."""
+    l = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(l)
+    left = [(-40, H + 40), (-40, 720), (90, 690), (210, 760), (330, 880), (420, H + 40)]
+    right = [(W + 40, H + 40), (W + 40, 640), (1820, 610), (1700, 700), (1610, 860), (1540, H + 40)]
+    for pts, s in ((left, seed), (right, seed + 1)):
+        d.polygon(wobble(pts, s, 14, closed=True), fill=(24, 15, 11, 255))
+    return l.filter(ImageFilter.GaussianBlur(7))
+
+
+FG_ROCKS = fg_rocks()
 
 
 def silhouette(fig, body=(26, 20, 18), rim=RED, reveal=0.0):
     a = np.asarray(fig, np.float32)
     alpha = a[..., 3]
     out = np.zeros_like(a)
-    col = np.array(body, np.float32)
-    out[..., :3] = col * (1 - reveal) + a[..., :3] * 0.55 * reveal
+    out[..., :3] = np.array(body, np.float32) * (1 - reveal) + a[..., :3] * 0.55 * reveal
     out[..., 3] = alpha
     sh = np.zeros_like(alpha)
     sh[:, 7:] = alpha[:, :-7]
@@ -138,71 +172,82 @@ SIL_MINER = silhouette(MINER_SIL)
 SIL_REAPER = silhouette(REAPER)
 
 
-def alpha_scale(img, k):
-    if k >= 1:
-        return img
-    a = np.asarray(img).copy()
-    a[..., 3] = (a[..., 3].astype(np.float32) * max(k, 0)).astype(np.uint8)
-    return Image.fromarray(a, 'RGBA')
-
-
-# ---------- drawing helpers ----------
-def leaf(d, cx, cy, ang, L=46, Wd=17, fill=GOLD, alpha=255):
+# ---------- hand-drawn graphics ----------
+def leaf_pts(cx, cy, ang, L, Wd):
     pts = []
-    for i in range(24):
-        u = i / 23 * math.pi * 2
+    for i in range(18):
+        u = i / 17 * math.pi * 2
         x = math.cos(u) * L / 2
-        y = math.sin(u) * Wd / 2 * (1 - 0.35 * math.cos(u))
+        y = math.sin(u) * Wd / 2 * (1 - 0.4 * math.cos(u))
         pts.append((cx + x * math.cos(ang) - y * math.sin(ang), cy + x * math.sin(ang) + y * math.cos(ang)))
-    d.polygon(pts, fill=fill + (alpha,), outline=BROWN + (alpha,), width=3)
+    return pts
 
 
-def laurel(d, cx, cy, R, progress, scale=1.0, alpha=255):
-    n = 11
-    shown = progress * n * 2
-    k = 0
+def laurel(layer, cx, cy, R, progress, scale=1.0, alpha=255, seed=0):
+    """Two inked branches curving up from the bottom, leaves budding along them."""
+    d = ImageDraw.Draw(layer)
+    n = 10
+    st = ease(progress / 0.5)
     for side in (-1, 1):
+        if st > 0:
+            m = int(40 * st) + 1
+            arc = []
+            for i in range(m):
+                a = math.radians(118 + 128 * i / 40)
+                x = cx + math.cos(a) * R
+                arc.append((x if side == -1 else 2 * cx - x, cy + math.sin(a) * R))
+            if len(arc) > 1:
+                stroke(d, arc, 4.5 * scale, seed=seed + side, amp=1.0, alpha=alpha)
         for i in range(n):
-            a0 = math.radians(115 + i * 13.5)
-            ang = math.pi - a0 if side == 1 else a0
-            px = cx + side * -math.cos(a0) * R * -1 if False else cx + (-math.cos(a0) * R if side == -1 else math.cos(a0) * R * -1 * -1)
-            px = cx + (math.cos(a0) * R if side == -1 else -math.cos(a0) * R)
-            py = cy + math.sin(a0) * R
-            vis = min(max(shown - k, 0), 1)
-            if vis > 0:
-                tang = (a0 + math.pi / 2) if side == -1 else (math.pi - a0 - math.pi / 2)
-                leaf(d, px, py, tang + side * 0.5, L=46 * scale, Wd=17 * scale, alpha=int(alpha * vis))
-            k += 1
-    if progress > 0.05:
-        st = ease((progress - 0.05) / 0.4)
-        d.arc((cx - R, cy - R, cx + R, cy + R), 115, 115 + 13.5 * (n - 1) * st, fill=BROWN + (alpha,), width=int(4 * scale))
-        d.arc((cx - R, cy - R, cx + R, cy + R), 65 - 13.5 * (n - 1) * st, 65, fill=BROWN + (alpha,), width=int(4 * scale))
+            vis = ease(progress * n * 1.25 - i)
+            if vis <= 0:
+                continue
+            a = math.radians(124 + i * 12.5)
+            px, py = cx + math.cos(a) * R, cy + math.sin(a) * R
+            tang = a + math.pi / 2
+            if side == 1:
+                px = 2 * cx - px
+                tang = math.pi - tang
+            ang = tang + (0.8 if side == -1 else -0.8)
+            shape(layer, leaf_pts(px, py, ang, 52 * scale * vis, 19 * scale * vis), GOLD, seed=seed + i * 7 + side, outline=2.4 * scale, hatch=False, amp=0.8, alpha=alpha)
 
 
-def text_center(d, xy, s, f, fill, spacing=0):
-    if spacing:
-        widths = [d.textlength(ch, font=f) for ch in s]
-        total = sum(widths) + spacing * (len(s) - 1)
-        x = xy[0] - total / 2
-        for ch, w in zip(s, widths):
-            d.text((x, xy[1]), ch, font=f, fill=fill, anchor='lm')
-            x += w + spacing
-    else:
-        d.text(xy, s, font=f, fill=fill, anchor='mm')
+def crate(layer, x, y, w, h, label, seed):
+    shape(layer, [(x, y), (x + w, y), (x + w, y + h), (x, y + h)], WOOD, seed=seed, outline=4, amp=1.6)
+    d = ImageDraw.Draw(layer)
+    for k in (0.33, 0.66):
+        stroke(d, [(x + 6, y + h * k), (x + w - 6, y + h * k)], 2.4, seed=seed + int(k * 10), amp=1.0)
+    stroke(d, [(x + 8, y + 8), (x + w - 8, y + h - 8)], 3, seed=seed + 5, amp=1.2)
+    shape(layer, [(x + w * 0.12, y + h * 0.36), (x + w * 0.88, y + h * 0.36), (x + w * 0.88, y + h * 0.64), (x + w * 0.12, y + h * 0.64)], (236, 224, 198), seed=seed + 9, outline=2, hatch=False, amp=0.8)
+    ink_text(layer, (x + w / 2, y + h / 2), label, F_CRATE)
 
 
-def crate(d, x, y, w, h, label):
-    d.rectangle((x, y, x + w, y + h), fill=(164, 112, 70), outline=BROWN, width=4)
-    d.line((x, y, x + w, y + h), fill=BROWN, width=3)
-    d.line((x + w, y, x, y + h), fill=BROWN, width=3)
-    d.rectangle((x + w * 0.12, y + h * 0.38, x + w * 0.88, y + h * 0.62), fill=IVORY, outline=BROWN, width=2)
-    d.text((x + w / 2, y + h / 2), label, font=F_SMALL, fill=BROWN, anchor='mm')
+def heap_pts(cx, base, w, h, seed):
+    r = np.random.default_rng(seed)
+    pts = [(cx - w / 2, base)]
+    for i in range(1, 16):
+        u = i / 16
+        pts.append((cx - w / 2 + w * u, base - h * math.sin(math.pi * u) ** 0.8 + r.uniform(-1, 1) * h * 0.06))
+    pts.append((cx + w / 2, base))
+    return pts
+
+
+def stamp(layer, cx, cy, text, ang=-9, alpha=255):
+    t = Image.new('RGBA', (420, 150), (0, 0, 0, 0))
+    td = ImageDraw.Draw(t)
+    stroke(td, [(14, 14), (406, 14), (406, 136), (14, 136)], 6, color=RED, seed=4, amp=1.5, closed=True)
+    td.text((210, 77), text, font=F_HEAD, fill=RED + (255,), anchor='mm')
+    a = np.asarray(t).copy()
+    holes = np.random.default_rng(5).random(a.shape[:2]) < 0.16
+    a[holes, 3] = 0
+    a[..., 3] = (a[..., 3] * alpha / 255).astype(np.uint8)
+    t = Image.fromarray(a, 'RGBA').rotate(ang, resample=Image.BICUBIC, expand=True)
+    layer.alpha_composite(t, (int(cx - t.width / 2), int(cy - t.height / 2)))
 
 
 # ---------- shots ----------
 def s1(t, D):
-    k = ease(t / D)
-    y = lerp(0, 1500, k)
+    y = lerp(0, 1500, ease(t / D))
     return E01.crop((0, y, 1920, y + 1080)).convert('RGB')
 
 
@@ -211,81 +256,106 @@ def s2(t, D):
 
 
 def s3(t, D):
-    img = paper().convert('RGBA')
-    d = ImageDraw.Draw(img)
-    laurel(d, W / 2, 430, 170, ease(t / 2.4))
-    if t > 0.6:
-        a = int(255 * ease((t - 0.6) / 0.8))
-        text_center(d, (W / 2, 150), 'THE LAUREL', F_HEAD, BROWN + (a,))
-    labels = ['FOOD', 'WATER', 'MEDICINE', 'FOOD']
-    for i, lab in enumerate(labels):
-        t0 = 2.4 + i * 0.45
+    img = paper_layer()
+    b = boil(t)
+    if t > 0.3:
+        ink_text(img, (W / 2, 150), 'The Laurel', F_HEAD, alpha=int(255 * ease((t - 0.3) / 0.8)))
+    laurel(img, W / 2, 420, 165, ease(t / 2.6), seed=b * 31)
+    for i, lab in enumerate(['FOOD', 'WATER', 'MEDICINE', 'FOOD']):
+        t0 = 2.6 + i * 0.45
         if t > t0:
             p = ease((t - t0) / 0.5)
-            x = W / 2 - 490 + i * 250
-            yy0 = lerp(560, 690, p)
-            crate(d, x, yy0, 230, 150, lab)
-    if t > 4.4:
-        a = int(255 * ease((t - 4.4) / 0.6))
-        text_center(d, (W / 2, 930), 'FOR THE HARDEST-WORKING CLAN  ·  LYKOS', F_LABEL, MUTED + (a,), spacing=3)
+            crate(img, W / 2 - 520 + i * 265, lerp(560, 680, p), 240, 160, lab, seed=b * 13 + i * 3)
+    if t > 4.6:
+        ink_text(img, (W / 2, 930), 'a prize for the hardest-working clan', F_CAP, fill=MUTED, alpha=int(255 * ease((t - 4.6) / 0.6)))
     return img.convert('RGB')
 
 
-def s4(t, D):
+def s4a(t, D):
+    """Medium two-shot in a lamp-lit tunnel: Narol warns, Darrow listens, facing each other."""
     k = ease(t / D)
-    bg = kenburns(E03_DARK, k, 1.0, 1.08, (0.5, 0.55), (0.52, 0.55)).convert('RGBA')
-    shadow(bg, 610, 1020, NAROL.width * 0.6)
-    shadow(bg, 1330, 1030, DARROW.width * 0.7)
-    nx = int(lerp(330, 345, k))
-    bg.alpha_composite(NAROL, (nx, 1020 - NAROL.height))
-    bg.alpha_composite(DARROW, (1330 - DARROW.width // 2, 1030 - DARROW.height))
+    bg = kenburns(TUNNEL, k, 1.0, 1.03, (0.42, 0.5), (0.44, 0.5)).convert('RGBA')
+    glow(bg, 960, 330, 380, strength=0.35)
+    lay = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    breathe = 1 + 0.004 * math.sin(t * 2.2)
+    n = NAROL.resize((NAROL.width, int(NAROL.height * breathe)), Image.BILINEAR)
+    lay.alpha_composite(n, (int(560 - n.width / 2), 1520 - n.height + 90))
+    lay.alpha_composite(DARROW_SIDE, (int(1230 - DARROW_SIDE.width / 2), 1500 - DARROW_SIDE.height + 90))
+    s = lerp(1.0, 1.07, k)
+    lay = lay.resize((int(W * s), int(H * s)), Image.BICUBIC)
+    ox, oy = int((lay.width - W) / 2), int((lay.height - H) * 0.3)
+    bg.alpha_composite(lay.crop((ox, oy, ox + W, oy + H)))
+    bg.alpha_composite(FG_ROCKS)
     return bg.convert('RGB')
 
 
-CLANS = [('GAMMA', 0.62), ('LYKOS', 0.95), ('OMICRON', 0.48), ('UPSILON', 0.55)]
+def closeup(fig, cx, t, D, lamp):
+    k = ease(t / D)
+    bg = kenburns(TUNNEL_CU, k, 1.05, 1.1, (0.5, 0.5), (0.5, 0.5)).convert('RGBA')
+    glow(bg, lamp[0], lamp[1], 420, strength=0.3)
+    s = lerp(1.0, 1.05, k)
+    f = fig.resize((int(fig.width * s), int(fig.height * s)), Image.BICUBIC)
+    bg.alpha_composite(f, (int(cx - f.width / 2), int(H - f.height + 60 * s)))
+    return bg.convert('RGB')
+
+
+def s4b(t, D):
+    return closeup(NAROL_CU, 760, t, D, (1300, 250))
+
+
+def s4c(t, D):
+    return closeup(DARROW_CU, 1180, t, D, (700, 200))
+
+
+CLANS = [('Gamma', 0.62), ('Lykos', 0.95), ('Omicron', 0.48), ('Upsilon', 0.55)]
 
 
 def s5(t, D):
-    img = paper().convert('RGBA')
+    img = paper_layer()
+    b = boil(t)
     d = ImageDraw.Draw(img)
-    text_center(d, (W / 2, 120), 'WHO WINS THE LAUREL?', F_HEAD, BROWN)
-    base, maxh, bw = 900, 560, 220
-    xs = [W / 2 - 510 + i * 340 for i in range(4)]
+    ink_text(img, (W / 2, 120), 'Who wins the Laurel?', F_HEAD)
+    base, maxh, bw = 800, 430, 300
+    xs = [W / 2 - 600 + i * 400 for i in range(4)]
+    stroke(d, [(120, base), (W - 120, base)], 4, seed=b * 5 + 1, amp=2.5)
     for i, (name, v) in enumerate(CLANS):
-        p = ease((t - i * 0.15) / 1.2)
-        h = maxh * v * p
-        col = RUST if name == 'LYKOS' else (150, 132, 112)
-        d.rectangle((xs[i] - bw / 2, base - h, xs[i] + bw / 2, base), fill=col, outline=BROWN, width=4)
-        d.text((xs[i], base + 40), name, font=F_LABEL, fill=BROWN, anchor='mm')
-    # laurel goes to Lykos first, then slides to Gamma
+        p = ease((t - i * 0.15) / 1.3)
+        if p > 0.02:
+            col = RUST if name == 'Lykos' else STONE
+            shape(img, heap_pts(xs[i], base, bw, maxh * v * p, 40 + i), col, seed=b * 11 + i, outline=4, light=(-1, -1.2))
+            rr = np.random.default_rng(i)
+            for j in range(5):
+                rx = xs[i] + rr.uniform(-0.3, 0.3) * bw
+                ry = base - rr.uniform(0.1, 0.55) * maxh * v * p
+                shape(img, ellipse_pts(rx, ry, 18, 12, 14), tuple(int(c * 0.85) for c in col), seed=b * 3 + j + i * 9, outline=2.2, hatch=False, amp=1.0)
+        stroke(d, [(xs[i], base), (xs[i], 945)], 7, color=(110, 76, 46), seed=b + i * 4, amp=1.0)
+        shape(img, [(xs[i] - 105, 868), (xs[i] + 105, 862), (xs[i] + 108, 926), (xs[i] - 102, 930)], (214, 178, 128), seed=b * 7 + i, outline=3, hatch=False, amp=1.2)
+        ink_text(img, (xs[i], 897), name, F_SIGN)
+
+    def top(j):
+        return base - maxh * CLANS[j][1]
     if t > 1.6:
         a = int(255 * ease((t - 1.6) / 0.4))
-        slide = ease((t - 2.4) / 0.9)
-        lx = lerp(xs[1], xs[0], slide)
-        top_l = base - maxh * CLANS[1][1]
-        top_g = base - maxh * CLANS[0][1]
-        ly = lerp(top_l, top_g, slide) - 95
-        laurel(d, lx, ly, 60, 1.0, scale=0.4, alpha=a)
-    if t > 3.4:
-        a = int(255 * ease((t - 3.4) / 0.5))
-        d.text((xs[0], base - maxh * CLANS[0][1] - 190), 'RIGGED', font=F_LABEL, fill=RED + (a,), anchor='mm')
+        sl = ease((t - 2.4) / 1.0)
+        lx = lerp(xs[1], xs[0], sl)
+        ly = lerp(top(1), top(0), sl) - 90 - 70 * math.sin(math.pi * sl)
+        laurel(img, lx, ly, 62, 1.0, scale=0.42, alpha=a, seed=b * 17)
+    if t > 3.5:
+        stamp(img, xs[0] + 40, top(0) - 230, 'RIGGED', alpha=int(255 * ease((t - 3.5) / 0.25)))
     return img.convert('RGB')
 
 
 def s6(t, D):
-    k = t / D
-    img = kenburns(E02, ease(k), 1.03, 1.16, (0.5, 0.5), (0.5, 0.56))
+    img = kenburns(E02, ease(t / D), 1.03, 1.16, (0.5, 0.5), (0.5, 0.56))
     burst = 0
     for b in (0.0, 1.5, 3.0):
         if t >= b:
             burst = max(burst, math.exp(-(t - b) * 3.0))
     amp = 16 * burst
-    dx = amp * math.sin(t * 61.0)
-    dy = amp * math.cos(t * 47.0)
+    dx, dy = amp * math.sin(t * 61.0), amp * math.cos(t * 47.0)
     img = img.transform((W, H), Image.AFFINE, (1, 0, -dx, 0, 1, -dy), resample=Image.BILINEAR)
     pulse = 0.5 + 0.5 * math.sin(t * math.pi * 2 * 1.6)
-    red = Image.new('RGB', (W, H), RED)
-    return Image.blend(img.convert('RGB'), red, 0.10 + 0.14 * pulse)
+    return Image.blend(img.convert('RGB'), Image.new('RGB', (W, H), RED), 0.10 + 0.14 * pulse)
 
 
 def s7(t, D):
@@ -302,28 +372,30 @@ def s8(t, D):
     title = 'RED RISING'
     widths = [d.textlength(ch, font=F_TITLE) for ch in title]
     sp = 18
-    total = sum(widths) + sp * (len(title) - 1)
-    x = W / 2 - total / 2
+    x = W / 2 - (sum(widths) + sp * (len(title) - 1)) / 2
     for i, (ch, w) in enumerate(zip(title, widths)):
         a = ease((t - 0.2 - i * 0.09) / 0.5)
         if a > 0:
             d.text((x, 470 + (1 - a) * 18), ch, font=F_TITLE, fill=IVORY + (int(255 * a),), anchor='lm')
         x += w + sp
-    words = ['BRUTAL', 'DEFIANT', 'SOULFUL']
-    for i, wd in enumerate(words):
+    for i, wd in enumerate(['BRUTAL', 'DEFIANT', 'SOULFUL']):
         t0 = 2.3 + i * 0.8
         if t > t0:
             a = int(255 * ease((t - t0) / 0.5))
-            text_center(d, (W / 2 - 420 + i * 420, 650), wd, F_WORDS, GOLD + (a,), spacing=8)
+            cx = W / 2 - 420 + i * 420
+            ws = [d.textlength(c, font=F_WORDS) for c in wd]
+            x2 = cx - (sum(ws) + 8 * (len(wd) - 1)) / 2
+            for c, w in zip(wd, ws):
+                d.text((x2, 650), c, font=F_WORDS, fill=GOLD + (a,), anchor='lm')
+                x2 += w + 8
     return img.convert('RGB')
 
 
 def s9(t, D):
     img = Image.new('RGBA', (W, H), (30, 34, 40, 255))
     k = ease((t - 1.2) / 2.2)
-    m = SIL_MINER
     sc = lerp(1.0, 1.12, k)
-    mm = m.resize((int(m.width * sc), int(m.height * sc)), Image.BILINEAR)
+    mm = SIL_MINER.resize((int(SIL_MINER.width * sc), int(SIL_MINER.height * sc)), Image.BILINEAR)
     if k < 1:
         img.alpha_composite(alpha_scale(mm, 1 - k), (W // 2 - mm.width // 2, 1010 - mm.height))
     if k > 0:
@@ -331,100 +403,107 @@ def s9(t, D):
         r = silhouette(REAPER, reveal=rv) if rv > 0.01 else SIL_REAPER
         img.alpha_composite(alpha_scale(r, k), (W // 2 - r.width // 2 + 40, 1030 - r.height))
     if t > 3.6:
-        d = ImageDraw.Draw(img)
-        a = int(255 * ease((t - 3.6) / 0.6))
-        text_center(d, (1520, 520), 'THE REAPER', F_HEAD, (226, 205, 180, a))
+        ink_text(img, (1520, 520), 'The Reaper', F_HEAD, fill=(226, 205, 180), alpha=int(255 * ease((t - 3.6) / 0.6)))
     return img.convert('RGB')
 
 
 def bez(p0, p1, p2, p3, n=120):
-    out = []
-    for i in range(n + 1):
-        u = i / n
-        out.append(((1 - u) ** 3 * p0[0] + 3 * (1 - u) ** 2 * u * p1[0] + 3 * (1 - u) * u * u * p2[0] + u ** 3 * p3[0],
-                    (1 - u) ** 3 * p0[1] + 3 * (1 - u) ** 2 * u * p1[1] + 3 * (1 - u) * u * u * p2[1] + u ** 3 * p3[1]))
-    return out
+    return [((1 - u) ** 3 * p0[0] + 3 * (1 - u) ** 2 * u * p1[0] + 3 * (1 - u) * u * u * p2[0] + u ** 3 * p3[0],
+             (1 - u) ** 3 * p0[1] + 3 * (1 - u) ** 2 * u * p1[1] + 3 * (1 - u) * u * u * p2[1] + u ** 3 * p3[1])
+            for u in (i / n for i in range(n + 1))]
 
 
 SC = 1.3
 CW, CH = int(W * SC), int(H * SC)
-SEG1 = bez((330, 1150), (330, 1010), (450, 900), (560, 872))
-SEG2 = bez((732, 700), (1000, 560), (1500, 900), (1900, 700))
-PATH = SEG1 + SEG2
-GAP = len(SEG1)
 SOC = (1900, 700)
 MARS = (560, 700)
+SEG1 = wobble(bez((330, 1100), (330, 990), (450, 900), (560, 872)), 21, 2.0)
+SEG2 = wobble(bez((732, 700), (1000, 560), (1500, 900), (1900, 700)), 22, 2.0)
+PATH = SEG1 + SEG2
+GAP = len(SEG1)
+PATH_W = 7 * (1 + ink._noise(len(PATH), 5, 0.3))
+
+
+def map_base():
+    l = Image.new('RGBA', (CW, CH), (0, 0, 0, 0))
+    d = ImageDraw.Draw(l)
+    for i, r in enumerate((150, 240, 330)):
+        stroke(d, ellipse_pts(SOC[0], SOC[1], r, r * 0.55, 90), 2.6, color=STONE, seed=60 + i, amp=1.5, closed=True)
+    shape(l, ellipse_pts(MARS[0], MARS[1], 170, 170, 70)[:-1], RUST, seed=70, outline=5, light=(-1, -1))
+    for cx_, cy_, rr in ((500, 650, 26), (610, 760, 18), (630, 640, 14)):
+        stroke(d, ellipse_pts(cx_, cy_, rr, rr * 0.8, 24), 2.2, color=(130, 66, 40), seed=cx_, amp=1.0, closed=True)
+    shape(l, [(200, 1100), (460, 1100), (460, 1270), (200, 1270)], (110, 70, 48), seed=71, outline=4)
+    stroke(d, [(330, 1100), (330, 1270)], 4, color=(240, 190, 110), seed=72, amp=0.8)
+    ink_text(l, (330, 1320), 'the mines of Lykos', F_CAP)
+    ink_text(l, (MARS[0], MARS[1] - 220), 'Mars', F_CAP)
+    return l
+
+
+MAP_BASE = map_base()
+PAPER_BIG = ink.make_paper(9).resize((CW, CH), Image.BICUBIC)
+
+
+def book(layer, x, y, numeral, alpha, seed):
+    shape(layer, [(x - 34, y - 44), (x + 34, y - 44), (x + 34, y + 44), (x - 34, y + 44)], (236, 224, 198), seed=seed, outline=3.5, hatch=False, amp=1.2, alpha=alpha)
+    stroke(ImageDraw.Draw(layer), [(x - 24, y - 44), (x - 24, y + 44)], 3, seed=seed + 1, amp=0.6, alpha=alpha)
+    ink_text(layer, (x + 5, y), numeral, F_SIGN, alpha=alpha)
 
 
 def s10(t, D):
-    img = Image.new('RGBA', (CW, CH), IVORY + (255,))
+    img = PAPER_BIG.convert('RGBA')
+    img.alpha_composite(MAP_BASE)
     d = ImageDraw.Draw(img)
-    # orbit rings around the Society
-    for i, r in enumerate((150, 240, 330)):
-        a = int(255 * ease((t - 1.6 - i * 0.25) / 0.6))
-        if a:
-            d.ellipse((SOC[0] - r, SOC[1] - r * 0.55, SOC[0] + r, SOC[1] + r * 0.55), outline=(150, 132, 112, a), width=3)
-    # Mars and mine
-    d.ellipse((MARS[0] - 170, MARS[1] - 170, MARS[0] + 170, MARS[1] + 170), fill=RUST, outline=BROWN, width=5)
-    d.rectangle((200, 1150, 460, 1340), fill=(110, 70, 48), outline=BROWN, width=4)
-    d.line((330, 1150, 330, 1340), fill=(240, 190, 110), width=4)
-    d.text((330, 1380), 'MINES OF LYKOS', font=F_LABEL, fill=BROWN, anchor='mm')
-    d.text((MARS[0], MARS[1] + 215), 'MARS', font=F_LABEL, fill=BROWN, anchor='mm')
-    # gold centre
     g = ease((t - 3.4) / 0.8)
     if g:
         r = 70 * g
-        d.ellipse((SOC[0] - r, SOC[1] - r, SOC[0] + r, SOC[1] + r), fill=GOLD, outline=BROWN, width=5)
         a = int(255 * g)
-        d.text((SOC[0], SOC[1] - 400), 'THE SOCIETY', font=F_HEAD, fill=BROWN + (a,), anchor='mm')
-    # route
-    p = ease(t / 4.2)
-    n = max(2, int(len(PATH) * p))
-    d.line(PATH[:min(n, GAP)], fill=BROWN, width=8, joint='curve')
-    if n > GAP + 1:
-        d.line(PATH[GAP:n], fill=BROWN, width=8, joint='curve')
-    for j, frac in enumerate((0.3, 0.6, 0.86)):
+        for i in range(12):
+            ang = i / 12 * math.pi * 2
+            stroke(d, [(SOC[0] + math.cos(ang) * (r + 14), SOC[1] + math.sin(ang) * (r + 14)), (SOC[0] + math.cos(ang) * (r + 44), SOC[1] + math.sin(ang) * (r + 44))], 4, color=GOLD, seed=80 + i, amp=0.8, alpha=a)
+        shape(img, ellipse_pts(SOC[0], SOC[1], r, r, 40)[:-1], GOLD, seed=81, outline=4, alpha=a, hatch=False)
+        ink_text(img, (SOC[0], SOC[1] - 400), 'The Society', F_HEAD, alpha=a)
+    n = max(2, int(len(PATH) * ease(t / 4.2)))
+    for lo, hi in ((0, min(n, GAP)), (GAP, n)):
+        for i in range(lo, hi - 1):
+            d.line([PATH[i], PATH[i + 1]], fill=INK + (255,), width=int(PATH_W[i]))
+    for j, frac in enumerate((0.14, 0.6, 0.86)):
         idx = int(len(PATH) * frac)
         if n > idx:
             x, y = PATH[idx]
-            a = int(255 * ease((n - idx) / 25))
-            d.rectangle((x - 30, y - 40, x + 30, y + 40), fill=IVORY + (a,), outline=BROWN + (a,), width=4)
-            d.text((x, y), ['I', 'II', 'III'][j], font=F_LABEL, fill=BROWN + (a,), anchor='mm')
-    # camera pull-back from the mine to the full system
+            book(img, x, y, ['I', 'II', 'III'][j], int(255 * ease((n - idx) / 25)), seed=90 + j)
     k = ease(t / (D * 0.75))
     s = lerp(1.9, 1.0, k)
     cw, ch = CW / s, CH / s
-    cx = lerp(420, CW / 2, k)
-    cy = lerp(1120, CH / 2, k)
+    cx, cy = lerp(420, CW / 2, k), lerp(1080, CH / 2, k)
     x0 = min(max(cx - cw / 2, 0), CW - cw)
     y0 = min(max(cy - ch / 2, 0), CH - ch)
     return img.crop((x0, y0, x0 + cw, y0 + ch)).resize((W, H), Image.BICUBIC).convert('RGB')
 
 
 # (start, render_fn, vignette)
-SHOTS = [(0.0, s1, True), (5.5, s2, True), (9.5, s3, False), (15.8, s4, True), (22.5, s5, False),
-         (27.0, s6, True), (31.5, s7, True), (36.1, s8, True), (43.0, s9, True), (49.0, s10, False)]
+SHOTS = [(0.0, s1, True), (5.5, s2, True), (9.5, s3, False),
+         (15.8, s4a, True), (18.6, s4b, True), (20.6, s4c, True),
+         (22.5, s5, False), (27.0, s6, True), (31.5, s7, True), (36.1, s8, True), (43.0, s9, True), (49.0, s10, False)]
+CUTS = {18.6, 20.6}  # hard cuts inside the conversation (shot / reverse shot)
 END = 57.7
-XF = 0.25  # half-length of crossfades
+XF = 0.25
 
 
 def frame(t):
     starts = [s for s, _, _ in SHOTS] + [END]
     i = max(j for j in range(len(SHOTS)) if starts[j] <= t)
+
     def render(j, tt):
         s0, fn, vig = SHOTS[j]
         D = starts[j + 1] - s0
         return finish(fn(min(max(tt - s0, 0), D + XF), D), vig)
     cur = render(i, t)
-    if i + 1 < len(SHOTS) and starts[i + 1] - t < XF:
-        nxt = render(i + 1, t)
+    if i + 1 < len(SHOTS) and starts[i + 1] - t < XF and starts[i + 1] not in CUTS:
         w = ease((t - (starts[i + 1] - XF)) / (2 * XF))
-        cur = (cur * (1 - w) + nxt * w).astype(np.uint8)
-    elif i > 0 and t - starts[i] < XF:
-        prv = render(i - 1, t)
+        cur = (cur * (1 - w) + render(i + 1, t) * w).astype(np.uint8)
+    elif i > 0 and t - starts[i] < XF and starts[i] not in CUTS:
         w = ease((t - (starts[i] - XF)) / (2 * XF))
-        cur = (prv * (1 - w) + cur * w).astype(np.uint8)
-    # fade in from black at the very start
+        cur = (render(i - 1, t) * (1 - w) + cur * w).astype(np.uint8)
     if t < 0.6:
         cur = (cur * ease(t / 0.6)).astype(np.uint8)
     return cur
