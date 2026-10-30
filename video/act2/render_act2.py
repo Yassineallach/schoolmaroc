@@ -41,6 +41,22 @@ F_CAP = font('Fraunces500i.woff2', 40)
 F_STAMP = font('Fraunces700.woff2', 30)
 
 
+
+class FadeDraw:
+    """ImageDraw that blends translucent text instead of overwriting pixels."""
+    def __init__(self, img):
+        self.img = img
+        self.d = ImageDraw.Draw(img)
+
+    def textlength(self, *a, **k):
+        return self.d.textlength(*a, **k)
+
+    def text(self, xy, s, font, fill, anchor='la'):
+        ov = Image.new('RGBA', self.img.size, (0, 0, 0, 0))
+        ImageDraw.Draw(ov).text(xy, s, font=font, fill=fill, anchor=anchor)
+        self.img.alpha_composite(ov)
+
+
 def ease(x):
     x = min(max(x, 0.0), 1.0)
     return x * x * (3 - 2 * x)
@@ -245,37 +261,31 @@ def s13(t, D):
     return img.convert('RGB')
 
 
+E10 = Image.open(os.path.join(B3, 'E10.png')).convert('RGB').resize((2304, 1296), Image.LANCZOS)
+F_YEAR = font('Fraunces700.woff2', 120)
+
+
 def s14(t, D):
-    img = paper()
-    d = ImageDraw.Draw(img)
-    a = int(255 * ease(t / 0.5))
-    ink_text(img, (W / 2, 140), '2014', F_BIG, fill=RUST, alpha=a)
-    # the book opens and a little night sky with Mars rises out of its pages
-    op = ease((t - 1.0) / 1.0)
-    cx, cy = W / 2, 850
-    if op < 1:
-        shape(img, [(cx - 170, cy - 110), (cx + 170, cy - 110), (cx + 170, cy + 110), (cx - 170, cy + 110)], RED, seed=boil(t) * 3, outline=4, hatch=True, shade=0.12)
-        stroke(d, [(cx - 140, cy - 110), (cx - 140, cy + 110)], 4, seed=5, amp=0.6)
-    if op > 0:
-        for side in (-1, 1):
-            spread = 170 + 150 * op
-            pts = [(cx, cy - 110), (cx + side * spread, cy - 120 - 20 * op), (cx + side * spread, cy + 110), (cx, cy + 120)]
-            shape(img, pts, PAGE, seed=boil(t) * 5 + side, outline=4, hatch=False, shade=0.08, alpha=int(255 * op))
-        sky = ease((t - 2.0) / 1.6)
-        if sky > 0:
-            r = 250 * sky
-            shape(img, ellipse_pts(cx, cy - 170 - 60 * sky, r * 1.25, r * 0.85, 60)[:-1], NAVY, seed=boil(t) * 7, outline=4, hatch=False, shade=0)
-            rr = np.random.default_rng(3)
-            for _ in range(40):
-                ang = rr.uniform(0, math.pi * 2)
-                rad = math.sqrt(rr.uniform(0, 1))
-                sx = cx + math.cos(ang) * rad * r * 1.15
-                sy = cy - 170 - 60 * sky + math.sin(ang) * rad * r * 0.75
-                d.ellipse((sx - 2.5, sy - 2.5, sx + 2.5, sy + 2.5), fill=(240, 230, 200, 255))
-            m = 46 * sky
-            shape(img, ellipse_pts(cx + 90 * sky, cy - 230 - 60 * sky, m, m, 30)[:-1], RUST, seed=9, outline=3, hatch=False, shade=0.25)
-    if t > 3.6:
-        ink_text(img, (W / 2, 1035), 'an epic rebellion set among the stars', F_CAP, fill=MUTED, alpha=int(255 * ease((t - 3.6) / 0.6)))
+    """The timeline reaches 2014, then the page opens onto the painted fleet over Mars."""
+    if t < 1.5:
+        img = paper()
+        d = ImageDraw.Draw(img)
+        timeline(img, d, 140, 1780, 700, 31, 1.0)
+        x = lerp(340, 1500, ease(t / 1.1))
+        stroke(d, [(x, 700), (x, 640)], 6, seed=7, amp=0.5)
+        ink_text(img, (x, 560), '2014', F_YEAR, fill=RUST, alpha=int(255 * ease(t / 0.4)))
+        return img.convert('RGB')
+    k = ease((t - 1.5) / (D - 1.5))
+    if t < 1.9:
+        a_ = s14(1.49, D); b_ = s14(1.9, D)
+        return Image.blend(a_, b_, ease((t - 1.5) / 0.4))
+    img = kenburns(E10, k, 1.0, 1.12, (0.5, 0.55), (0.5, 0.48)).convert('RGBA')
+    d = FadeDraw(img)
+    a = int(255 * ease((t - 1.9) / 0.6))
+    d.text((W / 2, 150), '2014', font=F_YEAR, fill=(243, 235, 221, a), anchor='mm')
+    if t > 2.8:
+        ac = int(255 * ease((t - 2.8) / 0.6))
+        d.text((W / 2, 980), 'an epic rebellion set among the stars', font=F_CAP, fill=(243, 235, 221, ac), anchor='mm')
     return img.convert('RGB')
 
 
@@ -390,7 +400,7 @@ def s18(t, D):
 
 
 # act-local start times (narration: clip 4 starts at 0.0, clip 5 at 23.8)
-SHOTS = [(0.0, s11, False), (6.3, s12, False), (13.3, s13, False), (18.8, s14, False),
+SHOTS = [(0.0, s11, False), (6.3, s12, False), (13.3, s13, False), (18.8, s14, True),
          (23.8, s15, False), (28.1, s16, False), (34.3, s17, False), (39.3, s18, True)]
 END = 44.6
 XF = 0.25

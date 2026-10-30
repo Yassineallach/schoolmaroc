@@ -39,6 +39,22 @@ F_CRATE = font('Fraunces700.woff2', 26)
 F_WORDS = font('Inter600.woff2', 44)
 
 
+
+class FadeDraw:
+    """ImageDraw that blends translucent text instead of overwriting pixels."""
+    def __init__(self, img):
+        self.img = img
+        self.d = ImageDraw.Draw(img)
+
+    def textlength(self, *a, **k):
+        return self.d.textlength(*a, **k)
+
+    def text(self, xy, s, font, fill, anchor='la'):
+        ov = Image.new('RGBA', self.img.size, (0, 0, 0, 0))
+        ImageDraw.Draw(ov).text(xy, s, font=font, fill=fill, anchor=anchor)
+        self.img.alpha_composite(ov)
+
+
 def ease(x):
     x = min(max(x, 0.0), 1.0)
     return x * x * (3 - 2 * x)
@@ -368,7 +384,7 @@ def s7(t, D):
 
 def s8(t, D):
     img = kenburns(TITLE_BG.convert('RGB'), ease(t / D), 1.0, 1.06, (0.5, 0.5), (0.5, 0.5)).convert('RGBA')
-    d = ImageDraw.Draw(img)
+    d = FadeDraw(img)
     title = 'RED RISING'
     widths = [d.textlength(ch, font=F_TITLE) for ch in title]
     sp = 18
