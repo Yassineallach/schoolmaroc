@@ -1,6 +1,6 @@
 ---
 name: paper-explainer-video
-description: Build a YouTube educational explainer video (book summary, history, science, biography) in a Vox-style editorial paper-collage look from the user's narration clips and transcript. Use when the user wants an explainer or summary video made from voice-over audio. It covers storybook-style asset prompts, clean cut-outs, scenes synced to the spoken word, contact-sheet QC and a full-quality 1080p render. Triggers include "make a video like the Red Rising one", "explainer video from my narration", "paper collage / Vox style video", "book summary video".
+description: Build a YouTube educational explainer video (book summary, history, science, biography) in a Vox-style editorial paper-collage look from the user's narration clips and transcript. Use when the user wants an explainer or summary video made from voice-over audio. It covers storybook-style asset prompts, clean cut-outs, scenes synced to the spoken word (timing created with each act), contact-sheet QC and a full-quality 1080p render done by Claude in the session. Triggers include "make a video like the Red Rising one", "explainer video from my narration", "paper collage / Vox style video", "book summary video".
 ---
 
 # Paper-collage explainer video
@@ -27,7 +27,7 @@ Keep everything in one folder; the scripts run from inside it, or set `VOX_PROJE
 project/
   audio/1.wav 1.txt 2.wav 2.txt ...   narration clips plus the exact transcript of each
   assets/                             APPROVED, leftover-checked PNGs only
-  timing/words.json, words.txt        from align.py
+  timing/words.json, words.txt        created automatically as each act is built
   act1.py act2.py ...                 one file per act (copy templates/act_template.py)
   out/                                renders
 ```
@@ -85,17 +85,18 @@ Choose the mode by what the figure is made of:
 - Re-cut with another mode or crop until both are clean. Only clean files go into `assets/`.
 - The user caught leftovers several times on the first project. This check is not optional.
 
-### 5. Word timing
+### 5. Acts, with their word timing
 
-```
-cd project && python SK/scripts/align.py
-```
+Build the acts one at a time. Word timing is created **together with each act**, not as a separate step:
 
-- **What it writes:** `timing/words.json`, plus `timing/words.txt` (`word@seconds`), for picking cue phrases.
-- **Runs locally:** faster-whisper `small.en`, with the transcript as the prompt so names are spelled right.
+- **Automatic timing.** When `actN.py` runs `cue = make_cue(CLIPS)`, any clip in `CLIPS` that has no timing yet is aligned on the spot. That uses faster-whisper `small.en`, locally, with the clip's `.txt` as the prompt so names are spelled right. The result is saved to `timing/words.json` and `timing/words.txt`.
+- **Order for each act:**
+  1. Write `CLIPS`.
+  2. Run the act once (e.g. the contact-sheet command in phase 6). This creates its timing.
+  3. Open `timing/words.txt` (`word@seconds`) to pick the cue phrases.
+  4. Write the scenes against those phrases.
+- **Re-align a clip** whose audio or transcript changed: `python SK/scripts/align.py 7`.
 - **If a phrase is not found:** check `words.txt` for the spelling, use the nth occurrence, or use a neighbouring two-word phrase that is unique.
-
-### 6. Scenes
 
 Copy `templates/act_template.py` to `actN.py`. Rules:
 
@@ -127,7 +128,7 @@ Engine reference (all in `scripts/vox.py`):
 - **Layout:** `torn_mask` and `foreground()`.
 - **Constants:** `W`, `H`, `PAPER`, `INK`, `RED`, `CREAM`.
 
-### 7. QC before rendering
+### 6. QC before rendering
 
 ```
 cd project && PYTHONPATH=SK/scripts python act1.py sheet out/act1_sheet.png 2 6 10 15 22
@@ -143,18 +144,24 @@ cd project && PYTHONPATH=SK/scripts python act1.py sheet out/act1_sheet.png 2 6 
 
 Fix them, then re-check. On long projects, show the user sheets or a draft per act and get approval before moving on.
 
-### 8. Render
+### 7. Render: Claude renders the final, in this session
+
+The final video is rendered **here, by Claude, on Claude's machine**. Not on the user's PC, and not on Kaggle. The user only receives the finished file.
 
 ```
-cd project && python SK/scripts/render_all.py --draft          # quick review: CRF 18
-cd project && python SK/scripts/render_all.py                  # FINAL: CRF 12, slow, 320k AAC
-cd project && python SK/scripts/render_all.py --acts 3 --draft # redo one act, rejoin
+cd project && python SK/scripts/render_all.py --acts 3 --draft   # review render of one act
+cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12, slow, 320k AAC, all acts
 ```
 
-- **Output:** one file per act, then `out/full.mp4`, joined losslessly.
-- **Audio:** narration is mastered automatically: EQ, 3:1 compression, −16 LUFS.
-- **Speed:** about 1 min of render per 5 s of video per process. It is CPU-bound, so a GPU does not help. Use `--parallel N` on many-core machines and `--parallel 1` on low-RAM machines.
-- **Render the final at full quality yourself and send the file to the user.** Don't hand them render scripts unless they ask. If a file is over 100 MB, keep it out of git (`.gitignore`) and send it directly.
+- **Run renders in the background** (Bash `run_in_background`). Rendering is CPU-bound: about 1 min of render per 5 s of video per process, so a full 7–8 min film takes over an hour. Keep working, or wait for the completion notice. Don't poll with sleep.
+- **Act drafts:** after each act is approved on its contact sheet, render a `--draft` of that act and send it with `SendUserFile`, so the user can review it while you build the next act.
+- **Final:** when all acts are approved, render without `--draft`.
+  - It writes one file per act, then joins them losslessly into `out/full.mp4`.
+  - Narration is mastered automatically: EQ, 3:1 compression, −16 LUFS.
+  - Check the duration with ffprobe and spot-check a few frames.
+  - Then send `out/full.mp4` to the user with `SendUserFile`.
+- **Files over 100 MB** stay out of git (`.gitignore`). Send them directly.
+- **Render scripts for the user's own PC:** only if the user explicitly asks. The default is: Claude renders, the user downloads.
 
 ## Rules learned from the user (keep them)
 
@@ -166,4 +173,5 @@ cd project && python SK/scripts/render_all.py --acts 3 --draft # redo one act, r
 6. The film should feel like an explainer, not a movie. Paper collage, documents and text carry the ideas; plates are illustrations pinned to the page.
 7. Every cut and reveal lands on the word it illustrates.
 8. Real-person likeness, such as an author's portrait, comes only from an image the user provides.
-9. Deliver the final at full quality without being asked twice.
+9. Claude renders the final at full quality in the session and sends the file. Never push rendering onto the user.
+10. Create word timing as each act is built, never as a separate pass afterwards.

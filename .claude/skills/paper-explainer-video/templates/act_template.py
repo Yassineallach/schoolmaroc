@@ -2,7 +2,8 @@
 
 Copy this to <project>/actN.py. Every scene is a function sX(t, D) -> RGBA canvas, where t is
 scene-local seconds and D the scene length. Every reveal and every cut is tied to a SPOKEN WORD
-via cue(clip, 'phrase'), never to a hand-typed second. Pick phrases from timing/words.txt.
+via cue(clip, 'phrase'), never to a hand-typed second. The first run of this file creates the
+timing for CLIPS automatically; then pick phrases from timing/words.txt.
 
   cue(clip, 'phrase')            act-local start of the phrase's first occurrence in that clip
   cue(clip, 'phrase', 2)         ... its 2nd occurrence

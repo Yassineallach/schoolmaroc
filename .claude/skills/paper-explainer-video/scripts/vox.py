@@ -481,7 +481,13 @@ def _norm(s):
 
 
 def make_cue(clips):
-    """Returns cue(clip, phrase, nth=1, edge='s') -> act-local seconds of that spoken phrase."""
+    """Returns cue(clip, phrase, nth=1, edge='s') -> act-local seconds of that spoken phrase.
+    Clips with no word timing yet are aligned right now (align.py) and saved to timing/words.json,
+    so the timing is created together with the act."""
+    missing = [c for c in clips if c not in _WORDS]
+    if missing:
+        import align
+        _WORDS.update(align.align(missing))
     off, acc = {}, 0.0
     for c in clips:
         off[c] = acc
