@@ -1,22 +1,25 @@
 class_name Mascot
 extends Control
 
-## Ace, the game's guide: a grinning jester (assets/mascot/ace.svg). Floats
-## and tilts like a card, materializes in a burst of sparks, and talks
-## through a speech bubble with a blip per syllable, juicing up on each one
-## (a quick swell and wiggle, as Balatro's Card:juice_up does for Jimbo).
-## Can offer buttons under the bubble.
+## Ace, a living playing card who explains things: a sly card shark rather
+## than a cute buddy (angled brows, narrow eyes, a lopsided smirk). He is a
+## different Ace each time he shows up, Spades, Hearts, Clubs, Diamonds in
+## turn, in the deck's own suit colours. Materializes in a burst of
+## sparks, talks through a speech bubble with a blip per syllable, and can
+## offer buttons under the bubble.
 
 signal dismissed
 signal poked
 
-const ART := preload("res://assets/mascot/ace.svg")  # imported at 0.35x: sharp at 2x screens
-const H := 180.0
-const W := 150.0  # the drawing's proportions (1080 x 1290)
+const W := 110.0
+const H := 150.0
 const BUBBLE_W := 400.0
 const CHAR_TIME := 0.016
 
 var talking := false
+## which Ace he is this time (Data suit order); moves on every appearance
+var suit := 0
+static var _next_suit := 1  # the first one is Hearts, as he always was
 var sfx: Sfx
 
 var _body := Control.new()
@@ -24,7 +27,9 @@ var _bubble := PanelContainer.new()
 var _text := Label.new()
 var _buttons := HBoxContainer.new()
 var _sparks := CPUParticles2D.new()
-var _bounce := 0.0
+var _mouth_open := 0.0
+var _blink := 0.0
+var _next_blink := 2.0
 var _phase := randf() * TAU
 var _bubble_left := true
 var _say_id := 0
@@ -33,9 +38,10 @@ var _skip := false
 
 func _init(effects: Sfx) -> void:
 	sfx = effects
+	suit = _next_suit
+	_next_suit = (_next_suit + 1) % 4
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	size = Vector2(W, H)
-	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 
 	_body.size = size
 	_body.pivot_offset = size / 2
@@ -92,7 +98,12 @@ func _init(effects: Sfx) -> void:
 
 
 func _process(delta: float) -> void:
-	_bounce = maxf(0.0, _bounce - delta * 4.0)
+	_mouth_open = maxf(0.0, _mouth_open - delta * 6.0)
+	_next_blink -= delta
+	if _next_blink <= 0.0:
+		_blink = 0.12
+		_next_blink = randf_range(2.0, 4.5)
+	_blink = maxf(0.0, _blink - delta)
 	_place_bubble()
 	_body.queue_redraw()
 
@@ -143,10 +154,13 @@ func say(text: String, options: Array = [], bubble_left := true) -> void:
 			vowel = vowel or "aeiouyAEIOUY".contains(text[shown - 1])
 		_text.visible_characters = shown
 		# at most one blip per frame, on a vowel
-		if vowel and randf() < 0.6 and _bounce < 0.4:
-			_bounce = 1.0
+		if vowel and randf() < 0.6 and _mouth_open < 0.4:
+			_mouth_open = 1.0
 			if sfx:
 				sfx.play("voice", randf_range(0.9, 1.25))
+			_body.pivot_offset = _body.size / 2
+			_body.scale = Vector2(1.04, 0.97)
+			create_tween().tween_property(_body, "scale", Vector2.ONE, 0.12)
 	if my_id != _say_id:
 		return
 	talking = false
@@ -232,12 +246,37 @@ func _draw_body() -> void:
 	var t := Anim.now()
 	var bob := sin(t * 2.0 + _phase) * 4.0
 	var tilt := sin(t * 1.3 + _phase) * 0.04
-	# juice: a swell and a fast wiggle that die away after each syllable
-	var swell := 1.0 + 0.06 * _bounce
-	var wiggle := 0.07 * _bounce * sin(t * 38.0)
 	var c := _body.size / 2
-	_body.draw_set_transform_matrix(Transform2D(tilt + wiggle, Vector2.ONE * swell, 0.0, c + Vector2(0, bob)) * Transform2D(0.0, -c))
-	var art: Texture2D = ART
-	var shadow := Vector2(4, 8 - bob * 0.5)
-	_body.draw_texture_rect(art, Rect2(shadow, _body.size), false, Color(0, 0, 0, 0.35))
-	_body.draw_texture_rect(art, Rect2(Vector2.ZERO, _body.size), false)
+	_body.draw_set_transform_matrix(Transform2D(tilt, c + Vector2(0, bob)) * Transform2D(0.0, -c))
+	var ink := Color("2b2d42")
+	var col: Color = Data.SUIT_COLORS[suit]
+	var card := PixelBox.new(Color("f7f3ea"), 4.0, 0.0, true)
+	card.outline = 3.0
+	card.outline_color = col.darkened(0.25)
+	card.shadow_offset = Vector2(4, 8 - bob * 0.5)
+	_body.draw_style_box(card, Rect2(Vector2.ZERO, _body.size))
+	var font := ThemeDB.fallback_font
+	# corner marks: which Ace he is this time, top left and upside down bottom right
+	_body.draw_string(font, Vector2(8, 26), "A", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, col)
+	CardView.draw_suit(_body, suit, Vector2(15, 38), 13.0, col)
+	CardView.draw_suit(_body, suit, Vector2(W - 15, H - 14), 13.0, col)
+	# brows: heavy and angled down to the middle, a scheming look
+	_body.draw_colored_polygon(PackedVector2Array([Vector2(24, 50), Vector2(46, 57), Vector2(45, 62), Vector2(24, 55)]), ink)
+	_body.draw_colored_polygon(PackedVector2Array([Vector2(86, 50), Vector2(64, 57), Vector2(65, 62), Vector2(86, 55)]), ink)
+	# eyes: narrow slits with the pupils glancing aside
+	var open := 1.0 if _blink <= 0.0 else 0.2
+	for ex in [35.0, 75.0]:
+		var h := 9.0 * open
+		_body.draw_rect(Rect2(ex - 9, 70 - h / 2, 18, h), Color.WHITE)
+		_body.draw_rect(Rect2(ex - 9, 70 - h / 2, 18, h), ink, false, 2.0)
+		if open > 0.5:
+			_body.draw_rect(Rect2(ex + 1, 70 - h / 2, 6, h), ink)
+	# a lopsided smirk, up on his right; it opens on teeth as he talks
+	var o := 10.0 * _mouth_open
+	var smirk := PackedVector2Array([Vector2(38, 95), Vector2(60, 93), Vector2(76, 86), Vector2(77, 90 + o * 0.4), Vector2(61, 98 + o), Vector2(39, 99 + o * 0.6)])
+	_body.draw_colored_polygon(smirk, Color("5b1a20"))
+	if _mouth_open > 0.2:
+		_body.draw_colored_polygon(PackedVector2Array([Vector2(41, 96.5), Vector2(60, 95), Vector2(74, 89.5), Vector2(74, 91.5), Vector2(60, 98), Vector2(41, 99)]), Color.WHITE)
+	_body.draw_polyline(PackedVector2Array([Vector2(36, 94), Vector2(38, 95)]), ink, 2.0)
+	# his suit, big, on the chest
+	CardView.draw_suit(_body, suit, Vector2(c.x, 126), 24.0, col)
