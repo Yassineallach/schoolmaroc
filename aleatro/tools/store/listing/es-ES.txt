@@ -1,0 +1,30 @@
+#title
+Aleatro: roguelike de póker
+#short
+Un roguelike de póker: juega manos, acumula amuletos y vence a las ciegas jefe
+#full
+Aleatro es un roguelike de póker en el que retuerces las reglas hasta que los números estallan.
+
+Juega manos de póker para puntuar Fichas × Multi y supera el objetivo de cada ciega antes de quedarte sin manos. Cada ante trae una ciega pequeña, una ciega grande y una ciega jefe con un giro traicionero. Gana, cobra y gasta tu dinero en la tienda en amuletos, hechizos, runas, vales y sobres. Cada uno cambia cómo se puntúa, y la mezcla adecuada convierte una simple pareja en millones de puntos.
+
+CÓMO SE JUEGA
+- Elige hasta 5 cartas y juega una mano de póker, o descarta para buscar mejores
+- Cada tipo de mano tiene sus propias Fichas y Multi; súbelas de nivel con runas
+- Los amuletos suman Multi, lo multiplican, se copian entre sí, crecen durante la partida o dan dinero
+- Mejora, sella y edita tus cartas para crear la baraja que quieras
+- Supera el ante 8 para ganar la partida y luego descubre hasta dónde llega el Modo Infinito
+
+QUÉ INCLUYE
+- 150 amuletos, 32 vales y 24 etiquetas
+- 28 ciegas jefe, cada una con su propia regla
+- Hechizos, runas y augurios, además de manos secretas por descubrir
+- 15 barajas, 8 apuestas y 30 desafíos
+- Colección, estadísticas de carrera, y logros y clasificaciones de Google Play Juegos
+
+JUEGA A TU MANERA
+- Se juega totalmente sin conexión, sin cuenta
+- Controles táctiles pensados para móviles y compatibilidad con mando
+- 10 idiomas: English, 简体中文, 日本語, 한국어, Deutsch, Français, Español, Português (Brasil), Italiano y العربية
+- La partida se guarda sola, así que puedes parar cuando quieras
+
+Aleatro es gratis con anuncios opcionales. Una compra única elimina los anuncios entre rondas.

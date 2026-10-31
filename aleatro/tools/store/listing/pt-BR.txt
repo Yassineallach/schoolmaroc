@@ -1,0 +1,30 @@
+#title
+Aleatro: roguelike de pôquer
+#short
+Um roguelike de pôquer: jogue mãos, junte amuletos e vença os Blinds Chefes
+#full
+Aleatro é um roguelike de pôquer em que você distorce as regras até os números explodirem.
+
+Jogue mãos de pôquer para pontuar Fichas × Mult e alcance a meta de cada blind antes de ficar sem mãos. Cada ante traz um Blind Pequeno, um Blind Grande e um Blind Chefe com uma regra traiçoeira. Vença, receba e gaste seu dinheiro na loja em amuletos, feitiços, runas, cupons e pacotes. Cada um muda a forma de pontuar, e a combinação certa transforma um simples par em milhões de pontos.
+
+COMO SE JOGA
+- Escolha até 5 cartas e jogue uma mão de pôquer, ou descarte para buscar outras melhores
+- Cada tipo de mão tem suas próprias Fichas e Mult; suba o nível delas com runas
+- Amuletos somam Mult, multiplicam, copiam uns aos outros, crescem durante a partida ou rendem dinheiro
+- Aprimore, sele e edite suas cartas para montar o baralho que quiser
+- Vença o ante 8 para ganhar a partida e depois veja até onde vai o Modo Infinito
+
+O QUE TEM
+- 150 amuletos, 32 cupons e 24 etiquetas
+- 28 Blinds Chefes, cada um com sua própria regra
+- Feitiços, runas e presságios, além de mãos secretas para descobrir
+- 15 baralhos, 8 apostas e 30 desafios
+- Coleção, estatísticas de carreira, e conquistas e placares do Google Play Games
+
+JOGUE DO SEU JEITO
+- Funciona totalmente offline, sem conta
+- Controles por toque feitos para celular e suporte a controle
+- 10 idiomas: English, 简体中文, 日本語, 한국어, Deutsch, Français, Español, Português (Brasil), Italiano e العربية
+- A partida é salva automaticamente, então você pode parar quando quiser
+
+Aleatro é gratuito com anúncios opcionais. Uma compra única remove os anúncios entre as rodadas.

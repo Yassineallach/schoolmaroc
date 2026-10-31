@@ -1,0 +1,30 @@
+#title
+Aleatro: Poker Roguelike
+#short
+A poker roguelike: play hands, stack charms and beat the boss blinds
+#full
+Aleatro is a poker roguelike about bending the rules until the numbers explode.
+
+Play poker hands to score Chips × Mult and beat each blind's target before you run out of hands. Every ante brings a Small Blind, a Big Blind and a Boss Blind with a nasty twist. Win, cash out, and spend your money in the shop on charms, spells, runes, vouchers and booster packs. Each one changes how scoring works, and the right mix turns a humble pair into a score in the millions.
+
+HOW IT PLAYS
+- Pick up to 5 cards and play a poker hand, or discard to dig for better ones
+- Every hand type has its own Chips and Mult; level them up with runes
+- Charms add Mult, multiply it, copy each other, grow during the run or earn money
+- Enhance, seal and upgrade your cards to shape the deck you want
+- Beat ante 8 to win the run, then see how far Endless Mode goes
+
+WHAT'S INSIDE
+- 150 charms, 32 vouchers and 24 tags
+- 28 boss blinds, each with its own rule
+- Spells, runes and omens, plus secret hands to discover
+- 15 decks, 8 stakes and 30 challenges
+- A collection, career stats, and Google Play Games achievements and leaderboards
+
+PLAY YOUR WAY
+- Plays fully offline, no account needed
+- Touch controls made for phones, plus gamepad support
+- 10 languages: English, 简体中文, 日本語, 한국어, Deutsch, Français, Español, Português (Brasil), Italiano and العربية
+- Your run saves automatically, so you can stop at any moment
+
+Aleatro is free to play with optional ads. A one-time purchase removes the ads between rounds.

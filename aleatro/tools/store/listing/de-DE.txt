@@ -1,0 +1,30 @@
+#title
+Aleatro: Poker-Roguelike
+#short
+Ein Poker-Roguelike: Spiele Hände, staple Talismane und schlage die Boss Blinds
+#full
+Aleatro ist ein Poker-Roguelike, in dem du die Regeln verbiegst, bis die Zahlen explodieren.
+
+Spiele Pokerhände, punkte mit Chips × Mult und knacke das Ziel jedes Blinds, bevor dir die Hände ausgehen. Jede Ante bringt einen Small Blind, einen Big Blind und einen Boss Blind mit fiesem Kniff. Gewinne, kassiere ab und gib dein Geld im Laden für Talismane, Zauber, Runen, Gutscheine und Booster-Packs aus. Jedes davon verändert die Wertung, und mit der richtigen Mischung wird aus einem schlichten Paar ein Ergebnis in Millionenhöhe.
+
+SO WIRD GESPIELT
+- Wähle bis zu 5 Karten und spiele eine Pokerhand, oder wirf ab, um bessere zu finden
+- Jede Handart hat eigene Chips und Mult; mit Runen steigerst du ihre Stufe
+- Talismane erhöhen Mult, vervielfachen ihn, kopieren einander, wachsen im Lauf der Runde oder bringen Geld
+- Verbessere, versiegle und veredle deine Karten, bis das Deck passt
+- Schlage Ante 8, um den Lauf zu gewinnen, und teste dann, wie weit der Endlosmodus geht
+
+DAS STECKT DRIN
+- 150 Talismane, 32 Gutscheine und 24 Marken
+- 28 Boss Blinds, jeder mit eigener Regel
+- Zauber, Runen und Omen, dazu geheime Hände zum Entdecken
+- 15 Decks, 8 Einsätze und 30 Herausforderungen
+- Sammlung, Karrierestatistik sowie Erfolge und Bestenlisten in Google Play Spiele
+
+SPIEL, WIE DU WILLST
+- Komplett offline spielbar, kein Konto nötig
+- Touch-Steuerung fürs Smartphone, dazu Gamepad-Unterstützung
+- 10 Sprachen: English, 简体中文, 日本語, 한국어, Deutsch, Français, Español, Português (Brasil), Italiano und العربية
+- Dein Lauf wird automatisch gespeichert, du kannst jederzeit aufhören
+
+Aleatro ist kostenlos spielbar und enthält optionale Werbung. Ein einmaliger Kauf entfernt die Werbung zwischen den Runden.

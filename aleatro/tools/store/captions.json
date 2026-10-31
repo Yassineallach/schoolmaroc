@@ -1,0 +1,83 @@
+{
+  "order": ["score", "shop", "pack", "blind", "coll", "setup"],
+  "en": {
+    "score": "Play poker hands. Score Chips × Mult.",
+    "shop": "Build a wild combo with charms and vouchers",
+    "pack": "Open packs of runes, spells and cards",
+    "blind": "Beat every blind. Outsmart 28 bosses.",
+    "coll": "150 charms to discover",
+    "setup": "15 decks, 8 stakes and 30 challenges"
+  },
+  "zh_CN": {
+    "score": "打出扑克牌型，筹码 × 倍率",
+    "shop": "用护符和优惠券打造疯狂组合",
+    "pack": "开启符文包、法术包和卡牌包",
+    "blind": "击败每个盲注，智胜 28 个 Boss",
+    "coll": "150 个护符等你发现",
+    "setup": "15 种牌组、8 种赌注、30 个挑战"
+  },
+  "ja": {
+    "score": "ポーカーのハンドで チップ × 倍率 を稼ごう",
+    "shop": "チャームとバウチャーで最強コンボを",
+    "pack": "ルーン、スペル、カードのパックを開けよう",
+    "blind": "ブラインドを突破し、28体のボスを出し抜け",
+    "coll": "150種のチャームを発見しよう",
+    "setup": "デッキ15種・ステーク8段階・チャレンジ30種"
+  },
+  "ko": {
+    "score": "포커 핸드를 플레이해 칩 × 배수로 점수를",
+    "shop": "부적과 바우처로 강력한 조합을 만드세요",
+    "pack": "룬, 주문, 카드 팩을 열어 보세요",
+    "blind": "블라인드를 넘고 보스 28명을 공략하세요",
+    "coll": "발견할 부적 150종",
+    "setup": "덱 15종, 스테이크 8단계, 도전 30개"
+  },
+  "de": {
+    "score": "Spiele Pokerhände. Punkte = Chips × Mult.",
+    "shop": "Baue wilde Kombos mit Talismanen und Gutscheinen",
+    "pack": "Öffne Packs mit Runen, Zaubern und Karten",
+    "blind": "Schlage jeden Blind. Überliste 28 Bosse.",
+    "coll": "150 Talismane zu entdecken",
+    "setup": "15 Decks, 8 Einsätze und 30 Herausforderungen"
+  },
+  "fr": {
+    "score": "Jouez des mains de poker : Jetons × Multi",
+    "shop": "Créez des combos folles avec charmes et bons",
+    "pack": "Ouvrez des pochettes de runes, sorts et cartes",
+    "blind": "Battez chaque blinde. Déjouez 28 boss.",
+    "coll": "150 charmes à découvrir",
+    "setup": "15 paquets, 8 enjeux et 30 défis"
+  },
+  "es": {
+    "score": "Juega manos de póker: Fichas × Multi",
+    "shop": "Crea combos locos con amuletos y vales",
+    "pack": "Abre sobres de runas, hechizos y cartas",
+    "blind": "Supera cada ciega. Burla a 28 jefes.",
+    "coll": "150 amuletos por descubrir",
+    "setup": "15 barajas, 8 apuestas y 30 desafíos"
+  },
+  "pt_BR": {
+    "score": "Jogue mãos de pôquer: Fichas × Mult",
+    "shop": "Crie combos insanos com amuletos e cupons",
+    "pack": "Abra pacotes de runas, feitiços e cartas",
+    "blind": "Vença cada blind. Supere 28 chefes.",
+    "coll": "150 amuletos para descobrir",
+    "setup": "15 baralhos, 8 apostas e 30 desafios"
+  },
+  "it": {
+    "score": "Gioca mani di poker: Fiches × Molt",
+    "shop": "Crea combo folli con amuleti e buoni",
+    "pack": "Apri buste di rune, incantesimi e carte",
+    "blind": "Supera ogni buio. Batti 28 boss.",
+    "coll": "150 amuleti da scoprire",
+    "setup": "15 mazzi, 8 puntate e 30 sfide"
+  },
+  "ar": {
+    "score": "العب أيادي البوكر: الرقائق × المضاعف",
+    "shop": "اصنع تركيبات جامحة بالتمائم والقسائم",
+    "pack": "افتح حزم الرونات والتعاويذ والأوراق",
+    "blind": "تغلّب على كل رهان واهزم 28 زعيمًا",
+    "coll": "150 تميمة بانتظار اكتشافها",
+    "setup": "15 رزمة و8 رهانات و30 تحديًا"
+  }
+}

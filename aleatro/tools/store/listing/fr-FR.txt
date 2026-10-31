@@ -1,0 +1,30 @@
+#title
+Aleatro : roguelike de poker
+#short
+Un roguelike de poker : jouez des mains, cumulez les charmes, battez les boss
+#full
+Aleatro est un roguelike de poker où l'on tord les règles jusqu'à faire exploser les scores.
+
+Jouez des mains de poker pour marquer Jetons × Multi et atteignez l'objectif de chaque blinde avant d'épuiser vos mains. Chaque mise apporte une petite blinde, une grosse blinde et une blinde de boss au piège retors. Gagnez, encaissez, puis dépensez votre argent à la boutique en charmes, sorts, runes, bons et pochettes. Chacun change la façon de marquer, et le bon mélange transforme une simple paire en un score à plusieurs millions.
+
+COMMENT ON JOUE
+- Choisissez jusqu'à 5 cartes et jouez une main de poker, ou défaussez pour trouver mieux
+- Chaque type de main a ses propres Jetons et Multi ; améliorez-les avec des runes
+- Les charmes ajoutent du Multi, le multiplient, se copient entre eux, grandissent pendant la partie ou rapportent de l'argent
+- Améliorez, scellez et sublimez vos cartes pour façonner le paquet idéal
+- Battez la mise 8 pour gagner la partie, puis voyez jusqu'où va le Mode Infini
+
+AU PROGRAMME
+- 150 charmes, 32 bons et 24 étiquettes
+- 28 blindes de boss, chacune avec sa propre règle
+- Sorts, runes et présages, plus des mains secrètes à découvrir
+- 15 paquets, 8 enjeux et 30 défis
+- Une collection, des statistiques de carrière, et les succès et classements Google Play Jeux
+
+JOUEZ À VOTRE FAÇON
+- Jouable entièrement hors ligne, sans compte
+- Commandes tactiles pensées pour le téléphone, et prise en charge de la manette
+- 10 langues : English, 简体中文, 日本語, 한국어, Deutsch, Français, Español, Português (Brasil), Italiano et العربية
+- Votre partie est sauvegardée automatiquement, arrêtez quand vous voulez
+
+Aleatro est gratuit avec des publicités facultatives. Un achat unique supprime les publicités entre les manches.
