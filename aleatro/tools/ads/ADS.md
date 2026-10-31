@@ -4,6 +4,11 @@ The game side is done: AdMob rewarded and interstitial ads, Google's consent
 form (UMP), and a one-time "Remove ads" purchase. Any ID left empty falls
 back to **Google's test ads only**.
 
+Privacy policy: **https://mar-devl.github.io/aleatro-legal/**
+(source: `tools/site/index.html`). app-ads.txt is live at
+**https://mar-devl.github.io/app-ads.txt**, so the Play Console developer
+website must be **https://mar-devl.github.io/**.
+
 All your IDs go in one file: **`res://ads/ads.cfg`**. Fill it in, then build.
 Every build, debug or release, uses those real IDs, so register your own
 phone as a test device (section 5) before you play.

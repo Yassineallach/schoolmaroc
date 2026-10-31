@@ -6,6 +6,7 @@ Console and pasting back the IDs it gives you.
 
 - Project ID: **451331127820** (it's already inside the app's manifest)
 - Package: **com.mardev.Aleatro**
+- Privacy policy: **https://mar-devl.github.io/aleatro-legal/**
 
 ## 1. Credentials (sign-in won't work without them)
 
