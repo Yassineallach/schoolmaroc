@@ -1,10 +1,12 @@
 # Ads and "Remove ads" for Aleatro: what to set up
 
 The game side is done: AdMob rewarded and interstitial ads, Google's consent
-form (UMP), and a one-time "Remove ads" purchase. Until you add your own IDs
-the game shows **Google's test ads only**; debug builds always do.
+form (UMP), and a one-time "Remove ads" purchase. Any ID left empty falls
+back to **Google's test ads only**.
 
 All your IDs go in one file: **`res://ads/ads.cfg`**. Fill it in, then build.
+Every build, debug or release, uses those real IDs, so register your own
+phone as a test device (section 5) before you play.
 
 ## 1. AdMob: the app and five ad units
 
@@ -72,10 +74,11 @@ developer website on Google Play. Unverified apps earn less.
 
 ## 5. Test before you go live
 
-- Debug builds always use Google's test ads, so you can't click a real ad by mistake.
-- To see your real ads on your own phone without risk, add the phone under
-  **AdMob > Settings > Test devices**.
-- `[debug] test_ads=true` in `ads.cfg` forces test ads in a release build too.
+- **Register your phone under AdMob > Settings > Test devices.** It then gets
+  test ads from your real units, which is safe to tap. Never tap real ads on an
+  unregistered device: AdMob can flag that as invalid activity.
+- `[debug] test_ads=true` in `ads.cfg` switches every unit to Google's sample
+  units, for devices you can't register.
 - New ad units can take up to an hour to serve. Until then the game simply
   shows nothing at those moments, which is the intended fallback.
 

@@ -124,7 +124,9 @@ func now() -> float:
 func _load_config() -> void:
 	var cf := ConfigFile.new()
 	var ok := cf.load(CONFIG_PATH) == OK
-	var test: bool = OS.is_debug_build() or (ok and cf.get_value("debug", "test_ads", false))
+	# real units in every build (register your phone under AdMob > Test devices
+	# to try them safely); test_ads=true switches to Google's sample units
+	var test: bool = ok and cf.get_value("debug", "test_ads", false)
 	for slot in SLOTS:
 		var id: String = cf.get_value("units", SLOTS[slot].key, "") if ok else ""
 		units[slot] = TEST_UNITS[SLOTS[slot].kind] if test or not id.contains("/") else id
