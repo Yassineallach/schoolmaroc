@@ -33,13 +33,42 @@ $ActFiles = @{
     8 = 'Act8_Legacy.mp4'
 }
 
-# --- tools ---------------------------------------------------------------
-$Py = if (Get-Command python -ErrorAction SilentlyContinue) { 'python' }
-      elseif (Get-Command py -ErrorAction SilentlyContinue) { 'py' }
-      else { throw 'Python not found. Install Python 3.10+ from python.org and tick "Add to PATH".' }
-if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) {
-    throw 'ffmpeg not found. Install it (e.g. "winget install Gyan.FFmpeg") and reopen PowerShell.'
+# --- tools (installed automatically if missing) ---------------------------
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$ProgressPreference = 'SilentlyContinue'
+$Tools = Join-Path $PSScriptRoot 'tools'
+New-Item -ItemType Directory -Force $Tools | Out-Null
+
+function Test-Python([string]$exe) {
+    # The Windows "python" store alias exists but is not a real Python, so actually run it.
+    try { & $exe -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)" 2>$null; return $LASTEXITCODE -eq 0 } catch { return $false }
 }
+
+$Py = $null
+$localPy = Join-Path $env:LOCALAPPDATA 'Programs\Python\Python312\python.exe'
+foreach ($cand in @('python', 'py', $localPy)) { if (Test-Python $cand) { $Py = $cand; break } }
+if (-not $Py) {
+    Write-Host "Python not found - downloading and installing Python 3.12 (just for this user)..." -ForegroundColor Cyan
+    $setup = Join-Path $Tools 'python-setup.exe'
+    Invoke-WebRequest 'https://www.python.org/ftp/python/3.12.7/python-3.12.7-amd64.exe' -OutFile $setup
+    Start-Process $setup -ArgumentList '/quiet InstallAllUsers=0 PrependPath=1 Include_test=0' -Wait
+    if (-not (Test-Python $localPy)) { throw "Python install failed. Install Python 3.12 from python.org (tick 'Add to PATH') and run again." }
+    $Py = $localPy
+}
+Write-Host "Using Python: $Py"
+
+if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) {
+    $ffExe = Get-ChildItem $Tools -Recurse -Filter ffmpeg.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $ffExe) {
+        Write-Host "ffmpeg not found - downloading it into .\tools ..." -ForegroundColor Cyan
+        $zip = Join-Path $Tools 'ffmpeg.zip'
+        Invoke-WebRequest 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip' -OutFile $zip
+        Expand-Archive $zip (Join-Path $Tools 'ffmpeg') -Force
+        $ffExe = Get-ChildItem $Tools -Recurse -Filter ffmpeg.exe | Select-Object -First 1
+    }
+    $env:Path = "$($ffExe.DirectoryName);$env:Path"
+}
+Write-Host "Using ffmpeg: $((Get-Command ffmpeg).Source)"
 
 Write-Host "Installing Python packages..." -ForegroundColor Cyan
 & $Py -m pip install --quiet --upgrade -r requirements.txt

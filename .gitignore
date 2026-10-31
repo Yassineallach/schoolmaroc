@@ -4,3 +4,5 @@ video/vox/a[0-9]/
 video/vox/mastered.wav
 video/vox/*.wav.txt
 video/vox/__pycache__/
+video/vox/tools/
+video/Red_Rising_Project.zip
