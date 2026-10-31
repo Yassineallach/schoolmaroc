@@ -72,11 +72,11 @@ func run() -> void:
 func _page(size: Vector2, s: float, font: Font, text: String, shot_path: String, lang: String) -> Control:
 	var page := Control.new()
 	page.size = size
-	# backdrop: the icon's red to blue
+	# backdrop: the icon's rose to teal over plum
 	var g := Gradient.new()
-	g.set_color(0, Color("7a1426"))
-	g.set_color(1, Color("15296b"))
-	g.add_point(0.5, Color("2a1640"))
+	g.set_color(0, Palette.WINE.darkened(0.25))
+	g.set_color(1, Palette.TEAL.darkened(0.55))
+	g.add_point(0.5, Palette.TABLE_DARK)
 	var gt := GradientTexture2D.new()
 	gt.gradient = g
 	gt.fill_from = Vector2(0, 0)
@@ -103,7 +103,7 @@ func _page(size: Vector2, s: float, font: Font, text: String, shot_path: String,
 	lab.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.55))
 	lab.add_theme_constant_override("shadow_offset_x", int(4 * s))
 	lab.add_theme_constant_override("shadow_offset_y", int(5 * s))
-	lab.add_theme_color_override("font_outline_color", Color("1a1020"))
+	lab.add_theme_color_override("font_outline_color", Palette.PANEL_DEEPER)
 	lab.add_theme_constant_override("outline_size", int(10 * s))
 	# shrink long captions to fit one line
 	while font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, int(fs * s)).x > lab.size.x and fs > 30:
@@ -116,7 +116,7 @@ func _page(size: Vector2, s: float, font: Font, text: String, shot_path: String,
 	var shot_sz := Vector2(avail_h * 16.0 / 9.0, avail_h)
 	var frame := Panel.new()
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("f4ead7")
+	sb.bg_color = Palette.PAPER
 	sb.set_corner_radius_all(int(22 * s))
 	sb.shadow_color = Color(0, 0, 0, 0.45)
 	sb.shadow_size = int(18 * s)
