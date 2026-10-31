@@ -141,13 +141,34 @@ CLOSING = panel((850, 100, 1536, 1024), 1000)
 P_BG = Image.new('RGBA', (W, H), P_PAPER + (255,))
 
 
+PORTRAIT = Image.open(os.path.join(A3, 'P02_portrait.png')).convert('RGBA')
+PORTRAIT_PAPER = (237, 219, 178)
+
+
+def feather(img, fade):
+    yy_, xx_ = np.mgrid[0:img.height, 0:img.width]
+    d = np.minimum.reduce([xx_, yy_, img.width - 1 - xx_, img.height - 1 - yy_]).astype(np.float32)
+    a = np.asarray(img.getchannel('A'), np.float32) * np.clip(d / fade, 0, 1)
+    img.putalpha(Image.fromarray(a.astype(np.uint8)))
+    return img
+
+
 def s11(t, D):
-    """The writer at his desk at night, seen from behind."""
+    """His creator, Pierce Brown: the portrait (with its own paper background) and a name label."""
     k = ease(t / D)
-    img = P_BG.copy()
-    s = lerp(1.0, 1.08, k)
-    p = DESK.resize((int(DESK.width * s), int(DESK.height * s)), Image.BICUBIC)
-    img.alpha_composite(p, (int(W / 2 - p.width / 2 + 40), int(H / 2 - p.height * 0.5)))
+    img = Image.new('RGBA', (W, H), PORTRAIT_PAPER + (255,))
+    s = lerp(1.0, 1.06, k)
+    ph = int(1000 * s)
+    p = PORTRAIT.resize((round(PORTRAIT.width * ph / PORTRAIT.height), ph), Image.LANCZOS)
+    p = feather(p, 40)
+    img.alpha_composite(p, (int(700 - p.width / 2), int(H - p.height + 45)))
+    d = FadeDraw(img)
+    a = int(255 * ease((t - 0.8) / 0.6))
+    d.text((1180, 470), 'Pierce Brown', font=F_HEAD, fill=INK + (a,), anchor='lm')
+    a2 = int(255 * ease((t - 1.4) / 0.6))
+    d.text((1184, 560), 'author of Red Rising', font=F_CAP, fill=MUTED + (a2,), anchor='lm')
+    if a2:
+        stroke(ImageDraw.Draw(img), [(1184, 515), (1184 + 470 * ease((t - 1.1) / 0.6), 515)], 4, seed=3, amp=1.0, alpha=a2)
     return img.convert('RGB')
 
 
