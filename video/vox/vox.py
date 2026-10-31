@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 W, H, FPS = 1920, 1080, 30
 HERE = os.path.dirname(os.path.abspath(__file__))
-SCR = os.path.dirname(HERE)
+SCR = os.environ.get('VOX_DATA', os.path.join(HERE, 'data'))  # bundled images, cut-outs, fonts, audio, timings
 FONTS = os.path.join(SCR, 'fonts')
 A3 = os.path.join(SCR, 'assets', 'v3')
 B1 = os.path.join(SCR, 'batch1', '62e0d0d2-Assets1')
@@ -32,10 +32,10 @@ def font(name, size):
     return ImageFont.truetype(os.path.join(FONTS, name), size)
 
 
-F_HEAD = lambda s: font('ArchivoBlack.woff2', s)
-F_SERIF = lambda s: font('Playfair700.woff2', s)
-F_BODY = lambda s: font('PTSerif.woff2', s)
-F_TYPE = lambda s: font('SpecialElite.woff2', s)
+F_HEAD = lambda s: font('ArchivoBlack.ttf', s)
+F_SERIF = lambda s: font('Playfair700.ttf', s)
+F_BODY = lambda s: font('PTSerif.ttf', s)
+F_TYPE = lambda s: font('SpecialElite.ttf', s)
 
 
 # ---------- motion ----------
@@ -430,12 +430,14 @@ def master_audio(clips, out_wav):
 
 
 def render_video(frame_fn, end, clips, out, workdir):
+    os.makedirs(workdir, exist_ok=True)
     wav = os.path.join(workdir, 'mastered.wav')
     master_audio(clips, wav)
     n = int(round(end * FPS))
     p = subprocess.Popen(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-',
-                          '-i', wav, '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p',
-                          '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', out], stdin=subprocess.PIPE)
+                          '-i', wav, '-c:v', 'libx264', '-preset', os.environ.get('VOX_PRESET', 'medium'), '-crf', os.environ.get('VOX_CRF', '18'),
+                          '-tune', 'animation', '-profile:v', 'high', '-pix_fmt', 'yuv420p',
+                          '-c:a', 'aac', '-b:a', os.environ.get('VOX_ABR', '192k'), '-shortest', '-movflags', '+faststart', out], stdin=subprocess.PIPE)
     for f in range(n):
         p.stdin.write(frame_fn(f / FPS).tobytes())
         if f % 300 == 0:

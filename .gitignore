@@ -1,1 +1,6 @@
 video/Red_Rising_Full.mp4
+video/vox/out/
+video/vox/a[0-9]/
+video/vox/mastered.wav
+video/vox/*.wav.txt
+video/vox/__pycache__/
