@@ -1,17 +1,18 @@
 class_name Mascot
 extends Control
 
-## Ace, the game's guide: a living Ace of Hearts in a jester's cap, drawn
-## pixel by pixel in code (MascotArt). Floats and tilts like a card, blinks,
-## materializes in a burst of sparks, talks through a speech bubble with a
-## blip, a mouth and a little hop per syllable, and can offer buttons under
-## the bubble.
+## Ace, the game's guide: a grinning jester (assets/mascot/ace.svg). Floats
+## and tilts like a card, materializes in a burst of sparks, and talks
+## through a speech bubble with a blip per syllable, juicing up on each one
+## (a quick swell and wiggle, as Balatro's Card:juice_up does for Jimbo).
+## Can offer buttons under the bubble.
 
 signal dismissed
 signal poked
 
-const W := MascotArt.GW * MascotArt.SCALE
-const H := MascotArt.GH * MascotArt.SCALE
+const ART := preload("res://assets/mascot/ace.svg")  # imported at 0.35x: sharp at 2x screens
+const H := 180.0
+const W := 150.0  # the drawing's proportions (1080 x 1290)
 const BUBBLE_W := 400.0
 const CHAR_TIME := 0.016
 
@@ -24,8 +25,6 @@ var _text := Label.new()
 var _buttons := HBoxContainer.new()
 var _sparks := CPUParticles2D.new()
 var _bounce := 0.0
-var _blink := 0.0
-var _next_blink := 2.0
 var _phase := randf() * TAU
 var _bubble_left := true
 var _say_id := 0
@@ -36,7 +35,7 @@ func _init(effects: Sfx) -> void:
 	sfx = effects
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	size = Vector2(W, H)
-	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST  # crisp art pixels
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 
 	_body.size = size
 	_body.pivot_offset = size / 2
@@ -93,12 +92,7 @@ func _init(effects: Sfx) -> void:
 
 
 func _process(delta: float) -> void:
-	_bounce = maxf(0.0, _bounce - delta * 6.0)
-	_next_blink -= delta
-	if _next_blink <= 0.0:
-		_blink = 0.12
-		_next_blink = randf_range(2.0, 4.5)
-	_blink = maxf(0.0, _blink - delta)
+	_bounce = maxf(0.0, _bounce - delta * 4.0)
 	_place_bubble()
 	_body.queue_redraw()
 
@@ -153,9 +147,6 @@ func say(text: String, options: Array = [], bubble_left := true) -> void:
 			_bounce = 1.0
 			if sfx:
 				sfx.play("voice", randf_range(0.9, 1.25))
-			_body.pivot_offset = _body.size / 2
-			_body.scale = Vector2(1.04, 0.97)
-			create_tween().tween_property(_body, "scale", Vector2.ONE, 0.12)
 	if my_id != _say_id:
 		return
 	talking = false
@@ -241,12 +232,12 @@ func _draw_body() -> void:
 	var t := Anim.now()
 	var bob := sin(t * 2.0 + _phase) * 4.0
 	var tilt := sin(t * 1.3 + _phase) * 0.04
+	# juice: a swell and a fast wiggle that die away after each syllable
+	var swell := 1.0 + 0.06 * _bounce
+	var wiggle := 0.07 * _bounce * sin(t * 38.0)
 	var c := _body.size / 2
-	# a hop while a syllable plays
-	var hop := -6.0 * _bounce
-	_body.draw_set_transform_matrix(Transform2D(tilt, c + Vector2(0, bob + hop)) * Transform2D(0.0, -c))
-	var mouth := 2 if _bounce > 0.6 else (1 if _bounce > 0.2 else 0)
-	var art := MascotArt.frame(_blink <= 0.0, mouth)
-	var shadow := Vector2(4, 8 - bob * 0.5 - hop)
+	_body.draw_set_transform_matrix(Transform2D(tilt + wiggle, Vector2.ONE * swell, 0.0, c + Vector2(0, bob)) * Transform2D(0.0, -c))
+	var art: Texture2D = ART
+	var shadow := Vector2(4, 8 - bob * 0.5)
 	_body.draw_texture_rect(art, Rect2(shadow, _body.size), false, Color(0, 0, 0, 0.35))
 	_body.draw_texture_rect(art, Rect2(Vector2.ZERO, _body.size), false)

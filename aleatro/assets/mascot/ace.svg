@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="60 20 1080 1290" width="1080" height="1290">
+  <!-- Ace, Aleatro's guide: a grinning jester. The figure is drawn three
+       times: a thick white stroke for the sticker border, a black stroke for
+       the outer outline, then the coloured parts with thin black lines. -->
+  <defs>
+    <linearGradient id="ruff" x1="0" y1="840" x2="0" y2="1230" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5db4f2"/>
+      <stop offset="0.42" stop-color="#5db4f2"/>
+      <stop offset="0.42" stop-color="#1f63c4"/>
+      <stop offset="1" stop-color="#164fa3"/>
+    </linearGradient>
+    <g id="fig">
+      <!-- side flaps and their pom-poms -->
+      <path fill="#ff8a1c" d="M470 195 C335 150 185 240 150 415 C205 365 290 360 345 480 Z"/>
+      <path fill="#ff8a1c" d="M760 190 C905 165 1045 285 1035 445 C990 400 915 390 880 480 Z"/>
+      <circle fill="#ffffff" cx="160" cy="455" r="52"/>
+      <circle fill="#ffffff" cx="1028" cy="470" r="52"/>
+      <!-- the ruff -->
+      <path fill="url(#ruff)" d="M360 835 C255 850 175 905 160 1000 C150 1060 172 1092 210 1098 C255 1062 305 1068 338 1110 L362 1205 C425 1212 470 1170 500 1100 C540 1058 625 1050 682 1082 C742 1120 760 1190 798 1205 C832 1172 832 1112 860 1082 C900 1048 952 1058 990 1082 C1012 1040 1012 990 992 950 C962 890 882 845 822 835 C720 880 480 880 360 835 Z"/>
+      <circle fill="#e8231c" cx="205" cy="1097" r="42"/>
+      <circle fill="#141414" cx="368" cy="1222" r="42"/>
+      <circle fill="#e8231c" cx="800" cy="1215" r="42"/>
+      <circle fill="#141414" cx="992" cy="1088" r="42"/>
+      <!-- the face, with ears -->
+      <path fill="#ffffff" d="M330 560 C275 598 285 690 348 705 C385 805 482 862 592 866 C712 866 812 802 848 705 C905 685 905 598 862 560 C830 400 356 400 330 560 Z"/>
+      <!-- orange eye patches -->
+      <path fill="#ff8a1c" d="M372 548 C440 498 545 515 570 612 C522 655 450 645 398 602 Z"/>
+      <path fill="#ff8a1c" d="M822 548 C756 498 652 515 628 612 C676 655 748 645 800 602 Z"/>
+      <!-- eyes -->
+      <ellipse fill="#ffffff" cx="488" cy="592" rx="60" ry="29"/>
+      <ellipse fill="#ffffff" cx="708" cy="596" rx="60" ry="30"/>
+      <circle fill="#141414" cx="500" cy="593" r="23"/>
+      <circle fill="#141414" cx="712" cy="597" r="23"/>
+      <!-- the grin: red lips, white teeth, a red lower lip -->
+      <path fill="#e8231c" d="M392 694 C470 738 722 738 808 694 C790 800 692 848 600 848 C502 848 410 800 392 694 Z"/>
+      <path fill="#ffffff" d="M480 734 C558 758 648 758 716 734 C706 800 652 824 600 824 C542 824 490 800 480 734 Z"/>
+      <path fill="#e8231c" d="M503 784 C558 810 648 810 698 784 C680 814 642 826 600 826 C557 826 521 814 503 784 Z"/>
+      <!-- the cap and its brim -->
+      <path fill="#e8231c" d="M330 560 C362 400 482 162 642 112 C722 86 792 96 806 142 C832 262 862 422 874 525 C842 452 760 398 640 394 C520 390 382 440 330 560 Z"/>
+      <path fill="#e8231c" d="M318 600 C348 440 520 382 640 386 C760 390 860 452 882 560 L862 612 C822 522 722 470 610 466 C490 462 370 522 340 642 Z"/>
+      <circle fill="#ffffff" cx="820" cy="122" r="58"/>
+    </g>
+  </defs>
+  <use xlink:href="#fig" stroke="#ffffff" stroke-width="64" stroke-linejoin="round"/>
+  <use xlink:href="#fig" stroke="#141414" stroke-width="26" stroke-linejoin="round"/>
+  <use xlink:href="#fig" stroke="#141414" stroke-width="9" stroke-linejoin="round"/>
+  <!-- line details over the parts -->
+  <g fill="none" stroke="#141414" stroke-width="9" stroke-linecap="round">
+    <path d="M560 652 Q600 684 640 652"/>
+    <path d="M374 664 Q396 692 384 714"/>
+    <path d="M826 664 Q804 692 816 714"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" opacity="0.9">
+    <path d="M330 900 L225 1035"/>
+    <path d="M455 905 L385 1080"/>
+    <path d="M560 910 L545 960"/>
+    <path d="M650 905 L705 1040"/>
+    <path d="M760 900 L880 1020"/>
+  </g>
+  <g fill="#ffffff">
+    <circle cx="510" cy="583" r="8"/>
+    <circle cx="722" cy="587" r="8"/>
+  </g>
+</svg>
