@@ -1,12 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  Replace this file with the one Play Console gives you:
-  Play Console > Grow users > Play Games Services > Setup and management >
-  Achievements (or Leaderboards) > Get resources > Android.
-  Until then the game earns achievements locally and sends them once the IDs
-  are here. See tools/play_games/README.md.
--->
+<!--Google Play game services IDs. Save this file as res/values/games-ids.xml in your project.-->
 <resources>
-    <string name="app_id" translatable="false">451331127820</string>
-    <string name="package_name" translatable="false">com.mardev.Aleatro</string>
+  <!--app_id-->
+  <string name="app_id" translatable="false">451331127820</string>
+  <!--package_name-->
+  <string name="package_name" translatable="false">com.mardev.Aleatro</string>
+  <!--achievement Climbing-->
+  <string name="achievement_climbing" translatable="false">CgkIjPS5q5ENEAIQBQ</string>
+  <!--achievement Summit-->
+  <string name="achievement_summit" translatable="false">CgkIjPS5q5ENEAIQCA</string>
+  <!--achievement Victory Lap-->
+  <string name="achievement_victory_lap" translatable="false">CgkIjPS5q5ENEAIQBw</string>
+  <!--achievement Red Chip-->
+  <string name="achievement_red_chip" translatable="false">CgkIjPS5q5ENEAIQBA</string>
+  <!--achievement Black Chip-->
+  <string name="achievement_black_chip" translatable="false">CgkIjPS5q5ENEAIQFg</string>
+  <!--achievement Gold Chip-->
+  <string name="achievement_gold_chip" translatable="false">CgkIjPS5q5ENEAIQBg</string>
+  <!--achievement Card Sharp-->
+  <string name="achievement_card_sharp" translatable="false">CgkIjPS5q5ENEAIQEg</string>
+  <!--achievement Clean Sweep-->
+  <string name="achievement_clean_sweep" translatable="false">CgkIjPS5q5ENEAIQFw</string>
+  <!--achievement Nest Egg-->
+  <string name="achievement_nest_egg" translatable="false">CgkIjPS5q5ENEAIQDw</string>
+  <!--achievement Speedrun-->
+  <string name="achievement_speedrun" translatable="false">CgkIjPS5q5ENEAIQDA</string>
+  <!--achievement Glass Cannon-->
+  <string name="achievement_glass_cannon" translatable="false">CgkIjPS5q5ENEAIQHQ</string>
+  <!--achievement Royalty-->
+  <string name="achievement_royalty" translatable="false">CgkIjPS5q5ENEAIQCw</string>
+  <!--achievement Grandmaster-->
+  <string name="achievement_grandmaster" translatable="false">CgkIjPS5q5ENEAIQAg</string>
+  <!--achievement Collector-->
+  <string name="achievement_collector" translatable="false">CgkIjPS5q5ENEAIQDQ</string>
+  <!--achievement Living Legend-->
+  <string name="achievement_living_legend" translatable="false">CgkIjPS5q5ENEAIQEA</string>
+  <!--achievement Stargazer-->
+  <string name="achievement_stargazer" translatable="false">CgkIjPS5q5ENEAIQCQ</string>
+  <!--achievement Fortune Teller-->
+  <string name="achievement_fortune_teller" translatable="false">CgkIjPS5q5ENEAIQGw</string>
+  <!--achievement Seer-->
+  <string name="achievement_seer" translatable="false">CgkIjPS5q5ENEAIQGQ</string>
+  <!--achievement Hex Hunter-->
+  <string name="achievement_hex_hunter" translatable="false">CgkIjPS5q5ENEAIQDg</string>
+  <!--achievement Slim Pickings-->
+  <string name="achievement_slim_pickings" translatable="false">CgkIjPS5q5ENEAIQFA</string>
+  <!--achievement Overstuffed-->
+  <string name="achievement_overstuffed" translatable="false">CgkIjPS5q5ENEAIQFQ</string>
+  <!--achievement No Takebacks-->
+  <string name="achievement_no_takebacks" translatable="false">CgkIjPS5q5ENEAIQAw</string>
+  <!--achievement Rule Bender-->
+  <string name="achievement_rule_bender" translatable="false">CgkIjPS5q5ENEAIQGg</string>
+  <!--achievement Rule Breaker-->
+  <string name="achievement_rule_breaker" translatable="false">CgkIjPS5q5ENEAIQEw</string>
+  <!--achievement Five Figures-->
+  <string name="achievement_five_figures" translatable="false">CgkIjPS5q5ENEAIQAQ</string>
+  <!--achievement Millionaire-->
+  <string name="achievement_millionaire" translatable="false">CgkIjPS5q5ENEAIQHA</string>
+  <!--achievement Astronomical-->
+  <string name="achievement_astronomical" translatable="false">CgkIjPS5q5ENEAIQCg</string>
+  <!--achievement Deck Master-->
+  <string name="achievement_deck_master" translatable="false">CgkIjPS5q5ENEAIQHg</string>
+  <!--achievement Five Alive-->
+  <string name="achievement_five_alive" translatable="false">CgkIjPS5q5ENEAIQGA</string>
+  <!--achievement Big Spender-->
+  <string name="achievement_big_spender" translatable="false">CgkIjPS5q5ENEAIQEQ</string>
+  <!--leaderboard Best Hand-->
+  <string name="leaderboard_best_hand" translatable="false">CgkIjPS5q5ENEAIQHw</string>
+  <!--leaderboard Highest Ante-->
+  <string name="leaderboard_highest_ante" translatable="false">CgkIjPS5q5ENEAIQIA</string>
+  <!--leaderboard Fastest Win-->
+  <string name="leaderboard_fastest_win" translatable="false">CgkIjPS5q5ENEAIQIQ</string>
+  <!--leaderboard Career Wins-->
+  <string name="leaderboard_career_wins" translatable="false">CgkIjPS5q5ENEAIQIg</string>
 </resources>
