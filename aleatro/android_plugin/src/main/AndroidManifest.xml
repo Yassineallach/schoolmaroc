@@ -5,6 +5,9 @@
         <meta-data
             android:name="org.godotengine.plugin.v2.AleatroPGS"
             android:value="com.mardev.aleatro.pgs.AleatroPGS" />
+        <meta-data
+            android:name="org.godotengine.plugin.v2.AleatroAds"
+            android:value="com.mardev.aleatro.pgs.AleatroAds" />
         <!-- the Play Games Services project this game belongs to -->
         <meta-data
             android:name="com.google.android.gms.games.APP_ID"

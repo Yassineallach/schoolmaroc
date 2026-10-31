@@ -100,6 +100,7 @@ const STAT_DEFAULTS := {
 var stats := STAT_DEFAULTS.duplicate()
 var saves: SaveManager
 var play_games: PlayGames
+var ads: Ads
 var _scores_sent := {}  # leaderboard key -> score last sent this session
 var profile_data := {}
 var settings := {"master": 80.0, "music": 70.0, "sfx": 85.0, "vibration": true, "speed": 1.0, "reduced_motion": false, "language": "auto", "crt": 0.0, "crt_reset": false}
@@ -135,6 +136,11 @@ func _ready() -> void:
 	add_child(saves)
 	play_games = PlayGames.new()
 	add_child(play_games)
+	ads = Ads.new()
+	add_child(ads)
+	ads.removed_changed.connect(func(v: bool):
+		if v:
+			toast("Ads removed. Thank you!"))
 	play_games.signed_in_changed.connect(func(ok: bool):
 		if ok:
 			_sync_play_games()
@@ -1264,6 +1270,7 @@ func _end_splash(flash: bool) -> void:
 
 
 func show_title() -> void:
+	ads.start()  # consent form and the SDKs, once, now the splash is over
 	_hide_shop_sign()
 	if bg_mode != "title":
 		# main_menu skips the shaders' clock to 12 when not from the splash
@@ -1417,6 +1424,7 @@ func new_run(challenge_id: String = "", deck_id: String = "crimson", stake: int 
 	_apply_deck_look()
 	stats.runs += 1
 	_save_stats()
+	ads.on_run_start()
 	saves.delete_run()
 	clear_hand_views()
 	rebuild_charms()
@@ -1760,6 +1768,12 @@ func _show_pack(id: String, choices: Array, picks: int, then: Callable) -> void:
 		UIBuild.find(col, "desc").custom_minimum_size.y = 52
 		row.add_child(col)
 	vb.add_child(row)
+	if picks == 1 and choices.size() > 1 and ads.can_offer("pack_pick", _ad_ctx()):
+		vb.add_child(_center(_button("Watch ad\n+1 pick", Color("b88a12"), func():
+			if await ads.show_rewarded("pack_pick"):
+				_show_pack(id, choices, picks + 1, then)
+			else:
+				toast("The ad isn't ready yet. Try again in a moment."), Vector2(180, 64), 20)))
 	vb.add_child(_center(_button("Skip", Color("5a5f73"), func():
 		gs.skip_pack()
 		gs.pack_hand = []
@@ -2269,8 +2283,9 @@ func play_selected() -> void:
 			await wait(0.8)
 			await win_round()
 			return
-		game_over()
-		return
+		if not await _second_chance():
+			game_over()
+			return
 	if gs.hex() == "grip" and not hand_views.is_empty():
 		for k in 2:
 			if hand_views.is_empty():
@@ -2460,11 +2475,15 @@ func cash_out() -> void:
 	_save_stats()
 	if won_run:
 		stats.wins += 1
-		stats.fastest_win = gs.rounds if stats.fastest_win == 0 else mini(stats.fastest_win, gs.rounds)
+		if not gs.run_flags.get("assisted", false):
+			stats.fastest_win = gs.rounds if stats.fastest_win == 0 else mini(stats.fastest_win, gs.rounds)
 		check_unlocks("won_run")
 		_save_stats()
 		show_victory()
 		return
+	ads.on_round_end()
+	# the tally is done and the shop not open yet: the run's natural break
+	await ads.maybe_interstitial("cash_out", _ad_ctx())
 	open_shop()
 
 
@@ -2491,10 +2510,12 @@ func game_over() -> void:
 		if gs.hands_played_count[n] > gs.hands_played_count[most]:
 			most = n
 	_row_label(vb, "Most played", most, Color.WHITE)
+	if gs.run_flags.get("assisted", false):
+		vb.add_child(_label("Assisted run: doesn't count for Fastest Win or stake unlocks", 18, Color(1, 1, 1, 0.6)))
 	ace_quip(["So close! Every run teaches something.", "Ouch. Want to deal again?", "The cards weren't with us this time.", "Shake it off, the next deck is lucky!"])
 	vb.add_child(UIBuild.build({"col": [
-		{"button": "New Run", "color": Data.CHIP_COLOR, "on": show_run_setup, "min": Vector2(320, 90), "size": 34, "delay": 1.0},
-		{"button": "Main Menu", "color": Color("5a5f73"), "on": show_title, "min": Vector2(320, 70), "size": 26, "delay": 1.0, "once": true},
+		{"button": "New Run", "color": Data.CHIP_COLOR, "on": func(): _leave_run(show_run_setup), "min": Vector2(320, 90), "size": 34, "delay": 1.0, "once": true},
+		{"button": "Main Menu", "color": Color("5a5f73"), "on": func(): _leave_run(show_title), "min": Vector2(320, 70), "size": 26, "delay": 1.0, "once": true},
 	]}))
 
 
@@ -2509,7 +2530,7 @@ func show_victory() -> void:
 			profile_data.challenges_won.append(gs.challenge)
 			_save_stats()
 		toast("Challenge complete: " + Data.challenge_def(gs.challenge).name)
-	if gs.deck_id != "":
+	if gs.deck_id != "" and not gs.run_flags.get("assisted", false):
 		var wins := _deck_wins()
 		if gs.stake > wins.get(gs.deck_id, 0):
 			wins[gs.deck_id] = gs.stake
@@ -2544,6 +2565,7 @@ func _confetti() -> void:
 # ---------------------------------------------------------------- shop
 
 func open_shop() -> void:
+	ads.on_shop_open()
 	_shop_fresh = "all"
 	gs.reroll_cost = gs.reroll_base()
 	gs.free_rerolls = gs.charm_count("chaos")
@@ -2570,6 +2592,13 @@ func show_shop() -> void:
 		{"button": "Reroll\n$%d" % reroll_price(), "color": Color("3f9a5a"), "on": reroll_shop, "min": Vector2(164, 94), "size": 24,
 			"enabled": func(): return gs.can_afford(reroll_price())},
 	], "sep": 10})
+	if ads.can_offer("shop_reroll", _ad_ctx()):
+		buttons.add_child(_button("Watch ad\nFree reroll", Color("b88a12"), func():
+			if await ads.show_rewarded("shop_reroll"):
+				gs.free_rerolls += 1
+				reroll_shop()
+			else:
+				toast("The ad isn't ready yet. Try again in a moment."), Vector2(164, 74), 20))
 	var shelf := HBoxContainer.new()
 	shelf.alignment = BoxContainer.ALIGNMENT_CENTER
 	shelf.add_theme_constant_override("separation", 4)
@@ -3591,6 +3620,74 @@ func _sync_play_games() -> void:
 	_submit_scores()
 
 
+# ---------------------------------------------------------------- ads
+
+## What the ad rules need to know about the player and the run.
+func _ad_ctx() -> Dictionary:
+	return {"runs_done": stats.wins + stats.losses, "stake": gs.stake if gs != null else 1,
+		"challenge": gs.challenge if gs != null else "", "ante": gs.ante if gs != null else 0}
+
+
+## The blind is lost: offer one more hand for a rewarded ad (once a run). True
+## if the player took it and earned it; the run is then marked assisted.
+func _second_chance() -> bool:
+	if not ads.can_offer("second_chance", _ad_ctx()):
+		return false
+	var pick := Picker.new()
+	var vb := open_modal()
+	vb.add_child(_label("One more hand?", 40, Color("ffdf6b")))
+	var l := _label("Watch an ad to get one more hand for this blind. An assisted run doesn't count for Fastest Win or stake unlocks.", 22)
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size = Vector2(560, 0)
+	vb.add_child(l)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 18)
+	row.add_child(_button("Watch ad", Color("b88a12"), func(): pick.chosen.emit(true), Vector2(240, 72), 26))
+	row.add_child(_button("No thanks", Color("5a5f73"), func(): pick.chosen.emit(false), Vector2(240, 72), 26))
+	vb.add_child(row)
+	var watch: bool = await pick.chosen
+	close_modal()
+	if not watch or not await ads.show_rewarded("second_chance"):
+		return false
+	gs.hands_left += 1
+	gs.run_flags["assisted"] = true
+	popup_text(Vector2(main_cx(), play_y()), "One more hand!", Color("ffdf6b"), 40)
+	update_hud()
+	return true
+
+
+## Leaving a finished run: the run-end interstitial (if the rules allow), then
+## the "Remove ads" offer when it's due, then on to `next`.
+func _leave_run(next: Callable) -> void:
+	await ads.maybe_interstitial("run_end", _ad_ctx())
+	if ads.should_offer_remove(stats.wins + stats.losses):
+		ads.mark_offered()
+		var pick := Picker.new()
+		var vb := open_modal()
+		vb.add_child(_label("Remove ads", 40, Color("ffdf6b")))
+		var l := _label("Enjoying Aleatro? Remove the ads between rounds for good. Optional reward ads stay available.", 22)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		l.custom_minimum_size = Vector2(560, 0)
+		vb.add_child(l)
+		var row := HBoxContainer.new()
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override("separation", 18)
+		row.add_child(_button("Remove ads: %s" % ads.price, Color("b88a12"), func(): pick.chosen.emit(true), Vector2(280, 72), 24))
+		row.add_child(_button("No thanks", Color("5a5f73"), func(): pick.chosen.emit(false), Vector2(240, 72), 24))
+		vb.add_child(row)
+		var buy: bool = await pick.chosen
+		close_modal()
+		if buy:
+			ads.buy_remove_ads()
+	next.call()
+
+
+## A two-way choice a coroutine can wait on.
+class Picker extends RefCounted:
+	signal chosen(yes: bool)
+
+
 ## Achievements, leaderboards and sign-in, from the title (Android only).
 func show_play_games() -> void:
 	var vb := open_modal()
@@ -4052,6 +4149,11 @@ func show_menu() -> void:
 				_save_stats()
 				close_modal()
 				toast("Ace will show the tips again"), {"once": true}),
+			b.call("Remove ads: %s" % ads.price, func():
+				ads.buy_remove_ads(), {"color": Color("b88a12")}) if ads.available() and not ads.removed and ads.price != "" else null,
+			b.call("Privacy choices", func():
+				close_modal()
+				ads.show_privacy_options()) if ads.privacy_required else null,
 			b.call("Hold: New Run", func():
 				close_modal()
 				show_run_setup(), {"color": Data.MULT_COLOR, "hold": 0.8}),

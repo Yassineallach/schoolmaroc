@@ -7,6 +7,7 @@ extends RefCounted
 ##
 ##   {"row": [...]} / {"col": [...]}    HBox / VBox. sep, align ("start"/"center"/"end")
 ##   {"grid": [...], "columns": 3}      GridContainer. sep
+##   (a null entry in a row, col or grid is skipped: handy for optional items)
 ##   {"text": "Hi"}                     Label. size, color, shadow, wrap (width), lines (max
 ##                                      shown), fit (max width: shrink the font until it
 ##                                      fits), align ("left"/"right")
@@ -71,7 +72,8 @@ static func _make(def: Dictionary, jobs: Array) -> Control:
 		box.add_theme_constant_override("separation", int(def.get("sep", 12)))
 		box.alignment = _box_align(def.get("align", "center"))
 		for child in def.get("row", def.get("col", [])):
-			box.add_child(_child(child, jobs))
+			if child != null:  # null: a conditional entry that is off
+				box.add_child(_child(child, jobs))
 		c = box
 	elif def.has("grid"):
 		var g := GridContainer.new()
@@ -79,7 +81,8 @@ static func _make(def: Dictionary, jobs: Array) -> Control:
 		g.add_theme_constant_override("h_separation", int(def.get("sep", 12)))
 		g.add_theme_constant_override("v_separation", int(def.get("sep", 12)))
 		for child in def.grid:
-			g.add_child(_child(child, jobs))
+			if child != null:
+				g.add_child(_child(child, jobs))
 		c = g
 	elif def.has("text") or def.has("bind"):
 		c = _text(def, jobs)

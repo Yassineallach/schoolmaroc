@@ -22,4 +22,7 @@ dependencies {
     compileOnly files('libs/godot-classes.jar')
     // the app gets this from the export plugin (addons/aleatro_pgs)
     compileOnly 'com.google.android.gms:play-services-games-v2:22.1.0'
+    compileOnly 'com.google.android.gms:play-services-ads:25.4.0'
+    compileOnly 'com.google.android.ump:user-messaging-platform:3.2.0'
+    compileOnly 'com.android.billingclient:billing:8.3.0'
 }

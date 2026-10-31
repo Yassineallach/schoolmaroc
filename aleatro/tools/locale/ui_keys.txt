@@ -359,3 +359,17 @@ Sign in
 Signed in as %s
 Not signed in
 Logo font: %s
+Ads removed. Thank you!
+Watch ad
+Free reroll
++1 pick
+The ad isn't ready yet. Try again in a moment.
+Assisted run: doesn't count for Fastest Win or stake unlocks
+Remove ads: %s
+Privacy choices
+One more hand?
+Watch an ad to get one more hand for this blind. An assisted run doesn't count for Fastest Win or stake unlocks.
+One more hand!
+Remove ads
+Enjoying Aleatro? Remove the ads between rounds for good. Optional reward ads stay available.
+No thanks
