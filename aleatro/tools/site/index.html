@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aleatro Privacy Policy</title>
+<meta name="description" content="Privacy policy for Aleatro, a poker roguelike for Android by MAR Dev.">
+<style>
+/* the ALEATRO logo font: m6x11plus by Daniel Linssen (managore.itch.io/m6x11), subset */
+@font-face {
+  font-family: "m6x11";
+  src: url(data:font/woff2;base64,d09GMgABAAAAAANcAAsAAAAACkgAAAMPAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAABmAAgTwRCAqMUIhqATYCJAN+C0QABCAFgTgHIBtdB1GU7UWC4ssC2xCxYf0hzeZytCwbyy0fWx2LFGMnx3KK6aijvh6dfPzDePj+8j337qYX6mW8vR+wYLpAtAoFOJ7xv0BpIMEI7sA8B5XAZB1ShZCe61o69Pxf7EdKgsji7M3x0HcIP+EV+qabhJD12t69uR9IcidvcHQbOxaK0A7FwfwPB/imz3dKSVLoh0uuze9Za3UOvG3IJ6kT4978db/BrF2oiEaLFRINL4FU6B7tdTKqst1wWYqNIteQ8RZ5qLNkAbR/9aVZhP5ArZ0Z/rkuO78PGaxv1RBQNQ0EpGzCEhCJCtNggWmId7CBhei1RBOTVdTU0TMwNbe0dXB28/Jtb1gyv+9Ix8vbB/4tse85a7SSgjNKMIIg0z5NtErAMjgHB8QnCUA/AIJxFmFBgltdMNy4m/uqOtsPn2evI/eIkuc3tlzbPiJaGUXZHpIKPm7FoEPg/UA10cHS5YpHKXkpaEoouYOg25zwhCG1JBICuhuUXKFk0FiDJljGercdiZEMlf5QeNZTy17IZAbmhoJ9udUvFNymNkMMqE7AfBcIyDVR3+Xcv1FjEhp9KeUUoFMUJzN/hhGN0X9OdbLEK03B4SkAwEcW96+kWzrnLe6N+FgyyKHfL4FAeyxIgxAS/CtI+Ad9WwSpM9a2+tpOU5vTxWkyF9xrXN3MADLa9dVmViyRsSVkVpqWhxtEOW+D2YgBh6zESIEfGkdyTqQsUxmeGFqgmFLSdW/zplsPhezyWCPwglBWP1S8zkGLRqVMwYkoMHZ3eOKinX7NOE9GSTDEbdiXlEqqN3klpl1n9uuapFtfwasuKVj8kji3oB1CrKyFTSVinxNwU45c9KYT/QHAa6uRURPQ/iUEgo//7z1+H0+ofgWPF8/f4P/lD1pTNqFfgqBqCMgCUJJgXgALMoAogGhCA5HtvOOcWXaOMfyzBJaRYJDMVX2uwKIeQC8LvTAJ66VR84crsVdbwfV6zKq4veDXtGVOdOT5MJkuDp7uepbWng6mbtBxbLI5snTzn2jr7IRl0hhgwINQCwA=) format("woff2");
+  font-display: swap;
+}
+:root {
+  --felt: #1e5a46;
+  --felt-dark: #15402f;
+  --paper: #f7f3ea;
+  --ink: #2b2d42;
+  --muted: #5b6669;
+  --gold: #ffdf6b;
+  --red: #b3364e;
+  --blue: #1d6fd1;
+  --rule: #e2dccd;
+}
+* { box-sizing: border-box; }
+html { background: var(--felt-dark); }
+body {
+  margin: 0;
+  background: radial-gradient(ellipse at top, var(--felt) 0%, var(--felt-dark) 70%);
+  color: var(--ink);
+  font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+  padding: 0 max(16px, env(safe-area-inset-right)) 48px max(16px, env(safe-area-inset-left));
+}
+header { text-align: center; padding: 44px 0 30px; }
+.logo {
+  font: 72px/1 "m6x11", ui-monospace, monospace;
+  color: var(--gold);
+  letter-spacing: 2px;
+  -webkit-font-smoothing: none;
+  text-shadow: 6px 0 0 var(--red), -6px 0 0 var(--red), 0 6px 0 var(--red), 0 -6px 0 var(--red),
+               6px 6px 0 var(--red), -6px 6px 0 var(--red), 6px -6px 0 var(--red), -6px -6px 0 var(--red),
+               6px 12px 0 rgba(0,0,0,.35);
+}
+.sub { margin-top: 18px; color: #e8efe9; font-size: 18px; }
+.sub b { color: var(--gold); font-weight: 600; }
+main {
+  max-width: 760px; margin: 0 auto; background: var(--paper);
+  border-radius: 14px; padding: 34px clamp(20px, 5vw, 48px) 40px;
+  box-shadow: 0 6px 0 #c9c2b0, 0 18px 40px rgba(0,0,0,.35);
+}
+h1 { font-size: 30px; line-height: 1.2; margin: 0 0 6px; }
+.dates { color: var(--muted); font-size: 15px; margin: 0 0 22px; }
+h2 { font-size: 21px; margin: 34px 0 8px; padding-top: 18px; border-top: 1px solid var(--rule); }
+h3 { font-size: 17px; margin: 20px 0 4px; }
+p, li { max-width: 68ch; }
+ul { padding-left: 1.25em; }
+li + li { margin-top: 5px; }
+a { color: var(--blue); }
+.glance {
+  background: #fff; border: 2px solid var(--rule); border-radius: 10px;
+  padding: 16px 20px; margin: 18px 0 8px;
+}
+.glance ul { margin: 6px 0 0; }
+.glance strong { color: var(--felt); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; margin: 10px 0; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--rule); }
+th { background: #efeadd; }
+.tbl { overflow-x: auto; }
+.contact { background: var(--felt); color: #fff; border-radius: 10px; padding: 16px 20px; margin-top: 12px; }
+.contact a { color: var(--gold); }
+footer { text-align: center; color: #cfdcd4; font-size: 14px; margin-top: 26px; }
+footer a { color: var(--gold); }
+@media (max-width: 480px) { .logo { font-size: 52px; } h1 { font-size: 26px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" aria-label="Aleatro">ALEATRO</div>
+  <div class="sub">A poker roguelike by <b>MAR Dev</b></div>
+</header>
+
+<main>
+<h1>Privacy Policy</h1>
+<p class="dates">Effective 31 October 2026 · Applies to Aleatro for Android (com.mardev.Aleatro)</p>
+
+<p>This policy explains what information is involved when you play Aleatro, who handles it, and the choices you have. Aleatro is made by MAR Dev ("we", "us"). We wrote it to be read, so it's short and plain.</p>
+
+<div class="glance">
+  <strong>At a glance</strong>
+  <ul>
+    <li>We don't run servers and the game sends nothing to us. You don't need an account with us.</li>
+    <li>Your saves, settings and stats stay on your device.</li>
+    <li>Ads are served by <b>Google AdMob</b>, which uses your device's advertising ID. In the EEA, UK and Switzerland you choose whether ads are personalised, and you can change that at any time.</li>
+    <li>If you sign in to <b>Google Play Games</b>, your achievements and leaderboard scores go to Google.</li>
+    <li>"Remove ads" is bought through <b>Google Play</b>. We never see your payment details.</li>
+    <li>We don't sell your personal information.</li>
+  </ul>
+</div>
+
+<h2>1. Who we are</h2>
+<p>Aleatro is developed and published by <b>MAR Dev</b>. For anything about this policy or your data, email <a href="mailto:mardevlopm@gmail.com">mardevlopm@gmail.com</a>.</p>
+
+<h2>2. Information stored on your device</h2>
+<p>Aleatro saves your game on your phone so you can continue later:</p>
+<ul>
+  <li>your current run, career statistics, unlocks, discovered cards and profiles;</li>
+  <li>settings such as volume, language, speed and accessibility options;</li>
+  <li>simple ad counters (for example, how many ads you've seen today) and whether you bought "Remove ads", so the game can respect its ad limits.</li>
+</ul>
+<p>This information stays in the app's private storage. It isn't sent to us. Uninstalling the game or clearing its storage in Android settings deletes it.</p>
+
+<h2>3. Advertising (Google AdMob)</h2>
+<p>Aleatro is free and shows ads through Google AdMob. Ads appear only at breaks in play, such as after a round's cash-out or when you leave a finished run. Some are optional: you can choose to watch a short ad for a reward, such as one more hand, a free shop reroll or an extra booster pick.</p>
+<p>To deliver, measure and limit ads, and to prevent fraud, Google may collect from your device:</p>
+<ul>
+  <li>the advertising ID (a resettable ID for ads, not your name or phone number);</li>
+  <li>your IP address, from which Google may infer a coarse location such as your country;</li>
+  <li>device and app information, such as model, operating system, language and app version;</li>
+  <li>how you interact with ads, such as views, taps and whether a video finished.</li>
+</ul>
+<p>Google handles this information under its own policies: <a href="https://policies.google.com/privacy">Google Privacy Policy</a> and <a href="https://policies.google.com/technologies/partner-sites">how Google uses information from apps that use its services</a>.</p>
+
+<h3>Your consent and choices</h3>
+<ul>
+  <li><b>EEA, UK and Switzerland:</b> on first launch, Google's consent form asks whether you agree to personalised ads. You can change your answer at any time with <b>Privacy choices</b> in the game's pause menu.</li>
+  <li><b>United States:</b> where state law gives you the right to opt out of targeted advertising, you can do so through the same consent options, where they're shown.</li>
+  <li><b>Everywhere:</b> you can reset or delete your advertising ID, or opt out of personalised ads, in your phone's settings under <i>Settings &gt; Google &gt; Ads</i> (wording varies by device).</li>
+  <li><b>Remove ads:</b> the one-time "Remove ads" purchase turns off the ads that show between rounds. Optional reward ads stay available, and you only see them if you choose to.</li>
+</ul>
+
+<h2>4. Google Play Games</h2>
+<p>Aleatro supports Google Play Games for achievements and leaderboards. Play Games is optional and run by Google. If you're signed in:</p>
+<ul>
+  <li>Google shares your Play Games player ID and display name with the game, so it can greet you and send your progress;</li>
+  <li>the game sends your unlocked achievements and your scores (best hand, highest ante, fastest win and number of wins) to Google;</li>
+  <li>leaderboard scores may be visible to other players, depending on your Play Games profile settings.</li>
+</ul>
+<p>We don't store this information ourselves. You manage your Play Games profile, its visibility and its data through your Google account and the Google Play Games settings. See the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>.</p>
+
+<h2>5. Purchases (Google Play)</h2>
+<p>The "Remove ads" purchase is processed entirely by Google Play. Google handles your payment details; the game only receives confirmation that you own the purchase, so it can turn ads off and restore the purchase if you reinstall. Purchases are subject to the <a href="https://play.google.com/about/play-terms/">Google Play Terms of Service</a>.</p>
+
+<h2>6. Permissions the app uses</h2>
+<div class="tbl"><table>
+  <thead><tr><th>Permission</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Internet and network state</td><td>To load ads, connect to Play Games and complete purchases. The game itself needs no connection to play.</td></tr>
+    <tr><td>Advertising ID</td><td>Used by Google AdMob for ads, as described in section 3.</td></tr>
+    <tr><td>Google Play billing</td><td>For the optional "Remove ads" purchase.</td></tr>
+    <tr><td>Vibration</td><td>For short haptic feedback in play. You can turn it off in the pause menu.</td></tr>
+  </tbody>
+</table></div>
+<p>Aleatro doesn't ask for your location, contacts, camera, microphone, photos or files.</p>
+
+<h2>7. What we don't do</h2>
+<ul>
+  <li>We don't collect your name, email address or phone number through the game.</li>
+  <li>We don't run our own servers or analytics, and we don't receive the data described above.</li>
+  <li>We don't sell your personal information or share it for money.</li>
+</ul>
+
+<h2>8. Children</h2>
+<p>Aleatro is a card game intended for players aged 13 and over, and it isn't directed at children under 13. We don't knowingly collect personal information from children. If you believe a child under 13 has used the game in a way that involved their personal information, contact us and we'll help with what we can, including pointing you to Google's tools for the data Google holds.</p>
+
+<h2>9. Your rights</h2>
+<p>Depending on where you live (for example, under the GDPR in the EEA and UK, or state laws in the United States), you may have the right to access, correct, delete or object to the processing of your personal information, and to withdraw consent.</p>
+<ul>
+  <li>Data on your device: delete it by uninstalling the game or clearing its storage.</li>
+  <li>Advertising: change consent through <b>Privacy choices</b> in the pause menu, and reset or delete your advertising ID in your phone's settings.</li>
+  <li>Play Games and purchases: Google holds this data. Use your Google account settings or Google's privacy tools.</li>
+</ul>
+<p>Because we don't hold your personal information ourselves, most requests are best handled through the controls above. You're always welcome to contact us, and we'll help. You also have the right to complain to your local data protection authority.</p>
+
+<h2>10. Retention and security</h2>
+<p>Game data stays on your device until you delete it. Information collected by Google is kept according to Google's own retention policies. Connections to Google's services are encrypted, and your saves stay in the app's private storage on your device.</p>
+
+<h2>11. International transfers</h2>
+<p>Google may process information on servers outside your country, including in the United States, under the safeguards described in its privacy policy.</p>
+
+<h2>12. Changes to this policy</h2>
+<p>If the game's data practices change, for example a new feature or partner, we'll update this page and the effective date above. Significant changes will also be noted in the game's update notes on Google Play.</p>
+
+<h2>13. Contact</h2>
+<div class="contact">
+  <b>MAR Dev</b>, developer of Aleatro<br>
+  Email: <a href="mailto:mardevlopm@gmail.com">mardevlopm@gmail.com</a>
+</div>
+</main>
+
+<footer>© 2026 MAR Dev · Aleatro · The ALEATRO logo is set in m6x11plus by Daniel Linssen.</footer>
+</body>
+</html>
