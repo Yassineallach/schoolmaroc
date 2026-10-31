@@ -1,15 +1,18 @@
 class_name Mascot
 extends Control
 
-## Ace, a living playing card who explains things. Materializes in a burst of
-## sparks, talks through a speech bubble with a blip per syllable, and can
-## offer buttons under the bubble.
+## Ace, the game's guide: the Jester joker card come to life, as Balatro's
+## Jimbo is its Joker. Drawn from the Jester's own pixel art with a card's
+## shadow, float and tilt; materializes in a burst of sparks, talks through a
+## speech bubble with a blip and a little bounce per syllable, and can offer
+## buttons under the bubble.
 
 signal dismissed
 signal poked
 
-const W := 110.0
+const W := 120.0  # a charm card's size (CharmView)
 const H := 150.0
+const ART := "jester"
 const BUBBLE_W := 400.0
 const CHAR_TIME := 0.016
 
@@ -21,9 +24,7 @@ var _bubble := PanelContainer.new()
 var _text := Label.new()
 var _buttons := HBoxContainer.new()
 var _sparks := CPUParticles2D.new()
-var _mouth_open := 0.0
-var _blink := 0.0
-var _next_blink := 2.0
+var _bounce := 0.0
 var _phase := randf() * TAU
 var _bubble_left := true
 var _say_id := 0
@@ -34,6 +35,7 @@ func _init(effects: Sfx) -> void:
 	sfx = effects
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	size = Vector2(W, H)
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR  # the art is pre-scaled, as on charms
 
 	_body.size = size
 	_body.pivot_offset = size / 2
@@ -90,12 +92,7 @@ func _init(effects: Sfx) -> void:
 
 
 func _process(delta: float) -> void:
-	_mouth_open = maxf(0.0, _mouth_open - delta * 6.0)
-	_next_blink -= delta
-	if _next_blink <= 0.0:
-		_blink = 0.12
-		_next_blink = randf_range(2.0, 4.5)
-	_blink = maxf(0.0, _blink - delta)
+	_bounce = maxf(0.0, _bounce - delta * 6.0)
 	_place_bubble()
 	_body.queue_redraw()
 
@@ -146,8 +143,8 @@ func say(text: String, options: Array = [], bubble_left := true) -> void:
 			vowel = vowel or "aeiouyAEIOUY".contains(text[shown - 1])
 		_text.visible_characters = shown
 		# at most one blip per frame, on a vowel
-		if vowel and randf() < 0.6 and _mouth_open < 0.4:
-			_mouth_open = 1.0
+		if vowel and randf() < 0.6 and _bounce < 0.4:
+			_bounce = 1.0
 			if sfx:
 				sfx.play("voice", randf_range(0.9, 1.25))
 			_body.pivot_offset = _body.size / 2
@@ -239,28 +236,18 @@ func _draw_body() -> void:
 	var bob := sin(t * 2.0 + _phase) * 4.0
 	var tilt := sin(t * 1.3 + _phase) * 0.04
 	var c := _body.size / 2
-	_body.draw_set_transform_matrix(Transform2D(tilt, c + Vector2(0, bob)) * Transform2D(0.0, -c))
+	# a hop while a syllable plays
+	var hop := -6.0 * _bounce
+	_body.draw_set_transform_matrix(Transform2D(tilt, c + Vector2(0, bob + hop)) * Transform2D(0.0, -c))
+	var art := CharmView.painted_art(ART)
+	var shadow := Vector2(4, 8 - bob * 0.5 - hop)
+	if art != null:
+		_body.draw_texture_rect(art, Rect2(shadow, _body.size), false, Color(0, 0, 0, 0.35))
+		_body.draw_texture_rect(art, Rect2(Vector2.ZERO, _body.size), false)
+		return
+	# no painted card (shouldn't happen): a plain card
 	var card := PixelBox.new(Color("f7f3ea"), 4.0, 0.0, true)
 	card.outline = 3.0
 	card.outline_color = Color("b3364e")
-	card.shadow_offset = Vector2(4, 8 - bob * 0.5)
+	card.shadow_offset = shadow
 	_body.draw_style_box(card, Rect2(Vector2.ZERO, _body.size))
-	var font := ThemeDB.fallback_font
-	var red := Color("e63946")
-	# corner marks: he is the Ace of Hearts
-	_body.draw_string(font, Vector2(8, 26), "A", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, red)
-	CardView.draw_suit(_body, 1, Vector2(15, 38), 13.0, red)
-	# face
-	var eye_y := 66.0
-	var open := 1.0 if _blink <= 0.0 else 0.15
-	for ex in [36.0, 74.0]:
-		_body.draw_rect(Rect2(ex - 7, eye_y - 9 * open, 14, 18 * open), Color("2b2d42"))
-		if open > 0.5:
-			_body.draw_rect(Rect2(ex - 3, eye_y - 6, 5, 5), Color.WHITE)
-	_body.draw_circle(Vector2(26, 86), 7, Color(red, 0.25))
-	_body.draw_circle(Vector2(84, 86), 7, Color(red, 0.25))
-	var mouth_h := 4.0 + 12.0 * _mouth_open
-	var mouth := PixelBox.new(Color("7a1f2b"), 2.0)
-	_body.draw_style_box(mouth, Rect2(c.x - 14, 92, 28, mouth_h))
-	# big heart on the chest
-	CardView.draw_suit(_body, 1, Vector2(c.x, 124), 26.0, red)
