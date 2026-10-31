@@ -134,7 +134,7 @@ needed; Play Games sign-in is optional.
     with chips at stake).
   - In Aleatro you never place a bet. Poker hands are only a scoring system;
     the "$" is shop money; and "stakes" are difficulty levels. Nothing can be
-    bought with real money except Remove ads, and nothing can be cashed out.
+    bought with real money, and nothing can be cashed out.
   - So **No** to simulated gambling is a defensible answer.
   - If the form also asks about **gambling themes or references**, answer
     **Yes** (poker hands and casino-style terms). That usually gives a low age
@@ -144,7 +144,7 @@ needed; Play Games sign-in is optional.
 - **Users can interact or exchange content: No.** Leaderboards and
   achievements are Play Games features with no chat or sharing.
 - **Shares the user's current physical location: No.**
-- **Allows digital purchases: Yes** (Remove ads).
+- **Allows digital purchases: No.** (Remove ads can't be sold from Morocco; see section 5.)
 - **Unrestricted internet access** (web browser or search engine): **No**.
 
 ### Target audience and content
@@ -175,7 +175,6 @@ to reset the advertising ID and how to manage Google data. Answer **No**, or
 | **App info and performance > Diagnostics** | Yes | Yes | No | Required | Advertising or marketing, Analytics, Fraud prevention, security and compliance | AdMob: launch time, hang rate, energy use |
 | **Device or other IDs** | Yes | Yes | No | Required | Advertising or marketing, Analytics, Fraud prevention, security and compliance | AdMob: advertising ID and app set ID |
 | **Personal info > User IDs** | Yes | No | No | Optional | App functionality | Play Games player ID, only when signed in |
-| **Financial info > Purchase history** | Yes | No | No | Optional | App functionality | Google Play Billing: whether Remove ads was bought |
 
 Everything else: **not collected**.
 - Name, email, contacts, photos, files, messages, health, precise location,
@@ -198,31 +197,25 @@ adds the `AD_ID` permission itself.
 **No**, **My app doesn't provide any financial features**, and **No health
 features**.
 
-## 5. Monetise: the Remove ads product
+## 5. Remove ads: not available from Morocco
 
-**Monetise with Play > Products > One-time products > Create one-time product**
+Google Play only lets developers sell paid apps and in-app products from
+locations that support **merchant registration**, and Morocco is not one of
+them ([supported locations](https://support.google.com/googleplay/android-developer/answer/9306917)).
+So the `remove_ads` product can't be created, and the game earns through
+AdMob only, which pays to Morocco separately from Play.
 
-- Product ID: **`remove_ads`**
-- Purchase option: buy, non-consumable. Price **USD 3.99**; let Play convert
-  the other countries.
-- Name (55 max) and description (200 max) per language:
-
-| Language | Name | Description |
-|---|---|---|
-| en-US | Remove ads | Removes the ads between rounds for good. Optional reward ads stay available. |
-| zh-CN | 移除广告 | 永久移除回合之间的广告。可选的奖励广告仍可观看。 |
-| ja-JP | 広告を削除 | ラウンド間の広告を永久に削除します。任意のリワード広告は引き続き利用できます。 |
-| ko-KR | 광고 제거 | 라운드 사이의 광고를 영구히 제거합니다. 선택형 보상 광고는 계속 이용할 수 있습니다. |
-| de-DE | Werbung entfernen | Entfernt die Werbung zwischen den Runden dauerhaft. Optionale Belohnungswerbung bleibt verfügbar. |
-| fr-FR | Supprimer les pubs | Supprime pour de bon les publicités entre les manches. Les publicités à récompense facultatives restent disponibles. |
-| es-ES | Quitar anuncios | Elimina para siempre los anuncios entre rondas. Los anuncios opcionales con recompensa siguen disponibles. |
-| pt-BR | Remover anúncios | Remove de vez os anúncios entre as rodadas. Os anúncios opcionais com recompensa continuam disponíveis. |
-| it-IT | Rimuovi pubblicità | Rimuove per sempre le pubblicità tra un round e l'altro. Le pubblicità facoltative con premio restano disponibili. |
-| ar | إزالة الإعلانات | يزيل الإعلانات بين الجولات نهائيًا. تبقى الإعلانات الاختيارية ذات المكافأة متاحة. |
-
-- **Activate** it. The product only shows up in the game once a build signed
-  for Play is installed from a testing track, and your account is under
-  **Settings > License testing**.
+- **Nothing to do in the game.** The "Remove ads" button only appears once
+  Google Play returns a price for `remove_ads`. With no product it never
+  shows, and the ads work as usual.
+- **Play Console:** don't create any one-time product. In the content rating
+  answer **No** to digital purchases, and in Data safety leave out
+  *Purchase history*.
+- **If merchant registration ever reaches Morocco,** or you publish through a
+  company in a supported country, create a one-time product with the ID
+  `remove_ads` (Buy option, USD 3.99) and activate it. The game picks it up
+  with no update. Its name and description in the 10 languages are in this
+  file's git history (the commit before this section changed).
 
 ## 6. Pricing and countries
 

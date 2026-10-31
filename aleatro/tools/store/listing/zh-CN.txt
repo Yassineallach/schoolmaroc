@@ -27,4 +27,4 @@ Aleatro 是一款扑克肉鸽游戏，把规则改写到分数爆炸。
 - 支持 10 种语言：English、简体中文、日本語、한국어、Deutsch、Français、Español、Português (Brasil)、Italiano 和 العربية
 - 自动保存进度，随时可以暂停
 
-Aleatro 免费游玩，含可选广告。一次性购买即可移除回合之间的广告。
+Aleatro 免费游玩，含广告。

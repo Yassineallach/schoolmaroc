@@ -61,6 +61,11 @@ developer website on Google Play. Unverified apps earn less.
 
 ## 4. Play Console: "Remove ads" and declarations
 
+> **Not possible from Morocco.** Google Play merchant registration isn't
+> available there, so the `remove_ads` product can't be sold. Skip step 1
+> below. The game hides the "Remove ads" button when Play has no product.
+> The declarations in step 2 still apply. See `tools/store/STORE.md`, section 5.
+
 1. **Monetize > Products > In-app products > Create product**
    - Product ID: **`remove_ads`** (or change `[iap] remove_ads` in `ads.cfg`)
    - Name: Remove ads
