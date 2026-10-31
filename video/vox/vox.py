@@ -402,7 +402,9 @@ def make_frame(shots, end, t, xf=0.2):
     i = max(j for j in range(len(shots)) if starts[j] <= t)
 
     def render(j, tt):
+        global _SCENE_START
         s0, fn = shots[j]
+        _SCENE_START = s0
         return finish(fn(tt - s0, starts[j + 1] - s0))
     cur = render(i, t)
     if i + 1 < len(shots) and starts[i + 1] - t < xf:
@@ -422,7 +424,7 @@ def master_audio(clips, out_wav):
             fh.write(f"file '{os.path.join(AUD, f'{n}.wav')}'\n")
     chain = ('highpass=f=85,equalizer=f=350:t=q:w=1:g=-2,equalizer=f=3000:t=q:w=1:g=2.5,'
              'equalizer=f=6800:t=q:w=2:g=-3,acompressor=threshold=-20dB:ratio=3:attack=10:release=120,'
-             'loudnorm=I=-16:TP=-1.5:LRA=11')
+             'loudnorm=I=-16:TP=-1.5:LRA=11,apad=pad_dur=4')
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', lst,
                     '-af', chain, '-ar', '48000', '-ac', '2', out_wav], check=True)
 
@@ -450,3 +452,48 @@ def contact_sheet(frame_fn, times, out):
     for i, tl in enumerate(tiles):
         c.paste(tl, ((i % 2) * 960, (i // 2) * 540))
     c.save(out)
+
+
+# ---------- exact word timing ----------
+import json as _json, re as _re, wave as _wave
+_WORDS = {int(k): v for k, v in _json.load(open(os.path.join(SCR, 'timing', 'words.json'))).items()}
+_DUR = {}
+for _n in range(1, 27):
+    with _wave.open(os.path.join(AUD, f'{_n}.wav')) as _w:
+        _DUR[_n] = _w.getnframes() / _w.getframerate()
+
+
+def _norm(s):
+    return _re.sub(r"[^a-z0-9']", '', s.lower().replace('’', "'"))
+
+
+def make_cue(clips):
+    """Returns cue(clip, phrase, nth=1, edge='s') -> act-local seconds of that spoken phrase."""
+    off, acc = {}, 0.0
+    for c in clips:
+        off[c] = acc
+        acc += _DUR[c]
+
+    def cue(clip, phrase, nth=1, edge='s'):
+        toks = [_norm(x) for x in phrase.split() if _norm(x)]
+        ws = _WORDS[clip]
+        nw = [_norm(w['w']) for w in ws]
+        hits = [i for i in range(len(nw) - len(toks) + 1) if nw[i:i + len(toks)] == toks]
+        if len(hits) < nth:
+            raise KeyError(f'clip {clip}: "{phrase}" not found ({len(hits)} hits)')
+        i = hits[nth - 1]
+        w = ws[i] if edge == 's' else ws[i + len(toks) - 1]
+        return off[clip] + w[edge]
+    cue.total = acc
+    return cue
+
+
+_SCENE_START = 0.0
+
+
+def w(abs_time):
+    """Convert an act-local cue time into the current scene's local time."""
+    return abs_time - _SCENE_START
+
+
+LEAD = 0.12  # cut this far before the word so the crossfade completes on it

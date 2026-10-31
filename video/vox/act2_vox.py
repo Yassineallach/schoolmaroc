@@ -17,17 +17,20 @@ CARD_FLEET = PhotoCard(E10, 1080, rot=-1.5, seed=35)
 CARD_WAR = PhotoCard(E09A, 1320, rot=1.2, seed=37)
 
 
+cue = make_cue((4, 5))
+
+
 def sA(t, D):
     """His creator, Pierce Brown."""
     c = background()
     CARD_PORTRAIT.place(c, 470, 560, t, 0.0, zoom=lerp(1.0, 1.05, ease(t / D)))
-    headline(c, (1300, 470), 'PIERCE BROWN', 96, t, 0.8)
-    marker_line(c, [(1000, 545), (1300, 538), (1600, 548)], ease((t - 1.4) / 0.7), width=12)
-    typewriter(c, (1300, 620), 'the author of Red Rising', 40, t, 2.0, anchor='mm', cursor=False)
+    headline(c, (1300, 470), 'PIERCE BROWN', 96, t, w(cue(4, 'pierce')))
+    marker_line(c, [(1000, 545), (1300, 538), (1600, 548)], ease((t - w(cue(4, 'brown')) - 0.3) / 0.7), width=12)
+    typewriter(c, (1300, 620), 'the author of Red Rising', 40, t, w(cue(4, 'could never')), anchor='mm', cursor=False)
     return c
 
 
-RESUME = [('Odd jobs in television', 0.6), ('Odd jobs in politics', 1.6), ('Writing novels', 2.6)]
+RESUME = None  # built after cue is defined
 
 
 def sB(t, D):
@@ -39,16 +42,16 @@ def sB(t, D):
     if pos:
         x0, y0 = pos
         for i, (line, t0) in enumerate(RESUME):
-            typewriter(c, (x0 + 80, y0 + 230 + i * 110), line, 40, t, t0, cps=26)
-        strike(c, x0 + 70, x0 + 600, y0 + 230, ease((t - 4.0) / 0.5))
-        strike(c, x0 + 70, x0 + 540, y0 + 340, ease((t - 4.5) / 0.5))
+            typewriter(c, (x0 + 80, y0 + 230 + i * 110), line, 40, t, w(t0), cps=26)
+        strike(c, x0 + 70, x0 + 600, y0 + 230, ease((t - w(cue(4, 'no one'))) / 0.5))
+        strike(c, x0 + 70, x0 + 540, y0 + 340, ease((t - w(cue(4, 'publish'))) / 0.5))
     return c
 
 
 def sC(t, D):
     """Rejection followed rejection."""
     c = background()
-    headline(c, (W / 2, 110), 'REJECTED', 96, t, 2.6, fill=RED)
+    headline(c, (W / 2, 110), 'REJECTED', 96, t, w(cue(4, 'rejection', 2)), fill=RED)
     for i in range(6):
         t0 = i * 0.55
         sheet = document(520, 660, ['Dear Mr. Brown,', '', '---', '---', '---', '---', '', 'Regrettably...'], seed=50 + i, body_size=30)
@@ -63,10 +66,10 @@ def sC(t, D):
 def sD(t, D):
     """2014: his breakthrough, an epic rebellion set among the stars."""
     c = background()
-    CARD_FLEET.place(c, 1240, 560, t, 0.5, zoom=lerp(1.0, 1.12, ease(t / D)), pan=(0.5, 0.55))
-    headline(c, (330, 470), '2014', 150, t, 0.0, fill=RED)
-    typewriter(c, (330, 580), 'THE BREAKTHROUGH', 36, t, 0.8, anchor='mm', cursor=False)
-    typewriter(c, (1240, 1015), 'an epic rebellion set among the stars', 38, t, 2.0, anchor='mm', cursor=False)
+    CARD_FLEET.place(c, 1240, 560, t, w(cue(4, '2014')), zoom=lerp(1.0, 1.12, ease(t / D)), pan=(0.5, 0.55))
+    headline(c, (330, 470), '2014', 150, t, w(cue(4, '2014')), fill=RED)
+    typewriter(c, (330, 580), 'THE BREAKTHROUGH', 36, t, w(cue(4, 'breakthrough')), anchor='mm', cursor=False)
+    typewriter(c, (1240, 1015), 'an epic rebellion set among the stars', 38, t, w(cue(4, 'an epic')), anchor='mm', cursor=False)
     return c
 
 
@@ -99,11 +102,11 @@ def sE(t, D):
     x = lerp(0, SHELF.width - W, ease(t / D))
     dy, op = arrive(t, 0.0, 380)
     c.alpha_composite(alpha_mul(SHELF.crop((int(x), 0, int(x) + W, 760)), op), (0, int(240 + dy)))
-    headline(c, (W / 2, 120), 'YOUNG ADULT DYSTOPIAS', 84, t, 0.6)
+    headline(c, (W / 2, 120), 'YOUNG ADULT DYSTOPIAS', 84, t, w(cue(5, 'young adult')))
     return c
 
 
-TROPES = [('ARENAS', 0.2), ('WALLED CITIES', 1.6), ('CRUEL GOVERNMENTS', 3.0)]
+TROPES = None  # built after cue is defined
 
 
 def sF(t, D):
@@ -111,12 +114,12 @@ def sF(t, D):
     c = background()
     for i, (word, t0) in enumerate(TROPES):
         y = 330 + i * 190
-        headline(c, (W / 2, y), word, 110, t, t0)
+        headline(c, (W / 2, y), word, 110, t, w(t0))
     for i, (word, t0) in enumerate(TROPES):
         y = 330 + i * 190
         wpx = ImageDraw.Draw(c).textlength(word, font=F_HEAD(110))
-        strike(c, W / 2 - wpx / 2 - 20, W / 2 + wpx / 2 + 20, y + 6, ease((t - 4.6 - i * 0.2) / 0.4), width=14)
-    stamp(c, 1560, 930, 'TOO SAFE', 70, t, 5.4, ang=-9)
+        strike(c, W / 2 - wpx / 2 - 20, W / 2 + wpx / 2 + 20, y + 6, ease((t - 999) / 0.4), width=14)
+
     return c
 
 
@@ -124,8 +127,9 @@ def sG(t, D):
     """While Brown was a fan, he was weary of stories that felt too safe."""
     c = background()
     CARD_CLOSING.place(c, 520, 560, t, 0.0, zoom=lerp(1.04, 1.0, ease(t / D)))
-    headline(c, (1340, 470), 'A FAN,', 110, t, 0.6)
-    headline(c, (1340, 600), 'BUT WEARY', 110, t, 1.1, fill=RED)
+    headline(c, (1340, 470), 'A FAN,', 110, t, w(cue(5, 'fan')))
+    headline(c, (1340, 600), 'BUT WEARY', 110, t, w(cue(5, 'weary')), fill=RED)
+    stamp(c, 1340, 800, 'TOO SAFE', 80, t, w(cue(5, 'too safe')), ang=-9)
     return c
 
 
@@ -133,12 +137,15 @@ def sH(t, D):
     """He wanted war to feel like war, and power to feel truly dangerous."""
     c = background()
     CARD_WAR.place(c, W / 2, 560, t, 0.0, zoom=lerp(1.0, 1.1, ease(t / D)), pan=(0.5, 0.6))
-    typewriter(c, (W / 2, 100), 'WAR SHOULD FEEL LIKE WAR', 54, t, 0.8, anchor='mm', fill=RED, cursor=False)
+    typewriter(c, (W / 2, 100), 'WAR SHOULD FEEL LIKE WAR', 54, t, w(cue(5, 'war')), anchor='mm', fill=RED, cursor=False)
     return c
 
 
-SHOTS = [(0.0, sA), (6.3, sB), (13.3, sC), (18.8, sD), (23.8, sE), (28.1, sF), (34.3, sG), (39.3, sH)]
-END = 44.6
+RESUME = [('Odd jobs in television', cue(4, 'television')), ('Odd jobs in politics', cue(4, 'politics')), ('Writing novels', cue(4, 'writing novels'))]
+TROPES = [('ARENAS', cue(5, 'arenas')), ('WALLED CITIES', cue(5, 'walled')), ('CRUEL GOVERNMENTS', cue(5, 'cruel'))]
+SHOTS = [(0.0, sA), (cue(4, 'barring') - LEAD, sB), (cue(4, 'rejection') - LEAD, sC), (cue(4, "it wasn't") - LEAD, sD),
+         (cue(5, 'at this time') - LEAD, sE), (cue(5, 'readers followed') - LEAD, sF), (cue(5, 'while brown') - LEAD, sG), (cue(5, 'he wanted') - LEAD, sH)]
+END = cue.total
 
 
 def frame(t):

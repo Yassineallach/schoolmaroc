@@ -21,16 +21,20 @@ REAPER = Cutout(Image.open(os.path.join(SRC, 'reaper.png')).convert('RGBA'), 940
 FG = foreground()
 
 
+cue = make_cue((1, 2, 3))
+
+
 def sA(t, D):
     """Beneath the surface of Mars: the cross-section print, then the visor close-up lands on top."""
     c = background()
     pan = ease(t / 5.5)
-    CARD_E01.place(c, 620, 520, t, 0.1, zoom=1.35, pan=(0.5, pan))
-    typewriter(c, (300, 990), 'BENEATH THE SURFACE OF MARS', 42, t, 0.9)
-    if t > 5.2:
-        CARD_VISOR.place(c, 1240, 560, t, 5.4, zoom=lerp(1.0, 1.08, ease((t - 5.4) / 4)))
-        marker_circle(c, 1500, 500, 170, 150, ease((t - 6.6) / 0.7), seed=2)
-        typewriter(c, (1390, 900), 'DEADLY GAS', 40, t, 7.2, fill=RED)
+    CARD_E01.place(c, 620, 520, t, 0.0, zoom=1.35, pan=(0.5, pan))
+    typewriter(c, (300, 990), 'BENEATH THE SURFACE OF MARS', 42, t, w(cue(1, 'beneath')))
+    tv = w(cue(1, 'plunges')) - 0.2
+    if t > tv - 0.2:
+        CARD_VISOR.place(c, 1240, 560, t, tv, zoom=lerp(1.0, 1.08, ease((t - tv) / 4)))
+        marker_circle(c, 1500, 500, 170, 150, ease((t - w(cue(1, 'deadly'))) / 0.7), seed=2)
+        typewriter(c, (1390, 900), 'DEADLY GAS', 40, t, w(cue(1, 'deadly')), fill=RED)
     return c
 
 
@@ -71,10 +75,10 @@ def sB(t, D):
     c = background()
     pos = place_sheet(c, NOTICE, 1220, 520, t, 0.0, rot=2)
     if pos:
-        laurel_wreath(c, 1220, 740, 110, ease((t - 0.8) / 1.4))
+        laurel_wreath(c, 1220, 740, 110, ease((t - w(cue(1, 'laurel'))) / 1.4))
     DARROW.place(c, 520, H + 40, t, 0.6, side='left')
-    headline(c, (520, 120), 'DARROW', 84, t, 1.4)
-    typewriter(c, (520, 200), 'a young miner of Lykos', 34, t, 2.0, anchor='mm')
+    headline(c, (520, 120), 'DARROW', 84, t, w(cue(1, 'win the')))
+    typewriter(c, (520, 200), 'a young miner of Lykos', 34, t, w(cue(1, 'extra food')), anchor='mm')
     c.alpha_composite(FG)
     return c
 
@@ -84,8 +88,8 @@ def sC(t, D):
     c = background()
     NAROL.place(c, 620, H + 60, t, 0.0, side='left')
     DARROW_SIDE.place(c, 1300, H + 60, t, 0.35, side='right')
-    headline(c, (620, 110), 'UNCLE NAROL', 72, t, 0.9)
-    typewriter(c, (430, 185), '"The contest is rigged."', 40, t, 1.6, fill=RED)
+    headline(c, (620, 110), 'UNCLE NAROL', 72, t, w(cue(2, 'narol')))
+    typewriter(c, (430, 185), '"The contest is rigged."', 40, t, w(cue(2, 'the contest')), fill=RED)
     c.alpha_composite(FG)
     return c
 
@@ -111,10 +115,10 @@ def sD(t, D):
             h = 430 * v * p
             d.rectangle((bx, base - h, bx + 170, base), fill=(INK if name == 'LYKOS' else GREY) + (255,))
             text(c, (bx + 85, base + 50), name, F_HEAD(34))
-        if t > 2.2:
+        if t > w(cue(2, 'another clan')):
             gx = x0 + 180 + 85
-            laurel_wreath(c, gx, base - 430 * 0.62 - 120, 62, ease((t - 2.2) / 0.6), color=RED)
-        stamp(c, x0 + 980, y0 + 150, 'RIGGED', 90, t, 3.3, ang=-10)
+            laurel_wreath(c, gx, base - 430 * 0.62 - 120, 62, ease((t - w(cue(2, 'another clan'))) / 0.6), color=RED)
+        stamp(c, x0 + 980, y0 + 150, 'RIGGED', 90, t, w(cue(2, 'another clan', 1, 'e')), ang=-10)
     return c
 
 
@@ -127,15 +131,15 @@ def sE(t, D):
     c = background()
     CARD_E02.place(c, W / 2, 545, t, 0.0, zoom=lerp(1.0, 1.1, ease(t / D)), pan=(0.5, 0.6))
     gauge_scribble(c, t)
-    typewriter(c, (300, 120), 'NEARLY COSTS HIM HIS LIFE', 46, t, 1.4, fill=RED)
-    return shake(c, t, (0.0, 1.5, 3.0))
+    typewriter(c, (300, 120), 'NEARLY COSTS HIM HIS LIFE', 46, t, w(cue(2, 'nearly')), fill=RED)
+    return shake(c, t, (w(cue(2, 'reckless')), w(cue(2, 'nearly')), w(cue(2, 'life'))))
 
 
 def sF(t, D):
     """He climbs out proudly."""
     c = background()
     CLIMB.place(c, 980, H - 20, t, 0.0, rise=520, side='right')
-    headline(c, (980, 110), 'UNDETERRED', 96, t, 1.2)
+    headline(c, (980, 110), 'UNDETERRED', 96, t, w(cue(2, 'proudly')))
     c.alpha_composite(FG)
     return c
 
@@ -146,20 +150,20 @@ def sG(t, D):
     headline(c, (W / 2, 420), 'RED RISING', 230, t, 0.2, tracking=-4)
     marker_line(c, [(470, 560), (960, 548), (1450, 560)], ease((t - 1.2) / 0.8), width=14)
     for i, wd in enumerate(['BRUTAL', 'DEFIANT', 'SOULFUL']):
-        typewriter(c, (W / 2 - 520 + i * 520, 690), wd, 56, t, 2.2 + i * 0.9, anchor='mm', cursor=False)
+        typewriter(c, (W / 2 - 520 + i * 520, 690), wd, 56, t, w(cue(3, wd.lower())), anchor='mm', cursor=False)
     return c
 
 
 def sH(t, D):
     """Darrow of Lykos becomes the Reaper."""
     c = background()
-    if t < 2.6:
+    if t < w(cue(3, 'who becomes')):
         DARROW.place(c, 760, H + 40, t, 0.0, side='left')
-        typewriter(c, (300, 150), 'DARROW OF LYKOS', 48, t, 0.5)
+        typewriter(c, (300, 150), 'DARROW OF LYKOS', 48, t, w(cue(3, 'darrow of lykos')))
     else:
-        REAPER.place(c, 1100, H + 30, t, 2.6, side='right')
-        headline(c, (430, 470), 'THE', 90, t, 3.2)
-        headline(c, (430, 580), 'REAPER', 150, t, 3.45, fill=RED)
+        REAPER.place(c, 1100, H + 30, t, w(cue(3, 'who becomes')), side='right')
+        headline(c, (430, 470), 'THE', 90, t, w(cue(3, 'the reaper')))
+        headline(c, (430, 580), 'REAPER', 150, t, w(cue(3, 'reaper')), fill=RED)
     c.alpha_composite(FG)
     return c
 
@@ -170,29 +174,31 @@ def sI(t, D):
     headline(c, (W / 2, 110), 'A TRILOGY', 80, t, 0.0)
     d = ImageDraw.Draw(c)
     # Mars and the Society drawn in ink
-    dy, op = arrive(t, 0.3, 200)
+    dy, op = arrive(t, w(cue(3, 'mines')), 200)
     if op > 0:
         d.ellipse((260, 460 + dy, 560, 760 + dy), fill=(180, 72, 48, int(255 * op)), outline=INK + (255,), width=5)
         text(c, (410, 820 + dy), 'MINES OF MARS', F_HEAD(36), alpha=op)
-    dy2, op2 = arrive(t, 3.0, 200)
+    dy2, op2 = arrive(t, w(cue(3, 'society')), 200)
     if op2 > 0:
         for r in (240, 170):
             d.ellipse((1560 - r, 610 - r * 0.55 + dy2, 1560 + r, 610 + r * 0.55 + dy2), outline=GREY + (255,), width=3)
         d.ellipse((1500, 550 + dy2, 1620, 670 + dy2), fill=(196, 154, 69, int(255 * op2)), outline=INK + (255,), width=5)
         text(c, (1560, 860 + dy2), 'THE SOCIETY', F_HEAD(36), alpha=op2)
     route = [(560, 610)] + [(560 + (1440 - 560) * u, 610 - 140 * math.sin(math.pi * u)) for u in np.linspace(0, 1, 50)]
-    marker_line(c, route, ease((t - 1.0) / 2.6), width=10)
+    marker_line(c, route, ease((t - w(cue(3, 'travels'))) / (w(cue(3, 'society')) - w(cue(3, 'travels')))), width=10)
     for i, u in enumerate((0.2, 0.5, 0.8)):
         x, y = 560 + 880 * u, 610 - 140 * math.sin(math.pi * u)
         bk = document(110, 150, [], seed=40 + i)
-        place_sheet(c, bk, x, y - 40, t, 1.4 + u * 2.4, rot=(-6, 3, -2)[i], rise=200)
-        if t > 1.4 + u * 2.4:
-            text(c, (x, y - 40 + arrive(t, 1.4 + u * 2.4, 200)[0]), ['I', 'II', 'III'][i], F_SERIF(54))
+        place_sheet(c, bk, x, y - 40, t, (w(cue(3, 'travels')) + u * (w(cue(3, 'society')) - w(cue(3, 'travels')))), rot=(-6, 3, -2)[i], rise=200)
+        if t > (w(cue(3, 'travels')) + u * (w(cue(3, 'society')) - w(cue(3, 'travels')))):
+            text(c, (x, y - 40 + arrive(t, (w(cue(3, 'travels')) + u * (w(cue(3, 'society')) - w(cue(3, 'travels')))), 200)[0]), ['I', 'II', 'III'][i], F_SERIF(54))
     return c
 
 
-SHOTS = [(0.0, sA), (9.5, sB), (15.8, sC), (22.5, sD), (27.0, sE), (31.5, sF), (36.1, sG), (43.0, sH), (49.0, sI)]
-END = 57.7
+SHOTS = [(0.0, sA), (cue(1, 'in his eyes') - LEAD, sB), (cue(2, 'as his uncle') - LEAD, sC), (cue(2, 'the laurel always') - LEAD, sD),
+         (cue(2, 'darrow is') - LEAD, sE), (cue(2, 'never discouraged') - LEAD, sF), (cue(3, 'this sequence'), sG),
+         (cue(3, 'darrow of lykos') - LEAD, sH), (cue(3, 'published') - LEAD, sI)]
+END = cue.total
 
 
 def frame(t):

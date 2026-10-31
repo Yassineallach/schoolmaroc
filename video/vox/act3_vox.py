@@ -24,6 +24,9 @@ CASTES = [('gold', 'GOLD', 'rulers & warriors', (196, 154, 69)),
           ('red', 'RED', 'miners', (180, 60, 40))]
 
 
+cue = make_cue((6, 7))
+
+
 def small_cutout(name, h):
     return Cutout(Image.open(os.path.join(S3, name + '.png')).convert('RGBA'), h, stroke_x=10, stroke_y=4)
 
@@ -35,8 +38,8 @@ def sA(t, D):
     """He wrote Red Rising: the story of a Red, a slave of the lowest caste."""
     c = background()
     DARROW.place(c, 560, H + 40, t, 0.0, side='left')
-    headline(c, (1300, 430), 'A RED', 200, t, 0.9, fill=RED)
-    typewriter(c, (1300, 580), 'a slave of the lowest caste', 44, t, 1.8, anchor='mm', cursor=False)
+    headline(c, (1300, 430), 'A RED', 200, t, w(cue(6, 'a red')), fill=RED)
+    typewriter(c, (1300, 580), 'a slave of the lowest caste', 44, t, w(cue(6, 'a slave')), anchor='mm', cursor=False)
     c.alpha_composite(FG)
     return c
 
@@ -45,12 +48,12 @@ def sB(t, D):
     """Who believes he is building a future for humanity."""
     c = background()
     CARD_HAND.place(c, 600, 560, t, 0.0, zoom=lerp(1.0, 1.06, ease(t / D)))
-    CARD_CITY.place(c, 1450, 470, t, 1.2)
+    CARD_CITY.place(c, 1450, 470, t, w(cue(6, 'future')) - 0.2)
     arrow = [(1010, 640), (1120, 690), (1230, 650)]
-    marker_line(c, arrow, ease((t - 1.0) / 0.6), width=10)
-    if t > 1.6:
-        marker_line(c, [(1195, 620), (1232, 650), (1190, 682)], ease((t - 1.6) / 0.3), width=10)
-    typewriter(c, (1450, 840), 'a future for humanity', 40, t, 2.0, anchor='mm', cursor=False)
+    marker_line(c, arrow, ease((t - w(cue(6, 'building'))) / 0.6), width=10)
+    if t > w(cue(6, 'building')) + 0.6:
+        marker_line(c, [(1195, 620), (1232, 650), (1190, 682)], ease((t - w(cue(6, 'building')) - 0.6) / 0.3), width=10)
+    typewriter(c, (1450, 840), 'a future for humanity', 40, t, w(cue(6, 'future')), anchor='mm', cursor=False)
     return c
 
 
@@ -70,17 +73,17 @@ CHIPS = [chip(col, nm, 70 + i) for i, (_, nm, _, col) in enumerate(CASTES)]
 def sC(t, D):
     """A world ruled by color: caste is marked by eyes and hair, each bred for one purpose."""
     c = background()
-    headline(c, (W / 2, 140), 'RULED BY COLOR', 110, t, 0.0)
+    headline(c, (W / 2, 140), 'RULED BY COLOR', 110, t, w(cue(6, 'ruled')))
     for i, ch in enumerate(CHIPS):
         x = 260 + i * 200
-        place_sheet(c, ch, x, 520, t, 0.5 + i * 0.18, rot=((i * 37) % 7 - 3) * 1.2)
-    typewriter(c, (W / 2, 790), 'born into a caste, marked by eyes and hair', 40, t, 2.6, anchor='mm', cursor=False)
-    typewriter(c, (W / 2, 880), 'bred for a single purpose', 46, t, 4.6, anchor='mm', fill=RED, cursor=False)
+        place_sheet(c, ch, x, 520, t, w(cue(6, 'each person')) + i * 0.18, rot=((i * 37) % 7 - 3) * 1.2)
+    typewriter(c, (W / 2, 790), 'born into a caste, marked by eyes and hair', 40, t, w(cue(6, 'born')), anchor='mm', cursor=False)
+    typewriter(c, (W / 2, 880), 'bred for a single purpose', 46, t, w(cue(6, 'bred')), anchor='mm', fill=RED, cursor=False)
     return c
 
 
 ROWS = [(290, ['gold']), (480, ['silver', 'copper']), (670, ['blue', 'obsidian']), (860, ['pink', 'brown']), (1050, ['red'] * 6)]
-APPEAR = {'gold': 0.2, 'silver': 3.4, 'copper': 5.0, 'blue': 6.8, 'obsidian': 8.8, 'pink': 11.0, 'brown': 13.0, 'red': 15.0}
+APPEAR = None  # built after cue is defined
 INFO = {n: (nm, role) for n, nm, role, _ in CASTES}
 
 
@@ -97,7 +100,7 @@ def sD(t, D):
     """The caste pyramid, built from the top down as each color is named."""
     c = background()
     for i, (base, members) in enumerate(ROWS):
-        first = min(APPEAR[m] for m in members) - 0.25
+        first = min(w(APPEAR[m]) for m in members) - 0.25
         place_sheet(c, STRIPS[i], W / 2, base - 22, t, first, rise=160)
         n = len(members)
         width = STRIPS[i].width
@@ -106,7 +109,7 @@ def sD(t, D):
             if m == 'red':
                 cx = W / 2 - width / 2 + 300 + j * (width - 600) / (n - 1)
                 cx += 0 if j < n / 2 else 0
-            start = APPEAR[m] + (0.18 * j if m == 'red' else 0.0)
+            start = w(APPEAR[m]) + (0.18 * j if m == 'red' else 0.0)
             FIG[m].place(c, cx, base - 30, t, start, rise=260, side='left')
             nm, role = INFO[m]
             label = None
@@ -132,16 +135,18 @@ def sD(t, D):
                         text(c, (x0 - 4, ly + dy), '', f1, anchor='lm')
                     text(c, (x0, ly + dy), nm, f1, anchor='lm', alpha=op)
                     text(c, (x0 + w1 + 12, ly + dy), role, f2, anchor='lm', alpha=op)
-    if t > 17.5:
-        marker_circle(c, W / 2, 975, 700, 100, ease((t - 17.5) / 0.9), width=10, seed=6)
-    typewriter(c, (1190, 150), '"Your work will make', 34, t, 18.4, cursor=False)
-    typewriter(c, (1190, 200), ' Mars livable."', 34, t, 19.3, cursor=False)
+    if t > w(cue(7, 'labor')):
+        marker_circle(c, W / 2, 975, 700, 100, ease((t - w(cue(7, 'labor'))) / 0.9), width=10, seed=6)
+    typewriter(c, (1190, 150), '"Your work will make', 34, t, w(cue(7, 'their work')), cursor=False)
+    typewriter(c, (1190, 200), ' Mars livable."', 34, t, w(cue(7, 'make mars')), cursor=False)
     headline(c, (360, 150), 'THE SOCIETY', 70, t, 0.0)
     return c
 
 
-SHOTS = [(0.0, sA), (5.6, sB), (10.3, sC), (17.6, sD)]
-END = 39.2
+APPEAR = {'gold': cue(7, 'golds'), 'silver': cue(7, 'silvers'), 'copper': cue(7, 'coppers'), 'blue': cue(7, 'blues'),
+          'obsidian': cue(7, 'towering'), 'pink': cue(7, 'pinks'), 'brown': cue(7, 'browns'), 'red': cue(7, 'the reds')}
+SHOTS = [(0.0, sA), (cue(6, 'who believes') - LEAD, sB), (cue(6, "brown's world") - LEAD, sC), (cue(7, 'golds') - LEAD, sD)]
+END = cue.total
 
 
 def frame(t):

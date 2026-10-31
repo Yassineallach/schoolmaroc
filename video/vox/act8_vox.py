@@ -9,6 +9,9 @@ S3 = os.path.join(SCR, 'act3', 'src')
 S6 = os.path.join(SCR, 'act6', 'src')
 
 
+cue = make_cue((21, 22, 23, 24, 25, 26))
+
+
 def cut(path, h, **k):
     return Cutout(Image.open(path).convert('RGBA'), h, **k)
 
@@ -46,9 +49,9 @@ BOOKS = [book('RED RISING', (168, 50, 38), 171), book('GOLDEN SON', (176, 132, 5
 def sA(t, D):
     """Red Rising was a huge success. Its sequels followed in quick succession."""
     c = background()
-    headline(c, (W / 2, 130), 'A HUGE SUCCESS', 100, t, 0.0)
+    headline(c, (W / 2, 130), 'A HUGE SUCCESS', 100, t, w(cue(21, 'huge')))
     for i, b in enumerate(BOOKS):
-        place_sheet(c, b, 560 + i * 400, 600, t, 0.8 + i * 1.3, rot=(-4, 1, 4)[i])
+        place_sheet(c, b, 560 + i * 400, 600, t, w((cue(21, 'its sequels'), cue(21, 'golden son'), cue(21, 'morning star'))[i]), rot=(-4, 1, 4)[i])
     return c
 
 
@@ -56,11 +59,11 @@ def sB(t, D):
     """In Golden Son, Darrow climbs higher, serving powerful lords while secretly planning their downfall."""
     c = background()
     LORD.place(c, 520, H + 40, t, 0.0, side='left')
-    KNEEL.place(c, 980, H + 40, t, 0.5, side='right')
+    KNEEL.place(c, 980, H + 40, t, w(cue(21, 'darrow climbs')), side='right')
     c.alpha_composite(FG)
-    typewriter(c, (1240, 330), 'GOLDEN SON', 64, t, 0.8, cursor=False)
-    typewriter(c, (1240, 450), 'serving powerful lords', 40, t, 1.8, cursor=False)
-    typewriter(c, (1240, 530), 'planning their downfall', 40, t, 3.6, fill=RED, cursor=False)
+    typewriter(c, (1240, 330), 'GOLDEN SON', 64, t, w(cue(21, 'golden son', 2)), cursor=False)
+    typewriter(c, (1240, 450), 'serving powerful lords', 40, t, w(cue(21, 'serving')), cursor=False)
+    typewriter(c, (1240, 530), 'planning their downfall', 40, t, w(cue(21, 'planning')), fill=RED, cursor=False)
     return c
 
 
@@ -68,17 +71,17 @@ def sC(t, D):
     """In Morning Star, the rebellion spreads beyond Mars."""
     c = background()
     CARD_FLEET.place(c, W / 2, 500, t, 0.0, zoom=lerp(1.0, 1.1, ease(t / D)))
-    typewriter(c, (W / 2, 1010), 'the rebellion spreads beyond Mars', 46, t, 0.6, anchor='mm', fill=RED, cursor=False)
+    typewriter(c, (W / 2, 1010), 'the rebellion spreads beyond Mars', 46, t, w(cue(21, 'the rebellion')), anchor='mm', fill=RED, cursor=False)
     return c
 
 
 def sD(t, D):
     """The castes the Society kept divided begin to fight side by side."""
     c = background()
-    headline(c, (W / 2, 150), 'SIDE BY SIDE', 120, t, 0.0)
+    headline(c, (W / 2, 150), 'SIDE BY SIDE', 120, t, w(cue(21, 'side by side')))
     for i, f in enumerate(UNITED):
-        f.place(c, 330 + i * 252, 900, t, 0.4 + i * 0.25, side='left' if i < 3 else 'right')
-    marker_line(c, [(180, 925), (960, 915), (1740, 925)], ease((t - 2.2) / 0.8), width=12)
+        f.place(c, 330 + i * 252, 900, t, w(cue(21, 'castes')) + i * 0.25, side='left' if i < 3 else 'right')
+    marker_line(c, [(180, 925), (960, 915), (1740, 925)], ease((t - w(cue(21, 'fight side'))) / 0.8), width=12)
     return c
 
 
@@ -93,9 +96,9 @@ def sE(t, D):
     if pos:
         x0, y0 = pos
         for i, ln in enumerate(LIST):
-            dy, op = arrive(t, 0.6 + i * 0.25, 60)
+            dy, op = arrive(t, w(cue(22, 'reached')) + i * 0.2, 60)
             text(c, (x0 + 90, y0 + 230 + i * 95 + dy), ln, F_TYPE(46) if i else F_HEAD(52), INK if i else RED, 'lm', op)
-        marker_circle(c, x0 + 330, y0 + 230, 320, 60, ease((t - 2.4) / 0.7), seed=8)
+        marker_circle(c, x0 + 330, y0 + 230, 320, 60, ease((t - w(cue(22, 'top of'))) / 0.7), seed=8)
     return c
 
 
@@ -104,19 +107,19 @@ def sF(t, D):
     c = background()
     for i, b in enumerate(BOOKS):
         place_sheet(c, b.resize((220, 322)), 330 + i * 250, 560, t, 0.0, rot=(-4, 1, 4)[i], rise=0)
-    typewriter(c, (1100, 330), 'YEARS LATER...', 60, t, 1.2, cursor=False)
+    typewriter(c, (1100, 330), 'YEARS LATER...', 60, t, w(cue(22, 'years later')), cursor=False)
     newb = book('A NEW SERIES', (70, 90, 80), 174)
-    place_sheet(c, newb, 1450, 640, t, 2.6, rot=3)
+    place_sheet(c, newb, 1450, 640, t, w(cue(22, 'a new series')), rot=3)
     return c
 
 
 def sG(t, D):
     """It asks a harder question: what happens after the revolution wins?"""
     c = background()
-    typewriter(c, (W / 2, 260), 'a harder question', 46, t, 0.2, anchor='mm', cursor=False)
-    headline(c, (W / 2, 470), 'WHAT HAPPENS', 140, t, 1.0)
-    headline(c, (W / 2, 640), 'AFTER THE', 140, t, 1.4)
-    headline(c, (W / 2, 810), 'REVOLUTION WINS?', 140, t, 1.8, fill=RED)
+    typewriter(c, (W / 2, 260), 'a harder question', 46, t, w(cue(22, 'a harder')), anchor='mm', cursor=False)
+    headline(c, (W / 2, 470), 'WHAT HAPPENS', 140, t, w(cue(22, 'what happens')))
+    headline(c, (W / 2, 640), 'AFTER THE', 140, t, w(cue(22, 'after the')))
+    headline(c, (W / 2, 810), 'REVOLUTION WINS?', 140, t, w(cue(22, 'revolution')), fill=RED)
     return c
 
 
@@ -126,7 +129,7 @@ TIERS = [(300, 260), (440, 480), (580, 700), (720, 920), (860, 1140)]
 def sH(t, D):
     """The Society cracks not only from below, but from the ambitions of its own nobles."""
     c = background()
-    headline(c, (W / 2, 120), 'THE SOCIETY CRACKS', 96, t, 0.0)
+    headline(c, (W / 2, 120), 'THE SOCIETY CRACKS', 96, t, w(cue(23, 'the society')))
     d = ImageDraw.Draw(c)
     cols = [(196, 154, 69), (168, 170, 174), (62, 92, 142), (220, 150, 160), (180, 60, 40)]
     for i, ((y, w_), col) in enumerate(zip(TIERS, cols)):
@@ -135,10 +138,10 @@ def sH(t, D):
             d.rectangle((W / 2 - w_ / 2, y + dy, W / 2 + w_ / 2, y + 120 + dy), fill=col + (int(255 * op),), outline=INK + (255,), width=4)
     crack_low = [(W / 2 - 60, 980), (W / 2 - 20, 900), (W / 2 - 70, 820), (W / 2 + 10, 740), (W / 2 - 40, 640)]
     crack_top = [(W / 2 + 20, 300), (W / 2 - 25, 360), (W / 2 + 30, 420), (W / 2 - 10, 500)]
-    marker_line(c, crack_low, ease((t - 1.8) / 1.0), width=12)
-    typewriter(c, (1560, 920), 'from below', 44, t, 2.2, cursor=False)
-    marker_line(c, crack_top, ease((t - 3.6) / 0.8), width=12)
-    typewriter(c, (1240, 330), 'and from its own nobles', 44, t, 4.0, fill=RED, cursor=False)
+    marker_line(c, crack_low, ease((t - w(cue(23, 'cracks'))) / 1.0), width=12)
+    typewriter(c, (1560, 920), 'from below', 44, t, w(cue(23, 'from below')), cursor=False)
+    marker_line(c, crack_top, ease((t - w(cue(23, 'but from'))) / 0.8), width=12)
+    typewriter(c, (1240, 330), 'and from its own nobles', 44, t, w(cue(23, 'ambitions')), fill=RED, cursor=False)
     return c
 
 
@@ -147,10 +150,10 @@ def sI(t, D):
     c = background()
     SHAKE.place(c, 700, H + 40, t, 0.0, side='left')
     c.alpha_composite(FG)
-    headline(c, (1450, 400), 'GOLDS', 120, t, 0.8)
-    headline(c, (1450, 530), 'BETRAY', 120, t, 1.1, fill=RED)
-    headline(c, (1450, 660), 'GOLDS', 120, t, 1.4)
-    typewriter(c, (1450, 790), 'undone by its own pride', 40, t, 3.6, anchor='mm', cursor=False)
+    headline(c, (1450, 400), 'GOLDS', 120, t, w(cue(23, 'golds')))
+    headline(c, (1450, 530), 'BETRAY', 120, t, w(cue(23, 'betray')), fill=RED)
+    headline(c, (1450, 660), 'GOLDS', 120, t, w(cue(23, 'golds', 2)))
+    typewriter(c, (1450, 790), 'undone by its own pride', 40, t, w(cue(23, 'its own pride')), anchor='mm', cursor=False)
     return c
 
 
@@ -160,7 +163,7 @@ def sJ(t, D):
     CARD_WAR.place(c, 1300, 450, t, 0.0, zoom=lerp(1.0, 1.08, ease(t / D)))
     COMMANDER.place(c, 460, H + 40, t, 0.6, side='left')
     c.alpha_composite(FG)
-    typewriter(c, (1300, 960), 'every victory costs someone he loves', 44, t, 1.2, anchor='mm', fill=RED, cursor=False)
+    typewriter(c, (1300, 960), 'every victory costs someone he loves', 44, t, w(cue(24, 'every victory')), anchor='mm', fill=RED, cursor=False)
     return c
 
 
@@ -168,41 +171,44 @@ def sK(t, D):
     """His story has inspired fan art, online communities, and a rallying cry shared worldwide."""
     c = background()
     CARD_READERS.place(c, W / 2, 500, t, 0.0, zoom=lerp(1.0, 1.06, ease(t / D)))
-    for i, (w_, t0) in enumerate([('FAN ART', 1.0), ('COMMUNITIES', 2.0), ('A RALLYING CRY', 3.0)]):
-        headline(c, (W / 2 - 600 + i * 600, 1000), w_, 54, t, t0, fill=RED if i == 2 else INK)
+    for i, (w_, t0) in enumerate([('FAN ART', cue(25, 'fan art')), ('COMMUNITIES', cue(25, 'communities')), ('A RALLYING CRY', cue(25, 'a rallying'))]):
+        headline(c, (W / 2 - 600 + i * 600, 1000), w_, 54, t, w(t0), fill=RED if i == 2 else INK)
     return c
 
 
 def sL(t, D):
     """Fans debate its battles, mourn its characters, and greet each other with the language of the rebellion."""
     c = background()
-    for i, (w_, t0) in enumerate([('DEBATE ITS BATTLES', 0.3), ('MOURN ITS CHARACTERS', 1.6), ('SPEAK ITS LANGUAGE', 3.0)]):
-        headline(c, (W / 2, 340 + i * 200), w_, 120, t, t0, fill=RED if i == 2 else INK)
+    for i, (w_, t0) in enumerate([('DEBATE ITS BATTLES', cue(25, 'debate')), ('MOURN ITS CHARACTERS', cue(25, 'mourn')), ('SPEAK ITS LANGUAGE', cue(25, 'greet'))]):
+        headline(c, (W / 2, 340 + i * 200), w_, 120, t, w(t0), fill=RED if i == 2 else INK)
     return c
 
 
-THEMES = [('NO CHAIN IS UNBREAKABLE', 0.4), ('THE LOWEST CAN RISE', 2.6)]
+THEMES = [('NO CHAIN IS UNBREAKABLE', cue(26, 'no chain')), ('THE LOWEST CAN RISE', cue(26, 'the lowest'))]
 
 
 def sM(t, D):
     """No chain is unbreakable, the lowest can rise, and the hardest fight is staying human once you've won."""
     c = background()
-    if t < 7.4:
+    te = w(cue(26, 'won', 1, 'e')) + 0.3
+    if t < te:
         DAWN.place(c, 1500, H + 40, t, 0.0, side='right')
         c.alpha_composite(FG)
         for i, (w_, t0) in enumerate(THEMES):
-            typewriter(c, (110, 300 + i * 120), w_, 56, t, t0, cursor=False)
-        typewriter(c, (110, 560), 'the hardest fight:', 46, t, 4.6, cursor=False)
-        headline(c, (110, 690), 'STAYING HUMAN', 110, t, 5.4, fill=RED, anchor='lm')
+            typewriter(c, (110, 300 + i * 120), w_, 56, t, w(t0), cursor=False)
+        typewriter(c, (110, 560), 'the hardest fight:', 46, t, w(cue(26, 'the hardest')), cursor=False)
+        headline(c, (110, 690), 'STAYING HUMAN', 110, t, w(cue(26, 'staying')), fill=RED, anchor='lm')
     else:
-        headline(c, (W / 2, 470), 'RED RISING', 230, t, 7.5, tracking=-4)
-        marker_line(c, [(470, 610), (960, 598), (1450, 610)], ease((t - 8.0) / 0.6), width=14)
+        headline(c, (W / 2, 470), 'RED RISING', 230, t, te, tracking=-4)
+        marker_line(c, [(470, 610), (960, 598), (1450, 610)], ease((t - te - 0.5) / 0.6), width=14)
     return c
 
 
-SHOTS = [(0.0, sA), (7.6, sB), (14.6, sC), (18.4, sD), (22.7, sE), (27.9, sF), (34.0, sG),
-         (39.5, sH), (46.4, sI), (53.7, sJ), (62.7, sK), (69.2, sL), (76.8, sM)]
-END = 86.6
+SHOTS = [(0.0, sA), (cue(21, 'in golden') - LEAD, sB), (cue(21, 'in morning') - LEAD, sC), (cue(21, 'and the castes') - LEAD, sD),
+         (cue(22, 'the final') - LEAD, sE), (cue(22, 'the books were') - LEAD, sF), (cue(22, 'it asks') - LEAD, sG),
+         (cue(23, 'just as') - LEAD, sH), (cue(23, 'golds betray') - LEAD, sI), (cue(24, 'unfortunately') - LEAD, sJ),
+         (cue(25, 'but his') - LEAD, sK), (cue(25, 'fans debate') - LEAD, sL), (cue(26, 'red rising') - LEAD, sM)]
+END = cue.total + 3.0  # silent hold on the end title
 
 
 def frame(t):
