@@ -9,8 +9,8 @@ uniform vec2 size = vec2(100.0, 140.0);
 uniform float dissolve : hint_range(0.0, 1.0) = 0.0;
 // Balatro's dissolve.fs: burn_colour_1 rims the edge, burn_colour_2 the
 // band behind it and tints the card as it goes (alpha 0 = unused)
-uniform vec4 burn_colour_1 : source_color = vec4(0.216, 0.259, 0.267, 1.0);
-uniform vec4 burn_colour_2 : source_color = vec4(0.992, 0.635, 0.0, 1.0);
+uniform vec4 burn_colour_1 : source_color = vec4(0.180, 0.141, 0.251, 1.0);
+uniform vec4 burn_colour_2 : source_color = vec4(0.941, 0.639, 0.227, 1.0);
 uniform float dissolve_seed = 0.0;  // Balatro's per-card `time`
 // the sprite's pixel grid the dissolve works on (a Balatro card at 2x)
 const vec2 DISSOLVE_PX = vec2(142.0, 190.0);

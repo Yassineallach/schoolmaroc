@@ -22,7 +22,7 @@ const COL := {
 	"red": "#b0453f", "purple": "#6c4a8f", "pink": "#d58a8a", "white": "#fbf7ec", "sky": "#8fb8d8",
 	"brown": "#6b4a2e", "choc": "#4a3222", "mint": "#8fd1b0", "none": "none",
 }
-const RARITY := ["#4a6fa5", "#3f9a5a", "#b8334a", "#8f5bd6"]
+const RARITY := ["#5c6f8e", "#2a9070", "#c9772e", "#b04bd6"]  # Palette.RARITY
 
 static var _cache := {}
 

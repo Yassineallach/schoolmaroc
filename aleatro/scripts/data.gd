@@ -2,13 +2,13 @@ class_name Data
 extends RefCounted
 
 const SUIT_NAMES := ["Spades", "Hearts", "Clubs", "Diamonds"]
-const SUIT_COLORS := [Color("2b2d42"), Color("e63946"), Color("1d6fd1"), Color("f08a24")]
+const SUIT_COLORS := Palette.SUITS
 const RANK_LABELS := {2: "2", 3: "3", 4: "4", 5: "5", 6: "6", 7: "7", 8: "8", 9: "9", 10: "10", 11: "J", 12: "Q", 13: "K", 14: "A"}
 
-const CHIP_COLOR := Color("2f8fe8")
-const MULT_COLOR := Color("ff4d4d")
-const MONEY_COLOR := Color("ffcc33")
-const XMULT_COLOR := Color("ff9f1c")
+const CHIP_COLOR := Palette.CHIPS
+const MULT_COLOR := Palette.MULT
+const MONEY_COLOR := Palette.MONEY
+const XMULT_COLOR := Palette.XMULT
 
 const HAND_ORDER := [
 	"Flush Five", "Flush House", "Five of a Kind", "Straight Flush", "Four of a Kind", "Full House", "Flush", "Straight",
@@ -34,7 +34,7 @@ const HAND_BASE := {
 const ANTE_BASE := [300, 800, 2000, 5000, 11000, 20000, 35000, 50000]
 const FINAL_ANTE := 8
 const BLIND_NAMES := ["Small Blind", "Big Blind"]
-const BLIND_COLORS := [Color("3a7bd5"), Color("e0a526")]
+const BLIND_COLORS := [Palette.SMALL_BLIND, Palette.BIG_BLIND]
 
 # rarity: 0 common, 1 uncommon, 2 rare
 ## Charm ids from older versions and what they became.
@@ -319,12 +319,12 @@ static func deck_def(id: String) -> Dictionary:
 const TAGS := [
 	{"id": "riches", "name": "Riches Tag", "desc": "Double your money (up to +$40)", "color": Color("e0a526")},
 	{"id": "haste", "name": "Haste Tag", "desc": "Earn $5 for each blind skipped this run", "color": Color("d9572b")},
-	{"id": "rare", "name": "Rare Tag", "desc": "The next shop has a free Rare charm", "color": Color("b8334a")},
-	{"id": "uncommon", "name": "Uncommon Tag", "desc": "The next shop has a free Uncommon charm", "color": Color("3f9a5a")},
+	{"id": "rare", "name": "Rare Tag", "desc": "The next shop has a free Rare charm", "color": Palette.RARITY[2]},
+	{"id": "uncommon", "name": "Uncommon Tag", "desc": "The next shop has a free Uncommon charm", "color": Palette.RARITY[1]},
 	{"id": "coupon", "name": "Coupon Tag", "desc": "Everything first stocked in the next shop is free", "color": Color("f07a9a")},
 	{"id": "star", "name": "Star Tag", "desc": "Level up a random hand type 3 times", "color": Color("6c4ab6"), "min_ante": 2},
 	{"id": "juggle", "name": "Juggle Tag", "desc": "+3 hand size for the next round", "color": Color("2ec4b6")},
-	{"id": "bundle", "name": "Bundle Tag", "desc": "Open a free Mega Charm Pack", "color": Color("4a6fa5"), "min_ante": 2},
+	{"id": "bundle", "name": "Bundle Tag", "desc": "Open a free Mega Charm Pack", "color": Palette.RARITY[0], "min_ante": 2},
 	{"id": "tome", "name": "Tome Tag", "desc": "Open a free Mega Spell Pack", "color": Color("2f7f6f")},
 	{"id": "twin", "name": "Twin Tag", "desc": "Copies the next tag you get", "color": Color("8a96a3")},
 	{"id": "invest", "name": "Investment Tag", "desc": "Earn $15 after beating the next boss", "color": Color("c08a12")},
@@ -340,7 +340,7 @@ const TAGS := [
 	{"id": "ethereal", "name": "Ethereal Tag", "desc": "Open a free Omen Pack", "color": Color("4b3a8a"), "min_ante": 2},
 	{"id": "handy", "name": "Handy Tag", "desc": "Earn $1 for every hand played this run", "color": Color("1d6fd1"), "min_ante": 2},
 	{"id": "garbage", "name": "Garbage Tag", "desc": "Earn $1 for every discard left unused this run", "color": Color("6e6e6e"), "min_ante": 2},
-	{"id": "topup", "name": "Top-up Tag", "desc": "Create up to 2 Common charms", "color": Color("4a6fa5"), "min_ante": 2},
+	{"id": "topup", "name": "Top-up Tag", "desc": "Create up to 2 Common charms", "color": Palette.RARITY[0], "min_ante": 2},
 ]
 
 # Booster packs: open one, pick from what's inside (or skip). Arcana and
@@ -351,7 +351,7 @@ const PACK_KINDS := {
 	"standard": {"name": "Card Pack", "what": "playing cards", "color": Color("c08a12")},
 	"arcana": {"name": "Spell Pack", "what": "Spells", "color": Color("2f7f6f")},
 	"celestial": {"name": "Rune Pack", "what": "Runes", "color": Color("6c4ab6")},
-	"buffoon": {"name": "Charm Pack", "what": "charms", "color": Color("4a6fa5")},
+	"buffoon": {"name": "Charm Pack", "what": "charms", "color": Palette.RARITY[0]},
 	"spectral": {"name": "Omen Pack", "what": "Omens", "color": Color("4b3a8a")},
 }
 const PACKS := {
@@ -639,7 +639,7 @@ static func challenge_lines(ch: Dictionary) -> Array:
 	return out
 
 
-const RARITY_COLORS := [Color("4a6fa5"), Color("3f9a5a"), Color("b8334a"), Color("9b5de5")]
+const RARITY_COLORS := Palette.RARITY
 const RARITY_NAMES := ["Common", "Uncommon", "Rare", "Legendary"]
 const RUNE_COLOR := Color("6c4ab6")
 const RUNE_COST := 3

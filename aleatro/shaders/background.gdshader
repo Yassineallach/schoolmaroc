@@ -4,9 +4,9 @@ shader_type canvas_item;
 // colours. colour_1 = C, colour_2 = L, colour_3 = D as Balatro sends them
 // from G.C.BACKGROUND; spin_amount twists the centre (bosses).
 
-uniform vec4 colour_1 : source_color = vec4(0.282, 0.467, 0.388, 1.0);
-uniform vec4 colour_2 : source_color = vec4(0.408, 0.675, 0.561, 1.0);
-uniform vec4 colour_3 : source_color = vec4(0.220, 0.363, 0.302, 1.0);
+uniform vec4 colour_1 : source_color = vec4(0.310, 0.227, 0.471, 1.0);
+uniform vec4 colour_2 : source_color = vec4(0.420, 0.322, 0.627, 1.0);
+uniform vec4 colour_3 : source_color = vec4(0.180, 0.141, 0.251, 1.0);
 uniform float contrast = 1.0;
 uniform float spin_amount = 0.0;
 uniform float spin_time = 0.0;

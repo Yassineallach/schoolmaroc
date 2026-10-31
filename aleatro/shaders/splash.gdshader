@@ -7,7 +7,7 @@ shader_type canvas_item;
 
 uniform float time = 0.0;
 uniform float vort_speed = 1.0;
-uniform vec4 colour_1 : source_color = vec4(0.0, 0.616, 1.0, 1.0);
+uniform vec4 colour_1 : source_color = vec4(0.086, 0.580, 0.533, 1.0);
 uniform vec4 colour_2 : source_color = vec4(1.0);
 uniform float mid_flash = 0.0;
 uniform float vort_offset = 0.0;

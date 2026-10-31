@@ -104,10 +104,10 @@ func _draw() -> void:
 func _draw_mini_face(card: Dictionary) -> void:
 	var r := Rect2(-Vector2(CardView.W, CardView.H) / 2, Vector2(CardView.W, CardView.H))
 	var enh: String = card.get("enh", "")
-	var face := PixelBox.new(Data.ENHANCEMENTS[enh].face if enh != "" else Color("f7f3ea"), 4.0, 0.0, true)
+	var face := PixelBox.new(Data.ENHANCEMENTS[enh].face if enh != "" else Palette.PAPER, 4.0, 0.0, true)
 	face.rounded = true
 	face.outline = 2.0
-	face.outline_color = Color("c9c2b0")
+	face.outline_color = Palette.CARD_EDGE
 	var art := CardView.enh_face(enh)
 	if art != null:
 		face.color = Color(0, 0, 0, 0)

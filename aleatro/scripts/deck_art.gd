@@ -69,10 +69,10 @@ const LAYOUTS := {
 
 ## Court palettes per suit: dark (also the ink), main, gold, light accent.
 const COURT_COLORS := [
-	{"D": Color("343a60"), "M": Color("f25c54"), "G": Color("f7a01e"), "B": Color("42aaf0")},
-	{"D": Color("37424d"), "M": Color("ea3a64"), "G": Color("f7a01e"), "B": Color("42aaf0")},
-	{"D": Color("1f403a"), "M": Color("1d6fd1"), "G": Color("f7a01e"), "B": Color("f25c54")},
-	{"D": Color("3c3446"), "M": Color("f06e32"), "G": Color("fac83c"), "B": Color("42aaf0")},
+	{"D": Color("2a2733"), "M": Color("5c6f8e"), "G": Palette.BRASS, "B": Color("d42a35")},
+	{"D": Color("3a2433"), "M": Color("d42a35"), "G": Palette.BRASS, "B": Palette.TEAL},
+	{"D": Color("1a3a28"), "M": Color("1d8443"), "G": Palette.BRASS, "B": Color("d42a35")},
+	{"D": Color("1e2a4a"), "M": Color("2b6fd6"), "G": Palette.BRASS, "B": Palette.AMBER},
 ]
 const COURT_X := 11  # left column of the court half (it is 47 wide, centred)
 

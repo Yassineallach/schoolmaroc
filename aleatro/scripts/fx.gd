@@ -6,14 +6,14 @@ extends RefCounted
 
 const CARD_FX := preload("res://shaders/card_fx.gdshader")
 
-# G.C.RARITY and G.C.SECONDARY_SET, as start_materialize picks them
-const RARITY := [Color("009dff"), Color("4bc292"), Color("fe5f55"), Color("b26cbb")]
-const SPELL := Color("a782d1")  # Tarot
-const RUNE := Color("13afce")  # Planet
-const OMEN := Color("4584fa")  # Spectral
-const PACK := Color("646eb7")  # G.C.BOOSTER
-const VOUCHER := Color("fd682b")
-const PLAYING := Color("4bc292")  # anything else: G.C.GREEN
+# the spark colours per kind of card, from the palette
+const RARITY := Palette.RARITY
+const SPELL := Palette.VIOLET
+const RUNE := Palette.GLOW
+const OMEN := Palette.INDIGO
+const PACK := Palette.ROSE
+const VOUCHER := Palette.COPPER
+const PLAYING := Palette.JADE  # anything else
 
 
 ## Burn `view` into view over `time` seconds in `colours` (one or two).

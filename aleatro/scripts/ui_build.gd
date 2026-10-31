@@ -25,7 +25,7 @@ extends RefCounted
 ## Called on button feedback events: "press", "hold_start", "hold_done".
 static var feedback: Callable
 
-const CHOSEN_COLOR := Color("ff4d4d")
+const CHOSEN_COLOR := Palette.MULT
 
 
 static func build(def: Dictionary) -> Control:
@@ -209,7 +209,7 @@ static func _read(src, key):
 ## A pixel-style button with a raised lip. Usable directly or via build().
 static func make_button(def: Dictionary, jobs: Array = []) -> Button:
 	var b := Button.new()
-	var col: Color = def.get("color", Color("2f8fe8"))
+	var col: Color = def.get("color", Palette.CHIPS)
 	var size := int(def.get("size", 28))
 	b.text = String(def.button)
 	b.custom_minimum_size = def.get("min", Vector2(160, 76))
@@ -355,7 +355,7 @@ static func _choice_members(n: Node, name: String, into: Array = []) -> Array:
 static func _bar(def: Dictionary, jobs: Array) -> Control:
 	var bar := Bar.new()
 	bar.custom_minimum_size = def.get("min", Vector2(300, 18))
-	bar.fill = def.get("fill", Color("2f8fe8"))
+	bar.fill = def.get("fill", Palette.CHIPS)
 	bar.back = def.get("back", Color(0, 0, 0, 0.35))
 	var src = def.bar[0]
 	var key = def.bar[1]
@@ -439,10 +439,10 @@ static func _tooltip_popup(c: Control, tip) -> Control:
 		lines = Array(t) if t is Array or t is PackedStringArray else [t]
 	var rows: Array = []
 	if title != "":
-		rows.append({"text": title, "size": 22, "color": Color("2b2d42"), "shadow": Color.TRANSPARENT})
+		rows.append({"text": title, "size": 22, "color": Palette.INK, "shadow": Color.TRANSPARENT})
 	for line in lines:
-		rows.append({"text": str(line), "size": 18, "color": Color("4f6367"), "wrap": 320, "shadow": Color.TRANSPARENT})
-	var p := build({"col": rows, "sep": 4, "panel": Color("f7f3ea"), "pad": 12, "outline": Color("2b2d42")})
+		rows.append({"text": str(line), "size": 18, "color": Palette.INK_SOFT, "wrap": 320, "shadow": Color.TRANSPARENT})
+	var p := build({"col": rows, "sep": 4, "panel": Palette.PAPER, "pad": 12, "outline": Palette.INK})
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	p.top_level = true
 	p.z_index = 950

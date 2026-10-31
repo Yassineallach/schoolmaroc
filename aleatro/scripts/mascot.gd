@@ -65,16 +65,16 @@ func _init(effects: Sfx) -> void:
 	_sparks.scale_amount_min = 3
 	_sparks.scale_amount_max = 6
 	var ramp := Gradient.new()
-	ramp.set_color(0, Color("ff4d4d"))
+	ramp.set_color(0, Palette.MULT)
 	ramp.set_color(1, Color(0.18, 0.56, 0.91, 0))
-	ramp.add_point(0.5, Color("ff9f1c"))
+	ramp.add_point(0.5, Palette.XMULT)
 	_sparks.color_ramp = ramp
 	_sparks.show_behind_parent = true
 	add_child(_sparks)
 
-	var sb := PixelBox.new(Color("f7f3ea"), 4.0, 0.0, true)
+	var sb := PixelBox.new(Palette.PAPER, 4.0, 0.0, true)
 	sb.outline = 3.0
-	sb.outline_color = Color("2b2d42")
+	sb.outline_color = Palette.INK
 	sb.set_content_margin_all(16)
 	_bubble.add_theme_stylebox_override("panel", sb)
 	_bubble.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -85,7 +85,7 @@ func _init(effects: Sfx) -> void:
 	_text.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	_text.custom_minimum_size = Vector2(BUBBLE_W - 32, 0)
 	_text.add_theme_font_size_override("font_size", 22)
-	_text.add_theme_color_override("font_color", Color("2b2d42"))
+	_text.add_theme_color_override("font_color", Palette.INK)
 	_text.add_theme_constant_override("shadow_offset_x", 0)
 	_text.add_theme_constant_override("shadow_offset_y", 0)
 	_text.visible_ratio = 0.0
@@ -212,7 +212,7 @@ func _make_button(text: String, cb: Callable) -> Button:
 	b.text = text
 	b.focus_mode = Control.FOCUS_NONE
 	b.custom_minimum_size = Vector2(110, 46)
-	var normal := PixelBox.new(Color("2f8fe8"), 3.0, 5.0, true)
+	var normal := PixelBox.new(Palette.CHIPS, 3.0, 5.0, true)
 	normal.content_margin_bottom = 12
 	normal.content_margin_left = 14
 	normal.content_margin_right = 14
@@ -248,9 +248,9 @@ func _draw_body() -> void:
 	var tilt := sin(t * 1.3 + _phase) * 0.04
 	var c := _body.size / 2
 	_body.draw_set_transform_matrix(Transform2D(tilt, c + Vector2(0, bob)) * Transform2D(0.0, -c))
-	var ink := Color("2b2d42")
+	var ink := Palette.INK
 	var col: Color = Data.SUIT_COLORS[suit]
-	var card := PixelBox.new(Color("f7f3ea"), 4.0, 0.0, true)
+	var card := PixelBox.new(Palette.PAPER, 4.0, 0.0, true)
 	card.outline = 3.0
 	card.outline_color = col.darkened(0.25)
 	card.shadow_offset = Vector2(4, 8 - bob * 0.5)

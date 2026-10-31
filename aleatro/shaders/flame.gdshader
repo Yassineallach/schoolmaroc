@@ -6,7 +6,7 @@ shader_type canvas_item;
 
 uniform float time = 0.0;
 uniform float amount = 0.0;
-uniform vec4 colour_1 : source_color = vec4(0.0, 0.62, 1.0, 1.0);
+uniform vec4 colour_1 : source_color = vec4(0.086, 0.580, 0.533, 1.0);
 uniform vec4 colour_2 : source_color = vec4(1.0, 1.0, 0.5, 1.0);
 uniform float id = 0.0;
 

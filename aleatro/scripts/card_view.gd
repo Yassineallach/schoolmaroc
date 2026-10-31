@@ -10,7 +10,7 @@ signal drag_ended(view)
 const W := 100.0
 const H := 140.0
 ## The card back colour: the run's starting deck sets it.
-static var back_color := Color("b3364e")
+static var back_color := Palette.WINE
 static var back_art: Texture2D = null
 static var _enh_faces := {}
 static var _seal_art := {}  # seal id -> Texture2D or null  # enhancement id -> Texture2D or null  # the current deck's card back, if it has art
@@ -39,14 +39,14 @@ func _init(c: Dictionary = {}) -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR  # face art is pre-scaled 2x, so this stays crisp
 	_tilt.attach(self)
 	if _face_box == null:
-		_face_box = PixelBox.new(Color("f7f3ea"), 4.0, 0.0, true)
+		_face_box = PixelBox.new(Palette.PAPER, 4.0, 0.0, true)
 		_face_box.rounded = true
 		_face_box.outline = 2.0
-		_face_box.outline_color = Color("c9c2b0")
+		_face_box.outline_color = Palette.CARD_EDGE
 		_select_box = PixelBox.new(Color(0, 0, 0, 0), 4.0)
 		_select_box.rounded = true
 		_select_box.outline = 4.0
-		_select_box.outline_color = Color("ffcc33")
+		_select_box.outline_color = Palette.CARD_SELECT
 		_fx_shader = load("res://shaders/card_fx.gdshader")
 	if card.get("ed", "") != "":
 		_ensure_material().set_shader_parameter("edition", Data.EDITIONS[card.ed].shader)
@@ -122,7 +122,7 @@ func dissolve(time: float = 0.7, colours: Array = []) -> void:
 	var m := _ensure_material()
 	m.set_shader_parameter("dissolve_seed", randf() * 3000.0)
 	if colours.is_empty():
-		colours = [Color("374244"), Color("fda200")]  # G.C.BLACK, G.C.ORANGE
+		colours = [Palette.TABLE_DARK, Palette.AMBER]  # burn rim and glow
 	m.set_shader_parameter("burn_colour_1", colours[0])
 	m.set_shader_parameter("burn_colour_2", colours[1] if colours.size() > 1 else Color(0, 0, 0, 0))
 	var tw := create_tween()
@@ -158,7 +158,7 @@ func _paint() -> void:
 		_face_box.outline = 2.0
 		draw_texture_rect(face_art, Rect2(Vector2.ZERO, size), false)
 	else:
-		_face_box.color = Data.ENHANCEMENTS[enh].face if enh != "" else Color("f7f3ea")
+		_face_box.color = Data.ENHANCEMENTS[enh].face if enh != "" else Palette.PAPER
 		draw_style_box(_face_box, Rect2(Vector2.ZERO, size))
 		_draw_enhancement(enh)
 	if selected:

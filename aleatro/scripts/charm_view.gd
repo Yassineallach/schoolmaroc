@@ -108,7 +108,7 @@ func dissolve(time: float = 0.7, colours: Array = []) -> void:
 	var m := _ensure_material()
 	m.set_shader_parameter("dissolve_seed", randf() * 3000.0)
 	if colours.is_empty():
-		colours = [Color("374244"), Color("fda200")]  # G.C.BLACK, G.C.ORANGE
+		colours = [Palette.TABLE_DARK, Palette.AMBER]  # burn rim and glow
 	m.set_shader_parameter("burn_colour_1", colours[0])
 	m.set_shader_parameter("burn_colour_2", colours[1] if colours.size() > 1 else Color(0, 0, 0, 0))
 	var tw := create_tween()

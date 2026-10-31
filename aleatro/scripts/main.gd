@@ -10,7 +10,7 @@ var gs: GameState
 var sfx: Sfx
 var bg_mat: ShaderMaterial
 var bg_rect: ColorRect
-## Balatro's main menu backdrop: splash.fs in red and blue at vort_speed 0.4
+## The main menu backdrop: splash.fs in rose and teal at vort_speed 0.4
 var title_mat: ShaderMaterial
 var title_time := 12.0  # its clock (G.TIMERS.REAL_SHADER; 12 when not from the splash)
 var _title_flash: Tween = null
@@ -207,8 +207,8 @@ static func logo_label(size: int) -> Label:
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.add_theme_font_override("font", LOGO_FONT)
 	l.add_theme_font_size_override("font_size", size)
-	l.add_theme_color_override("font_color", Color("ffdf6b"))
-	l.add_theme_color_override("font_outline_color", Color("b3364e"))
+	l.add_theme_color_override("font_color", Palette.HEADING)
+	l.add_theme_color_override("font_outline_color", Palette.WINE)
 	l.add_theme_constant_override("outline_size", px * 3)
 	l.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.45))
 	l.add_theme_constant_override("shadow_offset_x", px)
@@ -283,17 +283,17 @@ func _build_ui() -> void:
 	title_mat = ShaderMaterial.new()
 	title_mat.shader = load("res://shaders/splash.gdshader")
 	title_mat.set_shader_parameter("vort_speed", 0.4)
-	title_mat.set_shader_parameter("colour_1", Color("fe5f55"))  # G.C.RED
-	title_mat.set_shader_parameter("colour_2", Color("009dff"))  # G.C.BLUE
+	title_mat.set_shader_parameter("colour_1", Palette.ROSE)
+	title_mat.set_shader_parameter("colour_2", Palette.TEAL)
 
 	# Left sidebar: blind, round score, current hand, counters, money
 	side_panel = _panel(Vector2(0, 0), Vector2(SIDE_W, 720), Color(0, 0, 0, 0.3))
 	side_box = _box(Color(0, 0, 0, 0.3), 0.0)
 	side_panel.add_theme_stylebox_override("panel", side_box)
-	blind_box = _panel(Vector2(10, 10), Vector2(320, 140), Color("3a7bd5"))
+	blind_box = _panel(Vector2(10, 10), Vector2(320, 140), Palette.SMALL_BLIND)
 	lbl_blind = _place(_label("", 30), blind_box, Vector2(0, 4), Vector2(320, 38))
 	_place(_label("Score at least", 20, Color(1, 1, 1, 0.8)), blind_box, Vector2(0, 40), Vector2(320, 24))
-	lbl_target = _place(_label("", 38, Color("ffdf6b")), blind_box, Vector2(0, 62), Vector2(320, 44))
+	lbl_target = _place(_label("", 38, Palette.HEADING), blind_box, Vector2(0, 62), Vector2(320, 44))
 	lbl_reward = _place(_label("", 22, Data.MONEY_COLOR), blind_box, Vector2(0, 104), Vector2(320, 30))
 	blind_chip = BlindChip.new(Color.WHITE, 58.0)
 	blind_chip.position = Vector2(10, 46)
@@ -317,7 +317,7 @@ func _build_ui() -> void:
 	var cbox := _panel(Vector2(10, 46), Vector2(138, 62), Data.CHIP_COLOR, sbox)
 	_add_flame(cbox, Data.CHIP_COLOR)
 	lbl_chips = _place(_label("0", 34), cbox, Vector2(0, 0), Vector2(138, 62))
-	_place(_label("x", 34, Color("ff6b6b")), sbox, Vector2(148, 46), Vector2(24, 62))
+	_place(_label("x", 34, Palette.MULT_LIGHT), sbox, Vector2(148, 46), Vector2(24, 62))
 	var mbox := _panel(Vector2(172, 46), Vector2(138, 62), Data.MULT_COLOR, sbox)
 	_add_flame(mbox, Data.MULT_COLOR)
 	lbl_mult = _place(_label("0", 34), mbox, Vector2(0, 0), Vector2(138, 62))
@@ -333,9 +333,9 @@ func _build_ui() -> void:
 	var info_box := _panel(Vector2(10, 480), Vector2(320, 90), Color(0, 0, 0, 0.35))
 	lbl_ante = _place(_label("", 28), info_box, Vector2(0, 0), Vector2(150, 90))
 	lbl_money = _place(_label("", 46, Data.MONEY_COLOR), info_box, Vector2(150, 0), Vector2(170, 90))
-	var btn_hands := _place(_button("Hands", Color("5a5f73"), show_hand_info, Vector2(155, 56), 24), self, Vector2(10, 582), Vector2(155, 56))
-	var btn_menu := _place(_button("Menu", Color("5a5f73"), show_menu, Vector2(155, 56), 24), self, Vector2(175, 582), Vector2(155, 56))
-	btn_deck = _place(_button("Deck", Color("4a4f63"), show_deck, Vector2(320, 48), 22), self, Vector2(10, 650), Vector2(320, 48))
+	var btn_hands := _place(_button("Hands", Palette.BUTTON, show_hand_info, Vector2(155, 56), 24), self, Vector2(10, 582), Vector2(155, 56))
+	var btn_menu := _place(_button("Menu", Palette.BUTTON, show_menu, Vector2(155, 56), 24), self, Vector2(175, 582), Vector2(155, 56))
+	btn_deck = _place(_button("Deck", Palette.BUTTON_DIM, show_deck, Vector2(320, 48), 22), self, Vector2(10, 650), Vector2(320, 48))
 	sidebar_buttons = [btn_hands, btn_menu, btn_deck]
 
 	# Charm row along the top of the table
@@ -376,8 +376,8 @@ func _build_ui() -> void:
 	btn_play = _button("Play Hand", Data.CHIP_COLOR, play_selected, Vector2(220, 80))
 	btn_discard = _button("Discard", Data.MULT_COLOR, discard_selected, Vector2(220, 80))
 	controls.add_child(btn_play)
-	btn_rank = _button("Rank", Color("c47b1a"), func(): set_sort("rank"), Vector2(120, 80), 24)
-	btn_suit = _button("Suit", Color("c47b1a"), func(): set_sort("suit"), Vector2(120, 80), 24)
+	btn_rank = _button("Rank", Palette.SORT, func(): set_sort("rank"), Vector2(120, 80), 24)
+	btn_suit = _button("Suit", Palette.SORT, func(): set_sort("suit"), Vector2(120, 80), 24)
 	controls.add_child(btn_rank)
 	controls.add_child(btn_suit)
 	chosen_marker = Polygon2D.new()
@@ -503,8 +503,8 @@ func _process(delta: float) -> void:
 
 # ---------------------------------------------------------------- background
 
-const BG_BLACK := Color("374244")
-const BG_BLIND := Color("50846e")
+const BG_BLACK := Palette.TABLE_DARK
+const BG_BLIND := Palette.TABLE
 
 ## Pick the background for the moment, as Balatro's ease_background_colour_blind.
 func update_background() -> void:
@@ -521,19 +521,19 @@ func update_background() -> void:
 	var dark := BG_BLACK.darkened(0.2)
 	match bg_mode:
 		"title":
-			ease_background(Color("009dff"), Color("fe5f55"), BG_BLACK, 1.0)
+			ease_background(Palette.TEAL, Palette.ROSE, BG_BLACK, 1.0)
 		"splash":  # starts at black; the splash eases in the swirl
 			ease_background(Color.BLACK, Color.BLACK, Color.BLACK, 1.0)
 		"won":
-			ease_background(Color("4f6367"))
+			ease_background(Palette.TABLE_WON)
 		"arcana":
-			ease_background(Color("8867a5"), dark, null, 1.5)
+			ease_background(Palette.VIOLET, dark, null, 1.5)
 		"spectral":
-			ease_background(Color("4584fa"), dark, null, 2.0)
+			ease_background(Palette.INDIGO, dark, null, 2.0)
 		"standard":
-			ease_background(dark, Color("fe5f55"), null, 3.0)
+			ease_background(dark, Palette.ROSE, null, 3.0)
 		"buffoon":
-			ease_background(Color("ff9a00"), Color("009dff"), null, 2.0)
+			ease_background(Palette.AMBER, Palette.TEAL, null, 2.0)
 		"celestial":
 			ease_background(BG_BLACK, null, null, 3.0)
 		_:
@@ -868,7 +868,7 @@ func show_spell(v: SpellView) -> void:
 		cast_spell(v), Vector2(170, 70), 26)
 	use.disabled = why != "" or (busy and in_round)
 	row.add_child(use)
-	row.add_child(_button("Sell $1", Color("3f9a5a"), func():
+	row.add_child(_button("Sell $1", Palette.GO, func():
 		gs.money += 1
 		stats.items_sold += 1
 		check_unlocks()
@@ -878,7 +878,7 @@ func show_spell(v: SpellView) -> void:
 		rebuild_spells()
 		if _shop_open:
 			show_shop(), Vector2(150, 70), 24))
-	row.add_child(_button("Close", Color("5a5f73"), close_modal, Vector2(150, 70), 24))
+	row.add_child(_button("Close", Palette.BUTTON, close_modal, Vector2(150, 70), 24))
 	vb.add_child(row)
 	vb.add_child(_label("Select cards in your hand first, then cast.", 18, Color(1, 1, 1, 0.5)))
 
@@ -1091,7 +1091,7 @@ func open_overlay(full_screen := false) -> VBoxContainer:
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	overlay.add_child(center)
 	var panel := PanelContainer.new()
-	var sb := _box(Color("1d2a33").lerp(Color.BLACK, 0.1), 5.0, true)
+	var sb := _box(Palette.PANEL_DEEP.lerp(Color.BLACK, 0.1), 5.0, true)
 	sb.set_content_margin_all(26)
 	sb.outline = 3.0
 	sb.outline_color = Color(1, 1, 1, 0.2)
@@ -1153,7 +1153,7 @@ func show_splash() -> void:
 	var sm := ShaderMaterial.new()
 	sm.shader = load("res://shaders/splash.gdshader")
 	sm.set_shader_parameter("vort_speed", 1.0)
-	sm.set_shader_parameter("colour_1", Color("009dff"))  # G.C.BLUE
+	sm.set_shader_parameter("colour_1", Palette.TEAL)
 	sm.set_shader_parameter("colour_2", Color.WHITE)
 	sm.set_shader_parameter("vort_offset", fmod(2.0 * 90.15315131 * Time.get_unix_time_from_system(), 100000.0))
 	catcher.material = sm
@@ -1305,7 +1305,7 @@ func show_title() -> void:
 	main_row.add_theme_constant_override("separation", 18)
 	if saves.has_run():
 		var run := saves.load_run()
-		main_row.add_child(_button("Continue\nAnte %d  $%d" % [run.get("ante", 1), run.get("money", 0)], Color("3f9a5a"), resume_run, Vector2(300, 96), 28))
+		main_row.add_child(_button("Continue\nAnte %d  $%d" % [run.get("ante", 1), run.get("money", 0)], Palette.GO, resume_run, Vector2(300, 96), 28))
 		main_row.add_child(_hold_button("Hold: New Run", Data.CHIP_COLOR, show_run_setup, 0.6, Vector2(300, 96)))
 	else:
 		main_row.add_child(_button("Play", Data.CHIP_COLOR, show_run_setup, Vector2(320, 96), 40))
@@ -1313,9 +1313,9 @@ func show_title() -> void:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 14)
-	row.add_child(_button("How to play", Color("5a5f73"), show_help, Vector2(200, 64), 24))
-	row.add_child(_button("Collection", Color("5a5f73"), show_collection, Vector2(200, 64), 24))
-	row.add_child(_button("Challenges", Color("b3364e"), show_challenges, Vector2(200, 64), 24))
+	row.add_child(_button("How to play", Palette.BUTTON, show_help, Vector2(200, 64), 24))
+	row.add_child(_button("Collection", Palette.BUTTON, show_collection, Vector2(200, 64), 24))
+	row.add_child(_button("Challenges", Palette.WINE, show_challenges, Vector2(200, 64), 24))
 	row.add_child(_button("Profile %d" % saves.profile, Color("7b4fa0"), func():
 		saves.profile = saves.profile % SaveManager.PROFILES + 1
 		saves.save_settings(settings)
@@ -1337,7 +1337,7 @@ func show_title() -> void:
 
 func show_help() -> void:
 	var vb := open_modal()
-	vb.add_child(_label("How to play", 40, Color("ffdf6b")))
+	vb.add_child(_label("How to play", 40, Palette.HEADING))
 	var t := Label.new()
 	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	t.custom_minimum_size = Vector2(820, 0)
@@ -1356,7 +1356,7 @@ func show_help() -> void:
 	scroll.custom_minimum_size = Vector2(840, minf(room, font.get_multiline_string_size(tr(t.text), HORIZONTAL_ALIGNMENT_LEFT, 820, fs).y * 1.15 + 20))
 	scroll.add_child(t)
 	vb.add_child(scroll)
-	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(220, 70))))
+	vb.add_child(_center(_button("Close", Palette.BUTTON, close_modal, Vector2(220, 70))))
 
 
 ## A dark card face with a padlock, for something still locked.
@@ -1438,7 +1438,7 @@ func new_run(challenge_id: String = "", deck_id: String = "crimson", stake: int 
 
 func _apply_deck_look() -> void:
 	var d := Data.deck_def(gs.deck_id) if gs != null else {}
-	CardView.back_color = d.get("back", Color("b3364e"))
+	CardView.back_color = d.get("back", Palette.WINE)
 	CardView.back_art = CardView.deck_back(d.get("id", ""))
 	deck_pile.queue_redraw()
 
@@ -1482,10 +1482,10 @@ func show_run_setup() -> void:
 	_setup_stake = clampi(_setup_stake, 1, stake_limit(d.id))
 	var st: Dictionary = Data.STAKES[_setup_stake - 1]
 	var vb := open_modal()
-	vb.add_child(_label("New Run", 36, Color("ffdf6b")))
+	vb.add_child(_label("New Run", 36, Palette.HEADING))
 	var swatch := PanelContainer.new()
 	swatch.custom_minimum_size = Vector2(90, 120)
-	var sb := _box(d.back if why == "" else Color("4a4f63"), 4.0, true)
+	var sb := _box(d.back if why == "" else Palette.BUTTON_DIM, 4.0, true)
 	sb.rounded = true
 	sb.outline = 3.0
 	sb.outline_color = Color(1, 1, 1, 0.5)
@@ -1515,20 +1515,20 @@ func show_run_setup() -> void:
 		sfx.play("card_slide")
 		show_run_setup()
 	vb.add_child(UIBuild.build({"row": [
-		{"button": "<", "color": Color("4a4f63"), "on": func(): step.call(-1), "min": Vector2(64, 64), "size": 28},
+		{"button": "<", "color": Palette.BUTTON_DIM, "on": func(): step.call(-1), "min": Vector2(64, 64), "size": 28},
 		{"node": swatch},
 		{"col": [{"text": d.name, "size": 28, "color": d.back.lightened(0.4)}, {"node": desc}], "sep": 6},
-		{"button": ">", "color": Color("4a4f63"), "on": func(): step.call(1), "min": Vector2(64, 64), "size": 28},
+		{"button": ">", "color": Palette.BUTTON_DIM, "on": func(): step.call(1), "min": Vector2(64, 64), "size": 28},
 	], "sep": 14, "align": "center"}))
 	var stake_step := func(dir: int):
 		_setup_stake = clampi(_setup_stake + dir, 1, stake_limit(d.id))
 		sfx.play("card_slide")
 		show_run_setup()
 	vb.add_child(UIBuild.build({"row": [
-		{"button": "<", "color": Color("4a4f63"), "on": func(): stake_step.call(-1), "min": Vector2(64, 56), "size": 26},
+		{"button": "<", "color": Palette.BUTTON_DIM, "on": func(): stake_step.call(-1), "min": Vector2(64, 56), "size": 26},
 		{"node": _stake_chip(_setup_stake, 52.0)},
 		{"col": [{"text": st.name, "size": 24, "color": st.color if st.color.get_luminance() > 0.3 else st.color.lightened(0.55)}, {"text": st.desc + ("" if _setup_stake == 1 else ", plus every lower stake"), "size": 17, "wrap": 420}], "sep": 2},
-		{"button": ">", "color": Color("4a4f63"), "on": func(): stake_step.call(1), "min": Vector2(64, 56), "size": 26},
+		{"button": ">", "color": Palette.BUTTON_DIM, "on": func(): stake_step.call(1), "min": Vector2(64, 56), "size": 26},
 	], "sep": 14, "align": "center"}))
 	vb.add_child(_label("Stake %d of %d unlocked for this deck" % [stake_limit(d.id), Data.STAKES.size()], 16, Color(1, 1, 1, 0.55)))
 	var go := func():
@@ -1536,7 +1536,7 @@ func show_run_setup() -> void:
 		new_run("", d.id, _setup_stake)
 	vb.add_child(UIBuild.build({"row": [
 		{"button": "Start", "color": Data.CHIP_COLOR, "on": go, "min": Vector2(220, 70), "size": 30, "enabled": func(): return why == ""},
-		{"button": "Back", "color": Color("5a5f73"), "on": close_modal, "min": Vector2(160, 70), "size": 24},
+		{"button": "Back", "color": Palette.BUTTON, "on": close_modal, "min": Vector2(160, 70), "size": 24},
 	], "sep": 14, "align": "center"}))
 
 
@@ -1552,7 +1552,7 @@ func show_blind_select() -> void:
 	var head := HBoxContainer.new()
 	head.alignment = BoxContainer.ALIGNMENT_CENTER
 	head.add_theme_constant_override("separation", 6)
-	head.add_child(_label("Ante %d" % gs.ante, 40, Color("ffdf6b")))
+	head.add_child(_label("Ante %d" % gs.ante, 40, Palette.HEADING))
 	if not gs.tags.is_empty():
 		head.add_child(_label("   Tags:", 18, Color(1, 1, 1, 0.7)))
 		for t in gs.tags:
@@ -1585,10 +1585,10 @@ func show_blind_select() -> void:
 		inner.add_child(_center(BlindChip.new(col.lightened(0.3), 60.0, gs.blind_art(i))))
 		inner.add_child(_label(gs.blind_name(i), 30))
 		inner.add_child(_label("Score at least", 18, Color(1, 1, 1, 0.8)))
-		inner.add_child(_label(Data.fmt(gs.blind_target(i)), 30, Color("ffdf6b")))
+		inner.add_child(_label(Data.fmt(gs.blind_target(i)), 30, Palette.HEADING))
 		inner.add_child(_label("Reward " + "$".repeat(gs.blind_reward(i)), 20, Data.MONEY_COLOR))
 		if i == 2 and gs.is_showdown(2):
-			inner.add_child(_label("SHOWDOWN", 18, Color("ffdf6b")))
+			inner.add_child(_label("SHOWDOWN", 18, Palette.HEADING))
 		if i == 2:
 			var desc := _label(gs.boss_hex.desc, 19, Color.WHITE)
 			desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -1616,7 +1616,7 @@ func show_blind_select() -> void:
 			"enabled": func(): return gs.can_afford(10)})
 	if gs.blind_idx < 2:
 		var tag := Data.tag_def(gs.blind_tags[gs.blind_idx])
-		buttons.append({"button": "Skip for %s" % tag.name, "color": Color("5a5f73"), "on": skip_blind, "min": Vector2(300, 86), "size": 22,
+		buttons.append({"button": "Skip for %s" % tag.name, "color": Palette.BUTTON, "on": skip_blind, "min": Vector2(300, 86), "size": 22,
 			"tooltip": {"title": tag.name, "lines": [tag.desc]}})
 	vb.add_child(UIBuild.build({"row": buttons, "sep": 16, "align": "center"}))
 	discover("hex", gs.boss_hex.id)
@@ -1763,18 +1763,18 @@ func _show_pack(id: String, choices: Array, picks: int, then: Callable) -> void:
 			{"node": _center(_shrink(view, 0.72))},
 			{"text": title, "size": 14, "color": Color(1, 1, 1, 0.6), "fit": 140},
 			{"text": desc, "size": 14, "wrap": 140, "lines": 3, "id": "desc", "tooltip": {"title": title, "lines": desc.split("\n")}},
-			{"button": verb, "color": Color("3f9a5a"), "on": take, "min": Vector2(110, 46), "size": 22},
+			{"button": verb, "color": Palette.GO, "on": take, "min": Vector2(110, 46), "size": 22},
 		], "sep": 2})
 		UIBuild.find(col, "desc").custom_minimum_size.y = 52
 		row.add_child(col)
 	vb.add_child(row)
 	if picks == 1 and choices.size() > 1 and ads.can_offer("pack_pick", _ad_ctx()):
-		vb.add_child(_center(_button("Watch ad\n+1 pick", Color("b88a12"), func():
+		vb.add_child(_center(_button("Watch ad\n+1 pick", Palette.AD, func():
 			if await ads.show_rewarded("pack_pick"):
 				_show_pack(id, choices, picks + 1, then)
 			else:
 				toast("The ad isn't ready yet. Try again in a moment."), Vector2(180, 64), 20)))
-	vb.add_child(_center(_button("Skip", Color("5a5f73"), func():
+	vb.add_child(_center(_button("Skip", Palette.BUTTON, func():
 		gs.skip_pack()
 		gs.pack_hand = []
 		clear_overlay()
@@ -1801,7 +1801,7 @@ func _pack_view(id: String) -> Control:
 	var sb := _box(col, 3.0, true)
 	sb.rounded = true
 	sb.outline = 3.0
-	sb.outline_color = col.lightened(0.5) if Data.PACKS[id].size == "" else Color("ffdf6b")
+	sb.outline_color = col.lightened(0.5) if Data.PACKS[id].size == "" else Palette.HEADING
 	p.add_theme_stylebox_override("panel", sb)
 	p.add_child(_label(Data.pack_name(id).replace(" ", "\n"), 18, Color.WHITE))
 	return p
@@ -1837,7 +1837,7 @@ func _voucher_view(id: String) -> Control:
 	var sb := _box(Color("8a5a1a"), 3.0, true)
 	sb.rounded = true
 	sb.outline = 3.0
-	sb.outline_color = Color("ffdf6b")
+	sb.outline_color = Palette.HEADING
 	p.add_theme_stylebox_override("panel", sb)
 	p.add_child(_label("VOUCHER\n\n" + tr(Data.voucher_def(id).name).replace(" ", "\n"), 16, Color("fff1b8")))
 	return p
@@ -2175,7 +2175,7 @@ func play_selected() -> void:
 		if e.get("debuff", false):
 			popup_text(anchor, "Debuffed", Color("aaaaaa"), 26)
 		if e.get("again", false):
-			popup_text(anchor, "Again!", Color("ffdf6b"), 30)
+			popup_text(anchor, "Again!", Palette.HEADING, 30)
 			sfx.play("again")
 		if e.has("text"):
 			popup_text(anchor, e.text, Color("9fe3cf"), 28)
@@ -2277,7 +2277,7 @@ func play_selected() -> void:
 	if gs.hands_left <= 0:
 		var saver := gs.charms.find(gs.charms.filter(func(c): return c.id == "lastlaugh").front()) if gs.has_charm("lastlaugh") else -1
 		if saver >= 0 and gs.round_score * 4 >= gs.target:
-			popup_text(Vector2(main_cx(), play_y()), "Saved by %s!" % Data.charm_def("lastlaugh").name, Color("ffdf6b"), 40)
+			popup_text(Vector2(main_cx(), play_y()), "Saved by %s!" % Data.charm_def("lastlaugh").name, Palette.HEADING, 40)
 			gs._drop_charm(saver)
 			rebuild_charms()
 			await wait(0.8)
@@ -2409,7 +2409,7 @@ func charm_notes(notes: Array) -> void:
 			bump(cv, 1.15)
 			at = cv.global_position + Vector2(CharmView.W / 2, CharmView.H + 18)
 		var money: int = n.get("money", 0)
-		popup_text(at, n.text, Data.MONEY_COLOR if money > 0 else Color("ffdf6b"), 28)
+		popup_text(at, n.text, Data.MONEY_COLOR if money > 0 else Palette.HEADING, 28)
 		if money > 0:
 			stats.money_earned += money
 			sfx.play("coin")
@@ -2447,7 +2447,7 @@ func take_new_cards() -> void:
 func charms_gone(names: Array) -> void:
 	rebuild_charms()
 	for n in names:
-		popup_text(Vector2(main_cx(), play_y() - 30), "%s is gone!" % n, Color("ffdf6b"), 30)
+		popup_text(Vector2(main_cx(), play_y() - 30), "%s is gone!" % n, Palette.HEADING, 30)
 		sfx.play("boss_ping", 1.0, 0.8)
 		await wait(0.5)
 
@@ -2457,11 +2457,11 @@ func show_cashout(info: Dictionary) -> void:
 	busy = true
 	music.set_track("boss" if gs.blind_idx == 2 else "table")
 	var vb := open_overlay()
-	vb.add_child(_label(info.title, 38, Color("ffdf6b")))
+	vb.add_child(_label(info.title, 38, Palette.HEADING))
 	for r in info.rows:
 		_row_label(vb, r[0], ("$%d" % r[1]) if r[1] >= 0 else ("-$%d" % -r[1]), Data.MONEY_COLOR if r[1] >= 0 else Data.MULT_COLOR)
 	var total: int = info.total
-	vb.add_child(_center(_button("Cash Out: $%d" % total, Color("e0a526"), func():
+	vb.add_child(_center(_button("Cash Out: $%d" % total, Palette.BUY, func():
 		gs.money += total
 		stats.money_earned += total
 		sfx.play("cash_register")
@@ -2515,7 +2515,7 @@ func game_over() -> void:
 	ace_quip(["So close! Every run teaches something.", "Ouch. Want to deal again?", "The cards weren't with us this time.", "Shake it off, the next deck is lucky!"])
 	vb.add_child(UIBuild.build({"col": [
 		{"button": "New Run", "color": Data.CHIP_COLOR, "on": func(): _leave_run(show_run_setup), "min": Vector2(320, 90), "size": 34, "delay": 1.0, "once": true},
-		{"button": "Main Menu", "color": Color("5a5f73"), "on": func(): _leave_run(show_title), "min": Vector2(320, 70), "size": 26, "delay": 1.0, "once": true},
+		{"button": "Main Menu", "color": Palette.BUTTON, "on": func(): _leave_run(show_title), "min": Vector2(320, 70), "size": 26, "delay": 1.0, "once": true},
 	]}))
 
 
@@ -2542,7 +2542,7 @@ func show_victory() -> void:
 	saves.delete_run()
 	music.set_track("shop")
 	var vb := open_overlay(true)
-	vb.add_child(_label("You Win!", 72, Color("ffdf6b")))
+	vb.add_child(_label("You Win!", 72, Palette.HEADING))
 	vb.add_child(_label("You beat ante %d." % Data.FINAL_ANTE, 28))
 	_row_label(vb, "Best hand", Data.fmt(gs.best_hand), Data.CHIP_COLOR.lightened(0.3))
 	ace_quip(["We did it! I knew you had it in you!", "Champion! Fancy seeing how far Endless goes?"])
@@ -2555,7 +2555,7 @@ func show_victory() -> void:
 
 ## Waves of confetti falling across the screen.
 func _confetti() -> void:
-	var palette := [Data.CHIP_COLOR, Data.MULT_COLOR, Data.MONEY_COLOR, Color("3f9a5a"), Color("b07cff"), Color.WHITE]
+	var palette := [Data.CHIP_COLOR, Data.MULT_COLOR, Data.MONEY_COLOR, Palette.GO, Color("b07cff"), Color.WHITE]
 	for wave in 3:
 		motes(Vector2(vw / 2, -20), palette, 50, {"area": Vector2(vw, 10), "heading": PI / 2, "spread": 0.8, "speed": 140.0,
 			"gravity": Vector2(0, 120), "drag": 0.6, "life": 3.2, "size": 11.0, "spin": 6.0, "cap": 60})
@@ -2589,11 +2589,11 @@ func show_shop() -> void:
 	# shelf of charms, then the ante's voucher and the booster packs below.
 	var buttons := UIBuild.build({"col": [
 		{"button": "Next Round", "color": Data.MULT_COLOR, "on": leave_shop, "min": Vector2(164, 88), "size": 24, "once": true},
-		{"button": "Reroll\n$%d" % reroll_price(), "color": Color("3f9a5a"), "on": reroll_shop, "min": Vector2(164, 94), "size": 24,
+		{"button": "Reroll\n$%d" % reroll_price(), "color": Palette.GO, "on": reroll_shop, "min": Vector2(164, 94), "size": 24,
 			"enabled": func(): return gs.can_afford(reroll_price())},
 	], "sep": 10})
 	if ads.can_offer("shop_reroll", _ad_ctx()):
-		buttons.add_child(_button("Watch ad\nFree reroll", Color("b88a12"), func():
+		buttons.add_child(_button("Watch ad\nFree reroll", Palette.AD, func():
 			if await ads.show_rewarded("shop_reroll"):
 				gs.free_rerolls += 1
 				reroll_shop()
@@ -2607,7 +2607,7 @@ func show_shop() -> void:
 		shelf.add_child(_shop_cell(gs.shop_items[i], i))
 	if gs.shop_items.is_empty():
 		shelf.add_child(_label("Sold out!", 28))
-	var shelf_well := _shop_well(shelf, Color("2c3a44"))
+	var shelf_well := _shop_well(shelf, Palette.PANEL_WELL)
 	shelf_well.custom_minimum_size.x = maxf(480.0, gs.shop_slots() * 128.0 + 40.0)
 	vb.add_child(UIBuild.build({"row": [{"node": buttons}, {"node": shelf_well}], "sep": 10}))
 	var vouchers := HBoxContainer.new()
@@ -2624,8 +2624,8 @@ func show_shop() -> void:
 	if gs.shop_packs.is_empty():
 		packs.add_child(_label("Sold out!", 22, Color(1, 1, 1, 0.5)))
 	vb.add_child(UIBuild.build({"row": [
-		{"node": _shop_well(_shop_well(vouchers, Color("1a242b"), 8), Color("2c3a44"))},
-		{"node": _shop_well(packs, Color("2c3a44"))},
+		{"node": _shop_well(_shop_well(vouchers, Palette.PANEL_DEEPER, 8), Palette.PANEL_WELL)},
+		{"node": _shop_well(packs, Palette.PANEL_WELL)},
 	], "sep": 10}))
 	_shop_fresh = ""
 	save_run("shop")
@@ -2670,7 +2670,7 @@ func _shop_cell(it: Dictionary, i: int) -> Control:
 	var lines: Array = []
 	var badge := ["", Color.WHITE]
 	var verb := "BUY"
-	var verb_col := Color("e0a526")
+	var verb_col := Palette.BUY
 	var on_buy: Callable
 	var on_use := Callable()
 	var scale := 0.92
@@ -2715,7 +2715,7 @@ func _shop_cell(it: Dictionary, i: int) -> Control:
 			badge = ["Voucher", Color("c08a12")]
 			cost = voucher_price()
 			verb = "REDEEM"
-			verb_col = Color("3f9a5a")
+			verb_col = Palette.GO
 			on_buy = func(): buy_voucher(it.id)
 			scale = 1.08
 		"pack":
@@ -2725,7 +2725,7 @@ func _shop_cell(it: Dictionary, i: int) -> Control:
 			lines = [Data.pack_desc(pk.id)]
 			cost = gs.pack_price(pk)
 			verb = "OPEN"
-			verb_col = Color("3f9a5a")
+			verb_col = Palette.GO
 			on_buy = func(): buy_pack(i)
 			scale = 1.18  # packs sit 1.27x a card (G.CARD_W*1.27)
 	if it.type in ["charm", "spell", "card"]:
@@ -2776,7 +2776,7 @@ func _shop_cell(it: Dictionary, i: int) -> Control:
 ## The dark price tag over a shop card (create_shop_card_ui's t1).
 func _shop_price_tag(cost: int) -> Control:
 	var p := PanelContainer.new()
-	var sb := _box(Color("1a2026"), 2.0, true)
+	var sb := _box(Palette.PANEL_DEEPER, 2.0, true)
 	sb.rounded = true
 	sb.set_content_margin_all(4)
 	sb.content_margin_left = 12
@@ -2824,13 +2824,13 @@ func _shop_select(entry: Dictionary) -> void:
 
 ## The card's description, to its left (Balatro's 'cl' popup in the shop).
 func _shop_popup(entry: Dictionary) -> Control:
-	var rows: Array = [{"text": entry.title, "size": 24, "color": Color("2b2d42"), "shadow": Color.TRANSPARENT}]
+	var rows: Array = [{"text": entry.title, "size": 24, "color": Palette.INK, "shadow": Color.TRANSPARENT}]
 	for line in entry.lines:
 		for part in str(line).split("\n"):
-			rows.append({"text": part, "size": 18, "color": Color("4f6367"), "wrap": 300, "shadow": Color.TRANSPARENT})
+			rows.append({"text": part, "size": 18, "color": Palette.INK_SOFT, "wrap": 300, "shadow": Color.TRANSPARENT})
 	if entry.badge[0] != "":
 		rows.append({"text": entry.badge[0], "size": 17, "color": Color.WHITE, "panel": entry.badge[1], "pad": 6})
-	var p := UIBuild.build({"col": rows, "sep": 6, "panel": Color("f7f3ea"), "pad": 12, "outline": Color("2b2d42")})
+	var p := UIBuild.build({"col": rows, "sep": 6, "panel": Palette.PAPER, "pad": 12, "outline": Palette.INK})
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	p.top_level = true
 	p.z_index = 900
@@ -2853,16 +2853,16 @@ func _show_shop_sign() -> void:
 	if shop_sign != null and is_instance_valid(shop_sign):
 		return
 	shop_sign = PanelContainer.new()
-	var sb := _box(Color("1d2a33"), 4.0)
+	var sb := _box(Palette.PANEL_DEEP, 4.0)
 	sb.set_content_margin_all(6)
 	sb.outline = 3.0
-	sb.outline_color = Color("b3364e")
+	sb.outline_color = Palette.WINE
 	shop_sign.add_theme_stylebox_override("panel", sb)
 	shop_sign.position = Vector2.ZERO
 	shop_sign.size = blind_box.size
 	shop_sign.mouse_filter = Control.MOUSE_FILTER_STOP
-	var title := _label("SHOP", 46, Color("ffdf6b"))
-	title.add_theme_color_override("font_outline_color", Color("b3364e"))
+	var title := _label("SHOP", 46, Palette.HEADING)
+	title.add_theme_color_override("font_outline_color", Palette.WINE)
 	title.add_theme_constant_override("outline_size", 10)
 	shop_sign.add_child(UIBuild.build({"col": [
 		{"node": title},
@@ -3057,7 +3057,7 @@ func open_modal() -> VBoxContainer:
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	modal.add_child(center)
 	var panel := PanelContainer.new()
-	var sb := _box(Color("22313b"), 5.0, true)
+	var sb := _box(Palette.PANEL, 5.0, true)
 	sb.set_content_margin_all(26)
 	sb.outline = 3.0
 	sb.outline_color = Color(1, 1, 1, 0.25)
@@ -3087,7 +3087,7 @@ func _on_charm_tapped(v: CharmView) -> void:
 		var hv := open_modal()
 		hv.add_child(_label("Face down", 36, Color("f2d675")))
 		hv.add_child(_label("%s hides your charms until it is defeated." % gs.boss_hex.name, 22))
-		hv.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 60), 24)))
+		hv.add_child(_center(_button("Close", Palette.BUTTON, close_modal, Vector2(200, 60), 24)))
 		return
 	if v == drag_view:
 		return
@@ -3101,7 +3101,7 @@ func _on_charm_tapped(v: CharmView) -> void:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 14)
-	var sell := _button("Sell $%d" % gs.sell_value(inst), Color("3f9a5a"), func():
+	var sell := _button("Sell $%d" % gs.sell_value(inst), Palette.GO, func():
 		gs.money += gs.sell_value(inst)
 		stats.charms_sold += 1
 		stats.items_sold += 1
@@ -3139,7 +3139,7 @@ func _on_charm_tapped(v: CharmView) -> void:
 	elif inst.get("eternal", false):
 		sell.text = "Eternal"
 	row.add_child(sell)
-	row.add_child(_button("Close", Color("5a5f73"), close_modal, Vector2(150, 70), 24))
+	row.add_child(_button("Close", Palette.BUTTON, close_modal, Vector2(150, 70), 24))
 	vb.add_child(row)
 	vb.add_child(_label("Charms trigger left to right. Drag to reorder.", 18, Color(1, 1, 1, 0.5)))
 
@@ -3238,7 +3238,7 @@ func banner(title: String, text: String, col: Color, hold: float = 1.4) -> void:
 	p.add_theme_stylebox_override("panel", sb)
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var vb := VBoxContainer.new()
-	vb.add_child(_label(title, 40, Color("ffdf6b")))
+	vb.add_child(_label(title, 40, Palette.HEADING))
 	var l := _label(text, 26)
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.custom_minimum_size = Vector2(520, 0)
@@ -3275,8 +3275,8 @@ func defeat_blind() -> void:
 	m.shader = load("res://shaders/card_fx.gdshader")
 	m.set_shader_parameter("size", blind_chip.size)
 	# Blind:defeat burns the token in black and red
-	m.set_shader_parameter("burn_colour_1", Color("374244"))
-	m.set_shader_parameter("burn_colour_2", Color("fe5f55"))
+	m.set_shader_parameter("burn_colour_1", Palette.TABLE_DARK)
+	m.set_shader_parameter("burn_colour_2", Palette.ROSE)
 	m.set_shader_parameter("dissolve_seed", randf() * 3000.0)
 	blind_chip.material = m
 	juice(blind_chip, 0.3)
@@ -3337,7 +3337,7 @@ func show_blind_info() -> void:
 	vb.add_child(_label("Score at least %s   Reward %s" % [Data.fmt(gs.target if in_round else gs.blind_target(idx)), "$".repeat(gs.blind_reward(idx))], 22))
 	if idx == 2:
 		if gs.is_showdown():
-			vb.add_child(_label("Showdown boss", 20, Color("ffdf6b")))
+			vb.add_child(_label("Showdown boss", 20, Palette.HEADING))
 		var desc := _label(gs.boss_hex.desc, 26)
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		desc.custom_minimum_size = Vector2(520, 0)
@@ -3354,7 +3354,7 @@ func show_blind_info() -> void:
 					vb.add_child(_label("Allowed hand: " + (only if only != "" else "whatever you play first"), 20, Color(1, 1, 1, 0.75)))
 	else:
 		vb.add_child(_label("No special rules", 22, Color(1, 1, 1, 0.7)))
-	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 60), 24)))
+	vb.add_child(_center(_button("Close", Palette.BUTTON, close_modal, Vector2(200, 60), 24)))
 
 
 func show_card_info(v: CardView) -> void:
@@ -3362,7 +3362,7 @@ func show_card_info(v: CardView) -> void:
 		return
 	var c := v.card
 	var vb := open_modal()
-	vb.add_child(_label(Data.card_name(c), 36, Color("ffdf6b")))
+	vb.add_child(_label(Data.card_name(c), 36, Palette.HEADING))
 	vb.add_child(_label("+%d Chips when scored" % Data.card_chips(c.rank), 24, Data.CHIP_COLOR.lightened(0.3)))
 	for line in Data.card_mods(c):
 		var l := _label(line, 24)
@@ -3371,7 +3371,7 @@ func show_card_info(v: CardView) -> void:
 		vb.add_child(l)
 	if gs.is_debuffed(c):
 		vb.add_child(_label("Debuffed by " + gs.boss_hex.name, 22, Color("ff8080")))
-	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 64), 24)))
+	vb.add_child(_center(_button("Close", Palette.BUTTON, close_modal, Vector2(200, 64), 24)))
 
 
 func show_deck() -> void:
@@ -3381,7 +3381,7 @@ func show_deck() -> void:
 	var remaining := {}
 	for c in gs.draw_pile:
 		remaining[c.id] = true
-	vb.add_child(_label("Deck: %d cards" % gs.deck.size(), 34, Color("ffdf6b")))
+	vb.add_child(_label("Deck: %d cards" % gs.deck.size(), 34, Palette.HEADING))
 	if in_round:
 		vb.add_child(_label("Faded cards have already been drawn this round", 18, Color(1, 1, 1, 0.6)))
 	var cards := gs.deck.duplicate()
@@ -3413,14 +3413,14 @@ func show_deck() -> void:
 	vb.add_child(_center(scroll))
 	var upgraded := cards.filter(func(c): return c.enh != "" or c.ed != "" or c.seal != "").size()
 	vb.add_child(_label("%d upgraded cards. Hold a card in hand to see its details." % upgraded, 18, Color(1, 1, 1, 0.6)))
-	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 60), 24)))
+	vb.add_child(_center(_button("Close", Palette.BUTTON, close_modal, Vector2(200, 60), 24)))
 
 
 func show_hand_info() -> void:
 	if gs == null:
 		return
 	var vb := open_modal()
-	vb.add_child(_label("Poker Hands", 38, Color("ffdf6b")))
+	vb.add_child(_label("Poker Hands", 38, Palette.HEADING))
 	for n in gs.visible_hands():
 		var lvl: int = gs.hand_levels[n]
 		var hb := HBoxContainer.new()
@@ -3442,7 +3442,7 @@ func show_hand_info() -> void:
 		p.custom_minimum_size = Vector2(50, 0)
 		hb.add_child(p)
 		vb.add_child(hb)
-	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 66), 24)))
+	vb.add_child(_center(_button("Close", Palette.BUTTON, close_modal, Vector2(200, 66), 24)))
 
 
 # ---------------------------------------------------------------- persistence
@@ -3635,7 +3635,7 @@ func _second_chance() -> bool:
 		return false
 	var pick := Picker.new()
 	var vb := open_modal()
-	vb.add_child(_label("One more hand?", 40, Color("ffdf6b")))
+	vb.add_child(_label("One more hand?", 40, Palette.HEADING))
 	var l := _label("Watch an ad to get one more hand for this blind. An assisted run doesn't count for Fastest Win or stake unlocks.", 22)
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.custom_minimum_size = Vector2(560, 0)
@@ -3643,8 +3643,8 @@ func _second_chance() -> bool:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 18)
-	row.add_child(_button("Watch ad", Color("b88a12"), func(): pick.chosen.emit(true), Vector2(240, 72), 26))
-	row.add_child(_button("No thanks", Color("5a5f73"), func(): pick.chosen.emit(false), Vector2(240, 72), 26))
+	row.add_child(_button("Watch ad", Palette.AD, func(): pick.chosen.emit(true), Vector2(240, 72), 26))
+	row.add_child(_button("No thanks", Palette.BUTTON, func(): pick.chosen.emit(false), Vector2(240, 72), 26))
 	vb.add_child(row)
 	var watch: bool = await pick.chosen
 	close_modal()
@@ -3652,7 +3652,7 @@ func _second_chance() -> bool:
 		return false
 	gs.hands_left += 1
 	gs.run_flags["assisted"] = true
-	popup_text(Vector2(main_cx(), play_y()), "One more hand!", Color("ffdf6b"), 40)
+	popup_text(Vector2(main_cx(), play_y()), "One more hand!", Palette.HEADING, 40)
 	update_hud()
 	return true
 
@@ -3665,7 +3665,7 @@ func _leave_run(next: Callable) -> void:
 		ads.mark_offered()
 		var pick := Picker.new()
 		var vb := open_modal()
-		vb.add_child(_label("Remove ads", 40, Color("ffdf6b")))
+		vb.add_child(_label("Remove ads", 40, Palette.HEADING))
 		var l := _label("Enjoying Aleatro? Remove the ads between rounds for good. Optional reward ads stay available.", 22)
 		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		l.custom_minimum_size = Vector2(560, 0)
@@ -3673,8 +3673,8 @@ func _leave_run(next: Callable) -> void:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
 		row.add_theme_constant_override("separation", 18)
-		row.add_child(_button("Remove ads: %s" % ads.price, Color("b88a12"), func(): pick.chosen.emit(true), Vector2(280, 72), 24))
-		row.add_child(_button("No thanks", Color("5a5f73"), func(): pick.chosen.emit(false), Vector2(240, 72), 24))
+		row.add_child(_button("Remove ads: %s" % ads.price, Palette.AD, func(): pick.chosen.emit(true), Vector2(280, 72), 24))
+		row.add_child(_button("No thanks", Palette.BUTTON, func(): pick.chosen.emit(false), Vector2(240, 72), 24))
 		vb.add_child(row)
 		var buy: bool = await pick.chosen
 		close_modal()
@@ -3691,18 +3691,18 @@ class Picker extends RefCounted:
 ## Achievements, leaderboards and sign-in, from the title (Android only).
 func show_play_games() -> void:
 	var vb := open_modal()
-	vb.add_child(_label("Play Games", 40, Color("ffdf6b")))
+	vb.add_child(_label("Play Games", 40, Palette.HEADING))
 	if play_games.signed_in:
 		if play_games.player_name != "":
 			vb.add_child(_label("Signed in as %s" % play_games.player_name, 22, Color(1, 1, 1, 0.8)))
-		vb.add_child(_center(_button("Achievements", Color("3f9a5a"), play_games.show_achievements, Vector2(320, 70), 26)))
+		vb.add_child(_center(_button("Achievements", Palette.GO, play_games.show_achievements, Vector2(320, 70), 26)))
 		vb.add_child(_center(_button("Leaderboards", Data.CHIP_COLOR, play_games.show_leaderboards, Vector2(320, 70), 26)))
 	else:
 		vb.add_child(_label("Not signed in", 22, Color(1, 1, 1, 0.8)))
-		vb.add_child(_center(_button("Sign in", Color("3f9a5a"), func():
+		vb.add_child(_center(_button("Sign in", Palette.GO, func():
 			close_modal()
 			play_games.sign_in(), Vector2(320, 70), 26)))
-	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 60), 24)))
+	vb.add_child(_center(_button("Close", Palette.BUTTON, close_modal, Vector2(200, 60), 24)))
 
 
 ## Remember that these Spells and Runes have been seen (two unlock goals
@@ -3737,9 +3737,9 @@ func discover(kind: String, id: String) -> void:
 func toast(text: String) -> void:
 	sfx.play("discover" if text.begins_with("New ") or text.begins_with("Challenge complete") else "toast", 1.0, 0.7)
 	var p := PanelContainer.new()
-	var sb := _box(Color("22313b"), 3.0, true)
+	var sb := _box(Palette.PANEL, 3.0, true)
 	sb.outline = 2.0
-	sb.outline_color = Color("ffdf6b")
+	sb.outline_color = Palette.HEADING
 	sb.set_content_margin_all(12)
 	p.add_theme_stylebox_override("panel", sb)
 	p.add_child(_label(text, 20, Color.WHITE))
@@ -3861,7 +3861,7 @@ func _volume_row(title: String, key: String) -> Control:
 	slider.add_theme_stylebox_override("grabber_area", fill)
 	slider.add_theme_stylebox_override("grabber_area_highlight", fill)
 	hb.add_child(slider)
-	var val := _label("%d" % settings[key], 24, Color("ffdf6b"), HORIZONTAL_ALIGNMENT_RIGHT)
+	var val := _label("%d" % settings[key], 24, Palette.HEADING, HORIZONTAL_ALIGNMENT_RIGHT)
 	val.custom_minimum_size = Vector2(56, 0)
 	hb.add_child(val)
 	slider.value_changed.connect(func(v):
@@ -3882,18 +3882,18 @@ func show_challenges(page: int = 0) -> void:
 	var cells: Array = []
 	for ch in Data.CHALLENGES.slice(page * per, (page + 1) * per):
 		var done := won.has(ch.id)
-		cells.append({"button": ch.name + ("  [done]" if done else ""), "color": Color("3f9a5a") if done else Color("4a4f63"),
+		cells.append({"button": ch.name + ("  [done]" if done else ""), "color": Palette.GO if done else Palette.BUTTON_DIM,
 			"on": func(): show_challenge(ch.id), "min": Vector2(260, 58), "size": 22, "fit": 236,
 			"tooltip": {"title": ch.name, "lines": [ch.desc]}})
 	open_modal().add_child(UIBuild.build({"col": [
-		{"text": "Challenges", "size": 38, "color": Color("ffdf6b")},
+		{"text": "Challenges", "size": 38, "color": Palette.HEADING},
 		{"text": "%d / %d complete  -  beat ante %d to complete one" % [won.size(), Data.CHALLENGES.size(), Data.FINAL_ANTE], "size": 20, "color": Color(1, 1, 1, 0.7)},
 		{"grid": cells, "columns": 3},
 		{"row": [
-			{"button": "<", "color": Color("4a4f63"), "on": func(): show_challenges((page + pages - 1) % pages), "min": Vector2(80, 50), "size": 24},
+			{"button": "<", "color": Palette.BUTTON_DIM, "on": func(): show_challenges((page + pages - 1) % pages), "min": Vector2(80, 50), "size": 24},
 			{"text": "Page %d / %d" % [page + 1, pages], "size": 22},
-			{"button": ">", "color": Color("4a4f63"), "on": func(): show_challenges((page + 1) % pages), "min": Vector2(80, 50), "size": 24},
-			{"button": "Close", "color": Color("5a5f73"), "on": close_modal, "min": Vector2(170, 50), "size": 24},
+			{"button": ">", "color": Palette.BUTTON_DIM, "on": func(): show_challenges((page + 1) % pages), "min": Vector2(80, 50), "size": 24},
+			{"button": "Close", "color": Palette.BUTTON, "on": close_modal, "min": Vector2(170, 50), "size": 24},
 		], "sep": 18, "align": "center"},
 	]}))
 
@@ -3901,7 +3901,7 @@ func show_challenges(page: int = 0) -> void:
 func show_challenge(id: String) -> void:
 	var ch := Data.challenge_def(id)
 	var rows: Array = [
-		{"text": ch.name, "size": 40, "color": Color("ffdf6b")},
+		{"text": ch.name, "size": 40, "color": Palette.HEADING},
 		{"text": ch.desc, "size": 24, "wrap": 620},
 	]
 	for line in Data.challenge_lines(ch):
@@ -3909,10 +3909,10 @@ func show_challenge(id: String) -> void:
 	var start := func():
 		close_modal()
 		new_run(id)
-	var go: Dictionary = {"button": "Start", "color": Color("b3364e"), "on": start, "min": Vector2(220, 70)}
+	var go: Dictionary = {"button": "Start", "color": Palette.WINE, "on": start, "min": Vector2(220, 70)}
 	if saves.has_run():
-		go = {"button": "Hold: Start (ends current run)", "color": Color("b3364e"), "on": start, "hold": 0.6, "min": Vector2(380, 70), "size": 24}
-	rows.append({"row": [go, {"button": "Back", "color": Color("5a5f73"), "on": show_challenges, "min": Vector2(160, 70), "size": 24}], "sep": 14})
+		go = {"button": "Hold: Start (ends current run)", "color": Palette.WINE, "on": start, "hold": 0.6, "min": Vector2(380, 70), "size": 24}
+	rows.append({"row": [go, {"button": "Back", "color": Palette.BUTTON, "on": show_challenges, "min": Vector2(160, 70), "size": 24}], "sep": 14})
 	open_modal().add_child(UIBuild.build({"col": rows}))
 
 
@@ -3921,10 +3921,10 @@ const COLLECTION_PAGE := 36  # charms per collection page (12 x 3)
 
 func show_collection(tab: String = "charms", page: int = 0) -> void:
 	var vb := open_modal()
-	vb.add_child(_label("Collection  (Profile %d)" % saves.profile, 34, Color("ffdf6b")))
+	vb.add_child(_label("Collection  (Profile %d)" % saves.profile, 34, Palette.HEADING))
 	var tabs: Array = []
 	for t in [["charms", "Charms"], ["vouchers", "Vouchers"], ["bosses", "Bosses"], ["stats", "Stats"], ["credits", "Credits"]]:
-		tabs.append({"button": t[1], "color": Data.CHIP_COLOR if t[0] == tab else Color("4a4f63"), "on": func(): show_collection(t[0]),
+		tabs.append({"button": t[1], "color": Data.CHIP_COLOR if t[0] == tab else Palette.BUTTON_DIM, "on": func(): show_collection(t[0]),
 			"min": Vector2(150, 54), "size": 22, "choice": "collection", "chosen": t[0] == tab})
 	vb.add_child(UIBuild.build({"row": tabs, "sep": 12}))
 	match tab:
@@ -3966,9 +3966,9 @@ func show_collection(tab: String = "charms", page: int = 0) -> void:
 			vb.add_child(_center(grid))
 			if pages > 1:
 				vb.add_child(UIBuild.build({"row": [
-					{"button": "<", "color": Color("4a4f63"), "on": func(): show_collection("charms", (page + pages - 1) % pages), "min": Vector2(80, 50), "size": 24},
+					{"button": "<", "color": Palette.BUTTON_DIM, "on": func(): show_collection("charms", (page + pages - 1) % pages), "min": Vector2(80, 50), "size": 24},
 					{"text": "Page %d / %d" % [page + 1, pages], "size": 22},
-					{"button": ">", "color": Color("4a4f63"), "on": func(): show_collection("charms", (page + 1) % pages), "min": Vector2(80, 50), "size": 24},
+					{"button": ">", "color": Palette.BUTTON_DIM, "on": func(): show_collection("charms", (page + 1) % pages), "min": Vector2(80, 50), "size": 24},
 				], "sep": 18, "align": "center"}))
 		"vouchers":
 			var unlocked: Array = profile_data.get("unlocked", [])
@@ -4022,9 +4022,9 @@ func show_collection(tab: String = "charms", page: int = 0) -> void:
 				grid.add_child(row)
 			vb.add_child(_center(grid))
 			vb.add_child(UIBuild.build({"row": [
-				{"button": "<", "color": Color("4a4f63"), "on": func(): show_collection("bosses", (page + pages - 1) % pages), "min": Vector2(80, 50), "size": 24},
+				{"button": "<", "color": Palette.BUTTON_DIM, "on": func(): show_collection("bosses", (page + pages - 1) % pages), "min": Vector2(80, 50), "size": 24},
 				{"text": "Page %d / %d" % [page + 1, pages], "size": 22},
-				{"button": ">", "color": Color("4a4f63"), "on": func(): show_collection("bosses", (page + 1) % pages), "min": Vector2(80, 50), "size": 24},
+				{"button": ">", "color": Palette.BUTTON_DIM, "on": func(): show_collection("bosses", (page + 1) % pages), "min": Vector2(80, 50), "size": 24},
 			], "sep": 18, "align": "center"}))
 		"stats":
 			var labels := [["Runs", "runs"], ["Wins", "wins"], ["Best ante", "best_ante"], ["Best hand", "best_hand"],
@@ -4039,7 +4039,7 @@ func show_collection(tab: String = "charms", page: int = 0) -> void:
 				box.custom_minimum_size = Vector2(380, 0)
 				for l in part:
 					var val = profile_data.get("challenges_won", []).size() if l[1] == "challenges_won" else stats[l[1]]
-					_row_label(box, l[0], ("$" if l[1] == "money_earned" else "") + Data.fmt(val), Color("ffdf6b"))
+					_row_label(box, l[0], ("$" if l[1] == "money_earned" else "") + Data.fmt(val), Palette.HEADING)
 				cols.add_child(box)
 			vb.add_child(_center(cols))
 		"credits":
@@ -4060,7 +4060,7 @@ func show_collection(tab: String = "charms", page: int = 0) -> void:
 			vb.add_child(made)
 			vb.add_child(_label("Music, sound and art are generated by the game's own code.", 20, Color(1, 1, 1, 0.7)))
 			vb.add_child(_label("Logo font: %s" % "m6x11plus, Daniel Linssen (managore.itch.io)", 20, Color(1, 1, 1, 0.7)))
-	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 58), 24)))
+	vb.add_child(_center(_button("Close", Palette.BUTTON, close_modal, Vector2(200, 58), 24)))
 
 
 ## Switch the text to language `choice` ("auto" follows the device).
@@ -4074,7 +4074,7 @@ func set_language(choice: String) -> void:
 ## Pick the game's language; "Auto" follows the device.
 func show_language() -> void:
 	var vb := open_modal()
-	vb.add_child(_label("Language", 40, Color("ffdf6b")))
+	vb.add_child(_label("Language", 40, Palette.HEADING))
 	var grid := GridContainer.new()
 	grid.columns = 3
 	grid.add_theme_constant_override("h_separation", 14)
@@ -4083,7 +4083,7 @@ func show_language() -> void:
 	for c in choices:
 		var text: String = "Auto (%s)" % Loc.NATIVE[Loc.detect()] if c == "auto" else Loc.NATIVE[c]
 		var on: bool = settings.language == c
-		var btn := _button(text, Data.CHIP_COLOR if on else Color("5a5f73"), func():
+		var btn := _button(text, Data.CHIP_COLOR if on else Palette.BUTTON, func():
 			settings.language = c
 			_save_stats()
 			set_language(c)
@@ -4097,7 +4097,7 @@ func show_language() -> void:
 			btn.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 		grid.add_child(btn)
 	vb.add_child(_center(grid))
-	vb.add_child(_center(_button("Close", Color("5a5f73"), close_modal, Vector2(200, 58), 24)))
+	vb.add_child(_center(_button("Close", Palette.BUTTON, close_modal, Vector2(200, 58), 24)))
 
 
 func show_menu() -> void:
@@ -4107,14 +4107,14 @@ func show_menu() -> void:
 	music.set_muffled(true)
 	sfx.play("pause_open")
 	var title: String = "Paused" + ("  -  " + Data.challenge_def(gs.challenge).name if gs != null and gs.challenge != "" else "")
-	var opt := {"color": Color("5a5f73"), "min": Vector2(250, 64), "size": 22}
+	var opt := {"color": Palette.BUTTON, "min": Vector2(250, 64), "size": 22}
 	var b := func(text: String, cb: Callable, extra := {}) -> Dictionary:
 		var d := opt.duplicate()
 		d.merge({"button": text, "on": cb})
 		d.merge(extra, true)
 		return d
 	vb.add_child(UIBuild.build({"col": [
-		{"text": title, "size": 40, "color": Color("ffdf6b"), "fit": 720},
+		{"text": title, "size": 40, "color": Palette.HEADING, "fit": 720},
 		{"node": _volume_row("Master", "master")},
 		{"node": _volume_row("Music", "music")},
 		{"node": _volume_row("Sounds", "sfx")},
@@ -4123,23 +4123,23 @@ func show_menu() -> void:
 				settings.vibration = not settings.vibration
 				_save_stats()
 				haptic(40, 0.6)
-				show_menu(), {"color": Color("4a6fa5")}),
+				show_menu(), {"color": Palette.BUTTON_OPTION}),
 			b.call("Speed: %sx" % str(settings.speed).trim_suffix(".0"), func():
 				var speeds := [1.0, 1.5, 2.0, 3.0]
 				settings.speed = speeds[(speeds.find(settings.speed) + 1) % speeds.size()]
 				_apply_settings()
 				_save_stats()
-				show_menu(), {"color": Color("4a6fa5"), "tooltip": "Speeds up scoring and dealing animations"}),
+				show_menu(), {"color": Palette.BUTTON_OPTION, "tooltip": "Speeds up scoring and dealing animations"}),
 			b.call("Motion: %s" % ("Reduced" if settings.reduced_motion else "Full"), func():
 				settings.reduced_motion = not settings.reduced_motion
 				_apply_settings()
 				_save_stats()
-				show_menu(), {"color": Color("4a6fa5"), "tooltip": "Reduced turns off screen shake, wobble, lean and idle sway"}),
+				show_menu(), {"color": Palette.BUTTON_OPTION, "tooltip": "Reduced turns off screen shake, wobble, lean and idle sway"}),
 			b.call("CRT: On" if settings.crt > 0 else "CRT: Off", func():
 				settings.crt = 0.0 if settings.crt > 0 else 70.0
 				_apply_settings()
 				_save_stats()
-				show_menu(), {"color": Color("4a6fa5"), "tooltip": "The old-screen look: slight curve, scanlines and grain"}),
+				show_menu(), {"color": Palette.BUTTON_OPTION, "tooltip": "The old-screen look: slight curve, scanlines and grain"}),
 			b.call("How to play", show_help),
 			b.call("Collection", show_collection),
 			b.call("Language", show_language),
@@ -4150,7 +4150,7 @@ func show_menu() -> void:
 				close_modal()
 				toast("Ace will show the tips again"), {"once": true}),
 			b.call("Remove ads: %s" % ads.price, func():
-				ads.buy_remove_ads(), {"color": Color("b88a12")}) if ads.available() and not ads.removed and ads.price != "" else null,
+				ads.buy_remove_ads(), {"color": Palette.AD}) if ads.available() and not ads.removed and ads.price != "" else null,
 			b.call("Privacy choices", func():
 				close_modal()
 				ads.show_privacy_options()) if ads.privacy_required else null,

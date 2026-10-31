@@ -24,8 +24,8 @@ func _initialize() -> void:
 	m.shader = load("res://shaders/splash.gdshader")
 	m.set_shader_parameter("time", 13.0)
 	m.set_shader_parameter("vort_speed", 0.4)
-	m.set_shader_parameter("colour_1", Color("fe5f55"))
-	m.set_shader_parameter("colour_2", Color("009dff"))
+	m.set_shader_parameter("colour_1", Palette.ROSE)
+	m.set_shader_parameter("colour_2", Palette.TEAL)
 	bg.material = m
 	c.add_child(bg)
 	# a spotlight behind the cards and a darker rim, so they pop
