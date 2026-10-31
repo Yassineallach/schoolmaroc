@@ -1,18 +1,17 @@
 class_name Mascot
 extends Control
 
-## Ace, the game's guide: the Jester joker card come to life, as Balatro's
-## Jimbo is its Joker. Drawn from the Jester's own pixel art with a card's
-## shadow, float and tilt; materializes in a burst of sparks, talks through a
-## speech bubble with a blip and a little bounce per syllable, and can offer
-## buttons under the bubble.
+## Ace, the game's guide: a living Ace of Hearts in a jester's cap, drawn
+## pixel by pixel in code (MascotArt). Floats and tilts like a card, blinks,
+## materializes in a burst of sparks, talks through a speech bubble with a
+## blip, a mouth and a little hop per syllable, and can offer buttons under
+## the bubble.
 
 signal dismissed
 signal poked
 
-const W := 120.0  # a charm card's size (CharmView)
-const H := 150.0
-const ART := "jester"
+const W := MascotArt.GW * MascotArt.SCALE
+const H := MascotArt.GH * MascotArt.SCALE
 const BUBBLE_W := 400.0
 const CHAR_TIME := 0.016
 
@@ -25,6 +24,8 @@ var _text := Label.new()
 var _buttons := HBoxContainer.new()
 var _sparks := CPUParticles2D.new()
 var _bounce := 0.0
+var _blink := 0.0
+var _next_blink := 2.0
 var _phase := randf() * TAU
 var _bubble_left := true
 var _say_id := 0
@@ -35,7 +36,7 @@ func _init(effects: Sfx) -> void:
 	sfx = effects
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	size = Vector2(W, H)
-	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR  # the art is pre-scaled, as on charms
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST  # crisp art pixels
 
 	_body.size = size
 	_body.pivot_offset = size / 2
@@ -93,6 +94,11 @@ func _init(effects: Sfx) -> void:
 
 func _process(delta: float) -> void:
 	_bounce = maxf(0.0, _bounce - delta * 6.0)
+	_next_blink -= delta
+	if _next_blink <= 0.0:
+		_blink = 0.12
+		_next_blink = randf_range(2.0, 4.5)
+	_blink = maxf(0.0, _blink - delta)
 	_place_bubble()
 	_body.queue_redraw()
 
@@ -239,15 +245,8 @@ func _draw_body() -> void:
 	# a hop while a syllable plays
 	var hop := -6.0 * _bounce
 	_body.draw_set_transform_matrix(Transform2D(tilt, c + Vector2(0, bob + hop)) * Transform2D(0.0, -c))
-	var art := CharmView.painted_art(ART)
+	var mouth := 2 if _bounce > 0.6 else (1 if _bounce > 0.2 else 0)
+	var art := MascotArt.frame(_blink <= 0.0, mouth)
 	var shadow := Vector2(4, 8 - bob * 0.5 - hop)
-	if art != null:
-		_body.draw_texture_rect(art, Rect2(shadow, _body.size), false, Color(0, 0, 0, 0.35))
-		_body.draw_texture_rect(art, Rect2(Vector2.ZERO, _body.size), false)
-		return
-	# no painted card (shouldn't happen): a plain card
-	var card := PixelBox.new(Color("f7f3ea"), 4.0, 0.0, true)
-	card.outline = 3.0
-	card.outline_color = Color("b3364e")
-	card.shadow_offset = shadow
-	_body.draw_style_box(card, Rect2(Vector2.ZERO, _body.size))
+	_body.draw_texture_rect(art, Rect2(shadow, _body.size), false, Color(0, 0, 0, 0.35))
+	_body.draw_texture_rect(art, Rect2(Vector2.ZERO, _body.size), false)
