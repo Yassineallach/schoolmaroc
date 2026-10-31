@@ -6,6 +6,7 @@
   .\render.ps1                         # full quality: CRF 12, slow preset, 320k audio
   .\render.ps1 -Crf 16 -Preset medium  # faster, still high quality
   .\render.ps1 -Acts 3,4               # re-render only some acts, then rejoin
+  .\render.ps1 -Parallel 4             # render four acts at once (faster on many-core PCs)
 
   Requires Python 3.10+ and ffmpeg on PATH. Output goes to .\out\
 #>
@@ -14,7 +15,7 @@ param(
     [ValidateSet('ultrafast', 'veryfast', 'faster', 'fast', 'medium', 'slow', 'slower', 'veryslow')]
     [string]$Preset = 'slow',
     [string]$AudioBitrate = '320k',
-    [int]$Parallel = [Math]::Max(1, [int]([Environment]::ProcessorCount / 2)),
+    [int]$Parallel = 1,  # one act at a time; raise (e.g. -Parallel 4) to render several at once
     [int[]]$Acts = @(1, 2, 3, 4, 5, 6, 7, 8),
     [string]$OutDir = (Join-Path $PSScriptRoot 'out')
 )
