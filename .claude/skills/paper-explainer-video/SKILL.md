@@ -55,8 +55,17 @@ Install: `pip install pillow numpy scipy faster-whisper`, plus `ffmpeg` on PATH.
 
 ### 3. Asset prompts
 
-- **Give ready-to-paste prompts** from `references/prompts.md`. Masters come first; poses use the masters as reference.
-- **Storybook, never anime.** If outputs drift toward anime, rewrite the prompts. Don't accept the drift.
+- **Ask which tool and which style.**
+  - Ask which image tool the user generates with (ChatGPT, Midjourney, others).
+  - Ask whether they have reference images for the style.
+  - Default style: storybook (`references/prompts.md`, CH block).
+  - If the user brings their own style references, use them. One video uses one style throughout.
+- **Reference image plus a short prompt** (see `references/prompts.md`, "Reference-image workflow"). This is the default with ChatGPT and any tool that accepts images.
+  - Long, detailed style descriptions made the results look *nothing* like the user's references. The image carries the style; the words only name the subject.
+  - Analyse the references: name only the 4–5 visual traits that matter, and the things in them to ignore (UI cards, icons, geometric overlays, the person depicted).
+- **One strong single figure first.** No multi-pose sheets until the style is locked. Then the approved figure becomes the reference for every other pose and character.
+- **Fix with short follow-ups**, one change per message ("same image, remove the lines").
+- **Never anime.** If outputs drift toward anime or away from the references, shorten and refocus the prompt. Don't add more words, and don't accept the drift.
 
 ### 4. Cut-outs: check every asset before use
 
@@ -175,3 +184,4 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 8. Real-person likeness, such as an author's portrait, comes only from an image the user provides.
 9. Claude renders the final at full quality in the session and sends the file. Never push rendering onto the user.
 10. Create word timing as each act is built, never as a separate pass afterwards.
+11. Asset prompts are short and lean on a reference image. Don't pile on style detail: it made the outputs look nothing like the references.

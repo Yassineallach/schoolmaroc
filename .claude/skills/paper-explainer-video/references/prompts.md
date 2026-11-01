@@ -3,7 +3,53 @@
 Hand the user prompts they can paste with no edits. Every prompt carries the full style block,
 so nothing depends on the image tool remembering the style.
 
-## Workflow: master sheets first
+## Reference-image workflow (default; ChatGPT and any tool that takes images)
+
+Long style descriptions get averaged into a generic look. With ChatGPT, a 400-word style block produced images that looked nothing like the user's references. Instead:
+
+1. **Pick ONE reference** that shows the style most clearly, and have the user crop it to just that image. A clean figure with few overlays works best.
+2. **Short prompt.** The style goes in one line, then one line of what to ignore, then the subject:
+
+```
+Use ONLY the drawing style of the attached image: <4-5 key traits, e.g. navy ink outline, hair as a solid mass with fine light strand lines, big flat hard-edged shadows in indigo, violet and lavender, cream highlights, no gradients>.
+Ignore <what in the reference is not style: the circles, lines, card, icons>. Do not copy the person.
+
+Draw: <character in one or two sentences: age, build, hair, skin, face, costume>. <Framing and pose>.
+Plain empty ivory background. One figure only.
+```
+
+3. **One figure, not a sheet,** until the style is right.
+4. **Fix in follow-up messages,** one change each, in the same chat:
+   - "Same image, but remove the lines and circles."
+   - "Same image, flatter shadows, fewer lines on the clothes."
+5. **Lock it.** Once a figure is approved, it replaces the original reference for everything after it:
+
+```
+Same character and exact same drawing style as the attached image.
+Draw him <pose>, full body. Plain empty ivory background. One figure only.
+```
+
+New characters use the same pattern: `Exact same drawing style as the attached image. Draw: <new character>. ...`
+
+**Analysing a reference.**
+- **Name the traits:** outline colour and weight, how hair is drawn, how shadows are shaped (hard or soft, how many tones), the palette, and the amount of detail.
+- **Name what to ignore:** app UI, cards, bookmark icons, geometric overlays, text, and the real person depicted. Never ask for a likeness.
+- **Keep figures separable from the paper.** If the reference leaves skin as paper colour, ask for a flat skin tone instead, so the cut-out survives.
+
+### Style: linocut / engraved editorial (user's second style)
+
+Traits that worked when this was the user's reference:
+
+- dark navy-indigo ink contour;
+- hair as a solid mass cut by fine parallel cream strand lines;
+- large flat hard-edged shadows in deep indigo, muted violet and periwinkle-lavender;
+- cream highlights;
+- no gradients;
+- tiny coral-red accents only.
+
+The reference sheets were book-cover cards with circles, triangles, dot-lines and a bookmark icon. Tell the model to ignore all of these.
+
+## Workflow: master sheets first (storybook style, text-only tools)
 
 1. **Masters.** Generate one character master sheet per main character with **no reference image**. The user picks the version closest to their visual guide.
 2. **Poses.** Every pose prompt attaches the approved master:
