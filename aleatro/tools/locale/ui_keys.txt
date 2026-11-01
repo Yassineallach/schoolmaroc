@@ -373,3 +373,9 @@ One more hand!
 Remove ads
 Enjoying Aleatro? Remove the ads between rounds for good. Optional reward ads stay available.
 No thanks
+# --- no internet connection
+No internet connection
+Aleatro needs an internet connection to play. Turn on Wi-Fi or mobile data, then tap Retry.
+Retry
+Checking connection…
+Retrying in a moment…

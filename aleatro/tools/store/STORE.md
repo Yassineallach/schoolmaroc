@@ -19,7 +19,7 @@ Already covered elsewhere:
 |---|---|
 | App or game | **Game** |
 | Category | **Card** |
-| Tags | Pick up to 5 from Play's list. Choose the ones closest to *Card*, *Poker*, *Roguelike*, *Deck building*, *Strategy*, *Single player* and *Offline*. |
+| Tags | Pick up to 5 from Play's list. Choose the ones closest to *Card*, *Poker*, *Roguelike*, *Deck building*, *Strategy* and *Single player*. |
 | Email address | **mardevlopm@gmail.com** |
 | Website | **https://mar-devl.github.io/** (needed for app-ads.txt) |
 | Phone | Optional. Leave it empty. |
@@ -222,7 +222,7 @@ AdMob only, which pays to Morocco separately from Play.
 - **Monetise with Play > App pricing: Free.** A free app can never become
   paid later.
 - **Production > Countries / regions: Add all.** The game is translated into
-  10 languages and plays offline.
+  10 languages.
 
 ## 7. Testing, then production
 

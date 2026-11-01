@@ -71,6 +71,7 @@ var _bg_key := ""
 var _bg_tween: Tween
 var bg_spin := {"real": 0.0, "eased": 0.0, "amount": 0.0}
 var bg_spin_time := 0.0
+var net_gate: NetGate
 var crt_rect: ColorRect  # Balatro's CRT pass over the whole screen
 # Balatro's flame_handler: flames rise from the Chips and Mult boxes while
 # the hand's score beats the blind. Each: {rect, intensity, real, vel, timer}
@@ -166,6 +167,9 @@ func _ready() -> void:
 	crt_rect.material.shader = load("res://shaders/crt.gdshader")
 	crt_layer.add_child(crt_rect)
 	_apply_crt()
+	# no internet, no game: covers everything and pauses until back online
+	net_gate = NetGate.new(self)
+	add_child(net_gate)
 	get_viewport().size_changed.connect(_on_resize)
 	_on_resize()
 	# Balatro's splash plays when the game is launched, not when a test
