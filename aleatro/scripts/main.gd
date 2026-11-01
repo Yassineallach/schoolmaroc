@@ -428,7 +428,7 @@ func _on_resize() -> void:
 	spell_row.position = spell_bg.position
 	spell_row.size = spell_bg.size
 	hand_panel.position = Vector2(SIDE_W + 10, hand_y() - 46)
-	hand_panel.size = Vector2(mw - 20, CardView.H + 58)
+	hand_panel.size = Vector2(mw - 20, CardView.H + 64)
 	lbl_hand_count.position = Vector2(12, hand_panel.size.y - 26)
 	deck_pile.position = Vector2(vw - PileView.W - 18, play_y())
 	discard_pile.position = Vector2(SIDE_W + 18, play_y())
@@ -1998,6 +1998,12 @@ func layout_hand(animate: bool) -> void:
 	Prof.end("layout_hand", pt)
 
 
+## How far the outermost cards of the hand sit lower than the middle ones,
+## and their largest tilt in degrees.
+const HAND_ARC := 8.0
+const HAND_TILT_MAX := 6.0
+
+
 func _layout_hand(animate: bool) -> void:
 	var n := hand_views.size()
 	if n == 0:
@@ -2006,13 +2012,17 @@ func _layout_hand(animate: bool) -> void:
 	var step := minf(CardView.W + 6, (avail - CardView.W) / maxf(n - 1, 1))
 	var total := CardView.W + step * (n - 1)
 	var x0 := main_cx() - total / 2.0
+	# a gentle fan whose curve and tilt stay the same size however many cards
+	# are held, so the outer cards never drop out of the hand box
+	var half := maxf((n - 1) / 2.0, 1.0)
+	var tilt := minf(2.5 * half, HAND_TILT_MAX)
 	for i in n:
 		var v: CardView = hand_views[i]
 		if v == drag_view:
 			continue
-		var off := i - (n - 1) / 2.0
-		var target := Vector2(x0 + i * step, hand_y() + absf(off) * absf(off) * 2.0 - (34.0 if v.selected else 0.0))
-		var rot := off * 2.5
+		var t := (i - (n - 1) / 2.0) / half  # -1 at the left end, 1 at the right
+		var target := Vector2(x0 + i * step, hand_y() + t * t * HAND_ARC - (34.0 if v.selected else 0.0))
+		var rot := t * tilt
 		v.z_index = i
 		if animate:
 			Glide.of(v).to(target, rot)
