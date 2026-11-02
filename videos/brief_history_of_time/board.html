@@ -1,0 +1,311 @@
+<title>Brief History Storyboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap">
+<style>
+/* Layout: a production board pinned to the video's own grey paper — brief, then acts (shot lists), then asset slots, then act reviews. */
+:root{
+  --paper:#DAD9D5; --sheet:#EEE9DE; --ink:#1A1A1A; --muted:#5d5b56; --rule:#b9b7b1;
+  --red:#E04329; --ok:#2f6b45; --warn:#9a6a12; --shadow:rgba(26,26,26,.18);
+  --f-head:"Archivo Black",Impact,"Arial Black",sans-serif;
+  --f-body:"PT Serif",Georgia,serif;
+  --f-type:"Special Elite","Courier New",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#23221f; --sheet:#2e2c28; --ink:#ece8df; --muted:#a8a49b; --rule:#47443e;
+  --red:#ff6a4d; --ok:#7cc495; --warn:#e2b154; --shadow:rgba(0,0,0,.45); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#23221f; --sheet:#2e2c28; --ink:#ece8df; --muted:#a8a49b; --rule:#47443e;
+  --red:#ff6a4d; --ok:#7cc495; --warn:#e2b154; --shadow:rgba(0,0,0,.45); color-scheme:dark}
+
+body{background:var(--paper);color:var(--ink);font:16px/1.55 var(--f-body)}
+.wrap{max-width:1180px;margin:0 auto;padding-block:32px 72px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:grid;gap:56px}
+h1,h2,h3{font-family:var(--f-head);font-weight:400;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(34px,6vw,64px);line-height:1}
+h2{font-size:clamp(24px,3.4vw,34px)}
+h3{font-size:19px}
+.typed{font-family:var(--f-type)}
+.eyebrow{font-family:var(--f-type);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mark{background:linear-gradient(transparent 62%,color-mix(in srgb,var(--red) 45%,transparent) 62% 90%,transparent 90%)}
+p{margin:0}
+.lede{max-width:64ch;color:var(--muted)}
+header{display:grid;gap:14px}
+.stats{display:flex;flex-wrap:wrap;gap:10px 28px;font-family:var(--f-type);font-size:14px}
+.stats b{font-family:var(--f-head);font-weight:400;font-size:20px;color:var(--red);font-variant-numeric:tabular-nums}
+section{display:grid;gap:20px}
+.sec-head{display:grid;gap:6px}
+.sheet{background:var(--sheet);box-shadow:0 10px 24px -14px var(--shadow);padding:20px;min-width:0}
+.btn{font:15px var(--f-type);border:2px solid var(--ink);background:transparent;color:var(--ink);padding:6px 12px;cursor:pointer;border-radius:2px}
+.btn:hover{background:var(--ink);color:var(--sheet)}
+.btn.primary{border-color:var(--red);color:var(--red)}
+.btn.primary:hover{background:var(--red);color:var(--sheet)}
+.btn:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+input,textarea,select{font:15px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--rule);padding:8px;border-radius:2px;width:100%;box-sizing:border-box}
+textarea{min-height:64px;resize:vertical}
+label{display:grid;gap:4px;font-family:var(--f-type);font-size:13px;color:var(--muted)}
+.status{font:12px var(--f-type);text-transform:uppercase;letter-spacing:.08em;padding:2px 8px;border:1.5px solid currentColor;border-radius:2px;white-space:nowrap}
+.s-needed{color:var(--muted)} .s-uploaded{color:var(--warn)} .s-approved{color:var(--ok)} .s-redo{color:var(--red)}
+.s-planned{color:var(--muted)} .s-review{color:var(--warn)}
+#conn{font:13px var(--f-type);color:var(--muted)}
+
+/* brief */
+.brief{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;align-items:end}
+.brief .save{display:flex;gap:12px;align-items:center}
+
+/* acts */
+.acts{display:grid;gap:18px}
+details.act{background:var(--sheet);box-shadow:0 10px 24px -14px var(--shadow)}
+details.act summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;padding:16px 20px}
+details.act summary::-webkit-details-marker{display:none}
+.actno{font:28px var(--f-head);color:var(--red);font-variant-numeric:tabular-nums}
+.actmeta{font:13px var(--f-type);color:var(--muted)}
+.shots{margin:0;padding:0 20px 20px;display:grid;gap:0;list-style:none}
+.shots li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:16px;padding:10px 0;border-top:1px dashed var(--rule)}
+.shots .line{font-style:italic}
+.shots .vis{font-size:15px}
+.chip{font:12px var(--f-type);border:1.5px solid var(--red);color:var(--red);padding:0 5px;margin-right:4px;border-radius:2px;white-space:nowrap}
+
+/* asset slots */
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.slot{display:grid;gap:12px;align-content:start}
+.slot-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.slot-id{font:22px var(--f-head);color:var(--red)}
+.drop{aspect-ratio:16/9;max-width:100%;border:2px dashed var(--rule);display:grid;place-items:center;text-align:center;
+  font:14px var(--f-type);color:var(--muted);position:relative;overflow:hidden;background:var(--paper)}
+.drop.cut{aspect-ratio:4/3}
+.drop.over{border-color:var(--red);color:var(--red)}
+.drop img{width:100%;height:100%;object-fit:contain;position:absolute;inset:0;background:var(--paper)}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.prompt{font:13px/1.5 var(--f-type);background:var(--paper);padding:10px;max-height:9.5em;overflow:auto;white-space:pre-wrap;border-left:3px solid var(--red)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tag{font:12px var(--f-type);color:var(--muted)}
+
+/* reviews */
+.reviews{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+.review{display:grid;gap:12px;align-content:start}
+.review video,.review img{width:100%;max-width:100%;display:block;background:#000}
+.empty{font:14px var(--f-type);color:var(--muted);border:2px dashed var(--rule);padding:18px;text-align:center}
+.note{font:13px var(--f-type);color:var(--muted)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--sheet);font:14px var(--f-type);padding:8px 14px;border-radius:2px;z-index:20}
+@media (max-width:640px){.shots li{grid-template-columns:1fr;gap:4px}}
+@media (prefers-reduced-motion:no-preference){.sheet,details.act{transition:box-shadow .2s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Paper-collage explainer · production board</span>
+    <h1>A Brief History <span class="mark">of Time</span></h1>
+    <p class="lede">The plan for the explainer built from your 15 narration clips. Drop each generated image into its slot below, and Claude picks it up from here: it cuts and checks the cut-outs, builds each act on the spoken word, then posts contact sheets and draft renders for your review.</p>
+    <div class="stats">
+      <span><b>4:15</b> runtime</span><span><b>15</b> clips</span><span><b>5</b> acts</span>
+      <span><b id="st-assets">0/9</b> required assets in</span><span><b id="st-acts">0/5</b> acts approved</span>
+    </div>
+    <span id="conn">Connecting to the board…</span>
+  </header>
+
+  <section>
+    <div class="sec-head"><span class="eyebrow">Step 1</span><h2>The brief</h2>
+      <p class="lede">Which image tool you use and which style to follow. With a style reference, Claude rewrites the prompts in the short form: the reference image plus one line naming the subject.</p></div>
+    <div class="sheet brief">
+      <label for="b-tool">Image tool
+        <select id="b-tool"><option value="">Choose…</option><option>ChatGPT</option><option>Midjourney</option><option>Gemini</option><option>Ideogram</option><option>Other</option></select></label>
+      <label for="b-style">Style
+        <select id="b-style"><option value="storybook">Storybook (as in Red Rising)</option><option value="reference">My own reference image (upload in slot S01)</option></select></label>
+      <label for="b-notes" style="grid-column:1/-1">Notes for Claude
+        <textarea id="b-notes" placeholder="Anything to change in the plan, the tone or the palette"></textarea></label>
+      <div class="save"><button class="btn primary" id="b-save">Save brief</button><span class="note" id="b-msg"></span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="eyebrow">Step 2</span><h2>Acts and shots</h2>
+      <p class="lede">Each line of narration with the visual it triggers. Red tags name the asset a shot needs. Everything else is drawn in code.</p></div>
+    <div class="acts" id="acts"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="eyebrow">Step 3</span><h2>Asset slots</h2>
+      <p class="lede">Copy a prompt, generate the image, then drop it in the slot. Plates keep their painted background. Cut-outs go on plain ivory, and Claude checks every edge for leftovers before using one. Real people come from photos only.</p></div>
+    <div class="slots" id="slots"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="eyebrow">Step 4</span><h2>Act reviews</h2>
+      <p class="lede">Claude posts a contact sheet and a draft render for each act. Approve it, or say what to change.</p></div>
+    <div class="reviews" id="reviews"></div>
+  </section>
+</div>
+
+<script>
+const STYLE = `Style: 2D hand-drawn editorial illustration for an educational animated short film, in the spirit of a hand-illustrated storybook rather than anime. Organic hand-drawn outlines in deep brown (#3B2A20), medium weight around the silhouette and thinner inside, with slight irregularity. Flat color fills with one shadow tone, one light tone and only a few small highlights; restrained painterly shading; subtle paper grain and light brush texture; muted earthy palette of warm ivory, terracotta, rust red, muted blue, desaturated green, deep brown and muted gold; soft warm directional light. NOT anime, no 3D render, no photorealism, no glossy vector style, no heavy gradients, no glow. No text, no labels.`;
+const PLATE = ' 16:9 widescreen.';
+const CUT = ' Plain empty warm ivory background, one object only, fully visible.';
+
+const SLOTS = [
+  {id:'R1',kind:'photo',req:true,title:'Stephen Hawking portrait',use:'Act 1: "The man is Stephen Hawking"',
+   prompt:'A photo you have the rights to use. Portrait, ideally around the 1980s. No generated likeness.'},
+  {id:'E01',kind:'plate',req:true,title:'Hospital room, 1985',use:'Act 1: opening shot',
+   prompt:'Hospital room at night in 1985, a patient lying in bed seen from the foot of the bed, face hidden in shadow, a bulky 1980s ventilator with tubes and a monitor beside the bed, cold blue night light from a window, warm small lamp.'},
+  {id:'E02',kind:'plate',req:true,title:'The unfinished manuscript',use:'Act 1: "Back in England"',
+   prompt:'A cluttered English academic study on a grey rainy day. A wooden desk with a thick stack of handwritten manuscript pages, a fountain pen, a chalkboard with faint diagrams behind it, an empty chair.'},
+  {id:'E03',kind:'plate',req:true,title:'1920s observatory',use:'Act 2: "astronomers discovered"',
+   prompt:'A 1920s mountain observatory at night, the dome open, a large brass telescope pointing at a star-filled sky, a tiny astronomer silhouette at the eyepiece.'},
+  {id:'E04',kind:'plate',req:true,title:'Deep space',use:'Act 3: "a massive star burns out"',
+   prompt:'Deep space with a few distant spiral galaxies and one huge glowing star, painted storybook style, dark indigo and muted gold.'},
+  {id:'E05',kind:'plate',req:true,title:'People under the night sky',use:'Act 5: closing',
+   prompt:'A hillside at night under a vast starry sky with the Milky Way. Small silhouettes of a few ordinary people of different ages looking up, seen from behind.'},
+  {id:'P01',kind:'cut',req:true,title:'Teacup tipping off a table',use:'Act 4: "A teacup slides off a table"',
+   prompt:'A white porcelain teacup with saucer, half full of tea, tipping off the edge of a small wooden table. Show the table edge too.'},
+  {id:'P02',kind:'cut',req:true,title:'The shattered cup',use:'Act 4: "and shatters"',
+   prompt:'The same teacup shattered into about 8 separate pieces, scattered flat with a small tea splash, seen from slightly above.'},
+  {id:'P03',kind:'cut',req:true,title:'Empty wheelchair',use:'Act 3: "speak them through a synthesizer"',
+   prompt:'An empty 1980s motorised wheelchair, three-quarter view.'},
+  {id:'R2',kind:'photo',req:false,title:'Aristotle (optional)',use:'Act 2: the thinkers timeline',
+   prompt:'A public-domain image of a classical bust of Aristotle. Without it, the card is text only.'},
+  {id:'R3',kind:'photo',req:false,title:'Galileo (optional)',use:'Act 2: the thinkers timeline',
+   prompt:'A public-domain portrait of Galileo. Without it, the card is text only.'},
+  {id:'R4',kind:'photo',req:false,title:'Einstein (optional)',use:'Act 2: the thinkers timeline',
+   prompt:'A public-domain photo of Einstein. Without it, the card is text only.'},
+  {id:'S01',kind:'photo',req:false,title:'Style reference (optional)',use:'Only if you chose "my own reference image"',
+   prompt:'One image that shows the style you want, cropped to just that image. Claude names its 4–5 key traits and rewrites the prompts around it.'},
+];
+const fullPrompt = s => s.kind==='plate' ? s.prompt+PLATE+'\n\n'+STYLE : s.kind==='cut' ? s.prompt+CUT+'\n\n'+STYLE : s.prompt;
+
+const ACTS = [
+  {n:1,title:'The Silent Manuscript',clips:'1–4',len:'47 s',shots:[
+    ['In 1985, a man lies unconscious in a Swiss hospital, kept alive by a ventilator.','Hospital plate, slow push-in. Typed caption SWITZERLAND, 1985.',['E01']],
+    ['Pneumonia has flooded his lungs… paralysed by a wasting disease','A hospital chart sheet: pneumonia, motor neurone disease, marker circle.',[]],
+    ['His doctors raise an unthinkable option: switching the machine off.','A big OFF switch, circled in red.',[]],
+    ['His wife refuses. Surgeons cut an opening in his windpipe, and he survives.','REFUSED stamp. Chart line "Tracheotomy", ticked.',[]],
+    ['But the operation takes what little remained of his voice.','A speech bubble, struck through.',[]],
+    ['Back in England sits an unfinished manuscript.','Manuscript desk plate, typed page slides on.',['E02']],
+    ['The man is Stephen Hawking','Portrait as a torn print, name headline.',['R1']],
+    ['…would become "A Brief History of Time." Published on April Fool\'s Day, 1988','Book cover drawn in code, calendar sheet 1 APRIL 1988.',[]],
+    ['the birth, structure, and possible fate of the universe','Three typed labels joined by marker arrows.',[]]]},
+  {n:2,title:'A Book Without Equations',clips:'5–7',len:'64 s',shots:[
+    ['the book contains almost no mathematics','A textbook page full of equations, struck through.',[]],
+    ['every equation would cut his sales in half','A falling bar chart: ½, ¼, ⅛.',[]],
+    ['he kept exactly one: Einstein\'s E equals m c squared','E = mc² headline, red circle.',[]],
+    ['diagrams, thought experiments, and the stories of the thinkers','Three cards slide in.',[]],
+    ['from Aristotle to Galileo to Einstein','A timeline of three name cards.',['R2','R3','R4']],
+    ['In the 1920s, astronomers discovered that distant galaxies are rushing away','Observatory plate, then an expansion diagram drawn in code.',['E03']],
+    ['Run that expansion backward… the Big Bang','The dots converge to one point and flash: THE BIG BANG.',[]],
+    ['physics breaks. Its two great theories refuse to cooperate.','Two sheets: GENERAL RELATIVITY and QUANTUM MECHANICS.',[]],
+    ['gravity as the bending of space and time','A warped grid with a planet.',[]],
+    ['where certainty dissolves into probability','A probability cloud of dots.',[]],
+    ['Squeeze the universe small enough, and both apply at once.','The sheets collide, CONFLICT stamp.',[]]]},
+  {n:3,title:'The Edge of a Black Hole',clips:'8–10',len:'54 s',shots:[
+    ['When a massive star burns out, it can collapse under its own weight','Deep-space plate, then a collapsing-star diagram.',['E04']],
+    ['nothing escapes, not even light… the event horizon','A black disc, labelled ring, light rays bending in.',[]],
+    ['black holes are not entirely black. They leak a faint glow… evaporate','A red glow ring, the disc shrinking. Caption: over immense stretches of time.',[]],
+    ['In 1963, at the age of 21… given about two years to live','Diagnosis card document.',[]],
+    ['solve problems as shapes in his head','Geometric shapes float up.',[]],
+    ['raising his eyebrows at letters on a card','A letter board spells a word, letter by letter.',[]],
+    ['a computer program let him pick words from a screen and speak them through a synthesizer','A word-list screen, waveform bars, wheelchair cut-out.',['P03']]]},
+  {n:4,title:'The Arrow of Time',clips:'11–12',len:'45 s',shots:[
+    ['the book\'s real subject is hidden in its title','The title, with TIME circled.',[]],
+    ['It has a direction','A big red arrow.',[]],
+    ['A teacup slides off a table and shatters.','Cup on the table edge, then the shards, with a shake.',['P01','P02']],
+    ['the shards leaping up and fusing back together','Shards reversed and ghosted, NEVER SEEN stamp.',['P02']],
+    ['disorder, memory, the expansion of the cosmos','Three labelled arrows pointing the same way.',[]],
+    ['like asking what lies north of the North Pole','A globe drawn in code, converging meridians, an arrow off the top.',[]],
+    ['finite and still have no edge','A closed sphere, NO EDGE caption.',[]]]},
+  {n:5,title:'The Most Unfinished Bestseller',clips:'13–15',len:'45 s',shots:[
+    ['"A Short History of Time." His editor changed one word.','Title typed, "Short" struck, "Brief" in marker.',[]],
+    ['a record 237 weeks on Britain\'s Sunday Times bestseller list','Bestseller-list sheet, a counter ticks to 237.',[]],
+    ['more than 10 million copies in dozens of languages','A stack of spines, 10,000,000+.',[]],
+    ['one of the most bought and least finished books','A bookmark stuck at an early page, UNFINISHED stamp.',[]],
+    ['ordinary people, not only scientists, can join the debate','Night-sky plate with small figures.',['E05']],
+    ['humanity would "know the mind of God."','The quote, typed.',[]],
+    ['the oldest question humans have ever asked of the night sky','The night sky held, end title.',['E05']]]},
+];
+
+const $ = (s,el=document)=>el.querySelector(s);
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let db=null, assets=null, canWrite=false;
+const slotState={}, actState={};
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),2600)}
+
+/* acts */
+$('#acts').innerHTML = ACTS.map(a=>`<details class="act"${a.n===1?' open':''}><summary>
+  <span class="actno">${a.n}</span><span><h3>${esc(a.title)}</h3><span class="actmeta">Clips ${a.clips} · ${a.len} · ${a.shots.length} shots</span></span>
+  <span class="status s-planned" data-actstatus="${a.n}">planned</span></summary>
+  <ol class="shots">${a.shots.map(([l,v,t])=>`<li><span class="line">“${esc(l)}”</span><span class="vis">${t.map(x=>`<span class="chip">${x}</span>`).join('')}${esc(v)}</span></li>`).join('')}</ol></details>`).join('');
+
+/* slots */
+function renderSlots(){
+  $('#slots').innerHTML = SLOTS.map(s=>{
+    const st=slotState[s.id]||{}; const status=st.status||'needed';
+    return `<article class="sheet slot" data-slot="${s.id}">
+      <div class="slot-top"><span class="slot-id">${s.id}</span><span class="status s-${status}">${status}</span></div>
+      <div><h3>${esc(s.title)}</h3><span class="tag">${esc(s.use)} · ${s.kind==='plate'?'painted plate, 16:9':s.kind==='cut'?'cut-out on ivory':'photo'}</span></div>
+      <div class="drop${s.kind==='cut'?' cut':''}">${st.url?`<img src="${esc(st.url)}" alt="${esc(s.title)}">`:`<span>${assets?'Drop an image here<br>or tap to choose':'Uploads open for editors of this board'}</span>`}
+        ${assets?`<input type="file" accept="image/*" aria-label="Upload ${esc(s.title)}" id="up-${s.id}">`:''}</div>
+      <div class="prompt" id="pr-${s.id}">${esc(fullPrompt(s))}</div>
+      <div class="row"><button class="btn" data-copy="${s.id}">Copy prompt</button>
+        ${st.url&&canWrite?`<button class="btn" data-clear="${s.id}">Remove image</button>`:''}</div>
+      ${st.claudeNote?`<p class="note">Claude: ${esc(st.claudeNote)}</p>`:''}
+    </article>`}).join('');
+  const req=SLOTS.filter(s=>s.req), got=req.filter(s=>slotState[s.id]?.url).length;
+  $('#st-assets').textContent=`${got}/${req.length}`;
+}
+$('#slots').addEventListener('click',async e=>{
+  const c=e.target.closest('[data-copy]'); if(c){const s=SLOTS.find(x=>x.id===c.dataset.copy);
+    try{await navigator.clipboard.writeText(fullPrompt(s));toast('Prompt copied')}catch{const r=document.createRange();r.selectNodeContents($('#pr-'+s.id));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);toast('Prompt selected: copy it with your keyboard')}return}
+  const d=e.target.closest('[data-clear]'); if(d&&db){await db.doc('slots/'+d.dataset.clear).set({status:'needed',url:null,assetId:null,updatedAt:Date.now()});toast('Image removed from the slot')}
+});
+$('#slots').addEventListener('change',e=>{const i=e.target.closest('input[type=file]');if(i&&i.files[0])upload(i.id.slice(3),i.files[0])});
+for(const ev of ['dragover','dragleave','drop'])$('#slots').addEventListener(ev,e=>{const d=e.target.closest('.drop');if(!d||!assets)return;e.preventDefault();
+  d.classList.toggle('over',ev==='dragover'); if(ev==='drop'&&e.dataTransfer.files[0])upload(d.closest('[data-slot]').dataset.slot,e.dataTransfer.files[0])});
+async function upload(id,file){
+  if(!file.type.startsWith('image/')){toast('That file is not an image');return}
+  toast('Uploading '+id+'…');
+  try{const r=await assets.upload(file);
+    await db.doc('slots/'+id).set({status:'uploaded',assetId:r.id,url:r.url,fileName:file.name,updatedAt:Date.now()});
+    toast(id+' uploaded. Claude will check it next.')}
+  catch(err){toast('Upload failed: '+(err?.message||err?.code||'try again'))}
+}
+
+/* reviews */
+function renderReviews(){
+  $('#reviews').innerHTML = ACTS.map(a=>{const r=actState[a.n]||{}; const status=r.status||'planned';
+    const media = r.videoUrl?`<video controls preload="metadata" src="${esc(r.videoUrl)}"></video>`:r.sheetUrl?`<img src="${esc(r.sheetUrl)}" alt="Contact sheet for act ${a.n}">`:`<div class="empty">No draft yet. Claude posts the contact sheet and draft here.</div>`;
+    return `<article class="sheet review"><div class="slot-top"><h3>${a.n}. ${esc(a.title)}</h3><span class="status s-${status}">${status}</span></div>
+      ${media}${r.videoUrl&&r.sheetUrl?`<a class="note" href="${esc(r.sheetUrl)}" target="_blank" rel="noopener">Open contact sheet</a>`:''}
+      ${r.claudeNote?`<p class="note">Claude: ${esc(r.claudeNote)}</p>`:''}
+      <label for="fb-${a.n}">Your feedback<textarea id="fb-${a.n}" ${canWrite?'':'disabled'}>${esc(r.feedback||'')}</textarea></label>
+      <div class="row"><button class="btn primary" data-approve="${a.n}" ${canWrite&&(r.videoUrl||r.sheetUrl)?'':'disabled'}>Approve act</button>
+        <button class="btn" data-changes="${a.n}" ${canWrite?'':'disabled'}>Send changes</button></div></article>`}).join('');
+  document.querySelectorAll('[data-actstatus]').forEach(el=>{const s=actState[el.dataset.actstatus]?.status||'planned';el.className='status s-'+s;el.textContent=s});
+  $('#st-acts').textContent=`${ACTS.filter(a=>actState[a.n]?.status==='approved').length}/${ACTS.length}`;
+}
+$('#reviews').addEventListener('click',async e=>{const b=e.target.closest('[data-approve],[data-changes]');if(!b||!db)return;
+  const n=b.dataset.approve||b.dataset.changes, fb=$('#fb-'+n).value.trim();
+  if(b.dataset.changes&&!fb){toast('Write what to change first');return}
+  await db.doc('acts/act'+n).update({status:b.dataset.approve?'approved':'redo',feedback:fb,updatedAt:Date.now()}).catch(()=>db.doc('acts/act'+n).set({status:b.dataset.approve?'approved':'redo',feedback:fb,updatedAt:Date.now()}));
+  toast(b.dataset.approve?'Act '+n+' approved':'Changes sent to Claude')});
+
+/* brief */
+$('#b-save').addEventListener('click',async()=>{if(!db)return;
+  await db.doc('brief/main').set({tool:$('#b-tool').value,style:$('#b-style').value,notes:$('#b-notes').value.trim(),updatedAt:Date.now()});
+  $('#b-msg').textContent='Saved. Claude reads it on your next message.'});
+
+renderSlots(); renderReviews();
+
+(async()=>{
+  if(!window.claude?.use){$('#conn').textContent='Open this board on claude.ai to upload images and review acts.';return}
+  const timer=setTimeout(()=>{$('#conn').textContent='The board is taking a while to connect. Reload the page to try again.'},10000);
+  [db,assets]=await Promise.all([claude.use('db'),claude.use('assets')]);
+  const user=await claude.use('user');
+  canWrite=!!db && ((await user?.can?.('data.write')) ?? true);
+  if(!db){clearTimeout(timer);$('#conn').textContent='Sign in to claude.ai to use the board. The plan below is read-only.';$('#b-save').disabled=true;renderSlots();renderReviews();return}
+  if(!canWrite){$('#b-save').disabled=true}
+  db.collection('slots').onSnapshot(s=>{clearTimeout(timer);$('#conn').textContent='Board connected. Changes save for everyone.';s.docs.forEach(d=>slotState[d.id]=d.data());renderSlots()},
+    ()=>{clearTimeout(timer);$('#conn').textContent='The board could not load saved images. Reload to try again.'});
+  db.collection('acts').onSnapshot(s=>{s.docs.forEach(d=>actState[d.id.replace('act','')]=d.data());renderReviews()});
+  db.doc('brief/main').onSnapshot(d=>{const b=d.data();if(!b)return;$('#b-tool').value=b.tool||'';$('#b-style').value=b.style||'storybook';if(document.activeElement!==$('#b-notes'))$('#b-notes').value=b.notes||''});
+})();
+</script>
