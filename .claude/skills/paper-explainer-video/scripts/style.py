@@ -1,0 +1,270 @@
+"""Art-directed motion layer on top of the engine (vox.py): camera, parallax, transitions, type.
+
+Every scene function returns a Shot with three transparent layers:
+  shot.mid  paper on the desk: photos, plates, documents, cut-outs, AND the marks made on
+            them (marker circles, stamps), so they stay glued to the paper during zooms
+  shot.top  headline type laid out in the composition
+  shot.hud  captions, labels, chapter kicker: fixed to the screen, never zoomed
+compose() puts them over the episode background (bg_motion.motion_bg) through a virtual camera
+with parallax: background 0.35x, mid 1x, top 1.15x of every zoom/pan; hud stays put.
+Camera: shot.camera() (slow move over the shot), shot.push() (push-in on a cue, focus point
+stays put), shot.zoom_to() (travel from the full composition into one image, optional pull-back).
+Stamps register a hit: a short camera kick. Cuts are torn-paper wipes ('lr', 'rl') or a new
+sheet laid over the old one ('up'), never a crossfade. Elements present at a cut start at
+ENTER so the wipe reveals the new composition already landing.
+"""
+import math
+import numpy as np
+from PIL import Image, ImageDraw
+import vox
+from vox import W, H, FPS, INK, RED, CREAM, F_HEAD, F_TYPE, F_SERIF, spring, ease, ease_out_cubic, lerp, shadow_of, alpha_mul, torn_mask, finish
+import bg_motion
+
+PAPER_BACK = (241, 231, 212)
+ENTER = -0.36   # scene-local start for elements already present when the wipe reveals the shot
+
+
+def ease_io(x):
+    x = min(max(x, 0.0), 1.0)
+    return 0.5 - 0.5 * math.cos(math.pi * x)
+
+
+def sp(t, start):
+    """Spring progress 0..1 (slight overshoot) for an element entering at `start`."""
+    return spring((t - start) * FPS)
+
+
+def fade(t, start, dur=0.5):
+    return ease_out_cubic((t - start) * FPS / (dur * FPS)) if t > start else 0.0
+
+
+# ---------------------------------------------------------------- shot + camera
+class Shot:
+    def __init__(self, t, D):
+        self.t, self.D = t, D
+        self.mid = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+        self.top = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+        self.hud = Image.new('RGBA', (W, H), (0, 0, 0, 0))   # captions/labels: fixed to the screen
+        # camera = scale s and the world point L that sits at the centre of the screen
+        self.zoom, self.lx, self.ly = 1.0, W / 2, H / 2
+        self.hits = []
+
+    def _hold(self, F, s_new):
+        """Change zoom to s_new while point F keeps its current screen position."""
+        sx = (F[0] - self.lx) * self.zoom + W / 2
+        sy = (F[1] - self.ly) * self.zoom + H / 2
+        self.zoom = s_new
+        self.lx, self.ly = F[0] - (sx - W / 2) / s_new, F[1] - (sy - H / 2) / s_new
+
+    def camera(self, z0, z1, focus0=(W / 2, H / 2), focus1=None):
+        """Slow move across the whole shot: zoom z0->z1 about a focus point drifting focus0->focus1."""
+        k = ease_io(self.t / max(self.D, 0.01))
+        f1 = focus1 or focus0
+        F = (lerp(focus0[0], f1[0], k), lerp(focus0[1], f1[1], k))
+        s = lerp(z0, z1, k)
+        self.zoom = s
+        self.lx, self.ly = F[0] - (F[0] - W / 2) / s, F[1] - (F[1] - H / 2) / s
+
+    def push(self, at, dz, focus=None, dur=1.6):
+        """A purposeful push-in when something becomes relevant; the focus point stays put."""
+        k = ease_io((self.t - at) / dur)
+        if k > 0:
+            self._hold(focus or (self.lx, self.ly), self.zoom + dz * k)
+
+    def zoom_to(self, rect, at, dur=1.4, fill=0.92, back_at=None, back_dur=1.2):
+        """Camera travels from the full composition into one image (rect = x0, y0, x1, y1),
+        optionally pulling back out at back_at."""
+        k = ease_io((self.t - at) / dur)
+        if back_at is not None:
+            k *= 1 - ease_io((self.t - back_at) / back_dur)
+        if k <= 0:
+            return
+        cx, cy = (rect[0] + rect[2]) / 2, (rect[1] + rect[3]) / 2
+        st = fill * min(W / (rect[2] - rect[0]), H / (rect[3] - rect[1]))
+        self.zoom = lerp(self.zoom, st, k)
+        self.lx, self.ly = lerp(self.lx, cx, k), lerp(self.ly, cy, k)
+
+    def hit(self, at):
+        self.hits.append(at)
+
+
+def _xf(img, s, lx, ly, dx=0.0, dy=0.0):
+    """Camera: world point (lx, ly) to screen centre at scale s, plus a shake offset."""
+    a = 1 / s
+    c, f = lx - (W / 2 + dx) * a, ly - (H / 2 + dy) * a
+    if abs(s - 1) < 1e-4 and abs(c) < 0.01 and abs(f) < 0.01:
+        return img
+    coeff = (a, 0, c, 0, a, f)
+    if img.mode == 'RGBA':
+        return img.convert('RGBa').transform(img.size, Image.AFFINE, coeff, Image.BILINEAR).convert('RGBA')
+    return img.transform(img.size, Image.AFFINE, coeff, Image.BILINEAR)
+
+
+def compose(shot, T):
+    z = shot.zoom
+    kick = 0.0
+    for h in shot.hits:
+        if shot.t >= h:
+            kick = max(kick, math.exp(-(shot.t - h) * 7.0))
+    sx = 7 * kick * math.sin(shot.t * 70)
+    sy = 5 * kick * math.cos(shot.t * 53)
+
+    def look(m):  # parallax: each depth travels a fraction m of the camera move
+        return 1 + (z - 1) * m, W / 2 + (shot.lx - W / 2) * m, H / 2 + (shot.ly - H / 2) * m
+    bs, blx, bly = look(0.35)
+    bs = max(bs, 1.0)                              # the background must always cover the frame
+    blx = min(max(blx, W / 2 / bs), W - W / 2 / bs)
+    bly = min(max(bly, H / 2 / bs), H - H / 2 / bs)
+    bg = _xf(bg_motion.motion_bg(T), bs, blx, bly).convert('RGBA')
+    s, lx, ly = look(1.0)
+    bg.alpha_composite(_xf(shot.mid, s + 0.012 * kick, lx, ly, sx * 0.6, sy * 0.6))
+    s, lx, ly = look(1.15)
+    bg.alpha_composite(_xf(shot.top, s + 0.02 * kick, lx, ly, sx, sy))
+    bg.alpha_composite(_xf(shot.hud, 1.0, W / 2, H / 2, sx * 0.3, sy * 0.3))
+    return finish(bg)
+
+
+# ---------------------------------------------------------------- transitions
+_r = np.random.default_rng(5)
+_J = np.convolve(_r.normal(0, 1, 2400), np.ones(9) / 9, 'same') * 10 + _r.normal(0, 1, 2400) * 0.9
+_YY, _XX = np.mgrid[0:H, 0:W].astype(np.float32)
+
+
+def _tear(a, b, p, kind):
+    """Blend frame a -> b. 'lr'/'rl': torn wipe; 'up': new sheet slides up over the old one."""
+    if kind == 'up':
+        edge = lerp(H + 60, -60, ease_io(p)) + _J[:W][None, :] * 1.2
+        d = _YY - edge                       # >0 below the edge: new sheet
+    else:
+        e = lerp(-260, W + 260, ease_io(p)) + (_YY - H / 2) * 0.18 + _J[:H][:, None] * 1.4
+        d = (e - _XX) if kind == 'lr' else (_XX - (W - e))
+    out = a.astype(np.float32)
+    new = d > 0
+    out[new] = b[new]
+    lip = (d > 0) & (d < 14)                 # the torn paper lip
+    out[lip] = out[lip] * 0.25 + np.array(PAPER_BACK, np.float32) * 0.75
+    sh = (d <= 0) & (d > -34)                # soft shadow cast on the old frame
+    out[sh] *= (0.80 + 0.20 * (-d[sh] / 34))[:, None]
+    return out.clip(0, 255).astype(np.uint8)
+
+
+def make_frame(shots, end, t, clips, pre=0.38, post=0.17):
+    """shots: list of (start, fn) or (start, fn, kind). fn(t, D) -> Shot. T for the background
+    runs continuously across the whole film."""
+    T = sum(vox._DUR[c] for c in vox._DUR if c < min(clips)) + t
+    starts = [s[0] for s in shots] + [end]
+
+    def render(j, tt):
+        s0, fn = shots[j][0], shots[j][1]
+        vox._SCENE_START = s0
+        return compose(fn(tt - s0, starts[j + 1] - s0), T)
+
+    i = max(j for j in range(len(shots)) if starts[j] <= t)
+    for j in (i, i + 1):
+        if 0 < j < len(shots) and starts[j] - pre <= t < starts[j] + post:
+            kind = shots[j][2] if len(shots[j]) > 2 else ('lr', 'up', 'rl')[j % 3]
+            p = (t - (starts[j] - pre)) / (pre + post)
+            return _tear(render(j - 1, t), render(j, t), p, kind)
+    return render(i, t)
+
+
+# ---------------------------------------------------------------- elements
+class Photo:
+    """A photograph or painted plate as a torn print: enters with a spring, a settling tilt and
+    a slight scale-down, like a print dropped onto the desk."""
+
+    def __init__(self, img, width, rot=-2.0, seed=1, border=16):
+        src = vox.fit_w(img.convert('RGB'), width)
+        b = border
+        card = Image.new('RGBA', (src.width + 2 * b, src.height + 2 * b), CREAM + (255,))
+        card.paste(src, (b, b))
+        card.putalpha(torn_mask(card.width, card.height, seed))
+        self.card, self.rot = card, rot
+        self.shadow, self.pad, self.off = shadow_of(card, blur=22, offset=22, opacity=0.30)
+        self._cache = None
+
+    def place(self, layer, cx, cy, t, start, frm='up', dist=420, tilt=7.0):
+        if t < start:
+            return
+        p = sp(t, start)
+        op = fade(t, start, 0.35)
+        dx, dy = {'up': (0, 1), 'left': (-1, 0), 'right': (1, 0), 'down': (0, -1)}[frm]
+        ox, oy = dx * (1 - p) * dist, dy * (1 - p) * dist
+        ang = self.rot + (1 - p) * tilt * (1 if frm != 'left' else -1)
+        sc = lerp(1.07, 1.0, min(p, 1.0))
+        if p > 0.999 and self._cache:
+            card, sh = self._cache
+        else:
+            card = self.card.resize((int(self.card.width * sc), int(self.card.height * sc)), Image.BILINEAR).rotate(ang, Image.BICUBIC, expand=True)
+            sh = self.shadow.resize((int(self.shadow.width * sc), int(self.shadow.height * sc)), Image.BILINEAR).rotate(ang, Image.BICUBIC, expand=True)
+            if p > 0.999:
+                self._cache = (card, sh)
+        x, y = int(cx - card.width / 2 + ox), int(cy - card.height / 2 + oy)
+        layer.alpha_composite(alpha_mul(sh, op * 0.9), (x - (sh.width - card.width) // 2, y - (sh.height - card.height) // 2 + self.off))
+        layer.alpha_composite(alpha_mul(card, op), (x, y))
+
+
+def sheet(layer, img, cx, cy, t, start, rot=0.0, frm='up', dist=420):
+    """Documents / covers: same drop-in as Photo (cached per object id)."""
+    key = ('_ph', rot)
+    ph = getattr(img, '_photo', None)
+    if ph is None or ph.rot != rot:
+        ph = Photo.__new__(Photo)
+        ph.card, ph.rot, ph._cache = img, rot, None
+        ph.shadow, ph.pad, ph.off = shadow_of(img, blur=20, offset=18, opacity=0.28)
+        img._photo = ph
+    ph.place(layer, cx, cy, t, start, frm, dist, tilt=5.0)
+
+
+def words(layer, xy, s, size, t, times, fill=INK, anchor='m', font=None, gap=0.28):
+    """Each word rises out of its own slot as it is spoken. times: one start per word, or a
+    single start (words then follow 0.09 s apart)."""
+    f = (font or F_HEAD)(size)
+    ws = s.split(' ')
+    if not isinstance(times, (list, tuple)):
+        times = [times + i * 0.09 for i in range(len(ws))]
+    d = ImageDraw.Draw(layer)
+    widths = [d.textlength(x, font=f) for x in ws]
+    total = sum(widths) + gap * size * (len(ws) - 1)
+    x = xy[0] - total / 2 if anchor == 'm' else (xy[0] - total if anchor == 'r' else xy[0])
+    hh = int(size * 1.35)
+    for word, wd, st in zip(ws, widths, times):
+        if t > st:
+            p = min(1.0, sp(t, st))
+            tile = Image.new('RGBA', (int(wd) + 8, hh), (0, 0, 0, 0))
+            ImageDraw.Draw(tile).text((4, hh * 0.5 + (1 - p) * hh * 0.9), word, font=f, fill=fill + (int(255 * fade(t, st, 0.25)),), anchor='lm')
+            layer.alpha_composite(tile, (int(x - 4), int(xy[1] - hh / 2)))
+        x += wd + gap * size
+
+
+def tag(layer, xy, s, size, t, start, bg=RED, fg=CREAM, anchor='m'):
+    """A red editorial label: the bar sweeps across, then the words rise inside it."""
+    if t < start:
+        return
+    f = F_HEAD(size)
+    tw = ImageDraw.Draw(layer).textlength(s, font=f)
+    pad = size * 0.35
+    w_, h_ = tw + pad * 2, size * 1.45
+    x0 = xy[0] - w_ / 2 if anchor == 'm' else xy[0]
+    y0 = xy[1] - h_ / 2
+    k = ease_out_cubic((t - start) / 0.35)
+    ImageDraw.Draw(layer).rectangle((x0, y0, x0 + w_ * k, y0 + h_), fill=bg + (240,))
+    words(layer, (x0 + pad, xy[1]), s, size, t, start + 0.18, fill=fg, anchor='l')
+
+
+def underline(layer, x0, x1, y, t, start, width=9, seed=0):
+    vox.marker_line(layer, [(x0, y + 2), ((x0 + x1) / 2, y - 3), (x1, y + 1)], ease_out_cubic((t - start) / 0.45), width, seed=seed)
+
+
+def kicker(layer, t, n, title, start=0.4, hold=5.5):
+    """Chapter label resting on the background's bottom-left rule."""
+    if t < start or t > start + hold + 0.8:
+        return
+    op = fade(t, start, 0.4) * (1 - ease((t - start - hold) / 0.8))
+    ov = Image.new('RGBA', (900, 70), (0, 0, 0, 0))
+    d = ImageDraw.Draw(ov)
+    d.text((0, 35), f'{n:02d}', font=F_HEAD(34), fill=RED + (255,), anchor='lm')
+    s = title.upper()
+    m = int(min(len(s), max(0, t - start - 0.25) * 30))
+    d.text((70, 35), s[:m], font=F_TYPE(30), fill=INK + (255,), anchor='lm')
+    layer.alpha_composite(alpha_mul(ov, op), (64, 925))

@@ -49,6 +49,21 @@ Traits that worked when this was the user's reference:
 
 The reference sheets were book-cover cards with circles, triangles, dot-lines and a bookmark icon. Tell the model to ignore all of these.
 
+### Ready-to-copy prompt shape (used on A Brief History of Time, ChatGPT)
+
+Two style lines, then one line per asset. Give each asset as its own complete code block.
+
+```
+Use ONLY the drawing style of the attached image: dark navy-indigo ink outline; dark areas as solid masses cut by fine cream lines; large flat hard-edged shadows in deep indigo, muted violet and periwinkle-lavender; cream highlights; no gradients; tiny coral-red accents only.
+Ignore the circles, triangles, dots and lines. Do not copy the person.
+
+Paint: <scene>. Fill the whole 16:9 frame edge to edge, no empty paper border. No text.
+```
+
+Cut-outs end instead with: `Draw: <object>. Fill every surface with flat colour, nothing left paper-white. Plain empty ivory background. One object only, fully visible. No text.`
+(The reference left faces paper-coloured; asking for filled surfaces keeps the cut-out clean.)
+A follow-up asset in the same chat can say: `Same <object> and exact same drawing style as the previous image. Draw it <change>.`
+
 ## Workflow: master sheets first (storybook style, text-only tools)
 
 1. **Masters.** Generate one character master sheet per main character with **no reference image**. The user picks the version closest to their visual guide.

@@ -1,21 +1,28 @@
 ---
 name: paper-explainer-video
-description: Build a YouTube educational explainer video (book summary, history, science, biography) in a Vox-style editorial paper-collage look from the user's narration clips and transcript. Use when the user wants an explainer or summary video made from voice-over audio. It covers storybook-style asset prompts, clean cut-outs, scenes synced to the spoken word (timing created with each act), contact-sheet QC and a full-quality 1080p render done by Claude in the session. Triggers include "make a video like the Red Rising one", "explainer video from my narration", "paper collage / Vox style video", "book summary video".
+description: Build a YouTube educational explainer video (book summary, history, science, biography) in a Vox-style editorial paper-collage look from the user's narration clips and transcript. Use when the user wants an explainer or summary video made from voice-over audio. It covers the storyboard, a per-episode animated background theme, reference-image asset prompts, clean cut-outs, physical scrapbook animations (photo drops, page flips, unfolding documents, tear reveals, stamps, camera zooms into images) synced to the spoken word, contact-sheet QC and a full-quality 1080p render done by Claude in the session. Triggers include "make a video like the Red Rising one", "explainer video from my narration", "paper collage / Vox style video", "book summary video".
 ---
 
 # Paper-collage explainer video
 
-Made for the *Red Rising* explainer (7:38, 8 acts, 26 narration clips). The same pipeline
-works for any narrated explainer.
+Made for the *Red Rising* explainer (7:38, 8 acts, 26 narration clips), then upgraded on
+*A Brief History of Time* (4:19, 6 acts, 15 clips) into a fully art-directed motion system.
+The same pipeline works for any narrated explainer.
 
 **What the output looks like:**
 
-- a locked grey paper background (`#DAD9D5`);
-- hand-illustrated cut-outs, each with an offset red marker stroke (`#E04329`) and a drop shadow;
-- a torn-paper foreground strip;
-- painted plates shown as torn photo prints;
-- documents, stamps, typed captions and marker lines drawn in code;
-- spring entrances, with every reveal and cut landing on the spoken word.
+- an **animated editorial background** per episode: cream paper with grain and fibres, large
+  flat textured terracotta and beige shapes anchored to the corners, translucent diagonal
+  bands, thin lines and arcs that extend and retract, dot grids that breathe, an open centre;
+  its shapes and arrangement are chosen from the episode's subject (`themes.py`);
+- photographs and painted plates as **torn prints**, documents, newspaper clippings and
+  cut-outs that behave like **physical paper**: they drop, slide with friction, unfold, flip,
+  stack, tear and get stamped (`presets.py`);
+- a **virtual camera** with three-depth parallax, push-ins and zooms into a single image;
+- **word-synced typography**: words rise from their own slot as they are spoken, red labels
+  sweep in, marker circles and underlines draw on;
+- **torn-paper transitions** between shots, never crossfades;
+- every reveal, camera move and cut lands on the spoken word.
 
 **Defaults:** 1920×1080, 30 fps, H.264. The final render uses CRF 12.
 
@@ -26,52 +33,59 @@ Keep everything in one folder; the scripts run from inside it, or set `VOX_PROJE
 ```
 project/
   audio/1.wav 1.txt 2.wav 2.txt ...   narration clips plus the exact transcript of each
-  assets/                             APPROVED, leftover-checked PNGs only
+  assets/                             APPROVED, leftover-checked images only
+  episode.json                        {"theme": "cosmic_atlas"}  the episode's background theme
   timing/words.json, words.txt        created automatically as each act is built
   act1.py act2.py ...                 one file per act (copy templates/act_template.py)
   out/                                renders
 ```
 
-Install: `pip install pillow numpy scipy faster-whisper`, plus `ffmpeg` on PATH.
+Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg` on PATH.
 
 `SK` below means this skill's folder, e.g. `.claude/skills/paper-explainer-video`.
+
+**Engine files** (all in `SK/scripts`):
+
+| File | What it holds |
+|---|---|
+| `vox.py` | fonts, colours, word timing (`make_cue`), documents, marker lines, audio mastering, render |
+| `style.py` | `Shot` layers, camera and parallax, torn transitions, `words`, `tag`, `underline`, `kicker` |
+| `presets.py` | the 12 physical paper animations and item builders (prints, clippings, text, SVG) |
+| `themes.py` | per-episode background themes, all in the editorial design language |
+| `bg_motion.py` | the original editorial background, and theme selection from `episode.json` |
 
 ## Phases
 
 ### 1. Script → acts
 
-- **Read every transcript.** The transcript is the source of truth: every visual must illustrate a line that is actually spoken. Don't invent facts, and don't put numbers on screen that the narration does not state.
+- **Read every transcript.** The transcript is the source of truth: every visual must illustrate a line that is actually spoken. Don't invent facts, and don't put numbers on screen that the narration does not state (no ages, no dates, no headlines it doesn't say).
 - **Group the clips into acts** of 40–90 s, each with a title.
-- **Plan the shots.** For each act, write a shot list: transcript sentence → visual → which assets → the words that trigger each reveal.
+- **Plan the shots.** For each act, write a shot list: transcript sentence → visual → which assets → which preset → the words that trigger each reveal.
 
-### 2. Visual plan and asset list
+### 2. Storyboard, background theme, asset list
 
-- **Get the user's guide.** If the user has a visual guide, follow it exactly. Ask for it if there isn't one.
+- **Show the storyboard first** on a Design canvas artifact: an overview board plus one board per act. Each shot shows its cue words, the on-screen text, the visual, and whether each asset is drawn in code or needed from the user.
+- **Choose the episode's background theme** from the subject (see "Background themes" below), set it in `episode.json`, and show the user a still plus a 15 s preview (`python SK/scripts/bg_motion.py out/bg_preview.mp4 15`) before any act uses it.
 - **Split the assets** into:
   - (a) things the code draws (see `references/prompts.md`, "Things code draws better");
   - (b) things to ask the user for: characters, places, creatures, real people.
-- **Ask for anything that would look bad drawn in code.** Never fake a face, an animal or a landscape with shapes.
-- **Show the storyboard first.** For long projects, put it on a Design canvas artifact before generating anything.
+- **Real people come only from the user's own photographs**, used as torn prints. Never redraw or generate a likeness.
 
 ### 3. Asset prompts
 
-- **Ask which tool and which style.**
-  - Ask which image tool the user generates with (ChatGPT, Midjourney, others).
-  - Ask whether they have reference images for the style.
-  - Default style: storybook (`references/prompts.md`, CH block).
-  - If the user brings their own style references, use them. One video uses one style throughout.
-- **Reference image plus a short prompt** (see `references/prompts.md`, "Reference-image workflow"). This is the default with ChatGPT and any tool that accepts images.
-  - Long, detailed style descriptions made the results look *nothing* like the user's references. The image carries the style; the words only name the subject.
-  - Analyse the references: name only the 4–5 visual traits that matter, and the things in them to ignore (UI cards, icons, geometric overlays, the person depicted).
-- **One strong single figure first.** No multi-pose sheets until the style is locked. Then the approved figure becomes the reference for every other pose and character.
-- **Fix with short follow-ups**, one change per message ("same image, remove the lines").
-- **Never anime.** If outputs drift toward anime or away from the references, shorten and refocus the prompt. Don't add more words, and don't accept the drift.
+- **Ask which tool and which style.** Ask which image tool the user generates with (ChatGPT, Midjourney, others) and whether they have reference images.
+- **Reference image plus a short prompt** (see `references/prompts.md`, "Reference-image workflow"). Crop the reference for the user to the single cleanest figure, with no UI, cards or icons.
+  - Name only the 4–5 visual traits that matter, and the things in the reference to ignore.
+  - Long style descriptions made the results look *nothing* like the references.
+- **Give every prompt complete and ready to copy**, one code block per asset, numbered (`P01` plates, `C01` cut-outs). Do the first one alone; once approved, it becomes the style reference for the rest.
+- **Plates** say "Fill the whole 16:9 frame edge to edge"; **cut-outs** say "Fill every surface with flat colour, nothing left paper-white. Plain empty ivory background", so the cut survives.
+- **Fix with short follow-ups**, one change per message. **Never anime.**
 
 ### 4. Cut-outs: check every asset before use
 
 Ask what each image is before cutting it:
 
-- **Has its own painted background** (close-ups, scene plates, gas shots): use it as a `PhotoCard` as-is. Don't cut it out, and don't add a background behind it.
+- **Has its own painted background** (scenes, plates): use it as a print as-is. Don't cut it out, and don't add a background behind it.
 - **A figure on plain ivory**: cut it out.
 
 ```
@@ -79,109 +93,121 @@ python SK/scripts/cutout.py sheet.png assets/hero_standing.png [--crop x0,y0,x1,
 python SK/scripts/check_cutout.py out/check.png assets/hero_standing.png ...
 ```
 
-Choose the mode by what the figure is made of:
-
 | Mode | When to use it |
 |---|---|
 | `standard` | dark or saturated costumes. If eyes, teeth or lamp glass get holed, raise `--head` (0.2–0.35). |
-| `gentle` | gold, cream or pale costumes close to the paper colour. Use it when `standard` punches holes in the costume. |
-| `edge` | near-paper skin, faces in close-up, pale horses or animals. It fills holes and closes notches so the red stroke never shows through. |
+| `gentle` | gold, cream or pale costumes close to the paper colour. |
+| `edge` | near-paper skin, faces in close-up, pale animals. Fills holes so nothing shows through. |
 
-**Open the preview image and look at it.**
-
-- On magenta, any paper leftover (halo, pocket between arm and body, fringe) is obvious.
-- On dark, any pale outline glow is obvious.
-- Re-cut with another mode or crop until both are clean. Only clean files go into `assets/`.
-- The user caught leftovers several times on the first project. This check is not optional.
+**Open the preview and look at it**, on magenta and on dark. Re-cut until both are clean. Only clean files go into `assets/`. This check is not optional.
 
 ### 5. Acts, with their word timing
 
 Build the acts one at a time. Word timing is created **together with each act**, not as a separate step:
 
-- **Automatic timing.** When `actN.py` runs `cue = make_cue(CLIPS)`, any clip in `CLIPS` that has no timing yet is aligned on the spot. That uses faster-whisper `small.en`, locally, with the clip's `.txt` as the prompt so names are spelled right. The result is saved to `timing/words.json` and `timing/words.txt`.
-- **Order for each act:**
-  1. Write `CLIPS`.
-  2. Run the act once (e.g. the contact-sheet command in phase 6). This creates its timing.
-  3. Open `timing/words.txt` (`word@seconds`) to pick the cue phrases.
-  4. Write the scenes against those phrases.
+- When `actN.py` runs `cue = make_cue(CLIPS)`, any clip without timing is aligned on the spot (faster-whisper `small.en`, locally, prompted with the clip's `.txt`) and saved to `timing/words.json` and `timing/words.txt`.
+- **Order for each act:** write `CLIPS`; run the act once (the contact-sheet command creates the timing); open `timing/words.txt` (`word@seconds`) to pick cue phrases; write the scenes.
 - **Re-align a clip** whose audio or transcript changed: `python SK/scripts/align.py 7`.
-- **If a phrase is not found:** check `words.txt` for the spelling, use the nth occurrence, or use a neighbouring two-word phrase that is unique.
 
 Copy `templates/act_template.py` to `actN.py`. Rules:
 
-- **`CLIPS`** lists the act's clips, and **`cue = make_cue(CLIPS)`**.
-- **Timing:**
-  - Each scene is `sX(t, D)`, and every reveal uses `w(cue(clip, 'phrase'))`.
-  - Cuts are `cue(...) - LEAD` in `SHOTS`. No hand-typed seconds.
-  - `END = cue.total`. In the last act, use `+ 3.0` to hold the end title; the audio is padded 4 s.
-- **Layer order:**
-  1. `background()`
-  2. plates, sheets and cut-outs
-  3. `c.alpha_composite(FG)` (the foreground strip)
-  4. text, stamps and marker marks on top
-- **Layout:** one idea per shot. Big text: a headline of 2–4 words. Typed captions are short quotes from the narration.
-- **Motion and side:**
-  - Use the `side=` of a cut-out to put the red stroke on the far side.
-  - Use slow `zoom=lerp(1, 1.08, ease(t/D))` push-ins on plates.
-- **Violence is implied only:** a silhouette, a stamp, a cut away. Nothing graphic.
+- **Scenes** are `sX(t, D)` returning a `Shot`. Every reveal uses `w(cue(clip, 'phrase'))`; cuts are `cue(...) - LEAD` in `SHOTS`; `END = cue.total` (last act: `+ 3.0` to hold the end title).
+- **Layers — put each thing on the right one:**
+  - `s.mid`: the paper on the desk (prints, documents, clippings, cut-outs) **and the marks made on it** (marker circles, stamps). Marks on `s.top` drift off their words when the camera zooms.
+  - `s.top`: headline type that is part of the composition.
+  - `s.hud`: captions, red labels, the chapter kicker. Fixed to the screen, so camera zooms never push them off-frame.
+- **Camera — one purposeful move per shot:**
+  - `s.camera(z0, z1, focus0, focus1)`: slow drift across the shot (1.00 → 1.03–1.08).
+  - `s.push(at, dz, focus)`: push in when something becomes relevant; the focus stays put.
+  - `s.zoom_to(rect, at, dur, fill, back_at=)`: travel from the full composition into one image.
+- **Cuts:** the third item of a `SHOTS` entry picks the transition: `'lr'`/`'rl'` torn wipe, `'up'` new sheet laid over. Vary them. Elements already present when a shot opens start at `ENTER`, so the wipe reveals the new composition landing.
+- **Typography:** `words(layer, xy, text, size, t, [one cue per word])` (each word rises as it is spoken), `tag(...)` for a red label, `underline(...)`, `kicker(s.hud, t, n, 'Act title')` on the first shot of each act. Big type: 2–4 words. Typed captions (`font=F_TYPE`) are short quotes from the narration.
+- **Layout:** one idea per shot; keep decoration-free space in the centre; nothing over the corner shapes that matters (red on terracotta is unreadable).
+- **Violence is implied only.**
 
-Engine reference (all in `scripts/vox.py`):
+### 6. Physical scrapbook presets
 
-- **Objects:** `Cutout(img, h).place(c, cx, bottom, t, start, side=)`; `PhotoCard(img, width, rot, seed).place(c, cx, cy, t, start, zoom=)`.
-- **Sheets:** `document(w, h, lines, title=)` plus `place_sheet(...)`.
-- **Text and marks:**
-  - `headline` and `typewriter`;
-  - `stamp`;
-  - `marker_line`, `marker_circle` and `strike`;
-  - `shake(img, t, hits)`.
-- **Layout:** `torn_mask` and `foreground()`.
-- **Constants:** `W`, `H`, `PAPER`, `INK`, `RED`, `CREAM`.
+All in `presets.py`; every one is configurable (position, start, duration, rotation) and takes any RGBA item: `print_card(photo)`, transparent cut-out PNGs, `load('x.svg')`, `text_item('WORD', size)`, `paper_card(...)`, `clipping(...)`, `document(...)`.
 
-### 6. QC before rendering
+| # | Preset | Use it when the narration… |
+|---|---|---|
+| 1 | `page_flip` | turns to a new chapter, a book is opened, "least finished" |
+| 2 | `drop` | introduces a photograph or person |
+| 3 | `unfold` | reads out a record, letter, diagnosis, chart |
+| 4 | `clipping` + `slide` | mentions publication, the press, a public event |
+| 5 | `tear_reveal` | reveals who or what something is ("The man is…") |
+| 6 | `stack` | lists people, years, editions, evidence |
+| 7 | `stamp_hit` | gives a verdict, a date, a refusal (pass `shot=s` for the kick) |
+| 8 | `mask_reveal` | opens an act or a memory: the image appears through a torn hole |
+| 9 | `slide` | moves a document into the story ("Back in England sits…") |
+| 10 | `assemble` | something comes together or breaks apart (`reverse=True`) |
+| 11 | `flip` | a before/after: young → old, theory → result |
+| 12 | `Shot.zoom_to` | the camera should single out one image from the composition |
+
+**Do not animate everything at once.** One physical action per beat, chosen by what the narration is doing; the rest of the frame stays still or drifts. Mix durations (0.8–1.6 s) so nothing feels repetitive.
+
+### 7. Background themes
+
+Every episode gets its own background, but every theme speaks the design language of the user's original editorial background: the same paper, flat textured terracotta + beige corner shapes, translucent diagonal bands, thin dark lines and arcs, breathing dot grids, an open centre. Only the shapes and their arrangement change with the subject. Do not invent a new visual style (dark grounds, heavy patterns) unless the user asks.
+
+| Theme | Subject | Its own shapes |
+|---|---|---|
+| `editorial` | default | the original reference: circles, bands, blocks |
+| `cosmic_atlas` | science + space + biography | sun with orbit arcs and a travelling moon, light-cone bands, ringed planet |
+| `archive` | history | newspaper block, wax seal, sloping band |
+| `laboratory` | science | hexagons, molecule, terracotta triangle |
+| `clinic` | medicine | cell circles, capsule, cross, travelling heartbeat |
+| `circuit` | technology | stacked blocks, circuit lines with a travelling dot |
+| `album` | biography | tilted prints with tape, photo corners |
+| `deep_space` | space | indigo planet with orbits, small terracotta moon |
+| `ledger` | economics | bar blocks, line chart, ledger block |
+
+**New theme:** add a `Theme(name, label, [elements], paper_colour, seed)` in `themes.py` from the element vocabulary (`shape`, `terra`, `hline`, `vline`, `dots`, `orbiter`, `tracer`, `diag`). Keep big shapes off the centre, keep terracotta as the accent, give every element its own drift period (20–45 s). Show the user a board of themes and a 15 s preview before using it.
+
+### 8. QC before rendering
 
 ```
-cd project && PYTHONPATH=SK/scripts python act1.py sheet out/act1_sheet.png 2 6 10 15 22
+cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 6 10 15 22
 ```
 
-**Look at the contact sheet.** Pick one moment per scene, just after its last reveal. Check for:
+**Look at the contact sheet.** Pick moments just after each reveal **and** moments mid-transition and mid-preset. Check for:
 
 - cut-out leftovers;
-- text overlapping a figure, or running off-frame;
-- a plate taller than 1080 (use a smaller width for portrait plates);
-- empty frames;
-- things that don't match the line being spoken.
+- text overlapping a figure, running off-frame, or red text on a terracotta shape;
+- marks (circles, stamps) still sitting on their words during camera moves;
+- a black edge during a zoom (the background must always cover the frame);
+- empty frames revealed by a wipe (use `ENTER` for elements present at the cut);
+- anything on screen the narration does not say.
 
-Fix them, then re-check. On long projects, show the user sheets or a draft per act and get approval before moving on.
+Fix, re-check. Show the user sheets or a draft per act and get approval before moving on.
 
-### 7. Render: Claude renders the final, in this session
-
-The final video is rendered **here, by Claude, on Claude's machine**. Not on the user's PC, and not on Kaggle. The user only receives the finished file.
+### 9. Render: Claude renders the final, in this session
 
 ```
 cd project && python SK/scripts/render_all.py --acts 3 --draft   # review render of one act
 cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12, slow, 320k AAC, all acts
 ```
 
-- **Run renders in the background** (Bash `run_in_background`). Rendering is CPU-bound: about 1 min of render per 5 s of video per process, so a full 7–8 min film takes over an hour. Keep working, or wait for the completion notice. Don't poll with sleep.
-- **Act drafts:** after each act is approved on its contact sheet, render a `--draft` of that act and send it with `SendUserFile`, so the user can review it while you build the next act.
-- **Final:** when all acts are approved, render without `--draft`.
-  - It writes one file per act, then joins them losslessly into `out/full.mp4`.
-  - Narration is mastered automatically: EQ, 3:1 compression, −16 LUFS.
-  - Check the duration with ffprobe and spot-check a few frames.
-  - Then send `out/full.mp4` to the user with `SendUserFile`.
-- **Files over 100 MB** stay out of git (`.gitignore`). Send them directly.
-- **Render scripts for the user's own PC:** only if the user explicitly asks. The default is: Claude renders, the user downloads.
+- **Run renders in the background** (Bash `run_in_background`) and wait for the completion notice; don't poll with sleep. With the full motion system an act renders at roughly 13 s of render per 1 s of video per process.
+- Don't run two renders at once on a small machine; queue the second behind the first.
+- **Act drafts:** after each act is approved on its contact sheet, render a `--draft` and send it with `SendUserFile`.
+- **Final:** all acts, CRF 12, joined losslessly into `out/full.mp4`, narration mastered to −16 LUFS. Check the duration with ffprobe, spot-check frames, then send it.
+- **Files over 100 MB** stay out of git. Send them directly.
 
 ## Rules learned from the user (keep them)
 
 1. Base everything on the transcript.
 2. Ask for assets that would look bad drawn in code.
-3. Storybook illustration, not anime, in prompts and in what you accept.
-4. Check every asset for background leftovers before using it (magenta check). Never put an asset with leftovers in a render.
-5. Never add a background behind an image that already has one. Flat paper goes only behind cut-outs.
-6. The film should feel like an explainer, not a movie. Paper collage, documents and text carry the ideas; plates are illustrations pinned to the page.
-7. Every cut and reveal lands on the word it illustrates.
-8. Real-person likeness, such as an author's portrait, comes only from an image the user provides.
-9. Claude renders the final at full quality in the session and sends the file. Never push rendering onto the user.
+3. Storybook / editorial illustration, never anime, in prompts and in what you accept.
+4. Check every asset for background leftovers before using it (magenta check).
+5. Never add a background behind an image that already has one.
+6. The film should feel like an explainer, not a movie: paper collage, documents and type carry the ideas.
+7. Every cut, reveal and camera move lands on the word it illustrates.
+8. Real-person likeness comes only from images the user provides, shown as photo prints.
+9. Claude renders the final at full quality in the session and sends the file.
 10. Create word timing as each act is built, never as a separate pass afterwards.
-11. Asset prompts are short and lean on a reference image. Don't pile on style detail: it made the outputs look nothing like the references.
+11. Asset prompts are short, lean on a reference image, and are given complete and ready to copy.
+12. **The user approves visual changes before they go into the film.** Build a preview (still, 15 s clip or demo reel) and wait for the go-ahead before re-rendering acts.
+13. Backgrounds follow the user's original editorial design language; each episode gets a fresh arrangement of it, never a different style.
+14. No grey torn-paper strip along the bottom: the corner shapes anchor the frame.
+15. Elements behave like physical paper (lift, shadow, overshoot, settle); never PowerPoint-style fades or flat slides.
