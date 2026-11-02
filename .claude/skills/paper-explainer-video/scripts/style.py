@@ -21,6 +21,20 @@ from vox import W, H, FPS, INK, RED, CREAM, F_HEAD, F_TYPE, F_SERIF, spring, eas
 import bg_motion
 
 PAPER_BACK = (241, 231, 212)
+
+# ---- sound-effect events: registered while frames are drawn, turned into audio by sfx.py ----
+EVENTS = {}
+
+
+def event(kind, t_abs, x=None, **params):
+    """Register a sound at absolute act time t_abs (seconds), at screen x (for panning)."""
+    EVENTS[(kind, round(t_abs, 3), None if x is None else round(x))] = params
+
+
+def sfx(kind, at, x=None, **params):
+    """Manual cue from a scene: at is scene-local seconds (e.g. w(cue(...)))."""
+    event(kind, vox._SCENE_START + at, x, **params)
+
 ENTER = -0.36   # scene-local start for elements already present when the wipe reveals the shot
 
 
@@ -74,6 +88,7 @@ class Shot:
     def zoom_to(self, rect, at, dur=1.4, fill=0.92, back_at=None, back_dur=1.2):
         """Camera travels from the full composition into one image (rect = x0, y0, x1, y1),
         optionally pulling back out at back_at."""
+        sfx('zoom', at, None, dur=dur)
         k = ease_io((self.t - at) / dur)
         if back_at is not None:
             k *= 1 - ease_io((self.t - back_at) / back_dur)
@@ -153,6 +168,9 @@ def make_frame(shots, end, t, clips, pre=0.38, post=0.17):
     runs continuously across the whole film."""
     T = sum(vox._DUR[c] for c in vox._DUR if c < min(clips)) + t
     starts = [s[0] for s in shots] + [end]
+    for j in range(1, len(shots)):            # transition sounds, at the cut
+        kind = shots[j][2] if len(shots[j]) > 2 else ('lr', 'up', 'rl')[j % 3]
+        event('sheet' if kind == 'up' else 'wipe', starts[j], W * (0.3 if kind == 'lr' else 0.7 if kind == 'rl' else 0.5))
 
     def render(j, tt):
         s0, fn = shots[j][0], shots[j][1]
@@ -184,6 +202,7 @@ class Photo:
         self._cache = None
 
     def place(self, layer, cx, cy, t, start, frm='up', dist=420, tilt=7.0):
+        sfx('drop', start, cx, gain=0.4)
         if t < start:
             return
         p = sp(t, start)
@@ -228,6 +247,9 @@ def words(layer, xy, s, size, t, times, fill=INK, anchor='m', font=None, gap=0.2
     total = sum(widths) + gap * size * (len(ws) - 1)
     x = xy[0] - total / 2 if anchor == 'm' else (xy[0] - total if anchor == 'r' else xy[0])
     hh = int(size * 1.35)
+    if font is F_TYPE:
+        for word, st in zip(ws, times):
+            sfx('type', st, xy[0], n=len(word), cps=14)
     for word, wd, st in zip(ws, widths, times):
         if t > st:
             p = min(1.0, sp(t, st))
@@ -239,6 +261,7 @@ def words(layer, xy, s, size, t, times, fill=INK, anchor='m', font=None, gap=0.2
 
 def tag(layer, xy, s, size, t, start, bg=RED, fg=CREAM, anchor='m'):
     """A red editorial label: the bar sweeps across, then the words rise inside it."""
+    sfx('swipe', start, xy[0])
     if t < start:
         return
     f = F_HEAD(size)
@@ -253,11 +276,13 @@ def tag(layer, xy, s, size, t, start, bg=RED, fg=CREAM, anchor='m'):
 
 
 def underline(layer, x0, x1, y, t, start, width=9, seed=0):
+    sfx('marker', start, (x0 + x1) / 2, dur=0.45)
     vox.marker_line(layer, [(x0, y + 2), ((x0 + x1) / 2, y - 3), (x1, y + 1)], ease_out_cubic((t - start) / 0.45), width, seed=seed)
 
 
 def kicker(layer, t, n, title, start=0.4, hold=5.5):
     """Chapter label resting on the background's bottom-left rule."""
+    sfx('type', start + 0.25, 200, n=len(title.replace(' ', '')) + 2, cps=30)
     if t < start or t > start + hold + 0.8:
         return
     op = fade(t, start, 0.4) * (1 - ease((t - start - hold) / 0.8))

@@ -438,11 +438,40 @@ def master_audio(clips, out_wav):
                     '-af', chain, '-ar', '48000', '-ac', '2', out_wav], check=True)
 
 
+def collect_events(frame_fn, end, step=0.5):
+    """Sound events are registered as scenes draw. One frame every `step` s visits every scene
+    (scenes register all their events whatever t is), so this is cheap."""
+    import style
+    style.EVENTS.clear()
+    t = 0.0
+    while t < end:
+        frame_fn(t)
+        t += step
+    return [(k[0], k[1], k[2], p) for k, p in style.EVENTS.items()]
+
+
+def _with_sfx(frame_fn, end, wav, workdir):
+    if os.environ.get('VOX_SFX', '1') == '0':
+        return wav
+    try:
+        import style, sfx
+    except ImportError:
+        return wav
+    events = collect_events(frame_fn, end)
+    if not events:
+        return wav
+    out = os.path.join(workdir, 'mix.wav')
+    sfx.mix_into(wav, events, out, level_db=float(os.environ.get('VOX_SFX_DB', '-3')))
+    print(f'sfx: {len(events)} sound events mixed', flush=True)
+    return out
+
+
 def render_video(frame_fn, end, clips, out, workdir):
     os.makedirs(workdir, exist_ok=True)
     wav = os.path.join(workdir, 'mastered.wav')
     master_audio(clips, wav)
     n = int(round(end * FPS))
+    wav = _with_sfx(frame_fn, end, wav, workdir)
     p = subprocess.Popen(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-',
                           '-i', wav, '-c:v', 'libx264', '-preset', os.environ.get('VOX_PRESET', 'medium'), '-crf', os.environ.get('VOX_CRF', '18'),
                           '-tune', 'animation', '-profile:v', 'high', '-pix_fmt', 'yuv420p',

@@ -23,6 +23,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 import vox
 from vox import INK, RED, CREAM, F_HEAD, F_SERIF, F_BODY, F_TYPE, torn_mask, lerp
+from style import sfx
 
 PAPER_BACK = (236, 226, 206)
 SHADOW = (40, 26, 14)
@@ -252,6 +253,7 @@ def page_flip(layer, page, hinge_x, cy, t, start, dur=1.15, opening=False, persp
     """A page hinged on its left edge at hinge_x. opening=False: the page turns over from the
     left and lands on the right (revealing its front). opening=True: it lifts off the right
     side and turns away (revealing whatever was drawn beneath it)."""
+    sfx('pageflip', start, hinge_x, dur=dur)
     u = ease_io((t - start) / dur)
     if t < start:
         u = 0.0
@@ -274,6 +276,7 @@ def page_flip(layer, page, hinge_x, cy, t, start, dur=1.15, opening=False, persp
 def drop(layer, im, cx, cy, t, start, rot=-3.0, spin=16.0, height=1.0, speed=1.0, key=None, from_y=-140):
     """A print dropped onto the desk: starts lifted (bigger, soft far shadow), spins down,
     overshoots a touch, settles flat."""
+    sfx('drop', start / 1.0, cx, gain=0.5)
     if t < start:
         return
     u = (t - start) * speed
@@ -290,6 +293,8 @@ def drop(layer, im, cx, cy, t, start, rot=-3.0, spin=16.0, height=1.0, speed=1.0
 def unfold(layer, doc, cx, cy, t, start, dur=1.3, enter=0.45, crease=True):
     """A letter folded in three: it slides in folded, then the top flap opens toward the
     viewer, then the bottom flap. Fold creases stay visible."""
+    sfx('slide', start - enter, cx, dur=enter + 0.3)
+    sfx('unfold', start, cx, dur=dur)
     w, h = doc.width, doc.height
     ph = h / 3
     x0, x1 = cx - w / 2, cx + w / 2
@@ -333,6 +338,7 @@ def unfold(layer, doc, cx, cy, t, start, dur=1.3, enter=0.45, crease=True):
 def slide(layer, im, frm, to, t, start, dur=1.1, rot=-2.0, lag=9.0, key=None):
     """Pushed across the desk: quick start, friction-slowed arrival with a tiny overshoot.
     The sheet lags into a rotation while moving and straightens as it stops."""
+    sfx('slide', start, to[0], dur=dur)
     if t < start:
         return
     u = (t - start) / dur
@@ -378,6 +384,7 @@ _tear_halves.covers = {}
 def tear_reveal(layer, cover, cx, cy, t, start, dur=0.95, seed=3, spread=760):
     """A paper cover over (cx, cy) is ripped down the middle and pulled apart.
     Draw the hidden image first, then call this."""
+    sfx('tear', start, cx, dur=dur)
     cid = id(cover)
     _tear_halves.covers[cid] = cover
     if t < start:
@@ -432,6 +439,7 @@ def stamp_image(s, size, colour=RED):
 def stamp_hit(layer, s, cx, cy, t, start, size=90, ang=-8.0, shot=None, descent=0.2):
     """The stamp drops from above the page (big, faint, shadowed) and hits at `start`;
     a split second of ink spread, then it sits flat. Pass shot to kick the camera."""
+    sfx('stamp', start, cx)
     if shot is not None:
         shot.hit(start)
     if t < start - descent:
@@ -452,6 +460,7 @@ def stamp_hit(layer, s, cx, cy, t, start, size=90, ang=-8.0, shot=None, descent=
 def mask_reveal(layer, im, cx, cy, t, start, dur=1.2, seed=5, origin=(0.5, 0.5), lip=True):
     """The image is revealed through a growing, irregular torn hole, with a paper lip and a
     soft inner shadow around the opening."""
+    sfx('reveal', start, cx, dur=dur)
     if t < start:
         return
     u = ease_out((t - start) / dur, 3)
@@ -521,6 +530,7 @@ _pieces.items = {}
 
 def assemble(layer, im, cx, cy, t, start, n=7, dur=0.9, stagger=0.09, seed=4, reverse=False):
     """A cut-out flies together from irregular paper pieces (reverse=True: it breaks apart)."""
+    sfx('assemble', start, cx, n=n, stagger=stagger, dur=dur, reverse=reverse)
     key = id(im)
     _pieces.items[key] = im
     pcs = _pieces(key, n, seed)
@@ -545,6 +555,7 @@ def assemble(layer, im, cx, cy, t, start, n=7, dur=0.9, stagger=0.09, seed=4, re
 def flip(layer, front, back, cx, cy, t, start, dur=0.85, persp=0.12, axis='y'):
     """A print lifts, flips over its vertical (or horizontal) axis and lands showing a
     second photograph."""
+    sfx('flip', start, cx, dur=dur)
     u = 0.0 if t < start else ease_io((t - start) / dur)
     a = math.pi * u
     im = front if math.cos(a) >= 0 else back

@@ -164,7 +164,32 @@ Every episode gets its own background, but every theme speaks the design languag
 
 **New theme:** add a `Theme(name, label, [elements], paper_colour, seed)` in `themes.py` from the element vocabulary (`shape`, `terra`, `hline`, `vline`, `dots`, `orbiter`, `tracer`, `diag`). Keep big shapes off the centre, keep terracotta as the accent, give every element its own drift period (20–45 s). Show the user a board of themes and a 15 s preview before using it.
 
-### 8. QC before rendering
+### 8. Sound effects
+
+Effects are generated in code (`sfx.py`) and synced automatically: every preset and helper registers a sound event when it draws, with its time and screen position.
+
+| Event | Sound | Registered by |
+|---|---|---|
+| `drop` | air swish, papery slap on landing | `drop`, `stack`, `Photo.place` |
+| `slide` | friction rustle that slows with the sheet | `slide`, `unfold` (entry) |
+| `unfold` | two crisp creases | `unfold` |
+| `tear` / `reveal` | paper rip (fibre crackle) / slow gentle tear | `tear_reveal` / `mask_reveal` |
+| `wipe` / `sheet` | quick rip / sheet sliding over | transitions `'lr' 'rl'` / `'up'` |
+| `stamp` | descent hiss, wooden thud, rubber knock | `stamp_hit` |
+| `flip` / `pageflip` | swish and tap / whoosh, rustle, flap | `flip` / `page_flip` |
+| `assemble` | light taps as pieces lock | `assemble` |
+| `type` | typewriter keys, one per letter | typed captions (`words(..., font=F_TYPE)`), `kicker` |
+| `marker` / `swipe` | felt-tip scratch | `underline` / `tag` |
+| `zoom` | soft low air swell | `Shot.zoom_to` |
+| `beep`, `tick` | soft monitor beep, tiny click | manual only |
+
+- **Manual cues** for things presets don't know about (marker circles, strikes, story sounds): `sfx('marker', w(cue(1, 'word')), x)` inside the scene.
+- **Mix:** each sound is varied per event (seeded, deterministic), panned to its x position, summed at −3 dB, and ducked by 7 dB while the narration speaks. Target: effects about 10 dB below the voice (stem ≈ −26 LUFS against −16).
+- `render_all.py` mixes them in automatically. `VOX_SFX=0` turns them off; `VOX_SFX_DB=-6` makes them quieter. The stem alone is written next to the mix as `mix.wav.sfx.wav`.
+- **Add audio to an already-rendered act** without re-rendering the picture: `vox.collect_events(act.frame, act.END)`, `sfx.mix_into(narration_wav, events, out_wav)`, then mux with `ffmpeg -c:v copy`.
+- **Sound must not contradict the story.** No flat-line tone when the patient survives, no gunshots for implied violence.
+
+### 9. QC before rendering
 
 ```
 cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 6 10 15 22
@@ -181,7 +206,7 @@ cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 
 
 Fix, re-check. Show the user sheets or a draft per act and get approval before moving on.
 
-### 9. Render: Claude renders the final, in this session
+### 10. Render: Claude renders the final, in this session
 
 ```
 cd project && python SK/scripts/render_all.py --acts 3 --draft   # review render of one act
