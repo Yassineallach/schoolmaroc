@@ -132,7 +132,7 @@ def s_stamp(r, p):
     knock = _band(r.normal(0, 1, m), 180, 1400) * _env(m, 0.001, 0.025)
     click = _band(r.normal(0, 1, m), 2500, 9000) * _env(m, 0.0005, 0.006)
     out[pre:] = 1.0 * thud + 0.8 * knock + 0.35 * click
-    return -0.16, _norm(out, 0.85)
+    return -0.16, _norm(out, 0.6)
 
 
 def s_reveal(r, p):
@@ -233,7 +233,7 @@ DESIGNS = dict(drop=s_drop, slide=s_slide, unfold=s_unfold, tear=s_tear, wipe=s_
 
 
 # ------------------------------------------------------------------ mixing
-def build_track(events, length, narration=None, level_db=-3.0, duck_db=-7.0):
+def build_track(events, length, narration=None, level_db=-13.0, duck_db=-9.0):
     """events: iterable of (kind, t, x, params). Returns float32 stereo (n, 2) at 48 kHz.
     narration: optional (n, 2) array; the effects duck by duck_db while it is speaking."""
     n = _sec(length)
@@ -279,7 +279,7 @@ def write_wav(path, a):
         w.writeframes((np.clip(a, -1, 1) * 32767).astype(np.int16).tobytes())
 
 
-def mix_into(narration_wav, events, out_wav, level_db=-3.0):
+def mix_into(narration_wav, events, out_wav, level_db=-13.0):
     """Narration + effects stem -> out_wav (also writes <out_wav>.sfx.wav, the stem alone)."""
     nar = read_wav(narration_wav)
     fx = build_track(events, len(nar) / SR, nar, level_db)

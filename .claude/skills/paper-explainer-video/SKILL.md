@@ -184,8 +184,8 @@ Effects are generated in code (`sfx.py`) and synced automatically: every preset 
 | `beep`, `tick` | soft monitor beep, tiny click | manual only |
 
 - **Manual cues** for things presets don't know about (marker circles, strikes, story sounds): `sfx('marker', w(cue(1, 'word')), x)` inside the scene.
-- **Mix:** each sound is varied per event (seeded, deterministic), panned to its x position, summed at −3 dB, and ducked by 7 dB while the narration speaks. Target: effects about 10 dB below the voice (stem ≈ −26 LUFS against −16).
-- `render_all.py` mixes them in automatically. `VOX_SFX=0` turns them off; `VOX_SFX_DB=-6` makes them quieter. The stem alone is written next to the mix as `mix.wav.sfx.wav`.
+- **Mix:** each sound is varied per event (seeded, deterministic), panned to its x position, summed at −13 dB, and ducked by 9 dB while the narration speaks. Target: effects about 20 dB below the voice (stem ≈ −37 LUFS against −16), loudest stamp peak ≈ −16 dBFS. The user found −10 dB under the voice too loud: keep effects subtle.
+- `render_all.py` mixes them in automatically. `VOX_SFX=0` turns them off; `VOX_SFX_DB` sets the level (default `-13`; `-17` quieter, `-9` louder). The stem alone is written next to the mix as `mix.wav.sfx.wav`.
 - **Add audio to an already-rendered act** without re-rendering the picture: `vox.collect_events(act.frame, act.END)`, `sfx.mix_into(narration_wav, events, out_wav)`, then mux with `ffmpeg -c:v copy`.
 - **Sound must not contradict the story.** No flat-line tone when the patient survives, no gunshots for implied violence.
 

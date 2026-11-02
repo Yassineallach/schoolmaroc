@@ -461,7 +461,7 @@ def _with_sfx(frame_fn, end, wav, workdir):
     if not events:
         return wav
     out = os.path.join(workdir, 'mix.wav')
-    sfx.mix_into(wav, events, out, level_db=float(os.environ.get('VOX_SFX_DB', '-3')))
+    sfx.mix_into(wav, events, out, level_db=float(os.environ.get('VOX_SFX_DB', '-13')))
     print(f'sfx: {len(events)} sound events mixed', flush=True)
     return out
 
