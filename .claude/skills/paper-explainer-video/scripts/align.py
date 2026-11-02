@@ -51,9 +51,28 @@ def align(clips):
     for n in clips:
         txt_path = os.path.join(AUD, f'{n}.txt')
         prompt = open(txt_path, encoding='utf-8').read().strip() if os.path.exists(txt_path) else None
-        segs, _ = _model.transcribe(load_audio(os.path.join(AUD, f'{n}.wav')), word_timestamps=True,
-                                    initial_prompt=prompt, beam_size=5, vad_filter=False)
-        res[n] = [{'w': w.word.strip(), 's': round(w.start, 3), 'e': round(w.end, 3)} for s in segs for w in s.words]
+        audio = load_audio(os.path.join(AUD, f'{n}.wav'))
+        want = len(prompt.split()) if prompt else None
+        best = None
+        # Whisper sometimes drops half a clip or loops the prompt at the end. Try a few settings
+        # and keep the run whose word count is closest to the transcript's.
+        for kw in (dict(initial_prompt=prompt), dict(initial_prompt=prompt, condition_on_previous_text=False),
+                   dict(initial_prompt=None, condition_on_previous_text=False)):
+            segs, _ = _model.transcribe(audio, word_timestamps=True, beam_size=5, vad_filter=False, **kw)
+            words = [{'w': w.word.strip(), 's': round(w.start, 3), 'e': round(w.end, 3)} for s in segs for w in s.words]
+            # drop hallucinated tail: zero-length words stacked at the very end
+            while len(words) > 1 and words[-1]['e'] - words[-1]['s'] < 0.02 and words[-2]['s'] >= words[-1]['s'] - 0.02:
+                words.pop()
+            if words and words[-1]['e'] - words[-1]['s'] < 0.02:
+                words.pop()
+            score = abs(len(words) - want) if want else 0
+            if best is None or score < best[0]:
+                best = (score, words)
+            if not want or score <= max(2, want * 0.05):
+                break
+        res[n] = best[1]
+        if want and best[0] > want * 0.1:
+            print(f'[timing] WARNING clip {n}: {len(res[n])} words vs {want} in transcript', flush=True)
         print(f'[timing] clip {n}: {len(res[n])} words  ' + ' '.join(x['w'] for x in res[n])[:70], flush=True)
     save_timing(res)
     return res
