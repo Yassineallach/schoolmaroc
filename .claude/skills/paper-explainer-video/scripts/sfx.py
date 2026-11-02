@@ -227,7 +227,23 @@ def s_tick(r, p):
     return 0.0, _band(r.normal(0, 1, n), 1500, 8000) * _env(n, 0.0005, 0.005) * 0.15
 
 
-DESIGNS = dict(drop=s_drop, slide=s_slide, unfold=s_unfold, tear=s_tear, wipe=s_wipe, sheet=s_sheet,
+def s_shatter(r, p):
+    """Porcelain hitting the floor: a hard click, a bright crackle burst, a few skittering bits."""
+    n = _sec(0.9)
+    out = np.zeros(n)
+    m = _sec(0.05)
+    out[:m] += _band(r.normal(0, 1, m), 1500, 9000) * _env(m, 0.0005, 0.008) * 1.5
+    burst = _sec(0.35)
+    out[:burst] += _crackle(r, burst, 6000, 2500, 12000) * _env(burst, 0.002, 0.08)
+    for _ in range(7):
+        i0 = _sec(r.uniform(0.12, 0.7))
+        k = _sec(0.025)
+        if i0 + k < n:
+            out[i0:i0 + k] += _band(r.normal(0, 1, k), 3000, 10000) * _env(k, 0.0005, 0.005) * r.uniform(0.2, 0.6)
+    return 0.0, _norm(out, 0.55)
+
+
+DESIGNS = dict(shatter=s_shatter, drop=s_drop, slide=s_slide, unfold=s_unfold, tear=s_tear, wipe=s_wipe, sheet=s_sheet,
                stamp=s_stamp, reveal=s_reveal, assemble=s_assemble, flip=s_flip, pageflip=s_pageflip,
                type=s_type, marker=s_marker, swipe=s_swipe, zoom=s_zoom, beep=s_beep, tick=s_tick)
 

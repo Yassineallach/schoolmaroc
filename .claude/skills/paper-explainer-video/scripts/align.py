@@ -51,9 +51,25 @@ def align(clips):
     for n in clips:
         txt_path = os.path.join(AUD, f'{n}.txt')
         prompt = open(txt_path, encoding='utf-8').read().strip() if os.path.exists(txt_path) else None
-        segs, _ = _model.transcribe(load_audio(os.path.join(AUD, f'{n}.wav')), word_timestamps=True,
-                                    initial_prompt=prompt, beam_size=5, vad_filter=False)
-        res[n] = [{'w': w.word.strip(), 's': round(w.start, 3), 'e': round(w.end, 3)} for s in segs for w in s.words]
+        audio = load_audio(os.path.join(AUD, f'{n}.wav'))
+        expected = len(prompt.split()) if prompt else 0
+
+        def run(p):
+            segs, _ = _model.transcribe(audio, word_timestamps=True, initial_prompt=p, beam_size=5,
+                                        vad_filter=False, condition_on_previous_text=False)
+            return [{'w': w.word.strip(), 's': round(w.start, 3), 'e': round(w.end, 3)} for s in segs for w in s.words]
+        words = run(prompt)
+        # Whisper sometimes treats a prompt identical to the speech as "already said" and skips it.
+        # If words are missing, retry with no prompt, then with only the names, and keep the most complete pass.
+        if expected and len(words) < 0.8 * expected:
+            for p in (None, ' '.join(x for x in prompt.replace('"', ' ').split() if x[:1].isupper())):
+                alt = run(p)
+                print(f'[timing] clip {n}: retry ({len(words)} of ~{expected} words) -> {len(alt)}', flush=True)
+                if len(alt) > len(words):
+                    words = alt
+                if len(words) >= 0.8 * expected:
+                    break
+        res[n] = words
         print(f'[timing] clip {n}: {len(res[n])} words  ' + ' '.join(x['w'] for x in res[n])[:70], flush=True)
     save_timing(res)
     return res
