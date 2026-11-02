@@ -44,10 +44,16 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 
 `SK` below means this skill's folder, e.g. `.claude/skills/paper-explainer-video`.
 
-**Worked example** (`SK/examples`): `brief_history_act1.py` is a complete approved act from *A Brief History of Time*:
-- camera moves, presets chosen per beat, word cues;
-- manual sound cues;
-- an `episode.json` for its theme.
+**Worked example** (`SK/examples`): the six approved acts of *A Brief History of Time* (4:19), with their `episode.json`. Read the act closest to the beat you are building:
+
+| File | Shows |
+|---|---|
+| `brief_history_act1.py` | mask reveal opening, unfold + zoom into a chart, tear reveal of a person, clipping + stamp; manual monitor beeps |
+| `brief_history_act2.py` | equations struck out, a book stack halving, portraits stacked on a timeline, zoom into a plate, dots expanding then rewinding to a point |
+| `brief_history_act3.py` | a card torn in two, a bending grid with a planet, an atom dissolving into a cloud, two cards colliding, plate → plate `flip`, event horizon circled after `zoom_to` |
+| `brief_history_act4.py` | glow + particles + shrinking disc, diagnosis unfold, shapes `assemble`, letter-card highlight, young → old photo `flip` beside a word screen |
+| `brief_history_act5.py` | a cup sliding off a table and shattering, `assemble` then `reverse` + NEVER SEEN stamp, a card flipped on its head, globe with marker arrow and loop |
+| `brief_history_act6.py` | typed title struck and corrected, a counter, stacked covers, `page_flip` with a bookmark, crowd + unfold, end title held over the last plate |
 
 `demo_presets.py` renders a numbered reel of all 12 presets on a project's own assets. Show it to the user when they ask what the animations look like.
 
@@ -87,6 +93,10 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 - **Give every prompt complete and ready to copy**, one code block per asset, numbered (`P01` plates, `C01` cut-outs). Do the first one alone; once approved, it becomes the style reference for the rest.
 - **Plates** say "Fill the whole 16:9 frame edge to edge"; **cut-outs** say "Fill every surface with flat colour, nothing left paper-white. Plain empty ivory background", so the cut survives.
 - **Fix with short follow-ups**, one change per message. **Never anime.**
+- **Check each image as it arrives** and say what it will carry. One plate can serve two beats (the collapsing star also became the start of the black-hole `flip`).
+- **Don't wait for every asset.** Build the act and use a code-drawn stand-in in the background's flat-shape style, loaded only while the file is missing, so the real asset swaps in by itself:
+  `P.load(asset('c01_planet.png')) if os.path.exists(asset('c01_planet.png')) else stand_in()`.
+  Never stand in for a person, an animal or a landscape.
 
 ### 4. Cut-outs: check every asset before use
 
@@ -108,6 +118,8 @@ python SK/scripts/check_cutout.py out/check.png assets/hero_standing.png ...
 
 **Open the preview and look at it**, on magenta and on dark. Re-cut until both are clean. Only clean files go into `assets/`. This check is not optional.
 
+**Already transparent?** ChatGPT often returns RGBA PNGs with the background already removed (they look black or glowing in chat previews). Check the alpha first (`Image.open(f).mode == 'RGBA'` and transparent corners); if so, skip `cutout.py` but still run `check_cutout.py` and look at it. Pale highlights inside a figure can raise the flag count without being leftovers.
+
 ### 5. Acts, with their word timing
 
 Build the acts one at a time. Word timing is created **together with each act**, not as a separate step:
@@ -115,6 +127,9 @@ Build the acts one at a time. Word timing is created **together with each act**,
 - When `actN.py` runs `cue = make_cue(CLIPS)`, any clip without timing is aligned on the spot (faster-whisper `small.en`, locally, prompted with the clip's `.txt`) and saved to `timing/words.json` and `timing/words.txt`.
 - **Order for each act:** write `CLIPS`; run the act once (the contact-sheet command creates the timing); open `timing/words.txt` (`word@seconds`) to pick cue phrases; write the scenes.
 - **Re-align a clip** whose audio or transcript changed: `python SK/scripts/align.py 7`.
+- **Check every clip is complete.** Whisper can skip speech that matches its transcript prompt word for word (clip 13 of the Hawking film came back with 19 of 61 words). `align.py` now retries automatically when it gets under 80 % of the transcript, but compare word counts after aligning anyway:
+  `python -c "import json;t=json.load(open('timing/words.json'));[print(k,len(v),len(open(f'audio/{k}.txt').read().split())) for k,v in sorted(t.items(),key=lambda x:int(x[0]))]"`
+- **Cue pitfalls:** `cue()` finds the *first* occurrence, so a repeated word needs its number (`cue(11, 'one', 2)` when "no one" comes before "one-way"). Hyphenated words split into separate tokens (`one`, `-way`). Punctuation is ignored, so `'Pole.'` and `'Pole'` match the same word.
 
 Copy `templates/act_template.py` to `actN.py`. Rules:
 
@@ -188,7 +203,8 @@ Effects are generated in code (`sfx.py`) and synced automatically: every preset 
 | `type` | typewriter keys, one per letter | typed captions (`words(..., font=F_TYPE)`), `kicker` |
 | `marker` / `swipe` | felt-tip scratch | `underline` / `tag` |
 | `zoom` | soft low air swell | `Shot.zoom_to` |
-| `beep`, `tick` | soft monitor beep, tiny click | manual only |
+| `shatter` | porcelain click, bright crackle, skittering bits | manual only (the teacup in Act 5) |
+| `beep`, `tick` | soft monitor beep, tiny click | manual only (counters, ticking clocks, letter-card hops) |
 
 - **Manual cues** for things presets don't know about (marker circles, strikes, story sounds): `sfx('marker', w(cue(1, 'word')), x)` inside the scene.
 - **Mix:** each sound is varied per event (seeded, deterministic), panned to its x position, summed at −13 dB, and ducked by 9 dB while the narration speaks. Target: effects about 20 dB below the voice (stem ≈ −37 LUFS against −16), loudest stamp peak ≈ −16 dBFS. The user found −10 dB under the voice too loud: keep effects subtle.
@@ -209,6 +225,10 @@ cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 
 - marks (circles, stamps) still sitting on their words during camera moves;
 - a black edge during a zoom (the background must always cover the frame);
 - empty frames revealed by a wipe (use `ENTER` for elements present at the cut);
+- **text over a dark plate**: black type disappears on a zoomed plate; use `tag(...)` (red label, or `bg=CREAM, fg=INK`);
+- **missing glyphs**: Archivo Black has no `→` (it renders as a box); `÷`, `²`, `’` and `,` are fine. Write words instead of rare symbols;
+- **glows on cream**: a cream or white glow is invisible on the paper; use a warm terracotta glow;
+- **contrast**: terracotta text on cream and cream text on red labels pass only as large text (check with `python3 .claude/skills/antislop-human/contrast-check.py "#CD5830" "#F8E7CD"`), so red text stays large (≥ 40 px) and never carries small captions;
 - anything on screen the narration does not say.
 
 Fix, re-check. Show the user sheets or a draft per act and get approval before moving on.
@@ -220,8 +240,10 @@ cd project && python SK/scripts/render_all.py --acts 3 --draft   # review render
 cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12, slow, 320k AAC, all acts
 ```
 
-- **Run renders in the background** (Bash `run_in_background`) and wait for the completion notice; don't poll with sleep. With the full motion system an act renders at roughly 13 s of render per 1 s of video per process.
-- Don't run two renders at once on a small machine; queue the second behind the first.
+- **Run renders in the background** (Bash `run_in_background`) and wait for the completion notice; don't poll with sleep. Measured on 4 cores: a 40–48 s act drafts in 7–9 min; `--acts 5 6` renders two acts in parallel in about 9 min.
+- **Don't chain renders with a background waiting loop** (`while ! grep Done ...; do sleep; done; render`). On the Hawking film the waiter died silently at its time limit and two acts never rendered. Start the next render yourself when the completion notice arrives, or render several acts in one `render_all.py --acts ...` call.
+- **Before telling the user a render is running, check it is**: `ps aux | grep render_all` and look for the output file.
+- **Draft of the whole film:** `out/acts.txt` lists the act files; `ffmpeg -f concat -safe 0 -i out/acts.txt -c copy out/full_draft.mp4` joins them losslessly. An act whose audio was remixed separately (e.g. `act1_sfx.mp4`) can be copied over its act file first.
 - **Act drafts:** after each act is approved on its contact sheet, render a `--draft` and send it with `SendUserFile`.
 - **Final:** all acts, CRF 12, joined losslessly into `out/full.mp4`, narration mastered to −16 LUFS. Check the duration with ffprobe, spot-check frames, then send it.
 - **Files over 100 MB** stay out of git. Send them directly.
@@ -244,3 +266,5 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 14. No grey torn-paper strip along the bottom: the corner shapes anchor the frame.
 15. Elements behave like physical paper (lift, shadow, overshoot, settle); never PowerPoint-style fades or flat slides.
 16. Sound effects stay subtle: about 20 dB under the voice (the first mix at 10 dB under was too loud). Change single sounds or the level by remixing the audio only, never by re-rendering the picture.
+17. Never report work as running or done without checking it (process list, output file, duration). If something silently failed, say so plainly and restart it.
+18. Every word on screen must be readable on what is behind it: label backings over dark plates, large size for red text, no missing glyphs.
