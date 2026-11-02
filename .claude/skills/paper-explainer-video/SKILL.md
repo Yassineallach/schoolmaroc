@@ -44,6 +44,13 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 
 `SK` below means this skill's folder, e.g. `.claude/skills/paper-explainer-video`.
 
+**Worked example** (`SK/examples`): `brief_history_act1.py` is a complete approved act from *A Brief History of Time*:
+- camera moves, presets chosen per beat, word cues;
+- manual sound cues;
+- an `episode.json` for its theme.
+
+`demo_presets.py` renders a numbered reel of all 12 presets on a project's own assets. Show it to the user when they ask what the animations look like.
+
 **Engine files** (all in `SK/scripts`):
 
 | File | What it holds |
@@ -236,3 +243,4 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 13. Backgrounds follow the user's original editorial design language; each episode gets a fresh arrangement of it, never a different style.
 14. No grey torn-paper strip along the bottom: the corner shapes anchor the frame.
 15. Elements behave like physical paper (lift, shadow, overshoot, settle); never PowerPoint-style fades or flat slides.
+16. Sound effects stay subtle: about 20 dB under the voice (the first mix at 10 dB under was too loud). Change single sounds or the level by remixing the audio only, never by re-rendering the picture.
