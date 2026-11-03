@@ -55,7 +55,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `brief_history_act5.py` | a cup sliding off a table and shattering, `assemble` then `reverse` + NEVER SEEN stamp, a card flipped on its head, globe with marker arrow and loop |
 | `brief_history_act6.py` | typed title struck and corrected, a counter, stacked covers, `page_flip` with a bookmark, crowd + unfold, end title held over the last plate |
 
-`demo_presets.py`, `demo_annotate.py` and `demo_toolkit.py` render numbered reels of the presets, the annotations and the storytelling toolkit (maps, timeline, charts, objects, camera, transitions) on a project's own assets. Show it to the user when they ask what the animations look like.
+`demo_presets.py`, `demo_annotate.py`, `demo_toolkit.py` and `demo_typo.py` render numbered reels of the presets, the annotations, the storytelling toolkit and the typography system (maps, timeline, charts, objects, camera, transitions) on a project's own assets. Show it to the user when they ask what the animations look like.
 
 **Engine files** (all in `SK/scripts`):
 
@@ -70,7 +70,8 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `timeline.py` | timelines: axis, dated events, eras, a sliding date marker, rolling year counter |
 | `charts.py` | line charts, comparisons, unit grids, counters, flow diagrams, size comparisons |
 | `objects.py` | newspapers, letters, envelopes, polaroids, sticky notes, tape, push pins, spin-in |
-| `storyboard.py` | narration analysis: purpose, technique, weight, cue and cut for every sentence |
+| `typo.py` | editorial typography: a 10-role hierarchy (English + Arabic), 12 kinetic animations, newspaper / big-number / term / name compositions |
+| `storyboard.py` | narration analysis: purpose, technique, weight, cue, cut and typographic moment for every sentence |
 | `themes.py` | per-episode background themes, all in the editorial design language |
 | `bg_motion.py` | the original editorial background, and theme selection from `episode.json` |
 
@@ -269,7 +270,78 @@ Never use the same special cut twice in a row; most cuts in a film should still 
 - Emotional lines are always simple.
 - Do not reuse one technique within three shots unless the story repeats on purpose.
 
-### 9. Background themes
+### 9. Editorial typography
+
+`typo.py` is the type system. Typography carries the explanation at the moments that need it, and stays out of the way otherwise.
+
+**Hierarchy**: `Text(s, role)`. Each role has its own English face and Arabic face, size, colour, case and tracking:
+
+| Role | English | Arabic | For |
+|---|---|---|---|
+| `headline` | Archivo Black 128, caps | Noto Kufi Arabic 900 | discoveries, the idea of an act |
+| `subhead` | Archivo Black 64, caps | Noto Kufi 800 | secondary lines, contradictions |
+| `statement` | Fraunces 700, 76 | Noto Kufi 700 | dramatic or emotional lines, word by word |
+| `name` | Playfair 700, 92 | Amiri Bold | people (with `name_card`) |
+| `date` | Archivo Black 300, terracotta | Noto Kufi 900 | years (with `big_number`) |
+| `stat` | Archivo Black 240 | Noto Kufi 900 | numbers the narration states |
+| `caption` | Special Elite 42 | Noto Naskh 500 | explanatory captions (typed) |
+| `quote` | Fraunces 500 italic, 64 | Amiri | quotations |
+| `label` | Inter 600, 26, caps, +6 tracking | Noto Naskh 600 | places, kickers, small labels |
+| `term` | Archivo Black 56, caps | Noto Kufi 800 | technical terms (with `term_card`) |
+
+Colours are warm black, charcoal, cream and terracotta. Override any of size, colour, tracking, `max_w`, alignment and line height per `Text`.
+
+**Animations**: `T.draw(layer, xy, t, start, anim=..., cues=[one per word], accent={'WORD': at}, until=, anchor=)`:
+- `words`: each word rises inside its own slot (clipping mask).
+- `letters`: letter-by-letter stagger.
+- `lines`: line reveal from behind a mask.
+- `scale`: words scale into position with a slight overshoot.
+- `slide`: words arrive from alternating directions.
+- `assemble`: scattered letters converge into the line.
+- `split`: each line slices through its middle and the halves pull apart, then rejoin; use it for contradictions.
+- `tracking`: letter spacing closes from wide.
+- `cutout`: each word on a paper scrap, dropped onto the desk.
+- `mask` with `shape='circle' | 'diagonal' | 'bars' | 'rect'`: revealed through a geometric shape, with a terracotta trace.
+- `stamp`: rubber-stamp impact (pass `shot=s` for the camera kick).
+- `type`: typewriter.
+- `accent`: any word turns from charcoal to terracotta on its cue.
+- Marker work: `T.box('WORD', xy)` gives the exact box for `annotate.sweep / underline / ring / strike`.
+
+**Compositions:**
+- `press(...)`: newspaper headline; the rules draw, the dateline types, the headline wipes in behind a terracotta rule.
+- `big_number(...)`: oversized numerals whose digits roll into place, with a label and an accent bar.
+- `term_card(...)`: the term, a typed one-line gloss and a bracket.
+- `name_card(...)`: a small-caps role line, the name in display serif, and a short rule.
+
+**Arabic:**
+- Text containing Arabic is shaped with HarfBuzz (Pillow + raqm) and laid out right to left, aligned right by default.
+- Letter-level animations fall back to word level, because Arabic letters join.
+- The typewriter re-shapes each frame, so letters connect as they are typed.
+- `big_number(..., lang='ar')` and `Text(..., digits='arabic')` give Arabic-Indic digits (١٩٨٨).
+- Arabic needs looser line height (1.5) for its dots and marks; this is automatic except for numerals.
+- Fonts are bundled under the SIL Open Font License (`assets/fonts/OFL-arabic-fonts.txt`).
+- Check every Arabic line with a native reader; never machine-guess wording.
+
+**When to use type** (`storyboard.py` adds a *typography* column; about 40% of sentences at most):
+
+| Narration | Typography |
+|---|---|
+| a discovery | `headline` with `scale` or `lines` |
+| a historical date | `big_number` (role `date`) |
+| a number that matters | `big_number` (role `stat`) or `annotate.stat` |
+| a name, at its first mention | `name_card` |
+| a contradiction | `split`, or `annotate.strike` + `accent` for a correction |
+| a short dramatic or emotional line | `statement` word by word, nothing else on screen |
+| technical terminology | `term_card` with a one-line gloss taken from the narration |
+| a quotation | `quote` with a `mask` reveal |
+
+**Rules:**
+- Never two big type moments in a row, and never the same animation within three moments.
+- Most sentences stay with images.
+- Type sits in generous negative space, often asymmetric: a headline on the left third with a print on the right.
+- Type must stay readable at 1920×1080: captions at least 40 px, labels at least 24 px, terracotta text large.
+
+### 10. Background themes
 
 Every episode gets its own background, but every theme speaks the design language of the user's original editorial background: the same paper, flat textured terracotta + beige corner shapes, translucent diagonal bands, thin dark lines and arcs, breathing dot grids, an open centre. Only the shapes and their arrangement change with the subject. Do not invent a new visual style (dark grounds, heavy patterns) unless the user asks.
 
@@ -287,7 +359,7 @@ Every episode gets its own background, but every theme speaks the design languag
 
 **New theme:** add a `Theme(name, label, [elements], paper_colour, seed)` in `themes.py` from the element vocabulary (`shape`, `terra`, `hline`, `vline`, `dots`, `orbiter`, `tracer`, `diag`). Keep big shapes off the centre, keep terracotta as the accent, give every element its own drift period (20–45 s). Show the user a board of themes and a 15 s preview before using it.
 
-### 10. Sound effects
+### 11. Sound effects
 
 Effects are generated in code (`sfx.py`) and synced automatically: every preset and helper registers a sound event when it draws, with its time and screen position.
 
@@ -319,7 +391,7 @@ Effects are generated in code (`sfx.py`) and synced automatically: every preset 
 - **Add audio to an already-rendered act** without re-rendering the picture: `vox.collect_events(act.frame, act.END)`, `sfx.mix_into(narration_wav, events, out_wav)`, then mux with `ffmpeg -c:v copy`.
 - **Sound must not contradict the story.** No flat-line tone when the patient survives, no gunshots for implied violence.
 
-### 11. QC before rendering
+### 12. QC before rendering
 
 ```
 cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 6 10 15 22
@@ -346,7 +418,7 @@ cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 
 
 Fix, re-check. Show the user sheets or a draft per act and get approval before moving on.
 
-### 12. Render: Claude renders the final, in this session
+### 13. Render: Claude renders the final, in this session
 
 ```
 cd project && python SK/scripts/render_all.py --acts 3 --draft   # review render of one act
@@ -385,3 +457,4 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 18. Every word on screen must be readable on what is behind it: label backings over dark plates, large size for red text, no missing glyphs.
 19. Annotations follow the narration: one mark per spoken idea, drawn on its word, settling when the narration moves on; never highlight everything at once.
 20. Choose every visual from what the sentence means and feels: analyse the narration first (storyboard.py), vary the techniques, and leave some moments deliberately simple.
+21. Typography is part of the explanation, not decoration: give type to discoveries, dates, names, contradictions, terms and quotes, and leave most sentences to images.

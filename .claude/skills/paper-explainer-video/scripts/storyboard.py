@@ -13,6 +13,10 @@ For each sentence it reports:
               always simple (slow push, one image, few words)
   cue         the word the main action should land on
   cut         a suggested transition into the shot
+  typography  whether the sentence earns a typographic moment (role + animation + word), within a
+              budget of about 40 % of sentences: discoveries -> headline, dates -> oversized
+              numerals, names -> name card, contradictions -> split / strike, short dramatic
+              lines -> word by word, technical terms -> term card, quotes -> mask reveal
 
 It is a planning aid, not an autopilot: read the plan, then write the act by hand; the user's
 storyboard and their notes always win.
@@ -174,15 +178,83 @@ def plan(clips, project='.'):
     return rows
 
 
+# ---------------------------------------------------------------- typography pass
+TERMS = ['event horizon', 'general relativity', 'quantum mechanics', 'black hole', 'big bang', 'motor neurone disease',
+         'tracheotomy', 'synthesizer', 'probability', 'entropy', 'disorder', 'space-time', 'spacetime', 'gravity']
+CONTRA = r"\b(but|yet|however|instead|refuse\w*|not \w+ but|although|despite|rather than|never)\b"
+DISCOVERY = r"\b(discover\w*|showed|found|realis\w*|realiz\w*|proved|revealed|invented)\b"
+
+
+def typography(rows, budget=0.4):
+    """Mark the sentences where typography should carry the explanation, and how. Candidates are
+    scored across the whole film, the strongest kept within `budget` (share of sentences), never
+    two big type moments in a row, names only at their first mention, and the type animation is
+    varied so no pattern repeats within three moments. Everything else stays with images."""
+    cands, seen_names = [], set()
+    for i, r in enumerate(rows):
+        s, low = r['sentence'], r['sentence'].lower()
+        words = re.findall(r"[\w'’-]+", s)
+        c = None
+        if r['purpose'] == 'emotion' and len(words) <= 9:
+            c = (5, 'statement', 'words', words[-1])                         # quiet, word by word
+        elif r['purpose'] == 'date' and YEAR.search(s):
+            c = (5, 'date', 'big_number', YEAR.search(s).group(0))
+        elif r['purpose'] in ('number', 'fraction') and re.search(r'\d', s):
+            c = (5, 'stat', 'big_number', re.search(r'\d[\d,\.]*', s).group(0))
+        elif r['purpose'] == 'correction' or ('correction' in r.get('also', []) and QUOTE.search(s)):
+            c = (5, 'subhead', 'strike', r['cue'])
+        elif r['purpose'] == 'quote':
+            c = (4, 'quote', 'mask', r['cue'])
+        elif re.search(DISCOVERY, low):
+            c = (4, 'headline', 'scale', re.search(DISCOVERY, low).group(0))
+        elif any(term in low for term in TERMS):
+            c = (3, 'term', 'term_card', next(term for term in TERMS if term in low))
+        elif r['purpose'] in ('person', 'people') and r['cue'] not in seen_names:
+            c = (3, 'name', 'name_card', r['cue'])
+        elif re.search(CONTRA, low) and len(words) <= 10:
+            c = (2, 'subhead', 'split', re.search(CONTRA, low).group(0))
+        elif len(words) <= 6 and r['purpose'] in ('idea', 'action'):
+            c = (2, 'statement', 'words', words[-1])
+        if c and c[1] == 'name':
+            seen_names.add(r['cue'])
+        if c:
+            cands.append((c[0], i, c[1:]))
+    n_max = max(1, int(len(rows) * budget))
+    chosen = {}
+    big = lambda role: role in ('headline', 'date', 'stat')
+    for score, i, (role, anim, cue_) in sorted(cands, key=lambda c: (-c[0], c[1])):
+        if len(chosen) >= n_max:
+            break
+        if big(role) and any(big(chosen[j][0]) for j in (i - 1, i + 1) if j in chosen):
+            continue
+        if (i - 1) in chosen and (i + 1) in chosen:               # never three type moments in a row
+            continue
+        chosen[i] = (role, anim, cue_)
+    recent = []
+    alt = {'words': 'letters', 'letters': 'slide', 'scale': 'lines', 'lines': 'tracking', 'mask': 'type', 'split': 'assemble', 'strike': 'split'}
+    for i, r in enumerate(rows):
+        if i not in chosen:
+            r['type'] = ''
+            continue
+        role, anim, cue_ = chosen[i]
+        while anim in recent[-3:] and anim in alt and alt[anim] not in recent[-3:]:
+            anim = alt[anim]
+        recent.append(anim)
+        r['type'] = f'{role}: {anim} on "{cue_}"'
+    return rows
+
+
 def to_markdown(rows):
-    out = ['| clip | sentence | purpose | technique | weight | cue | cut |', '|---|---|---|---|---|---|---|']
+    out = ['| clip | sentence | purpose | technique | weight | cue | cut | typography |', '|---|---|---|---|---|---|---|---|']
     for r in rows:
         s = r['sentence'] if len(r['sentence']) < 90 else r['sentence'][:87] + '...'
         also = f" (+{', '.join(r['also'])})" if r['also'] else ''
         ct = f" @{r['cue_time']:.2f}" if r['cue_time'] is not None else ''
-        out.append(f"| {r['clip']} | {s} | {r['purpose']}{also} | {r['technique']} | {r['weight']} | {r['cue']}{ct} | {r['cut']} |")
+        out.append(f"| {r['clip']} | {s} | {r['purpose']}{also} | {r['technique']} | {r['weight']} | {r['cue']}{ct} | {r['cut']} | {r.get('type', '')} |")
     weights = [r['weight'] for r in rows]
-    out.append(f"\nPacing: {weights.count('complex')} complex, {weights.count('medium')} medium, {weights.count('simple')} simple. "
+    nt = sum(1 for r in rows if r.get('type'))
+    out.append(f"\nTypography: {nt} of {len(rows)} sentences get a typographic moment; the rest are carried by images.")
+    out.append(f"Pacing: {weights.count('complex')} complex, {weights.count('medium')} medium, {weights.count('simple')} simple. "
                f"Distinct techniques: {len(set(r['technique'] for r in rows))} of {len(rows)} shots.")
     return '\n'.join(out)
 
@@ -194,7 +266,7 @@ if __name__ == '__main__':
         clips = sorted(int(f[:-4]) for f in os.listdir(os.path.join(project, 'audio')) if f.endswith('.txt') and f[:-4].isdigit())
     else:
         clips = [int(a) for a in args]
-    md = to_markdown(plan(clips, project))
+    md = to_markdown(typography(plan(clips, project)))
     print(md)
     if args == ['--all']:
         os.makedirs(os.path.join(project, 'timing'), exist_ok=True)
