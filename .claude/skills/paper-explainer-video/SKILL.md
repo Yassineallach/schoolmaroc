@@ -336,6 +336,12 @@ cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 
 - **missing glyphs**: Archivo Black has no `→` (it renders as a box); `÷`, `²`, `’` and `,` are fine. Write words instead of rare symbols;
 - **glows on cream**: a cream or white glow is invisible on the paper; use a warm terracotta glow;
 - **contrast**: terracotta text on cream and cream text on red labels pass only as large text (check with `python3 .claude/skills/antislop-human/contrast-check.py "#CD5830" "#F8E7CD"`), so red text stays large (≥ 40 px) and never carries small captions;
+- **pale objects on cream** (tape, envelopes, sticky notes, paper cards) need a darker edge or a shadow, or they vanish: tape uses a tan tint with ruled edges;
+- **objects that move out of something** (a letter leaving its envelope, a card from a pocket) must stay on screen at every frame; check the start, middle and end of the move;
+- **chart values that are not narrated** must be labelled as illustrative, or not shown at all;
+- **invented names** (newspaper mastheads, signatures) must not be a real publication or person;
+- **after changing the engine**, render one frame from every existing act to prove nothing broke:
+  `python -c "import importlib;[importlib.import_module(f'act{n}').frame(5.0) for n in range(1,7)]"`;
 - anything on screen the narration does not say.
 
 Fix, re-check. Show the user sheets or a draft per act and get approval before moving on.
@@ -350,6 +356,8 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 - **Run renders in the background** (Bash `run_in_background`) and wait for the completion notice; don't poll with sleep. Measured on 4 cores: a 40–48 s act drafts in 7–9 min; `--acts 5 6` renders two acts in parallel in about 9 min.
 - **Don't chain renders with a background waiting loop** (`while ! grep Done ...; do sleep; done; render`). On the Hawking film the waiter died silently at its time limit and two acts never rendered. Start the next render yourself when the completion notice arrives, or render several acts in one `render_all.py --acts ...` call.
 - **Before telling the user a render is running, check it is**: `ps aux | grep render_all` and look for the output file.
+- **Cost of the heavier tools** (4 cores): a held map view is about 16 ms because frames are cached, but a zooming map is about 0.6 s a frame, so keep map zooms to 1.5–2.5 s. Transitions add about 0.3 s per frame while they run. Plan longer renders for map-heavy acts.
+- **Demo reels without narration:** `vox.collect_events(frame, END, step=0.25)` then `sfx.build_track(events, END, None, level_db=-9)`, and mux with `ffmpeg -c:v copy`. Without a voice to duck under, −9 dB keeps the effects audible.
 - **Draft of the whole film:** `out/acts.txt` lists the act files; `ffmpeg -f concat -safe 0 -i out/acts.txt -c copy out/full_draft.mp4` joins them losslessly. An act whose audio was remixed separately (e.g. `act1_sfx.mp4`) can be copied over its act file first.
 - **Act drafts:** after each act is approved on its contact sheet, render a `--draft` and send it with `SendUserFile`.
 - **Final:** all acts, CRF 12, joined losslessly into `out/full.mp4`, narration mastered to −16 LUFS. Check the duration with ffprobe, spot-check frames, then send it.
