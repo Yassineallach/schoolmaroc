@@ -243,7 +243,70 @@ def s_shatter(r, p):
     return 0.0, _norm(out, 0.55)
 
 
-DESIGNS = dict(shatter=s_shatter, drop=s_drop, slide=s_slide, unfold=s_unfold, tear=s_tear, wipe=s_wipe, sheet=s_sheet,
+def s_pin(r, p):
+    """A map pin landing: tiny descending whistle of air, then a soft tack into paper."""
+    n = _sec(0.35)
+    out = np.zeros(n)
+    m = _sec(0.12)
+    out[:m] = _band(r.normal(0, 1, m), 2000, 7000) * np.linspace(0, 1, m) ** 2 * 0.2
+    k = _sec(0.06)
+    out[m:m + k] += _band(r.normal(0, 1, k), 400, 3500) * _env(k, 0.0005, 0.012)
+    tt = np.arange(k) / SR
+    out[m:m + k] += np.sin(2 * math.pi * 180 * tt) * _env(k, 0.0005, 0.02) * 0.5
+    return -0.12, _norm(out, 0.4)
+
+
+def s_pencil(r, p):
+    """Graphite on paper: a dry, grainy scratch for routes, axes and timelines."""
+    L = p.get('dur', 0.8)
+    n = _sec(L)
+    t = np.arange(n) / SR
+    sh = np.sin(np.pi * np.clip(t / L, 0, 1)) ** 0.5
+    grain = _crackle(r, n, 1800, 2000, 9000) * sh
+    hiss = _band(r.normal(0, 1, n), 3000, 9000) * sh * 0.4
+    return 0.0, _norm(grain + hiss, 0.16)
+
+
+def s_whoosh(r, p):
+    """Air movement for camera travels and shape wipes (no tonal sweep, no 'swish' cliche)."""
+    L = p.get('dur', 0.6)
+    n = _sec(L)
+    t = np.arange(n) / SR
+    sh = np.sin(np.pi * np.clip(t / L, 0, 1)) ** 1.5
+    return -L * 0.5, _norm(_band(r.normal(0, 1, n), 250, 3200) * sh, 0.2)
+
+
+def s_envelope(r, p):
+    """Paper flap lifting, then a letter sliding out."""
+    n = _sec(1.1)
+    out = np.zeros(n)
+    m = _sec(0.25)
+    out[:m] = _crackle(r, m, 700, 1200, 7000) * _env(m, 0.03, 0.1)
+    k = _sec(0.7)
+    t = np.arange(k) / SR
+    out[_sec(0.35):_sec(0.35) + k] += _band(r.normal(0, 1, k), 1500, 8000) * np.sin(np.pi * t / 0.7) * 0.6
+    return 0.0, _norm(out, 0.32)
+
+
+def s_tape(r, p):
+    """Tape torn from the roll and pressed down."""
+    n = _sec(0.45)
+    out = np.zeros(n)
+    m = _sec(0.18)
+    out[:m] = _crackle(r, m, 9000, 2500, 11000) * _env(m, 0.005, 0.06)
+    k = _sec(0.05)
+    out[_sec(0.3):_sec(0.3) + k] = _band(r.normal(0, 1, k), 400, 3000) * _env(k, 0.001, 0.015)
+    return 0.0, _norm(out, 0.3)
+
+
+def s_pop(r, p):
+    """Soft paper pop for chart points and data reveals."""
+    n = _sec(0.08)
+    t = np.arange(n) / SR
+    return 0.0, (np.sin(2 * math.pi * r.uniform(520, 640) * t) * _env(n, 0.001, 0.02) + _band(r.normal(0, 1, n), 800, 4000) * _env(n, 0.0005, 0.006) * 0.4) * 0.14
+
+
+DESIGNS = dict(pin=s_pin, pencil=s_pencil, whoosh=s_whoosh, envelope=s_envelope, tape=s_tape, pop=s_pop, shatter=s_shatter, drop=s_drop, slide=s_slide, unfold=s_unfold, tear=s_tear, wipe=s_wipe, sheet=s_sheet,
                stamp=s_stamp, reveal=s_reveal, assemble=s_assemble, flip=s_flip, pageflip=s_pageflip,
                type=s_type, marker=s_marker, swipe=s_swipe, zoom=s_zoom, beep=s_beep, tick=s_tick)
 

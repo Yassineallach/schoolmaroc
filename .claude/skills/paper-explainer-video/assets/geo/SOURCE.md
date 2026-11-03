@@ -1,0 +1,1 @@
+Natural Earth 1:110m admin-0 countries and populated places (public domain), https://www.naturalearthdata.com/ via github.com/nvkelso/natural-earth-vector. Reduced to names, ISO codes and 2-decimal coordinates.

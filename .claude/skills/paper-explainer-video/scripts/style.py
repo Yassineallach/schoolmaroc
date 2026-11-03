@@ -15,7 +15,7 @@ ENTER so the wipe reveals the new composition already landing.
 """
 import math
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 import vox
 from vox import W, H, FPS, INK, RED, CREAM, F_HEAD, F_TYPE, F_SERIF, spring, ease, ease_out_cubic, lerp, shadow_of, alpha_mul, torn_mask, finish
 import bg_motion
@@ -62,6 +62,38 @@ class Shot:
         # camera = scale s and the world point L that sits at the centre of the screen
         self.zoom, self.lx, self.ly = 1.0, W / 2, H / 2
         self.hits = []
+        self.extra = {}                                     # depth -> RGBA layer (see layer())
+        self.blur = {'bg': 0.0, 'mid': 0.0, 'top': 0.0}    # rack focus, in px (see rack())
+        self.shake = (0.0, 0.0)
+
+    def layer(self, depth):
+        """An extra layer at any parallax depth (0.35 = background, 1 = mid, 1.15 = top).
+        Depths below 1 sit behind shot.mid, between 1 and 1.15 between mid and top, above 1.15
+        in front of top. Use it for foreground props, far cut-outs, a second plane of paper."""
+        if depth not in self.extra:
+            self.extra[depth] = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+        return self.extra[depth]
+
+    def pan(self, at, dx, dy=0.0, dur=2.0):
+        """Lateral camera travel of (dx, dy) world px starting at `at` (a dolly across a desk)."""
+        k = ease_io((self.t - at) / dur)
+        self.lx += dx * k
+        self.ly += dy * k
+
+    def drift(self, amp=4.0, period=7.0):
+        """Subtle handheld drift: a slow, non-repeating float of a few pixels."""
+        t = self.t
+        self.lx += amp * (math.sin(t * 2 * math.pi / period) + 0.5 * math.sin(t * 2 * math.pi / (period * 0.43) + 1.3))
+        self.ly += amp * 0.6 * (math.cos(t * 2 * math.pi / (period * 1.3)) + 0.4 * math.sin(t * 2 * math.pi / (period * 0.37)))
+
+    def rack(self, at, sharp='mid', amount=5.0, dur=0.8, before=None):
+        """Focus shift: from `at` the depths other than `sharp` blur by `amount` px. If `before`
+        is given (a depth name), that depth was the sharp one and the focus racks from it."""
+        k = ease_io((self.t - at) / dur)
+        for name in self.blur:
+            target = 0.0 if name == sharp else amount * (0.6 if name == 'bg' else 1.0)
+            start = 0.0 if before is None or name == before else amount * (0.6 if name == 'bg' else 1.0)
+            self.blur[name] = start + (target - start) * k
 
     def _hold(self, F, s_new):
         """Change zoom to s_new while point F keeps its current screen position."""
@@ -130,13 +162,29 @@ def compose(shot, T):
     bs = max(bs, 1.0)                              # the background must always cover the frame
     blx = min(max(blx, W / 2 / bs), W - W / 2 / bs)
     bly = min(max(bly, H / 2 / bs), H - H / 2 / bs)
-    bg = _xf(bg_motion.motion_bg(T), bs, blx, bly).convert('RGBA')
+    bg = _blur(_xf(bg_motion.motion_bg(T), bs, blx, bly).convert('RGBA'), shot.blur.get('bg', 0))
+
+    def extra(lo, hi):
+        for dpt in sorted(d for d in shot.extra if lo <= d < hi):
+            s_, lx_, ly_ = look(dpt)
+            bg.alpha_composite(_xf(shot.extra[dpt], max(0.05, s_), lx_, ly_, sx * dpt * 0.6, sy * dpt * 0.6))
+    extra(-9, 1.0)
     s, lx, ly = look(1.0)
-    bg.alpha_composite(_xf(shot.mid, s + 0.012 * kick, lx, ly, sx * 0.6, sy * 0.6))
+    bg.alpha_composite(_blur(_xf(shot.mid, s + 0.012 * kick, lx, ly, sx * 0.6, sy * 0.6), shot.blur.get('mid', 0)))
+    extra(1.0, 1.15)
     s, lx, ly = look(1.15)
-    bg.alpha_composite(_xf(shot.top, s + 0.02 * kick, lx, ly, sx, sy))
+    bg.alpha_composite(_blur(_xf(shot.top, s + 0.02 * kick, lx, ly, sx, sy), shot.blur.get('top', 0)))
+    extra(1.15, 99)
     bg.alpha_composite(_xf(shot.hud, 1.0, W / 2, H / 2, sx * 0.3, sy * 0.3))
     return finish(bg)
+
+
+def _blur(img, px):
+    if px < 0.4:
+        return img
+    if img.mode == 'RGBA':
+        return img.convert('RGBa').filter(ImageFilter.GaussianBlur(px)).convert('RGBA')
+    return img.filter(ImageFilter.GaussianBlur(px))
 
 
 # ---------------------------------------------------------------- transitions
@@ -168,9 +216,17 @@ def make_frame(shots, end, t, clips, pre=0.38, post=0.17):
     runs continuously across the whole film."""
     T = sum(vox._DUR[c] for c in vox._DUR if c < min(clips)) + t
     starts = [s[0] for s in shots] + [end]
+    import transitions as TR
+
+    def cut(j):
+        k = shots[j][2] if len(shots[j]) > 2 else ('lr', 'up', 'rl')[j % 3]
+        return (k, {}) if isinstance(k, str) else (k[0], k[1] if len(k) > 1 else {})
     for j in range(1, len(shots)):            # transition sounds, at the cut
-        kind = shots[j][2] if len(shots[j]) > 2 else ('lr', 'up', 'rl')[j % 3]
-        event('sheet' if kind == 'up' else 'wipe', starts[j], W * (0.3 if kind == 'lr' else 0.7 if kind == 'rl' else 0.5))
+        kind, opts = cut(j)
+        if kind in TR.KINDS:
+            event(TR.SOUND[kind], starts[j] - TR.DUR[kind][0] * 0.4, opts.get('at', (W / 2, 0))[0], dur=sum(TR.DUR[kind]))
+        else:
+            event('sheet' if kind == 'up' else 'wipe', starts[j], W * (0.3 if kind == 'lr' else 0.7 if kind == 'rl' else 0.5))
 
     def render(j, tt):
         s0, fn = shots[j][0], shots[j][1]
@@ -179,9 +235,14 @@ def make_frame(shots, end, t, clips, pre=0.38, post=0.17):
 
     i = max(j for j in range(len(shots)) if starts[j] <= t)
     for j in (i, i + 1):
-        if 0 < j < len(shots) and starts[j] - pre <= t < starts[j] + post:
-            kind = shots[j][2] if len(shots[j]) > 2 else ('lr', 'up', 'rl')[j % 3]
-            p = (t - (starts[j] - pre)) / (pre + post)
+        if not 0 < j < len(shots):
+            continue
+        kind, opts = cut(j)
+        a_, b_ = TR.DUR[kind] if kind in TR.KINDS else (pre, post)
+        if starts[j] - a_ <= t < starts[j] + b_:
+            p = (t - (starts[j] - a_)) / (a_ + b_)
+            if kind in TR.KINDS:
+                return TR.apply(kind, render(j - 1, t), render(j, t), p, opts)
             return _tear(render(j - 1, t), render(j, t), p, kind)
     return render(i, t)
 

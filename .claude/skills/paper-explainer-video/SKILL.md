@@ -55,7 +55,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `brief_history_act5.py` | a cup sliding off a table and shattering, `assemble` then `reverse` + NEVER SEEN stamp, a card flipped on its head, globe with marker arrow and loop |
 | `brief_history_act6.py` | typed title struck and corrected, a counter, stacked covers, `page_flip` with a bookmark, crowd + unfold, end title held over the last plate |
 
-`demo_presets.py` and `demo_annotate.py` render numbered reels of the 12 presets and of the annotations on a project's own assets. Show it to the user when they ask what the animations look like.
+`demo_presets.py`, `demo_annotate.py` and `demo_toolkit.py` render numbered reels of the presets, the annotations and the storytelling toolkit (maps, timeline, charts, objects, camera, transitions) on a project's own assets. Show it to the user when they ask what the animations look like.
 
 **Engine files** (all in `SK/scripts`):
 
@@ -65,6 +65,12 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `style.py` | `Shot` layers, camera and parallax, torn transitions, `words`, `tag`, `underline`, `kicker` |
 | `presets.py` | the 12 physical paper animations and item builders (prints, clippings, text, SVG) |
 | `annotate.py` | editorial annotations: marker sweeps, underlines, rings, boxes, strikes, emphasis, arrows, spotlight, loupe, marks, brackets, connectors, charts |
+| `transitions.py` | special cuts: page turn, circle, shape wipe, zoom-through, collage (the torn wipes stay in `style.py`) |
+| `maps.py` | animated maps from bundled Natural Earth data (`assets/geo`): zooms, routes, pins, borders, map cards |
+| `timeline.py` | timelines: axis, dated events, eras, a sliding date marker, rolling year counter |
+| `charts.py` | line charts, comparisons, unit grids, counters, flow diagrams, size comparisons |
+| `objects.py` | newspapers, letters, envelopes, polaroids, sticky notes, tape, push pins, spin-in |
+| `storyboard.py` | narration analysis: purpose, technique, weight, cue and cut for every sentence |
 | `themes.py` | per-episode background themes, all in the editorial design language |
 | `bg_motion.py` | the original editorial background, and theme selection from `episode.json` |
 
@@ -74,7 +80,13 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 
 - **Read every transcript.** The transcript is the source of truth: every visual must illustrate a line that is actually spoken. Don't invent facts, and don't put numbers on screen that the narration does not state (no ages, no dates, no headlines it doesn't say).
 - **Group the clips into acts** of 40–90 s, each with a title.
-- **Plan the shots.** For each act, write a shot list: transcript sentence → visual → which assets → which preset → the words that trigger each reveal.
+- **Analyse the narration first:** `python SK/scripts/storyboard.py --all` (from the project folder) reads every sentence and proposes, for each:
+  - **purpose:** what the sentence does: date, number, fraction, place, journey, person, people, quote, comparison, process, list, correction, document, reveal, detail, action, emotion, or plain idea;
+  - **technique:** from the whole toolkit, with no repeat in a row and no special technique twice within three shots;
+  - **weight:** complex, medium or simple, alternated so the film breathes; emotional lines are always simple;
+  - **cue word and time,** and a **cut** into the shot.
+  It also writes `timing/plan.md`. Read it as advice: fix what it misreads and keep what the user asked for.
+- **Plan the shots.** For each act, write a shot list: transcript sentence → visual → which assets → which technique → the words that trigger each reveal. Some moments get complex motion graphics; many should stay simple (one image, a slow push, a few words).
 
 ### 2. Storyboard, background theme, asset list
 
@@ -204,7 +216,60 @@ All in `presets.py`; every one is configurable (position, start, duration, rotat
 - **No glows, neon or particles.** Strokes are 5–9 px; the spotlight dims to about 40 %.
 - **Only highlight what is spoken.** Never circle a detail, box a phrase or fill a chart section the narration doesn't mention.
 
-### 8. Background themes
+### 8. Storytelling toolkit
+
+All of these plug into the same `Shot`, layers, camera, sounds and paper style. Pick by what the sentence does (see the planner above), not to show off.
+
+**Transitions** (`transitions.py`), named as the third item of a `SHOTS` entry:
+
+| Cut | Use it for |
+|---|---|
+| `'lr'`, `'rl'`, `'up'` | ordinary cuts (torn wipes and a new sheet laid over); the default |
+| `'pageturn'` | a new chapter or a turn in the story |
+| `('circle', {'at': (x, y)})` | opening from a point: a place, a detail, a reveal |
+| `'shape'` | a change of subject or side (comparisons, corrections) |
+| `('zoom', {'at': (x, y)})` | diving from the old shot into a detail that becomes the new shot |
+| `'collage'` | montage, lists, several people or events |
+
+Never use the same special cut twice in a row; most cuts in a film should still be the plain torn wipes.
+
+**Maps** (`maps.py`): `WorldMap(box)` draws a printed map with beige land, ink coastlines and a faint graticule, with the paper itself as the sea.
+- `zoom(t, [(t0, view), ...])` gives camera-like zooms (log-interpolated); `around('Italy' | (lon, lat), km)` frames a place.
+- `draw(..., highlight={'GBR': cue})` fills a named country on its cue; `border()` draws a country's outline in marker, then fills it.
+- `route([...stops])` draws a dashed journey with a travelling dot; `marker(lonlat, 'LABEL')` drops a pin with a paper label.
+- `city('Geneva')` looks up the 243 bundled cities; `map_card()` makes a printed map as a paper object, to unfold, drop or slide.
+- Held views are cached (about 16 ms), and a zooming frame costs about 0.6 s.
+
+**Timelines** (`timeline.py`): `Timeline(y0, y1, box, step)`.
+- `axis()` draws the rule, ticks and years.
+- `event(year, label, start, side, until=)` makes a card pop on the spoken date; `era()` brackets a span; `now()` slides a marker along the dates.
+- `focus(shot, year, at)` moves the camera along to a date; `year_counter()` rolls the year digits.
+
+**Charts** (`charts.py`, alongside `annotate.bars/wedge/stat`):
+- `line_chart(... mark=(x, 'LABEL'))`, `compare([(label, value)...])`, `unit_grid(total, k)`;
+- `counter(a, b)`, `flow([(xy, 'LABEL')...], starts)`, `scale([(label, value)...])` (circle area follows the value).
+- Only chart numbers the narration states.
+
+**Objects** (`objects.py`):
+- `newspaper(headline, date, photo=)`, with an invented masthead, never a real paper's name;
+- `letter(lines)`, `polaroid(img, caption)`, `sticky_note(text)`;
+- animated: `envelope(layer, letter, ...)`, where the flap opens and the letter rises; `spin_in(...)`, the newsreel front page, at most once a film; `tape()`; `pushpin()`;
+- every builder returns RGBA, so all presets apply (drop, slide, unfold, flip, stack).
+
+**Camera** (`style.Shot`), on top of `camera`, `push`, `zoom_to`:
+- `pan(at, dx, dy, dur)`: a lateral dolly across the desk;
+- `drift(amp)`: subtle handheld float for quiet shots;
+- `rack(at, sharp='mid', amount, before='top')`: a focus shift between depths;
+- `layer(depth)`: extra planes at any parallax depth (0.6 for a far cut-out, 1.4 for a near foreground prop) to build layered compositions where elements overlap and cast shadows on each other.
+
+**Sounds** for all of it are registered automatically: `pin`, `pencil`, `whoosh`, `envelope`, `tape` and `pop`, plus the earlier ones.
+
+**Pacing rules:**
+- Alternate complex beats (a map zoom with a route, a flow diagram, a collage) with simple ones (one image, slow push, a few typed words).
+- Emotional lines are always simple.
+- Do not reuse one technique within three shots unless the story repeats on purpose.
+
+### 9. Background themes
 
 Every episode gets its own background, but every theme speaks the design language of the user's original editorial background: the same paper, flat textured terracotta + beige corner shapes, translucent diagonal bands, thin dark lines and arcs, breathing dot grids, an open centre. Only the shapes and their arrangement change with the subject. Do not invent a new visual style (dark grounds, heavy patterns) unless the user asks.
 
@@ -222,7 +287,7 @@ Every episode gets its own background, but every theme speaks the design languag
 
 **New theme:** add a `Theme(name, label, [elements], paper_colour, seed)` in `themes.py` from the element vocabulary (`shape`, `terra`, `hline`, `vline`, `dots`, `orbiter`, `tracer`, `diag`). Keep big shapes off the centre, keep terracotta as the accent, give every element its own drift period (20–45 s). Show the user a board of themes and a 15 s preview before using it.
 
-### 9. Sound effects
+### 10. Sound effects
 
 Effects are generated in code (`sfx.py`) and synced automatically: every preset and helper registers a sound event when it draws, with its time and screen position.
 
@@ -240,6 +305,12 @@ Effects are generated in code (`sfx.py`) and synced automatically: every preset 
 | `marker` / `swipe` | felt-tip scratch | `underline` / `tag` |
 | `zoom` | soft low air swell | `Shot.zoom_to` |
 | `shatter` | porcelain click, bright crackle, skittering bits | manual only (the teacup in Act 5) |
+| `pin` | air whistle, soft tack into paper | `maps.marker`, `objects.pushpin` |
+| `pencil` | dry graphite scratch | `maps.route`, `maps.border`, `Timeline.axis`, `charts.line_chart` |
+| `whoosh` | air movement (no tonal sweep) | `circle`, `shape`, `zoom` transitions, `objects.spin_in` |
+| `envelope` | flap lifting, letter sliding out | `objects.envelope` |
+| `tape` | tape torn and pressed | `objects.tape` |
+| `pop` | soft paper pop | timeline events, chart points, size circles |
 | `beep`, `tick` | soft monitor beep, tiny click | manual only (counters, ticking clocks, letter-card hops) |
 
 - **Manual cues** for things presets don't know about (marker circles, strikes, story sounds): `sfx('marker', w(cue(1, 'word')), x)` inside the scene.
@@ -248,7 +319,7 @@ Effects are generated in code (`sfx.py`) and synced automatically: every preset 
 - **Add audio to an already-rendered act** without re-rendering the picture: `vox.collect_events(act.frame, act.END)`, `sfx.mix_into(narration_wav, events, out_wav)`, then mux with `ffmpeg -c:v copy`.
 - **Sound must not contradict the story.** No flat-line tone when the patient survives, no gunshots for implied violence.
 
-### 10. QC before rendering
+### 11. QC before rendering
 
 ```
 cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 6 10 15 22
@@ -269,7 +340,7 @@ cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 
 
 Fix, re-check. Show the user sheets or a draft per act and get approval before moving on.
 
-### 11. Render: Claude renders the final, in this session
+### 12. Render: Claude renders the final, in this session
 
 ```
 cd project && python SK/scripts/render_all.py --acts 3 --draft   # review render of one act
@@ -305,3 +376,4 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 17. Never report work as running or done without checking it (process list, output file, duration). If something silently failed, say so plainly and restart it.
 18. Every word on screen must be readable on what is behind it: label backings over dark plates, large size for red text, no missing glyphs.
 19. Annotations follow the narration: one mark per spoken idea, drawn on its word, settling when the narration moves on; never highlight everything at once.
+20. Choose every visual from what the sentence means and feels: analyse the narration first (storyboard.py), vary the techniques, and leave some moments deliberately simple.
