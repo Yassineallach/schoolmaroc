@@ -13,13 +13,15 @@ creates the timing for CLIPS automatically; then pick phrases from timing/words.
 
 Layers (style.py):  s.mid = paper on the desk + marks made on it (stamps, marker circles)
                     s.top = headline type in the composition      s.hud = captions / labels
-Presets (presets.py): pick ONE per beat, chosen by what the narration is doing.
+Presets (presets.py) and annotations (annotate.py): pick ONE per beat, chosen by what the
+narration is doing.
 """
 import sys
 from PIL import Image
 from vox import *  # noqa: F401,F403  (render_all.py puts the skill's scripts on the path)
 import style as st
 import presets as P
+import annotate as A
 from style import ENTER, Shot, words, tag, underline, kicker
 
 CLIPS = (1, 2)            # narration clips of this act, in order
@@ -49,7 +51,8 @@ def sB(t, D):
     s = Shot(t, D)
     s.zoom_to((1000, 90, 1660, 850), w(cue(2, 'record')), dur=2.2, fill=0.86) # travel into the document
     P.unfold(s.mid, NOTE, 1330, 470, t, ENTER + 0.15)                        # present at the cut: ENTER
-    marker_circle(s.mid, 1170, 375, 135, 38, ease((t - w(cue(2, 'line one'))) / 0.5), seed=1)
+    A.ring(s.mid, (1040, 345, 1300, 405), t, w(cue(2, 'line one')), until=w(cue(2, 'big')))      # settles when the narration moves on
+    A.sweep(s.top, A.words_box((520, 300), 'BIG WORDS', 96, 'WORDS'), t, w(cue(2, 'words')))   # behind the word: draw first
     words(s.top, (520, 300), 'BIG WORDS', 96, t, [w(cue(2, 'big')), w(cue(2, 'words'))])
     return s
 

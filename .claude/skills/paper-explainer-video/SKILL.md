@@ -55,7 +55,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `brief_history_act5.py` | a cup sliding off a table and shattering, `assemble` then `reverse` + NEVER SEEN stamp, a card flipped on its head, globe with marker arrow and loop |
 | `brief_history_act6.py` | typed title struck and corrected, a counter, stacked covers, `page_flip` with a bookmark, crowd + unfold, end title held over the last plate |
 
-`demo_presets.py` renders a numbered reel of all 12 presets on a project's own assets. Show it to the user when they ask what the animations look like.
+`demo_presets.py` and `demo_annotate.py` render numbered reels of the 12 presets and of the annotations on a project's own assets. Show it to the user when they ask what the animations look like.
 
 **Engine files** (all in `SK/scripts`):
 
@@ -64,6 +64,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `vox.py` | fonts, colours, word timing (`make_cue`), documents, marker lines, audio mastering, render |
 | `style.py` | `Shot` layers, camera and parallax, torn transitions, `words`, `tag`, `underline`, `kicker` |
 | `presets.py` | the 12 physical paper animations and item builders (prints, clippings, text, SVG) |
+| `annotate.py` | editorial annotations: marker sweeps, underlines, rings, boxes, strikes, emphasis, arrows, spotlight, loupe, marks, brackets, connectors, charts |
 | `themes.py` | per-episode background themes, all in the editorial design language |
 | `bg_motion.py` | the original editorial background, and theme selection from `episode.json` |
 
@@ -168,7 +169,42 @@ All in `presets.py`; every one is configurable (position, start, duration, rotat
 
 **Do not animate everything at once.** One physical action per beat, chosen by what the narration is doing; the rest of the frame stays still or drifts. Mix durations (0.8–1.6 s) so nothing feels repetitive.
 
-### 7. Background themes
+### 7. Editorial annotations
+
+`annotate.py` makes the film feel like an editor marking up text, photographs and documents in real time. Every mark is drawn by a pen: anti-aliased strokes with pressure taper, a seeded hand tremor (identical on re-render), quick-start/soft-finish easing, and a small overshoot (rings loop past their start, corners overshoot, emphasis swells and settles). Each one makes its own sound (marker scratch, swipe, tick, air swell).
+
+| Family | Function | Use it when the narration… |
+|---|---|---|
+| Text | `sweep(layer, box, t, start)` | names the key word or phrase (draw it **before** the text) |
+| | `underline(..., double=True)` | stresses a word or a figure |
+| | `ring(layer, box, ...)` | singles out one word or one detail |
+| | `outline(layer, box, ...)` | quotes a phrase or a line on a document |
+| | `strike(layer, box, ..., scribble=)` | corrects or rejects something ("Short" → "Brief") |
+| | `emphasis(layer, xy, word, size, t, start)` | a word turns terracotta and swells, then settles (draw the word with this, not `words()`) |
+| Photos | `ring` / `arrow(layer, p0, p1, ...)` | points at a person or an object in the picture |
+| | `frame` / `corners` | isolates an area of a photograph |
+| | `spotlight(layer, centre, r, ...)` | the eye must go to one place; draw it **last** on `shot.mid` |
+| | `magnify(layer, layer.copy(), centre, r, zoom, to, ...)` | a small detail must be seen up close (a loupe with a leader line) |
+| | `focus(shot, box, at, hold)` | the camera travels into the detail, holds, and pulls back |
+| Documents | `mark(layer, xy, 'tick' / 'cross' / 'star' / 'dash' / 'question', ...)` | margin notes on a record |
+| | `bracket(layer, x, y0, y1, ..., side=)` | groups lines that belong together |
+| | `stat(layer, xy, '237 WEEKS', size, ...)` | a number the narration says: beige sweep + terracotta swell |
+| | `connect(layer, [points], ..., dashed=, arrowhead=)` | links two items, or a document to a note |
+| | `presets.stamp_hit(...)` | a verdict or a date lands with impact |
+| | `bars(layer, box, values, ..., highlight=, fill_at=)` / `wedge(layer, c, r, a0, a1, ...)` | a chart where only the named part fills with the accent |
+
+**Placing them:**
+- **Boxes for text:** `words_box(xy, line, size, 'word')` gives the box of one word inside a `style.words()` line, and `text_box(...)` the whole line. Never guess pixel boxes for type.
+- **Layers:** marks on paper and photos go on `shot.mid`, marks on headline type on `shot.top`, marks on captions on `shot.hud`, so they stay glued to what they mark during camera moves.
+- **Lifetimes:** pass `until=<cue>` so a mark leaves when the narration moves on: `exit='settle'` (fades to a 35 % trace), `exit='fade'` (lifts away), or omit for marks that must stay (strikes, stamps).
+
+**Style rules:**
+- **One mark at a time,** on the word that names the thing. A frame holds at most two or three active marks, and earlier marks settle.
+- **Colour:** terracotta for the mark the narration is on, beige for background sweeps behind figures, charcoal for spotlights and chart axes, and muted orange only as a second colour.
+- **No glows, neon or particles.** Strokes are 5–9 px; the spotlight dims to about 40 %.
+- **Only highlight what is spoken.** Never circle a detail, box a phrase or fill a chart section the narration doesn't mention.
+
+### 8. Background themes
 
 Every episode gets its own background, but every theme speaks the design language of the user's original editorial background: the same paper, flat textured terracotta + beige corner shapes, translucent diagonal bands, thin dark lines and arcs, breathing dot grids, an open centre. Only the shapes and their arrangement change with the subject. Do not invent a new visual style (dark grounds, heavy patterns) unless the user asks.
 
@@ -186,7 +222,7 @@ Every episode gets its own background, but every theme speaks the design languag
 
 **New theme:** add a `Theme(name, label, [elements], paper_colour, seed)` in `themes.py` from the element vocabulary (`shape`, `terra`, `hline`, `vline`, `dots`, `orbiter`, `tracer`, `diag`). Keep big shapes off the centre, keep terracotta as the accent, give every element its own drift period (20–45 s). Show the user a board of themes and a 15 s preview before using it.
 
-### 8. Sound effects
+### 9. Sound effects
 
 Effects are generated in code (`sfx.py`) and synced automatically: every preset and helper registers a sound event when it draws, with its time and screen position.
 
@@ -212,7 +248,7 @@ Effects are generated in code (`sfx.py`) and synced automatically: every preset 
 - **Add audio to an already-rendered act** without re-rendering the picture: `vox.collect_events(act.frame, act.END)`, `sfx.mix_into(narration_wav, events, out_wav)`, then mux with `ffmpeg -c:v copy`.
 - **Sound must not contradict the story.** No flat-line tone when the patient survives, no gunshots for implied violence.
 
-### 9. QC before rendering
+### 10. QC before rendering
 
 ```
 cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 6 10 15 22
@@ -233,7 +269,7 @@ cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 
 
 Fix, re-check. Show the user sheets or a draft per act and get approval before moving on.
 
-### 10. Render: Claude renders the final, in this session
+### 11. Render: Claude renders the final, in this session
 
 ```
 cd project && python SK/scripts/render_all.py --acts 3 --draft   # review render of one act
@@ -268,3 +304,4 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 16. Sound effects stay subtle: about 20 dB under the voice (the first mix at 10 dB under was too loud). Change single sounds or the level by remixing the audio only, never by re-rendering the picture.
 17. Never report work as running or done without checking it (process list, output file, duration). If something silently failed, say so plainly and restart it.
 18. Every word on screen must be readable on what is behind it: label backings over dark plates, large size for red text, no missing glyphs.
+19. Annotations follow the narration: one mark per spoken idea, drawn on its word, settling when the narration moves on; never highlight everything at once.
