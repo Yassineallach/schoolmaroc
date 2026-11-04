@@ -380,6 +380,58 @@ _add(Theme('ledger', 'Economics: ledger', _bars + [
 ], paper_colour=(244, 234, 218), seed=111))
 
 
+# ---- manga / comics history: ink studio --------------------------------------------
+# Corner manga panel frames with gutters, screentone dot grids, a crosshatch band, a terracotta
+# eclipse (sun-and-ring), a dip-pen nib, ink rules. Made for the Berserk episode.
+def _hatch(x0, y0, x1, y1, step=14, slope=1.0):
+    """Parallel hatch lines clipped to the box (x0, y0, x1, y1)."""
+    def clip(a, b):
+        (ax, ay), (bx, by) = a, b
+        t0, t1, dx, dy = 0.0, 1.0, bx - ax, by - ay
+        for p, q in ((-dx, ax - x0), (dx, x1 - ax), (-dy, ay - y0), (dy, y1 - ay)):
+            if p == 0:
+                if q < 0:
+                    return None
+                continue
+            r = q / p
+            if p < 0:
+                t0 = max(t0, r)
+            else:
+                t1 = min(t1, r)
+        return None if t0 >= t1 else ((ax + dx * t0, ay + dy * t0), (ax + dx * t1, ay + dy * t1))
+    lines, h = [], y1 - y0
+    span = abs(h * slope)
+    for k in range(-int(span / step) - 2, int((x1 - x0) / step) + int(span / step) + 3):
+        seg = clip((x0 + k * step, y0), (x0 + k * step + h * slope, y1))
+        if seg:
+            lines.append(seg)
+    return lines
+
+
+_NIB = [(1690, 860), (1745, 860), (1760, 940), (1717, 1010), (1675, 940)]
+
+_add(Theme('ink_studio', 'Manga: ink studio', [
+    shape(rect(-40, -40, 330, 250), BEIGE, 1.0, 3, drift=(5, 4, 33, 29, 0.0)),                                  # panel 1
+    shape(rect(350, -40, 560, 250), BAND, 0.7, 3, drift=(5, 4, 33, 29, 0.0)),                                   # panel 2
+    shape(segs([((330, -40), (330, 250)), ((-40, 250), (560, 250)), ((350, -40), (350, 250)), ((560, -40), (560, 250))], 2.0), LINE, 0.8, 0, drift=(5, 4, 33, 29, 0.0)),
+    shape(segs(_hatch(370, -30, 545, 240, 12, 0.5), 1.1), ARC, 0.55, 0, drift=(5, 4, 33, 29, 0.0)),            # crosshatch in panel 2
+    shape(segs(_hatch(370, -30, 545, 240, 12, -0.5), 1.1), ARC, 0.4, 0, drift=(5, 4, 33, 29, 0.0)),
+    shape(rect(1520, 640, 1960, 1120), BEIGE, 0.9, 3, drift=(0, 8, 31, 31, 1.0)),                               # panel 3
+    shape(segs([((1520, 640), (1520, 1120)), ((1520, 640), (1960, 640))], 2.0), LINE, 0.8, 0, drift=(0, 8, 31, 31, 1.0)),
+    shape(polygon(_NIB), (60, 52, 46), 0.85, 0, drift=(0, 8, 31, 31, 1.0)),                                      # dip-pen nib
+    shape(segs([((1717, 880), (1717, 975))], 2.0), BEIGE, 1.0, 0, drift=(0, 8, 31, 31, 1.0)),
+    shape(polygon([(-120, 1110), (60, 1110), (420, 700), (240, 700)]), BAND, 0.45, 4, drift=diag(10, 34)),     # diagonal band
+    shape(ring(1760, 170, 205), ARC, 0.85, 0, drift=(-4, 4, 35, 29, 0.0)),                                      # eclipse ring
+    terra(circle(1760, 170, 150), drift=(6, 5, 29, 23, 0.0)),                                                   # eclipse
+    shape(circle(1790, 150, 118), (232, 214, 186), 1.0, 3, drift=(4, 4, 37, 31, 1.0)),                         # the shadow crossing it
+    terra(rect(-60, 1010, 330, 1055), drift=(10, 0, 26, 26, 1.0)),
+    dots(390, 300, 7, 4, 26), dots(1300, 850, 6, 4, 26),                                                        # screentone
+    hline(60, 760, 985, grow=80, period=23, phase=2.2, end='right'),
+    vline(1490, 300, 620, grow=60, period=24, phase=0.4, colour=FAINT, alpha=0.9),
+    hline(600, 1350, 70, grow=90, period=21, phase=0.8),
+], paper_colour=(246, 236, 220), seed=131))
+
+
 class _Editorial:
     name, label, ink = 'editorial', 'Editorial (original reference)', (26, 26, 26)
 
