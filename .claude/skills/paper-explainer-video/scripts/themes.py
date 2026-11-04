@@ -432,6 +432,237 @@ _add(Theme('ink_studio', 'Manga: ink studio', [
 ], paper_colour=(246, 236, 220), seed=131))
 
 
+# ---- manga ink: recreated from the user's second reference (Berserk episode) ------------
+# Aged manga paper; a red sun cut by cream cloud bands; tilted panel frames filled with halftone;
+# manga speed lines; red bars; a halftone disc; grey cloud bands; red ink splatter; a dry-brush
+# ensō in the corner. Geometry is measured on the 1672x941 reference and scaled by K.
+K = 1920 / 1672.0
+MI_PAPER = (246, 224, 191)
+MI_RED = (190, 48, 26)
+MI_GREY = (169, 152, 126)
+MI_CLOUD = (214, 190, 158)
+MI_INK = (30, 26, 24)
+
+
+def _k(pts):
+    return [(x * K, y * K) for x, y in pts]
+
+
+class MangaInk(Theme):
+    def __init__(self):
+        super().__init__('manga_ink', 'Manga: ink and halftone (reference 2)', [], MI_PAPER, 141)
+
+    # -- builders -------------------------------------------------------------
+    @staticmethod
+    def _poly_mask(w, h, pts, ox, oy):
+        m = Image.new('L', (w, h), 0)
+        ImageDraw.Draw(m).polygon([(x - ox, y - oy) for x, y in pts], fill=255)
+        return np.asarray(m)
+
+    def _halftone(self, pts, colour, step=9, rmax=4.2, grad=((0, 0), (1, 0)), alpha=0.9, seed=1):
+        """Dots on a grid inside a polygon; dot size follows a linear gradient between two
+        relative points of the bounding box (dense at grad[0], fading at grad[1])."""
+        xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+        x0, y0, x1, y1 = int(min(xs)) - 4, int(min(ys)) - 4, int(max(xs)) + 4, int(max(ys)) + 4
+        w, h = x1 - x0, y1 - y0
+        inside = self._poly_mask(w, h, pts, x0, y0)
+        m = Image.new('L', (w * 2, h * 2), 0)
+        d = ImageDraw.Draw(m)
+        (gx0, gy0), (gx1, gy1) = grad
+        vx, vy = (gx1 - gx0) * w, (gy1 - gy0) * h
+        L2 = vx * vx + vy * vy or 1
+        for j, yy in enumerate(range(0, h, step)):
+            for xx in range((j % 2) * step // 2, w, step):
+                if inside[min(h - 1, yy), min(w - 1, xx)] == 0:
+                    continue
+                u = ((xx - gx0 * w) * vx + (yy - gy0 * h) * vy) / L2
+                r = rmax * max(0.0, 1 - min(1.0, max(0.0, u))) ** 0.8
+                if r > 0.5:
+                    d.ellipse(((xx - r) * 2, (yy - r) * 2, (xx + r) * 2, (yy + r) * 2), fill=255)
+        m = m.resize((w, h), Image.LANCZOS).point(lambda v: int(v * alpha))
+        return self._tile_from(m, colour, x0, y0)
+
+    @staticmethod
+    def _tile_from(mask, colour, x0, y0, texture=0.0, seed=0):
+        t = Tile.__new__(Tile)
+        t.x0, t.y0 = int(x0), int(y0)
+        col = np.empty((mask.height, mask.width, 3), np.float32)
+        col[:] = colour
+        if texture:
+            col += _noise(mask.height, mask.width, 30, seed, texture)[..., None] + _noise(mask.height, mask.width, 2, seed + 1, texture * 0.8)[..., None]
+        t.rgb = Image.fromarray(col.clip(0, 255).astype(np.uint8))
+        t.mask = mask
+        return t
+
+    def _shape(self, pts, colour, alpha=1.0, texture=6, seed=3):
+        xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+        x0, y0, x1, y1 = int(min(xs)) - 3, int(min(ys)) - 3, int(max(xs)) + 3, int(max(ys)) + 3
+        w, h = x1 - x0, y1 - y0
+        m = Image.new('L', (w * 3, h * 3), 0)
+        ImageDraw.Draw(m).polygon([((x - x0) * 3, (y - y0) * 3) for x, y in pts], fill=255)
+        m = m.resize((w, h), Image.LANCZOS)
+        if texture:                                           # worn print: speckled ink dropout
+            r = np.random.default_rng(seed)
+            a = np.asarray(m).astype(np.float32)
+            a *= (1 - 0.18 * (r.random(a.shape) < 0.08)) * (0.9 + 0.1 * _noise(h, w, 4, seed, 1.0))
+            m = Image.fromarray(a.clip(0, 255).astype(np.uint8))
+        m = m.point(lambda v: int(v * alpha))
+        return self._tile_from(m, colour, x0, y0, texture * 1.2, seed)
+
+    def _lines(self, segs, colour, width=2.2, alpha=1.0, taper=False):
+        xs = [v[0] for sg in segs for v in sg]
+        ys = [v[1] for sg in segs for v in sg]
+        x0, y0, x1, y1 = int(min(xs)) - 8, int(min(ys)) - 8, int(max(xs)) + 8, int(max(ys)) + 8
+        w, h = x1 - x0, y1 - y0
+        m = Image.new('L', (w * 3, h * 3), 0)
+        d = ImageDraw.Draw(m)
+        for (ax, ay), (bx, by) in segs:
+            if taper:                                          # speed line: thick end -> needle point
+                dx, dy = bx - ax, by - ay
+                L = math.hypot(dx, dy) or 1
+                nx, ny = -dy / L * width / 2, dx / L * width / 2
+                d.polygon([((ax + nx - x0) * 3, (ay + ny - y0) * 3), ((ax - nx - x0) * 3, (ay - ny - y0) * 3), ((bx - x0) * 3, (by - y0) * 3)], fill=255)
+            else:
+                d.line([((ax - x0) * 3, (ay - y0) * 3), ((bx - x0) * 3, (by - y0) * 3)], fill=255, width=max(1, int(width * 3)))
+        m = m.resize((w, h), Image.LANCZOS).point(lambda v: int(v * alpha))
+        return self._tile_from(m, colour, x0, y0)
+
+    def _clouds(self, bars, colour, alpha=1.0, texture=4, seed=5):
+        """Japanese cloud bands: stacked capsules (x0, x1, y, h) in reference coords."""
+        xs = [b[0] * K for b in bars] + [b[1] * K for b in bars]
+        ys = [b[2] * K for b in bars] + [(b[2] + b[3]) * K for b in bars]
+        x0, y0, x1, y1 = int(min(xs)) - 4, int(min(ys)) - 4, int(max(xs)) + 4, int(max(ys)) + 4
+        w, h = x1 - x0, y1 - y0
+        m = Image.new('L', (w * 3, h * 3), 0)
+        d = ImageDraw.Draw(m)
+        for bx0, bx1, by, bh in bars:
+            r = bh * K * 3 / 2
+            d.rounded_rectangle(((bx0 * K - x0) * 3, (by * K - y0) * 3, (bx1 * K - x0) * 3, ((by + bh) * K - y0) * 3), radius=r, fill=255)
+        m = m.resize((w, h), Image.LANCZOS).point(lambda v: int(v * alpha))
+        return self._tile_from(m, colour, x0, y0, texture, seed)
+
+    def _enso(self, cx, cy, r, width, a0, a1, colour, seed=7):
+        """Dry-brush ink ring: many bristle arcs with ragged starts, ends and gaps."""
+        R = r + width
+        x0, y0 = int(cx - R - 10), int(cy - R - 10)
+        w = h = int(2 * R + 20)
+        S = 2
+        m = Image.new('L', (w * S, h * S), 0)
+        d = ImageDraw.Draw(m)
+        rng = np.random.default_rng(seed)
+        n = 70
+        for i in range(n):
+            rr = r - width / 2 + width * i / (n - 1) + rng.normal(0, 1.2)
+            edge = abs(i / (n - 1) - 0.5) * 2                     # bristles at the edges run dry sooner
+            s0 = a0 + rng.uniform(0, 14) + 10 * edge
+            s1 = a1 - rng.uniform(0, 30) * (0.3 + edge)
+            a = s0
+            while a < s1:                                        # dry-brush breaks
+                seg = rng.uniform(25, 120) * (1 - 0.6 * edge)
+                e = min(s1, a + seg)
+                bb = ((cx - rr - x0) * S, (cy - rr - y0) * S, (cx + rr - x0) * S, (cy + rr - y0) * S)
+                d.arc(bb, a, e, fill=255, width=max(1, int(rng.uniform(1.6, 3.2) * S)))
+                a = e + rng.uniform(0, 6) * edge * 3
+        m = m.resize((w, h), Image.LANCZOS)
+        return self._tile_from(m, colour, x0, y0, 6, seed)
+
+    def _splatter(self, cx, cy, spread, n, colour, seed):
+        rng = np.random.default_rng(seed)
+        R = spread + 20
+        x0, y0 = int(cx - R), int(cy - R)
+        w = h = int(2 * R)
+        m = Image.new('L', (w * 3, h * 3), 0)
+        d = ImageDraw.Draw(m)
+        for _ in range(n):
+            ang, dist = rng.uniform(0, 2 * math.pi), abs(rng.normal(0, spread / 2))
+            rr = max(0.7, min(4.5, rng.gamma(1.4, 1.1)))
+            x, y = R + math.cos(ang) * dist, R + math.sin(ang) * dist
+            d.ellipse(((x - rr) * 3, (y - rr) * 3, (x + rr) * 3, (y + rr) * 3), fill=255)
+        m = m.resize((w, h), Image.LANCZOS)
+        return self._tile_from(m, colour, x0, y0)
+
+    # -- composition ------------------------------------------------------------
+    def build(self):
+        a = np.empty((H, W, 3), np.float32)                        # aged manga paper
+        a[:] = MI_PAPER
+        a += _noise(H, W, 80, 7, 7)[..., None] + _noise(H, W, 5, 8, 4)[..., None]
+        a += (_noise(H, W, 2, 9, 1.0)[..., None] * 3)
+        yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+        a -= (((xx / W - 0.5) ** 2 + (yy / H - 0.5) ** 2) * 14)[..., None]
+        r = np.random.default_rng(12)
+        for _ in range(9):                                        # faint stains
+            cx, cy, rad = r.uniform(0, W), r.uniform(0, H), r.uniform(80, 260)
+            m = np.exp(-(((xx - cx) ** 2 + (yy - cy) ** 2) / (2 * rad ** 2)))
+            a -= (m * r.uniform(3, 7))[..., None] * np.array([0.5, 0.9, 1.4], np.float32)
+        img = Image.fromarray(a.clip(0, 255).astype(np.uint8))
+        base = np.asarray(img.filter(ImageFilter.GaussianBlur(0.5)), np.float32)
+        self.g1 = Image.fromarray((base * (1 + 0.02 * _noise(H, W, 1, 21, 1.0)[..., None])).clip(0, 255).astype(np.uint8))
+        self.g2 = Image.fromarray((base * (1 + 0.02 * _noise(H, W, 1, 22, 1.0)[..., None])).clip(0, 255).astype(np.uint8))
+
+        P = []                                                     # (tile, drift)
+        # left panel: halftone + grey plate, and its ink frame
+        lp = _k([(0, 238), (135, 252), (98, 700), (0, 690)])
+        P.append((self._shape(_k([(0, 245), (128, 258), (112, 470), (0, 462)]), MI_GREY, 0.28, 6, 1), (4, 3, 37, 31, 0.0)))
+        P.append((self._halftone(lp, (90, 80, 68), 10, 4.4, ((0, 0.4), (1, 0.95)), 0.85, 1), (4, 3, 37, 31, 0.0)))
+        # bottom-left panel
+        bp = _k([(95, 812), (780, 880), (790, 941), (85, 941)])
+        P.append((self._shape(_k([(150, 830), (560, 862), (566, 941), (140, 941)]), MI_GREY, 0.45, 6, 2), (6, 0, 41, 41, 1.0)))
+        P.append((self._halftone(bp, (90, 80, 68), 10, 4.0, ((0, 0.2), (0.8, 0.0)), 0.8, 2), (6, 0, 41, 41, 1.0)))
+        # top-right panel
+        tp = _k([(1335, 0), (1610, 0), (1650, 205), (1288, 250)])
+        P.append((self._shape(_k([(1355, 0), (1590, 0), (1622, 186), (1310, 228)]), MI_GREY, 0.85, 7, 3), (-5, 4, 35, 29, 0.5)))
+        P.append((self._halftone(_k([(1120, 0), (1672, 0), (1672, 360), (1260, 300)]), (110, 98, 82), 7, 2.8, ((0.75, 0.0), (0.05, 0.9)), 0.5, 3), (-3, 2, 43, 37, 0.0)))
+        # right halftone disc
+        disc = [(1520 * K + 108 * K * math.cos(t_), 440 * K + 108 * K * math.sin(t_)) for t_ in np.linspace(0, 2 * math.pi, 80)]
+        P.append((self._halftone(disc, (120, 110, 94), 6, 2.4, ((0.2, 0.0), (0.9, 1.0)), 0.85, 4), (0, 6, 33, 27, 2.0)))
+        # bottom-right halftone corner
+        P.append((self._halftone(_k([(1420, 600), (1672, 580), (1672, 941), (1450, 941)]), (100, 90, 76), 9, 3.8, ((1.0, 1.0), (0.0, 0.0)), 0.6, 5), (3, -3, 39, 35, 0.0)))
+        # grey cloud bands
+        P.append((self._clouds([(100, 175, 432, 26), (100, 240, 460, 26), (140, 370, 512, 24), (180, 290, 536, 22)], MI_CLOUD, 0.95, 5, 6), (22, 0, 34, 34, 0.0)))
+        P.append((self._clouds([(1175, 1440, 745, 26), (1220, 1400, 772, 24), (1000, 1370, 815, 26)], MI_CLOUD, 0.95, 5, 7), (-26, 0, 38, 38, 1.0)))
+        # red sun with cream cloud bands cutting through it
+        sun = self._shape([(170 * K + 220 * K * math.cos(t_), 30 * K + 220 * K * math.sin(t_)) for t_ in np.linspace(0, 2 * math.pi, 120)], MI_RED, 1.0, 10, 8)
+        P.append((sun, (6, 5, 29, 25, 0.0)))
+        P.append((self._clouds([(0, 110, 72, 26), (60, 170, 98, 24), (0, 255, 124, 28), (70, 210, 152, 24)], MI_PAPER, 1.0, 3, 9), (18, 0, 27, 27, 0.5)))
+        # red bars
+        P.append((self._shape(_k([(46, 650), (127, 650), (110, 941), (20, 941)]), MI_RED, 1.0, 10, 10), (0, 7, 31, 31, 0.0)))
+        P.append((self._shape(_k([(1600, 196), (1652, 188), (1626, 512), (1570, 514)]), MI_RED, 1.0, 10, 11), (0, -7, 29, 29, 1.0)))
+        # panel ink frames
+        P.append((self._lines([(_k([(0, 238)])[0], _k([(135, 252)])[0]), (_k([(135, 252)])[0], _k([(95, 820)])[0]),
+                               (_k([(95, 812)])[0], _k([(780, 880)])[0]), (_k([(770, 880)])[0], _k([(785, 941)])[0]),
+                               (_k([(1335, 0)])[0], _k([(1288, 250)])[0]), (_k([(1288, 250)])[0], _k([(1652, 200)])[0]), (_k([(1612, 0)])[0], _k([(1652, 205)])[0]),
+                               (_k([(1165, 572)])[0], _k([(1562, 572)])[0]), (_k([(1562, 572)])[0], _k([(1548, 941)])[0])], MI_INK, 2.0, 0.95), (3, 2, 45, 39, 0.0)))
+        # speed lines (tapered): top, top-right, bottom-left
+        rs = np.random.default_rng(14)
+        top = [((300 * K + rs.uniform(-40, 40), (60 + i * 2.2) * K), ((900 + rs.uniform(-60, 0)) * K, (56 + i * 0.6) * K)) for i in range(5)]
+        tr = [(((1060 - i * 4) * K, (0 + i * 1.5) * K), ((930 + rs.uniform(-30, 20)) * K, (40 + i * 6) * K)) for i in range(7)]
+        bl = [((0, (800 + i * 14) * K), ((340 + rs.uniform(-40, 40)) * K, (941 + i * 6) * K)) for i in range(9)]
+        self.speed = [self._lines(top, MI_INK, 3.0, 0.9, taper=True), self._lines(tr, MI_INK, 4.0, 0.95, taper=True), self._lines(bl, MI_INK, 5.0, 0.95, taper=True)]
+        # ink splatter
+        P.append((self._splatter(330 * K, 205 * K, 85, 40, MI_RED, 31), (6, 5, 29, 25, 0.0)))
+        P.append((self._splatter(1545 * K, 260 * K, 80, 36, MI_RED, 32), (0, -7, 29, 29, 1.0)))
+        P.append((self._splatter(1475 * K, 670 * K, 40, 22, MI_RED, 33), (0, 0, 30, 30, 0.0)))
+        # the ensō
+        self.enso = self._enso(1705 * K, 945 * K, 245 * K, 92 * K, 150, 300, MI_INK, 34)
+        self.parts = P
+        self._built = True
+
+    def frame(self, t):
+        if not self._built:
+            self.build()
+        c = Image.blend(self.g1, self.g2, 0.5 + 0.5 * _s(t, 7.0))
+        for tile, (ax, ay, px, py, ph) in self.parts:
+            tile.place(c, ax * _s(t, px, ph), ay * _s(t, py, ph + 1.0))
+        for i, sp in enumerate(self.speed):                        # speed lines surge and settle
+            k = 0.5 + 0.5 * _s(t, 6.5 + i * 1.7, i * 2.1)
+            sp.place(c, (-1, 1, -1)[i] * 14 * k, (0, -1, 1)[i] * 6 * k)
+        self.enso.place(c, 5 * _s(t, 31), 4 * _s(t, 27, 1.0))     # the brush circle breathes
+        return c
+
+
+THEMES['manga_ink'] = MangaInk()
+
+
 class _Editorial:
     name, label, ink = 'editorial', 'Editorial (original reference)', (26, 26, 26)
 
