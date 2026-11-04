@@ -341,8 +341,11 @@ def underline(layer, x0, x1, y, t, start, width=9, seed=0):
     vox.marker_line(layer, [(x0, y + 2), ((x0 + x1) / 2, y - 3), (x1, y + 1)], ease_out_cubic((t - start) / 0.45), width, seed=seed)
 
 
-def kicker(layer, t, n, title, start=0.4, hold=5.5):
-    """Chapter label resting on the background's bottom-left rule."""
+KICKER_XY = (64, 925)          # per-episode override: style.KICKER_XY = (x, y) where the theme has a clear rule
+
+
+def kicker(layer, t, n, title, start=0.4, hold=5.5, xy=None):
+    """Chapter label resting on the background's bottom-left rule (or at xy / KICKER_XY)."""
     sfx('type', start + 0.25, 200, n=len(title.replace(' ', '')) + 2, cps=30)
     if t < start or t > start + hold + 0.8:
         return
@@ -353,4 +356,4 @@ def kicker(layer, t, n, title, start=0.4, hold=5.5):
     s = title.upper()
     m = int(min(len(s), max(0, t - start - 0.25) * 30))
     d.text((70, 35), s[:m], font=F_TYPE(30), fill=INK + (255,), anchor='lm')
-    layer.alpha_composite(alpha_mul(ov, op), (64, 925))
+    layer.alpha_composite(alpha_mul(ov, op), tuple(int(v) for v in (xy or KICKER_XY)))
