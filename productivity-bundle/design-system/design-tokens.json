@@ -1,0 +1,76 @@
+{
+  "name": "Ultimate Productivity Bundle - global design system",
+  "version": "1.0.0",
+  "typography": {
+    "excel": "Arial",
+    "googleSheets": "Arial",
+    "title": { "size": 18, "weight": "bold" },
+    "sectionHeading": { "size": 10, "weight": "bold" },
+    "tableLabel": { "size": 9, "weight": "bold" },
+    "body": { "size": 9, "weight": "normal" }
+  },
+  "color": {
+    "primary": {
+      "deepNavy": "#17243A",
+      "midnightBlue": "#223653",
+      "professionalBlue": "#4169E1",
+      "softBlue": "#EAF1FB"
+    },
+    "accent": {
+      "teal": "#24A89A",
+      "softTeal": "#E2F4F0",
+      "lavender": "#8B7BE8",
+      "softLavender": "#F0EDFC"
+    },
+    "neutral": {
+      "background": "#F5F7FA",
+      "white": "#FFFFFF",
+      "lightGray": "#E9EDF2",
+      "mediumGray": "#9AA5B1",
+      "darkText": "#263445",
+      "secondaryText": "#6B7785",
+      "border": "#DCE3EA"
+    },
+    "status": {
+      "success": "#279B70",
+      "successBackground": "#E5F5ED",
+      "warning": "#E9A23B",
+      "warningBackground": "#FFF3DC",
+      "danger": "#DC5B64",
+      "dangerBackground": "#FCEAEC",
+      "information": "#4D8FD8",
+      "informationBackground": "#EAF2FC"
+    }
+  },
+  "cellConventions": {
+    "userInput": "softBlue",
+    "standard": "white",
+    "calculated": "lightGray",
+    "positiveResult": "softTeal",
+    "warningOrNegative": "dangerBackground",
+    "optionalOrSecondary": "softLavender"
+  },
+  "semanticColors": {
+    "income": "teal",
+    "expense": "danger",
+    "savings": "professionalBlue",
+    "financialGoals": "lavender",
+    "projectSections": "teal",
+    "taskSections": "lavender",
+    "dashboards": "professionalBlue"
+  },
+  "layout": {
+    "gridlines": "hidden",
+    "headerFill": "deepNavy",
+    "tableHeaderCalculatedFill": "midnightBlue",
+    "borders": "thin, border colour, no heavy gridlines",
+    "numberFormats": {
+      "date": "dd-mmm-yyyy",
+      "money": "#,##0.00;[Red]-#,##0.00",
+      "percent": "0%",
+      "days": "0;[Red]-0",
+      "hours": "0.0",
+      "time": "hh:mm"
+    }
+  }
+}
