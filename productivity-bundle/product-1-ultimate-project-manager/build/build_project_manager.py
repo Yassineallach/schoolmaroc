@@ -19,6 +19,7 @@ from openpyxl.workbook.defined_name import DefinedName
 from openpyxl.workbook.properties import CalcProperties
 from openpyxl.chart import BarChart, DoughnutChart, Reference
 from openpyxl.chart.marker import DataPoint
+from openpyxl.chart.label import DataLabelList
 from openpyxl.utils import get_column_letter as CL
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "Ultimate_Project_Manager.xlsx"
@@ -599,24 +600,28 @@ def build_dashboard(ws):
         ("TOTAL PROJECT BUDGET", f'=SUM({BPLAN})', FMT_MONEY, "planned, all expense lines"),
         ("ACTUAL SPENDING", f'=SUM({BACT})', FMT_MONEY, "recorded expenses"),
         ("REMAINING BUDGET", f"={pos(8)}-{pos(9)}", FMT_MONEY, "budget minus spending"),
+        ("BUDGET USED", f"=IFERROR({pos(9)}/{pos(8)},0)", "0%", "spending as share of budget"),
     ]
+    kpi_colors = [BLUE, BLUE, BLUE, DANGER, TEAL, TEAL, WARN, TEAL, LAV, LAV, LAV, LAV]
     for i, (lab, f, fmt, sub) in enumerate(kpis):
         k = i // 4
         c0 = 2 + 3 * (i % 4)
         r0 = 5 + 4 * k
-        for rr, txt, fn_, col_ in ((r0, lab, fnt(8, True, SEC), SEC), (r0 + 1, f, fnt(20, True, NAVY), NAVY),
+        kc = kpi_colors[i]
+        for rr, txt, fn_, col_ in ((r0, lab, fnt(8, True, WHITE), kc), (r0 + 1, f, fnt(20, True, NAVY), NAVY),
                                    (r0 + 2, sub, fnt(8, False, SEC), SEC)):
             ws.merge_cells(start_row=rr, start_column=c0, end_row=rr, end_column=c0 + 2)
             cell = ws.cell(rr, c0, txt)
             cell.font = fn_
             cell.alignment = Alignment(horizontal="left", vertical="center", indent=1)
             for cc in range(c0, c0 + 3):
-                ws.cell(rr, cc).fill = fill(WHITE)
+                ws.cell(rr, cc).fill = fill(kc if rr == r0 else WHITE)
                 ws.cell(rr, cc).border = Border(
                     left=SIDE if cc == c0 else None, right=SIDE if cc == c0 + 2 else None,
                     top=SIDE if rr == r0 else None, bottom=SIDE if rr == r0 + 2 else None)
         ws.cell(r0 + 1, c0).number_format = fmt
         ws.row_dimensions[r0 + 1].height = 30
+        ws.row_dimensions[r0].height = 18
 
     # chart data block (auto)
     section(ws, "P4", "CHART DATA (automatic; do not type here)")
@@ -662,8 +667,11 @@ def build_dashboard(ws):
         pt = DataPoint(idx=idx)
         pt.graphicalProperties.solidFill = colr
         dn.series[0].dPt.append(pt)
-    dn.width, dn.height = 12.5, 7.5
+    dn.width, dn.height = 16, 7.4
     dn.legend.position = "r"
+    dn.dataLabels = DataLabelList(); dn.dataLabels.showPercent = True
+    dn.dataLabels.showVal = False; dn.dataLabels.showCatName = False; dn.dataLabels.showSerName = False
+    dn.dataLabels.showLeaderLines = False
     ws.add_chart(dn, "B18")
 
     bs = BarChart()
@@ -674,17 +682,21 @@ def build_dashboard(ws):
     bs.series[0].graphicalProperties.solidFill = BLUE
     bs.series[0].graphicalProperties.line.solidFill = BLUE
     bs.legend = None
-    bs.width, bs.height = 12.5, 7.5
-    ws.add_chart(bs, "G18")
+    bs.width, bs.height = 16, 7.4
+    bs.dataLabels = DataLabelList(); bs.dataLabels.showVal = True
+    bs.dataLabels.showCatName = False; bs.dataLabels.showSerName = False; bs.dataLabels.showLegendKey = False
+    bs.gapWidth = 60
+    ws.add_chart(bs, "H18")
 
     mc = BarChart()
     mc.type = "col"
     mc.title = "Monthly productivity (tasks due vs completed)"
     mc.add_data(Reference(ws, min_col=21, max_col=22, min_row=5, max_row=11), titles_from_data=True)
     mc.set_categories(Reference(ws, min_col=20, min_row=6, max_row=11))
-    mc.series[0].graphicalProperties.solidFill = MGRAY
+    mc.series[0].graphicalProperties.solidFill = LAV
     mc.series[1].graphicalProperties.solidFill = TEAL
-    mc.width, mc.height = 12.5, 7.5
+    mc.width, mc.height = 16, 7.4
+    mc.gapWidth = 80
     mc.legend.position = "b"
     ws.add_chart(mc, "B34")
 
@@ -695,13 +707,14 @@ def build_dashboard(ws):
     bc.set_categories(Reference(ws, min_col=23, min_row=6, max_row=13))
     bc.series[0].graphicalProperties.solidFill = BLUE
     bc.series[1].graphicalProperties.solidFill = LAV
-    bc.width, bc.height = 12.5, 7.5
+    bc.width, bc.height = 16, 7.4
+    bc.gapWidth = 60
     bc.legend.position = "b"
-    ws.add_chart(bc, "G34")
+    ws.add_chart(bc, "H34")
 
     # lists
-    band(ws, 17, 2, 13, "PERFORMANCE CHARTS", BLUE)
-    band(ws, 50, 2, 13, "DEADLINES, ACTIVITY AND PROJECT HEALTH", BLUE)
+    band(ws, 17, 2, 13, "PERFORMANCE CHARTS", MIDNIGHT)
+    band(ws, 50, 2, 13, "DEADLINES, ACTIVITY AND PROJECT HEALTH", MIDNIGHT)
     section(ws, "B51", "Upcoming deadlines")
     section(ws, "I51", "Overdue tasks")
     section(ws, "B63", "Recent activity (latest start dates)")
@@ -738,7 +751,7 @@ def build_dashboard(ws):
         ws[f"M{r}"].number_format = "0"
         for col in "BEFGILM":
             ws[f"{col}{r}"].font = fnt(9)
-            ws[f"{col}{r}"].fill = fill(WHITE)
+            ws[f"{col}{r}"].fill = fill(BG if n % 2 == 0 else WHITE)
     for n in range(1, 7):
         r = 64 + n
         ws.merge_cells(f"B{r}:D{r}")
@@ -1422,6 +1435,7 @@ def main():
         ws.print_options.horizontalCentered = True
         ws.page_margins.left = ws.page_margins.right = 0.4
 
+    wb["Dashboard"].page_setup.fitToHeight = 1
     wb.calculation = CalcProperties(fullCalcOnLoad=True)
     wb.active = 0
     wb.save(OUT)
