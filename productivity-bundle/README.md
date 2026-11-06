@@ -13,7 +13,10 @@ productivity-bundle/
 │   └── build/
 │       └── build_project_manager.py        # generator; re-run to rebuild the workbook
 ├── product-2-ultimate-onenote-planner/     # not started
-├── product-3-weekly-planner-pro/           # not started
+├── product-3-weekly-planner-pro/
+│   ├── Weekly_Planner_Pro.xlsx             # built and recalculation-tested (8 tabs, macro-free)
+│   ├── README.md
+│   └── build/build_weekly_planner.py
 └── product-4-ultimate-budget-spreadsheet/  # not started
 ```
 
@@ -45,10 +48,13 @@ python3 product-1-ultimate-project-manager/build/build_project_manager.py produc
   them, so add new rows at the bottom.
 - The workbook has not been opened in desktop Excel; it was validated by LibreOffice recalculation.
 
-## Products 2–4 and deliverables not yet built
+## Product 3: Weekly Planner Pro (Excel .xlsx)
+
+Built and recalculation-tested (8 tabs). See `product-3-weekly-planner-pro/README.md`.
+
+## Products 2 and 4 and deliverables not yet built
 
 - Product 2, Ultimate OneNote Planner (native OneNote structure, PDF guide, templates)
-- Product 3, Weekly Planner Pro (.xlsx and Google Sheets version)
 - Product 4, Ultimate Budget Spreadsheet (28 tabs, .xlsx and Google Sheets version)
 - Google Sheets version of Product 1
 - Standalone PDF user guide, Getting Started, installation, formula, sample-data and troubleshooting guides
