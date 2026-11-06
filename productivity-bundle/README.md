@@ -9,6 +9,7 @@ productivity-bundle/
 │   └── design-tokens.json                  # palette, typography, cell conventions, number formats
 ├── product-1-ultimate-project-manager/
 │   ├── Ultimate_Project_Manager.xlsx       # built and recalculation-tested (macro-free)
+│   ├── USER_GUIDE.md                       # customer-facing guide
 │   └── build/
 │       └── build_project_manager.py        # generator; re-run to rebuild the workbook
 ├── product-2-ultimate-onenote-planner/     # not started
