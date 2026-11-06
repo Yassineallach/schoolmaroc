@@ -250,15 +250,26 @@ PM_COLS = [
 ]
 
 # ---------------------------------------------------------------- generic writers
-def page(ws, title, sub, tab, demo=False, widths=None):
+def band(ws, row, c1, c2, text, bg=MIDNIGHT, color=WHITE, size=10):
+    for c in range(c1, c2 + 1):
+        ws.cell(row, c).fill = fill(bg)
+    cell = ws.cell(row, c1, text)
+    cell.font = fnt(size, True, color)
+    cell.alignment = Alignment(vertical="center", indent=1)
+    ws.row_dimensions[row].height = 22
+
+
+def page(ws, title, sub, tab, demo=False, widths=None, band_to=14):
     ws.sheet_view.showGridLines = False
     ws.sheet_properties.tabColor = tab
     ws.column_dimensions["A"].width = 2
-    ws["B1"] = title
-    ws["B1"].font = fnt(18, True, NAVY)
-    ws.row_dimensions[1].height = 30
+    band(ws, 1, 2, band_to, title, NAVY, WHITE, 16)
+    ws.row_dimensions[1].height = 36
+    for c in range(2, band_to + 1):
+        ws.cell(2, c).fill = fill(SOFT_BLUE)
     ws["B2"] = sub
-    ws["B2"].font = fnt(9, False, SEC)
+    ws["B2"].font = fnt(9, False, MIDNIGHT)
+    ws.row_dimensions[2].height = 20
     if demo:
         ws["B3"] = "DEMO DATA: sample entries are included so every view works. Clear the blue input cells to start your own."
         ws["B3"].font = fnt(9, True, INFO)
@@ -689,10 +700,12 @@ def build_dashboard(ws):
     ws.add_chart(bc, "G34")
 
     # lists
-    section(ws, "B51", "UPCOMING DEADLINES")
-    section(ws, "I51", "OVERDUE TASKS")
-    section(ws, "B63", "RECENT ACTIVITY (latest start dates)")
-    section(ws, "I63", "PROJECT PERFORMANCE")
+    band(ws, 17, 2, 13, "PERFORMANCE CHARTS", BLUE)
+    band(ws, 50, 2, 13, "DEADLINES, ACTIVITY AND PROJECT HEALTH", BLUE)
+    section(ws, "B51", "Upcoming deadlines")
+    section(ws, "I51", "Overdue tasks")
+    section(ws, "B63", "Recent activity (latest start dates)")
+    section(ws, "I63", "Project performance")
 
     def head(cell_range, text):
         first = cell_range.split(":")[0]
@@ -756,6 +769,7 @@ def build_dashboard(ws):
     cf(ws, "M65:M72", '$M65="On track"', SUCCESS_BG, SUCCESS, False)
     cf(ws, "G53:G60", 'AND(ISNUMBER($G53),$G53<=3)', WARN_BG, DARK, False)
     cf(ws, "M53:M60", 'ISNUMBER($M53)', DANGER_BG, DANGER, True)
+    ws.print_area = "A1:N73"
     ws.freeze_panes = "A4"
 
 
@@ -1399,6 +1413,14 @@ def main():
     build_kanban(sheets["Kanban Board"])
     build_gantt(sheets["Gantt Chart"])
     build_instructions(sheets["Instructions"])
+
+    for ws in wb.worksheets:
+        ws.page_setup.orientation = "landscape"
+        ws.page_setup.fitToWidth = 1
+        ws.page_setup.fitToHeight = 0
+        ws.sheet_properties.pageSetUpPr.fitToPage = True
+        ws.print_options.horizontalCentered = True
+        ws.page_margins.left = ws.page_margins.right = 0.4
 
     wb.calculation = CalcProperties(fullCalcOnLoad=True)
     wb.active = 0
