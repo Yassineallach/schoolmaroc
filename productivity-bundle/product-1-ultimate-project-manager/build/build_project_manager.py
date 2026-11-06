@@ -340,6 +340,11 @@ def dv_date(ws, rng):
     d.add(rng)
 
 
+CENTER_COLS = {"Task ID", "Project ID", "Priority", "Status", "Overdue", "Risk Level", "Frequency",
+               "Schedule Flag", "Budget Alert", "Expense ID", "Recurring ID", "Schedule ID", "Days Left",
+               "Days Remaining", "Days Until Next", "Risk Level", "Progress", "Assigned To", "Project Name"}
+
+
 def write_table(ws, key, cols, rows=()):
     s = REG[key]
     hdr = s["hdr"]
@@ -368,9 +373,11 @@ def write_table(ws, key, cols, rows=()):
                 cell.fill = fill(SOFT_BLUE)
             cell.font = fnt(9)
             cell.border = BOX
-            cell.alignment = Alignment(vertical="center", wrap_text=c.get("wrap", False))
+            cell.alignment = Alignment(vertical="center", wrap_text=False,
+                                       horizontal="center" if c.get("fmt") or c["h"] in CENTER_COLS else "left")
             if c.get("fmt"):
                 cell.number_format = c["fmt"]
+        ws.row_dimensions[r].height = 18
     ref = f"{CL(s['col0'])}{hdr}:{CL(s['col0'] + len(cols) - 1)}{s['last']}"
     tb = Table(displayName=s["tname"], ref=ref)
     tb.tableStyleInfo = TableStyleInfo(name="TableStyleLight1", showRowStripes=False)
@@ -442,10 +449,8 @@ TASKS = [
 ]
 TASK_ROWS = [dict(zip(["Task Name", "Project ID", "Category", "Assigned To", "Start Date",
                        "Due Date", "Priority", "Status", "Est. Hours", "Actual Hours", "Progress"], t_),
-                  Notes="DEMO DATA")
+                  )
              for t_ in TASKS]
-for row, t_ in zip(TASK_ROWS, TASKS):
-    row["Description"] = f"{t_[0]} for {PROJECTS[int(t_[1][-1]) - 1]['Project Name']}"
 
 BUDGET = [
     (P1, "Software", 2400, 1850, D(2026, 10, 3), "Figma and Notion", "Design and workspace licences"),
@@ -503,22 +508,22 @@ PM_ROWS = [
     {"Department": "Product", "Objectives": "Ship new brand site with 30% faster load time",
      "Key Deliverables": "Sitemap, design system, CMS build, launch", "Milestones": "Design sign-off; Beta; Launch",
      "Next Milestone": D(2026, 11, 9), "Team Members": "Alex Morgan, Sam Lee", "Dependencies": "Brand guidelines v3",
-     "Risks": "Copy approvals may slip", "Risk Level": "Medium", "Notes": "DEMO DATA"},
+     "Risks": "Copy approvals may slip", "Risk Level": "Medium", "Notes": ""},
     {"Department": "Marketing", "Objectives": "Generate 500 qualified leads in Q4",
      "Key Deliverables": "Creative set, media plan, landing pages", "Milestones": "Creative approved; Launch",
      "Next Milestone": D(2026, 11, 20), "Team Members": "Priya Shah, Sam Lee", "Dependencies": "Website Redesign landing page",
-     "Risks": "Media costs above forecast", "Risk Level": "High", "Notes": "DEMO DATA"},
+     "Risks": "Media costs above forecast", "Risk Level": "High", "Notes": ""},
     {"Department": "Finance", "Objectives": "Cut over to the ERP with no ledger gaps",
      "Key Deliverables": "Data migration, module cutover, sign-off", "Milestones": "Cutover; Go-live",
      "Next Milestone": D(2026, 10, 30), "Team Members": "Jonas Weber, Dan Okafor", "Dependencies": "Vendor licence",
-     "Risks": "Schedule overrun; budget over 100%", "Risk Level": "High", "Notes": "DEMO DATA"},
+     "Risks": "Schedule overrun; budget over 100%", "Risk Level": "High", "Notes": ""},
 ]
 
 
 # ---------------------------------------------------------------- sheet builders
 def build_setup(ws, wb):
     page(ws, "Setup", "Central configuration. Edit the blue values and lists; every dropdown in the workbook reads from here.",
-         NAVY, demo=True, widths={"B": 22, "C": 24, "D": 3})
+         NAVY, demo=True, widths={"B": 22, "C": 24, "D": 3}, band_to=21)
     section(ws, "B4", "PROFILE AND PREFERENCES")
     prof = [("Workspace name", "Ultimate Project Office", None),
             ("Owner", "Your name", None),
@@ -789,7 +794,7 @@ def build_dashboard(ws):
 def build_monthly(ws):
     page(ws, "Monthly Calendar", "Pick a month and year. Dates, due counts and the day agenda update automatically.",
          BLUE, demo=True, widths={"B": 12, "C": 12, "D": 12, "E": 12, "F": 12, "G": 12, "H": 12,
-                                  "I": 3, "J": 28, "K": 12, "L": 14, "M": 14})
+                                  "I": 3, "J": 28, "K": 12, "L": 14, "M": 14}, band_to=13)
     label(ws, "B4", "Month", True)
     inp(ws, "C4", "November")
     label(ws, "E4", "Year", True)
@@ -884,7 +889,7 @@ def build_monthly(ws):
 def build_weekly(ws):
     page(ws, "Weekly Calendar", "Enter any date in the week you want. The grid, workload and completion stats update automatically.",
          BLUE, demo=True, widths={"B": 9, "C": 19, "D": 19, "E": 19, "F": 19, "G": 19, "H": 19,
-                                  "I": 19, "J": 3, "K": 28, "L": 14})
+                                  "I": 19, "J": 3, "K": 28, "L": 14}, band_to=12)
     label(ws, "B4", "Week containing", True)
     inp(ws, "C4", D(2026, 11, 2), FMT_DATE)
     dv_date(ws, "C4")
@@ -976,7 +981,7 @@ def build_weekly(ws):
 
 def build_proj_overview(ws):
     page(ws, "Project Overview", "Project portfolio. Type a name to start a project; ID, progress, budget and cost calculate.",
-         TEAL, demo=True)
+         TEAL, demo=True, band_to=15)
     write_table(ws, "proj", PROJ_COLS, PROJECTS)
     rng = f"B6:O55"
     for r in range(6, 56):
@@ -997,13 +1002,13 @@ def build_proj_overview(ws):
     cf(ws, "O6:O55", 'AND(ISNUMBER($O6),$O6>=0,$O6<=7)', WARN_BG, DARK, True)
     cf(ws, "N6:N55", 'AND(ISNUMBER($N6),$N6<0)', DANGER_BG, DANGER, True)
     cf(ws, "N6:N55", 'AND(ISNUMBER($N6),$N6>=0)', SUCCESS_BG, SUCCESS, False)
-    legend(ws, 3, 12)
+    legend(ws, 3, ws.max_column - 5)
     ws.freeze_panes = "C6"
 
 
 def build_pm(ws):
     page(ws, "Project Manager", "Detailed tracking per project. Row numbers match the Project Overview rows.",
-         TEAL, demo=True)
+         TEAL, demo=True, band_to=16)
     write_table(ws, "pm", PM_COLS, PM_ROWS)
     for r in range(6, 56):
         ws[f"O{r}"].number_format = FMT_PCT
@@ -1019,7 +1024,7 @@ def build_pm(ws):
 
 def build_budget(ws):
     page(ws, "Project Budget", "Expense lines per project. Choose a Project ID; utilisation and alerts calculate automatically.",
-         TEAL, demo=True)
+         TEAL, demo=True, band_to=12)
     write_table(ws, "bud", BUD_COLS, BUDGET_ROWS)
     for r in range(6, 306):
         ws[f"H{r}"].number_format = FMT_PCT
@@ -1030,13 +1035,13 @@ def build_budget(ws):
     cf(ws, "L6:L305", '$L6="Near limit"', WARN_BG, DARK, True)
     cf(ws, "L6:L305", '$L6="On track"', SUCCESS_BG, SUCCESS, True)
     cf(ws, "G6:G305", 'AND(ISNUMBER($G6),$G6<0)', DANGER_BG, DANGER, True)
-    legend(ws, 3, 12)
+    legend(ws, 3, ws.max_column - 5)
     ws.freeze_panes = "C6"
 
 
 def build_tasks(ws):
     page(ws, "Variable Tasks", "One-time task database. Type a name and pick the options; flags and keys calculate automatically.",
-         LAV, demo=True)
+         LAV, demo=True, band_to=24)
     write_table(ws, "tasks", TASK_COLS, TASK_ROWS)
     for r in range(6, 306):
         ws[f"N{r}"].number_format = FMT_PCT
@@ -1060,13 +1065,13 @@ def build_tasks(ws):
     for col in "RSTUVWX":
         ws.column_dimensions[col].outlineLevel = 1
         ws.column_dimensions[col].hidden = True
-    legend(ws, 3, 12)
+    legend(ws, 3, ws.max_column - 5)
     ws.freeze_panes = "C6"
 
 
 def build_recurring(ws):
     page(ws, "Recurring Tasks", "Repeating work. Enter Last Completed when you finish an occurrence; the next one is calculated.",
-         LAV, demo=True)
+         LAV, demo=True, band_to=14)
     write_table(ws, "rec", REC_COLS, RECURRING_ROWS)
     for r in range(6, 56):
         ws[f"H{r}"].number_format = "0"
@@ -1079,13 +1084,13 @@ def build_recurring(ws):
     cf(ws, "N6:N55", '$N6="Due soon"', WARN_BG, DARK, True)
     cf(ws, "N6:N55", '$N6="On schedule"', SUCCESS_BG, SUCCESS, True)
     cf(ws, "N6:N55", '$N6="Paused"', SOFT_LAV, DARK, True)
-    legend(ws, 3, 12)
+    legend(ws, 3, ws.max_column - 5)
     ws.freeze_panes = "C6"
 
 
 def build_schedule(ws):
     page(ws, "Task Schedule", "Time-blocked schedule. Each block appears on the Weekly Calendar in its start hour.",
-         LAV, demo=True)
+         LAV, demo=True, band_to=12)
     write_table(ws, "sch", SCH_COLS, SCHEDULE_ROWS)
     for r in range(6, 206):
         ws[f"D{r}"].number_format = FMT_TIME
@@ -1099,14 +1104,14 @@ def build_schedule(ws):
     cf(ws, "H6:H205", '$H6="High"', WARN_BG, DARK, True)
     cf(ws, "I6:I205", '$I6="Completed"', SUCCESS_BG, SUCCESS, True)
     ws.column_dimensions["L"].hidden = True
-    legend(ws, 3, 12)
+    legend(ws, 3, ws.max_column - 5)
     ws.freeze_panes = "C6"
 
 
 def build_filter(ws, wb):
     page(ws, "Task Filter", "Choose any combination of filters. Matching tasks list below and update instantly.",
          LAV, demo=True, widths={"B": 6, "C": 12, "D": 34, "E": 12, "F": 14, "G": 16, "H": 11,
-                                 "I": 13, "J": 13, "K": 11, "L": 11})
+                                 "I": 13, "J": 13, "K": 11, "L": 11}, band_to=12)
     filters = [("Project", "All", "FilterProject"), ("Priority", "All", "FilterPriority"),
                ("Status", "All", "FilterStatus"), ("Category", "All", "FilterCategory"),
                ("Assigned person", "All", "FilterTeam"), ("Due window", "All", "DueWindowList"),
@@ -1167,7 +1172,7 @@ def build_filter(ws, wb):
 
 def build_decision(ws):
     page(ws, "Decision Matrix", "Score options against weighted criteria (1 = poor, 10 = excellent). The highest total wins.",
-         INFO, demo=True, widths={"B": 30, "C": 12, "D": 14, "E": 14, "F": 14, "G": 3, "H": 16, "I": 16, "J": 16})
+         INFO, demo=True, widths={"B": 30, "C": 12, "D": 14, "E": 14, "F": 14, "G": 3, "H": 16, "I": 16, "J": 16}, band_to=10)
     label(ws, "B4", "Decision name", True)
     inp(ws, "C4", "Choose project management software")
     ws.merge_cells("C4:F4")
@@ -1235,7 +1240,7 @@ def build_decision(ws):
 
 def build_kanban(ws):
     page(ws, "Kanban Board", "Cards are tasks grouped by status. Card text: priority letter, then task name.",
-         INFO, demo=True, widths={"B": 26, "C": 26, "D": 26, "E": 26, "F": 26})
+         INFO, demo=True, widths={"B": 26, "C": 26, "D": 26, "E": 26, "F": 26}, band_to=6)
     TKB = R("tasks", "Kanban Key")
     for k, col in enumerate("BCDEF"):
         h = ws[f"{col}5"]
@@ -1265,7 +1270,7 @@ def build_kanban(ws):
 
 def build_gantt(ws):
     page(ws, "Gantt Chart", "Pick a project. Bars show each task's dates: blue in progress, teal completed, lavender review, gray not started. ◆ = milestone.",
-         INFO, demo=True, widths={"B": 30, "C": 14, "D": 12, "E": 12, "F": 8, "G": 13, "H": 12, "I": 10})
+         INFO, demo=True, widths={"B": 30, "C": 14, "D": 12, "E": 12, "F": 8, "G": 13, "H": 12, "I": 10}, band_to=35)
     label(ws, "B4", "Project", True)
     inp(ws, "C4", P1)
     dv_list(ws, "C4", "ProjectIDList")
@@ -1329,7 +1334,7 @@ def build_gantt(ws):
 
 def build_instructions(ws):
     page(ws, "Instructions", "Getting started, how each part works, formulas, and troubleshooting.", NAVY,
-         widths={"B": 110})
+         widths={"B": 110}, band_to=3)
     blocks = [
         ("GETTING STARTED", [
             "1. Open the workbook in Excel 2019 or Microsoft 365 (recommended). It contains no macros.",
@@ -1427,6 +1432,9 @@ def main():
     build_gantt(sheets["Gantt Chart"])
     build_instructions(sheets["Instructions"])
 
+    for name in ("Project Overview", "Project Manager", "Project Budget", "Variable Tasks",
+                 "Recurring Tasks", "Task Schedule"):
+        sheets[name].print_title_rows = f"{REG[{'Project Overview':'proj','Project Manager':'pm','Project Budget':'bud','Variable Tasks':'tasks','Recurring Tasks':'rec','Task Schedule':'sch'}[name]]['hdr']}:{REG[{'Project Overview':'proj','Project Manager':'pm','Project Budget':'bud','Variable Tasks':'tasks','Recurring Tasks':'rec','Task Schedule':'sch'}[name]]['hdr']}"
     for ws in wb.worksheets:
         ws.page_setup.orientation = "landscape"
         ws.page_setup.fitToWidth = 1
