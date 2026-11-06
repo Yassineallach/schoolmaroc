@@ -65,6 +65,7 @@ class Shot:
         self.extra = {}                                     # depth -> RGBA layer (see layer())
         self.blur = {'bg': 0.0, 'mid': 0.0, 'top': 0.0}    # rack focus, in px (see rack())
         self.shake = (0.0, 0.0)
+        self.env, self.env_opts = 'theme', {}            # scene environment (scenes.py); 'theme' = episode background
 
     def layer(self, depth):
         """An extra layer at any parallax depth (0.35 = background, 1 = mid, 1.15 = top).
@@ -162,7 +163,11 @@ def compose(shot, T):
     bs = max(bs, 1.0)                              # the background must always cover the frame
     blx = min(max(blx, W / 2 / bs), W - W / 2 / bs)
     bly = min(max(bly, H / 2 / bs), H - H / 2 / bs)
-    bg = _blur(_xf(bg_motion.motion_bg(T), bs, blx, bly).convert('RGBA'), shot.blur.get('bg', 0))
+    import scenes
+    ground = scenes.render_env(getattr(shot, 'env', 'theme'), T, shot)
+    if ground is None:
+        ground = bg_motion.motion_bg(T)
+    bg = _blur(_xf(ground, bs, blx, bly).convert('RGBA'), shot.blur.get('bg', 0))
 
     def extra(lo, hi):
         for dpt in sorted(d for d in shot.extra if lo <= d < hi):

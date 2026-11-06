@@ -245,13 +245,17 @@ def typography(rows, budget=0.4):
 
 
 def to_markdown(rows):
-    out = ['| clip | sentence | purpose | technique | weight | cue | cut | typography |', '|---|---|---|---|---|---|---|---|']
+    out = ['| clip | sentence | purpose | environment | technique | weight | cue | cut | typography |', '|---|---|---|---|---|---|---|---|---|']
     for r in rows:
         s = r['sentence'] if len(r['sentence']) < 90 else r['sentence'][:87] + '...'
         also = f" (+{', '.join(r['also'])})" if r['also'] else ''
         ct = f" @{r['cue_time']:.2f}" if r['cue_time'] is not None else ''
-        out.append(f"| {r['clip']} | {s} | {r['purpose']}{also} | {r['technique']} | {r['weight']} | {r['cue']}{ct} | {r['cut']} | {r.get('type', '')} |")
+        out.append(f"| {r['clip']} | {s} | {r['purpose']}{also} | {r.get('env', '')} | {r['technique']} | {r['weight']} | {r['cue']}{ct} | {r['cut']} | {r.get('type', '')} |")
     weights = [r['weight'] for r in rows]
+    envs = [r.get('env') for r in rows if r.get('env')]
+    if envs:
+        rep = sum(1 for a, b in zip(envs, envs[1:]) if a == b)
+        out.append(f"\nEnvironments: {', '.join(f'{e} {envs.count(e)}' for e in sorted(set(envs), key=envs.count, reverse=True))}; repeated back to back: {rep}.")
     nt = sum(1 for r in rows if r.get('type'))
     out.append(f"\nTypography: {nt} of {len(rows)} sentences get a typographic moment; the rest are carried by images.")
     out.append(f"Pacing: {weights.count('complex')} complex, {weights.count('medium')} medium, {weights.count('simple')} simple. "
@@ -266,7 +270,8 @@ if __name__ == '__main__':
         clips = sorted(int(f[:-4]) for f in os.listdir(os.path.join(project, 'audio')) if f.endswith('.txt') and f[:-4].isdigit())
     else:
         clips = [int(a) for a in args]
-    md = to_markdown(typography(plan(clips, project)))
+    import scenes
+    md = to_markdown(scenes.plan_environments(typography(plan(clips, project))))
     print(md)
     if args == ['--all']:
         os.makedirs(os.path.join(project, 'timing'), exist_ok=True)

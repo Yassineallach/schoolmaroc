@@ -55,7 +55,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `brief_history_act5.py` | a cup sliding off a table and shattering, `assemble` then `reverse` + NEVER SEEN stamp, a card flipped on its head, globe with marker arrow and loop |
 | `brief_history_act6.py` | typed title struck and corrected, a counter, stacked covers, `page_flip` with a bookmark, crowd + unfold, end title held over the last plate |
 
-`demo_presets.py`, `demo_annotate.py`, `demo_toolkit.py` and `demo_typo.py` render numbered reels of the presets, the annotations, the storytelling toolkit and the typography system (maps, timeline, charts, objects, camera, transitions) on a project's own assets. Show it to the user when they ask what the animations look like.
+`demo_presets.py`, `demo_annotate.py`, `demo_toolkit.py`, `demo_typo.py` and `demo_scenes.py` render numbered reels of the presets, the annotations, the storytelling toolkit and the typography system (maps, timeline, charts, objects, camera, transitions) on a project's own assets. Show it to the user when they ask what the animations look like.
 
 **Engine files** (all in `SK/scripts`):
 
@@ -71,6 +71,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `charts.py` | line charts, comparisons, unit grids, counters, flow diagrams, size comparisons |
 | `objects.py` | newspapers, letters, envelopes, polaroids, sticky notes, tape, push pins, spin-in |
 | `typo.py` | editorial typography: a 10-role hierarchy (English + Arabic), 12 kinetic animations, newspaper / big-number / term / name compositions |
+| `scenes.py` | scene environments (theme, paper, cream, charcoal, terracotta, halftone, archive, geometric, grid, full-bleed) and compositions (full-bleed, split screen, full-screen type, panel grid, letterbox, thirds) |
 | `storyboard.py` | narration analysis: purpose, technique, weight, cue, cut and typographic moment for every sentence |
 | `themes.py` | per-episode background themes, all in the editorial design language |
 | `bg_motion.py` | the original editorial background, and theme selection from `episode.json` |
@@ -341,7 +342,46 @@ Colours are warm black, charcoal, cream and terracotta. Override any of size, co
 - Type sits in generous negative space, often asymmetric: a headline on the left third with a print on the right.
 - Type must stay readable at 1920×1080: captions at least 40 px, labels at least 24 px, terracotta text large.
 
-### 10. Background themes
+### 10. Scene environments and compositions
+
+**Every shot is its own editorial page.** The episode background (`themes.py`) is one environment among ten, not a wallpaper behind everything. Change the ground *and* the arrangement: scale, position, layering and the elements' relationship with the frame.
+
+```
+S.env(s, 'charcoal')          # inside a scene; style.compose draws this ground instead of the theme
+colour = S.ink(s)             # cream on dark grounds, warm black on light ones
+```
+
+| Environment | Ground | Use it for | Composition that fits |
+|---|---|---|---|
+| `theme` | the episode's animated background | continuity; the most common ground (≤ 40 %) | collage of prints, documents and type |
+| `paper` | warm paper, no shapes | calm explanation, documents | prints and documents |
+| `cream` | minimal cream, one hairline rule | one idea, one quote, generous space | `type_page`, or one print on the thirds |
+| `charcoal` | dark charcoal with grain | drama, death, turning points, night | `type_page` in cream, or one lit print |
+| `terra` | solid terracotta paper | one statement or one number, rarely | `type_page`, `big_number` in cream |
+| `halftone` | manga halftone + speed lines | action, manga and comics subjects | `panel_grid`, cut-out action |
+| `archive` | aged newsprint, columns, foxing | history, dates, the press, records | clippings, documents, stacks |
+| `geometric` | big flat shapes, diagonal split | comparisons, systems, two sides | `split`, two cards facing |
+| `grid` | clean graph grid | infographics, charts, timelines | `charts.py`, `timeline.py` |
+| `bleed` | none | a photo or illustration that speaks alone | `fullbleed`, `letterbox`, `split` |
+
+**Compositions** (`scenes.py`):
+- `fullbleed(s, img, t, start, ken, focus, focus_to, darken)`: the image fills the frame with a slow Ken Burns move; `darken` shades the bottom so captions read.
+- `split(s, left, right, t, start, ratio, divide='tear'|'line'|'shape')`: two images face each other.
+- `type_page(s, text, t, start, role, …)`: one sentence owns the frame.
+- `panel_grid(s, images, t, starts, cols)`: a manga page or contact sheet, panels landing on their cues.
+- `letterbox(s, img, t, start)`: cinematic bars close in for a dramatic beat.
+- `rule_of_thirds('left'|'right')`: anchor points for asymmetric layouts.
+
+**Planning:** `storyboard.py` now adds an **environment** column. It picks from each sentence's purpose, never repeats either of the two previous environments, keeps each within its share (`scenes.CAPS`), and gives dark or solid grounds only to short, strong beats. On the Berserk narration it used all ten environments across 54 sentences with no back-to-back repeat.
+
+**Rules:**
+- Never force a background behind every shot. A full-screen illustration, a split screen or plain charcoal type is often stronger.
+- No two consecutive shots share an environment *or* a layout. Alternate collage, full-bleed, type and diagram.
+- **Dramatic** moments: `charcoal`, `bleed`, `letterbox`. **Historical** information: `archive`. **Explanations**: `cream`, `grid`, `paper`. **Complex subjects**: rich collages on `theme` or `archive`.
+- Join different environments with the strongest cuts: `pageturn` into archive, `circle` or `zoom` into a full-bleed image, `shape` between the two sides of a comparison, torn wipes for the rest.
+- Brand constants hold everywhere: the same typefaces and roles, the terracotta accent, paper grain on every ground, torn-edge prints and pen-drawn marks. Text on dark grounds uses `S.ink(s)` (cream).
+
+### 11. Background themes
 
 Every episode gets its own background, but every theme speaks the design language of the user's original editorial background: the same paper, flat textured terracotta + beige corner shapes, translucent diagonal bands, thin dark lines and arcs, breathing dot grids, an open centre. Only the shapes and their arrangement change with the subject. Do not invent a new visual style (dark grounds, heavy patterns) unless the user asks.
 
@@ -359,7 +399,7 @@ Every episode gets its own background, but every theme speaks the design languag
 
 **New theme:** add a `Theme(name, label, [elements], paper_colour, seed)` in `themes.py` from the element vocabulary (`shape`, `terra`, `hline`, `vline`, `dots`, `orbiter`, `tracer`, `diag`). Keep big shapes off the centre, keep terracotta as the accent, give every element its own drift period (20–45 s). Show the user a board of themes and a 15 s preview before using it.
 
-### 11. Sound effects
+### 12. Sound effects
 
 Effects are generated in code (`sfx.py`) and synced automatically: every preset and helper registers a sound event when it draws, with its time and screen position.
 
@@ -391,7 +431,7 @@ Effects are generated in code (`sfx.py`) and synced automatically: every preset 
 - **Add audio to an already-rendered act** without re-rendering the picture: `vox.collect_events(act.frame, act.END)`, `sfx.mix_into(narration_wav, events, out_wav)`, then mux with `ffmpeg -c:v copy`.
 - **Sound must not contradict the story.** No flat-line tone when the patient survives, no gunshots for implied violence.
 
-### 12. QC before rendering
+### 13. QC before rendering
 
 ```
 cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 6 10 15 22
@@ -418,7 +458,7 @@ cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 
 
 Fix, re-check. Show the user sheets or a draft per act and get approval before moving on.
 
-### 13. Render: Claude renders the final, in this session
+### 14. Render: Claude renders the final, in this session
 
 ```
 cd project && python SK/scripts/render_all.py --acts 3 --draft   # review render of one act
@@ -458,3 +498,4 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 19. Annotations follow the narration: one mark per spoken idea, drawn on its word, settling when the narration moves on; never highlight everything at once.
 20. Choose every visual from what the sentence means and feels: analyse the narration first (storyboard.py), vary the techniques, and leave some moments deliberately simple.
 21. Typography is part of the explanation, not decoration: give type to discoveries, dates, names, contradictions, terms and quotes, and leave most sentences to images.
+22. Every scene is a new editorial composition: vary the environment and the arrangement shot to shot (scenes.py), never the same background or layout twice in a row, while typography, terracotta, paper texture and animation principles stay constant.
