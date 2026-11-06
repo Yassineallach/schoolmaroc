@@ -1,6 +1,6 @@
 ---
 name: paper-explainer-video
-description: Build a YouTube educational explainer video (book summary, history, science, biography) in a Vox-style editorial paper-collage look from the user's narration clips and transcript. Use when the user wants an explainer or summary video made from voice-over audio. It covers the storyboard, a per-episode animated background theme, reference-image asset prompts, clean cut-outs, physical scrapbook animations (photo drops, page flips, unfolding documents, tear reveals, stamps, camera zooms into images) synced to the spoken word, contact-sheet QC and a full-quality 1080p render done by Claude in the session. Triggers include "make a video like the Red Rising one", "explainer video from my narration", "paper collage / Vox style video", "book summary video".
+description: Build a YouTube educational explainer video (book summary, history, science, biography) in a Vox-style editorial paper-collage look from the user's narration clips and transcript. Use when the user wants an explainer or summary video made from voice-over audio. It covers the storyboard, a visual identity art-directed for each topic (colour roles, textures, type, image treatment, mood arc), varied scene environments and compositions, a per-episode animated background theme, reference-image asset prompts, clean cut-outs, physical scrapbook animations (photo drops, page flips, unfolding documents, tear reveals, stamps, camera zooms into images) synced to the spoken word, contact-sheet QC and a full-quality 1080p render done by Claude in the session. Triggers include "make a video like the Red Rising one", "explainer video from my narration", "paper collage / Vox style video", "book summary video".
 ---
 
 # Paper-collage explainer video
@@ -11,10 +11,17 @@ The same pipeline works for any narrated explainer.
 
 **What the output looks like:**
 
-- an **animated editorial background** per episode: cream paper with grain and fibres, large
-  flat textured terracotta and beige shapes anchored to the corners, translucent diagonal
-  bands, thin lines and arcs that extend and retract, dot grids that breathe, an open centre;
-  its shapes and arrangement are chosen from the episode's subject (`themes.py`);
+- a **visual identity art-directed for the topic**: the engine reads the transcript and builds
+  colours (17 roles + chart series), paper texture, image treatment, typefaces and preferred
+  scenes from ten identities, their variants, the region, the period and the tone, so a WWII
+  film, a dark manga and a film on AI look nothing alike (`identities.py`, `palette.py`);
+- **every scene its own editorial page**: archive paper, dark grounds, full-bleed images,
+  split screens, full-screen type, infographic grids, halftone panels, solid colour, chosen
+  per sentence and never repeated back to back, with moods that tone scenes inside the
+  identity (`scenes.py`);
+- an **animated editorial background** per episode, used as one of those grounds: paper with
+  grain, large flat textured shapes anchored to the corners, translucent bands, lines and arcs
+  that extend and retract, dot grids that breathe, an open centre (`themes.py`);
 - photographs and painted plates as **torn prints**, documents, newspaper clippings and
   cut-outs that behave like **physical paper**: they drop, slide with friction, unfold, flip,
   stack, tear and get stamped (`presets.py`);
@@ -34,7 +41,8 @@ Keep everything in one folder; the scripts run from inside it, or set `VOX_PROJE
 project/
   audio/1.wav 1.txt 2.wav 2.txt ...   narration clips plus the exact transcript of each
   assets/                             APPROVED, leftover-checked images only
-  episode.json                        {"theme": "cosmic_atlas"}  the episode's background theme
+  episode.json                        {"subject": "...", "theme": "cosmic_atlas"}  one-line topic + background theme;
+                                      "palette" defaults to "auto" (identity from the topic), or name one
   timing/words.json, words.txt        created automatically as each act is built
   act1.py act2.py ...                 one file per act (copy templates/act_template.py)
   out/                                renders
@@ -55,13 +63,13 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `brief_history_act5.py` | a cup sliding off a table and shattering, `assemble` then `reverse` + NEVER SEEN stamp, a card flipped on its head, globe with marker arrow and loop |
 | `brief_history_act6.py` | typed title struck and corrected, a counter, stacked covers, `page_flip` with a bookmark, crowd + unfold, end title held over the last plate |
 
-`demo_presets.py`, `demo_annotate.py`, `demo_toolkit.py`, `demo_typo.py`, `demo_scenes.py` and `demo_palettes.py` render numbered reels of the presets, the annotations, the storytelling toolkit and the typography system, environments and palettes (maps, timeline, charts, objects, camera, transitions) on a project's own assets. Show it to the user when they ask what the animations look like.
+`demo_presets.py`, `demo_annotate.py`, `demo_toolkit.py`, `demo_typo.py` and `demo_scenes.py` render numbered reels of the presets, the annotations, the storytelling toolkit (maps, timeline, charts, objects, camera, transitions), the typography system and the scene environments on a project's own assets. Show one to the user when they ask what the animations look like. `demo_palettes.py <out_dir>` (or `scripts/identity_board.py --all`) renders the visual identity guide: a page per identity, an overview, and identities derived from sample topics.
 
 **Engine files** (all in `SK/scripts`):
 
 | File | What it holds |
 |---|---|
-| `vox.py` | fonts, colours, word timing (`make_cue`), documents, marker lines, audio mastering, render |
+| `vox.py` | fonts, base colours (from the identity), word timing (`make_cue`), documents, marker lines, audio mastering, render |
 | `style.py` | `Shot` layers, camera and parallax, torn transitions, `words`, `tag`, `underline`, `kicker` |
 | `presets.py` | the 12 physical paper animations and item builders (prints, clippings, text, SVG) |
 | `annotate.py` | editorial annotations: marker sweeps, underlines, rings, boxes, strikes, emphasis, arrows, spotlight, loupe, marks, brackets, connectors, charts |
@@ -75,8 +83,8 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `palette.py` | the identity engine: topic analysis, identity derivation, contrast repair, image treatment, scene moods |
 | `identity_board.py` | the visual identity guide: a page per identity, an overview, and a board of identities derived from sample topics |
 | `scenes.py` | scene environments (theme, paper, cream, charcoal, solid accent, halftone, archive, geometric, grid, full-bleed) and compositions (full-bleed, split screen, full-screen type, panel grid, letterbox, thirds) |
-| `storyboard.py` | narration analysis: purpose, technique, weight, cue, cut and typographic moment for every sentence |
-| `themes.py` | per-episode background themes, all in the editorial design language |
+| `storyboard.py` | narration analysis: the episode identity and why, then purpose, mood, environment, technique, weight, cue, cut and typographic moment for every sentence |
+| `themes.py` | per-episode background themes, all in the editorial design language (each maps to an identity family) |
 | `bg_motion.py` | the original editorial background, and theme selection from `episode.json` |
 
 ## Phases
@@ -93,11 +101,11 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
   It also writes `timing/plan.md`. Read it as advice: fix what it misreads and keep what the user asked for.
 - **Plan the shots.** For each act, write a shot list: transcript sentence → visual → which assets → which technique → the words that trigger each reveal. Some moments get complex motion graphics; many should stay simple (one image, a slow push, a few words).
 
-### 2. Storyboard, background theme, asset list
+### 2. Storyboard, visual identity, background theme, asset list
 
 - **Show the storyboard first** on a Design canvas artifact: an overview board plus one board per act. Each shot shows its cue words, the on-screen text, the visual, and whether each asset is drawn in code or needed from the user.
 - **Settle the episode's visual identity** (see "Visual identity" below). Put a one-line `"subject"` in `episode.json`. `storyboard.py` prints the identity the engine derived and why. Override it if needed (`"palette": "crime/historical"`), and show the user its page: `python SK/scripts/identity_board.py --page <identity> out/identity.png`.
-- **Choose the episode's background theme** from the subject (see "Background themes" below), set it in `episode.json`, and show the user a still plus a 15 s preview (`python SK/scripts/bg_motion.py out/bg_preview.mp4 15`) before any act uses it.
+- **Choose the episode's background theme** from the same identity family as the visual identity (`identities.THEME_IDENTITY`; a mismatched theme is replaced by the identity's paper) and the subject (see "Background themes" below), set it in `episode.json`, and show the user a still plus a 15 s preview (`python SK/scripts/bg_motion.py out/bg_preview.mp4 15`) before any act uses it.
 - **Split the assets** into:
   - (a) things the code draws (see `references/prompts.md`, "Things code draws better");
   - (b) things to ask the user for: characters, places, creatures, real people.

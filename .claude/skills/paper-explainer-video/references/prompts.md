@@ -85,7 +85,7 @@ A follow-up asset in the same chat can say: `Same <object> and exact same drawin
 Style: 2D hand-drawn editorial illustration for an educational animated short film, in the spirit of a hand-illustrated storybook rather than anime. Simplified stylized anatomy with natural, varied proportions; slightly simplified head; small simple eyes with readable direction; clearly defined eyebrows; minimal nose; simple mouth; soft, natural hair shapes drawn as simple masses. Organic hand-drawn outlines in deep brown (#3B2A20), medium weight around the silhouette and thinner inside, with slight irregularity. Flat color fills with one shadow tone, one light tone and only a few small highlights; restrained painterly shading; subtle paper grain and light brush texture; muted earthy palette of warm ivory, terracotta, rust red, muted blue, desaturated green, deep brown and muted gold; soft warm directional light. NOT anime, NOT manga, no large glossy eyes, no spiky anime hair, no sharp cel-shaded highlights, no 3D render, no photorealism, no glossy corporate vector style, no heavy gradients, no glow.
 ```
 
-Adapt the palette line to the subject and the user's guide. Keep the structure and the **NOT anime** line.
+Adapt the palette line to the subject, the user's guide and the episode's visual identity: take the colours from `python SK/scripts/palette.py` (its grounds, accents and dark tone), so generated plates belong to the same film as the type, charts and paper. For a monochrome identity (`manga_ink`) ask for black ink and screentone only. Keep the structure and the **NOT anime** line.
 
 ## EN: environment style block
 
