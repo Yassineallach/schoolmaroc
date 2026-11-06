@@ -1240,7 +1240,7 @@ def build_decision(ws):
 
 def build_kanban(ws):
     page(ws, "Kanban Board", "Cards are tasks grouped by status. Card text: priority letter, then task name.",
-         INFO, demo=True, widths={"B": 26, "C": 26, "D": 26, "E": 26, "F": 26}, band_to=6)
+         INFO, demo=True, widths={"B": 32, "C": 32, "D": 32, "E": 32, "F": 32}, band_to=6)
     TKB = R("tasks", "Kanban Key")
     for k, col in enumerate("BCDEF"):
         h = ws[f"{col}5"]
