@@ -85,6 +85,16 @@ ROLES = {
     'term':      (('ArchivoBlack.ttf', 56, WARM_BLACK, True, 0, 1.1), ('NotoKufiArabic-VF.ttf', 52, 800)),
 }
 
+# the episode identity may set its own typeface per role (identities.py 'type'): a history film
+# sets headlines in Playfair, a technology film in Inter, a crime film types its captions
+import palette as _PLT
+for _role, _file in _PLT.IDENTITY.type.items():
+    if _role in ROLES:
+        (_f, _s, _c, _u, _t, _lh), _ar = ROLES[_role]
+        if _file.startswith('Inter') and _t < 0:
+            _t = max(_t, -2)
+        ROLES[_role] = ((_file, _s, _c, _u, _t, _lh), _ar)
+
 
 def _c(x):
     return min(max(x, 0.0), 1.0)

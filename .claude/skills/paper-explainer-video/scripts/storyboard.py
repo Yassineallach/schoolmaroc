@@ -276,9 +276,9 @@ if __name__ == '__main__':
         clips = [int(a) for a in args]
     import scenes, palette
     text = ' '.join(open(os.path.join(project, 'audio', f'{c}.txt'), encoding='utf-8').read() for c in clips)
-    sug = palette.suggest(text)
-    head = (f"Palette in use: {palette.ACTIVE.name} ({palette.ACTIVE.subject}). Suggested from the transcript: "
-            + ', '.join(f'{n} ({k})' for n, k in sug) + ". Set it in episode.json {\"palette\": ...} if it differs.\n\n")
+    idn = palette.IDENTITY
+    head = (f"Visual identity: {idn.name}\n" + ''.join(f"  - {w}\n" for w in idn.why)
+            + "  Override in episode.json: \"palette\": \"<identity>[/variant]\" or {\"base\": ..., \"accent_primary\": \"#HEX\"}.\n\n")
     md = head + to_markdown(scenes.plan_environments(palette.plan_moods(typography(plan(clips, project)))))
     print(md)
     if args == ['--all']:

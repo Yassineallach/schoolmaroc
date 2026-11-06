@@ -22,6 +22,11 @@ TERRA = ACCENT = PAL.accent
 BEIGE = PAL.soft
 CHARCOAL = PAL.ink2
 MUTED = PAL.muted
+SERIES = PAL.chart            # ordered chart colours of the identity: series(i) for the i-th series
+
+
+def series(i):
+    return SERIES[i % len(SERIES)]
 
 
 def _fmt(v, decimals=0):

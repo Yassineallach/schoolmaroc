@@ -1,48 +1,56 @@
-"""Context-aware colour system: every video gets a palette chosen for its subject, and every
-scene can shift tone (mood) without leaving that palette.
+"""Visual identity engine: every video gets an identity art-directed for its subject, and every
+scene can shift tone without leaving it.
 
-    episode.json  {"theme": "manga_ink", "palette": "manga_ink"}      # identity of the whole video
+    episode.json  {"palette": "auto"}                      # default: analyse the topic (transcript + "subject")
+                  {"palette": "manga_ink"}                 # a named identity (+ variant: "manga_ink/dark")
+                  {"palette": {"base": "crime", "accent_primary": "#9B1C1C"}}   # a custom one
     import palette as PL
-    PL.ACTIVE.accent                    # the episode accent (every module reads its colours from here)
-    s.mood = 'grief'                    # a scene's emotional tone: a grade derived from the palette
+    PL.ACTIVE            # the colour tokens every module draws with (Palette)
+    PL.IDENTITY          # the whole identity: palette + texture, image treatment, type, scene preferences, why
+    PL.treat(img)        # an image treated in the identity's way (sepia duotone, cold, ink...)
+    s.mood = 'grief'     # a scene's tone: a grade derived from the identity
 
-Every drawing module (typo, annotate, charts, maps, timeline, objects, transitions, scenes,
-presets, style, vox) takes its colours from ACTIVE at import time, so one entry in episode.json
-recolours type, marks, charts, maps, environments and props together. Nothing hardcodes
-terracotta or cream any more: those belong to the 'editorial' palette only.
+The design tokens live in identities.py (one editable block per category, HEX per role). This
+module analyses the topic (category scores, sub-genre variant, a second category to blend in,
+region, historical period, emotional tone), builds the identity, repairs any contrast that
+fails and explains every choice in IDENTITY.why. Unknown subjects fall back to 'editorial'.
 
-PALETTES (pick by subject; storyboard.py suggests one from the transcript)
-    editorial        warm paper, charcoal, terracotta           general explainers, book summaries
-    history_archive  aged paper, sepia, oxblood, ochre          history, biography, the press, war
-    science_space    pale paper / deep navy, cobalt, violet     science, space, physics, cosmology
-    manga_ink        off-white, black ink, greys, blood red     manga, anime, comics
-    crime            cold newsprint, charcoal, dark red, steel  crime, investigations, trials, cults
-    technology       near-black, electric blue, cyan            technology, computing, AI, internet
-    philosophy       warm ivory, deep green, muted gold         religion, philosophy, ethics, myth
-    nature           linen, forest, moss, clay                  nature, animals, climate, geography
-
-FIELDS
-    paper paper2 cream   light grounds (main, aged/secondary, minimalist)
-    dark                 dark ground (drama, night)
-    ink ink2 muted       text on light grounds: primary, secondary, labels
-    light                text on dark grounds
-    accent accent2       highlights on light grounds (accent = the one that matters)
-    accent_dark          highlight that reads on the dark ground
-    solid                ground of the solid-colour environment ('accent'), light text reads on it
-    soft line tint       low-emphasis fills (bar bases, land), hairlines and grids, stains/halftone
-    land coast border    map colours (derived when not given)
-
-MOODS (s.mood = ..., or scenes.env(s, name, mood=...)): a gentle whole-frame grade plus which
-accent the scene leans on. Derived from the palette, never a new hue, so a mood change reads as
-the same film changing tone.
-    neutral calm wonder hope triumph tense mystery menace grief
+Analyse a topic without a project:
+    python palette.py "the history of Japan from the Meiji restoration"     # prints the identity
+    python palette.py --check                                               # contrast of every identity
 """
-import os, json
+import os, re, json, colorsys
 from dataclasses import dataclass, field, replace
+import identities as ID
 
 
 def _mix(a, b, k):
     return tuple(int(round(a[i] + (b[i] - a[i]) * k)) for i in range(3))
+
+
+def rgb(h):
+    if isinstance(h, (tuple, list)):
+        return tuple(int(v) for v in h[:3])
+    h = h.lstrip('#')
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def hexs(c):
+    return '#%02X%02X%02X' % tuple(c[:3])
+
+
+def _sat(c, k):
+    """Scale saturation by k (k < 1 drains colour)."""
+    h, l, s = colorsys.rgb_to_hls(*(v / 255 for v in c))
+    r, g, b = colorsys.hls_to_rgb(h, l, max(0.0, min(1.0, s * k)))
+    return (int(r * 255 + 0.5), int(g * 255 + 0.5), int(b * 255 + 0.5))
+
+
+# token role -> Palette field (the short names every module already uses)
+FIELD = {'bg_primary': 'paper', 'bg_secondary': 'paper2', 'bg_minimal': 'cream', 'bg_dark': 'dark', 'bg_solid': 'solid',
+         'text_primary': 'ink', 'text_secondary': 'ink2', 'text_muted': 'muted', 'text_on_dark': 'light',
+         'accent_primary': 'accent', 'accent_secondary': 'accent2', 'accent_on_dark': 'accent_dark', 'highlight': 'highlight',
+         'border': 'line', 'divider': 'divider', 'fill_soft': 'soft', 'texture_tint': 'tint'}
 
 
 @dataclass(frozen=True)
@@ -64,82 +72,45 @@ class Palette:
     soft: tuple
     line: tuple
     tint: tuple
+    highlight: tuple = None
+    divider: tuple = None
+    chart: tuple = ()
     land: tuple = None
     coast: tuple = None
     border: tuple = None
     keywords: tuple = field(default=(), compare=False)
 
     def __post_init__(self):
-        if self.land is None:
-            object.__setattr__(self, 'land', _mix(self.soft, self.paper, 0.25))
-        if self.coast is None:
-            object.__setattr__(self, 'coast', _mix(self.ink2, self.muted, 0.4))
-        if self.border is None:
-            object.__setattr__(self, 'border', _mix(self.muted, self.soft, 0.4))
+        d = {'highlight': self.accent2, 'divider': self.muted, 'chart': (self.accent, self.accent2, self.muted),
+             'land': _mix(self.soft, self.paper, 0.25), 'coast': _mix(self.ink2, self.muted, 0.4), 'border': _mix(self.muted, self.soft, 0.4)}
+        for k, v in d.items():
+            if not getattr(self, k):
+                object.__setattr__(self, k, v)
+
+    def tokens(self):
+        """{role: '#HEX'} in the identities.py vocabulary."""
+        return {role: hexs(getattr(self, f)) for role, f in FIELD.items()}
 
 
-PALETTES = {p.name: p for p in (
-    Palette('editorial', 'general explainers, book summaries',
-            paper=(246, 229, 202), paper2=(236, 226, 202), cream=(244, 236, 222), dark=(34, 31, 30),
-            ink=(28, 24, 22), ink2=(44, 42, 40), muted=(110, 104, 96), light=(244, 238, 224),
-            accent=(205, 88, 48), accent2=(222, 140, 80), accent_dark=(232, 120, 78), solid=(176, 70, 36),
-            soft=(221, 200, 170), line=(206, 194, 168), tint=(176, 140, 92),
-            keywords=('book', 'summary', 'novel', 'author', 'idea', 'lesson')),
-    Palette('history_archive', 'history, biography, the press, war',
-            paper=(236, 224, 198), paper2=(226, 210, 178), cream=(240, 232, 214), dark=(40, 31, 24),
-            ink=(36, 27, 20), ink2=(70, 55, 42), muted=(112, 94, 74), light=(240, 230, 208),
-            accent=(136, 40, 30), accent2=(150, 108, 44), accent_dark=(214, 160, 92), solid=(118, 38, 28),
-            soft=(208, 186, 150), line=(190, 170, 136), tint=(150, 112, 64),
-            keywords=('century', 'empire', 'king', 'queen', 'war', 'revolution', 'ancient', 'dynasty', 'battle', 'treaty',
-                      'colonial', 'medieval', 'history', 'historian', 'archive', 'born in', 'died in', 'reign')),
-    Palette('science_space', 'science, space, physics, cosmology',
-            paper=(230, 234, 242), paper2=(214, 220, 234), cream=(238, 240, 246), dark=(12, 16, 38),
-            ink=(14, 18, 42), ink2=(38, 46, 80), muted=(86, 94, 128), light=(232, 236, 250),
-            accent=(52, 82, 214), accent2=(126, 74, 200), accent_dark=(255, 196, 92), solid=(30, 44, 120),
-            soft=(194, 202, 226), line=(176, 186, 214), tint=(90, 110, 180),
-            keywords=('universe', 'galaxy', 'star', 'planet', 'black hole', 'physics', 'quantum', 'gravity', 'atom',
-                      'light', 'space', 'cosmic', 'telescope', 'relativity', 'particle', 'experiment', 'scientist', 'orbit')),
-    Palette('manga_ink', 'manga, anime, comics',
-            paper=(243, 236, 222), paper2=(230, 222, 206), cream=(246, 242, 234), dark=(20, 18, 18),
-            ink=(18, 16, 16), ink2=(50, 46, 44), muted=(104, 100, 96), light=(244, 240, 232),
-            accent=(170, 26, 34), accent2=(92, 88, 84), accent_dark=(222, 58, 58), solid=(150, 22, 30),
-            soft=(214, 208, 198), line=(190, 184, 174), tint=(120, 112, 104),
-            keywords=('manga', 'anime', 'chapter', 'volume', 'serialized', 'serialised', 'mangaka', 'shonen', 'seinen',
-                      'shojo', 'panel', 'comic', 'artist', 'drew', 'magazine', 'studio')),
-    Palette('crime', 'crime, investigations, trials',
-            paper=(226, 226, 222), paper2=(208, 210, 208), cream=(234, 234, 232), dark=(22, 24, 28),
-            ink=(20, 22, 26), ink2=(50, 54, 60), muted=(96, 102, 110), light=(232, 234, 236),
-            accent=(146, 26, 28), accent2=(56, 88, 122), accent_dark=(222, 70, 62), solid=(122, 22, 24),
-            soft=(196, 198, 198), line=(170, 174, 178), tint=(118, 122, 118),
-            keywords=('murder', 'killer', 'police', 'detective', 'crime', 'victim', 'trial', 'court', 'evidence',
-                      'investigation', 'suspect', 'prison', 'fbi', 'cult', 'disappeared', 'body', 'heist', 'fraud')),
-    Palette('technology', 'technology, computing, AI',
-            paper=(234, 240, 245), paper2=(218, 228, 236), cream=(240, 244, 247), dark=(10, 15, 24),
-            ink=(12, 20, 30), ink2=(38, 52, 68), muted=(86, 102, 118), light=(224, 240, 250),
-            accent=(0, 100, 196), accent2=(0, 128, 150), accent_dark=(56, 214, 255), solid=(0, 70, 150),
-            soft=(196, 212, 224), line=(176, 196, 212), tint=(60, 120, 160),
-            keywords=('computer', 'software', 'internet', 'algorithm', 'ai', 'artificial intelligence', 'chip', 'silicon',
-                      'startup', 'code', 'data', 'network', 'digital', 'robot', 'app', 'smartphone', 'engineer')),
-    Palette('philosophy', 'religion, philosophy, ethics, myth',
-            paper=(244, 238, 222), paper2=(232, 223, 200), cream=(247, 243, 232), dark=(20, 38, 30),
-            ink=(28, 32, 26), ink2=(54, 62, 50), muted=(100, 102, 86), light=(242, 236, 218),
-            accent=(30, 88, 62), accent2=(140, 108, 40), accent_dark=(218, 186, 108), solid=(26, 74, 54),
-            soft=(214, 206, 180), line=(194, 186, 160), tint=(150, 132, 90),
-            keywords=('god', 'faith', 'prophet', 'religion', 'soul', 'philosopher', 'philosophy', 'ethics', 'virtue',
-                      'meaning', 'scripture', 'temple', 'monk', 'stoic', 'myth', 'divine', 'prayer', 'truth')),
-    Palette('nature', 'nature, animals, climate, geography',
-            paper=(238, 234, 220), paper2=(224, 218, 196), cream=(244, 241, 230), dark=(22, 34, 28),
-            ink=(24, 30, 24), ink2=(52, 62, 50), muted=(98, 104, 88), light=(238, 240, 228),
-            accent=(46, 106, 64), accent2=(166, 92, 52), accent_dark=(150, 210, 120), solid=(40, 90, 56),
-            soft=(206, 204, 176), line=(186, 184, 156), tint=(128, 120, 84),
-            keywords=('forest', 'ocean', 'animal', 'species', 'climate', 'river', 'mountain', 'evolution', 'ecosystem',
-                      'wildlife', 'bird', 'plant', 'earth', 'extinct')),
-)}
+@dataclass
+class Identity:
+    name: str                  # e.g. 'history_archive' or 'history_archive/world_war+japan'
+    base: str
+    label: str
+    description: str
+    palette: Palette
+    texture: dict
+    image: tuple
+    type: dict
+    signature: str
+    bias: dict
+    why: list
+    variant: str = None
 
-# palette that suits each background theme when episode.json names a theme but no palette
-THEME_PALETTE = {'editorial': 'editorial', 'album': 'editorial', 'cosmic_atlas': 'science_space', 'deep_space': 'science_space',
-                 'laboratory': 'science_space', 'clinic': 'science_space', 'circuit': 'technology', 'archive': 'history_archive',
-                 'ledger': 'history_archive', 'ink_studio': 'manga_ink', 'manga_ink': 'manga_ink'}
+
+def _palette(name, label, cols, chart, keywords=()):
+    kw = {FIELD[r]: rgb(v) for r, v in cols.items()}
+    return Palette(name=name, subject=label, chart=tuple(rgb(c) for c in chart), keywords=tuple(keywords), **kw)
 
 
 # ------------------------------------------------------------------ contrast
@@ -156,20 +127,56 @@ def contrast(a, b):
     return (la + 0.05) / (lb + 0.05)
 
 
-# (foreground, background, minimum): body text 7, secondary 4.5, accents / large type 3
-CHECKS = (('ink', 'paper', 7.0), ('ink', 'paper2', 7.0), ('ink', 'cream', 7.0), ('ink2', 'paper', 4.5),
-          ('muted', 'paper', 3.0), ('light', 'dark', 7.0), ('accent', 'paper', 3.0), ('accent', 'cream', 3.0),
-          ('accent_dark', 'dark', 3.0), ('light', 'solid', 4.5), ('light', 'accent', 3.0))
+# (foreground, background, minimum, which side to move): body text 7, secondary 4.5, accents and
+# large type 3; the highlight must keep body ink readable when swept behind it.
+CHECKS = (('ink', 'paper', 7.0, 'fg'), ('ink', 'paper2', 7.0, 'fg'), ('ink', 'cream', 7.0, 'fg'), ('ink2', 'paper', 4.5, 'fg'),
+          ('muted', 'paper', 3.0, 'fg'), ('light', 'dark', 7.0, 'fg'), ('accent', 'paper', 3.0, 'fg'), ('accent', 'cream', 3.0, 'fg'),
+          ('accent2', 'paper', 3.0, 'fg'), ('accent_dark', 'dark', 3.0, 'fg'), ('light', 'solid', 4.5, 'bg'), ('light', 'accent', 3.0, 'fg2'),
+          ('ink', 'highlight', 4.5, 'bg'))
 
 
 def validate(p):
     """List of (fg, bg, ratio, minimum) pairs that fail. Empty = the palette reads everywhere."""
     out = []
-    for fg, bg, lo in CHECKS:
+    for fg, bg, lo, _ in CHECKS:
         c = contrast(getattr(p, fg), getattr(p, bg))
         if c < lo:
             out.append((fg, bg, round(c, 2), lo))
     return out
+
+
+def repair(p):
+    """Nudge the failing colours (never the grounds) until every check passes; returns (palette, notes)."""
+    vals = {f: getattr(p, f) for f in FIELD.values()}
+    notes = []
+    for _ in range(3):
+        for fg, bg, lo, side in CHECKS:
+            if contrast(vals[fg], vals[bg]) >= lo:
+                continue
+            if side == 'fg2':                              # light text on an accent label: darken the accent
+                move, target = bg, (0, 0, 0)
+            else:
+                move = bg if side == 'bg' else fg
+                other = fg if side == 'bg' else bg
+                target = (0, 0, 0) if luminance(vals[other]) > 0.3 else (255, 255, 255)
+            before = vals[move]
+            for _k in range(40):
+                if contrast(vals[fg], vals[bg]) >= lo:
+                    break
+                vals[move] = _mix(vals[move], target, 0.06)
+            notes.append(f'{move} {hexs(before)} -> {hexs(vals[move])} for {fg} on {bg} >= {lo}:1')
+    return replace(p, **vals), notes
+
+
+# ------------------------------------------------------------------ base identities
+def _base(name):
+    d = ID.IDENTITIES[name]
+    return _palette(name, d['label'], d['colours'], d['chart'], d.get('keywords', ()))
+
+
+PALETTES = {n: _base(n) for n in ID.IDENTITIES}
+PALETTES['crime_investigation'] = PALETTES['crime']
+THEME_PALETTE = ID.THEME_IDENTITY
 
 
 # ------------------------------------------------------------------ moods
@@ -264,46 +271,251 @@ def grade(img, mood, p=None, amount=1.0):
     return out
 
 
-# ------------------------------------------------------------------ choosing
-def suggest(text, top=3):
-    """[(palette, score)] ranked by how strongly the transcript's words point at each subject."""
-    low = ' ' + text.lower() + ' '
-    scores = []
-    for p in PALETTES.values():
-        s = sum(low.count(' ' + k) for k in p.keywords)
-        scores.append((p.name, s))
-    scores.sort(key=lambda x: -x[1])
-    if scores[0][1] == 0:
-        return [('editorial', 0)]
-    return scores[:top]
+# ------------------------------------------------------------------ analysis
+def _count(low, words):
+    n = 0
+    for w in words:
+        n += len(re.findall(r'(?<![a-z])' + re.escape(w) + r"(?:s|es|'s)?(?![a-z])", low))
+    return n
+
+
+PERIOD_FAMILIES = {'history_archive', 'culture', 'crime', 'economics', 'philosophy', 'editorial'}
+REGION_ACCENT = {'history_archive', 'culture', 'editorial', 'philosophy'}
+
+
+def analyse(text, subject=''):
+    """What the topic is: {'scores', 'primary', 'secondary', 'variant', 'region', 'period', 'tone'}.
+    The subject line (episode.json "subject", or a title) weighs five times the transcript."""
+    low = ' ' + (text + (' ' + subject) * 5).lower() + ' '
+    words = max(1, len(low.split()))
+    scores = {n: _count(low, d.get('keywords', ())) for n, d in ID.IDENTITIES.items()}
+    ranked = sorted(scores.items(), key=lambda x: -x[1])
+    primary = ranked[0][0] if ranked[0][1] >= 2 else 'editorial'
+    secondary = None
+    if ranked[0][1] >= 2 and ranked[1][1] >= max(3, 0.4 * ranked[0][1]):
+        secondary = ranked[1][0]
+    # "the history of X": X leads when it has a historical variant (history of computers -> retro technology)
+    HIST_VARIANTS = {'technology': 'retro', 'crime': 'historical'}
+    if primary == 'history_archive' and secondary in HIST_VARIANTS and scores[secondary] >= 0.5 * scores[primary]:
+        primary, secondary = secondary, primary
+    variant, vbest = None, 0
+    for vn, v in ID.IDENTITIES[primary].get('variants', {}).items():
+        k = _count(low, v['keywords'])
+        if k > vbest and k >= 2:
+            variant, vbest = vn, k
+    region, rbest = None, 0
+    for rn, r in ID.REGIONS.items():
+        k = _count(low, r['keywords'])
+        if k > rbest and k >= 2:
+            region, rbest = rn, k
+    if primary == 'manga_ink' and region == 'japan':
+        region = None                                  # manga already speaks Japanese visual culture
+    period, pbest = None, 0
+    years = [int(y) for y in re.findall(r'(?<!\d)(1[0-9]{3}|20[0-9]{2})(?!\d)', low)]
+    for pn, pd in ID.PERIODS.items():
+        k = 2 * _count(low, pd['keywords'])
+        y0, y1 = pd['years']
+        k += sum(1 for y in years if y0 <= y < y1) // 3
+        if k > pbest and k >= 2:
+            period, pbest = pn, k
+    dark = _count(low, MOOD_WORDS['grief'] + MOOD_WORDS['menace'] + MOOD_WORDS['mystery'])
+    bright = _count(low, MOOD_WORDS['hope'] + MOOD_WORDS['triumph'] + MOOD_WORDS['wonder'])
+    tone = 'dark' if dark > 1.4 * bright and dark * 1000 / words > 6 else ('bright' if bright > 1.6 * dark and bright * 1000 / words > 8 else 'balanced')
+    return dict(scores=dict(ranked[:5]), primary=primary, secondary=secondary, variant=variant, region=region, period=period, tone=tone)
+
+
+def derive(a, name=None):
+    """Build the episode's Identity from an analysis (or from a forced base/variant)."""
+    base = a['primary']
+    d = ID.IDENTITIES[base]
+    cols = dict(d['colours'])
+    chart = list(d['chart'])
+    texture, image, typ = dict(d['texture']), tuple(d['image']), dict(d['type'])
+    bias = dict(d['scenes']['bias'])
+    why = [f"{d['label']}: {d['description']}"]
+    if a.get('scores'):
+        why[0] += f" (topic words: {', '.join(f'{k} {v}' for k, v in a['scores'].items() if v)})"
+    tag = base
+    signature = d['scenes']['signature']
+    v = d.get('variants', {}).get(a.get('variant'))
+    if v:
+        cols.update(v.get('colours', {}))
+        chart = list(v.get('chart', chart))
+        image = tuple(v.get('image', image))
+        typ.update(v.get('type', {}))
+        why.append(f"variant {a['variant']}: {v['note']}")
+        tag += '/' + a['variant']
+    sec = a.get('secondary')
+    if sec and sec != base:
+        s2 = ID.IDENTITIES[sec]
+        cols['accent_secondary'] = s2['colours']['accent_primary']
+        chart[1] = s2['chart'][0]
+        why.append(f"second subject {s2['label']}: its accent becomes the supporting colour")
+        if sec == 'history_archive':
+            # "the history of X": X's identity, printed on the archive's paper
+            for k in ('bg_primary', 'bg_secondary', 'bg_minimal'):
+                cols[k] = hexs(_mix(rgb(cols[k]), rgb(s2['colours'][k]), 0.45))
+            texture = dict(texture, kind='foxing', fibres=max(texture['fibres'], 700), vignette=max(texture['vignette'], 18))
+            image = ('sepia', 0.35)
+            signature = 'archive'
+            bias['archive'] = max(bias.get('archive', 1.0), 1.6)
+            why.append('a history of the subject: archive paper, foxing and sepia prints, opening on a document')
+        tag += '+' + sec
+    r = ID.REGIONS.get(a.get('region'))
+    if r:
+        cols['accent_secondary'] = r['accent_secondary']
+        cols['highlight'] = r['highlight']
+        if base in REGION_ACCENT:
+            cols['accent_primary'] = r['accent']
+            chart[0] = r['accent']
+        chart[1] = r['accent_secondary']
+        why.append(f"region {a['region']}: {r['note']}")
+        tag += '+' + a['region']
+    p = ID.PERIODS.get(a.get('period'))
+    if p and base in PERIOD_FAMILIES:
+        cols.update(p.get('colours', {}))
+        if p.get('desaturate'):
+            for k in ('accent_primary', 'accent_secondary', 'highlight', 'bg_solid', 'accent_on_dark'):
+                cols[k] = hexs(_sat(rgb(cols[k]), 1 - p['desaturate']))
+            chart = [hexs(_sat(rgb(c), 1 - p['desaturate'])) for c in chart]
+        if 'image' in p:
+            image = tuple(p['image'])
+        if 'texture' in p:
+            texture['mottle'] *= p['texture']
+            texture['fibres'] = int(texture['fibres'] * p['texture'])
+        why.append(f"period {a['period']}: {p['note']}")
+        tag += '+' + a['period']
+    tone = a.get('tone', 'balanced')
+    if tone == 'dark':
+        bias['charcoal'] = bias.get('charcoal', 1.0) * 1.35
+        bias['bleed'] = bias.get('bleed', 1.0) * 1.15
+        bias['cream'] = bias.get('cream', 1.0) * 0.8
+        for k in ('accent_primary', 'highlight'):
+            cols[k] = hexs(_sat(rgb(cols[k]), 0.9))
+        why.append('tone dark: more dark compositions, slightly quieter accents')
+    elif tone == 'bright':
+        bias['charcoal'] = bias.get('charcoal', 1.0) * 0.75
+        bias['cream'] = bias.get('cream', 1.0) * 1.2
+        why.append('tone bright: lighter compositions lead')
+    pal = _palette(name or tag, d['label'], cols, chart, d.get('keywords', ()))
+    pal, notes = repair(pal)
+    if notes:
+        why.append('contrast repaired: ' + '; '.join(notes))
+    return Identity(name=name or tag, base=base, label=d['label'], description=d['description'], palette=pal, texture=texture,
+                    image=image, type=typ, signature=signature, bias=bias, why=why, variant=a.get('variant'))
+
+
+def named(spec):
+    """'manga_ink' or 'manga_ink/dark' -> Identity, with no topic analysis."""
+    base, _, variant = spec.partition('/')
+    base = 'crime' if base == 'crime_investigation' else base
+    return derive(dict(primary=base, variant=variant or None, tone='balanced'), name=spec)
+
+
+def suggest(text, top=3, subject=''):
+    """[(identity, score)] ranked by how strongly the topic's words point at each category."""
+    sc = analyse(text, subject)['scores']
+    out = [(k, v) for k, v in sc.items() if v][:top]
+    return out or [('editorial', 0)]
 
 
 def custom(base='editorial', **fields):
-    """A video's own palette: start from the nearest subject palette and change fields, e.g.
-    custom('manga_ink', accent=(196, 132, 40)) for a manga whose identity colour is gold.
-    Raises if the result fails the contrast checks."""
-    p = replace(PALETTES[base], name=fields.pop('name', base + '_custom'), land=None, coast=None, border=None, **fields)
+    """A video's own palette: start from the nearest identity and change roles, e.g.
+    custom('manga_ink', accent_primary='#C4842A'). Token role names or Palette field names both
+    work, HEX or RGB. Raises if the result fails contrast (use repair() to auto-fix instead)."""
+    name = fields.pop('name', base + '_custom')
+    kw = {FIELD.get(k, k): rgb(v) for k, v in fields.items() if k not in ('chart',)}
+    if 'chart' in fields:
+        kw['chart'] = tuple(rgb(c) for c in fields['chart'])
+    p = replace(PALETTES[base], name=name, land=None, coast=None, border=None, **kw)
     bad = validate(p)
     if bad:
         raise ValueError(f'palette fails contrast: {bad}')
     return p
 
 
+# ------------------------------------------------------------------ image treatment
+def treat(img, kind=None, strength=None, p=None):
+    """Photograph / illustration treated in the identity's way. 'sepia' and 'cold' are duotones
+    built from the identity's own dark and light grounds, so prints belong to the palette.
+    kind: none | sepia | cold | cool | warm | ink. Keeps alpha."""
+    import numpy as np
+    from PIL import Image
+    p = p or ACTIVE
+    kind = kind or IDENTITY.image[0]
+    k = IDENTITY.image[1] if strength is None else strength
+    if kind == 'none' or k <= 0:
+        return img
+    mode = img.mode
+    a = np.asarray(img.convert('RGB'), np.float32)
+    g = (a @ np.array([0.299, 0.587, 0.114], np.float32))[..., None] / 255.0
+    if kind in ('sepia', 'cold'):
+        lo, hi = (np.array(p.dark, np.float32), np.array(p.paper, np.float32)) if kind == 'sepia' else \
+                 (np.array(_mix(p.dark, p.accent2, 0.25), np.float32), np.array(p.cream, np.float32))
+        lo = lo * 0.6
+        b = lo + (hi - lo) * g
+    elif kind == 'ink':
+        c = np.clip((g - 0.5) * 1.25 + 0.5, 0, 1)
+        b = np.repeat(c * 255.0, 3, axis=2)
+    else:
+        sh = np.array([-1.0, 0.1, 1.0] if kind == 'cool' else [1.0, 0.3, -1.0], np.float32) * 22
+        b = g * 255.0 + (a - g * 255.0) * 0.8 + sh
+    out = a * (1 - k) + b * k
+    res = Image.fromarray(out.clip(0, 255).astype(np.uint8), 'RGB')
+    if mode == 'RGBA':
+        res = res.convert('RGBA')
+        res.putalpha(img.getchannel('A'))
+    return res
+
+
+# ------------------------------------------------------------------ loading
+def _project_text(proj):
+    aud = os.path.join(proj, 'audio')
+    if not os.path.isdir(aud):
+        return ''
+    return ' '.join(open(os.path.join(aud, f), encoding='utf-8').read() for f in sorted(os.listdir(aud)) if f.endswith('.txt'))
+
+
 def _load():
-    cfg = os.path.join(os.environ.get('VOX_PROJECT', os.getcwd()), 'episode.json')
+    spec = os.environ.get('VOX_PALETTE')                 # override for previews and boards
+    proj = os.environ.get('VOX_PROJECT', os.getcwd())
+    cfg = os.path.join(proj, 'episode.json')
     data = json.load(open(cfg)) if os.path.exists(cfg) else {}
-    pal = data.get('palette')
-    if isinstance(pal, dict):                            # {"base": "manga_ink", "accent": [196,132,40]}
-        base = pal.get('base', 'editorial')
-        return custom(base, **{k: tuple(v) for k, v in pal.items() if k != 'base'})
-    if pal:
-        return PALETTES[pal]
-    return PALETTES[THEME_PALETTE.get(data.get('theme', 'editorial'), 'editorial')]
+    if spec:
+        data = dict(data, **json.loads(spec)) if spec.startswith('{') else dict(data, palette=spec)
+    pal = data.get('palette', 'auto')
+    if isinstance(pal, dict):                            # {"base": "manga_ink", "accent_primary": "#C4842A"}
+        idn = named(pal.get('base', 'editorial'))
+        over = {FIELD.get(k, k): rgb(v) for k, v in pal.items() if k not in ('base', 'chart')}
+        if 'chart' in pal:
+            over['chart'] = tuple(rgb(c) for c in pal['chart'])
+        p, notes = repair(replace(idn.palette, name=idn.name + '_custom', land=None, coast=None, border=None, **over))
+        idn.palette, idn.name = p, idn.name + '_custom'
+        idn.why.append('custom roles: ' + ', '.join(k for k in pal if k != 'base') + (('; repaired: ' + '; '.join(notes)) if notes else ''))
+        return idn
+    if pal and pal != 'auto':
+        return named(pal)
+    text, subject = data.get('text') or _project_text(proj), data.get('subject', '')
+    if text.strip() or subject.strip():
+        return derive(analyse(text, subject))
+    return named(THEME_PALETTE.get(data.get('theme', 'editorial'), 'editorial'))
 
 
-ACTIVE = _load()
+IDENTITY = _load()
+ACTIVE = IDENTITY.palette
 
 
 if __name__ == '__main__':
-    for p in PALETTES.values():
-        print(f'{p.name:16s}', 'ok' if not validate(p) else validate(p))
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == '--check':
+        for n in ID.IDENTITIES:
+            print(f'{n:16s}', validate(PALETTES[n]) or 'ok')
+    else:
+        topic = ' '.join(sys.argv[1:]) or _project_text(os.environ.get('VOX_PROJECT', os.getcwd()))
+        a = analyse('', topic) if len(sys.argv) > 1 else analyse(topic)
+        idn = derive(a)
+        print(json.dumps({k: v for k, v in a.items()}, indent=1))
+        print('identity:', idn.name)
+        for w in idn.why:
+            print(' -', w)
+        print(json.dumps(idn.palette.tokens(), indent=1))

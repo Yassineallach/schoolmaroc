@@ -71,7 +71,9 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `charts.py` | line charts, comparisons, unit grids, counters, flow diagrams, size comparisons |
 | `objects.py` | newspapers, letters, envelopes, polaroids, sticky notes, tape, push pins, spin-in |
 | `typo.py` | editorial typography: a 10-role hierarchy (English + Arabic), 12 kinetic animations, newspaper / big-number / term / name compositions |
-| `palette.py` | context-aware colour: eight subject palettes, contrast checks, scene moods (tone grades), palette suggestion from the transcript |
+| `identities.py` | design tokens of the ten visual identities (17 HEX colour roles, chart series, texture, image treatment, type, scene preferences, variants) plus regions and periods |
+| `palette.py` | the identity engine: topic analysis, identity derivation, contrast repair, image treatment, scene moods |
+| `identity_board.py` | the visual identity guide: a page per identity, an overview, and a board of identities derived from sample topics |
 | `scenes.py` | scene environments (theme, paper, cream, charcoal, solid accent, halftone, archive, geometric, grid, full-bleed) and compositions (full-bleed, split screen, full-screen type, panel grid, letterbox, thirds) |
 | `storyboard.py` | narration analysis: purpose, technique, weight, cue, cut and typographic moment for every sentence |
 | `themes.py` | per-episode background themes, all in the editorial design language |
@@ -94,7 +96,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 ### 2. Storyboard, background theme, asset list
 
 - **Show the storyboard first** on a Design canvas artifact: an overview board plus one board per act. Each shot shows its cue words, the on-screen text, the visual, and whether each asset is drawn in code or needed from the user.
-- **Choose the episode's palette** from the subject and tone (see "Colour" below). `storyboard.py` prints the palette in use and the one the transcript suggests; set it in `episode.json` (`"palette": "crime"`), and show it with `python SK/examples/demo_palettes.py <palette> out/palette.png`.
+- **Settle the episode's visual identity** (see "Visual identity" below). Put a one-line `"subject"` in `episode.json`. `storyboard.py` prints the identity the engine derived and why. Override it if needed (`"palette": "crime/historical"`), and show the user its page: `python SK/scripts/identity_board.py --page <identity> out/identity.png`.
 - **Choose the episode's background theme** from the subject (see "Background themes" below), set it in `episode.json`, and show the user a still plus a 15 s preview (`python SK/scripts/bg_motion.py out/bg_preview.mp4 15`) before any act uses it.
 - **Split the assets** into:
   - (a) things the code draws (see `references/prompts.md`, "Things code draws better");
@@ -384,32 +386,72 @@ hi = S.accent(s)              # the highlight that reads on this ground and suit
 - Join different environments with the strongest cuts: `pageturn` into archive, `circle` or `zoom` into a full-bleed image, `shape` between the two sides of a comparison, torn wipes for the rest.
 - Brand constants hold everywhere: the same typefaces and roles, the episode palette, paper grain on every ground, torn-edge prints and pen-drawn marks. Every ground is built from the palette, so a manga episode's archive page is off-white and ink, a space episode's is pale blue. Text on dark grounds uses `S.ink(s)`, highlights use `S.accent(s)`.
 
-### 11. Colour: a palette per video, a tone per scene
+### 11. Visual identity: art-directed per video, toned per scene
 
-**No fixed palette.** Terracotta and cream are the `editorial` palette, not the brand. Every video gets a palette chosen for its subject, atmosphere and period, and every drawing module (type, annotations, charts, maps, timelines, objects, transitions, environments, props) reads its colours from it. One line in `episode.json` recolours all of them together.
+**The engine builds a visual identity for every video from its topic.** Ten categories are starting points, not limits. Each one is a full identity: colour roles with HEX values, chart series, paper texture, image treatment, a type pairing, and the scene environments it favours. The topic decides the final identity.
+
+**Files:**
+- `scripts/identities.py`: the design tokens. There's one editable block per identity, plus regions and periods. No other module hardcodes a colour.
+- `scripts/palette.py`: the engine. It analyses the topic, builds and repairs the identity, and provides moods and image treatment.
+- `scripts/identity_board.py`: the reference guide.
 
 ```
-episode.json   {"theme": "manga_ink", "palette": "manga_ink"}
-               {"palette": {"base": "manga_ink", "accent": [196, 132, 40]}}    # the video's own palette
-S.env(s, 'charcoal', mood='grief')     # a scene's tone; or s.mood = 'grief'
+episode.json   {"subject": "Berserk: Kentaro Miura and Kouji Mori"}           # "palette" defaults to "auto"
+               {"palette": "manga_ink/dark"}                                     # force an identity / variant
+               {"palette": {"base": "manga_ink", "accent_primary": "#C4842A"}}  # the video's own colour
+python SK/scripts/palette.py "the history of Japan from the Meiji restoration"   # what the engine derives, and why
+python SK/scripts/identity_board.py --all out/identity                           # the guide: pages, overview, topic board
 ```
 
-| Palette | Subject | Grounds | Ink | Accents |
+| Identity | Character | Grounds | Accents | Texture · images · type |
 |---|---|---|---|---|
-| `editorial` | general explainers, book summaries | warm paper, cream | warm black, charcoal | terracotta, muted orange |
-| `history_archive` | history, biography, the press, war | aged paper, sepia dark | sepia black | oxblood, ochre |
-| `science_space` | science, space, physics | pale blue paper, deep navy | navy | cobalt, violet; star gold on navy |
-| `manga_ink` | manga, anime, comics | off-white, black | ink black, greys | one blood red |
-| `crime` | crime, investigations, trials | cold newsprint, charcoal | cold black | dark red, steel blue |
-| `technology` | technology, computing, AI | pale grey-blue, near-black | blue-black | electric blue, teal; cyan on dark |
-| `philosophy` | religion, philosophy, ethics, myth | warm ivory, deep green | green-black | deep green, muted gold |
-| `nature` | nature, animals, climate, geography | linen, forest dark | moss black | forest green, clay |
+| `editorial` | Vox explainer | warm off-white #F3ECDF, ink #1E1C1A | terracotta #CD5830, teal #1F6F74, yellow marker #F2C14E | fibre paper · natural · Archivo Black + Fraunces |
+| `history_archive` | document from a drawer | parchment #E6D5B0, walnut #2A1D13 | oxblood #7E2219, brass #7A5C22, gold wash | foxing, burnt edge · sepia duotone · Playfair + Special Elite |
+| `science_space` | deep space | chalk blue #E4E9F2, space navy #0A0F24 | violet #5B3FD0, cosmic blue, amber starlight #FFB547 | star field · cool · Archivo + Inter |
+| `manga_ink` | manuscript page | white #F6F4EE, pure black #0B0B0B | vermilion hanko #C42A1A, screentone grey | screentone · ink (B/W) · Archivo Black |
+| `crime` | case file | cold grey #DADDDF, manila #D9C59A, #101418 | dried crimson #8C1C1C, steel blue, tape yellow #F2C230 | photocopy toner · cold duotone · typewriter captions |
+| `technology` | interface | cool white #EDF0F3, graphite #0A0E14 | electric blue #1F5BE0, teal, cyan #2FE0FF, lime #B8F03A | dot grid · cool · Inter throughout |
+| `philosophy` | marble and lapis | ivory #F1ECE2, aubergine night #1A1730 | lapis #2B4A9B, gold leaf #E3C278 | marble veins · warm · Playfair + PT Serif |
+| `nature` | field notebook | linen #EEEBDD, forest #12201A | forest #2F6B3F, clay #A0552A, leaf #C9E27A | deckle fibre · natural · Fraunces |
+| `culture` | museum | warm stone #EFE6DA, #22151C | plum #7A2A4E, turquoise #1F7A78, saffron #F0B44C | canvas weave · warm · Playfair + Fraunces |
+| `economics` | the financial page | salmon #F6E7D9, navy #0F1A2B | market blue #0F4C81, gain green #1E7A4C, loss red | ledger rules · natural · Fraunces + Inter |
 
-When no palette is named, it follows the background theme (`palette.THEME_PALETTE`: `cosmic_atlas` → `science_space`, `manga_ink` → `manga_ink`, `archive` → `history_archive`…). When the subject has its own identity colour (a manga's signature red, a film's poster colour, a country's flag), start from the nearest palette and change only the accent with `palette.custom(...)` or the dict form above.
+**Colour roles** (the same 17 in every identity): primary / secondary / minimal / dark / solid grounds; primary / secondary / muted / on-dark text; primary / secondary / on-dark accents; highlight (marker sweeps, tape, washes); border; divider; soft fill; texture tint. There are also five ordered **chart series** (`charts.series(i)`). Modules read them as `palette.ACTIVE.paper`, `.accent`, `.highlight`, `.chart` and so on.
 
-**Every palette is checked for contrast** (`python SK/scripts/palette.py`): body ink 7:1 on every light ground, secondary ink 4.5:1, labels and accents 3:1, light ink 7:1 on the dark ground, light ink 4.5:1 on the solid accent ground. `custom()` refuses a palette that fails. Use `accent_dark` (via `S.accent(s)`) for highlights on dark grounds: the light-ground accent often fails there.
+**How the topic shapes the identity** (`palette.analyse` reads the transcript and episode.json `subject`, with the subject weighted 5×):
+- **Category:** keyword scores pick the base. Unknown subjects fall back to `editorial`.
+- **Variant:** a sub-genre within the category.
+  - `manga_ink/dark` (seinen, horror, revenge; titles like Berserk or Attack on Titan) vs `manga_ink/bright` (adventure, shonen; One Piece).
+  - `science_space/cosmos` vs `/lab`.
+  - `technology/retro` (history of computing: beige plastic, phosphor green) vs AI.
+  - `nature/ocean` and `/arid`.
+  - `economics/crisis`.
+  - `crime/historical`.
+- **Second subject:** its accent becomes the supporting colour.
+  - "The history of X" puts X's identity on archive paper, with foxing, sepia prints and an archive opening.
+  - "The history of computers" leads with `technology/retro`, not history.
+- **Region:** shifts supporting colours towards the place's visual culture. Japan: beni red and ai indigo. Maghreb: zellige green, Majorelle blue, saffron. Also Islamic world, China, Egypt, the classical world, India, Russia and others. For history, culture, editorial and philosophy it also sets the accent.
+- **Period:** changes the atmosphere. Antiquity: stone and bronze. Medieval: lapis and gold. World wars: khaki, olive, gunmetal, drained colour. Cold war: concrete. Contemporary: cleaner paper.
+- **Tone:** dark or bright, from the narration's emotional words. It shifts the balance of dark and light compositions.
+- **Contrast is repaired automatically, never the grounds:** body text 7:1, secondary 4.5:1, accents 3:1, light text 4.5:1 on the solid ground, ink 4.5:1 over the highlight. Every change is listed in `IDENTITY.why`.
 
-**Moods: the tone changes, the identity does not.** A mood is a gentle whole-frame grade derived from the palette (saturation, warmth, contrast, a lift towards the paper or a sink towards the dark ground) plus which accent the scene leans on. It never brings in a new hue.
+**What the identity controls** (one identity, every element):
+- **Grounds:** all ten environments are built from its colours and texture overlay (`scenes.py`).
+- **Type:** its fonts replace the role defaults (`typo.py`).
+- **Highlights:** marker sweeps use the highlight colour (`annotate.py`).
+- **Charts:** series colours (`charts.py`).
+- **Images:** prints, full-bleed images, splits and panel grids get its treatment (`palette.treat`). Sepia and cold are duotones built from the identity's own dark and light grounds, so photographs belong to the film.
+- **Maps:** land, coast and border colours (`maps.py`).
+- **Objects and transitions:** paper colours and rules.
+- **Background theme:** the `theme` environment draws the episode's theme only when the theme belongs to the same identity family. Otherwise it falls back to the identity's own paper, so terracotta shapes never sit behind a technology film.
+
+**A red accent means different things:** oxblood sealing wax in history, dried crimson on a cold case file, a vermilion hanko on a manga page, loss on the financial page. Choose the identity for what the colour should *mean*.
+
+**Narrative colour** (variation without randomness):
+- **Opening:** the film opens on the identity's signature environment: archive for history, deep-space dark for science, halftone for manga, case-file dark for crime, grid for technology and economics, full-bleed image for nature and culture, cream for philosophy.
+- **Within the film:** each identity weights the environments it favours (`IDENTITY.bias`). Moods tone scenes inside the identity (table below). A dramatic turn moves to the dark ground, a key statistic to the solid ground.
+- **Close:** a reflective close returns to cream or paper.
+- **Planning:** `storyboard.py` prints the identity with its reasons, the mood arc and the environment plan.
 
 | Mood | Grade | Leans on |
 |---|---|---|
@@ -423,15 +465,14 @@ When no palette is named, it follows the background theme (`palette.THEME_PALETT
 | `menace` | desaturated, hard contrast, darker | accent |
 | `grief` | strongly desaturated, quiet | muted |
 
-`storyboard.py` adds a **mood** column. `palette.plan_moods` reads each sentence, then smooths the result so the tone never flickers: grief and menace hold for two lines after their cue and are not broken by a passing "but"; a lone weak cue between neutral lines is ignored. Moods also steer the environment (grief → charcoal, cream, full-bleed; triumph → solid accent, grid). The summary line lists the tone arc (`neutral > menace > … > grief > hope`): read it as the film's emotional shape and fix it by hand where the words mislead.
+Moods are smoothed: grief and menace hold for two lines and aren't broken by a passing "but". A lone weak cue is ignored.
 
 **Rules:**
-- Choose the palette before the storyboard is shown, from what the video is about and how it should feel; say why in one line.
-- Colours carry meaning: the accent marks what the narration is on (the number, the name, the turn); it is never decoration and never on more than one or two things per frame.
-- Change tone only where the story does (a death, a betrayal, a triumph), and hold it across the beat; never change colours shot to shot for variety. Variety comes from environments and layouts; colour gives continuity.
-- Never force cream grounds, terracotta accents or any other recurring palette on a subject they do not suit.
-- Images keep their own colours; the mood grade is gentle enough to tie them in without repainting them. Monochrome art (manga pages) suits monochrome palettes: give it `manga_ink`, not a warm editorial one.
-- Background themes take their colours from the same family: pick a theme whose palette mapping matches, or add a theme in the palette's colours.
+- **Settle the identity before the storyboard.** Run `palette.py` on the transcript, read `why`, and override it if the engine misread the subject. Show the user its page from `identity_board.py`.
+- **Accents mark what the narration is on.** Never put an accent on more than one or two things per frame.
+- **Tone changes only where the story does.** Hold a tone across its beat and never change colour shot to shot. Variety comes from environments and layouts; the identity gives continuity.
+- **A new identity** goes in `identities.py` with all 17 roles, five chart colours, texture, image treatment, type, scenes and keywords. Check it with `python SK/scripts/palette.py --check` and look at its page before using it.
+- **Never force cream, terracotta or any recurring palette** on a subject it doesn't suit.
 
 ### 12. Background themes
 
@@ -551,4 +592,4 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 20. Choose every visual from what the sentence means and feels: analyse the narration first (storyboard.py), vary the techniques, and leave some moments deliberately simple.
 21. Typography is part of the explanation, not decoration: give type to discoveries, dates, names, contradictions, terms and quotes, and leave most sentences to images.
 22. Every scene is a new editorial composition: vary the environment and the arrangement shot to shot (scenes.py), never the same background or layout twice in a row, while typography, the episode palette, paper texture and animation principles stay constant.
-23. Colour follows the story: every video gets a palette chosen for its subject, period and tone (palette.py), every colour on screen comes from it, accents mark only what matters, the tone shifts only where the story's emotion does, and contrast always passes. Never force cream, terracotta or any recurring palette onto a subject it does not suit.
+23. Every video is art-directed for its subject. The engine derives a visual identity from the topic: category, sub-genre, second subject, region, period and tone (identities.py, palette.py). Every colour, texture, typeface and image treatment on screen comes from it. Accents mark only what matters, the tone shifts only where the story's emotion does, and contrast always passes. Different videos must look noticeably different. Never force cream, terracotta or any recurring palette onto a subject it doesn't suit.

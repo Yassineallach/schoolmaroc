@@ -26,6 +26,7 @@ from palette import ACTIVE as PAL           # colours come from the episode pale
 TERRA = ACCENT = PAL.accent  # primary highlight
 ORANGE = ACCENT2 = PAL.accent2
 BEIGE = PAL.soft
+HIGHLIGHT = PAL.highlight     # marker colour of the identity (yellow marker, tape, gold wash, screentone)
 CHARCOAL = PAL.ink2
 SS = 2                       # supersampling for anti-aliased strokes
 
@@ -167,7 +168,7 @@ def grow(box, dx, dy=None):
 
 
 # ------------------------------------------------------------------ TEXT
-def sweep(layer, box, t, start, dur=0.45, colour=TERRA, alpha=0.42, until=None, exit='settle', seed=1, sound=True):
+def sweep(layer, box, t, start, dur=0.45, colour=HIGHLIGHT, alpha=0.55, until=None, exit='settle', seed=1, sound=True):
     """Marker swept behind a word or sentence. Draw it BEFORE the text (same layer or one below)."""
     if sound:
         sfx('swipe', start, (box[0] + box[2]) / 2)
@@ -407,7 +408,7 @@ def stat(layer, xy, text, size, t, start, colour=TERRA, font=F_HEAD, until=None,
     """A statistic that matters: a marker sweep lands behind it, then the figure turns
     terracotta and swells briefly."""
     box = text_box(xy, text, size, font)
-    sweep(layer, box, t, start, 0.4, BEIGE, 0.9, until, exit)
+    sweep(layer, box, t, start, 0.4, HIGHLIGHT, 0.75, until, exit)
     emphasis(layer, xy, text, size, t, start + 0.25, font, INK, colour, 1.1, until=until)
 
 

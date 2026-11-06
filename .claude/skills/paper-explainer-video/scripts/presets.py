@@ -72,8 +72,10 @@ def load(path, width=None, height=None):
 
 
 def print_card(img, width, border=16, seed=1):
-    """A photograph as a torn-edged print with a cream border."""
-    src = vox.fit_w(img.convert('RGB'), width - 2 * border)
+    """A photograph as a torn-edged print with a light border, treated in the identity's way
+    (palette.treat: sepia duotone for history, cold for crime, ink for manga...)."""
+    import palette
+    src = vox.fit_w(palette.treat(img.convert('RGB')), width - 2 * border)
     card = Image.new('RGBA', (src.width + 2 * border, src.height + 2 * border), CREAM + (255,))
     card.paste(src, (border, border))
     card.putalpha(torn_mask(card.width, card.height, seed))

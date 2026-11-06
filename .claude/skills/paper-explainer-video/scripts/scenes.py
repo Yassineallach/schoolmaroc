@@ -58,6 +58,15 @@ DARK_ENVS = {'charcoal', 'accent', 'terra', 'bleed'}
 ENVS = ('theme', 'paper', 'cream', 'charcoal', 'accent', 'halftone', 'archive', 'geometric', 'grid', 'bleed')
 ALIASES = {'terra': 'accent', 'dark': 'charcoal'}          # old names keep working
 
+# the 'theme' environment draws the episode's background theme only when that theme belongs to
+# the same identity family; otherwise it falls back to the identity's own paper (no terracotta
+# shapes behind a technology film)
+try:
+    import bg_motion as _bgm
+    THEME_FITS = palette.THEME_PALETTE.get(_bgm.THEME_NAME, 'editorial') == palette.IDENTITY.base
+except Exception:
+    THEME_FITS = True
+
 
 def ink(shot):
     """Text colour that reads on the shot's environment."""
@@ -94,23 +103,104 @@ def _noise(h, w, scale, seed, amp):
     return (n - 128) / 128.0 * amp
 
 
-def _ground(colour, seed, mottle=5.0, vignette=10.0, fibres=True):
+TX = palette.IDENTITY.texture          # the identity's material: grain, fibres, vignette, signature overlay
+
+
+def _ground(colour, seed, mottle=5.0, vignette=10.0, fibres=True, dark=False, overlay=True):
+    """A ground in one colour with the identity's paper character."""
+    mottle = mottle * TX.get('mottle', 1.0)
+    vignette = vignette if dark else vignette + (TX.get('vignette', 10) - 10)
     a = np.empty((H, W, 3), np.float32)
     a[:] = colour
-    a += _noise(H, W, 70, seed, mottle)[..., None] + _noise(H, W, 5, seed + 1, mottle * 0.6)[..., None]
+    a += _noise(H, W, 70, seed, mottle)[..., None] + _noise(H, W, 5, seed + 1, mottle * 0.6 * TX.get('grain', 1.0))[..., None]
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
     a -= (((xx / W - 0.5) ** 2 + (yy / H - 0.5) ** 2) * vignette)[..., None]
     img = Image.fromarray(a.clip(0, 255).astype(np.uint8))
-    if fibres:
+    n = int(TX.get('fibres', 900)) if fibres else 0
+    if n:
         d = ImageDraw.Draw(img)
         r = np.random.default_rng(seed + 2)
         base = np.array(colour, np.float32)
-        for _ in range(900):
+        for _ in range(n):
             x, y = r.uniform(0, W), r.uniform(0, H)
             L, ang = r.uniform(3, 9), r.uniform(0, math.pi)
             c = tuple(int(v) for v in (base * r.uniform(0.92, 1.04)).clip(0, 255))
             d.line([(x, y), (x + L * math.cos(ang), y + L * math.sin(ang))], fill=c)
-    return img.filter(ImageFilter.GaussianBlur(0.5)).convert('RGBA')
+    img = img.filter(ImageFilter.GaussianBlur(0.5)).convert('RGBA')
+    return _overlay(img, TX.get('kind', 'fibre'), dark, seed) if overlay else img
+
+
+def _overlay(g, kind, dark, seed):
+    """The identity's signature material on top of a ground."""
+    r = np.random.default_rng(seed + 50)
+    ov = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(ov)
+    if kind == 'foxing' and not dark:                               # age spots and a burnt edge
+        m = Image.new('L', (W, H), 0)
+        dm = ImageDraw.Draw(m)
+        for _ in range(14):
+            cx, cy, rr = r.uniform(0, W), r.uniform(0, H), r.uniform(20, 120)
+            dm.ellipse((cx - rr, cy - rr, cx + rr, cy + rr), fill=int(r.uniform(18, 40)))
+        m = m.filter(ImageFilter.GaussianBlur(28))
+        t = Image.new('RGBA', (W, H), PAL.tint + (0,))
+        t.putalpha(m)
+        g.alpha_composite(t)
+        for _ in range(500):
+            x, y = r.uniform(0, W), r.uniform(0, H)
+            d.point((x, y), fill=PAL.tint + (int(r.uniform(40, 110)),))
+    elif kind == 'stars' and dark:                                  # a field of stars
+        for _ in range(900):
+            x, y, b = r.uniform(0, W), r.uniform(0, H), r.uniform(0, 1) ** 4
+            rr = 0.6 + 1.8 * b
+            c = _mix(PAL.light, PAL.accent_dark, r.uniform(0, 0.4))
+            d.ellipse((x - rr, y - rr, x + rr, y + rr), fill=c + (int(60 + 180 * b),))
+    elif kind == 'screentone' and not dark:                         # a band of screentone from the lower corner
+        for j, y in enumerate(range(0, H, 10)):
+            for x in range((j % 2) * 5, W, 10):
+                k = max(0.0, 1 - math.hypot(x - W * 0.1, y - H * 1.05) / (W * 0.55))
+                if k > 0.05:
+                    rr = 2.6 * k
+                    d.ellipse((x - rr, y - rr, x + rr, y + rr), fill=PAL.tint + (70,))
+    elif kind == 'photocopy':                                       # toner specks and copier banding
+        col = PAL.light if dark else PAL.ink
+        for _ in range(1600):
+            x, y = r.uniform(0, W), r.uniform(0, H)
+            d.point((x, y), fill=col + (int(r.uniform(30, 120)),))
+        for _ in range(6):
+            y = r.uniform(0, H)
+            d.rectangle((0, y, W, y + r.uniform(1, 4)), fill=col + (10,))
+    elif kind == 'dotgrid':                                         # a precise dot grid
+        col = (PAL.accent_dark + (34,)) if dark else (PAL.divider + (70,))
+        for y in range(24, H, 32):
+            for x in range(24, W, 32):
+                d.point((x, y), fill=col)
+                d.point((x + 1, y), fill=col)
+    elif kind == 'marble' and not dark:                             # faint marble veins
+        for _ in range(5):
+            x, y = r.uniform(-200, W), r.uniform(0, H)
+            pts = []
+            for k in range(40):
+                x += r.uniform(30, 60)
+                y += r.normal(0, 14)
+                pts.append((x, y))
+            d.line(pts, fill=PAL.border + (90,), width=int(r.uniform(1, 3)))
+        ov = ov.filter(ImageFilter.GaussianBlur(1.2))
+    elif kind == 'deckle' and not dark:                             # organic fibre clouds
+        m = Image.fromarray(((_noise(H, W, 160, seed + 9, 1.0) + 1) * 40).clip(0, 255).astype(np.uint8))
+        t = Image.new('RGBA', (W, H), PAL.tint + (0,))
+        t.putalpha(m.point(lambda v: max(0, v - 50)))
+        g.alpha_composite(t)
+    elif kind == 'canvas' and not dark:                             # a woven canvas
+        for x in range(0, W, 4):
+            d.line((x, 0, x, H), fill=PAL.tint + (10,))
+        for y in range(0, H, 4):
+            d.line((0, y, W, y), fill=PAL.tint + (12,))
+    elif kind == 'ledger' and not dark:                             # ledger rules and a margin
+        for y in range(60, H, 36):
+            d.line((0, y, W, y), fill=PAL.border + (110,), width=1)
+        d.line((150, 0, 150, H), fill=PAL.accent + (60,), width=2)
+    g.alpha_composite(ov)
+    return g
 
 
 @lru_cache(maxsize=16)
@@ -122,9 +212,9 @@ def _static(name):
         ImageDraw.Draw(g).line((140, H - 150, W - 140, H - 150), fill=PAL.muted + (255,), width=2)
         return g
     if name == 'charcoal':
-        return _ground(CHARCOAL, 203, mottle=6, vignette=-40)
+        return _ground(CHARCOAL, 203, mottle=6, vignette=-40, dark=True)
     if name == 'accent':
-        return _ground(SOLID, 204, mottle=7, vignette=16)
+        return _ground(SOLID, 204, mottle=7, vignette=16, fibres=False, dark=True)
     if name == 'archive':
         g = _ground(PAL.paper2, 205, mottle=8, vignette=22)
         d = ImageDraw.Draw(g)
@@ -146,7 +236,7 @@ def _static(name):
         g.alpha_composite(tint)
         return g
     if name == 'grid':
-        g = _ground(_mix(PAL.cream, (255, 255, 255), 0.2), 206, mottle=2, vignette=4)
+        g = _ground(_mix(PAL.cream, (255, 255, 255), 0.2), 206, mottle=2, vignette=4, fibres=False, overlay=False)
         d = ImageDraw.Draw(g)
         for x in range(0, W, 48):
             d.line((x, 0, x, H), fill=_mix(PAL.line, PAL.cream, 0.5) + (255,), width=1)
@@ -176,6 +266,8 @@ def render_env(name, T, shot):
     """The ground for a shot (RGBA, W x H). 'theme' returns None: the caller draws the episode
     background as before."""
     if name in (None, 'theme'):
+        if not THEME_FITS:                                  # the episode theme belongs to another identity
+            return _static('paper')
         return None
     name = ALIASES.get(name, name)
     if name == 'bleed':
@@ -195,9 +287,20 @@ def render_env(name, T, shot):
 
 
 # ===================================================================== compositions
+_TREATED = {}
+
+
+def treated(img):
+    """The image with the identity's treatment (palette.treat), computed once per image."""
+    k = id(img)
+    if k not in _TREATED:
+        _TREATED[k] = (img, palette.treat(img.convert('RGB')))
+    return _TREATED[k][1]
+
+
 def _cover(img, w, h, focus=(0.5, 0.5)):
     """Scale and crop img to fill w x h, keeping the focus point in view."""
-    im = img.convert('RGB')
+    im = treated(img)
     s = max(w / im.width, h / im.height)
     nw, nh = int(im.width * s + 1), int(im.height * s + 1)
     im = im.resize((nw, nh), Image.LANCZOS)
@@ -363,25 +466,35 @@ CAPS = {'theme': 0.40, 'bleed': 0.14, 'paper': 0.14, 'cream': 0.12, 'charcoal': 
 
 
 def plan_environments(rows):
-    """Give every planned shot an environment from its purpose: never the same environment as
-    either of the two previous shots, each environment within its share (CAPS), the episode
-    theme as the most common ground for continuity, dark or solid grounds only for short,
-    strong moments (simple/medium weight)."""
+    """Give every planned shot an environment from its purpose and mood, shaped by the episode
+    identity: its favoured environments weigh more (palette.IDENTITY.bias), the film opens on
+    its signature environment and the last two shots return to a calm light ground. Never the
+    same environment as either of the two previous shots, each within its share (CAPS x bias),
+    dark or solid grounds only for short, strong moments (simple/medium weight)."""
+    idn = palette.IDENTITY
+    caps = {e: min(0.5, CAPS[e] * idn.bias.get(e, 1.0)) for e in CAPS}
+    if not THEME_FITS:
+        caps['theme'] = 0.0
     used = {e: 0 for e in ENVS}
     hist = []
     n = max(1, len(rows))
     for i, r in enumerate(rows):
         opts = list(PURPOSE_ENVS.get(r['purpose'], ['theme', 'paper']))
-        opts = [e for e in MOOD_ENVS.get(r.get('mood'), []) if e in opts] + [e for e in opts if e not in MOOD_ENVS.get(r.get('mood'), [])]
-        opts += [e for e in MOOD_ENVS.get(r.get('mood'), []) if e not in opts] + ['theme', 'paper', 'cream', 'geometric']
+        mood = MOOD_ENVS.get(r.get('mood'), [])
+        opts = [e for e in mood if e in opts] + [e for e in opts if e not in mood]
+        opts += [e for e in mood if e not in opts] + ['theme', 'paper', 'cream', 'geometric']
+        if i == 0:
+            opts = [idn.signature] + opts                  # open on the identity's own ground
+        elif i >= n - 2 and r.get('mood') in (None, 'neutral', 'calm', 'hope'):
+            opts = ['cream', 'paper'] + opts               # a reflective close returns to light
         best = None
-        for rank, o in enumerate(opts):
-            if o in hist[-2:]:
+        for rank, o in enumerate(dict.fromkeys(opts)):
+            if o in hist[-2:] or caps.get(o, 0) <= 0:
                 continue
             if o in ('accent', 'charcoal') and r['weight'] == 'complex':
                 continue
-            over = used[o] / (CAPS[o] * n)
-            score = rank * 0.6 + over * 3
+            over = used[o] / (caps[o] * n)
+            score = rank * 0.6 + over * 3 - 0.35 * (idn.bias.get(o, 1.0) - 1.0)
             if best is None or score < best[0]:
                 best = (score, o)
         pick = best[1] if best else 'paper'

@@ -73,7 +73,7 @@ def v6(s, t):
     TY.big_number(s.top, (1400, 300), '2023', t, 1.0, label='A NEW ARC')
 
 
-@scene(7, 'Solid terracotta: one number', 'terra')
+@scene(7, 'Solid accent: one number', 'accent')
 def v7(s, t):
     TY.big_number(s.top, (W / 2, 330), '70M', t, 0.3, role='stat', colour=S.CREAM, label=None, accent_bar=False)
     Text('COPIES IN CIRCULATION', 'label', size=32, colour=S.CREAM).draw(s.hud, (W / 2, 640), t, 1.2, anim='words', anchor='m')
