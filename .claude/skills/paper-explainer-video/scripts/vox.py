@@ -30,11 +30,12 @@ def asset(name):
     """Path of an approved asset inside <project>/assets."""
     return os.path.join(ASSETS, name)
 
-PAPER = (218, 217, 213)   # #DAD9D5
-INK = (26, 26, 26)        # #1A1A1A
-RED = (224, 67, 41)       # #E04329
-CREAM = (238, 233, 222)
-GREY = (150, 148, 143)
+from palette import ACTIVE as PAL           # colours come from the episode palette (palette.py)
+PAPER = (218, 217, 213)   # legacy locked background (_make_paper); episode grounds use PAL
+INK = PAL.ink
+RED = ACCENT = PAL.accent
+CREAM = PAL.light
+GREY = PAL.muted
 
 
 def font(name, size):

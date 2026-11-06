@@ -22,10 +22,11 @@ import vox
 from vox import INK, F_HEAD, F_TYPE
 from style import sfx
 
-TERRA = (205, 88, 48)        # primary highlight
-ORANGE = (222, 140, 80)      # muted orange
-BEIGE = (221, 200, 170)
-CHARCOAL = (55, 52, 50)
+from palette import ACTIVE as PAL           # colours come from the episode palette (palette.py)
+TERRA = ACCENT = PAL.accent  # primary highlight
+ORANGE = ACCENT2 = PAL.accent2
+BEIGE = PAL.soft
+CHARCOAL = PAL.ink2
 SS = 2                       # supersampling for anti-aliased strokes
 
 
@@ -348,7 +349,7 @@ def magnify(layer, src, centre, radius, zoom, to, t, start, dur=0.5, colour=TERR
     ImageDraw.Draw(sm).ellipse((20, 26, 20 + 2 * R, 26 + 2 * R), fill=int(80 * k))
     sh.putalpha(sm.filter(ImageFilter.GaussianBlur(10)))
     _comp(layer, sh, to[0] - R - 20 + 8, to[1] - R - 20 + 10)
-    rim = Image.new('RGBA', (2 * R + 16, 2 * R + 16), (244, 238, 224, 0))
+    rim = Image.new('RGBA', (2 * R + 16, 2 * R + 16), PAL.light + (0,))
     rm = Image.new('L', ((2 * R + 16) * SS, (2 * R + 16) * SS), 0)
     ImageDraw.Draw(rm).ellipse((0, 0, (2 * R + 16) * SS - 1, (2 * R + 16) * SS - 1), fill=int(255 * k))
     rim.putalpha(rm.resize(rim.size, Image.LANCZOS))

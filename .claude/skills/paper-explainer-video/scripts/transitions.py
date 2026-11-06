@@ -18,8 +18,9 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 W, H = 1920, 1080
-TERRA = (205, 88, 48)
-PAPER_BACK = (236, 226, 206)
+from palette import ACTIVE as PAL
+TERRA = ACCENT = PAL.accent
+PAPER_BACK = PAL.paper2
 
 # seconds before / after the cut that each transition occupies
 DUR = {'pageturn': (0.55, 0.35), 'circle': (0.40, 0.22), 'shape': (0.42, 0.22), 'zoom': (0.50, 0.30), 'collage': (0.55, 0.40)}

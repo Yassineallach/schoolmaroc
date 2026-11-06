@@ -24,12 +24,13 @@ import annotate as A
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 GEO = os.path.join(os.path.dirname(HERE), 'assets', 'geo')
-LAND = (226, 208, 178)
-LAND_DARK = (214, 194, 162)
-COAST = (92, 82, 72)
-BORDER = (150, 132, 112)
-GRID = (190, 176, 152)
-TERRA = (205, 88, 48)
+from palette import ACTIVE as PAL, _mix
+LAND = PAL.land
+LAND_DARK = _mix(PAL.land, PAL.ink2, 0.08)
+COAST = PAL.coast
+BORDER = PAL.border
+GRID = PAL.line
+TERRA = ACCENT = PAL.accent
 
 
 @lru_cache(maxsize=1)
@@ -264,7 +265,7 @@ class WorldMap:
         if head and p < 1:
             seg = A._resample(path, 2)
             x, y = seg[min(len(seg) - 1, int(len(seg) * p))]
-            d.ellipse((x - 11, y - 11, x + 11, y + 11), fill=INK + (255,), outline=(244, 238, 224, 255), width=3)
+            d.ellipse((x - 11, y - 11, x + 11, y + 11), fill=INK + (255,), outline=PAL.light + (255,), width=3)
 
     def marker(self, layer, view, lonlat, label, t, start, colour=TERRA, size=34, side='right', sound=True):
         """A map pin drops onto the place with its shadow, then a paper label slides out."""
@@ -286,7 +287,7 @@ class WorldMap:
         cx = n * S / 2
         dp.ellipse((cx - r, 4 * S, cx + r, 4 * S + 2 * r), fill=colour + (255,))
         dp.polygon([(cx - r * 0.75, 4 * S + r * 1.55), (cx + r * 0.75, 4 * S + r * 1.55), (cx, pin.height - 2)], fill=colour + (255,))
-        dp.ellipse((cx - r * 0.38, 4 * S + r * 0.62, cx + r * 0.38, 4 * S + r * 1.38), fill=(244, 238, 224, 255))
+        dp.ellipse((cx - r * 0.38, 4 * S + r * 0.62, cx + r * 0.38, 4 * S + r * 1.38), fill=PAL.light + (255,))
         pin = pin.resize((n, int(n * 1.5)), Image.LANCZOS)
         sc = max(0.05, u)
         pin = pin.resize((max(1, int(pin.width * sc)), max(1, int(pin.height * sc))), Image.BICUBIC)
@@ -303,7 +304,7 @@ class WorldMap:
 
 def map_card(M, view, w, h, seed=5, highlight=None, t=99.0):
     """A printed map as a paper object (torn edges, cream ground) for drop / slide / unfold."""
-    card = P.paper_card(w, h, seed=seed, colour=(244, 236, 220))
+    card = P.paper_card(w, h, seed=seed, colour=PAL.cream)
     keep = M.box
     M.box = (18, 18, w - 18, h - 18)
     M.draw(card, view, t, highlight=highlight)

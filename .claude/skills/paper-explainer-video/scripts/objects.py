@@ -20,8 +20,9 @@ from style import sfx
 import presets as P
 import annotate as A
 
-TERRA = (205, 88, 48)
-NEWSPRINT = (234, 228, 212)
+from palette import ACTIVE as PAL
+TERRA = ACCENT = PAL.accent
+NEWSPRINT = PAL.paper2
 
 
 def newspaper(headline, date='', masthead='THE INKWELL GAZETTE', sub=None, photo=None, w=900, h=1180, seed=21):
@@ -31,7 +32,7 @@ def newspaper(headline, date='', masthead='THE INKWELL GAZETTE', sub=None, photo
     base += r.normal(0, 4, (h, w, 1))
     im = Image.fromarray(base.clip(0, 255).astype(np.uint8)).convert('RGBA')
     d = ImageDraw.Draw(im)
-    ink = (28, 26, 24, 255)
+    ink = PAL.ink + (255,)
     d.text((w / 2, 74), masthead, font=F_SERIF(70), fill=ink, anchor='mm')
     d.line((40, 122, w - 40, 122), fill=ink, width=4)
     d.line((40, 130, w - 40, 130), fill=ink, width=1)
@@ -77,7 +78,7 @@ def polaroid(img, caption='', width=420, seed=31):
     card = Image.new('RGBA', (width, width - 2 * pad + pad + bottom), (247, 244, 236, 255))
     card.paste(ph, (pad, pad))
     if caption:
-        ImageDraw.Draw(card).text((width / 2, card.height - bottom / 2), caption, font=F_TYPE(34), fill=(40, 38, 36, 255), anchor='mm')
+        ImageDraw.Draw(card).text((width / 2, card.height - bottom / 2), caption, font=F_TYPE(34), fill=PAL.ink2 + (255,), anchor='mm')
     return card
 
 
@@ -93,18 +94,18 @@ def sticky_note(text, size=300, colour=(240, 206, 158), seed=41):
     for word in words:
         test = (row + ' ' + word).strip()
         if d.textlength(test, font=f) > size * 0.8 and row:
-            d.text((size / 2, y), row, font=f, fill=(40, 36, 32, 255), anchor='mm')
+            d.text((size / 2, y), row, font=f, fill=PAL.ink2 + (255,), anchor='mm')
             y += size * 0.16
             row = word
         else:
             row = test
-    d.text((size / 2, y), row, font=f, fill=(40, 36, 32, 255), anchor='mm')
+    d.text((size / 2, y), row, font=f, fill=PAL.ink2 + (255,), anchor='mm')
     return im
 
 
 def letter(lines, w=620, h=780, seed=51, signature=None):
     """A typed letter on cream paper (lines of text; '---' for ruled filler)."""
-    im = P.paper_card(w, h, seed=seed, colour=(248, 244, 233))
+    im = P.paper_card(w, h, seed=seed, colour=PAL.cream)
     d = ImageDraw.Draw(im)
     y = 90
     for ln in lines:
@@ -112,10 +113,10 @@ def letter(lines, w=620, h=780, seed=51, signature=None):
             d.line((70, y, 70 + np.random.default_rng(seed + y).uniform(0.6, 0.95) * (w - 140), y), fill=(150, 144, 134, 255), width=3)
             y += 34
         else:
-            d.text((70, y), ln, font=F_TYPE(32), fill=(36, 34, 32, 255), anchor='lm')
+            d.text((70, y), ln, font=F_TYPE(32), fill=PAL.ink + (255,), anchor='lm')
             y += 50
     if signature:
-        d.text((w - 90, h - 110), signature, font=F_SERIF(40), fill=(36, 34, 32, 255), anchor='rm')
+        d.text((w - 90, h - 110), signature, font=F_SERIF(40), fill=PAL.ink + (255,), anchor='rm')
     return im
 
 

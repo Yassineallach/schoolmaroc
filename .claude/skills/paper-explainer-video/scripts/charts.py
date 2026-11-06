@@ -17,10 +17,11 @@ from style import sfx
 import presets as P
 import annotate as A
 
-TERRA = (205, 88, 48)
-BEIGE = (221, 200, 170)
-CHARCOAL = (55, 52, 50)
-MUTED = (150, 140, 128)
+from palette import ACTIVE as PAL
+TERRA = ACCENT = PAL.accent
+BEIGE = PAL.soft
+CHARCOAL = PAL.ink2
+MUTED = PAL.muted
 
 
 def _fmt(v, decimals=0):
@@ -56,7 +57,7 @@ def line_chart(layer, box, points, t, start, dur=1.6, colour=TERRA, axis=CHARCOA
             my = Y(np.interp(mark[0], xs, ys))
             u = A.pop((t - start - 0.4 - dur * frac) / 0.35)
             r = 12 * u
-            d.ellipse((mx - r, my - r, mx + r, my + r), fill=colour + (255,), outline=(244, 238, 224, 255), width=3)
+            d.ellipse((mx - r, my - r, mx + r, my + r), fill=colour + (255,), outline=PAL.light + (255,), width=3)
             A.stroke(layer, [(mx, my - 18), (mx, my - 80)], A.pen((t - start - 0.4 - dur * frac - 0.1) / 0.25), 3, colour, 1.0, taper=False)
             d.text((mx, my - 104), mark[1], font=F_HEAD(30), fill=colour + (int(255 * min(1, u)),), anchor='mm')
             sfx('pop', start + 0.4 + dur * frac, mx)
@@ -134,7 +135,7 @@ def flow(layer, nodes, t, starts, colour=TERRA, box_w=300, box_h=110, links=None
     for k, ((x, y), label) in enumerate(nodes):
         if t < starts[k]:
             continue
-        card = P.paper_card(box_w, box_h, seed=k + 31, colour=(246, 241, 229))
+        card = P.paper_card(box_w, box_h, seed=k + 31, colour=PAL.cream)
         ImageDraw.Draw(card).text((box_w / 2, box_h / 2), label, font=F_HEAD(36), fill=INK + (255,), anchor='mm')
         P.drop(layer, card, x, y, t, starts[k], rot=(-2, 1.5, -1, 2)[k % 4], spin=6, height=0.4, key=('flow', k, label))
 

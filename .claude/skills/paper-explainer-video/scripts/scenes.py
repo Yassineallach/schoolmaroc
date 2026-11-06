@@ -5,7 +5,7 @@ elements are arranged (a composition helper). Nothing forces the episode backgro
 every shot: `s.env = 'theme'` (the default) keeps it; any other environment replaces it.
 
     s = Shot(t, D)
-    s.env = 'charcoal'                  # or set via env(s, 'charcoal', accent='terra')
+    s.env = 'charcoal'                  # or env(s, 'charcoal', mood='grief')
     ink = scenes.ink(s)                 # text colour that reads on this ground
 
 ENVIRONMENTS (render_env)                         use them for
@@ -13,7 +13,7 @@ ENVIRONMENTS (render_env)                         use them for
     'paper'      warm editorial paper, no shapes      calm explanation, documents
     'cream'      minimalist cream, one hairline rule  one idea, one quote, generous space
     'charcoal'   dark charcoal with grain, vignette   drama, death, turning points, night
-    'terra'      solid terracotta paper               a single statement or number, sparingly
+    'accent'     solid ground in the palette colour   a single statement or number, sparingly
     'halftone'   manga halftone dots + speed lines    action, manga and comics subjects
     'archive'    aged newsprint + faint columns       history, dates, the press, records
     'geometric'  big flat shapes, one diagonal split  comparisons, systems, structure
@@ -28,8 +28,11 @@ COMPOSITIONS (draw onto shot layers; all keep the paper / print language)
     letterbox(s, img, t, start, bars='charcoal')                     cinematic wide crop with bars
     rule_of_thirds(side) -> (x_image, x_text)                        asymmetric layout anchors
 
-Brand constants hold in every environment: the same typefaces (typo.py), terracotta accent,
-paper grain on every ground, prints with torn edges, pen-drawn marks.
+Brand constants hold in every environment: the same typefaces (typo.py), the episode palette
+(palette.py: every ground, ink and accent above comes from it), paper grain on every ground,
+prints with torn edges, pen-drawn marks. `accent(shot)` gives the highlight that reads on the
+shot's ground; `env(s, name, mood='grief')` also sets the scene's tone (palette.MOODS).
+'terra' is the old name of 'accent' (a solid ground in the palette's `solid` colour).
 """
 import math
 from functools import lru_cache
@@ -38,15 +41,22 @@ from PIL import Image, ImageDraw, ImageFilter
 import vox
 from vox import W, H
 
-TERRA = (205, 88, 48)
-CHARCOAL = (34, 31, 30)
-CREAM = (244, 236, 222)
-PAPER = (246, 229, 202)
-INK_DARK = (28, 24, 22)
-INK_LIGHT = (244, 236, 222)
+import palette
+from palette import ACTIVE as PAL, _mix
 
-DARK_ENVS = {'charcoal', 'terra', 'bleed'}
-ENVS = ('theme', 'paper', 'cream', 'charcoal', 'terra', 'halftone', 'archive', 'geometric', 'grid', 'bleed')
+# every ground is built from the episode palette (palette.py): a manga video gets off-white and
+# ink, a space video pale blue paper and deep navy, a crime video cold newsprint and charcoal.
+TERRA = ACCENT = PAL.accent
+SOLID = PAL.solid
+CHARCOAL = DARK = PAL.dark
+CREAM = PAL.cream
+PAPER = PAL.paper
+INK_DARK = PAL.ink
+INK_LIGHT = PAL.light
+
+DARK_ENVS = {'charcoal', 'accent', 'terra', 'bleed'}
+ENVS = ('theme', 'paper', 'cream', 'charcoal', 'accent', 'halftone', 'archive', 'geometric', 'grid', 'bleed')
+ALIASES = {'terra': 'accent', 'dark': 'charcoal'}          # old names keep working
 
 
 def ink(shot):
@@ -54,9 +64,26 @@ def ink(shot):
     return INK_LIGHT if getattr(shot, 'env', 'theme') in DARK_ENVS else INK_DARK
 
 
-def env(shot, name, **opts):
+def accent(shot):
+    """The highlight colour for this shot: the palette accent (or the one the shot's mood leans
+    on), switched to the dark-ground accent on dark environments so it keeps its contrast."""
+    e = getattr(shot, 'env', 'theme')
+    if e in ('charcoal', 'bleed'):
+        return PAL.accent_dark
+    if e == 'accent':
+        return PAL.light
+    c = palette.lean(PAL, getattr(shot, 'mood', None))
+    return c if palette.contrast(c, PAL.paper) >= 3 else PAL.accent
+
+
+def env(shot, name, mood=None, **opts):
+    """Set the shot's environment (and optionally its mood, see palette.MOODS)."""
+    name = ALIASES.get(name, name)
     assert name in ENVS, f'unknown environment {name!r}'
     shot.env, shot.env_opts = name, opts
+    if mood is not None:
+        assert mood in palette.MOODS, f'unknown mood {mood!r}'
+        shot.mood = mood
     return shot
 
 
@@ -92,21 +119,21 @@ def _static(name):
         return _ground(PAPER, 201)
     if name == 'cream':
         g = _ground(CREAM, 202, mottle=3, vignette=6)
-        ImageDraw.Draw(g).line((140, H - 150, W - 140, H - 150), fill=(150, 138, 120, 255), width=2)
+        ImageDraw.Draw(g).line((140, H - 150, W - 140, H - 150), fill=PAL.muted + (255,), width=2)
         return g
     if name == 'charcoal':
         return _ground(CHARCOAL, 203, mottle=6, vignette=-40)
-    if name == 'terra':
-        return _ground(TERRA, 204, mottle=7, vignette=16)
+    if name == 'accent':
+        return _ground(SOLID, 204, mottle=7, vignette=16)
     if name == 'archive':
-        g = _ground((236, 226, 202), 205, mottle=8, vignette=22)
+        g = _ground(PAL.paper2, 205, mottle=8, vignette=22)
         d = ImageDraw.Draw(g)
         r = np.random.default_rng(5)
         for c in range(5):                                         # faint newspaper columns
             x0 = 80 + c * 360
             for y in range(120, H - 80, 22):
                 if r.random() < 0.85:
-                    d.line((x0, y, x0 + 300 * r.uniform(0.7, 1.0), y), fill=(206, 194, 168, 255), width=3)
+                    d.line((x0, y, x0 + 300 * r.uniform(0.7, 1.0), y), fill=PAL.line + (255,), width=3)
         g = g.filter(ImageFilter.GaussianBlur(1.0))
         st = Image.new('L', (W, H), 0)                             # soft foxing stains
         ds = ImageDraw.Draw(st)
@@ -114,33 +141,33 @@ def _static(name):
             cx, cy, rr = r.uniform(0, W), r.uniform(0, H), r.uniform(50, 170)
             ds.ellipse((cx - rr, cy - rr, cx + rr, cy + rr), fill=int(r.uniform(25, 45)))
         st = st.filter(ImageFilter.GaussianBlur(45))
-        tint = Image.new('RGBA', (W, H), (176, 140, 92, 0))
+        tint = Image.new('RGBA', (W, H), PAL.tint + (0,))
         tint.putalpha(st)
         g.alpha_composite(tint)
         return g
     if name == 'grid':
-        g = _ground((247, 241, 230), 206, mottle=2, vignette=4)
+        g = _ground(_mix(PAL.cream, (255, 255, 255), 0.2), 206, mottle=2, vignette=4)
         d = ImageDraw.Draw(g)
         for x in range(0, W, 48):
-            d.line((x, 0, x, H), fill=(226, 216, 200, 255), width=1)
+            d.line((x, 0, x, H), fill=_mix(PAL.line, PAL.cream, 0.5) + (255,), width=1)
         for y in range(0, H, 48):
-            d.line((0, y, W, y), fill=(226, 216, 200, 255), width=1)
+            d.line((0, y, W, y), fill=_mix(PAL.line, PAL.cream, 0.5) + (255,), width=1)
         return g
     if name == 'geometric':
         g = _ground(PAPER, 207)
         d = ImageDraw.Draw(g)
-        d.polygon([(0, 0), (int(W * 0.58), 0), (int(W * 0.42), H), (0, H)], fill=(233, 214, 187, 255))
-        d.ellipse((W - 420, -260, W + 260, 420), fill=(226, 204, 172, 255))
+        d.polygon([(0, 0), (int(W * 0.58), 0), (int(W * 0.42), H), (0, H)], fill=_mix(PAL.paper, PAL.soft, 0.45) + (255,))
+        d.ellipse((W - 420, -260, W + 260, 420), fill=_mix(PAL.paper, PAL.soft, 0.75) + (255,))
         d.rectangle((W - 260, H - 90, W, H), fill=TERRA + (255,))
         return g
     if name == 'halftone':
-        g = _ground((245, 232, 208), 208, mottle=4)
+        g = _ground(PAL.paper, 208, mottle=4)
         d = ImageDraw.Draw(g)
         for j, y in enumerate(range(0, H, 14)):                    # radial halftone from a corner
             for x in range((j % 2) * 7, W, 14):
                 rr = 5.2 * max(0.0, 1 - math.hypot(x - W * 0.85, y - H * 0.2) / (W * 0.75))
                 if rr > 0.6:
-                    d.ellipse((x - rr, y - rr, x + rr, y + rr), fill=(120, 108, 92, 255))
+                    d.ellipse((x - rr, y - rr, x + rr, y + rr), fill=PAL.tint + (255,))
         return g
     raise KeyError(name)
 
@@ -150,6 +177,7 @@ def render_env(name, T, shot):
     background as before."""
     if name in (None, 'theme'):
         return None
+    name = ALIASES.get(name, name)
     if name == 'bleed':
         return Image.new('RGBA', (W, H), CHARCOAL + (255,))
     g = _static(name)
@@ -206,7 +234,7 @@ def fullbleed(shot, img, t, start=0.0, ken=(1.0, 1.08), focus=(0.5, 0.5), focus_
 
 def split(shot, left, right, t, start=0.0, ratio=0.5, divide='tear', stagger=0.25, colour=None, layer=None, seed=4):
     """Two images side by side, each filling its half. divide: 'tear' (torn paper seam),
-    'line' (a terracotta rule), 'shape' (a diagonal seam). Halves slide in from their sides."""
+    'line' (a rule in the accent colour), 'shape' (a diagonal seam). Halves slide in from their sides."""
     import presets as P
     L = layer or shot.mid
     xm = int(W * ratio)
@@ -238,14 +266,14 @@ def split(shot, left, right, t, start=0.0, ratio=0.5, divide='tear', stagger=0.2
 
 
 def type_page(shot, text, t, start, role='statement', size=None, anchor='m', xy=None, max_w=1500, colour=None, anim='words', cues=None,
-              accent=None, until=None, layer=None):
+              accent=None, until=None, layer=None, accent_colour=None):
     """Full-screen typography: one line or sentence owns the frame. Colour follows the
     environment (cream on dark grounds) unless given."""
     import typo as TY
     T = TY.Text(text, role, size=size, max_w=max_w, align='m' if anchor == 'm' else ('r' if anchor == 'r' else 'l'), colour=colour or ink(shot))
     if xy is None:
         xy = (W / 2, H / 2 - T.h / 2)
-    T.draw(layer or shot.top, xy, t, start, anim=anim, anchor=anchor, cues=cues, accent=accent, until=until)
+    T.draw(layer or shot.top, xy, t, start, anim=anim, anchor=anchor, cues=cues, accent=accent, accent_colour=accent_colour or globals()['accent'](shot), until=until)
     return T
 
 
@@ -298,8 +326,8 @@ def rule_of_thirds(side='left'):
 # ===================================================================== planning
 PURPOSE_ENVS = {
     'emotion':    ['charcoal', 'cream', 'bleed'],
-    'date':       ['archive', 'cream', 'terra'],
-    'number':     ['grid', 'terra', 'cream'],
+    'date':       ['archive', 'cream', 'accent'],
+    'number':     ['grid', 'accent', 'cream'],
     'fraction':   ['grid', 'geometric'],
     'place':      ['theme', 'archive'],
     'journey':    ['theme', 'grid'],
@@ -319,12 +347,18 @@ PURPOSE_ENVS = {
 }
 
 LAYOUT_FOR_ENV = {'bleed': 'fullbleed or letterbox', 'charcoal': 'type_page or a single lit print', 'cream': 'type_page / one print, lots of space',
-                  'terra': 'type_page or big_number only', 'halftone': 'panel_grid or cut-out action', 'archive': 'clippings, documents, stack',
+                  'accent': 'type_page or big_number only', 'halftone': 'panel_grid or cut-out action', 'archive': 'clippings, documents, stack',
                   'geometric': 'split / two sides', 'grid': 'charts / timeline / flow', 'paper': 'documents and prints', 'theme': 'collage on the episode background'}
 
 
+# environments a mood prefers (palette.plan_moods sets r['mood']): they move up the purpose list
+MOOD_ENVS = {'grief': ['charcoal', 'cream', 'bleed'], 'menace': ['charcoal', 'bleed', 'halftone'], 'mystery': ['charcoal', 'archive'],
+             'triumph': ['accent', 'grid'], 'wonder': ['bleed', 'theme'], 'tense': ['geometric', 'halftone'], 'calm': ['cream', 'paper'],
+             'hope': ['cream', 'theme']}
+
+
 # share of shots each environment may take at most (variety without losing cohesion)
-CAPS = {'theme': 0.40, 'bleed': 0.14, 'paper': 0.14, 'cream': 0.12, 'charcoal': 0.08, 'terra': 0.04,
+CAPS = {'theme': 0.40, 'bleed': 0.14, 'paper': 0.14, 'cream': 0.12, 'charcoal': 0.08, 'accent': 0.04,
         'halftone': 0.12, 'archive': 0.12, 'geometric': 0.10, 'grid': 0.10}
 
 
@@ -337,12 +371,14 @@ def plan_environments(rows):
     hist = []
     n = max(1, len(rows))
     for i, r in enumerate(rows):
-        opts = list(PURPOSE_ENVS.get(r['purpose'], ['theme', 'paper'])) + ['theme', 'paper', 'cream', 'geometric']
+        opts = list(PURPOSE_ENVS.get(r['purpose'], ['theme', 'paper']))
+        opts = [e for e in MOOD_ENVS.get(r.get('mood'), []) if e in opts] + [e for e in opts if e not in MOOD_ENVS.get(r.get('mood'), [])]
+        opts += [e for e in MOOD_ENVS.get(r.get('mood'), []) if e not in opts] + ['theme', 'paper', 'cream', 'geometric']
         best = None
         for rank, o in enumerate(opts):
             if o in hist[-2:]:
                 continue
-            if o in ('terra', 'charcoal') and r['weight'] == 'complex':
+            if o in ('accent', 'charcoal') and r['weight'] == 'complex':
                 continue
             over = used[o] / (CAPS[o] * n)
             score = rank * 0.6 + over * 3

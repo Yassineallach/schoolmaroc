@@ -20,7 +20,9 @@ import vox
 from vox import W, H, FPS, INK, RED, CREAM, F_HEAD, F_TYPE, F_SERIF, spring, ease, ease_out_cubic, lerp, shadow_of, alpha_mul, torn_mask, finish
 import bg_motion
 
-PAPER_BACK = (241, 231, 212)
+from palette import ACTIVE as PAL
+import palette
+PAPER_BACK = PAL.paper2
 
 # ---- sound-effect events: registered while frames are drawn, turned into audio by sfx.py ----
 EVENTS = {}
@@ -66,6 +68,8 @@ class Shot:
         self.blur = {'bg': 0.0, 'mid': 0.0, 'top': 0.0}    # rack focus, in px (see rack())
         self.shake = (0.0, 0.0)
         self.env, self.env_opts = 'theme', {}            # scene environment (scenes.py); 'theme' = episode background
+        self.mood = None                                    # scene tone (palette.MOODS): a grade derived from the episode palette
+        self.mood_amount = 1.0
 
     def layer(self, depth):
         """An extra layer at any parallax depth (0.35 = background, 1 = mid, 1.15 = top).
@@ -181,6 +185,8 @@ def compose(shot, T):
     bg.alpha_composite(_blur(_xf(shot.top, s + 0.02 * kick, lx, ly, sx, sy), shot.blur.get('top', 0)))
     extra(1.15, 99)
     bg.alpha_composite(_xf(shot.hud, 1.0, W / 2, H / 2, sx * 0.3, sy * 0.3))
+    if shot.mood:
+        bg = palette.grade(bg, shot.mood, PAL, shot.mood_amount)
     return finish(bg)
 
 

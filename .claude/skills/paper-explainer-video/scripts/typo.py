@@ -46,11 +46,12 @@ import vox
 from style import sfx
 
 FONTS = vox.FONTS
-TERRA = (205, 88, 48)
-CHARCOAL = (44, 42, 40)
-WARM_BLACK = (28, 24, 22)
-CREAM = (244, 238, 224)
-MUTED = (110, 104, 96)
+from palette import ACTIVE as PAL           # colours come from the episode palette (palette.py)
+TERRA = ACCENT = PAL.accent
+CHARCOAL = PAL.ink2
+WARM_BLACK = PAL.ink
+CREAM = PAL.light
+MUTED = PAL.muted
 ARABIC = re.compile(r'[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]')
 AR_DIGITS = str.maketrans('0123456789', '٠١٢٣٤٥٦٧٨٩')
 
@@ -310,7 +311,8 @@ class Text:
             if accent:
                 wd = self.words[wi][0]
                 for key, at in accent.items():
-                    if wd.strip('.,;:!?"“”«»') == key or wd.upper().strip('.,;:!?"“”') == key.upper():
+                    k = key.strip('.,;:!?"“”«»')
+                    if wd.strip('.,;:!?"“”«»') == k or wd.upper().strip('.,;:!?"“”«»') == k.upper():
                         return _mix(col0, accent_colour, _c((t - at) / 0.35))
             return col0
 
@@ -475,7 +477,7 @@ class Text:
             key = ('cut', self.s, wi)
             if key not in self._tiles:
                 m = self._tile(wd)
-                card = PR.paper_card(m.width + 10, m.height - self.pad, seed=wi * 7 + 3, colour=(246, 241, 229))
+                card = PR.paper_card(m.width + 10, m.height - self.pad, seed=wi * 7 + 3, colour=PAL.cream)
                 ink = Image.new('RGBA', card.size, self.colour + (0,))
                 im2 = Image.new('L', card.size, 0)
                 im2.paste(m, (5, -self.pad // 2))

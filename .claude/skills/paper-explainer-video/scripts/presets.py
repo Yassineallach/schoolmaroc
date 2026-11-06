@@ -25,7 +25,8 @@ import vox
 from vox import INK, RED, CREAM, F_HEAD, F_SERIF, F_BODY, F_TYPE, torn_mask, lerp
 from style import sfx
 
-PAPER_BACK = (236, 226, 206)
+from palette import ACTIVE as PAL
+PAPER_BACK = PAL.paper2
 SHADOW = (40, 26, 14)
 
 
@@ -88,7 +89,7 @@ def text_item(s, size, font=F_HEAD, fill=INK, pad=10):
     return im
 
 
-def paper_card(w, h, seed=3, colour=(244, 238, 224), text=None, size=60):
+def paper_card(w, h, seed=3, colour=PAL.cream, text=None, size=60):
     im = Image.new('RGBA', (w, h), colour + (255,))
     a = np.asarray(im).astype(np.float32)
     a[..., :3] += np.random.default_rng(seed).normal(0, 3, (h, w, 1))
@@ -110,7 +111,7 @@ def clipping(headline, lines=('---',) * 9, w=620, h=560, seed=7, date=None):
     d = ImageDraw.Draw(im)
     y = 34
     if date:
-        d.text((w / 2, y), date.upper(), font=F_TYPE(22), fill=(70, 66, 60, 255), anchor='mm')
+        d.text((w / 2, y), date.upper(), font=F_TYPE(22), fill=PAL.ink2 + (255,), anchor='mm')
         y += 26
         d.line((30, y, w - 30, y), fill=(60, 56, 50, 255), width=2)
         y += 18
@@ -119,12 +120,12 @@ def clipping(headline, lines=('---',) * 9, w=620, h=560, seed=7, date=None):
     for word in words:  # wrap the headline
         test = (row + ' ' + word).strip()
         if d.textlength(test, font=f) > w - 70 and row:
-            d.text((w / 2, y + 30), row, font=f, fill=(24, 22, 20, 255), anchor='mm')
+            d.text((w / 2, y + 30), row, font=f, fill=PAL.ink + (255,), anchor='mm')
             y += 62
             row = word
         else:
             row = test
-    d.text((w / 2, y + 30), row, font=f, fill=(24, 22, 20, 255), anchor='mm')
+    d.text((w / 2, y + 30), row, font=f, fill=PAL.ink + (255,), anchor='mm')
     y += 84
     col = (w - 90) // 2
     for c in range(2):

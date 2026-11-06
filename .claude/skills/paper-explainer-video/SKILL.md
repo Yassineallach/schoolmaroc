@@ -55,7 +55,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `brief_history_act5.py` | a cup sliding off a table and shattering, `assemble` then `reverse` + NEVER SEEN stamp, a card flipped on its head, globe with marker arrow and loop |
 | `brief_history_act6.py` | typed title struck and corrected, a counter, stacked covers, `page_flip` with a bookmark, crowd + unfold, end title held over the last plate |
 
-`demo_presets.py`, `demo_annotate.py`, `demo_toolkit.py`, `demo_typo.py` and `demo_scenes.py` render numbered reels of the presets, the annotations, the storytelling toolkit and the typography system (maps, timeline, charts, objects, camera, transitions) on a project's own assets. Show it to the user when they ask what the animations look like.
+`demo_presets.py`, `demo_annotate.py`, `demo_toolkit.py`, `demo_typo.py`, `demo_scenes.py` and `demo_palettes.py` render numbered reels of the presets, the annotations, the storytelling toolkit and the typography system, environments and palettes (maps, timeline, charts, objects, camera, transitions) on a project's own assets. Show it to the user when they ask what the animations look like.
 
 **Engine files** (all in `SK/scripts`):
 
@@ -71,7 +71,8 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `charts.py` | line charts, comparisons, unit grids, counters, flow diagrams, size comparisons |
 | `objects.py` | newspapers, letters, envelopes, polaroids, sticky notes, tape, push pins, spin-in |
 | `typo.py` | editorial typography: a 10-role hierarchy (English + Arabic), 12 kinetic animations, newspaper / big-number / term / name compositions |
-| `scenes.py` | scene environments (theme, paper, cream, charcoal, terracotta, halftone, archive, geometric, grid, full-bleed) and compositions (full-bleed, split screen, full-screen type, panel grid, letterbox, thirds) |
+| `palette.py` | context-aware colour: eight subject palettes, contrast checks, scene moods (tone grades), palette suggestion from the transcript |
+| `scenes.py` | scene environments (theme, paper, cream, charcoal, solid accent, halftone, archive, geometric, grid, full-bleed) and compositions (full-bleed, split screen, full-screen type, panel grid, letterbox, thirds) |
 | `storyboard.py` | narration analysis: purpose, technique, weight, cue, cut and typographic moment for every sentence |
 | `themes.py` | per-episode background themes, all in the editorial design language |
 | `bg_motion.py` | the original editorial background, and theme selection from `episode.json` |
@@ -93,6 +94,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 ### 2. Storyboard, background theme, asset list
 
 - **Show the storyboard first** on a Design canvas artifact: an overview board plus one board per act. Each shot shows its cue words, the on-screen text, the visual, and whether each asset is drawn in code or needed from the user.
+- **Choose the episode's palette** from the subject and tone (see "Colour" below). `storyboard.py` prints the palette in use and the one the transcript suggests; set it in `episode.json` (`"palette": "crime"`), and show it with `python SK/examples/demo_palettes.py <palette> out/palette.png`.
 - **Choose the episode's background theme** from the subject (see "Background themes" below), set it in `episode.json`, and show the user a still plus a 15 s preview (`python SK/scripts/bg_motion.py out/bg_preview.mp4 15`) before any act uses it.
 - **Split the assets** into:
   - (a) things the code draws (see `references/prompts.md`, "Things code draws better");
@@ -194,7 +196,7 @@ All in `presets.py`; every one is configurable (position, start, duration, rotat
 | | `ring(layer, box, ...)` | singles out one word or one detail |
 | | `outline(layer, box, ...)` | quotes a phrase or a line on a document |
 | | `strike(layer, box, ..., scribble=)` | corrects or rejects something ("Short" → "Brief") |
-| | `emphasis(layer, xy, word, size, t, start)` | a word turns terracotta and swells, then settles (draw the word with this, not `words()`) |
+| | `emphasis(layer, xy, word, size, t, start)` | a word turns to the accent colour and swells, then settles (draw the word with this, not `words()`) |
 | Photos | `ring` / `arrow(layer, p0, p1, ...)` | points at a person or an object in the picture |
 | | `frame` / `corners` | isolates an area of a photograph |
 | | `spotlight(layer, centre, r, ...)` | the eye must go to one place; draw it **last** on `shot.mid` |
@@ -202,7 +204,7 @@ All in `presets.py`; every one is configurable (position, start, duration, rotat
 | | `focus(shot, box, at, hold)` | the camera travels into the detail, holds, and pulls back |
 | Documents | `mark(layer, xy, 'tick' / 'cross' / 'star' / 'dash' / 'question', ...)` | margin notes on a record |
 | | `bracket(layer, x, y0, y1, ..., side=)` | groups lines that belong together |
-| | `stat(layer, xy, '237 WEEKS', size, ...)` | a number the narration says: beige sweep + terracotta swell |
+| | `stat(layer, xy, '237 WEEKS', size, ...)` | a number the narration says: soft sweep + accent swell |
 | | `connect(layer, [points], ..., dashed=, arrowhead=)` | links two items, or a document to a note |
 | | `presets.stamp_hit(...)` | a verdict or a date lands with impact |
 | | `bars(layer, box, values, ..., highlight=, fill_at=)` / `wedge(layer, c, r, a0, a1, ...)` | a chart where only the named part fills with the accent |
@@ -214,7 +216,7 @@ All in `presets.py`; every one is configurable (position, start, duration, rotat
 
 **Style rules:**
 - **One mark at a time,** on the word that names the thing. A frame holds at most two or three active marks, and earlier marks settle.
-- **Colour:** terracotta for the mark the narration is on, beige for background sweeps behind figures, charcoal for spotlights and chart axes, and muted orange only as a second colour.
+- **Colour** (from the episode palette): the accent for the mark the narration is on, the soft colour for background sweeps behind figures, secondary ink for spotlights and chart axes, and accent2 only as a second colour. In the editorial palette these are terracotta, beige, charcoal and muted orange.
 - **No glows, neon or particles.** Strokes are 5–9 px; the spotlight dims to about 40 %.
 - **Only highlight what is spoken.** Never circle a detail, box a phrase or fill a chart section the narration doesn't mention.
 
@@ -283,14 +285,14 @@ Never use the same special cut twice in a row; most cuts in a film should still 
 | `subhead` | Archivo Black 64, caps | Noto Kufi 800 | secondary lines, contradictions |
 | `statement` | Fraunces 700, 76 | Noto Kufi 700 | dramatic or emotional lines, word by word |
 | `name` | Playfair 700, 92 | Amiri Bold | people (with `name_card`) |
-| `date` | Archivo Black 300, terracotta | Noto Kufi 900 | years (with `big_number`) |
+| `date` | Archivo Black 300, accent | Noto Kufi 900 | years (with `big_number`) |
 | `stat` | Archivo Black 240 | Noto Kufi 900 | numbers the narration states |
 | `caption` | Special Elite 42 | Noto Naskh 500 | explanatory captions (typed) |
 | `quote` | Fraunces 500 italic, 64 | Amiri | quotations |
 | `label` | Inter 600, 26, caps, +6 tracking | Noto Naskh 600 | places, kickers, small labels |
 | `term` | Archivo Black 56, caps | Noto Kufi 800 | technical terms (with `term_card`) |
 
-Colours are warm black, charcoal, cream and terracotta. Override any of size, colour, tracking, `max_w`, alignment and line height per `Text`.
+Colours come from the episode palette: ink, secondary ink, light ink and accent (warm black, charcoal, cream and terracotta in `editorial`). Override any of size, colour, tracking, `max_w`, alignment and line height per `Text`.
 
 **Animations**: `T.draw(layer, xy, t, start, anim=..., cues=[one per word], accent={'WORD': at}, until=, anchor=)`:
 - `words`: each word rises inside its own slot (clipping mask).
@@ -302,14 +304,14 @@ Colours are warm black, charcoal, cream and terracotta. Override any of size, co
 - `split`: each line slices through its middle and the halves pull apart, then rejoin; use it for contradictions.
 - `tracking`: letter spacing closes from wide.
 - `cutout`: each word on a paper scrap, dropped onto the desk.
-- `mask` with `shape='circle' | 'diagonal' | 'bars' | 'rect'`: revealed through a geometric shape, with a terracotta trace.
+- `mask` with `shape='circle' | 'diagonal' | 'bars' | 'rect'`: revealed through a geometric shape, with a trace in the accent colour.
 - `stamp`: rubber-stamp impact (pass `shot=s` for the camera kick).
 - `type`: typewriter.
-- `accent`: any word turns from charcoal to terracotta on its cue.
+- `accent`: any word turns from its ink to the accent on its cue (`accent_colour=S.accent(s)` on dark grounds; `type_page` does this itself).
 - Marker work: `T.box('WORD', xy)` gives the exact box for `annotate.sweep / underline / ring / strike`.
 
 **Compositions:**
-- `press(...)`: newspaper headline; the rules draw, the dateline types, the headline wipes in behind a terracotta rule.
+- `press(...)`: newspaper headline; the rules draw, the dateline types, the headline wipes in behind a rule in the accent colour.
 - `big_number(...)`: oversized numerals whose digits roll into place, with a label and an accent bar.
 - `term_card(...)`: the term, a typed one-line gloss and a bracket.
 - `name_card(...)`: a small-caps role line, the name in display serif, and a short rule.
@@ -340,7 +342,7 @@ Colours are warm black, charcoal, cream and terracotta. Override any of size, co
 - Never two big type moments in a row, and never the same animation within three moments.
 - Most sentences stay with images.
 - Type sits in generous negative space, often asymmetric: a headline on the left third with a print on the right.
-- Type must stay readable at 1920×1080: captions at least 40 px, labels at least 24 px, terracotta text large.
+- Type must stay readable at 1920×1080: captions at least 40 px, labels at least 24 px, accent-coloured text large.
 
 ### 10. Scene environments and compositions
 
@@ -348,16 +350,17 @@ Colours are warm black, charcoal, cream and terracotta. Override any of size, co
 
 ```
 S.env(s, 'charcoal')          # inside a scene; style.compose draws this ground instead of the theme
-colour = S.ink(s)             # cream on dark grounds, warm black on light ones
+colour = S.ink(s)             # light ink on dark grounds, dark ink on light ones (from the palette)
+hi = S.accent(s)              # the highlight that reads on this ground and suits the scene's mood
 ```
 
 | Environment | Ground | Use it for | Composition that fits |
 |---|---|---|---|
 | `theme` | the episode's animated background | continuity; the most common ground (≤ 40 %) | collage of prints, documents and type |
 | `paper` | warm paper, no shapes | calm explanation, documents | prints and documents |
-| `cream` | minimal cream, one hairline rule | one idea, one quote, generous space | `type_page`, or one print on the thirds |
-| `charcoal` | dark charcoal with grain | drama, death, turning points, night | `type_page` in cream, or one lit print |
-| `terra` | solid terracotta paper | one statement or one number, rarely | `type_page`, `big_number` in cream |
+| `cream` | minimal light ground, one hairline rule | one idea, one quote, generous space | `type_page`, or one print on the thirds |
+| `charcoal` | the palette's dark ground, with grain | drama, death, turning points, night | `type_page` in light ink, or one lit print |
+| `accent` | solid ground in the palette's colour (`terra` still works) | one statement or one number, rarely | `type_page`, `big_number` in light ink |
 | `halftone` | manga halftone + speed lines | action, manga and comics subjects | `panel_grid`, cut-out action |
 | `archive` | aged newsprint, columns, foxing | history, dates, the press, records | clippings, documents, stacks |
 | `geometric` | big flat shapes, diagonal split | comparisons, systems, two sides | `split`, two cards facing |
@@ -379,9 +382,58 @@ colour = S.ink(s)             # cream on dark grounds, warm black on light ones
 - No two consecutive shots share an environment *or* a layout. Alternate collage, full-bleed, type and diagram.
 - **Dramatic** moments: `charcoal`, `bleed`, `letterbox`. **Historical** information: `archive`. **Explanations**: `cream`, `grid`, `paper`. **Complex subjects**: rich collages on `theme` or `archive`.
 - Join different environments with the strongest cuts: `pageturn` into archive, `circle` or `zoom` into a full-bleed image, `shape` between the two sides of a comparison, torn wipes for the rest.
-- Brand constants hold everywhere: the same typefaces and roles, the terracotta accent, paper grain on every ground, torn-edge prints and pen-drawn marks. Text on dark grounds uses `S.ink(s)` (cream).
+- Brand constants hold everywhere: the same typefaces and roles, the episode palette, paper grain on every ground, torn-edge prints and pen-drawn marks. Every ground is built from the palette, so a manga episode's archive page is off-white and ink, a space episode's is pale blue. Text on dark grounds uses `S.ink(s)`, highlights use `S.accent(s)`.
 
-### 11. Background themes
+### 11. Colour: a palette per video, a tone per scene
+
+**No fixed palette.** Terracotta and cream are the `editorial` palette, not the brand. Every video gets a palette chosen for its subject, atmosphere and period, and every drawing module (type, annotations, charts, maps, timelines, objects, transitions, environments, props) reads its colours from it. One line in `episode.json` recolours all of them together.
+
+```
+episode.json   {"theme": "manga_ink", "palette": "manga_ink"}
+               {"palette": {"base": "manga_ink", "accent": [196, 132, 40]}}    # the video's own palette
+S.env(s, 'charcoal', mood='grief')     # a scene's tone; or s.mood = 'grief'
+```
+
+| Palette | Subject | Grounds | Ink | Accents |
+|---|---|---|---|---|
+| `editorial` | general explainers, book summaries | warm paper, cream | warm black, charcoal | terracotta, muted orange |
+| `history_archive` | history, biography, the press, war | aged paper, sepia dark | sepia black | oxblood, ochre |
+| `science_space` | science, space, physics | pale blue paper, deep navy | navy | cobalt, violet; star gold on navy |
+| `manga_ink` | manga, anime, comics | off-white, black | ink black, greys | one blood red |
+| `crime` | crime, investigations, trials | cold newsprint, charcoal | cold black | dark red, steel blue |
+| `technology` | technology, computing, AI | pale grey-blue, near-black | blue-black | electric blue, teal; cyan on dark |
+| `philosophy` | religion, philosophy, ethics, myth | warm ivory, deep green | green-black | deep green, muted gold |
+| `nature` | nature, animals, climate, geography | linen, forest dark | moss black | forest green, clay |
+
+When no palette is named, it follows the background theme (`palette.THEME_PALETTE`: `cosmic_atlas` → `science_space`, `manga_ink` → `manga_ink`, `archive` → `history_archive`…). When the subject has its own identity colour (a manga's signature red, a film's poster colour, a country's flag), start from the nearest palette and change only the accent with `palette.custom(...)` or the dict form above.
+
+**Every palette is checked for contrast** (`python SK/scripts/palette.py`): body ink 7:1 on every light ground, secondary ink 4.5:1, labels and accents 3:1, light ink 7:1 on the dark ground, light ink 4.5:1 on the solid accent ground. `custom()` refuses a palette that fails. Use `accent_dark` (via `S.accent(s)`) for highlights on dark grounds: the light-ground accent often fails there.
+
+**Moods: the tone changes, the identity does not.** A mood is a gentle whole-frame grade derived from the palette (saturation, warmth, contrast, a lift towards the paper or a sink towards the dark ground) plus which accent the scene leans on. It never brings in a new hue.
+
+| Mood | Grade | Leans on |
+|---|---|---|
+| `neutral` | none | accent |
+| `calm` | slightly softer, warmer | accent2 |
+| `wonder` | a little richer and cooler | accent |
+| `hope` | warmer, lifted | accent2 |
+| `triumph` | richer, warmer, more contrast | accent |
+| `tense` | cooler, less saturated, more contrast | accent |
+| `mystery` | cool, desaturated, a little darker | accent2 |
+| `menace` | desaturated, hard contrast, darker | accent |
+| `grief` | strongly desaturated, quiet | muted |
+
+`storyboard.py` adds a **mood** column. `palette.plan_moods` reads each sentence, then smooths the result so the tone never flickers: grief and menace hold for two lines after their cue and are not broken by a passing "but"; a lone weak cue between neutral lines is ignored. Moods also steer the environment (grief → charcoal, cream, full-bleed; triumph → solid accent, grid). The summary line lists the tone arc (`neutral > menace > … > grief > hope`): read it as the film's emotional shape and fix it by hand where the words mislead.
+
+**Rules:**
+- Choose the palette before the storyboard is shown, from what the video is about and how it should feel; say why in one line.
+- Colours carry meaning: the accent marks what the narration is on (the number, the name, the turn); it is never decoration and never on more than one or two things per frame.
+- Change tone only where the story does (a death, a betrayal, a triumph), and hold it across the beat; never change colours shot to shot for variety. Variety comes from environments and layouts; colour gives continuity.
+- Never force cream grounds, terracotta accents or any other recurring palette on a subject they do not suit.
+- Images keep their own colours; the mood grade is gentle enough to tie them in without repainting them. Monochrome art (manga pages) suits monochrome palettes: give it `manga_ink`, not a warm editorial one.
+- Background themes take their colours from the same family: pick a theme whose palette mapping matches, or add a theme in the palette's colours.
+
+### 12. Background themes
 
 Every episode gets its own background, but every theme speaks the design language of the user's original editorial background: the same paper, flat textured terracotta + beige corner shapes, translucent diagonal bands, thin dark lines and arcs, breathing dot grids, an open centre. Only the shapes and their arrangement change with the subject. Do not invent a new visual style (dark grounds, heavy patterns) unless the user asks.
 
@@ -397,9 +449,9 @@ Every episode gets its own background, but every theme speaks the design languag
 | `deep_space` | space | indigo planet with orbits, small terracotta moon |
 | `ledger` | economics | bar blocks, line chart, ledger block |
 
-**New theme:** add a `Theme(name, label, [elements], paper_colour, seed)` in `themes.py` from the element vocabulary (`shape`, `terra`, `hline`, `vline`, `dots`, `orbiter`, `tracer`, `diag`). Keep big shapes off the centre, keep terracotta as the accent, give every element its own drift period (20–45 s). Show the user a board of themes and a 15 s preview before using it.
+**New theme:** add a `Theme(name, label, [elements], paper_colour, seed)` in `themes.py` from the element vocabulary (`shape`, `terra`, `hline`, `vline`, `dots`, `orbiter`, `tracer`, `diag`). Keep big shapes off the centre, take the colours from the episode palette, give every element its own drift period (20–45 s). Show the user a board of themes and a 15 s preview before using it.
 
-### 12. Sound effects
+### 13. Sound effects
 
 Effects are generated in code (`sfx.py`) and synced automatically: every preset and helper registers a sound event when it draws, with its time and screen position.
 
@@ -431,7 +483,7 @@ Effects are generated in code (`sfx.py`) and synced automatically: every preset 
 - **Add audio to an already-rendered act** without re-rendering the picture: `vox.collect_events(act.frame, act.END)`, `sfx.mix_into(narration_wav, events, out_wav)`, then mux with `ffmpeg -c:v copy`.
 - **Sound must not contradict the story.** No flat-line tone when the patient survives, no gunshots for implied violence.
 
-### 13. QC before rendering
+### 14. QC before rendering
 
 ```
 cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 6 10 15 22
@@ -446,8 +498,8 @@ cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 
 - empty frames revealed by a wipe (use `ENTER` for elements present at the cut);
 - **text over a dark plate**: black type disappears on a zoomed plate; use `tag(...)` (red label, or `bg=CREAM, fg=INK`);
 - **missing glyphs**: Archivo Black has no `→` (it renders as a box); `÷`, `²`, `’` and `,` are fine. Write words instead of rare symbols;
-- **glows on cream**: a cream or white glow is invisible on the paper; use a warm terracotta glow;
-- **contrast**: terracotta text on cream and cream text on red labels pass only as large text (check with `python3 .claude/skills/antislop-human/contrast-check.py "#CD5830" "#F8E7CD"`), so red text stays large (≥ 40 px) and never carries small captions;
+- **glows on cream**: a cream or white glow is invisible on the paper; use a glow in the accent colour;
+- **contrast**: run `python SK/scripts/palette.py` after changing a palette. Accent text on light grounds and light text on accent labels pass only as large text (in `editorial`, terracotta on cream is 3.4:1), so accent-coloured text stays large (≥ 40 px) and never carries small captions;
 - **pale objects on cream** (tape, envelopes, sticky notes, paper cards) need a darker edge or a shadow, or they vanish: tape uses a tan tint with ruled edges;
 - **objects that move out of something** (a letter leaving its envelope, a card from a pocket) must stay on screen at every frame; check the start, middle and end of the move;
 - **chart values that are not narrated** must be labelled as illustrative, or not shown at all;
@@ -458,7 +510,7 @@ cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 
 
 Fix, re-check. Show the user sheets or a draft per act and get approval before moving on.
 
-### 14. Render: Claude renders the final, in this session
+### 15. Render: Claude renders the final, in this session
 
 ```
 cd project && python SK/scripts/render_all.py --acts 3 --draft   # review render of one act
@@ -489,7 +541,7 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 10. Create word timing as each act is built, never as a separate pass afterwards.
 11. Asset prompts are short, lean on a reference image, and are given complete and ready to copy.
 12. **The user approves visual changes before they go into the film.** Build a preview (still, 15 s clip or demo reel) and wait for the go-ahead before re-rendering acts.
-13. Backgrounds follow the user's original editorial design language; each episode gets a fresh arrangement of it, never a different style.
+13. Backgrounds follow the user's original editorial design language; each episode gets a fresh arrangement of it, never a different style. Its colours come from the episode palette (rule 23).
 14. No grey torn-paper strip along the bottom: the corner shapes anchor the frame.
 15. Elements behave like physical paper (lift, shadow, overshoot, settle); never PowerPoint-style fades or flat slides.
 16. Sound effects stay subtle: about 20 dB under the voice (the first mix at 10 dB under was too loud). Change single sounds or the level by remixing the audio only, never by re-rendering the picture.
@@ -498,4 +550,5 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 19. Annotations follow the narration: one mark per spoken idea, drawn on its word, settling when the narration moves on; never highlight everything at once.
 20. Choose every visual from what the sentence means and feels: analyse the narration first (storyboard.py), vary the techniques, and leave some moments deliberately simple.
 21. Typography is part of the explanation, not decoration: give type to discoveries, dates, names, contradictions, terms and quotes, and leave most sentences to images.
-22. Every scene is a new editorial composition: vary the environment and the arrangement shot to shot (scenes.py), never the same background or layout twice in a row, while typography, terracotta, paper texture and animation principles stay constant.
+22. Every scene is a new editorial composition: vary the environment and the arrangement shot to shot (scenes.py), never the same background or layout twice in a row, while typography, the episode palette, paper texture and animation principles stay constant.
+23. Colour follows the story: every video gets a palette chosen for its subject, period and tone (palette.py), every colour on screen comes from it, accents mark only what matters, the tone shifts only where the story's emotion does, and contrast always passes. Never force cream, terracotta or any recurring palette onto a subject it does not suit.

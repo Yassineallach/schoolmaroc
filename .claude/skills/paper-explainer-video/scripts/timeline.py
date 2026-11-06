@@ -18,8 +18,9 @@ from style import sfx
 import presets as P
 import annotate as A
 
-TERRA = (205, 88, 48)
-LINE = (70, 64, 58)
+from palette import ACTIVE as PAL
+TERRA = ACCENT = PAL.accent
+LINE = PAL.ink2
 
 
 class Timeline:
@@ -77,12 +78,12 @@ class Timeline:
             dd = ImageDraw.Draw(Image.new('L', (1, 1)))
             tw = max(dd.textlength(label, font=f), dd.textlength(str(year), font=fs), dd.textlength(sub or '', font=fs))
             hh = 104 + (34 if sub else 0)
-            card = P.paper_card(int(tw + 48), hh, seed=int(year) % 97, colour=(246, 241, 229))
+            card = P.paper_card(int(tw + 48), hh, seed=int(year) % 97, colour=PAL.cream)
             dc = ImageDraw.Draw(card)
             dc.text((24, 30), str(year), font=fs, fill=colour + (255,), anchor='lm')
             dc.text((24, 70), label, font=f, fill=INK + (255,), anchor='lm')
             if sub:
-                dc.text((24, 108), sub, font=fs, fill=(90, 84, 78, 255), anchor='lm')
+                dc.text((24, 108), sub, font=fs, fill=PAL.muted + (255,), anchor='lm')
             q = A.pop((t - start - 0.3) / 0.4, 0.08)
             cy = y + sgn * (stem + hh / 2)
             P.put(layer, P.fade_img(P.rot_scale(card, -1.5 * sgn, 0.85 + 0.15 * q), k * min(1.0, q * 2)), x, cy, lift=0.15)
