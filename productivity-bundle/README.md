@@ -52,10 +52,13 @@ python3 product-1-ultimate-project-manager/build/build_project_manager.py produc
 
 Built and recalculation-tested (8 tabs). See `product-3-weekly-planner-pro/README.md`.
 
-## Products 2 and 4 and deliverables not yet built
+## Product 4: Ultimate Budget Spreadsheet (Excel .xlsx)
+
+Built and recalculation-tested (28 tabs). See `product-4-ultimate-budget-spreadsheet/README.md`.
+
+## Product 2 and deliverables not yet built
 
 - Product 2, Ultimate OneNote Planner (native OneNote structure, PDF guide, templates)
-- Product 4, Ultimate Budget Spreadsheet (28 tabs, .xlsx and Google Sheets version)
 - Google Sheets version of Product 1
 - Standalone PDF user guide, Getting Started, installation, formula, sample-data and troubleshooting guides
 - ZIP archive of all deliverables
