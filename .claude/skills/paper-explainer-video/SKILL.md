@@ -597,7 +597,7 @@ cd project && python SK/scripts/render_all.py --acts 3 --draft   # review render
 cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12, slow, 320k AAC, all acts
 ```
 
-- **Run renders in the background** (Bash `run_in_background`) and wait for the completion notice; don't poll with sleep. Measured on 4 cores: a 40–48 s act drafts in 7–9 min; `--acts 5 6` renders two acts in parallel in about 9 min.
+- **Run renders in the background** (Bash `run_in_background`) and wait for the completion notice; don't poll with sleep. Background jobs may start in the repository root, not the project folder, so always set the project explicitly: `VOX_PROJECT=/abs/path/to/project python SK/scripts/render_all.py --acts 1 --draft` (without it the render fails with `act1.py` not found). Measured on 4 cores: a 40–48 s act drafts in 7–9 min; `--acts 5 6` renders two acts in parallel in about 9 min.
 - **Don't chain renders with a background waiting loop** (`while ! grep Done ...; do sleep; done; render`). On the Hawking film the waiter died silently at its time limit and two acts never rendered. Start the next render yourself when the completion notice arrives, or render several acts in one `render_all.py --acts ...` call.
 - **Before telling the user a render is running, check it is**: `ps aux | grep render_all` and look for the output file.
 - **Cost of the heavier tools** (4 cores): a held map view is about 16 ms because frames are cached, but a zooming map is about 0.6 s a frame, so keep map zooms to 1.5–2.5 s. Transitions add about 0.3 s per frame while they run. Plan longer renders for map-heavy acts.
