@@ -142,6 +142,7 @@ python SK/scripts/check_cutout.py out/check.png assets/hero_standing.png ...
 | `standard` | dark or saturated costumes. If eyes, teeth or lamp glass get holed, raise `--head` (0.2–0.35). |
 | `gentle` | gold, cream or pale costumes close to the paper colour. |
 | `edge` | near-paper skin, faces in close-up, pale animals. Fills holes so nothing shows through. |
+| `ink` | pen-and-ink or engraved line art on white: the paper becomes transparent and the lines take the identity's ink, so the drawing reads as printed on the film's paper. Add `--backed` to fill the silhouette with light paper when the object overlaps other things. |
 
 **Open the preview and look at it**, on magenta and on dark. Re-cut until both are clean. Only clean files go into `assets/`. This check is not optional.
 
@@ -154,6 +155,7 @@ Build the acts one at a time. Word timing is created **together with each act**,
 - When `actN.py` runs `cue = make_cue(CLIPS)`, any clip without timing is aligned on the spot (faster-whisper `small.en`, locally, prompted with the clip's `.txt`) and saved to `timing/words.json` and `timing/words.txt`.
 - **Order for each act:** write `CLIPS`; run the act once (the contact-sheet command creates the timing); open `timing/words.txt` (`word@seconds`) to pick cue phrases; write the scenes.
 - **Re-align a clip** whose audio or transcript changed: `python SK/scripts/align.py 7`.
+- **Narration not in English:** set `VOX_LANG` (`VOX_LANG=fr python SK/scripts/align.py`); the multilingual `small` model is used. A prompted pass that does not match the transcript is retried unprompted. `storyboard.py` and the topic analysis read English keywords, so write the `episode.json` subject in English and plan the shots by hand.
 - **Check every clip is complete.** Whisper can skip speech that matches its transcript prompt word for word (clip 13 of the Hawking film came back with 19 of 61 words). `align.py` now retries automatically when it gets under 80 % of the transcript, but compare word counts after aligning anyway:
   `python -c "import json;t=json.load(open('timing/words.json'));[print(k,len(v),len(open(f'audio/{k}.txt').read().split())) for k,v in sorted(t.items(),key=lambda x:int(x[0]))]"`
 - **Cue pitfalls:** `cue()` finds the *first* occurrence, so a repeated word needs its number (`cue(11, 'one', 2)` when "no one" comes before "one-way"). Hyphenated words split into separate tokens (`one`, `-way`). Punctuation is ignored, so `'Pole.'` and `'Pole'` match the same word.
@@ -497,6 +499,7 @@ Every episode gets its own background, but every theme speaks the design languag
 | `album` | biography | tilted prints with tape, photo corners |
 | `deep_space` | space | indigo planet with orbits, small terracotta moon |
 | `ledger` | economics | bar blocks, line chart, ledger block |
+| `astrolabe` | history (from a user reference) | dark-vignetted parchment, a great engraved dial rising from the bottom edge that turns slowly, two corner dials drifting |
 
 **New theme:** add a `Theme(name, label, [elements], paper_colour, seed)` in `themes.py` from the element vocabulary (`shape`, `terra`, `hline`, `vline`, `dots`, `orbiter`, `tracer`, `diag`). Keep big shapes off the centre, take the colours from the episode palette, give every element its own drift period (20–45 s). Show the user a board of themes and a 15 s preview before using it.
 

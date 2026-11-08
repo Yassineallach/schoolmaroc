@@ -296,5 +296,5 @@ PERIODS = {
 
 # when a project names a background theme and no palette, this is the identity it implies
 THEME_IDENTITY = {'editorial': 'editorial', 'album': 'culture', 'cosmic_atlas': 'science_space', 'deep_space': 'science_space',
-                  'laboratory': 'science_space', 'clinic': 'science_space', 'circuit': 'technology', 'archive': 'history_archive',
+                  'laboratory': 'science_space', 'clinic': 'science_space', 'circuit': 'technology', 'archive': 'history_archive', 'astrolabe': 'history_archive',
                   'ledger': 'economics', 'ink_studio': 'manga_ink', 'manga_ink': 'manga_ink'}

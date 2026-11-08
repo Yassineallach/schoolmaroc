@@ -672,3 +672,145 @@ class _Editorial:
 
 
 THEMES['editorial'] = _Editorial()
+
+
+# ---- Astrolabe: aged parchment with faint engraved astrolabe / portolan rings ----------
+# Matches the user's reference for "Histoire des armes": warm parchment, a dark mottled vignette,
+# a great engraved dial rising from the bottom edge, two smaller dials bleeding off the top
+# corners. The great dial turns very slowly; the corner dials drift. Ink stays faint so the
+# collage on top always reads.
+AS_PAPER = (233, 222, 190)
+AS_EDGE = (176, 150, 102)
+AS_INK = (150, 128, 88)
+
+
+class Astrolabe(Theme):
+    def __init__(self):
+        super().__init__('astrolabe', 'Astrolabe parchment (Histoire des armes)', [], AS_PAPER, 77)
+
+    @staticmethod
+    def _font(size):
+        from PIL import ImageFont
+        import os
+        here = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'assets', 'fonts')
+        return ImageFont.truetype(os.path.join(here, 'Playfair700.ttf'), size)
+
+    def _parchment(self, seed):
+        a = np.empty((H, W, 3), np.float32)
+        a[:] = AS_PAPER
+        a += _noise(H, W, 90, seed, 9)[..., None] + _noise(H, W, 25, seed + 1, 5)[..., None] + _noise(H, W, 4, seed + 2, 3)[..., None]
+        yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+        r = np.sqrt(((xx / W - 0.5) * 1.15) ** 2 + ((yy / H - 0.5) * 1.05) ** 2)
+        blot = (0.5 + 0.5 * _noise(H, W, 140, seed + 3, 1.0)).clip(0, 1)
+        k = (np.clip((r - 0.28) / 0.40, 0, 1) ** 1.4) * (0.7 + 0.6 * blot)
+        a = a * (1 - k[..., None] * 0.7) + np.array(AS_EDGE, np.float32) * (k[..., None] * 0.7)
+        for _ in range(7):                                    # faint tide-mark stains
+            rr = np.random.default_rng(seed + 10 + _)
+            cx, cy, rad = rr.uniform(0, W), rr.uniform(0, H), rr.uniform(60, 220)
+            d = np.sqrt((xx - cx) ** 2 + (yy - cy) ** 2)
+            ring_ = np.exp(-((d - rad) / 6.0) ** 2) * 0.05 + np.clip(1 - d / rad, 0, 1) * 0.025
+            a -= ring_[..., None] * 60
+        img = Image.fromarray(a.clip(0, 255).astype(np.uint8))
+        d = ImageDraw.Draw(img)
+        rng = np.random.default_rng(seed + 5)
+        for _ in range(700):                                  # fibres
+            x, y = rng.uniform(0, W), rng.uniform(0, H)
+            L, ang = rng.uniform(3, 9), rng.uniform(0, math.pi)
+            c = int(rng.uniform(214, 230))
+            d.line([(x, y), (x + L * math.cos(ang), y + L * math.sin(ang))], fill=(c, c - 10, c - 34))
+        return img.filter(ImageFilter.GaussianBlur(0.5))
+
+    def _dial(self, R, rings, seed, letters=()):
+        """An engraved dial: concentric rings, tick bands, segment boxes, radial spokes and
+        lettering, drawn at 2x as an L mask (255 = full ink)."""
+        S2 = 2
+        n = int(2 * R + 40)
+        m = Image.new('L', (n * S2, n * S2), 0)
+        d = ImageDraw.Draw(m)
+        c0 = n * S2 / 2
+        rng = np.random.default_rng(seed)
+
+        def circ(r, w=2, v=255):
+            d.ellipse((c0 - r * S2, c0 - r * S2, c0 + r * S2, c0 + r * S2), outline=v, width=w * S2)
+
+        def ticks(r0, r1, count, w=1, v=230, every=0):
+            for i in range(count):
+                a = TAU * i / count
+                rr = r1 if not every or i % every else r1 + (r1 - r0) * 0.8
+                d.line([(c0 + r0 * S2 * math.cos(a), c0 + r0 * S2 * math.sin(a)),
+                        (c0 + rr * S2 * math.cos(a), c0 + rr * S2 * math.sin(a))], fill=v, width=w * S2)
+
+        for kind, r, *p in rings:
+            if kind == 'ring':
+                circ(r, *p)
+            elif kind == 'ticks':
+                ticks(r, p[0], p[1], 1, 220, p[2] if len(p) > 2 else 0)
+            elif kind == 'boxes':                              # alternating filled segments (the checker band)
+                r1, count = p
+                for i in range(count):
+                    if i % 2:
+                        continue
+                    a0, a1 = 360 * i / count, 360 * (i + 1) / count
+                    for rr in np.arange(r, r1, 1.2):
+                        d.arc((c0 - rr * S2, c0 - rr * S2, c0 + rr * S2, c0 + rr * S2), a0, a1, fill=150, width=S2)
+            elif kind == 'spokes':
+                r1, count = p
+                for i in range(count):
+                    a = TAU * i / count + 0.13
+                    d.line([(c0 + r * S2 * math.cos(a), c0 + r * S2 * math.sin(a)),
+                            (c0 + r1 * S2 * math.cos(a), c0 + r1 * S2 * math.sin(a))], fill=170, width=S2)
+            elif kind == 'grid':                               # a faint chart grid inside the dial
+                step = p[0]
+                for k in range(-int(r), int(r) + 1, step):
+                    h = math.sqrt(max(0, r * r - k * k))
+                    d.line([(c0 + k * S2, c0 - h * S2), (c0 + k * S2, c0 + h * S2)], fill=90, width=S2)
+                    d.line([(c0 - h * S2, c0 + k * S2), (c0 + h * S2, c0 + k * S2)], fill=90, width=S2)
+        for r, text, size, a_start in letters:                 # lettering set along a ring
+            f = self._font(size * S2)
+            a = a_start
+            for ch in text:
+                if ch == ' ':
+                    a += size * 0.45 / r
+                    continue
+                g = Image.new('L', (size * 3 * S2, size * 3 * S2), 0)
+                ImageDraw.Draw(g).text((g.width / 2, g.height / 2), ch, font=f, fill=210, anchor='mm')
+                g = g.rotate(-math.degrees(a) - 90, Image.BICUBIC)
+                x, y = c0 + r * S2 * math.cos(a), c0 + r * S2 * math.sin(a)
+                m.paste(255, (int(x - g.width / 2), int(y - g.height / 2)), g)
+                a += size * 0.78 / r
+        return m.resize((n, n), Image.LANCZOS)
+
+    def build(self):
+        self.g1 = self._parchment(self.seed)
+        big = [('ring', 880, 3), ('ring', 862, 1), ('ticks', 862, 842, 180, 5), ('ring', 842, 1),
+               ('boxes', 800, 838, 36), ('ring', 800, 2), ('ring', 740, 1), ('ticks', 740, 724, 120, 10),
+               ('ring', 690, 2), ('spokes', 420, 690, 24), ('ring', 640, 1), ('ring', 560, 2),
+               ('boxes', 540, 556, 48), ('ring', 420, 2), ('grid', 400, 80), ('ring', 300, 1), ('ring', 140, 2)]
+        big_letters = [(765, 'SEPTENTRIO   ORIENS   MERIDIES   OCCIDENS', 34, -2.85),
+                       (600, 'I II III IV V VI VII VIII IX X XI XII', 26, -2.6)]
+        self.big = self._dial(900, big, self.seed, big_letters)
+        self.big_alpha = 0.30
+        small = [('ring', 400, 2), ('ticks', 400, 384, 96, 8), ('ring', 384, 1), ('boxes', 350, 380, 24),
+                 ('ring', 350, 1), ('spokes', 120, 350, 16), ('ring', 250, 2), ('grid', 240, 60), ('ring', 120, 1)]
+        self.tl = self._dial(410, small, self.seed + 1, [(300, 'AFRICA', 28, -2.4)])
+        self.tr = self._dial(410, small, self.seed + 2, [(300, 'ASIA', 28, -1.2)])
+        self.ink = AS_INK
+
+    def _put(self, c, mask, cx, cy, alpha, dx=0.0, dy=0.0):
+        m = mask.point(lambda v, a=alpha: int(v * a))
+        c.paste(self.ink, (int(round(cx + dx - mask.width / 2)), int(round(cy + dy - mask.height / 2))), m)
+
+    def frame(self, t):
+        if not self._built:
+            self.build()
+            self._built = True
+        c = self.g1.copy()
+        ang = 0.9 * math.sin(TAU * t / 240.0) + t * 0.12          # a slow turn, a few degrees a minute
+        big = self.big.rotate(ang, Image.BILINEAR)
+        self._put(c, big, W / 2 + 40, H + 210, self.big_alpha, 6 * _s(t, 37), 4 * _s(t, 31, 1.0))
+        self._put(c, self.tl, 210, 40, 0.22, 7 * _s(t, 29), 5 * _s(t, 23, 0.7))
+        self._put(c, self.tr, W - 190, 20, 0.18, -6 * _s(t, 33, 1.4), 5 * _s(t, 27))
+        return c
+
+
+THEMES['astrolabe'] = Astrolabe()

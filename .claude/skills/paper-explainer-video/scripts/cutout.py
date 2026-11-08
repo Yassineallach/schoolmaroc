@@ -1,7 +1,7 @@
 """Lift a figure off its paper/ivory background into a clean transparent PNG.
 
 Usage:
-  python cutout.py SRC.png OUT.png [--crop x0,y0,x1,y1] [--mode standard|gentle|edge] [--head 0.2]
+  python cutout.py SRC.png OUT.png [--crop x0,y0,x1,y1] [--mode standard|gentle|edge|ink] [--backed] [--head 0.2]
 
 Modes (pick by what the figure is made of; then ALWAYS run check_cutout.py):
   standard  dark/saturated costumes. Removes border paper, enclosed paper pockets below the
@@ -120,7 +120,37 @@ def main_body(a):
     return a
 
 
-def cut(src, out, crop=None, mode='standard', head=0.2):
+def ink_cut(a, bgc, backed=False):
+    """Line art / engravings: the paper becomes transparent and the lines become the episode's
+    ink (palette text_primary), so the drawing reads as printed on the film's own paper.
+    backed=True also fills the silhouette with the light paper colour, so an object laid over
+    another object or a print hides what is underneath (closed outline needed)."""
+    from scipy import ndimage
+    try:
+        import palette
+        ink = np.array(palette.ACTIVE.ink[:3], float)
+    except Exception:
+        ink = np.array((36, 24, 15), float)
+    lum = a @ np.array([0.299, 0.587, 0.114])
+    pl = float(bgc @ np.array([0.299, 0.587, 0.114]))
+    k = np.clip((pl - 18 - lum) / max(40.0, pl - 60), 0, 1) ** 0.85         # 0 on paper, 1 on solid ink
+    r = np.zeros(a.shape[:2] + (4,), float)
+    r[..., :3] = ink
+    r[..., 3] = k * 255
+    if backed:
+        try:
+            import palette
+            light = np.array(palette.ACTIVE.cream[:3], float)
+        except Exception:
+            light = np.array((239, 227, 200), float)
+        body = ndimage.binary_fill_holes(ndimage.binary_closing(k > 0.25, iterations=6))
+        body = ndimage.binary_opening(body, iterations=2)
+        r[..., :3] = light * (1 - k[..., None]) + ink * k[..., None]
+        r[..., 3] = np.maximum(k, body.astype(float)) * 255
+    return r
+
+
+def cut(src, out, crop=None, mode='standard', head=0.2, backed=False):
     im = Image.open(src).convert('RGB')
     bgc = paper_colour(np.asarray(im).astype(float))  # sample paper on the whole sheet, before cropping
     if crop:
@@ -134,13 +164,16 @@ def cut(src, out, crop=None, mode='standard', head=0.2):
         r = base_cut(a, bgc, 1.0, remove_pockets=False)
         r = gentle_pockets(r, bgc)
         r = fringe(r, bgc, 0.0, tight=True)
+    elif mode == 'ink':
+        r = ink_cut(a, bgc, backed)
     elif mode == 'edge':
         r = base_cut(a, bgc, 1.0, remove_pockets=False)
         r = fringe(r, bgc, 0.0, tight=True)
         r = fill_holes_and_notches(r)
     else:
         raise SystemExit(f'unknown mode {mode}')
-    r = main_body(r)
+    if mode != 'ink':
+        r = main_body(r)
     o = Image.fromarray(r.clip(0, 255).astype(np.uint8), 'RGBA')
     o = o.crop(o.getchannel('A').getbbox())
     o.save(out)
@@ -152,7 +185,8 @@ if __name__ == '__main__':
     ap.add_argument('src')
     ap.add_argument('out')
     ap.add_argument('--crop', help='x0,y0,x1,y1 in source pixels (for character sheets)')
-    ap.add_argument('--mode', default='standard', choices=['standard', 'gentle', 'edge'])
+    ap.add_argument('--mode', default='standard', choices=['standard', 'gentle', 'edge', 'ink'])
+    ap.add_argument('--backed', action='store_true', help='ink mode: fill the silhouette with light paper')
     ap.add_argument('--head', type=float, default=0.2, help='fraction of height protected from pocket removal')
     a = ap.parse_args()
-    cut(a.src, a.out, tuple(int(v) for v in a.crop.split(',')) if a.crop else None, a.mode, a.head)
+    cut(a.src, a.out, tuple(int(v) for v in a.crop.split(',')) if a.crop else None, a.mode, a.head, a.backed)
