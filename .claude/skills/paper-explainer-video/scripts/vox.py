@@ -507,7 +507,10 @@ for _f in os.listdir(AUD) if os.path.isdir(AUD) else []:
 
 
 def _norm(s):
-    return _re.sub(r"[^a-z0-9']", '', s.lower().replace('’', "'"))
+    import unicodedata
+    s = unicodedata.normalize('NFKD', s.lower().replace('’', "'"))
+    s = ''.join(c for c in s if not unicodedata.combining(c))      # é -> e, so French/Spanish words keep their letters
+    return _re.sub(r"[^a-z0-9']", '', s)
 
 
 def make_cue(clips):
