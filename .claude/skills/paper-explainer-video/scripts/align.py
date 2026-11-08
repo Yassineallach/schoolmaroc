@@ -12,13 +12,14 @@ Needs: pip install faster-whisper   (downloads the 'small.en' model once, ~500 M
 audio/N.wav with an optional audio/N.txt transcript. The transcript is given to the model as a
 prompt so proper nouns come out spelled the way the scenes reference them.
 """
-import json, os, subprocess, sys
+import json, os, re, subprocess, sys
 import numpy as np
 
 PROJECT = os.environ.get('VOX_PROJECT', os.getcwd())
 AUD = os.path.join(PROJECT, 'audio')
 OUT = os.path.join(PROJECT, 'timing', 'words.json')
-MODEL = os.environ.get('VOX_WHISPER', 'small.en')
+LANG = os.environ.get('VOX_LANG') or None          # e.g. 'fr', 'ar'; None = English
+MODEL = os.environ.get('VOX_WHISPER', 'small' if LANG and LANG != 'en' else 'small.en')
 _model = None
 
 
@@ -55,10 +56,22 @@ def align(clips):
         expected = len(prompt.split()) if prompt else 0
 
         def run(p):
-            segs, _ = _model.transcribe(audio, word_timestamps=True, initial_prompt=p, beam_size=5,
+            segs, _ = _model.transcribe(audio, word_timestamps=True, initial_prompt=p, beam_size=5, language=LANG,
                                         vad_filter=False, condition_on_previous_text=False)
             return [{'w': w.word.strip(), 's': round(w.start, 3), 'e': round(w.end, 3)} for s in segs for w in s.words]
+        def match(ws):
+            # share of transcript words the pass actually heard (catches hallucinated passes)
+            norm = lambda x: re.sub(r"[^\w]", '', x.lower())
+            got = {norm(w['w']) for w in ws}
+            ref = [norm(x) for x in re.split(r"[\s'’-]+", prompt or '') if norm(x)]
+            return sum(r in got for r in ref) / max(1, len(ref))
         words = run(prompt)
+        # Whisper can hallucinate when prompted (seen in French): retry unprompted, keep the better match.
+        if prompt and match(words) < 0.75:
+            alt = run(None)
+            print(f'[timing] clip {n}: low match {match(words):.2f} -> unprompted {match(alt):.2f}', flush=True)
+            if match(alt) > match(words):
+                words = alt
         # Whisper sometimes treats a prompt identical to the speech as "already said" and skips it.
         # If words are missing, retry with no prompt, then with only the names, and keep the most complete pass.
         if expected and len(words) < 0.8 * expected:
