@@ -30,6 +30,8 @@ The same pipeline works for any narrated explainer.
   sweep in, marker circles and underlines draw on;
 - **torn-paper transitions** between shots, never crossfades;
 - every reveal, camera move and cut lands on the spoken word.
+- **real images first**: museum objects, excavation and archive photographs from Wikimedia Commons, credited, with generated drawings only for what was never photographed;
+- **no empty screens**: something is on screen from the first frame of every shot (`check_empty.py`).
 
 **Defaults:** 1920×1080, 30 fps, H.264. The final render uses CRF 12.
 
@@ -85,7 +87,9 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `scenes.py` | scene environments (theme, paper, cream, charcoal, solid accent, halftone, archive, geometric, grid, full-bleed) and compositions (full-bleed, split screen, full-screen type, panel grid, letterbox, thirds) |
 | `storyboard.py` | narration analysis: the episode identity and why, then purpose, mood, environment, technique, weight, cue, cut and typographic moment for every sentence |
 | `themes.py` | per-episode background themes, all in the editorial design language (each maps to an identity family) |
-| `bg_motion.py` | the original editorial background, and theme selection from `episode.json` |
+| `bg_motion.py` | the original editorial background, and theme selection from `episode.json` (none named: the identity's default, e.g. history → `astrolabe`) |
+| `commons.py` | real images from Wikimedia Commons: search per slot with contact sheets, download with credits, a table of links for the user to download by hand |
+| `check_empty.py` | the no-empty-screens check: flags every stretch where a shot shows only its ground |
 
 ## Phases
 
@@ -105,13 +109,31 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 
 - **Show the storyboard first** on a Design canvas artifact: an overview board plus one board per act. Each shot shows its cue words, the on-screen text, the visual, and whether each asset is drawn in code or needed from the user.
 - **Settle the episode's visual identity** (see "Visual identity" below). Put a one-line `"subject"` in `episode.json`. `storyboard.py` prints the identity the engine derived and why. Override it if needed (`"palette": "crime/historical"`), and show the user its page: `python SK/scripts/identity_board.py --page <identity> out/identity.png`.
-- **Choose the episode's background theme** from the same identity family as the visual identity (`identities.THEME_IDENTITY`; a mismatched theme is replaced by the identity's paper) and the subject (see "Background themes" below), set it in `episode.json`, and show the user a still plus a 15 s preview (`python SK/scripts/bg_motion.py out/bg_preview.mp4 15`) before any act uses it.
+- **Choose the episode's background theme.** History films use `astrolabe` by default (it is chosen automatically when `episode.json` names no theme). Otherwise pick one from the same identity family as the visual identity (`identities.THEME_IDENTITY`; a mismatched theme is replaced by the identity's paper) and the subject (see "Background themes" below), set it in `episode.json`, and show the user a still plus a 15 s preview (`python SK/scripts/bg_motion.py out/bg_preview.mp4 15`) before any act uses it.
 - **Split the assets** into:
   - (a) things the code draws (see `references/prompts.md`, "Things code draws better");
-  - (b) things to ask the user for: characters, places, creatures, real people.
+  - (b) **real images**: objects, artefacts, sites, documents, paintings and archive photographs that exist (see phase 3);
+  - (c) generated drawings, only for what no photograph can show (prehistoric scenes, reconstructions, a symbolic close-up);
+  - (d) things only the user can give: photos of real people.
 - **Real people come only from the user's own photographs**, used as torn prints. Never redraw or generate a likeness.
 
-### 3. Asset prompts
+### 3. Images: real first, then prompts
+
+**Use a real image whenever one exists.** The user prefers real photographs, museum objects, archive pictures and public-domain paintings to generated pictures. Generated drawings are only for what was never photographed.
+
+1. **Search Wikimedia Commons.** Write `sources.json` (slot → 2–3 queries, in English and in the subject's language), then:
+   `python SK/scripts/commons.py search sources.json out/commons`
+   It keeps only public domain, CC0, CC BY and CC BY-SA files and draws one contact sheet per slot (`out/commons/<slot>.jpg`). It pauses between slots, honours `Retry-After` and resumes where it stopped, so run it in the background.
+2. **Pick by looking at the sheets.** Choose what shows exactly what the sentence says (the real Schöningen spear, a sword found in the Thames), not something merely related. Avoid photos of people unless the user agrees. Record picks in `picks.json` (`{"P02": "File:..."}`).
+3. **Download:** `python SK/scripts/commons.py get P02 "File:..."` (saves `assets/P02.jpg` and its credit).
+4. **When Commons rate-limits this machine** (HTTP 429 is common on shared cloud IPs), don't wait: give the user the links and let them download.
+   `python SK/scripts/commons.py links` prints a table of every pick not yet in `assets/`: the code to save it as, the file page and the **direct file link** (the direct link opens the original image; a file page can show a different picture first). Put each link in a markdown link or a code block so it doesn't break across lines. When the user uploads the files, save them under their codes and record the credits with `python SK/scripts/commons.py credit P02 "File:..."`.
+5. **Nothing free found?** Tell the user which slots have no public-domain or freely licensed image, and **ask them to search** (museum sites, Europeana, Gallica, the Met open access, their own photos) before falling back to a generated drawing.
+6. **Credits are mandatory** for CC BY and CC BY-SA: `assets/credits.json` feeds the end card and the video description. Fill in missing author names by hand.
+
+Real images get the identity's treatment (sepia duotone in history) and are placed as torn prints, full-bleed plates or split screens like any other image.
+
+**Generated drawings** (only for what remains):
 
 - **Ask which tool and which style.** Ask which image tool the user generates with (ChatGPT, Midjourney, others) and whether they have reference images.
 - **Reference image plus a short prompt** (see `references/prompts.md`, "Reference-image workflow"). Crop the reference for the user to the single cleanest figure, with no UI, cards or icons.
@@ -387,6 +409,8 @@ hi = S.accent(s)              # the highlight that reads on this ground and suit
 - `letterbox(s, img, t, start)`: cinematic bars close in for a dramatic beat.
 - `rule_of_thirds('left'|'right')`: anchor points for asymmetric layouts.
 
+**Dark and solid grounds are smooth.** `charcoal` and `accent` take only a faint cloud and a fine grain, never the identity's paper mottle: large blotches on a deep colour read as light dents (the user's note on *Histoire des armes*). Their vignette darkens the edges.
+
 **Planning:** `storyboard.py` now adds an **environment** column. It picks from each sentence's purpose, never repeats either of the two previous environments, keeps each within its share (`scenes.CAPS`), and gives dark or solid grounds only to short, strong beats. On the Berserk narration it used all ten environments across 54 sentences with no back-to-back repeat.
 
 **Rules:**
@@ -486,7 +510,9 @@ Moods are smoothed: grief and menace hold for two lines and aren't broken by a p
 
 ### 12. Background themes
 
-Every episode gets its own background, but every theme speaks the design language of the user's original editorial background: the same paper, flat textured terracotta + beige corner shapes, translucent diagonal bands, thin dark lines and arcs, breathing dot grids, an open centre. Only the shapes and their arrangement change with the subject. Do not invent a new visual style (dark grounds, heavy patterns) unless the user asks.
+**History films use `astrolabe`** (from the user's parchment reference): aged parchment with a dark, mottled vignette, a large engraved astrolabe dial rising from the bottom edge and turning very slowly, two smaller dials drifting in the top corners, faint Latin lettering. The engraving stays faint so the collage always reads. It is the default for the `history_archive` identity (`identities.DEFAULT_THEME`); approved on *Histoire des armes*.
+
+When the user gives a reference image for a background, match it (that wins over the rule below). Otherwise every episode gets its own background, but every theme speaks the design language of the user's original editorial background: the same paper, flat textured terracotta + beige corner shapes, translucent diagonal bands, thin dark lines and arcs, breathing dot grids, an open centre. Only the shapes and their arrangement change with the subject. Do not invent a new visual style (dark grounds, heavy patterns) unless the user asks.
 
 | Theme | Subject | Its own shapes |
 |---|---|---|
@@ -540,6 +566,8 @@ Effects are generated in code (`sfx.py`) and synced automatically: every preset 
 ```
 cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 6 10 15 22
 ```
+
+**First, no empty screens:** `python SK/scripts/check_empty.py 1` (or no argument for every act). It flags every stretch of 0.75 s or more where a shot shows only its ground; fix them all before the contact sheet. A shot must have something on screen from its first frame: the print the sentence is about, a line or diagram that draws in, the typed sentence, a label. Never leave the viewer on a bare background waiting for the cue word. (On *Histoire des armes* it caught exactly the three gaps the user found: 0:19, 0:30–0:34 and 0:38–0:41.)
 
 **Look at the contact sheet.** Pick moments just after each reveal **and** moments mid-transition and mid-preset. Check for:
 
@@ -604,3 +632,6 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 21. Typography is part of the explanation, not decoration: give type to discoveries, dates, names, contradictions, terms and quotes, and leave most sentences to images.
 22. Every scene is a new editorial composition: vary the environment and the arrangement shot to shot (scenes.py), never the same background or layout twice in a row, while typography, the episode palette, paper texture and animation principles stay constant.
 23. Every video is art-directed for its subject. The engine derives a visual identity from the topic: category, sub-genre, second subject, region, period and tone (identities.py, palette.py). Every colour, texture, typeface and image treatment on screen comes from it. Accents mark only what matters, the tone shifts only where the story's emotion does, and contrast always passes. Different videos must look noticeably different. Never force cream, terracotta or any recurring palette onto a subject it doesn't suit.
+24. **No empty screens.** Every shot has something on screen from its first frame to its last; a background alone is never a shot. Run `check_empty.py` before every render.
+25. **Real images first.** Search for real, freely licensed images (Commons) before prompting for drawings; give the user the direct download links when this machine is rate-limited; when nothing free exists, ask the user to search before generating. Credit every image.
+26. **History films use the astrolabe parchment background**, and dark or solid grounds stay smooth (no mottled patches).

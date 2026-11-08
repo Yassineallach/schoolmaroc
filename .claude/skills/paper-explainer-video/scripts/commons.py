@@ -2,6 +2,8 @@
 
     python commons.py search sources.json out/commons        # contact sheet per slot (+ candidates.json)
     python commons.py get P02 "File:Name.jpg" [--w 2400]    # download into assets/ + credits.json
+    python commons.py links [picks.json]                     # table of picks: page + direct file link
+    python commons.py credit P02 "File:Name.jpg"             # record the credit of a file the user saved
 
 sources.json: {"P02": ["Schöningen Speer im Sediment", "Schöningen spear"], ...}  (queries per slot)
 
@@ -161,9 +163,44 @@ def cmd_get(slot, title, width=2400):
     print(f'{out}: {im.size[0]}x{im.size[1]}  {cd["licence"]}  {cd["author"][:60]}')
 
 
+def cmd_links(picks_path='picks.json'):
+    """Print the picks as a table the user can download from by hand (when Commons rate-limits
+    this machine): code to save as, the file page, and the direct link to the original file."""
+    picks = json.load(open(picks_path, encoding='utf-8'))
+    cpath = os.path.join(PROJECT, 'out', 'commons', 'candidates.json')
+    known = {}
+    if os.path.exists(cpath):
+        known = {x['title']: x for v in json.load(open(cpath, encoding='utf-8')).values() for x in v}
+    have = set(os.listdir(os.path.join(PROJECT, 'assets'))) if os.path.isdir(os.path.join(PROJECT, 'assets')) else set()
+    print('| Save as | File page | Direct file | Licence |\n|---|---|---|---|')
+    for code, title in picks.items():
+        if any(h.startswith(code + '.') for h in have):
+            continue
+        x = known.get(title)
+        page = 'https://commons.wikimedia.org/wiki/' + urllib.parse.quote(title.replace(' ', '_'))
+        direct = x['url'].split('?')[0] if x else ''
+        print(f"| `{code}.jpg` | [page]({page}) | [file]({direct}) | {x['licence'] if x else '?'} |")
+
+
+def cmd_credit(slot, title):
+    """Record the credit for a file the user downloaded by hand (no image download here)."""
+    cpath = os.path.join(PROJECT, 'out', 'commons', 'candidates.json')
+    known = {x['title']: x for v in json.load(open(cpath, encoding='utf-8')).values() for x in v} if os.path.exists(cpath) else {}
+    cd = known.get(title) or info([title])[0]
+    apath = os.path.join(PROJECT, 'assets', 'credits.json')
+    credits = json.load(open(apath, encoding='utf-8')) if os.path.exists(apath) else {}
+    credits[slot] = {k: cd[k] for k in ('title', 'author', 'credit', 'licence', 'page')}
+    json.dump(credits, open(apath, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    print(slot, cd['licence'], cd['author'][:60])
+
+
 if __name__ == '__main__':
     if sys.argv[1] == 'search':
         cmd_search(sys.argv[2], sys.argv[3])
+    elif sys.argv[1] == 'links':
+        cmd_links(sys.argv[2] if len(sys.argv) > 2 else 'picks.json')
+    elif sys.argv[1] == 'credit':
+        cmd_credit(sys.argv[2], sys.argv[3])
     elif sys.argv[1] == 'get':
         w = int(sys.argv[sys.argv.index('--w') + 1]) if '--w' in sys.argv else 2400
         cmd_get(sys.argv[2], sys.argv[3], w)

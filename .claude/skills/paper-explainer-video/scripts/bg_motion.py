@@ -193,7 +193,13 @@ def _editorial(t):
 # ---- episode theme selection: episode.json {"theme": "<name>"} in the project folder ----
 import json as _json, os as _os
 _CFG = _os.path.join(_os.environ.get('VOX_PROJECT', _os.getcwd()), 'episode.json')
-THEME_NAME = _json.load(open(_CFG)).get('theme', 'editorial') if _os.path.exists(_CFG) else 'editorial'
+THEME_NAME = _json.load(open(_CFG)).get('theme') if _os.path.exists(_CFG) else None
+if not THEME_NAME:                      # no theme named: the identity's own (history -> astrolabe)
+    try:
+        import palette as _pl, identities as _id
+        THEME_NAME = _id.DEFAULT_THEME.get(_pl.IDENTITY.base, 'editorial')
+    except Exception:
+        THEME_NAME = 'editorial'
 
 
 def motion_bg(t):

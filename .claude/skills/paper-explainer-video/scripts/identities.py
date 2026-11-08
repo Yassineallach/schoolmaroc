@@ -294,6 +294,10 @@ PERIODS = {
                          colours=dict(), desaturate=0.0, texture=0.7, note='contemporary: cleaner paper, less ageing'),
 }
 
+# the background theme an identity uses when episode.json names none
+DEFAULT_THEME = {'history_archive': 'astrolabe', 'science_space': 'cosmic_atlas', 'technology': 'circuit',
+                 'economics': 'ledger', 'manga_ink': 'manga_ink', 'culture': 'album'}
+
 # when a project names a background theme and no palette, this is the identity it implies
 THEME_IDENTITY = {'editorial': 'editorial', 'album': 'culture', 'cosmic_atlas': 'science_space', 'deep_space': 'science_space',
                   'laboratory': 'science_space', 'clinic': 'science_space', 'circuit': 'technology', 'archive': 'history_archive', 'astrolabe': 'history_archive',

@@ -49,6 +49,19 @@ Traits that worked when this was the user's reference:
 
 The reference sheets were book-cover cards with circles, triangles, dot-lines and a bookmark icon. Tell the model to ignore all of these.
 
+### Style: black pen-and-ink engraving (user's third style, *Histoire des armes*)
+
+Reference: a crop of one engraved line drawing (a helmet) from a sheet on grid paper. Two style lines, then one line per asset:
+
+```
+Use ONLY the drawing style of the attached image: black pen-and-ink engraving, confident clean contours, shading only with fine parallel hatching and cross-hatching, solid black only in the deepest shadows. No colour, no grey wash, no gradients.
+Ignore the grid paper, the watermark and the object itself; do not copy it.
+
+Draw: <scene or object>. Fill the whole 16:9 frame edge to edge, on plain white paper, no border, no frame. No text.
+```
+
+Cut-outs end with `One object only, fully visible, closed outline, on plain white paper. No grid, no shadow on the ground, no text.` Cut them with `cutout.py --mode ink` (the white paper turns transparent and the lines take the identity's ink, so the drawing looks printed on the film's parchment); add `--backed` when the object overlaps other things. Public-domain engravings from Commons (Wellcome, old catalogues) match this style and go through the same `ink` cut.
+
 ### Ready-to-copy prompt shape (used on A Brief History of Time, ChatGPT)
 
 Two style lines, then one line per asset. Give each asset as its own complete code block.
