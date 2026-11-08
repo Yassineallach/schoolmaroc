@@ -13,7 +13,7 @@ import json, os, re, sys, io, time, urllib.parse, urllib.request
 from PIL import Image, ImageDraw, ImageFont
 
 API = 'https://commons.wikimedia.org/w/api.php'
-UA = {'User-Agent': 'paper-explainer-video/1.0 (educational explainer; Wikimedia Commons reuse)'}
+UA = {'User-Agent': os.environ.get('VOX_UA', 'paper-explainer-video/1.0 (https://github.com/yassineallach/schoolmaroc; educational video) python-urllib')}
 OK = re.compile(r'^(public domain|pd|cc0|cc[ -]by(-sa)?([ -]\d\.\d)?)', re.I)
 PROJECT = os.environ.get('VOX_PROJECT', os.getcwd())
 
@@ -26,8 +26,10 @@ def _get(params):
             with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
                 return json.load(r)
         except Exception as e:
-            print(f'[commons] {getattr(e, "code", e)}; retry in {5 * 2 ** k}s', flush=True)
-            time.sleep(min(120, 10 * 2 ** k))
+            ra = getattr(e, 'headers', None) and e.headers.get('Retry-After')
+            wait = max(float(ra or 0) * 2, min(120, 10 * 2 ** k))
+            print(f'[commons] {getattr(e, "code", e)}; retry in {wait:.0f}s', flush=True)
+            time.sleep(wait)
     raise RuntimeError(url)
 
 
@@ -95,6 +97,26 @@ def sheet(slot, cands, path):
     c.save(path)
 
 
+def search_info(query, n=12, width=400):
+    d = _get({'action': 'query', 'generator': 'search', 'gsrsearch': query + ' filetype:bitmap', 'gsrnamespace': 6,
+              'gsrlimit': n, 'prop': 'imageinfo', 'iiprop': 'url|size|mime|extmetadata', 'iiurlwidth': width})
+    pages = sorted(d.get('query', {}).get('pages', {}).values(), key=lambda p: p.get('index', 0))
+    out = []
+    for p in pages:
+        if 'imageinfo' not in p:
+            continue
+        ii = p['imageinfo'][0]
+        m = ii.get('extmetadata', {})
+        lic = _clean(m.get('LicenseShortName', {}).get('value', ''))
+        out.append(dict(title=p['title'], thumb=ii.get('thumburl'), url=ii['url'], page=ii.get('descriptionurl'),
+                        w=ii.get('width'), h=ii.get('height'), mime=ii.get('mime'), licence=lic,
+                        author=_clean(m.get('Artist', {}).get('value', ''))[:120],
+                        credit=_clean(m.get('Credit', {}).get('value', ''))[:160],
+                        desc=_clean(m.get('ImageDescription', {}).get('value', ''))[:200],
+                        free=bool(OK.match(lic))))
+    return out
+
+
 def cmd_search(src, out_dir):
     os.makedirs(out_dir, exist_ok=True)
     plan = json.load(open(src, encoding='utf-8'))
@@ -103,12 +125,11 @@ def cmd_search(src, out_dir):
     for slot, queries in plan.items():
         if slot in allc:
             continue
-        titles = []
+        cands, seen = [], set()
         for q in queries:
-            titles += [t for t in search(q) if t not in titles]
-        cands = []
-        for i in range(0, len(titles), 40):
-            cands += info(titles[i:i + 40])
+            for cd in search_info(q):
+                if cd['title'] not in seen:
+                    seen.add(cd['title']); cands.append(cd)
         cands = [cd for cd in cands if cd['free'] and cd['mime'] in ('image/jpeg', 'image/png', 'image/tiff', 'image/webp')
                  and min(cd['w'] or 0, cd['h'] or 0) >= 700][:12]
         allc[slot] = cands
