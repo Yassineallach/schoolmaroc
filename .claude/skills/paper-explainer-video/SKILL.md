@@ -1,21 +1,35 @@
 ---
 name: paper-explainer-video
-description: Build a YouTube educational explainer video (book summary, history, science, biography) in a Vox-style editorial paper-collage look from the user's narration clips and transcript. Use when the user wants an explainer or summary video made from voice-over audio. It covers storybook-style asset prompts, clean cut-outs, scenes synced to the spoken word (timing created with each act), contact-sheet QC and a full-quality 1080p render done by Claude in the session. Triggers include "make a video like the Red Rising one", "explainer video from my narration", "paper collage / Vox style video", "book summary video".
+description: Build a YouTube educational explainer video (book summary, history, science, biography) in a Vox-style editorial paper-collage look from the user's narration clips and transcript. Use when the user wants an explainer or summary video made from voice-over audio. It covers the storyboard, a visual identity art-directed for each topic (colour roles, textures, type, image treatment, mood arc), varied scene environments and compositions, a per-episode animated background theme, reference-image asset prompts, clean cut-outs, physical scrapbook animations (photo drops, page flips, unfolding documents, tear reveals, stamps, camera zooms into images) synced to the spoken word, contact-sheet QC and a full-quality 1080p render done by Claude in the session. Triggers include "make a video like the Red Rising one", "explainer video from my narration", "paper collage / Vox style video", "book summary video".
 ---
 
 # Paper-collage explainer video
 
-Made for the *Red Rising* explainer (7:38, 8 acts, 26 narration clips). The same pipeline
-works for any narrated explainer.
+Made for the *Red Rising* explainer (7:38, 8 acts, 26 narration clips), then upgraded on
+*A Brief History of Time* (4:19, 6 acts, 15 clips) into a fully art-directed motion system.
+The same pipeline works for any narrated explainer.
 
 **What the output looks like:**
 
-- a locked grey paper background (`#DAD9D5`);
-- hand-illustrated cut-outs, each with an offset red marker stroke (`#E04329`) and a drop shadow;
-- a torn-paper foreground strip;
-- painted plates shown as torn photo prints;
-- documents, stamps, typed captions and marker lines drawn in code;
-- spring entrances, with every reveal and cut landing on the spoken word.
+- a **visual identity art-directed for the topic**: the engine reads the transcript and builds
+  colours (17 roles + chart series), paper texture, image treatment, typefaces and preferred
+  scenes from ten identities, their variants, the region, the period and the tone, so a WWII
+  film, a dark manga and a film on AI look nothing alike (`identities.py`, `palette.py`);
+- **every scene its own editorial page**: archive paper, dark grounds, full-bleed images,
+  split screens, full-screen type, infographic grids, halftone panels, solid colour, chosen
+  per sentence and never repeated back to back, with moods that tone scenes inside the
+  identity (`scenes.py`);
+- an **animated editorial background** per episode, used as one of those grounds: paper with
+  grain, large flat textured shapes anchored to the corners, translucent bands, lines and arcs
+  that extend and retract, dot grids that breathe, an open centre (`themes.py`);
+- photographs and painted plates as **torn prints**, documents, newspaper clippings and
+  cut-outs that behave like **physical paper**: they drop, slide with friction, unfold, flip,
+  stack, tear and get stamped (`presets.py`);
+- a **virtual camera** with three-depth parallax, push-ins and zooms into a single image;
+- **word-synced typography**: words rise from their own slot as they are spoken, red labels
+  sweep in, marker circles and underlines draw on;
+- **torn-paper transitions** between shots, never crossfades;
+- every reveal, camera move and cut lands on the spoken word.
 
 **Defaults:** 1920×1080, 30 fps, H.264. The final render uses CRF 12.
 
@@ -26,52 +40,96 @@ Keep everything in one folder; the scripts run from inside it, or set `VOX_PROJE
 ```
 project/
   audio/1.wav 1.txt 2.wav 2.txt ...   narration clips plus the exact transcript of each
-  assets/                             APPROVED, leftover-checked PNGs only
+  assets/                             APPROVED, leftover-checked images only
+  episode.json                        {"subject": "...", "theme": "cosmic_atlas"}  one-line topic + background theme;
+                                      "palette" defaults to "auto" (identity from the topic), or name one
   timing/words.json, words.txt        created automatically as each act is built
   act1.py act2.py ...                 one file per act (copy templates/act_template.py)
   out/                                renders
 ```
 
-Install: `pip install pillow numpy scipy faster-whisper`, plus `ffmpeg` on PATH.
+Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg` on PATH.
 
 `SK` below means this skill's folder, e.g. `.claude/skills/paper-explainer-video`.
+
+**Worked example** (`SK/examples`): the six approved acts of *A Brief History of Time* (4:19), with their `episode.json`. Read the act closest to the beat you are building:
+
+| File | Shows |
+|---|---|
+| `brief_history_act1.py` | mask reveal opening, unfold + zoom into a chart, tear reveal of a person, clipping + stamp; manual monitor beeps |
+| `brief_history_act2.py` | equations struck out, a book stack halving, portraits stacked on a timeline, zoom into a plate, dots expanding then rewinding to a point |
+| `brief_history_act3.py` | a card torn in two, a bending grid with a planet, an atom dissolving into a cloud, two cards colliding, plate → plate `flip`, event horizon circled after `zoom_to` |
+| `brief_history_act4.py` | glow + particles + shrinking disc, diagnosis unfold, shapes `assemble`, letter-card highlight, young → old photo `flip` beside a word screen |
+| `brief_history_act5.py` | a cup sliding off a table and shattering, `assemble` then `reverse` + NEVER SEEN stamp, a card flipped on its head, globe with marker arrow and loop |
+| `brief_history_act6.py` | typed title struck and corrected, a counter, stacked covers, `page_flip` with a bookmark, crowd + unfold, end title held over the last plate |
+
+`demo_presets.py`, `demo_annotate.py`, `demo_toolkit.py`, `demo_typo.py` and `demo_scenes.py` render numbered reels of the presets, the annotations, the storytelling toolkit (maps, timeline, charts, objects, camera, transitions), the typography system and the scene environments on a project's own assets. Show one to the user when they ask what the animations look like. `demo_palettes.py <out_dir>` (or `scripts/identity_board.py --all`) renders the visual identity guide: a page per identity, an overview, and identities derived from sample topics.
+
+**Engine files** (all in `SK/scripts`):
+
+| File | What it holds |
+|---|---|
+| `vox.py` | fonts, base colours (from the identity), word timing (`make_cue`), documents, marker lines, audio mastering, render |
+| `style.py` | `Shot` layers, camera and parallax, torn transitions, `words`, `tag`, `underline`, `kicker` |
+| `presets.py` | the 12 physical paper animations and item builders (prints, clippings, text, SVG) |
+| `annotate.py` | editorial annotations: marker sweeps, underlines, rings, boxes, strikes, emphasis, arrows, spotlight, loupe, marks, brackets, connectors, charts |
+| `transitions.py` | special cuts: page turn, circle, shape wipe, zoom-through, collage (the torn wipes stay in `style.py`) |
+| `maps.py` | animated maps from bundled Natural Earth data (`assets/geo`): zooms, routes, pins, borders, map cards |
+| `timeline.py` | timelines: axis, dated events, eras, a sliding date marker, rolling year counter |
+| `charts.py` | line charts, comparisons, unit grids, counters, flow diagrams, size comparisons |
+| `objects.py` | newspapers, letters, envelopes, polaroids, sticky notes, tape, push pins, spin-in |
+| `typo.py` | editorial typography: a 10-role hierarchy (English + Arabic), 12 kinetic animations, newspaper / big-number / term / name compositions |
+| `identities.py` | design tokens of the ten visual identities (17 HEX colour roles, chart series, texture, image treatment, type, scene preferences, variants) plus regions and periods |
+| `palette.py` | the identity engine: topic analysis, identity derivation, contrast repair, image treatment, scene moods |
+| `identity_board.py` | the visual identity guide: a page per identity, an overview, and a board of identities derived from sample topics |
+| `scenes.py` | scene environments (theme, paper, cream, charcoal, solid accent, halftone, archive, geometric, grid, full-bleed) and compositions (full-bleed, split screen, full-screen type, panel grid, letterbox, thirds) |
+| `storyboard.py` | narration analysis: the episode identity and why, then purpose, mood, environment, technique, weight, cue, cut and typographic moment for every sentence |
+| `themes.py` | per-episode background themes, all in the editorial design language (each maps to an identity family) |
+| `bg_motion.py` | the original editorial background, and theme selection from `episode.json` |
 
 ## Phases
 
 ### 1. Script → acts
 
-- **Read every transcript.** The transcript is the source of truth: every visual must illustrate a line that is actually spoken. Don't invent facts, and don't put numbers on screen that the narration does not state.
+- **Read every transcript.** The transcript is the source of truth: every visual must illustrate a line that is actually spoken. Don't invent facts, and don't put numbers on screen that the narration does not state (no ages, no dates, no headlines it doesn't say).
 - **Group the clips into acts** of 40–90 s, each with a title.
-- **Plan the shots.** For each act, write a shot list: transcript sentence → visual → which assets → the words that trigger each reveal.
+- **Analyse the narration first:** `python SK/scripts/storyboard.py --all` (from the project folder) reads every sentence and proposes, for each:
+  - **purpose:** what the sentence does: date, number, fraction, place, journey, person, people, quote, comparison, process, list, correction, document, reveal, detail, action, emotion, or plain idea;
+  - **technique:** from the whole toolkit, with no repeat in a row and no special technique twice within three shots;
+  - **weight:** complex, medium or simple, alternated so the film breathes; emotional lines are always simple;
+  - **cue word and time,** and a **cut** into the shot.
+  It also writes `timing/plan.md`. Read it as advice: fix what it misreads and keep what the user asked for.
+- **Plan the shots.** For each act, write a shot list: transcript sentence → visual → which assets → which technique → the words that trigger each reveal. Some moments get complex motion graphics; many should stay simple (one image, a slow push, a few words).
 
-### 2. Visual plan and asset list
+### 2. Storyboard, visual identity, background theme, asset list
 
-- **Get the user's guide.** If the user has a visual guide, follow it exactly. Ask for it if there isn't one.
+- **Show the storyboard first** on a Design canvas artifact: an overview board plus one board per act. Each shot shows its cue words, the on-screen text, the visual, and whether each asset is drawn in code or needed from the user.
+- **Settle the episode's visual identity** (see "Visual identity" below). Put a one-line `"subject"` in `episode.json`. `storyboard.py` prints the identity the engine derived and why. Override it if needed (`"palette": "crime/historical"`), and show the user its page: `python SK/scripts/identity_board.py --page <identity> out/identity.png`.
+- **Choose the episode's background theme** from the same identity family as the visual identity (`identities.THEME_IDENTITY`; a mismatched theme is replaced by the identity's paper) and the subject (see "Background themes" below), set it in `episode.json`, and show the user a still plus a 15 s preview (`python SK/scripts/bg_motion.py out/bg_preview.mp4 15`) before any act uses it.
 - **Split the assets** into:
   - (a) things the code draws (see `references/prompts.md`, "Things code draws better");
   - (b) things to ask the user for: characters, places, creatures, real people.
-- **Ask for anything that would look bad drawn in code.** Never fake a face, an animal or a landscape with shapes.
-- **Show the storyboard first.** For long projects, put it on a Design canvas artifact before generating anything.
+- **Real people come only from the user's own photographs**, used as torn prints. Never redraw or generate a likeness.
 
 ### 3. Asset prompts
 
-- **Ask which tool and which style.**
-  - Ask which image tool the user generates with (ChatGPT, Midjourney, others).
-  - Ask whether they have reference images for the style.
-  - Default style: storybook (`references/prompts.md`, CH block).
-  - If the user brings their own style references, use them. One video uses one style throughout.
-- **Reference image plus a short prompt** (see `references/prompts.md`, "Reference-image workflow"). This is the default with ChatGPT and any tool that accepts images.
-  - Long, detailed style descriptions made the results look *nothing* like the user's references. The image carries the style; the words only name the subject.
-  - Analyse the references: name only the 4–5 visual traits that matter, and the things in them to ignore (UI cards, icons, geometric overlays, the person depicted).
-- **One strong single figure first.** No multi-pose sheets until the style is locked. Then the approved figure becomes the reference for every other pose and character.
-- **Fix with short follow-ups**, one change per message ("same image, remove the lines").
-- **Never anime.** If outputs drift toward anime or away from the references, shorten and refocus the prompt. Don't add more words, and don't accept the drift.
+- **Ask which tool and which style.** Ask which image tool the user generates with (ChatGPT, Midjourney, others) and whether they have reference images.
+- **Reference image plus a short prompt** (see `references/prompts.md`, "Reference-image workflow"). Crop the reference for the user to the single cleanest figure, with no UI, cards or icons.
+  - Name only the 4–5 visual traits that matter, and the things in the reference to ignore.
+  - Long style descriptions made the results look *nothing* like the references.
+- **Give every prompt complete and ready to copy**, one code block per asset, numbered (`P01` plates, `C01` cut-outs). Do the first one alone; once approved, it becomes the style reference for the rest.
+- **Plates** say "Fill the whole 16:9 frame edge to edge"; **cut-outs** say "Fill every surface with flat colour, nothing left paper-white. Plain empty ivory background", so the cut survives.
+- **Fix with short follow-ups**, one change per message. **Never anime.**
+- **Check each image as it arrives** and say what it will carry. One plate can serve two beats (the collapsing star also became the start of the black-hole `flip`).
+- **Don't wait for every asset.** Build the act and use a code-drawn stand-in in the background's flat-shape style, loaded only while the file is missing, so the real asset swaps in by itself:
+  `P.load(asset('c01_planet.png')) if os.path.exists(asset('c01_planet.png')) else stand_in()`.
+  Never stand in for a person, an animal or a landscape.
 
 ### 4. Cut-outs: check every asset before use
 
 Ask what each image is before cutting it:
 
-- **Has its own painted background** (close-ups, scene plates, gas shots): use it as a `PhotoCard` as-is. Don't cut it out, and don't add a background behind it.
+- **Has its own painted background** (scenes, plates): use it as a print as-is. Don't cut it out, and don't add a background behind it.
 - **A figure on plain ivory**: cut it out.
 
 ```
@@ -79,109 +137,467 @@ python SK/scripts/cutout.py sheet.png assets/hero_standing.png [--crop x0,y0,x1,
 python SK/scripts/check_cutout.py out/check.png assets/hero_standing.png ...
 ```
 
-Choose the mode by what the figure is made of:
-
 | Mode | When to use it |
 |---|---|
 | `standard` | dark or saturated costumes. If eyes, teeth or lamp glass get holed, raise `--head` (0.2–0.35). |
-| `gentle` | gold, cream or pale costumes close to the paper colour. Use it when `standard` punches holes in the costume. |
-| `edge` | near-paper skin, faces in close-up, pale horses or animals. It fills holes and closes notches so the red stroke never shows through. |
+| `gentle` | gold, cream or pale costumes close to the paper colour. |
+| `edge` | near-paper skin, faces in close-up, pale animals. Fills holes so nothing shows through. |
 
-**Open the preview image and look at it.**
+**Open the preview and look at it**, on magenta and on dark. Re-cut until both are clean. Only clean files go into `assets/`. This check is not optional.
 
-- On magenta, any paper leftover (halo, pocket between arm and body, fringe) is obvious.
-- On dark, any pale outline glow is obvious.
-- Re-cut with another mode or crop until both are clean. Only clean files go into `assets/`.
-- The user caught leftovers several times on the first project. This check is not optional.
+**Already transparent?** ChatGPT often returns RGBA PNGs with the background already removed (they look black or glowing in chat previews). Check the alpha first (`Image.open(f).mode == 'RGBA'` and transparent corners); if so, skip `cutout.py` but still run `check_cutout.py` and look at it. Pale highlights inside a figure can raise the flag count without being leftovers.
 
 ### 5. Acts, with their word timing
 
 Build the acts one at a time. Word timing is created **together with each act**, not as a separate step:
 
-- **Automatic timing.** When `actN.py` runs `cue = make_cue(CLIPS)`, any clip in `CLIPS` that has no timing yet is aligned on the spot. That uses faster-whisper `small.en`, locally, with the clip's `.txt` as the prompt so names are spelled right. The result is saved to `timing/words.json` and `timing/words.txt`.
-- **Order for each act:**
-  1. Write `CLIPS`.
-  2. Run the act once (e.g. the contact-sheet command in phase 6). This creates its timing.
-  3. Open `timing/words.txt` (`word@seconds`) to pick the cue phrases.
-  4. Write the scenes against those phrases.
+- When `actN.py` runs `cue = make_cue(CLIPS)`, any clip without timing is aligned on the spot (faster-whisper `small.en`, locally, prompted with the clip's `.txt`) and saved to `timing/words.json` and `timing/words.txt`.
+- **Order for each act:** write `CLIPS`; run the act once (the contact-sheet command creates the timing); open `timing/words.txt` (`word@seconds`) to pick cue phrases; write the scenes.
 - **Re-align a clip** whose audio or transcript changed: `python SK/scripts/align.py 7`.
-- **If a phrase is not found:** check `words.txt` for the spelling, use the nth occurrence, or use a neighbouring two-word phrase that is unique.
+- **Check every clip is complete.** Whisper can skip speech that matches its transcript prompt word for word (clip 13 of the Hawking film came back with 19 of 61 words). `align.py` now retries automatically when it gets under 80 % of the transcript, but compare word counts after aligning anyway:
+  `python -c "import json;t=json.load(open('timing/words.json'));[print(k,len(v),len(open(f'audio/{k}.txt').read().split())) for k,v in sorted(t.items(),key=lambda x:int(x[0]))]"`
+- **Cue pitfalls:** `cue()` finds the *first* occurrence, so a repeated word needs its number (`cue(11, 'one', 2)` when "no one" comes before "one-way"). Hyphenated words split into separate tokens (`one`, `-way`). Punctuation is ignored, so `'Pole.'` and `'Pole'` match the same word.
 
 Copy `templates/act_template.py` to `actN.py`. Rules:
 
-- **`CLIPS`** lists the act's clips, and **`cue = make_cue(CLIPS)`**.
-- **Timing:**
-  - Each scene is `sX(t, D)`, and every reveal uses `w(cue(clip, 'phrase'))`.
-  - Cuts are `cue(...) - LEAD` in `SHOTS`. No hand-typed seconds.
-  - `END = cue.total`. In the last act, use `+ 3.0` to hold the end title; the audio is padded 4 s.
-- **Layer order:**
-  1. `background()`
-  2. plates, sheets and cut-outs
-  3. `c.alpha_composite(FG)` (the foreground strip)
-  4. text, stamps and marker marks on top
-- **Layout:** one idea per shot. Big text: a headline of 2–4 words. Typed captions are short quotes from the narration.
-- **Motion and side:**
-  - Use the `side=` of a cut-out to put the red stroke on the far side.
-  - Use slow `zoom=lerp(1, 1.08, ease(t/D))` push-ins on plates.
-- **Violence is implied only:** a silhouette, a stamp, a cut away. Nothing graphic.
+- **Scenes** are `sX(t, D)` returning a `Shot`. Every reveal uses `w(cue(clip, 'phrase'))`; cuts are `cue(...) - LEAD` in `SHOTS`; `END = cue.total` (last act: `+ 3.0` to hold the end title).
+- **Layers — put each thing on the right one:**
+  - `s.mid`: the paper on the desk (prints, documents, clippings, cut-outs) **and the marks made on it** (marker circles, stamps). Marks on `s.top` drift off their words when the camera zooms.
+  - `s.top`: headline type that is part of the composition.
+  - `s.hud`: captions, red labels, the chapter kicker. Fixed to the screen, so camera zooms never push them off-frame.
+- **Camera — one purposeful move per shot:**
+  - `s.camera(z0, z1, focus0, focus1)`: slow drift across the shot (1.00 → 1.03–1.08).
+  - `s.push(at, dz, focus)`: push in when something becomes relevant; the focus stays put.
+  - `s.zoom_to(rect, at, dur, fill, back_at=)`: travel from the full composition into one image.
+- **Cuts:** the third item of a `SHOTS` entry picks the transition: `'lr'`/`'rl'` torn wipe, `'up'` new sheet laid over. Vary them. Elements already present when a shot opens start at `ENTER`, so the wipe reveals the new composition landing.
+- **Typography:** `words(layer, xy, text, size, t, [one cue per word])` (each word rises as it is spoken), `tag(...)` for a red label, `underline(...)`, `kicker(s.hud, t, n, 'Act title')` on the first shot of each act. Big type: 2–4 words. Typed captions (`font=F_TYPE`) are short quotes from the narration.
+- **Layout:** one idea per shot; keep decoration-free space in the centre; nothing over the corner shapes that matters (red on terracotta is unreadable).
+- **Violence is implied only.**
 
-Engine reference (all in `scripts/vox.py`):
+### 6. Physical scrapbook presets
 
-- **Objects:** `Cutout(img, h).place(c, cx, bottom, t, start, side=)`; `PhotoCard(img, width, rot, seed).place(c, cx, cy, t, start, zoom=)`.
-- **Sheets:** `document(w, h, lines, title=)` plus `place_sheet(...)`.
-- **Text and marks:**
-  - `headline` and `typewriter`;
-  - `stamp`;
-  - `marker_line`, `marker_circle` and `strike`;
-  - `shake(img, t, hits)`.
-- **Layout:** `torn_mask` and `foreground()`.
-- **Constants:** `W`, `H`, `PAPER`, `INK`, `RED`, `CREAM`.
+All in `presets.py`; every one is configurable (position, start, duration, rotation) and takes any RGBA item: `print_card(photo)`, transparent cut-out PNGs, `load('x.svg')`, `text_item('WORD', size)`, `paper_card(...)`, `clipping(...)`, `document(...)`.
 
-### 6. QC before rendering
+| # | Preset | Use it when the narration… |
+|---|---|---|
+| 1 | `page_flip` | turns to a new chapter, a book is opened, "least finished" |
+| 2 | `drop` | introduces a photograph or person |
+| 3 | `unfold` | reads out a record, letter, diagnosis, chart |
+| 4 | `clipping` + `slide` | mentions publication, the press, a public event |
+| 5 | `tear_reveal` | reveals who or what something is ("The man is…") |
+| 6 | `stack` | lists people, years, editions, evidence |
+| 7 | `stamp_hit` | gives a verdict, a date, a refusal (pass `shot=s` for the kick) |
+| 8 | `mask_reveal` | opens an act or a memory: the image appears through a torn hole |
+| 9 | `slide` | moves a document into the story ("Back in England sits…") |
+| 10 | `assemble` | something comes together or breaks apart (`reverse=True`) |
+| 11 | `flip` | a before/after: young → old, theory → result |
+| 12 | `Shot.zoom_to` | the camera should single out one image from the composition |
+
+**Do not animate everything at once.** One physical action per beat, chosen by what the narration is doing; the rest of the frame stays still or drifts. Mix durations (0.8–1.6 s) so nothing feels repetitive.
+
+### 7. Editorial annotations
+
+`annotate.py` makes the film feel like an editor marking up text, photographs and documents in real time. Every mark is drawn by a pen: anti-aliased strokes with pressure taper, a seeded hand tremor (identical on re-render), quick-start/soft-finish easing, and a small overshoot (rings loop past their start, corners overshoot, emphasis swells and settles). Each one makes its own sound (marker scratch, swipe, tick, air swell).
+
+| Family | Function | Use it when the narration… |
+|---|---|---|
+| Text | `sweep(layer, box, t, start)` | names the key word or phrase (draw it **before** the text) |
+| | `underline(..., double=True)` | stresses a word or a figure |
+| | `ring(layer, box, ...)` | singles out one word or one detail |
+| | `outline(layer, box, ...)` | quotes a phrase or a line on a document |
+| | `strike(layer, box, ..., scribble=)` | corrects or rejects something ("Short" → "Brief") |
+| | `emphasis(layer, xy, word, size, t, start)` | a word turns to the accent colour and swells, then settles (draw the word with this, not `words()`) |
+| Photos | `ring` / `arrow(layer, p0, p1, ...)` | points at a person or an object in the picture |
+| | `frame` / `corners` | isolates an area of a photograph |
+| | `spotlight(layer, centre, r, ...)` | the eye must go to one place; draw it **last** on `shot.mid` |
+| | `magnify(layer, layer.copy(), centre, r, zoom, to, ...)` | a small detail must be seen up close (a loupe with a leader line) |
+| | `focus(shot, box, at, hold)` | the camera travels into the detail, holds, and pulls back |
+| Documents | `mark(layer, xy, 'tick' / 'cross' / 'star' / 'dash' / 'question', ...)` | margin notes on a record |
+| | `bracket(layer, x, y0, y1, ..., side=)` | groups lines that belong together |
+| | `stat(layer, xy, '237 WEEKS', size, ...)` | a number the narration says: soft sweep + accent swell |
+| | `connect(layer, [points], ..., dashed=, arrowhead=)` | links two items, or a document to a note |
+| | `presets.stamp_hit(...)` | a verdict or a date lands with impact |
+| | `bars(layer, box, values, ..., highlight=, fill_at=)` / `wedge(layer, c, r, a0, a1, ...)` | a chart where only the named part fills with the accent |
+
+**Placing them:**
+- **Boxes for text:** `words_box(xy, line, size, 'word')` gives the box of one word inside a `style.words()` line, and `text_box(...)` the whole line. Never guess pixel boxes for type.
+- **Layers:** marks on paper and photos go on `shot.mid`, marks on headline type on `shot.top`, marks on captions on `shot.hud`, so they stay glued to what they mark during camera moves.
+- **Lifetimes:** pass `until=<cue>` so a mark leaves when the narration moves on: `exit='settle'` (fades to a 35 % trace), `exit='fade'` (lifts away), or omit for marks that must stay (strikes, stamps).
+
+**Style rules:**
+- **One mark at a time,** on the word that names the thing. A frame holds at most two or three active marks, and earlier marks settle.
+- **Colour** (from the episode palette): the accent for the mark the narration is on, the soft colour for background sweeps behind figures, secondary ink for spotlights and chart axes, and accent2 only as a second colour. In the editorial palette these are terracotta, beige, charcoal and muted orange.
+- **No glows, neon or particles.** Strokes are 5–9 px; the spotlight dims to about 40 %.
+- **Only highlight what is spoken.** Never circle a detail, box a phrase or fill a chart section the narration doesn't mention.
+
+### 8. Storytelling toolkit
+
+All of these plug into the same `Shot`, layers, camera, sounds and paper style. Pick by what the sentence does (see the planner above), not to show off.
+
+**Transitions** (`transitions.py`), named as the third item of a `SHOTS` entry:
+
+| Cut | Use it for |
+|---|---|
+| `'lr'`, `'rl'`, `'up'` | ordinary cuts (torn wipes and a new sheet laid over); the default |
+| `'pageturn'` | a new chapter or a turn in the story |
+| `('circle', {'at': (x, y)})` | opening from a point: a place, a detail, a reveal |
+| `'shape'` | a change of subject or side (comparisons, corrections) |
+| `('zoom', {'at': (x, y)})` | diving from the old shot into a detail that becomes the new shot |
+| `'collage'` | montage, lists, several people or events |
+
+Never use the same special cut twice in a row; most cuts in a film should still be the plain torn wipes.
+
+**Maps** (`maps.py`): `WorldMap(box)` draws a printed map with beige land, ink coastlines and a faint graticule, with the paper itself as the sea.
+- `zoom(t, [(t0, view), ...])` gives camera-like zooms (log-interpolated); `around('Italy' | (lon, lat), km)` frames a place.
+- `draw(..., highlight={'GBR': cue})` fills a named country on its cue; `border()` draws a country's outline in marker, then fills it.
+- `route([...stops])` draws a dashed journey with a travelling dot; `marker(lonlat, 'LABEL')` drops a pin with a paper label.
+- `city('Geneva')` looks up the 243 bundled cities; `map_card()` makes a printed map as a paper object, to unfold, drop or slide.
+- Held views are cached (about 16 ms), and a zooming frame costs about 0.6 s.
+
+**Timelines** (`timeline.py`): `Timeline(y0, y1, box, step)`.
+- `axis()` draws the rule, ticks and years.
+- `event(year, label, start, side, until=)` makes a card pop on the spoken date; `era()` brackets a span; `now()` slides a marker along the dates.
+- `focus(shot, year, at)` moves the camera along to a date; `year_counter()` rolls the year digits.
+
+**Charts** (`charts.py`, alongside `annotate.bars/wedge/stat`):
+- `line_chart(... mark=(x, 'LABEL'))`, `compare([(label, value)...])`, `unit_grid(total, k)`;
+- `counter(a, b)`, `flow([(xy, 'LABEL')...], starts)`, `scale([(label, value)...])` (circle area follows the value).
+- Only chart numbers the narration states.
+
+**Objects** (`objects.py`):
+- `newspaper(headline, date, photo=)`, with an invented masthead, never a real paper's name;
+- `letter(lines)`, `polaroid(img, caption)`, `sticky_note(text)`;
+- animated: `envelope(layer, letter, ...)`, where the flap opens and the letter rises; `spin_in(...)`, the newsreel front page, at most once a film; `tape()`; `pushpin()`;
+- every builder returns RGBA, so all presets apply (drop, slide, unfold, flip, stack).
+
+**Camera** (`style.Shot`), on top of `camera`, `push`, `zoom_to`:
+- `pan(at, dx, dy, dur)`: a lateral dolly across the desk;
+- `drift(amp)`: subtle handheld float for quiet shots;
+- `rack(at, sharp='mid', amount, before='top')`: a focus shift between depths;
+- `layer(depth)`: extra planes at any parallax depth (0.6 for a far cut-out, 1.4 for a near foreground prop) to build layered compositions where elements overlap and cast shadows on each other.
+
+**Sounds** for all of it are registered automatically: `pin`, `pencil`, `whoosh`, `envelope`, `tape` and `pop`, plus the earlier ones.
+
+**Pacing rules:**
+- Alternate complex beats (a map zoom with a route, a flow diagram, a collage) with simple ones (one image, slow push, a few typed words).
+- Emotional lines are always simple.
+- Do not reuse one technique within three shots unless the story repeats on purpose.
+
+### 9. Editorial typography
+
+`typo.py` is the type system. Typography carries the explanation at the moments that need it, and stays out of the way otherwise.
+
+**Hierarchy**: `Text(s, role)`. Each role has its own English face and Arabic face, size, colour, case and tracking:
+
+| Role | English | Arabic | For |
+|---|---|---|---|
+| `headline` | Archivo Black 128, caps | Noto Kufi Arabic 900 | discoveries, the idea of an act |
+| `subhead` | Archivo Black 64, caps | Noto Kufi 800 | secondary lines, contradictions |
+| `statement` | Fraunces 700, 76 | Noto Kufi 700 | dramatic or emotional lines, word by word |
+| `name` | Playfair 700, 92 | Amiri Bold | people (with `name_card`) |
+| `date` | Archivo Black 300, accent | Noto Kufi 900 | years (with `big_number`) |
+| `stat` | Archivo Black 240 | Noto Kufi 900 | numbers the narration states |
+| `caption` | Special Elite 42 | Noto Naskh 500 | explanatory captions (typed) |
+| `quote` | Fraunces 500 italic, 64 | Amiri | quotations |
+| `label` | Inter 600, 26, caps, +6 tracking | Noto Naskh 600 | places, kickers, small labels |
+| `term` | Archivo Black 56, caps | Noto Kufi 800 | technical terms (with `term_card`) |
+
+Colours come from the episode palette: ink, secondary ink, light ink and accent (warm black, charcoal, cream and terracotta in `editorial`). Override any of size, colour, tracking, `max_w`, alignment and line height per `Text`.
+
+**Animations**: `T.draw(layer, xy, t, start, anim=..., cues=[one per word], accent={'WORD': at}, until=, anchor=)`:
+- `words`: each word rises inside its own slot (clipping mask).
+- `letters`: letter-by-letter stagger.
+- `lines`: line reveal from behind a mask.
+- `scale`: words scale into position with a slight overshoot.
+- `slide`: words arrive from alternating directions.
+- `assemble`: scattered letters converge into the line.
+- `split`: each line slices through its middle and the halves pull apart, then rejoin; use it for contradictions.
+- `tracking`: letter spacing closes from wide.
+- `cutout`: each word on a paper scrap, dropped onto the desk.
+- `mask` with `shape='circle' | 'diagonal' | 'bars' | 'rect'`: revealed through a geometric shape, with a trace in the accent colour.
+- `stamp`: rubber-stamp impact (pass `shot=s` for the camera kick).
+- `type`: typewriter.
+- `accent`: any word turns from its ink to the accent on its cue (`accent_colour=S.accent(s)` on dark grounds; `type_page` does this itself).
+- Marker work: `T.box('WORD', xy)` gives the exact box for `annotate.sweep / underline / ring / strike`.
+
+**Compositions:**
+- `press(...)`: newspaper headline; the rules draw, the dateline types, the headline wipes in behind a rule in the accent colour.
+- `big_number(...)`: oversized numerals whose digits roll into place, with a label and an accent bar.
+- `term_card(...)`: the term, a typed one-line gloss and a bracket.
+- `name_card(...)`: a small-caps role line, the name in display serif, and a short rule.
+
+**Arabic:**
+- Text containing Arabic is shaped with HarfBuzz (Pillow + raqm) and laid out right to left, aligned right by default.
+- Letter-level animations fall back to word level, because Arabic letters join.
+- The typewriter re-shapes each frame, so letters connect as they are typed.
+- `big_number(..., lang='ar')` and `Text(..., digits='arabic')` give Arabic-Indic digits (١٩٨٨).
+- Arabic needs looser line height (1.5) for its dots and marks; this is automatic except for numerals.
+- Fonts are bundled under the SIL Open Font License (`assets/fonts/OFL-arabic-fonts.txt`).
+- Check every Arabic line with a native reader; never machine-guess wording.
+
+**When to use type** (`storyboard.py` adds a *typography* column; about 40% of sentences at most):
+
+| Narration | Typography |
+|---|---|
+| a discovery | `headline` with `scale` or `lines` |
+| a historical date | `big_number` (role `date`) |
+| a number that matters | `big_number` (role `stat`) or `annotate.stat` |
+| a name, at its first mention | `name_card` |
+| a contradiction | `split`, or `annotate.strike` + `accent` for a correction |
+| a short dramatic or emotional line | `statement` word by word, nothing else on screen |
+| technical terminology | `term_card` with a one-line gloss taken from the narration |
+| a quotation | `quote` with a `mask` reveal |
+
+**Rules:**
+- Never two big type moments in a row, and never the same animation within three moments.
+- Most sentences stay with images.
+- Type sits in generous negative space, often asymmetric: a headline on the left third with a print on the right.
+- Type must stay readable at 1920×1080: captions at least 40 px, labels at least 24 px, accent-coloured text large.
+
+### 10. Scene environments and compositions
+
+**Every shot is its own editorial page.** The episode background (`themes.py`) is one environment among ten, not a wallpaper behind everything. Change the ground *and* the arrangement: scale, position, layering and the elements' relationship with the frame.
 
 ```
-cd project && PYTHONPATH=SK/scripts python act1.py sheet out/act1_sheet.png 2 6 10 15 22
+S.env(s, 'charcoal')          # inside a scene; style.compose draws this ground instead of the theme
+colour = S.ink(s)             # light ink on dark grounds, dark ink on light ones (from the palette)
+hi = S.accent(s)              # the highlight that reads on this ground and suits the scene's mood
 ```
 
-**Look at the contact sheet.** Pick one moment per scene, just after its last reveal. Check for:
+| Environment | Ground | Use it for | Composition that fits |
+|---|---|---|---|
+| `theme` | the episode's animated background | continuity; the most common ground (≤ 40 %) | collage of prints, documents and type |
+| `paper` | warm paper, no shapes | calm explanation, documents | prints and documents |
+| `cream` | minimal light ground, one hairline rule | one idea, one quote, generous space | `type_page`, or one print on the thirds |
+| `charcoal` | the palette's dark ground, with grain | drama, death, turning points, night | `type_page` in light ink, or one lit print |
+| `accent` | solid ground in the palette's colour (`terra` still works) | one statement or one number, rarely | `type_page`, `big_number` in light ink |
+| `halftone` | manga halftone + speed lines | action, manga and comics subjects | `panel_grid`, cut-out action |
+| `archive` | aged newsprint, columns, foxing | history, dates, the press, records | clippings, documents, stacks |
+| `geometric` | big flat shapes, diagonal split | comparisons, systems, two sides | `split`, two cards facing |
+| `grid` | clean graph grid | infographics, charts, timelines | `charts.py`, `timeline.py` |
+| `bleed` | none | a photo or illustration that speaks alone | `fullbleed`, `letterbox`, `split` |
+
+**Compositions** (`scenes.py`):
+- `fullbleed(s, img, t, start, ken, focus, focus_to, darken)`: the image fills the frame with a slow Ken Burns move; `darken` shades the bottom so captions read.
+- `split(s, left, right, t, start, ratio, divide='tear'|'line'|'shape')`: two images face each other.
+- `type_page(s, text, t, start, role, …)`: one sentence owns the frame.
+- `panel_grid(s, images, t, starts, cols)`: a manga page or contact sheet, panels landing on their cues.
+- `letterbox(s, img, t, start)`: cinematic bars close in for a dramatic beat.
+- `rule_of_thirds('left'|'right')`: anchor points for asymmetric layouts.
+
+**Planning:** `storyboard.py` now adds an **environment** column. It picks from each sentence's purpose, never repeats either of the two previous environments, keeps each within its share (`scenes.CAPS`), and gives dark or solid grounds only to short, strong beats. On the Berserk narration it used all ten environments across 54 sentences with no back-to-back repeat.
+
+**Rules:**
+- Never force a background behind every shot. A full-screen illustration, a split screen or plain charcoal type is often stronger.
+- No two consecutive shots share an environment *or* a layout. Alternate collage, full-bleed, type and diagram.
+- **Dramatic** moments: `charcoal`, `bleed`, `letterbox`. **Historical** information: `archive`. **Explanations**: `cream`, `grid`, `paper`. **Complex subjects**: rich collages on `theme` or `archive`.
+- Join different environments with the strongest cuts: `pageturn` into archive, `circle` or `zoom` into a full-bleed image, `shape` between the two sides of a comparison, torn wipes for the rest.
+- Brand constants hold everywhere: the same typefaces and roles, the episode palette, paper grain on every ground, torn-edge prints and pen-drawn marks. Every ground is built from the palette, so a manga episode's archive page is off-white and ink, a space episode's is pale blue. Text on dark grounds uses `S.ink(s)`, highlights use `S.accent(s)`.
+
+### 11. Visual identity: art-directed per video, toned per scene
+
+**The engine builds a visual identity for every video from its topic.** Ten categories are starting points, not limits. Each one is a full identity: colour roles with HEX values, chart series, paper texture, image treatment, a type pairing, and the scene environments it favours. The topic decides the final identity.
+
+**Files:**
+- `scripts/identities.py`: the design tokens. There's one editable block per identity, plus regions and periods. No other module hardcodes a colour.
+- `scripts/palette.py`: the engine. It analyses the topic, builds and repairs the identity, and provides moods and image treatment.
+- `scripts/identity_board.py`: the reference guide.
+
+```
+episode.json   {"subject": "Berserk: Kentaro Miura and Kouji Mori"}           # "palette" defaults to "auto"
+               {"palette": "manga_ink/dark"}                                     # force an identity / variant
+               {"palette": {"base": "manga_ink", "accent_primary": "#C4842A"}}  # the video's own colour
+python SK/scripts/palette.py "the history of Japan from the Meiji restoration"   # what the engine derives, and why
+python SK/scripts/identity_board.py --all out/identity                           # the guide: pages, overview, topic board
+```
+
+| Identity | Character | Grounds | Accents | Texture · images · type |
+|---|---|---|---|---|
+| `editorial` | Vox explainer | warm off-white #F3ECDF, ink #1E1C1A | terracotta #CD5830, teal #1F6F74, yellow marker #F2C14E | fibre paper · natural · Archivo Black + Fraunces |
+| `history_archive` | document from a drawer | parchment #E6D5B0, walnut #2A1D13 | oxblood #7E2219, brass #7A5C22, gold wash | foxing, burnt edge · sepia duotone · Playfair + Special Elite |
+| `science_space` | deep space | chalk blue #E4E9F2, space navy #0A0F24 | violet #5B3FD0, cosmic blue, amber starlight #FFB547 | star field · cool · Archivo + Inter |
+| `manga_ink` | manuscript page | white #F6F4EE, pure black #0B0B0B | vermilion hanko #C42A1A, screentone grey | screentone · ink (B/W) · Archivo Black |
+| `crime` | case file | cold grey #DADDDF, manila #D9C59A, #101418 | dried crimson #8C1C1C, steel blue, tape yellow #F2C230 | photocopy toner · cold duotone · typewriter captions |
+| `technology` | interface | cool white #EDF0F3, graphite #0A0E14 | electric blue #1F5BE0, teal, cyan #2FE0FF, lime #B8F03A | dot grid · cool · Inter throughout |
+| `philosophy` | marble and lapis | ivory #F1ECE2, aubergine night #1A1730 | lapis #2B4A9B, gold leaf #E3C278 | marble veins · warm · Playfair + PT Serif |
+| `nature` | field notebook | linen #EEEBDD, forest #12201A | forest #2F6B3F, clay #A0552A, leaf #C9E27A | deckle fibre · natural · Fraunces |
+| `culture` | museum | warm stone #EFE6DA, #22151C | plum #7A2A4E, turquoise #1F7A78, saffron #F0B44C | canvas weave · warm · Playfair + Fraunces |
+| `economics` | the financial page | salmon #F6E7D9, navy #0F1A2B | market blue #0F4C81, gain green #1E7A4C, loss red | ledger rules · natural · Fraunces + Inter |
+
+**Colour roles** (the same 17 in every identity): primary / secondary / minimal / dark / solid grounds; primary / secondary / muted / on-dark text; primary / secondary / on-dark accents; highlight (marker sweeps, tape, washes); border; divider; soft fill; texture tint. There are also five ordered **chart series** (`charts.series(i)`). Modules read them as `palette.ACTIVE.paper`, `.accent`, `.highlight`, `.chart` and so on.
+
+**How the topic shapes the identity** (`palette.analyse` reads the transcript and episode.json `subject`, with the subject weighted 5×):
+- **Category:** keyword scores pick the base. Unknown subjects fall back to `editorial`.
+- **Variant:** a sub-genre within the category.
+  - `manga_ink/dark` (seinen, horror, revenge; titles like Berserk or Attack on Titan) vs `manga_ink/bright` (adventure, shonen; One Piece).
+  - `science_space/cosmos` vs `/lab`.
+  - `technology/retro` (history of computing: beige plastic, phosphor green) vs AI.
+  - `nature/ocean` and `/arid`.
+  - `economics/crisis`.
+  - `crime/historical`.
+- **Second subject:** its accent becomes the supporting colour.
+  - "The history of X" puts X's identity on archive paper, with foxing, sepia prints and an archive opening.
+  - "The history of computers" leads with `technology/retro`, not history.
+- **Region:** shifts supporting colours towards the place's visual culture. Japan: beni red and ai indigo. Maghreb: zellige green, Majorelle blue, saffron. Also Islamic world, China, Egypt, the classical world, India, Russia and others. For history, culture, editorial and philosophy it also sets the accent.
+- **Period:** changes the atmosphere. Antiquity: stone and bronze. Medieval: lapis and gold. World wars: khaki, olive, gunmetal, drained colour. Cold war: concrete. Contemporary: cleaner paper.
+- **Tone:** dark or bright, from the narration's emotional words. It shifts the balance of dark and light compositions.
+- **Contrast is repaired automatically, never the grounds:** body text 7:1, secondary 4.5:1, accents 3:1, light text 4.5:1 on the solid ground, ink 4.5:1 over the highlight. Every change is listed in `IDENTITY.why`.
+
+**What the identity controls** (one identity, every element):
+- **Grounds:** all ten environments are built from its colours and texture overlay (`scenes.py`).
+- **Type:** its fonts replace the role defaults (`typo.py`).
+- **Highlights:** marker sweeps use the highlight colour (`annotate.py`).
+- **Charts:** series colours (`charts.py`).
+- **Images:** prints, full-bleed images, splits and panel grids get its treatment (`palette.treat`). Sepia and cold are duotones built from the identity's own dark and light grounds, so photographs belong to the film.
+- **Maps:** land, coast and border colours (`maps.py`).
+- **Objects and transitions:** paper colours and rules.
+- **Background theme:** the `theme` environment draws the episode's theme only when the theme belongs to the same identity family. Otherwise it falls back to the identity's own paper, so terracotta shapes never sit behind a technology film.
+
+**A red accent means different things:** oxblood sealing wax in history, dried crimson on a cold case file, a vermilion hanko on a manga page, loss on the financial page. Choose the identity for what the colour should *mean*.
+
+**Narrative colour** (variation without randomness):
+- **Opening:** the film opens on the identity's signature environment: archive for history, deep-space dark for science, halftone for manga, case-file dark for crime, grid for technology and economics, full-bleed image for nature and culture, cream for philosophy.
+- **Within the film:** each identity weights the environments it favours (`IDENTITY.bias`). Moods tone scenes inside the identity (table below). A dramatic turn moves to the dark ground, a key statistic to the solid ground.
+- **Close:** a reflective close returns to cream or paper.
+- **Planning:** `storyboard.py` prints the identity with its reasons, the mood arc and the environment plan.
+
+| Mood | Grade | Leans on |
+|---|---|---|
+| `neutral` | none | accent |
+| `calm` | slightly softer, warmer | accent2 |
+| `wonder` | a little richer and cooler | accent |
+| `hope` | warmer, lifted | accent2 |
+| `triumph` | richer, warmer, more contrast | accent |
+| `tense` | cooler, less saturated, more contrast | accent |
+| `mystery` | cool, desaturated, a little darker | accent2 |
+| `menace` | desaturated, hard contrast, darker | accent |
+| `grief` | strongly desaturated, quiet | muted |
+
+Moods are smoothed: grief and menace hold for two lines and aren't broken by a passing "but". A lone weak cue is ignored.
+
+**Rules:**
+- **Settle the identity before the storyboard.** Run `palette.py` on the transcript, read `why`, and override it if the engine misread the subject. Show the user its page from `identity_board.py`.
+- **Accents mark what the narration is on.** Never put an accent on more than one or two things per frame.
+- **Tone changes only where the story does.** Hold a tone across its beat and never change colour shot to shot. Variety comes from environments and layouts; the identity gives continuity.
+- **A new identity** goes in `identities.py` with all 17 roles, five chart colours, texture, image treatment, type, scenes and keywords. Check it with `python SK/scripts/palette.py --check` and look at its page before using it.
+- **Never force cream, terracotta or any recurring palette** on a subject it doesn't suit.
+
+### 12. Background themes
+
+Every episode gets its own background, but every theme speaks the design language of the user's original editorial background: the same paper, flat textured terracotta + beige corner shapes, translucent diagonal bands, thin dark lines and arcs, breathing dot grids, an open centre. Only the shapes and their arrangement change with the subject. Do not invent a new visual style (dark grounds, heavy patterns) unless the user asks.
+
+| Theme | Subject | Its own shapes |
+|---|---|---|
+| `editorial` | default | the original reference: circles, bands, blocks |
+| `cosmic_atlas` | science + space + biography | sun with orbit arcs and a travelling moon, light-cone bands, ringed planet |
+| `archive` | history | newspaper block, wax seal, sloping band |
+| `laboratory` | science | hexagons, molecule, terracotta triangle |
+| `clinic` | medicine | cell circles, capsule, cross, travelling heartbeat |
+| `circuit` | technology | stacked blocks, circuit lines with a travelling dot |
+| `album` | biography | tilted prints with tape, photo corners |
+| `deep_space` | space | indigo planet with orbits, small terracotta moon |
+| `ledger` | economics | bar blocks, line chart, ledger block |
+
+**New theme:** add a `Theme(name, label, [elements], paper_colour, seed)` in `themes.py` from the element vocabulary (`shape`, `terra`, `hline`, `vline`, `dots`, `orbiter`, `tracer`, `diag`). Keep big shapes off the centre, take the colours from the episode palette, give every element its own drift period (20–45 s). Show the user a board of themes and a 15 s preview before using it.
+
+### 13. Sound effects
+
+Effects are generated in code (`sfx.py`) and synced automatically: every preset and helper registers a sound event when it draws, with its time and screen position.
+
+| Event | Sound | Registered by |
+|---|---|---|
+| `drop` | air swish, papery slap on landing | `drop`, `stack`, `Photo.place` |
+| `slide` | friction rustle that slows with the sheet | `slide`, `unfold` (entry) |
+| `unfold` | two crisp creases | `unfold` |
+| `tear` / `reveal` | paper rip (fibre crackle) / slow gentle tear | `tear_reveal` / `mask_reveal` |
+| `wipe` / `sheet` | quick rip / sheet sliding over | transitions `'lr' 'rl'` / `'up'` |
+| `stamp` | descent hiss, wooden thud, rubber knock | `stamp_hit` |
+| `flip` / `pageflip` | swish and tap / whoosh, rustle, flap | `flip` / `page_flip` |
+| `assemble` | light taps as pieces lock | `assemble` |
+| `type` | typewriter keys, one per letter | typed captions (`words(..., font=F_TYPE)`), `kicker` |
+| `marker` / `swipe` | felt-tip scratch | `underline` / `tag` |
+| `zoom` | soft low air swell | `Shot.zoom_to` |
+| `shatter` | porcelain click, bright crackle, skittering bits | manual only (the teacup in Act 5) |
+| `pin` | air whistle, soft tack into paper | `maps.marker`, `objects.pushpin` |
+| `pencil` | dry graphite scratch | `maps.route`, `maps.border`, `Timeline.axis`, `charts.line_chart` |
+| `whoosh` | air movement (no tonal sweep) | `circle`, `shape`, `zoom` transitions, `objects.spin_in` |
+| `envelope` | flap lifting, letter sliding out | `objects.envelope` |
+| `tape` | tape torn and pressed | `objects.tape` |
+| `pop` | soft paper pop | timeline events, chart points, size circles |
+| `beep`, `tick` | soft monitor beep, tiny click | manual only (counters, ticking clocks, letter-card hops) |
+
+- **Manual cues** for things presets don't know about (marker circles, strikes, story sounds): `sfx('marker', w(cue(1, 'word')), x)` inside the scene.
+- **Mix:** each sound is varied per event (seeded, deterministic), panned to its x position, summed at −13 dB, and ducked by 9 dB while the narration speaks. Target: effects about 20 dB below the voice (stem ≈ −37 LUFS against −16), loudest stamp peak ≈ −16 dBFS. The user found −10 dB under the voice too loud: keep effects subtle.
+- `render_all.py` mixes them in automatically. `VOX_SFX=0` turns them off; `VOX_SFX_DB` sets the level (default `-13`; `-17` quieter, `-9` louder). The stem alone is written next to the mix as `mix.wav.sfx.wav`.
+- **Add audio to an already-rendered act** without re-rendering the picture: `vox.collect_events(act.frame, act.END)`, `sfx.mix_into(narration_wav, events, out_wav)`, then mux with `ffmpeg -c:v copy`.
+- **Sound must not contradict the story.** No flat-line tone when the patient survives, no gunshots for implied violence.
+
+### 14. QC before rendering
+
+```
+cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 6 10 15 22
+```
+
+**Look at the contact sheet.** Pick moments just after each reveal **and** moments mid-transition and mid-preset. Check for:
 
 - cut-out leftovers;
-- text overlapping a figure, or running off-frame;
-- a plate taller than 1080 (use a smaller width for portrait plates);
-- empty frames;
-- things that don't match the line being spoken.
+- text overlapping a figure, running off-frame, or red text on a terracotta shape;
+- marks (circles, stamps) still sitting on their words during camera moves;
+- a black edge during a zoom (the background must always cover the frame);
+- empty frames revealed by a wipe (use `ENTER` for elements present at the cut);
+- **text over a dark plate**: black type disappears on a zoomed plate; use `tag(...)` (red label, or `bg=CREAM, fg=INK`);
+- **missing glyphs**: Archivo Black has no `→` (it renders as a box); `÷`, `²`, `’` and `,` are fine. Write words instead of rare symbols;
+- **glows on cream**: a cream or white glow is invisible on the paper; use a glow in the accent colour;
+- **contrast**: run `python SK/scripts/palette.py` after changing a palette. Accent text on light grounds and light text on accent labels pass only as large text (in `editorial`, terracotta on cream is 3.4:1), so accent-coloured text stays large (≥ 40 px) and never carries small captions;
+- **pale objects on cream** (tape, envelopes, sticky notes, paper cards) need a darker edge or a shadow, or they vanish: tape uses a tan tint with ruled edges;
+- **objects that move out of something** (a letter leaving its envelope, a card from a pocket) must stay on screen at every frame; check the start, middle and end of the move;
+- **chart values that are not narrated** must be labelled as illustrative, or not shown at all;
+- **invented names** (newspaper mastheads, signatures) must not be a real publication or person;
+- **after changing the engine**, render one frame from every existing act to prove nothing broke:
+  `python -c "import importlib;[importlib.import_module(f'act{n}').frame(5.0) for n in range(1,7)]"`;
+- anything on screen the narration does not say.
 
-Fix them, then re-check. On long projects, show the user sheets or a draft per act and get approval before moving on.
+Fix, re-check. Show the user sheets or a draft per act and get approval before moving on.
 
-### 7. Render: Claude renders the final, in this session
-
-The final video is rendered **here, by Claude, on Claude's machine**. Not on the user's PC, and not on Kaggle. The user only receives the finished file.
+### 15. Render: Claude renders the final, in this session
 
 ```
 cd project && python SK/scripts/render_all.py --acts 3 --draft   # review render of one act
 cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12, slow, 320k AAC, all acts
 ```
 
-- **Run renders in the background** (Bash `run_in_background`). Rendering is CPU-bound: about 1 min of render per 5 s of video per process, so a full 7–8 min film takes over an hour. Keep working, or wait for the completion notice. Don't poll with sleep.
-- **Act drafts:** after each act is approved on its contact sheet, render a `--draft` of that act and send it with `SendUserFile`, so the user can review it while you build the next act.
-- **Final:** when all acts are approved, render without `--draft`.
-  - It writes one file per act, then joins them losslessly into `out/full.mp4`.
-  - Narration is mastered automatically: EQ, 3:1 compression, −16 LUFS.
-  - Check the duration with ffprobe and spot-check a few frames.
-  - Then send `out/full.mp4` to the user with `SendUserFile`.
-- **Files over 100 MB** stay out of git (`.gitignore`). Send them directly.
-- **Render scripts for the user's own PC:** only if the user explicitly asks. The default is: Claude renders, the user downloads.
+- **Run renders in the background** (Bash `run_in_background`) and wait for the completion notice; don't poll with sleep. Measured on 4 cores: a 40–48 s act drafts in 7–9 min; `--acts 5 6` renders two acts in parallel in about 9 min.
+- **Don't chain renders with a background waiting loop** (`while ! grep Done ...; do sleep; done; render`). On the Hawking film the waiter died silently at its time limit and two acts never rendered. Start the next render yourself when the completion notice arrives, or render several acts in one `render_all.py --acts ...` call.
+- **Before telling the user a render is running, check it is**: `ps aux | grep render_all` and look for the output file.
+- **Cost of the heavier tools** (4 cores): a held map view is about 16 ms because frames are cached, but a zooming map is about 0.6 s a frame, so keep map zooms to 1.5–2.5 s. Transitions add about 0.3 s per frame while they run. Plan longer renders for map-heavy acts.
+- **Demo reels without narration:** `vox.collect_events(frame, END, step=0.25)` then `sfx.build_track(events, END, None, level_db=-9)`, and mux with `ffmpeg -c:v copy`. Without a voice to duck under, −9 dB keeps the effects audible.
+- **Draft of the whole film:** `out/acts.txt` lists the act files; `ffmpeg -f concat -safe 0 -i out/acts.txt -c copy out/full_draft.mp4` joins them losslessly. An act whose audio was remixed separately (e.g. `act1_sfx.mp4`) can be copied over its act file first.
+- **Act drafts:** after each act is approved on its contact sheet, render a `--draft` and send it with `SendUserFile`.
+- **Final:** all acts, CRF 12, joined losslessly into `out/full.mp4`, narration mastered to −16 LUFS. Check the duration with ffprobe, spot-check frames, then send it.
+- **Files over 100 MB** stay out of git. Send them directly.
 
 ## Rules learned from the user (keep them)
 
 1. Base everything on the transcript.
 2. Ask for assets that would look bad drawn in code.
-3. Storybook illustration, not anime, in prompts and in what you accept.
-4. Check every asset for background leftovers before using it (magenta check). Never put an asset with leftovers in a render.
-5. Never add a background behind an image that already has one. Flat paper goes only behind cut-outs.
-6. The film should feel like an explainer, not a movie. Paper collage, documents and text carry the ideas; plates are illustrations pinned to the page.
-7. Every cut and reveal lands on the word it illustrates.
-8. Real-person likeness, such as an author's portrait, comes only from an image the user provides.
-9. Claude renders the final at full quality in the session and sends the file. Never push rendering onto the user.
+3. Storybook / editorial illustration, never anime, in prompts and in what you accept.
+4. Check every asset for background leftovers before using it (magenta check).
+5. Never add a background behind an image that already has one.
+6. The film should feel like an explainer, not a movie: paper collage, documents and type carry the ideas.
+7. Every cut, reveal and camera move lands on the word it illustrates.
+8. Real-person likeness comes only from images the user provides, shown as photo prints.
+9. Claude renders the final at full quality in the session and sends the file.
 10. Create word timing as each act is built, never as a separate pass afterwards.
-11. Asset prompts are short and lean on a reference image. Don't pile on style detail: it made the outputs look nothing like the references.
+11. Asset prompts are short, lean on a reference image, and are given complete and ready to copy.
+12. **The user approves visual changes before they go into the film.** Build a preview (still, 15 s clip or demo reel) and wait for the go-ahead before re-rendering acts.
+13. Backgrounds follow the user's original editorial design language; each episode gets a fresh arrangement of it, never a different style. Its colours come from the episode palette (rule 23).
+14. No grey torn-paper strip along the bottom: the corner shapes anchor the frame.
+15. Elements behave like physical paper (lift, shadow, overshoot, settle); never PowerPoint-style fades or flat slides.
+16. Sound effects stay subtle: about 20 dB under the voice (the first mix at 10 dB under was too loud). Change single sounds or the level by remixing the audio only, never by re-rendering the picture.
+17. Never report work as running or done without checking it (process list, output file, duration). If something silently failed, say so plainly and restart it.
+18. Every word on screen must be readable on what is behind it: label backings over dark plates, large size for red text, no missing glyphs.
+19. Annotations follow the narration: one mark per spoken idea, drawn on its word, settling when the narration moves on; never highlight everything at once.
+20. Choose every visual from what the sentence means and feels: analyse the narration first (storyboard.py), vary the techniques, and leave some moments deliberately simple.
+21. Typography is part of the explanation, not decoration: give type to discoveries, dates, names, contradictions, terms and quotes, and leave most sentences to images.
+22. Every scene is a new editorial composition: vary the environment and the arrangement shot to shot (scenes.py), never the same background or layout twice in a row, while typography, the episode palette, paper texture and animation principles stay constant.
+23. Every video is art-directed for its subject. The engine derives a visual identity from the topic: category, sub-genre, second subject, region, period and tone (identities.py, palette.py). Every colour, texture, typeface and image treatment on screen comes from it. Accents mark only what matters, the tone shifts only where the story's emotion does, and contrast always passes. Different videos must look noticeably different. Never force cream, terracotta or any recurring palette onto a subject it doesn't suit.

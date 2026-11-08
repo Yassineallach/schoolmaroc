@@ -49,6 +49,21 @@ Traits that worked when this was the user's reference:
 
 The reference sheets were book-cover cards with circles, triangles, dot-lines and a bookmark icon. Tell the model to ignore all of these.
 
+### Ready-to-copy prompt shape (used on A Brief History of Time, ChatGPT)
+
+Two style lines, then one line per asset. Give each asset as its own complete code block.
+
+```
+Use ONLY the drawing style of the attached image: dark navy-indigo ink outline; dark areas as solid masses cut by fine cream lines; large flat hard-edged shadows in deep indigo, muted violet and periwinkle-lavender; cream highlights; no gradients; tiny coral-red accents only.
+Ignore the circles, triangles, dots and lines. Do not copy the person.
+
+Paint: <scene>. Fill the whole 16:9 frame edge to edge, no empty paper border. No text.
+```
+
+Cut-outs end instead with: `Draw: <object>. Fill every surface with flat colour, nothing left paper-white. Plain empty ivory background. One object only, fully visible. No text.`
+(The reference left faces paper-coloured; asking for filled surfaces keeps the cut-out clean.)
+A follow-up asset in the same chat can say: `Same <object> and exact same drawing style as the previous image. Draw it <change>.`
+
 ## Workflow: master sheets first (storybook style, text-only tools)
 
 1. **Masters.** Generate one character master sheet per main character with **no reference image**. The user picks the version closest to their visual guide.
@@ -70,7 +85,7 @@ The reference sheets were book-cover cards with circles, triangles, dot-lines an
 Style: 2D hand-drawn editorial illustration for an educational animated short film, in the spirit of a hand-illustrated storybook rather than anime. Simplified stylized anatomy with natural, varied proportions; slightly simplified head; small simple eyes with readable direction; clearly defined eyebrows; minimal nose; simple mouth; soft, natural hair shapes drawn as simple masses. Organic hand-drawn outlines in deep brown (#3B2A20), medium weight around the silhouette and thinner inside, with slight irregularity. Flat color fills with one shadow tone, one light tone and only a few small highlights; restrained painterly shading; subtle paper grain and light brush texture; muted earthy palette of warm ivory, terracotta, rust red, muted blue, desaturated green, deep brown and muted gold; soft warm directional light. NOT anime, NOT manga, no large glossy eyes, no spiky anime hair, no sharp cel-shaded highlights, no 3D render, no photorealism, no glossy corporate vector style, no heavy gradients, no glow.
 ```
 
-Adapt the palette line to the subject and the user's guide. Keep the structure and the **NOT anime** line.
+Adapt the palette line to the subject, the user's guide and the episode's visual identity: take the colours from `python SK/scripts/palette.py` (its grounds, accents and dark tone), so generated plates belong to the same film as the type, charts and paper. For a monochrome identity (`manga_ink`) ask for black ink and screentone only. Keep the structure and the **NOT anime** line.
 
 ## EN: environment style block
 
