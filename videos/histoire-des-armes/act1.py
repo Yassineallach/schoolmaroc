@@ -136,13 +136,16 @@ def sH(t, D):
     S.env(s, 'geometric')
     s.camera(1.0, 1.03)
     import math as _m
-    lin, turn, d_end = ENTER, w(cue(3, 'lineaire')), w(cue(3, 'modifiant')) - 0.2
+    lin, turn = ENTER, w(cue(3, 'lineaire'))
+    d_end = w(cue(3, 'modifiant')) - 1.0                          # gone before the distance diagram draws
     if t < d_end + 0.5:
         op = 1.0 - P.clamp01((t - d_end) / 0.5)
         k = P.ease_io(P.clamp01((t - turn) / 0.9))                  # 0 straight -> 1 winding
         pts = [(260 + i * 14, 470 + k * (120 * _m.sin(i * 0.11) + 50 * _m.sin(i * 0.31 + 1.0))) for i in range(101)]
         A.stroke(s.mid, pts, P.clamp01((t - lin) / 1.2), width=9, colour=S.ink(s), alpha=op)
-        words(s.top, (W / 2, 700), 'MOINS LINÉAIRE', 96, t, [w(cue(3, 'moins')), w(cue(3, 'lineaire'))], fill=S.accent(s))
+        tmp = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+        words(tmp, (W / 2, 700), 'MOINS LINÉAIRE', 96, t, [w(cue(3, 'moins')), w(cue(3, 'lineaire'))], fill=S.accent(s))
+        s.top.alpha_composite(alpha_mul(tmp, op))
     words(s.top, (520, 220), 'ENVIRONNEMENT', 64, t, w(cue(3, 'environnement')), fill=S.ink(s))
     words(s.top, (1400, 220), 'SOCIÉTÉS', 64, t, w(cue(3, 'societes')), fill=S.ink(s))
     d0 = w(cue(3, 'modifiant'))
