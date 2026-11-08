@@ -20,26 +20,26 @@ PROJECT = os.environ.get('VOX_PROJECT', os.getcwd())
 
 def _get(params):
     url = API + '?' + urllib.parse.urlencode({**params, 'format': 'json'})
-    time.sleep(0.3)
-    for k in range(5):
+    time.sleep(1.5)
+    for k in range(7):
         try:
             with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
                 return json.load(r)
         except Exception as e:
             print(f'[commons] {getattr(e, "code", e)}; retry in {5 * 2 ** k}s', flush=True)
-            time.sleep(5 * 2 ** k)
+            time.sleep(min(120, 10 * 2 ** k))
     raise RuntimeError(url)
 
 
 def _fetch(url):
-    time.sleep(0.6)
-    for k in range(5):
+    time.sleep(1.5)
+    for k in range(7):
         try:
             with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=60) as r:
                 return r.read()
         except Exception as e:
             print(f'[commons] {getattr(e, "code", e)}; retry in {5 * 2 ** k}s', flush=True)
-            time.sleep(5 * 2 ** k)
+            time.sleep(min(120, 10 * 2 ** k))
     raise RuntimeError(url)
 
 
