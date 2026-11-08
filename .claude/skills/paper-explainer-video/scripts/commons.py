@@ -126,8 +126,14 @@ def cmd_search(src, out_dir):
         if slot in allc:
             continue
         cands, seen = [], set()
+        time.sleep(float(os.environ.get('VOX_COMMONS_PAUSE', 20)))
         for q in queries:
-            for cd in search_info(q):
+            try:
+                found = search_info(q)
+            except RuntimeError:
+                print(f'[commons] gave up on query {q!r}', flush=True)
+                found = []
+            for cd in found:
                 if cd['title'] not in seen:
                     seen.add(cd['title']); cands.append(cd)
         cands = [cd for cd in cands if cd['free'] and cd['mime'] in ('image/jpeg', 'image/png', 'image/tiff', 'image/webp')
