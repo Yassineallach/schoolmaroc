@@ -16,7 +16,7 @@ cue = make_cue(CLIPS)
 MINE = Image.open(asset('P01.jpg'))                       # Tagebau Schöningen (CC0)
 SPEAR_PHOTO = Image.open(asset('P02.jpg'))                # Speer VII im Sediment 1997 (CC BY-SA 3.0 de)
 
-MINE_CARD = P.print_card(S.treated(MINE), 1180, seed=11)
+MINE_CARD = P.print_card(S.treated(MINE), 900, seed=11)
 SPEAR_CARD = P.print_card(S.treated(SPEAR_PHOTO).rotate(90, expand=True), 1240, seed=12)   # spear lying across the print
 SPEAR_SMALL = P.print_card(S.treated(SPEAR_PHOTO).rotate(90, expand=True), 760, seed=13)
 
@@ -33,7 +33,7 @@ def spear_strip(length=1500):
     return P.print_card(strip, length, border=10, seed=14)
 
 
-SPEAR_BOX = (0.36, 0.10, 0.66, 0.97)     # the spear's band in the photo (fractions), tuned on the contact sheet
+SPEAR_BOX = (0.45, 0.13, 0.62, 0.95)     # the spear band in the photo (fractions)
 SPEAR_TILT = 0.0
 STRIP = spear_strip()
 
@@ -42,13 +42,13 @@ def sA(t, D):
     """En 1994, près d'une mine à ciel ouvert, l'archéologue Hartmut Thieme met au jour une forme
     sombre dans le sédiment."""
     s = Shot(t, D)
-    s.camera(1.0, 1.06, (W / 2, H / 2), (760, 500))
-    P.mask_reveal(s.mid, MINE_CARD, 760, 500, t, 0.1, dur=2.0, origin=(0.45, 0.55))
-    P.stamp_hit(s.mid, '1994', 330, 190, t, w(cue(1, '1994')), size=110, ang=-7, shot=s)
-    TY.name_card(s.top, (1440, 330), 'Hartmut Thieme', 'ARCHÉOLOGUE', t, w(cue(1, "'archeologue")))
-    words(s.hud, (1560, 640), 'une forme sombre', 46, t,
+    s.camera(1.0, 1.04, (W / 2, H / 2), (800, 500))
+    P.mask_reveal(s.mid, MINE_CARD, 540, 500, t, 0.1, dur=2.0, origin=(0.45, 0.55))
+    P.stamp_hit(s.mid, '1994', 250, 190, t, w(cue(1, '1994')), size=110, ang=-7, shot=s)
+    TY.name_card(s.top, (1060, 330), 'Hartmut Thieme', 'ARCHÉOLOGUE', t, w(cue(1, "'archeologue")))
+    words(s.hud, (1530, 640), 'une forme sombre', 46, t,
           [w(cue(1, x)) for x in ('une forme', 'forme', 'sombre')], font=F_TYPE)
-    words(s.hud, (1560, 700), 'dans le sédiment', 46, t,
+    words(s.hud, (1530, 700), 'dans le sédiment', 46, t,
           [w(cue(1, x)) for x in ('dans le', 'le sediment', 'sediment')], font=F_TYPE)
     kicker(s.hud, t, 1, 'Une arme dans la boue')
     return s
@@ -59,11 +59,11 @@ def sB(t, D):
     s = Shot(t, D)
     S.env(s, 'paper')
     s.camera(1.0, 1.04, (640, 520))
-    P.drop(s.mid, SPEAR_SMALL, 620, 540, t, ENTER, rot=-2, spin=-10, key='spsmall')
+    P.drop(s.mid, SPEAR_SMALL, 540, 540, t, ENTER, rot=-2, spin=-10, key='spsmall')
     for i, (word, ph) in enumerate((('UN OS', 'os'), ('UNE BRANCHE', 'branche'))):
         y = 360 + i * 230
-        words(s.top, (1440, y), word, 110, t, w(cue(1, ph)))
-        box = A.text_box((1440, y), word, 110)
+        words(s.top, (1390, y), word, 96, t, w(cue(1, ph)))
+        box = A.text_box((1390, y), word, 96)
         A.strike(s.top, A.grow(box, 20, -30), t, w(cue(1, ph)) + 0.45)
     return s
 
@@ -157,7 +157,8 @@ def sI(t, D):
     s.camera(1.0, 1.04)
     words(s.top, (W / 2, 300), 'PROGRÈS', 150, t, w(cue(4, 'progres')))
     A.strike(s.top, A.grow(A.text_box((W / 2, 300), 'PROGRÈS', 150), 30, -40), t, w(cue(4, 'autre regle')), scribble=True)
-    A.emphasis(s.top, (W / 2, 610), 'ÉQUILIBRE', 150, t, w(cue(4, 'equilibre')))
+    if t >= w(cue(4, 'equilibre')) - 0.05:
+        A.emphasis(s.top, (W / 2, 610), 'ÉQUILIBRE', 150, t, w(cue(4, 'equilibre')))
     words(s.hud, (W / 2, 860), 'chaque innovation déplace un équilibre', 46, t,
           [w(cue(4, x)) for x in ('chaque', 'innovation', 'deplace', 'un equilibre', 'equilibre')], font=F_TYPE)
     return s
