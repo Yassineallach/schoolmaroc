@@ -409,7 +409,7 @@ hi = S.accent(s)              # the highlight that reads on this ground and suit
 - `letterbox(s, img, t, start)`: cinematic bars close in for a dramatic beat.
 - `rule_of_thirds('left'|'right')`: anchor points for asymmetric layouts.
 
-**Dark and solid grounds are smooth.** `charcoal` and `accent` take only a faint cloud and a fine grain, never the identity's paper mottle: large blotches on a deep colour read as light dents (the user's note on *Histoire des armes*). Their vignette darkens the edges.
+**Every ground is smooth.** All environments (paper, cream, archive, grid, geometric, charcoal, accent) and the background themes take only a faint cloud and a fine paper grain, never large mottling, foxing blotches or tide-mark stains: on screen they read as dents and dirty patches (the user's note on *Histoire des armes*, first on the dark and red pages, then on every colour). The identity's `mottle` setting no longer adds blotches. Vignettes are even darkenings toward the edges.
 
 **Planning:** `storyboard.py` now adds an **environment** column. It picks from each sentence's purpose, never repeats either of the two previous environments, keeps each within its share (`scenes.CAPS`), and gives dark or solid grounds only to short, strong beats. On the Berserk narration it used all ten environments across 54 sentences with no back-to-back repeat.
 
@@ -510,7 +510,7 @@ Moods are smoothed: grief and menace hold for two lines and aren't broken by a p
 
 ### 12. Background themes
 
-**History films use `astrolabe`** (from the user's parchment reference): aged parchment with a dark, mottled vignette, a large engraved astrolabe dial rising from the bottom edge and turning very slowly, two smaller dials drifting in the top corners, faint Latin lettering. The engraving stays faint so the collage always reads. It is the default for the `history_archive` identity (`identities.DEFAULT_THEME`); approved on *Histoire des armes*.
+**History films use `astrolabe`** (from the user's parchment reference): smooth aged parchment with an even dark vignette, a large engraved astrolabe dial rising from the bottom edge and turning very slowly, two smaller dials drifting in the top corners, faint Latin lettering. The engraving stays faint so the collage always reads. It is the default for the `history_archive` identity (`identities.DEFAULT_THEME`); approved on *Histoire des armes*.
 
 When the user gives a reference image for a background, match it (that wins over the rule below). Otherwise every episode gets its own background, but every theme speaks the design language of the user's original editorial background: the same paper, flat textured terracotta + beige corner shapes, translucent diagonal bands, thin dark lines and arcs, breathing dot grids, an open centre. Only the shapes and their arrangement change with the subject. Do not invent a new visual style (dark grounds, heavy patterns) unless the user asks.
 
@@ -634,4 +634,4 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 23. Every video is art-directed for its subject. The engine derives a visual identity from the topic: category, sub-genre, second subject, region, period and tone (identities.py, palette.py). Every colour, texture, typeface and image treatment on screen comes from it. Accents mark only what matters, the tone shifts only where the story's emotion does, and contrast always passes. Different videos must look noticeably different. Never force cream, terracotta or any recurring palette onto a subject it doesn't suit.
 24. **No empty screens.** Every shot has something on screen from its first frame to its last; a background alone is never a shot. Run `check_empty.py` before every render.
 25. **Real images first.** Search for real, freely licensed images (Commons) before prompting for drawings; give the user the direct download links when this machine is rate-limited; when nothing free exists, ask the user to search before generating. Credit every image.
-26. **History films use the astrolabe parchment background**, and dark or solid grounds stay smooth (no mottled patches).
+26. **History films use the astrolabe parchment background**, and every ground of every colour stays smooth: fine grain only, no mottled patches, stains or dents.

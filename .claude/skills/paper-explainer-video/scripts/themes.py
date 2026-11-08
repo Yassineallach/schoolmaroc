@@ -45,7 +45,7 @@ def paper(colour=PAPER, seed=1):
     variants that crossfade for a barely visible shimmer."""
     a = np.empty((H, W, 3), np.float32)
     a[:] = colour
-    a += _noise(H, W, 60, seed, 5)[..., None] + _noise(H, W, 6, seed + 1, 3)[..., None]
+    a += _noise(H, W, 60, seed, 1.2)[..., None] + _noise(H, W, 6, seed + 1, 2.2)[..., None]      # smooth paper, fine grain
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
     a -= (((xx / W - 0.5) ** 2 + (yy / H - 0.5) ** 2) * 9)[..., None]
     img = Image.fromarray(a.clip(0, 255).astype(np.uint8))
@@ -72,7 +72,7 @@ class Tile:
         col = np.empty((h, w, 3), np.float32)
         col[:] = colour
         if texture:
-            col += _noise(h, w, 40, seed, texture)[..., None] + _noise(h, w, 3, seed + 1, texture * 0.6)[..., None]
+            col += _noise(h, w, 40, seed, texture * 0.25)[..., None] + _noise(h, w, 3, seed + 1, texture * 0.4)[..., None]
         if scuff:
             r = np.random.default_rng(seed + 2)
             sc = Image.new('L', (w, h), 0)
@@ -585,7 +585,7 @@ class MangaInk(Theme):
     def build(self):
         a = np.empty((H, W, 3), np.float32)                        # aged manga paper
         a[:] = MI_PAPER
-        a += _noise(H, W, 80, 7, 7)[..., None] + _noise(H, W, 5, 8, 4)[..., None]
+        a += _noise(H, W, 80, 7, 1.2)[..., None] + _noise(H, W, 5, 8, 2.2)[..., None]
         a += (_noise(H, W, 2, 9, 1.0)[..., None] * 3)
         yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
         a -= (((xx / W - 0.5) ** 2 + (yy / H - 0.5) ** 2) * 14)[..., None]
@@ -593,7 +593,7 @@ class MangaInk(Theme):
         for _ in range(9):                                        # faint stains
             cx, cy, rad = r.uniform(0, W), r.uniform(0, H), r.uniform(80, 260)
             m = np.exp(-(((xx - cx) ** 2 + (yy - cy) ** 2) / (2 * rad ** 2)))
-            a -= (m * r.uniform(3, 7))[..., None] * np.array([0.5, 0.9, 1.4], np.float32)
+            a -= (m * r.uniform(0.5, 1.0))[..., None] * np.array([0.5, 0.9, 1.4], np.float32)
         img = Image.fromarray(a.clip(0, 255).astype(np.uint8))
         base = np.asarray(img.filter(ImageFilter.GaussianBlur(0.5)), np.float32)
         self.g1 = Image.fromarray((base * (1 + 0.02 * _noise(H, W, 1, 21, 1.0)[..., None])).clip(0, 255).astype(np.uint8))
@@ -698,18 +698,12 @@ class Astrolabe(Theme):
     def _parchment(self, seed):
         a = np.empty((H, W, 3), np.float32)
         a[:] = AS_PAPER
-        a += _noise(H, W, 90, seed, 9)[..., None] + _noise(H, W, 25, seed + 1, 5)[..., None] + _noise(H, W, 4, seed + 2, 3)[..., None]
+        a += _noise(H, W, 90, seed, 1.5)[..., None] + _noise(H, W, 4, seed + 2, 2.2)[..., None]    # smooth parchment, fine grain
         yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
         r = np.sqrt(((xx / W - 0.5) * 1.15) ** 2 + ((yy / H - 0.5) * 1.05) ** 2)
         blot = (0.5 + 0.5 * _noise(H, W, 140, seed + 3, 1.0)).clip(0, 1)
-        k = (np.clip((r - 0.28) / 0.40, 0, 1) ** 1.4) * (0.7 + 0.6 * blot)
+        k = (np.clip((r - 0.28) / 0.40, 0, 1) ** 1.4) * (0.92 + 0.16 * blot)
         a = a * (1 - k[..., None] * 0.7) + np.array(AS_EDGE, np.float32) * (k[..., None] * 0.7)
-        for _ in range(7):                                    # faint tide-mark stains
-            rr = np.random.default_rng(seed + 10 + _)
-            cx, cy, rad = rr.uniform(0, W), rr.uniform(0, H), rr.uniform(60, 220)
-            d = np.sqrt((xx - cx) ** 2 + (yy - cy) ** 2)
-            ring_ = np.exp(-((d - rad) / 6.0) ** 2) * 0.05 + np.clip(1 - d / rad, 0, 1) * 0.025
-            a -= ring_[..., None] * 60
         img = Image.fromarray(a.clip(0, 255).astype(np.uint8))
         d = ImageDraw.Draw(img)
         rng = np.random.default_rng(seed + 5)

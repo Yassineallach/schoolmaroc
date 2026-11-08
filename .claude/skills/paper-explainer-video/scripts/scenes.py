@@ -108,13 +108,9 @@ TX = palette.IDENTITY.texture          # the identity's material: grain, fibres,
 
 def _ground(colour, seed, mottle=5.0, vignette=10.0, fibres=True, dark=False, overlay=True):
     """A ground in one colour with the identity's paper character."""
-    if dark:
-        # dark and solid grounds stay smooth: large blotches read as light dents on a deep colour,
-        # so only a faint cloud and a fine grain, whatever the identity's paper mottle is
-        cloud, grain = 1.2, 2.2
-    else:
-        mottle = mottle * TX.get('mottle', 1.0)
-        cloud, grain = mottle, mottle * 0.6 * TX.get('grain', 1.0)
+    # every ground stays smooth: large blotches read as dents and stains (user note, Histoire des
+    # armes), so only a faint cloud and a fine paper grain, whatever the identity's mottle says
+    cloud, grain = 1.0, 2.0
     vignette = vignette if dark else vignette + (TX.get('vignette', 10) - 10)
     a = np.empty((H, W, 3), np.float32)
     a[:] = colour
@@ -147,13 +143,9 @@ def _overlay(g, kind, dark, seed):
         for _ in range(14):
             cx, cy, rr = r.uniform(0, W), r.uniform(0, H), r.uniform(20, 120)
             dm.ellipse((cx - rr, cy - rr, cx + rr, cy + rr), fill=int(r.uniform(18, 40)))
-        m = m.filter(ImageFilter.GaussianBlur(28))
-        t = Image.new('RGBA', (W, H), PAL.tint + (0,))
-        t.putalpha(m)
-        g.alpha_composite(t)
-        for _ in range(500):
+        for _ in range(300):
             x, y = r.uniform(0, W), r.uniform(0, H)
-            d.point((x, y), fill=PAL.tint + (int(r.uniform(40, 110)),))
+            d.point((x, y), fill=PAL.tint + (int(r.uniform(25, 60)),))
     elif kind == 'stars' and dark:                                  # a field of stars
         for _ in range(900):
             x, y, b = r.uniform(0, W), r.uniform(0, H), r.uniform(0, 1) ** 4
@@ -194,7 +186,7 @@ def _overlay(g, kind, dark, seed):
     elif kind == 'deckle' and not dark:                             # organic fibre clouds
         m = Image.fromarray(((_noise(H, W, 160, seed + 9, 1.0) + 1) * 40).clip(0, 255).astype(np.uint8))
         t = Image.new('RGBA', (W, H), PAL.tint + (0,))
-        t.putalpha(m.point(lambda v: max(0, v - 50)))
+        t.putalpha(m.point(lambda v: max(0, v - 50) // 3))
         g.alpha_composite(t)
     elif kind == 'canvas' and not dark:                             # a woven canvas
         for x in range(0, W, 4):
@@ -231,15 +223,6 @@ def _static(name):
                 if r.random() < 0.85:
                     d.line((x0, y, x0 + 300 * r.uniform(0.7, 1.0), y), fill=PAL.line + (255,), width=3)
         g = g.filter(ImageFilter.GaussianBlur(1.0))
-        st = Image.new('L', (W, H), 0)                             # soft foxing stains
-        ds = ImageDraw.Draw(st)
-        for _ in range(9):
-            cx, cy, rr = r.uniform(0, W), r.uniform(0, H), r.uniform(50, 170)
-            ds.ellipse((cx - rr, cy - rr, cx + rr, cy + rr), fill=int(r.uniform(25, 45)))
-        st = st.filter(ImageFilter.GaussianBlur(45))
-        tint = Image.new('RGBA', (W, H), PAL.tint + (0,))
-        tint.putalpha(st)
-        g.alpha_composite(tint)
         return g
     if name == 'grid':
         g = _ground(_mix(PAL.cream, (255, 255, 255), 0.2), 206, mottle=2, vignette=4, fibres=False, overlay=False)
