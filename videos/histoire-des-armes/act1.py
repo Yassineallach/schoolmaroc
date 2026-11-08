@@ -107,9 +107,10 @@ def sF(t, D):
     """Cette découverte ouvre sur l'hoplologie, l'étude des armes et des comportements de combat."""
     s = Shot(t, D)
     S.env(s, 'cream')
-    s.camera(1.0, 1.03, (W / 2, H / 2), (820, 480))
-    TY.term_card(s.top, (300, 400), 'HOPLOLOGIE', "l'étude des armes et des comportements de combat",
-                 t, w(cue(3, "l'hoplologie")), width=1300)
+    s.camera(1.0, 1.03, (W / 2, H / 2), (900, 480))
+    P.slide(s.mid, SPEAR_SMALL, (W + 500, 520), (1440, 520), t, ENTER, dur=1.1, rot=3, key='spF')
+    TY.term_card(s.top, (180, 400), 'HOPLOLOGIE', "l'étude des armes et des comportements de combat",
+                 t, w(cue(3, "l'hoplologie")), width=880)
     return s
 
 
@@ -134,6 +135,14 @@ def sH(t, D):
     s = Shot(t, D)
     S.env(s, 'geometric')
     s.camera(1.0, 1.03)
+    import math as _m
+    lin, turn, d_end = ENTER, w(cue(3, 'lineaire')), w(cue(3, 'modifiant')) - 0.2
+    if t < d_end + 0.5:
+        op = 1.0 - P.clamp01((t - d_end) / 0.5)
+        k = P.ease_io(P.clamp01((t - turn) / 0.9))                  # 0 straight -> 1 winding
+        pts = [(260 + i * 14, 470 + k * (120 * _m.sin(i * 0.11) + 50 * _m.sin(i * 0.31 + 1.0))) for i in range(101)]
+        A.stroke(s.mid, pts, P.clamp01((t - lin) / 1.2), width=9, colour=S.ink(s), alpha=op)
+        words(s.top, (W / 2, 700), 'MOINS LINÉAIRE', 96, t, [w(cue(3, 'moins')), w(cue(3, 'lineaire'))], fill=S.accent(s))
     words(s.top, (520, 220), 'ENVIRONNEMENT', 64, t, w(cue(3, 'environnement')), fill=S.ink(s))
     words(s.top, (1400, 220), 'SOCIÉTÉS', 64, t, w(cue(3, 'societes')), fill=S.ink(s))
     d0 = w(cue(3, 'modifiant'))
@@ -155,6 +164,14 @@ def sI(t, D):
     autre règle : chaque innovation déplace un équilibre."""
     s = Shot(t, D)
     s.camera(1.0, 1.04)
+    stairs = [(300, 900)]
+    for i in range(6):
+        x, y = stairs[-1]
+        stairs += [(x + 200, y), (x + 200, y - 95)]
+    gone = w(cue(4, 'chaque'))
+    if t < gone + 0.5:
+        A.stroke(s.mid, stairs, P.clamp01((t - ENTER) / 2.4), width=9, colour=INK,
+                 alpha=1.0 - P.clamp01((t - gone) / 0.5))
     words(s.top, (W / 2, 300), 'PROGRÈS', 150, t, w(cue(4, 'progres')))
     A.strike(s.top, A.grow(A.text_box((W / 2, 300), 'PROGRÈS', 150), 30, -40), t, w(cue(4, 'autre regle')), scribble=True)
     if t >= w(cue(4, 'equilibre')) - 0.05:

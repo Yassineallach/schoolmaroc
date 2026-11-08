@@ -108,11 +108,17 @@ TX = palette.IDENTITY.texture          # the identity's material: grain, fibres,
 
 def _ground(colour, seed, mottle=5.0, vignette=10.0, fibres=True, dark=False, overlay=True):
     """A ground in one colour with the identity's paper character."""
-    mottle = mottle * TX.get('mottle', 1.0)
+    if dark:
+        # dark and solid grounds stay smooth: large blotches read as light dents on a deep colour,
+        # so only a faint cloud and a fine grain, whatever the identity's paper mottle is
+        cloud, grain = 1.2, 2.2
+    else:
+        mottle = mottle * TX.get('mottle', 1.0)
+        cloud, grain = mottle, mottle * 0.6 * TX.get('grain', 1.0)
     vignette = vignette if dark else vignette + (TX.get('vignette', 10) - 10)
     a = np.empty((H, W, 3), np.float32)
     a[:] = colour
-    a += _noise(H, W, 70, seed, mottle)[..., None] + _noise(H, W, 5, seed + 1, mottle * 0.6 * TX.get('grain', 1.0))[..., None]
+    a += _noise(H, W, 70, seed, cloud)[..., None] + _noise(H, W, 5, seed + 1, grain)[..., None]
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
     a -= (((xx / W - 0.5) ** 2 + (yy / H - 0.5) ** 2) * vignette)[..., None]
     img = Image.fromarray(a.clip(0, 255).astype(np.uint8))
@@ -212,9 +218,9 @@ def _static(name):
         ImageDraw.Draw(g).line((140, H - 150, W - 140, H - 150), fill=PAL.muted + (255,), width=2)
         return g
     if name == 'charcoal':
-        return _ground(CHARCOAL, 203, mottle=6, vignette=-40, dark=True)
+        return _ground(CHARCOAL, 203, mottle=6, vignette=18, dark=True, fibres=False)
     if name == 'accent':
-        return _ground(SOLID, 204, mottle=7, vignette=16, fibres=False, dark=True)
+        return _ground(SOLID, 204, mottle=7, vignette=22, fibres=False, dark=True)
     if name == 'archive':
         g = _ground(PAL.paper2, 205, mottle=8, vignette=22)
         d = ImageDraw.Draw(g)
