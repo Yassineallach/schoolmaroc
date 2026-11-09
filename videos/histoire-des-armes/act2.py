@@ -17,13 +17,8 @@ cue = make_cue(CLIPS)
 
 
 def ink(path, width=None, backed=False):
-    """An ink drawing or engraving printed on the film's paper: white -> transparent, lines -> ink."""
-    im = Image.open(asset(path)).convert('RGB')
-    if width:
-        im = im.resize((width, int(im.height * width / im.width)), Image.LANCZOS)
-    a = np.asarray(im).astype(float)
-    r = cutout.ink_cut(a, cutout.paper_colour(a), backed)
-    return Image.fromarray(r.clip(0, 255).astype(np.uint8), 'RGBA')
+    """An ink drawing or engraving printed on the film's paper (cutout.ink_image)."""
+    return cutout.ink_image(asset(path), width, backed)
 
 
 # ---- images ----

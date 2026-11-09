@@ -58,7 +58,7 @@ def v3(s, t):
     line, xy, sz = 'GIVEN ABOUT TWO YEARS', (W / 2, 330), 80
     b1, b2 = A.words_box(xy, line, sz, 'GIVEN ABOUT'), A.words_box(xy, line, sz, 'TWO YEARS')
     words(s.top, ((b1[0] + b1[2]) / 2, xy[1]), 'GIVEN ABOUT', sz, t, 0.2)
-    A.emphasis(s.top, ((b2[0] + b2[2]) / 2, xy[1]), 'TWO YEARS', sz, t, 1.0)
+    A.emphasis(s.top, ((b2[0] + b2[2]) / 2, xy[1]), 'TWO YEARS', sz, t, 1.0, before=True)
     A.stat(s.top, (W / 2, 600), '237 WEEKS', 150, t, 2.0)
     P.stamp_hit(s.top, 'RECORD', W / 2 + 430, 700, t, 3.0, size=70, ang=-10, shot=s)
 

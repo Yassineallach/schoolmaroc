@@ -247,9 +247,14 @@ def strike(layer, box, t, start, dur=0.35, colour=TERRA, width=9, scribble=False
         stroke(layer, wobble([(x1, ym + 8), (x0 + 6, ym - 4)], 1.2, seed + 1), pen((t - start - dur) / dur), width, colour, k)
 
 
-def emphasis(layer, xy, word, size, t, start, font=F_HEAD, base=INK, colour=TERRA, scale=1.12, dur=0.5, until=None, anchor='m', sound=False):
+def emphasis(layer, xy, word, size, t, start, font=F_HEAD, base=INK, colour=TERRA, scale=1.12, dur=0.5, until=None, anchor='m', sound=False,
+             before=False):
     """An important word turns terracotta and swells slightly, then settles back to full size.
-    Draw the word with this instead of words() (it also draws the word before `start`)."""
+    Draw the word with this instead of words(). By default the word appears on `start` (when it
+    is spoken); before=True keeps it on screen in its base ink earlier, for a word that is
+    already part of the composition and only turns to the accent on its cue."""
+    if t < start and not before:
+        return
     if sound:
         sfx('tick', start, xy[0])
     f = font(size)
@@ -409,7 +414,7 @@ def stat(layer, xy, text, size, t, start, colour=TERRA, font=F_HEAD, until=None,
     terracotta and swells briefly."""
     box = text_box(xy, text, size, font)
     sweep(layer, box, t, start, 0.4, HIGHLIGHT, 0.75, until, exit)
-    emphasis(layer, xy, text, size, t, start + 0.25, font, INK, colour, 1.1, until=until)
+    emphasis(layer, xy, text, size, t, start + 0.25, font, INK, colour, 1.1, until=until, before=t >= start)
 
 
 def connect(layer, pts, t, start, dur=0.6, colour=TERRA, width=5, dashed=False, arrowhead=True, dots=True, until=None, exit='settle', seed=12, sound=True):

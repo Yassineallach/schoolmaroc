@@ -175,8 +175,7 @@ def sI(t, D):
         P.drop(s.mid, card, x, 480, t, ENTER + 0.45 * i, rot=(-3, 2, -2)[i], spin=10, key=f'row{i}')
     words(s.top, (W / 2, 150), 'PROGRÈS', 130, t, w(cue(4, 'progres')))
     A.strike(s.top, A.grow(A.text_box((W / 2, 150), 'PROGRÈS', 130), 30, -40), t, w(cue(4, 'autre regle')), scribble=True)
-    if t >= w(cue(4, 'equilibre')) - 0.05:
-        A.emphasis(s.top, (W / 2, 790), 'ÉQUILIBRE', 120, t, w(cue(4, 'equilibre')))
+    A.emphasis(s.top, (W / 2, 790), 'ÉQUILIBRE', 120, t, w(cue(4, 'equilibre')))
     words(s.hud, (W / 2, 950), 'chaque innovation déplace un équilibre', 46, t,
           [w(cue(4, x)) for x in ('chaque', 'innovation', 'deplace', 'un equilibre', 'equilibre')], font=F_TYPE)
     return s

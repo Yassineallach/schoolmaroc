@@ -150,6 +150,21 @@ def ink_cut(a, bgc, backed=False):
     return r
 
 
+def ink_image(src, width=None, backed=False, crop=None):
+    """In code: an ink drawing / engraving (path or PIL image) printed on the film's paper as RGBA.
+    White paper becomes transparent, the lines take the identity's ink. Use it for ink plates
+    (full-frame scenes) and ink objects without writing a file:
+        LAKE = cutout.ink_image(asset('P03.png'), 1800)
+        P.mask_reveal(s.mid, LAKE, W / 2, H / 2, t, 0.05, lip=False)"""
+    im = (Image.open(src) if isinstance(src, str) else src).convert('RGB')
+    if crop:
+        im = im.crop(crop)
+    if width:
+        im = im.resize((width, int(im.height * width / im.width)), Image.LANCZOS)
+    a = np.asarray(im).astype(float)
+    return Image.fromarray(ink_cut(a, paper_colour(a), backed).clip(0, 255).astype(np.uint8), 'RGBA')
+
+
 def cut(src, out, crop=None, mode='standard', head=0.2, backed=False):
     im = Image.open(src).convert('RGB')
     bgc = paper_colour(np.asarray(im).astype(float))  # sample paper on the whole sheet, before cropping

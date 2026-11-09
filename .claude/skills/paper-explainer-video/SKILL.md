@@ -54,7 +54,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 
 `SK` below means this skill's folder, e.g. `.claude/skills/paper-explainer-video`.
 
-**Worked example** (`SK/examples`): the six approved acts of *A Brief History of Time* (4:19), with their `episode.json`. Read the act closest to the beat you are building:
+**Worked example** (`SK/examples`): the six approved acts of *A Brief History of Time* (4:19), with their `episode.json`. Read the act closest to the beat you are building: Also the first approved acts of *Histoire des armes* (5:34, French narration, real images from Commons, the astrolabe background), the reference for history films.
 
 | File | Shows |
 |---|---|
@@ -63,6 +63,9 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `brief_history_act3.py` | a card torn in two, a bending grid with a planet, an atom dissolving into a cloud, two cards colliding, plate → plate `flip`, event horizon circled after `zoom_to` |
 | `brief_history_act4.py` | glow + particles + shrinking disc, diagnosis unfold, shapes `assemble`, letter-card highlight, young → old photo `flip` beside a word screen |
 | `brief_history_act5.py` | a cup sliding off a table and shattering, `assemble` then `reverse` + NEVER SEEN stamp, a card flipped on its head, globe with marker arrow and loop |
+| `histoire_armes_act1.py` | *Histoire des armes* (French narration, history identity, astrolabe background, real Commons photos): mask reveal of a real site photo + name card, strikes on spoken words, full-bleed excavation photo, a spear strip cut from a photo with a measuring line, term card, timeline on archive, distance diagram, a row of real objects for "succession" |
+| `histoire_armes_act2.py` | the user's ChatGPT ink drawing printed on the parchment (`cutout.ink_image`), a camera move into that plate instead of a diagram, wood breaking apart beside a stone that stays, map zoom to a town, a number struck and corrected, a public-domain engraving as an ink cut-out, a real object with its detail circled |
+| `histoire_armes_*.json` | that film's `episode.json`, Commons `sources.json` and `picks.json` |
 | `brief_history_act6.py` | typed title struck and corrected, a counter, stacked covers, `page_flip` with a bookmark, crowd + unfold, end title held over the last plate |
 
 `demo_presets.py`, `demo_annotate.py`, `demo_toolkit.py`, `demo_typo.py` and `demo_scenes.py` render numbered reels of the presets, the annotations, the storytelling toolkit (maps, timeline, charts, objects, camera, transitions), the typography system and the scene environments on a project's own assets. Show one to the user when they ask what the animations look like. `demo_palettes.py <out_dir>` (or `scripts/identity_board.py --all`) renders the visual identity guide: a page per identity, an overview, and identities derived from sample topics.
@@ -168,6 +171,8 @@ python SK/scripts/check_cutout.py out/check.png assets/hero_standing.png ...
 
 **Open the preview and look at it**, on magenta and on dark. Re-cut until both are clean. Only clean files go into `assets/`. This check is not optional.
 
+**Ink drawings and engravings** (the user's ChatGPT ink plates, public-domain engravings): `cutout.py --mode ink`, or in code `cutout.ink_image(asset('P03.png'), 1800)`, which returns the drawing as RGBA with transparent paper and the identity's ink, ready for `mask_reveal`, `slide`, `drop`. A full-frame ink plate printed this way sits on the film's paper like an engraving; use `S.fullbleed` with the original file when the camera must move into it.
+
 **Already transparent?** ChatGPT often returns RGBA PNGs with the background already removed (they look black or glowing in chat previews). Check the alpha first (`Image.open(f).mode == 'RGBA'` and transparent corners); if so, skip `cutout.py` but still run `check_cutout.py` and look at it. Pale highlights inside a figure can raise the flag count without being leftovers.
 
 ### 5. Acts, with their word timing
@@ -180,6 +185,7 @@ Build the acts one at a time. Word timing is created **together with each act**,
 - **Narration not in English:** set `VOX_LANG` (`VOX_LANG=fr python SK/scripts/align.py`); the multilingual `small` model is used. A prompted pass that does not match the transcript is retried unprompted. `storyboard.py` and the topic analysis read English keywords, so write the `episode.json` subject in English and plan the shots by hand.
 - **Check every clip is complete.** Whisper can skip speech that matches its transcript prompt word for word (clip 13 of the Hawking film came back with 19 of 61 words). `align.py` now retries automatically when it gets under 80 % of the transcript, but compare word counts after aligning anyway:
   `python -c "import json;t=json.load(open('timing/words.json'));[print(k,len(v),len(open(f'audio/{k}.txt').read().split())) for k,v in sorted(t.items(),key=lambda x:int(x[0]))]"`
+- **Narration in another language:** set `VOX_LANG` (see below) and remember that Whisper splits elisions: *n'est* comes back as `n` + `'est`, *d'une* as `d` + `'une`, so cue the word before or after (`cue(1, 'Ce')`, `cue(1, "'archeologue")`); *l'hoplologie* written with ’ stays one token. Accents are folded for matching (`'sediment'` finds *sédiment*). Proper names can be misheard ("Thieme" came back as "Art Mutiem"): cue a neighbouring word instead.
 - **Cue pitfalls:** `cue()` finds the *first* occurrence, so a repeated word needs its number (`cue(11, 'one', 2)` when "no one" comes before "one-way"). Hyphenated words split into separate tokens (`one`, `-way`). Punctuation is ignored, so `'Pole.'` and `'Pole'` match the same word.
 
 Copy `templates/act_template.py` to `actN.py`. Rules:
@@ -194,7 +200,7 @@ Copy `templates/act_template.py` to `actN.py`. Rules:
   - `s.push(at, dz, focus)`: push in when something becomes relevant; the focus stays put.
   - `s.zoom_to(rect, at, dur, fill, back_at=)`: travel from the full composition into one image.
 - **Cuts:** the third item of a `SHOTS` entry picks the transition: `'lr'`/`'rl'` torn wipe, `'up'` new sheet laid over. Vary them. Elements already present when a shot opens start at `ENTER`, so the wipe reveals the new composition landing.
-- **Typography:** `words(layer, xy, text, size, t, [one cue per word])` (each word rises as it is spoken), `tag(...)` for a red label, `underline(...)`, `kicker(s.hud, t, n, 'Act title')` on the first shot of each act. Big type: 2–4 words. Typed captions (`font=F_TYPE`) are short quotes from the narration.
+- **Typography:** `words(layer, xy, text, size, t, [one cue per word])` (give one cue per *token*, separators like `·` included, or the last word never appears) (each word rises as it is spoken), `tag(...)` for a red label, `underline(...)`, `kicker(s.hud, t, n, 'Act title')` on the first shot of each act. Big type: 2–4 words. Typed captions (`font=F_TYPE`) are short quotes from the narration.
 - **Layout:** one idea per shot; keep decoration-free space in the centre; nothing over the corner shapes that matters (red on terracotta is unreadable).
 - **Violence is implied only.**
 
@@ -578,6 +584,8 @@ cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 
 - marks (circles, stamps) still sitting on their words during camera moves;
 - a black edge during a zoom (the background must always cover the frame);
 - empty frames revealed by a wipe (use `ENTER` for elements present at the cut);
+- **text near the frame edge during a camera push**: a name card or headline placed near the right edge on `s.top` is pushed off-frame by `s.camera(1.0, 1.05, ...)`; keep 120 px of margin at the end of the move, or push toward the text;
+- **a word on screen before it is spoken**: every word, label and mark appears on its cue (`A.emphasis` now waits for its start unless `before=True`);
 - **text over a dark plate**: black type disappears on a zoomed plate; use `tag(...)` (red label, or `bg=CREAM, fg=INK`);
 - **missing glyphs**: Archivo Black has no `→` (it renders as a box); `÷`, `²`, `’` and `,` are fine. Write words instead of rare symbols;
 - **glows on cream**: a cream or white glow is invisible on the paper; use a glow in the accent colour;
@@ -599,7 +607,7 @@ cd project && python SK/scripts/render_all.py --acts 3 --draft   # review render
 cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12, slow, 320k AAC, all acts
 ```
 
-- **Run renders in the background** (Bash `run_in_background`) and wait for the completion notice; don't poll with sleep. Background jobs may start in the repository root, not the project folder, so always set the project explicitly: `VOX_PROJECT=/abs/path/to/project python SK/scripts/render_all.py --acts 1 --draft` (without it the render fails with `act1.py` not found). Measured on 4 cores: a 40–48 s act drafts in 7–9 min; `--acts 5 6` renders two acts in parallel in about 9 min.
+- **Run renders in the background** (Bash `run_in_background`) and wait for the completion notice; don't poll with sleep. Background jobs may start in the repository root, not the project folder, so always set the project explicitly: `VOX_PROJECT=/abs/path/to/project python SK/scripts/render_all.py --acts 1 --draft` (without it the render fails with `act1.py` not found). Measured on 4 cores: a 40–60 s act drafts in 7–10 min alone; two acts in parallel (`--acts 1 2`) take about 21 min together, so render one act at a time while reviewing and batch only the final.
 - **Don't chain renders with a background waiting loop** (`while ! grep Done ...; do sleep; done; render`). On the Hawking film the waiter died silently at its time limit and two acts never rendered. Start the next render yourself when the completion notice arrives, or render several acts in one `render_all.py --acts ...` call.
 - **Before telling the user a render is running, check it is**: `ps aux | grep render_all` and look for the output file.
 - **Cost of the heavier tools** (4 cores): a held map view is about 16 ms because frames are cached, but a zooming map is about 0.6 s a frame, so keep map zooms to 1.5–2.5 s. Transitions add about 0.3 s per frame while they run. Plan longer renders for map-heavy acts.
