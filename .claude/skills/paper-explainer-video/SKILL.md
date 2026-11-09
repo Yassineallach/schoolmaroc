@@ -54,7 +54,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 
 `SK` below means this skill's folder, e.g. `.claude/skills/paper-explainer-video`.
 
-**Worked example** (`SK/examples`): the six approved acts of *A Brief History of Time* (4:19), with their `episode.json`. Read the act closest to the beat you are building: Also the first approved acts of *Histoire des armes* (5:34, French narration, real images from Commons, the astrolabe background), the reference for history films.
+**Worked example** (`SK/examples`): the six approved acts of *A Brief History of Time* (4:19), with their `episode.json`, and the first approved acts of *Histoire des armes* (5:34, French narration, real images from Commons, the astrolabe background), the reference for history films. Read the act closest to the beat you are building:
 
 | File | Shows |
 |---|---|
