@@ -302,6 +302,8 @@ Never use the same special cut twice in a row; most cuts in a film should still 
 
 **Sounds** for all of it are registered automatically: `pin`, `pencil`, `whoosh`, `envelope`, `tape` and `pop`, plus the earlier ones.
 
+**Real images before drawings:** a diagram earns its place only when it explains what no image can (rule 27). For an object, a place or an action, use the real image or a camera move into a plate.
+
 **Pacing rules:**
 - Alternate complex beats (a map zoom with a route, a flow diagram, a collage) with simple ones (one image, slow push, a few typed words).
 - Emotional lines are always simple.
@@ -635,3 +637,4 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 24. **No empty screens.** Every shot has something on screen from its first frame to its last; a background alone is never a shot. Run `check_empty.py` before every render.
 25. **Real images first.** Search for real, freely licensed images (Commons) before prompting for drawings; give the user the direct download links when this machine is rate-limited; when nothing free exists, ask the user to search before generating. Credit every image.
 26. **History films use the astrolabe parchment background**, and every ground of every colour stays smooth: fine grain only, no mottled patches, stains or dents.
+27. **Drawings only when they explain.** Code-drawn shapes (diagrams, arrows, lines, schematic stones or arms) appear only where they make an idea clearer than any image could: a measurement, a distance between two things, a non-linear path, a correction. Everything else is shown with a real image: an object, a photograph, a painting, or the camera moving into a plate to the detail the sentence names. Never draw something just to fill the screen; fill it with the right image instead (rule 24). On *Histoire des armes* the drawn staircase of "progress" became a row of real objects (spear, stone point, bronze sword), the drawn stone and arm became a camera move into the lakeshore plate, and the pressure arrows became the real Levallois point with its tip circled.

@@ -91,24 +91,14 @@ def sB(t, D):
 def sC(t, D):
     """Une pierre lancée garde un animal à distance. Un bâton prolonge le bras."""
     s = Shot(t, D)
-    S.env(s, 'grid')
-    s.camera(1.0, 1.02)
-    # the throw
-    stone(s.mid, 320, 380, 34, t, ENTER)
-    A.connect(s.mid, [(380, 360), (900, 200), (1420, 360)], t, w(cue(5, 'lancee')), dur=0.8, dashed=True, dots=False)
-    ImageDraw.Draw(s.mid).ellipse((1440, 300, 1560, 420), outline=INK + (255,), width=7)
-    TY.Text('ANIMAL', 'label').draw(s.mid, (1500, 440), t, ENTER, anchor='m', sound=False)
-    words(s.top, (900, 140), 'À DISTANCE', 72, t, [w(cue(5, 'a distance')), w(cue(5, 'distance'))], fill=S.accent(s))
-    # the stick
-    arm = P.clamp01((t - w(cue(5, 'Un baton'))) / 0.5)
-    if arm > 0:
-        d = ImageDraw.Draw(s.mid)
-        d.line((260, 760, 260 + 420 * arm, 760), fill=INK + (255,), width=26)
-        TY.Text('LE BRAS', 'label').draw(s.mid, (470, 800), t, w(cue(5, 'Un baton')), anchor='m', sound=False)
-    ext = P.ease_out(P.clamp01((t - w(cue(5, 'prolonge'))) / 0.8))
-    if ext > 0:
-        ImageDraw.Draw(s.mid).line((690, 760, 690 + 760 * ext, 760), fill=S.accent(s) + (255,), width=14)
-        TY.Text('LE BÂTON', 'label').draw(s.mid, (1070, 800), t, w(cue(5, 'prolonge')), anchor='m', sound=False)
+    S.env(s, 'bleed')
+    S.fullbleed(s, LAKE, t, ENTER, ken=(1.0, 1.0))
+    # the camera goes to the stone in the hand, then back out to the spear held at arm's length
+    s.zoom_to((900, 720, 1380, 1000), w(cue(5, 'pierre')), dur=1.0, fill=0.9, back_at=w(cue(5, 'Un baton')) - 0.2)
+    tag(s.hud, (W / 2, 120), 'UNE PIERRE LANCÉE', 50, t, w(cue(5, 'pierre')))
+    tag(s.hud, (W / 2, 200), 'À DISTANCE', 44, t, w(cue(5, 'distance')), bg=S.PAL.cream, fg=INK)
+    s.push(w(cue(5, 'prolonge')), 0.10, (560, 420), dur=1.2)
+    tag(s.hud, (W / 2, 960), 'UN BÂTON PROLONGE LE BRAS', 50, t, w(cue(5, 'prolonge')))
     return s
 
 
@@ -166,7 +156,7 @@ def sH(t, D):
     """Ces vestiges indiquent une chasse organisée, qui exigeait anticipation et coopération."""
     s = Shot(t, D)
     S.env(s, 'bleed')
-    S.fullbleed(s, LAKE, t, ENTER, ken=(1.04, 1.14), focus=(0.6, 0.35), focus_to=(0.7, 0.3), darken=0.3)
+    S.fullbleed(s, SPEAR_PHOTO.rotate(90, expand=True), t, ENTER, ken=(1.04, 1.14), focus=(0.5, 0.5), focus_to=(0.45, 0.4), darken=0.3)
     tag(s.hud, (W / 2, 860), 'UNE CHASSE ORGANISÉE', 56, t, w(cue(6, 'chasse')))
     tag(s.hud, (640, 960), 'ANTICIPATION', 44, t, w(cue(6, 'anticipation')), bg=S.PAL.cream, fg=INK)
     tag(s.hud, (1280, 960), 'COOPÉRATION', 44, t, w(cue(6, 'cooperation')), bg=S.PAL.cream, fg=INK)
@@ -201,17 +191,17 @@ def sJ(t, D):
 def sK(t, D):
     """Le principe est simple. Une matière dure concentre l'effort sur une petite surface."""
     s = Shot(t, D)
-    S.env(s, 'geometric')
-    s.camera(1.0, 1.03)
-    words(s.top, (W / 2, 130), 'LE PRINCIPE EST SIMPLE', 70, t, [w(cue(7, x)) for x in ('Le principe', 'principe', 'est simple', 'simple')], fill=S.ink(s))
-    TY.Text('UNE MATIÈRE DURE', 'label', colour=S.ink(s)).draw(s.mid, (W / 2, 260), t, w(cue(7, 'matiere')), anchor='m', sound=False)
-    c0 = w(cue(7, 'concentre'))
-    tip = (W / 2, 770)
-    for i, x in enumerate(range(560, 1400, 140)):
-        A.arrow(s.mid, (x, 320), (tip[0] + (x - W / 2) * 0.06, tip[1] - 40), t, c0 + i * 0.06, dur=0.5, bend=0.0, colour=S.ink(s), sound=(i == 0))
-    ImageDraw.Draw(s.mid).line((600, 790, 1320, 790), fill=S.ink(s) + (255,), width=8)
-    A.ring(s.mid, (W / 2 - 70, 730, W / 2 + 70, 840), t, w(cue(7, 'petite surface')))
-    words(s.top, (W / 2, 880), 'UNE PETITE SURFACE', 70, t, [w(cue(7, 'petite')), w(cue(7, 'petite surface')), w(cue(7, 'surface'))], fill=S.accent(s))
+    S.env(s, 'cream')
+    s.camera(1.0, 1.0)
+    big = P.print_card(S.treated(POINT), 470, seed=22)
+    P.put(s.mid, big, 1240, 560)
+    s.push(w(cue(7, 'petite')), 0.18, (1240, 330), dur=1.2)
+    words(s.top, (520, 300), 'LE PRINCIPE', 76, t, [w(cue(7, 'Le principe')), w(cue(7, 'principe'))])
+    words(s.top, (520, 400), 'EST SIMPLE', 76, t, [w(cue(7, 'est simple')), w(cue(7, 'simple'))])
+    words(s.hud, (520, 620), 'une matière dure', 48, t, [w(cue(7, x)) for x in ('Une matiere', 'matiere', 'dure')], font=F_TYPE)
+    words(s.hud, (520, 690), "concentre l'effort", 48, t, [w(cue(7, 'concentre')), w(cue(7, "l'effort"))], font=F_TYPE)
+    A.ring(s.mid, (1160, 250, 1320, 420), t, w(cue(7, 'petite')))
+    words(s.hud, (520, 820), 'UNE PETITE SURFACE', 64, t, [w(cue(7, 'petite')), w(cue(7, 'petite surface')), w(cue(7, 'surface'))], fill=S.PAL.accent)
     return s
 
 

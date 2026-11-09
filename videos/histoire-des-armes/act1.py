@@ -36,6 +36,10 @@ def spear_strip(length=1500):
 SPEAR_BOX = (0.45, 0.13, 0.62, 0.95)     # the spear band in the photo (fractions)
 SPEAR_TILT = 0.0
 STRIP = spear_strip()
+# a succession of real objects: wooden spear, stone point, bronze sword (Thames)
+ROW = [P.print_card(S.treated(Image.open(asset('P02.jpg'))).crop((430, 180, 600, 1300)).rotate(90, expand=True), 560, border=10, seed=31),
+       P.print_card(S.treated(Image.open(asset('C02.jpg')).crop((185, 120, 730, 840))), 300, seed=32),
+       P.print_card(S.treated(Image.open(asset('C04.jpg')).crop((0, 20, 1920, 270))), 580, border=10, seed=33)]
 
 
 def sA(t, D):
@@ -167,19 +171,13 @@ def sI(t, D):
     autre règle : chaque innovation déplace un équilibre."""
     s = Shot(t, D)
     s.camera(1.0, 1.04)
-    stairs = [(300, 900)]
-    for i in range(6):
-        x, y = stairs[-1]
-        stairs += [(x + 200, y), (x + 200, y - 95)]
-    gone = w(cue(4, 'chaque'))
-    if t < gone + 0.5:
-        A.stroke(s.mid, stairs, P.clamp01((t - ENTER) / 2.4), width=9, colour=INK,
-                 alpha=1.0 - P.clamp01((t - gone) / 0.5))
-    words(s.top, (W / 2, 300), 'PROGRÈS', 150, t, w(cue(4, 'progres')))
-    A.strike(s.top, A.grow(A.text_box((W / 2, 300), 'PROGRÈS', 150), 30, -40), t, w(cue(4, 'autre regle')), scribble=True)
+    for i, (card, x) in enumerate(zip(ROW, (340, 960, 1580))):          # one after the other: a 'succession'
+        P.drop(s.mid, card, x, 480, t, ENTER + 0.45 * i, rot=(-3, 2, -2)[i], spin=10, key=f'row{i}')
+    words(s.top, (W / 2, 150), 'PROGRÈS', 130, t, w(cue(4, 'progres')))
+    A.strike(s.top, A.grow(A.text_box((W / 2, 150), 'PROGRÈS', 130), 30, -40), t, w(cue(4, 'autre regle')), scribble=True)
     if t >= w(cue(4, 'equilibre')) - 0.05:
-        A.emphasis(s.top, (W / 2, 610), 'ÉQUILIBRE', 150, t, w(cue(4, 'equilibre')))
-    words(s.hud, (W / 2, 860), 'chaque innovation déplace un équilibre', 46, t,
+        A.emphasis(s.top, (W / 2, 790), 'ÉQUILIBRE', 120, t, w(cue(4, 'equilibre')))
+    words(s.hud, (W / 2, 950), 'chaque innovation déplace un équilibre', 46, t,
           [w(cue(4, x)) for x in ('chaque', 'innovation', 'deplace', 'un equilibre', 'equilibre')], font=F_TYPE)
     return s
 
