@@ -30,7 +30,7 @@ TULWAR_CARD = P.print_card(S.treated(TULWAR), 860, seed=61)
 PATTERN_CARD = P.print_card(S.treated(PATTERN), 560, seed=62)
 SMITH_CARD = P.print_card(S.treated(SMITH), 620, seed=63)
 IRON_CARD = P.print_card(S.treated(IRON), 900, border=10, seed=64)
-SABRE_CARD = P.print_card(S.treated(SABRE), 520, seed=65) if HAS_SABRE else P.print_card(S.treated(TULWAR), 900, seed=65)
+SABRE_CARD = P.print_card(S.treated(SABRE), 860, seed=65) if HAS_SABRE else P.print_card(S.treated(TULWAR), 900, seed=65)
 M = maps.WorldMap(box=(0, 0, W, H))
 
 
@@ -157,7 +157,7 @@ def sH(t, D):
         P.put(s.mid, IRON_CARD, 760, 360)
     else:
         P.slide(s.mid, IRON_CARD, (760, 360), (-200, 360), t, rec, dur=1.4, rot=-1, lag=4, key='ironH')
-    P.drop(s.mid, SABRE_CARD, 1380, 600, t, w(cue(14, 'demeure')) - 0.1, rot=2, spin=8, key='sabH')
+    P.drop(s.mid, SABRE_CARD, 1340, 640, t, w(cue(14, 'demeure')) - 0.1, rot=2, spin=8, key='sabH')
     for i, (word, ph) in enumerate((('UNIFORMES', 'uniformes'), ('CÉRÉMONIES', 'ceremonies'), ('COMMANDEMENT', 'commandement'))):
         tag(s.hud, (520, 520 + i * 110), word, 48, t, w(cue(14, ph)))
     return s
