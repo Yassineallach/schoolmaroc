@@ -89,5 +89,33 @@
   "credit": "file:Griffzungenschwert Eisen.jpg",
   "licence": "CC BY 4.0",
   "page": "https://commons.wikimedia.org/wiki/File:Griffzungenschwert_Eisen_90.jpg"
+ },
+ "C06": {
+  "title": "File:Museo de la Romanización, Gladius.jpg",
+  "author": "Artistosteles",
+  "credit": "Own work",
+  "licence": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Museo_de_la_Romanizaci%C3%B3n,_Gladius.jpg"
+ },
+ "C06b": {
+  "title": "File:Gladius Schwert des Tiberius Carnuntum.jpg",
+  "author": "User:MatthiasKabel",
+  "credit": "Own work",
+  "licence": "CC BY 2.5",
+  "page": "https://commons.wikimedia.org/wiki/File:Gladius_Schwert_des_Tiberius_Carnuntum.jpg"
+ },
+ "P08": {
+  "title": "File:Roman Legionaries-MGR Lyon-IMG 1050.JPG",
+  "author": "Rama",
+  "credit": "Own work",
+  "licence": "CC BY-SA 2.0 fr",
+  "page": "https://commons.wikimedia.org/wiki/File:Roman_Legionaries-MGR_Lyon-IMG_1050.JPG"
+ },
+ "P08b": {
+  "title": "File:Engineering corps traian s column river crossing.jpg",
+  "author": "CristianChirita",
+  "credit": "Photo by CristianChirita",
+  "licence": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Engineering_corps_traian_s_column_river_crossing.jpg"
  }
 }
