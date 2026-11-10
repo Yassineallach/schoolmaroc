@@ -31,7 +31,8 @@ The same pipeline works for any narrated explainer.
 - **torn-paper transitions** between shots, never crossfades;
 - every reveal, camera move and cut lands on the spoken word.
 - **real images first**: museum objects, excavation and archive photographs from Wikimedia Commons, credited, with generated drawings only for what was never photographed;
-- **no empty screens**: something is on screen from the first frame of every shot (`check_empty.py`).
+- **no empty screens**: something is on screen from the first frame of every shot (`check_empty.py`);
+- **made by an editor, not a template**: a hook in the first seconds, images that speak without labels, varied rhythm, restraint in effects, a music bed, honest captions (see "Craft" below, `check_pacing.py`, `music.py`).
 
 **Defaults:** 1920×1080, 30 fps, H.264. The final render uses CRF 12.
 
@@ -92,6 +93,8 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `themes.py` | per-episode background themes, all in the editorial design language (each maps to an identity family) |
 | `bg_motion.py` | the original editorial background, and theme selection from `episode.json` (none named: the identity's default, e.g. history → `astrolabe`) |
 | `commons.py` | real images from Wikimedia Commons: search per slot with contact sheets, download with credits, a table of links for the user to download by hand |
+| `check_pacing.py` | the pacing and variety check: shot lengths and their spread, repeated environments and cuts, how many shots carry text, text-heavy frames |
+| `music.py` | lays a music bed under a finished film (looped, faded, ducked by the voice) without re-rendering the picture |
 | `check_empty.py` | the no-empty-screens check: flags every stretch where a shot shows only its ground |
 
 ## Phases
@@ -106,6 +109,8 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
   - **weight:** complex, medium or simple, alternated so the film breathes; emotional lines are always simple;
   - **cue word and time,** and a **cut** into the shot.
   It also writes `timing/plan.md`. Read it as advice: fix what it misreads and keep what the user asked for.
+- **Plan the hook first.** The first 10 seconds decide whether the viewer stays. Open on the film's strongest image, full frame, with the narration's first line; no chapter label, title card or logo before something has happened (the act 1 kicker waits until the second shot or is dropped). If the narration's opening line is weak, tell the user and suggest moving a stronger line or the closing question to the front as a cold open, before they record.
+- **Plan one returning motif and the ending.** Pick one visual idea that comes back transformed (on *Histoire des armes*, the HUMAIN → DANGER distance line returned longer for gunpowder, then as DÉCISION → CONSÉQUENCES). Make the last image answer the first (the hand on the spear answers the spear in the mud). A film that closes its own loop feels authored.
 - **Plan the shots.** For each act, write a shot list: transcript sentence → visual → which assets → which technique → the words that trigger each reveal. Some moments get complex motion graphics; many should stay simple (one image, a slow push, a few words).
 
 ### 2. Storyboard, visual identity, background theme, asset list
@@ -182,10 +187,9 @@ Build the acts one at a time. Word timing is created **together with each act**,
 - When `actN.py` runs `cue = make_cue(CLIPS)`, any clip without timing is aligned on the spot (faster-whisper `small.en`, locally, prompted with the clip's `.txt`) and saved to `timing/words.json` and `timing/words.txt`.
 - **Order for each act:** write `CLIPS`; run the act once (the contact-sheet command creates the timing); open `timing/words.txt` (`word@seconds`) to pick cue phrases; write the scenes.
 - **Re-align a clip** whose audio or transcript changed: `python SK/scripts/align.py 7`.
-- **Narration not in English:** set `VOX_LANG` (`VOX_LANG=fr python SK/scripts/align.py`); the multilingual `small` model is used. A prompted pass that does not match the transcript is retried unprompted. `storyboard.py` and the topic analysis read English keywords, so write the `episode.json` subject in English and plan the shots by hand.
 - **Check every clip is complete.** Whisper can skip speech that matches its transcript prompt word for word (clip 13 of the Hawking film came back with 19 of 61 words). `align.py` now retries automatically when it gets under 80 % of the transcript, but compare word counts after aligning anyway:
   `python -c "import json;t=json.load(open('timing/words.json'));[print(k,len(v),len(open(f'audio/{k}.txt').read().split())) for k,v in sorted(t.items(),key=lambda x:int(x[0]))]"`
-- **Narration in another language:** set `VOX_LANG` (see below) and remember that Whisper splits elisions: *n'est* comes back as `n` + `'est`, *d'une* as `d` + `'une`, so cue the word before or after (`cue(1, 'Ce')`, `cue(1, "'archeologue")`); *l'hoplologie* written with ’ stays one token. Accents are folded for matching (`'sediment'` finds *sédiment*). Proper names can be misheard ("Thieme" came back as "Art Mutiem"): cue a neighbouring word instead.
+- **Narration not in English:** set `VOX_LANG` (`VOX_LANG=fr python SK/scripts/align.py`; the multilingual `small` model is used, and a prompted pass that does not match the transcript is retried unprompted). `storyboard.py` and the topic analysis read English keywords, so write the `episode.json` subject in English and plan the shots by hand. Whisper splits elisions: *n'est* comes back as `n` + `'est`, *d'une* as `d` + `'une`, so cue the word before or after (`cue(1, 'Ce')`, `cue(1, "'archeologue")`); *l'hoplologie* written with ’ stays one token. Accents are folded for matching (`'sediment'` finds *sédiment*). Proper names can be misheard ("Thieme" came back as "Art Mutiem"): cue a neighbouring word instead.
 - **Cue pitfalls:** `cue()` finds the *first* occurrence, so a repeated word needs its number (`cue(11, 'one', 2)` when "no one" comes before "one-way"). Hyphenated words split into separate tokens (`one`, `-way`). Punctuation is ignored, so `'Pole.'` and `'Pole'` match the same word.
 
 Copy `templates/act_template.py` to `actN.py`. Rules:
@@ -195,12 +199,13 @@ Copy `templates/act_template.py` to `actN.py`. Rules:
   - `s.mid`: the paper on the desk (prints, documents, clippings, cut-outs) **and the marks made on it** (marker circles, stamps). Marks on `s.top` drift off their words when the camera zooms.
   - `s.top`: headline type that is part of the composition.
   - `s.hud`: captions, red labels, the chapter kicker. Fixed to the screen, so camera zooms never push them off-frame.
-- **Camera — one purposeful move per shot:**
+- **Camera — at most one purposeful move per shot, and about one shot in four with none** (locked off; see Craft 2):
   - `s.camera(z0, z1, focus0, focus1)`: slow drift across the shot (1.00 → 1.03–1.08).
   - `s.push(at, dz, focus)`: push in when something becomes relevant; the focus stays put.
   - `s.zoom_to(rect, at, dur, fill, back_at=)`: travel from the full composition into one image.
 - **Cuts:** the third item of a `SHOTS` entry picks the transition: `'lr'`/`'rl'` torn wipe, `'up'` new sheet laid over. Vary them. Elements already present when a shot opens start at `ENTER`, so the wipe reveals the new composition landing.
-- **Typography:** `words(layer, xy, text, size, t, [one cue per word])` (give one cue per *token*, separators like `·` included, or the last word never appears) (each word rises as it is spoken), `tag(...)` for a red label, `underline(...)`, `kicker(s.hud, t, n, 'Act title')` on the first shot of each act. Big type: 2–4 words. Typed captions (`font=F_TYPE`) are short quotes from the narration.
+- **Typography:** `words(layer, xy, text, size, t, [one cue per word])` (give one cue per *token*, separators like `·` included, or the last word never appears) (each word rises as it is spoken), `tag(...)` for a red label, `underline(...)`, `kicker(s.hud, t, n, 'Act title')` on the first shot of each act (in act 1, on the second shot: nothing comes before the hook). Big type: 2–4 words. Typed captions (`font=F_TYPE`) are short quotes from the narration.
+- **Text budget:** one text element per shot, two at most, and some shots with none (Craft 1). A list the narrator reads is shown by images, not by three labels.
 - **Layout:** one idea per shot; keep decoration-free space in the centre; nothing over the corner shapes that matters (red on terracotta is unreadable).
 - **Violence is implied only.**
 
@@ -216,7 +221,7 @@ All in `presets.py`; every one is configurable (position, start, duration, rotat
 | 4 | `clipping` + `slide` | mentions publication, the press, a public event |
 | 5 | `tear_reveal` | reveals who or what something is ("The man is…") |
 | 6 | `stack` | lists people, years, editions, evidence |
-| 7 | `stamp_hit` | gives a verdict, a date, a refusal (pass `shot=s` for the kick) |
+| 7 | `stamp_hit` | gives a verdict, a date, a refusal (pass `shot=s` for the kick); three per film at most |
 | 8 | `mask_reveal` | opens an act or a memory: the image appears through a torn hole |
 | 9 | `slide` | moves a document into the story ("Back in England sits…") |
 | 10 | `assemble` | something comes together or breaks apart (`reverse=True`) |
@@ -367,7 +372,7 @@ Colours come from the episode palette: ink, secondary ink, light ink and accent 
 - Fonts are bundled under the SIL Open Font License (`assets/fonts/OFL-arabic-fonts.txt`).
 - Check every Arabic line with a native reader; never machine-guess wording.
 
-**When to use type** (`storyboard.py` adds a *typography* column; about 40% of sentences at most):
+**When to use type** (`storyboard.py` adds a *typography* column; about 40% of sentences at most, labels and tags included, and at least a quarter of the shots with no text at all):
 
 | Narration | Typography |
 |---|---|
@@ -404,7 +409,7 @@ hi = S.accent(s)              # the highlight that reads on this ground and suit
 | `charcoal` | the palette's dark ground, with grain | drama, death, turning points, night | `type_page` in light ink, or one lit print |
 | `accent` | solid ground in the palette's colour (`terra` still works) | one statement or one number, rarely | `type_page`, `big_number` in light ink |
 | `halftone` | manga halftone + speed lines | action, manga and comics subjects | `panel_grid`, cut-out action |
-| `archive` | aged newsprint, columns, foxing | history, dates, the press, records | clippings, documents, stacks |
+| `archive` | aged newsprint with faint columns, smooth | history, dates, the press, records | clippings, documents, stacks |
 | `geometric` | big flat shapes, diagonal split | comparisons, systems, two sides | `split`, two cards facing |
 | `grid` | clean graph grid | infographics, charts, timelines | `charts.py`, `timeline.py` |
 | `bleed` | none | a photo or illustration that speaks alone | `fullbleed`, `letterbox`, `split` |
@@ -448,7 +453,7 @@ python SK/scripts/identity_board.py --all out/identity                          
 | Identity | Character | Grounds | Accents | Texture · images · type |
 |---|---|---|---|---|
 | `editorial` | Vox explainer | warm off-white #F3ECDF, ink #1E1C1A | terracotta #CD5830, teal #1F6F74, yellow marker #F2C14E | fibre paper · natural · Archivo Black + Fraunces |
-| `history_archive` | document from a drawer | parchment #E6D5B0, walnut #2A1D13 | oxblood #7E2219, brass #7A5C22, gold wash | foxing, burnt edge · sepia duotone · Playfair + Special Elite |
+| `history_archive` | document from a drawer | parchment #E6D5B0, walnut #2A1D13 | oxblood #7E2219, brass #7A5C22, gold wash | smooth parchment, fine specks · sepia duotone · Playfair + Special Elite |
 | `science_space` | deep space | chalk blue #E4E9F2, space navy #0A0F24 | violet #5B3FD0, cosmic blue, amber starlight #FFB547 | star field · cool · Archivo + Inter |
 | `manga_ink` | manuscript page | white #F6F4EE, pure black #0B0B0B | vermilion hanko #C42A1A, screentone grey | screentone · ink (B/W) · Archivo Black |
 | `crime` | case file | cold grey #DADDDF, manila #D9C59A, #101418 | dried crimson #8C1C1C, steel blue, tape yellow #F2C230 | photocopy toner · cold duotone · typewriter captions |
@@ -470,7 +475,7 @@ python SK/scripts/identity_board.py --all out/identity                          
   - `economics/crisis`.
   - `crime/historical`.
 - **Second subject:** its accent becomes the supporting colour.
-  - "The history of X" puts X's identity on archive paper, with foxing, sepia prints and an archive opening.
+  - "The history of X" puts X's identity on archive paper, with sepia prints and an archive opening.
   - "The history of computers" leads with `technology/retro`, not history.
 - **Region:** shifts supporting colours towards the place's visual culture. Japan: beni red and ai indigo. Maghreb: zellige green, Majorelle blue, saffron. Also Islamic world, China, Egypt, the classical world, India, Russia and others. For history, culture, editorial and philosophy it also sets the accent.
 - **Period:** changes the atmosphere. Antiquity: stone and bronze. Medieval: lapis and gold. World wars: khaki, olive, gunmetal, drained colour. Cold war: concrete. Contemporary: cleaner paper.
@@ -569,7 +574,62 @@ Effects are generated in code (`sfx.py`) and synced automatically: every preset 
 - **Add audio to an already-rendered act** without re-rendering the picture: `vox.collect_events(act.frame, act.END)`, `sfx.mix_into(narration_wav, events, out_wav)`, then mux with `ffmpeg -c:v copy`.
 - **Sound must not contradict the story.** No flat-line tone when the patient survives, no gunshots for implied violence.
 
-### 14. QC before rendering
+### 14. Craft: what separates an edited film from a generated one
+
+Viewers forgive simple pictures; they leave when a film feels automatic. These are the tells, each seen on a real render, and the fix for each. `python SK/scripts/check_pacing.py` measures the ones that can be measured.
+
+**1. Text that repeats the voice.** The strongest tell. On the first cut of *Histoire des armes*, 64 of 65 shots carried a label, most of them the narrator's own words in capitals ("PRESTIGE · STATUT · BRAVOURE"). The viewer reads what they are hearing and stops looking at the image.
+- At least a quarter of the shots have **no text at all**: the image and the voice are enough.
+- On-screen text adds something the voice does not: a name spelled out, a date, a place, a term, a number, a correction. It never transcribes a list the narrator is reading.
+- One text element per shot, two at most (a headline and a caption). Three labels dropping one after another is a slide, not a shot.
+- Sentence case for statements and captions; capitals only for short headlines (one to three words) and stamps.
+- Type follows the language's own rules. French: a thin space before `? ! : ;`, « guillemets », the typographic apostrophe ’, accents on capitals (É, À), `IIᵉ` or "IIe siècle" set consistently. Arabic: checked by a native reader.
+
+**2. Everything moves, all the time, the same way.** A slow push on every single shot, every print dropping with the same spin, every reveal on the same 0.3 s ease.
+- One shot in four is **locked off**: no camera move, one element arriving, then stillness. Stillness is what makes the next move register.
+- Vary how things arrive within an act: a drop, then something already lying there, then a slide, then a cut straight to a full-bleed image with no entrance at all.
+- Break symmetry by hand: unequal rotations (−4°, +1.5°, −2°), uneven spacing, one print overlapping another, one element partly out of frame. Three cards evenly spaced in a row look machine-set.
+- Give staggers an irregular rhythm (0.0, 0.25, 0.7 s), not a constant step.
+
+**3. Effects as decoration.** A stamp on every date, a torn-paper special cut at every sentence.
+- Per film: at most three stamps, one `spin_in`, two `flip`s, two letterboxes. Special cuts (`pageturn`, `circle`, `shape`, `zoom`) are for act changes and real turns; four cuts in five are plain.
+- When in doubt, cut it. If removing an effect loses no meaning, it was decoration.
+
+**4. Rhythm with no shape.** Shots that all last five seconds.
+- Mix quick beats (2–3 s) with long holds (7–10 s) on the images that deserve them. No shot under 2 s. A shot over 10 s must change inside (a second image, a push to a detail).
+- Let the film breathe after a strong line: hold the image one beat past the last word before cutting. Ask the user for 0.5–1 s of silence between narration clips at act changes; never trim the pauses they recorded.
+- Build to the end: the last act is the simplest and slowest, and the final shot holds 3–5 s.
+
+**5. The same image again and again.** The same sword print nine times in a grid, the same photo in five shots.
+- An image appears at most twice in a film (a third time only as the planned callback). Need "many"? Show a real image that contains many (a hoard, a rack of swords, a relief of soldiers), not one print multiplied.
+- Never reuse an image as a stand-in for something else (a Deccan sword playing "a ceremonial sabre").
+
+**6. Images that look found, not chosen.**
+- Crop to the subject. Cut museum objects out of their glass case and wall (or crop tight) so the object, not the display, is the picture; a rectangle of grey case around a small sword wastes the frame.
+- Minimum quality: 1600 px on the long side for a print, 2400 px for a full-bleed plate. No watermarked or stock-site previews, no AI-generated "photos" of real things (the Pngtree drone was refused for both reasons).
+- **The image must be the thing named.** A reconnaissance drone is not "un drone armé"; a 19th-century cavalryman is not a pre-Islamic horseman. If only a near match exists, tell the user and let them choose.
+- **Caption what the image is**, small, in a corner (label role, sentence case): object, place, museum or date of the photograph, taken from its source page ("Lance VII, Schöningen, 1997", "Sabre de fabricant damascène, vers 1900"). These captions describe the image, so they may state facts the narration does not; everything else on screen still comes from the narration (rule 1). Captions are what make a film read as documentary rather than slideshow.
+- Mark generated drawings honestly: a small "illustration" or "reconstitution" in the corner, so a drawing is never mistaken for evidence.
+
+**7. Generated drawings that give themselves away.**
+- At most three or four per film, all in one style from one reference, used where no photograph can exist.
+- Check each one before accepting it: hands and fingers, the number of legs on animals, anachronisms (a curved sabre in the 6th century, stirrups, modern tack), repeated texture patterns, garbled lettering. Send it back with a one-line fix rather than hiding the fault with a crop.
+- Role lines and glosses are facts too: a name card's role ("Hoplologue") and a term card's definition must come from the narration, not from general knowledge.
+
+**8. Sound with no bed.** Voice and paper sounds over silence feel unfinished.
+- Ask the user for a music track they have the right to use (or its name in a library such as the YouTube Audio Library), calm and without vocals. Lay it in with `python SK/scripts/music.py out/full.mp4 music.mp3 out/full_music.mp4`: about 14 dB under the voice, ducked further while the narrator speaks, faded in and out. The picture is not re-rendered.
+- One change of music mood at most, at the film's turning point.
+- Measure the final file (`ffmpeg -i out/full.mp4 -af ebur128 -f null -`): integrated loudness between −17 and −15 LUFS, or remix.
+
+**9. No packaging.** A professional upload is more than the file.
+- **End screen:** ask whether the user wants one; if so hold the last frame 8–10 s with the lower two thirds clear for YouTube's end-screen elements.
+- **Chapters:** give the act start times as a ready-to-paste chapter list (first at 0:00), act titles written as short promises or questions, not labels.
+- **Thumbnail:** one subject from the film, one contrast, at most four words; offer to set the words in the film's own typeface over the user's image so the thumbnail matches the video. Check it at 160×90 px.
+- **Description:** two lines that state the question the film answers, then the chapters; credits below (`CREDITS.txt`), never on screen unless asked.
+
+**Run before every draft:** `check_empty.py`, then `check_pacing.py`. Read its numbers aloud to yourself: the share of text-free shots, the spread of shot lengths, repeated environments. Fix the film, not the numbers.
+
+### 15. QC before rendering
 
 ```
 cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 6 10 15 22
@@ -596,11 +656,14 @@ cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 
 - **invented names** (newspaper mastheads, signatures) must not be a real publication or person;
 - **after changing the engine**, render one frame from every existing act to prove nothing broke:
   `python -c "import importlib;[importlib.import_module(f'act{n}').frame(5.0) for n in range(1,7)]"`;
-- anything on screen the narration does not say.
+- **the same print twice in one frame**, or an image already used twice in the film (Craft 5);
+- **an image that is not what the narration names**, or a stand-in passing as the real thing (Craft 6);
+- **a caption or label in the wrong language convention** (missing accent on a capital, straight apostrophe, no space before `?` in French);
+- anything on screen the narration does not say, image captions excepted (Craft 6).
 
 Fix, re-check. Show the user sheets or a draft per act and get approval before moving on.
 
-### 15. Render: Claude renders the final, in this session
+### 16. Render: Claude renders the final, in this session
 
 ```
 cd project && python SK/scripts/render_all.py --acts 3 --draft   # review render of one act
@@ -614,14 +677,14 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 - **Demo reels without narration:** `vox.collect_events(frame, END, step=0.25)` then `sfx.build_track(events, END, None, level_db=-9)`, and mux with `ffmpeg -c:v copy`. Without a voice to duck under, −9 dB keeps the effects audible.
 - **Draft of the whole film:** `out/acts.txt` lists the act files; `ffmpeg -f concat -safe 0 -i out/acts.txt -c copy out/full_draft.mp4` joins them losslessly. An act whose audio was remixed separately (e.g. `act1_sfx.mp4`) can be copied over its act file first.
 - **Act drafts:** after each act is approved on its contact sheet, render a `--draft` and send it with `SendUserFile`.
-- **Final:** all acts, CRF 12, joined losslessly into `out/full.mp4`, narration mastered to −16 LUFS. Check the duration with ffprobe, spot-check frames, then send it.
+- **Final:** all acts, CRF 12, joined losslessly into `out/full.mp4`, narration mastered to −16 LUFS. Check the duration with ffprobe, measure the loudness of the joined file (`-af ebur128`; −17 to −15 LUFS, the first final of *Histoire des armes* came out at −17.1), spot-check frames, then send it. If the user supplied music, run `music.py` on the joined file and send that version.
 - **Files over 100 MB** stay out of git. Send them directly.
 
 ## Rules learned from the user (keep them)
 
 1. Base everything on the transcript.
-2. Ask for assets that would look bad drawn in code.
-3. Storybook / editorial illustration, never anime, in prompts and in what you accept.
+2. Never draw in code what should be an image: use a real image first (rule 25), a generated drawing only when none can exist.
+3. Generated drawings follow the user's reference style for the film (storybook, linocut, ink engraving); never anime, in prompts and in what you accept.
 4. Check every asset for background leftovers before using it (magenta check).
 5. Never add a background behind an image that already has one.
 6. The film should feel like an explainer, not a movie: paper collage, documents and type carry the ideas.
@@ -631,7 +694,7 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 10. Create word timing as each act is built, never as a separate pass afterwards.
 11. Asset prompts are short, lean on a reference image, and are given complete and ready to copy.
 12. **The user approves visual changes before they go into the film.** Build a preview (still, 15 s clip or demo reel) and wait for the go-ahead before re-rendering acts.
-13. Backgrounds follow the user's original editorial design language; each episode gets a fresh arrangement of it, never a different style. Its colours come from the episode palette (rule 23).
+13. A background the user gives as a reference is matched (the astrolabe parchment for history). Without one, backgrounds follow the user's original editorial design language in a fresh arrangement per episode. Colours come from the episode palette (rule 23).
 14. No grey torn-paper strip along the bottom: the corner shapes anchor the frame.
 15. Elements behave like physical paper (lift, shadow, overshoot, settle); never PowerPoint-style fades or flat slides.
 16. Sound effects stay subtle: about 20 dB under the voice (the first mix at 10 dB under was too loud). Change single sounds or the level by remixing the audio only, never by re-rendering the picture.
@@ -646,3 +709,8 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 25. **Real images first.** Search for real, freely licensed images (Commons) before prompting for drawings; give the user the direct download links when this machine is rate-limited; when nothing free exists, ask the user to search before generating. Credit every image in the video description, not on screen.
 26. **History films use the astrolabe parchment background**, and every ground of every colour stays smooth: fine grain only, no mottled patches, stains or dents.
 27. **Drawings only when they explain.** Code-drawn shapes (diagrams, arrows, lines, schematic stones or arms) appear only where they make an idea clearer than any image could: a measurement, a distance between two things, a non-linear path, a correction. Everything else is shown with a real image: an object, a photograph, a painting, or the camera moving into a plate to the detail the sentence names. Never draw something just to fill the screen; fill it with the right image instead (rule 24). On *Histoire des armes* the drawn staircase of "progress" became a row of real objects (spear, stone point, bronze sword), the drawn stone and arm became a camera move into the lakeshore plate, and the pressure arrows became the real Levallois point with its tip circled.
+28. **Images speak; text adds.** At least a quarter of the shots carry no text. On-screen words never transcribe the narrator: they add a name, a date, a place, a term or a number. One text element per shot, two at most.
+29. **Restraint reads as craft.** Some shots are locked off; effects are rationed per film (three stamps, special cuts only at real turns); nothing is laid out in perfect symmetry or timed on a constant stagger; an image is used at most twice and never multiplied.
+30. **Hook, shape, close.** The film opens on its strongest image with no title before it, varies its rhythm between quick beats and long holds, returns to one motif, and ends on an image that answers the first.
+31. **Honest pictures.** The image is the thing the narration names, or the user decides on a near match; real images carry a small caption of what they are; generated drawings are few, checked for faults and anachronisms, and marked as illustrations.
+32. **A finished film has a music bed and packaging**: music supplied by the user, mixed far under the voice; measured loudness; chapters, thumbnail and description offered with the file.
