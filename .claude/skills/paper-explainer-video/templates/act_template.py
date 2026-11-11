@@ -14,7 +14,9 @@ creates the timing for CLIPS automatically; then pick phrases from timing/words.
 Layers (style.py):  s.mid = paper on the desk + marks made on it (stamps, marker circles)
                     s.top = headline type in the composition      s.hud = captions / labels
 Presets (presets.py) and annotations (annotate.py): pick ONE per beat, chosen by what the
-narration is doing.
+narration is doing. Craft (SKILL.md section 14): one text element per shot and some shots with
+none; caption() on every real image; about one shot in four locked off; act 1 opens on its
+strongest image with no chapter label before it. Run check_empty.py and check_pacing.py.
 """
 import sys
 from PIL import Image
@@ -22,7 +24,7 @@ from vox import *  # noqa: F401,F403  (render_all.py puts the skill's scripts on
 import style as st
 import presets as P
 import annotate as A
-from style import ENTER, Shot, words, tag, underline, kicker
+from style import ENTER, Shot, words, tag, underline, kicker, caption
 
 CLIPS = (1, 2)            # narration clips of this act, in order
 cue = make_cue(CLIPS)
@@ -42,13 +44,14 @@ def sA(t, D):
     P.mask_reveal(s.mid, PLATE, W / 2, 500, t, 0.1, dur=2.0)                 # opening image through a torn hole
     P.stamp_hit(s.mid, '1985', 520, 250, t, w(cue(1, 'nineteen')), size=96, shot=s)
     tag(s.hud, (W / 2, 975), 'A SHORT RED LABEL', 44, t, w(cue(1, 'label words')))
-    kicker(s.hud, t, 1, 'Act title')                                         # chapter label, first shot only
+    caption(s.hud, 'What the image is, place, date', t, 0.8, on_dark=False)  # small, corner, from its source page
     return s
 
 
 def sB(t, D):
     """<sentence>"""
     s = Shot(t, D)
+    kicker(s.hud, t, 1, 'Act title')                                         # chapter label: act 1 on its 2nd shot, other acts on the 1st
     s.zoom_to((1000, 90, 1660, 850), w(cue(2, 'record')), dur=2.2, fill=0.86) # travel into the document
     P.unfold(s.mid, NOTE, 1330, 470, t, ENTER + 0.15)                        # present at the cut: ENTER
     A.ring(s.mid, (1040, 345, 1300, 405), t, w(cue(2, 'line one')), until=w(cue(2, 'big')))      # settles when the narration moves on

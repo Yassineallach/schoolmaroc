@@ -17,7 +17,7 @@ import math
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 import vox
-from vox import W, H, FPS, INK, RED, CREAM, F_HEAD, F_TYPE, F_SERIF, spring, ease, ease_out_cubic, lerp, shadow_of, alpha_mul, torn_mask, finish
+from vox import W, H, FPS, INK, RED, CREAM, F_HEAD, F_TYPE, F_SERIF, F_BODY, spring, ease, ease_out_cubic, lerp, shadow_of, alpha_mul, torn_mask, finish
 import bg_motion
 
 from palette import ACTIVE as PAL
@@ -353,6 +353,32 @@ def underline(layer, x0, x1, y, t, start, width=9, seed=0):
 
 
 KICKER_XY = (64, 925)          # per-episode override: style.KICKER_XY = (x, y) where the theme has a clear rule
+
+
+def caption(layer, s, t, start=0.0, corner='br', on_dark=False, size=24, margin=36):
+    """What the image is, small, in a corner: 'Lance VII, Schöningen, 1997' or 'Illustration'.
+    Sentence case, label face, no sound, fades in quietly. Goes on shot.hud so camera moves never
+    push it off frame. on_dark=True for full-bleed photos and dark grounds (cream type on a soft
+    dark backing); otherwise ink type with no backing."""
+    if t < start or not s:
+        return
+    op = fade(t, start, 0.6)
+    f = F_BODY(size)
+    d0 = ImageDraw.Draw(Image.new('L', (1, 1)))
+    l, tp, r, b = d0.textbbox((0, 0), s, font=f)
+    pad = 10
+    w_, h_ = r - l + 2 * pad, b - tp + 2 * pad
+    tile = Image.new('RGBA', (w_, h_), (0, 0, 0, 0))
+    d = ImageDraw.Draw(tile)
+    if on_dark:
+        d.rounded_rectangle((0, 0, w_ - 1, h_ - 1), radius=4, fill=(20, 16, 12, 150))
+        col = CREAM
+    else:
+        col = INK
+    d.text((pad - l, pad - tp), s, font=f, fill=col + (230,))
+    x = margin if corner in ('bl', 'tl') else W - margin - w_
+    y = margin if corner in ('tl', 'tr') else H - margin - h_
+    layer.alpha_composite(alpha_mul(tile, op), (int(x), int(y)))
 
 
 def kicker(layer, t, n, title, start=0.4, hold=5.5, xy=None):

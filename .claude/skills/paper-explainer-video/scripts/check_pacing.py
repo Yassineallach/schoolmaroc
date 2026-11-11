@@ -10,10 +10,16 @@ Reports, per act and for the film:
   - how much of each shot carries text (headline + caption layers): shots where type covers a
     large share of the frame for most of their length are listed, and the share of shots with
     NO text at all is printed (aim for at least a quarter: let images speak);
-  - whether the first shot of the film opens on a chapter label before anything happens.
+  - effect budgets for the whole film (stamps, flips, letterboxes, spin-ins, special cuts),
+    counted from the act sources (Craft 3);
+  - images used more than twice in the film, and prints multiplied in a loop (Craft 5);
+  - a chapter label (kicker) or title on the very first shot of act 1, before the hook (Craft,
+    phase 1);
+  - real images with no caption() in the shot that shows them (Craft 6), as a reminder.
 It only reads the act files; it renders nothing and changes nothing.
 """
-import importlib, os, sys
+import importlib, os, re, sys
+from collections import Counter
 import numpy as np
 
 sys.path.insert(0, os.getcwd())
@@ -25,6 +31,43 @@ SPECIAL = {'pageturn', 'circle', 'shape', 'zoom', 'collage'}
 
 def cover(layer):
     return float((np.asarray(layer.getchannel('A').reduce(8)) > 40).mean())
+
+
+BUDGET = {'stamp_hit(': 3, 'P.flip(': 2, 'letterbox(': 2, 'spin_in(': 1}
+
+
+def source_checks(acts, flags):
+    src = {a: open(f'{a}.py', encoding='utf-8').read() for a in acts}
+    film = '\n'.join(src.values())
+    for call, cap in BUDGET.items():
+        n = film.count(call)
+        if n > cap:
+            flags.append(f'film: {n} x {call[:-1]} (budget {cap})')
+    special = sum(len(re.findall(r"['\"](%s)['\"]" % k, film)) for k in SPECIAL)
+    total_cuts = sum(len(importlib.import_module(a).SHOTS) - 1 for a in acts)
+    if total_cuts and special / total_cuts > 0.25:
+        flags.append(f'film: {special} special cuts of {total_cuts} ({100 * special // total_cuts} %; keep it under 25 %)')
+    uses = Counter()
+    for a, text in src.items():
+        names = dict(re.findall(r"^(\w+)\s*=.*?asset\('([^']+)'\)", text, re.M))
+        for var, file in names.items():
+            if var.startswith('HAS_'):
+                continue
+            k = len(re.findall(r'\b%s\b' % re.escape(var), text)) - 1
+            uses[file] += max(0, k)
+    for file, n in uses.items():
+        if n > 3:
+            flags.append(f'film: {file} appears in about {n} places (an image at most twice, plus one planned callback)')
+    for a, text in src.items():
+        if re.search(r'for i in range\(\s*\d+[^)]*\):\s*\n(?:.*\n){0,3}?.*P\.drop\(s\.mid, (\w+)', text):
+            flags.append(f'{a}: a print dropped inside a loop (the same image multiplied); show a real image of many instead')
+    first = src.get('act1', '')
+    m = re.search(r'def sA\(t, D\):(.*?)\n\n\ndef ', first, re.S)
+    if m and 'kicker(' in m.group(1):
+        flags.append('act1.sA: chapter label on the first shot; open on the image, put the kicker on the second shot')
+    for a, text in src.items():
+        if 'asset(' in text and 'caption(' not in text:
+            flags.append(f'{a}: real images but no caption(); say what each image is, small, in a corner')
 
 
 def main(acts):
@@ -57,6 +100,7 @@ def main(acts):
             if text > 0.12:
                 flags.append(f'{name}: type covers {text * 100:.0f} % of the frame; cut words or split the shot')
             prev_env, prev_cut = env, cut
+    source_checks(acts, flags)
     L = np.array(lengths)
     print(f'{total} shots, average {L.mean():.1f} s (shortest {L.min():.1f}, longest {L.max():.1f}, spread {L.std():.1f})')
     print(f'shots with no text at all: {textless} of {total} ({100 * textless / total:.0f} %; aim for 25 % or more)')

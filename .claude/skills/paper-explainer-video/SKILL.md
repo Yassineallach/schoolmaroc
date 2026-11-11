@@ -93,7 +93,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `themes.py` | per-episode background themes, all in the editorial design language (each maps to an identity family) |
 | `bg_motion.py` | the original editorial background, and theme selection from `episode.json` (none named: the identity's default, e.g. history → `astrolabe`) |
 | `commons.py` | real images from Wikimedia Commons: search per slot with contact sheets, download with credits, a table of links for the user to download by hand |
-| `check_pacing.py` | the pacing and variety check: shot lengths and their spread, repeated environments and cuts, how many shots carry text, text-heavy frames |
+| `check_pacing.py` | the pacing and variety check: shot lengths and their spread, repeated environments and cuts, how many shots carry text, text-heavy frames, effect budgets, images used too often or multiplied, a title before the hook, real images without a caption |
 | `music.py` | lays a music bed under a finished film (looped, faded, ducked by the voice) without re-rendering the picture |
 | `check_empty.py` | the no-empty-screens check: flags every stretch where a shot shows only its ground |
 
@@ -608,8 +608,8 @@ Viewers forgive simple pictures; they leave when a film feels automatic. These a
 - Crop to the subject. Cut museum objects out of their glass case and wall (or crop tight) so the object, not the display, is the picture; a rectangle of grey case around a small sword wastes the frame.
 - Minimum quality: 1600 px on the long side for a print, 2400 px for a full-bleed plate. No watermarked or stock-site previews, no AI-generated "photos" of real things (the Pngtree drone was refused for both reasons).
 - **The image must be the thing named.** A reconnaissance drone is not "un drone armé"; a 19th-century cavalryman is not a pre-Islamic horseman. If only a near match exists, tell the user and let them choose.
-- **Caption what the image is**, small, in a corner (label role, sentence case): object, place, museum or date of the photograph, taken from its source page ("Lance VII, Schöningen, 1997", "Sabre de fabricant damascène, vers 1900"). These captions describe the image, so they may state facts the narration does not; everything else on screen still comes from the narration (rule 1). Captions are what make a film read as documentary rather than slideshow.
-- Mark generated drawings honestly: a small "illustration" or "reconstitution" in the corner, so a drawing is never mistaken for evidence.
+- **Caption what the image is** with `caption(s.hud, 'Lance VII, Schöningen, 1997', t, start, on_dark=)` (in `style.py`: small serif, sentence case, bottom-right by default, soft dark backing on photos, fades in with no sound): object, place, museum or date of the photograph, taken from its source page ("Lance VII, Schöningen, 1997", "Sabre de fabricant damascène, vers 1900"). These captions describe the image, so they may state facts the narration does not; everything else on screen still comes from the narration (rule 1). Captions are what make a film read as documentary rather than slideshow.
+- Mark generated drawings honestly: `caption(s.hud, 'Illustration', t, start, corner='bl')` (or "Reconstitution"), so a drawing is never mistaken for evidence.
 
 **7. Generated drawings that give themselves away.**
 - At most three or four per film, all in one style from one reference, used where no photograph can exist.
@@ -627,7 +627,7 @@ Viewers forgive simple pictures; they leave when a film feels automatic. These a
 - **Thumbnail:** one subject from the film, one contrast, at most four words; offer to set the words in the film's own typeface over the user's image so the thumbnail matches the video. Check it at 160×90 px.
 - **Description:** two lines that state the question the film answers, then the chapters; credits below (`CREDITS.txt`), never on screen unless asked.
 
-**Run before every draft:** `check_empty.py`, then `check_pacing.py`. Read its numbers aloud to yourself: the share of text-free shots, the spread of shot lengths, repeated environments. Fix the film, not the numbers.
+**Run before every draft:** `check_empty.py`, then `check_pacing.py` (it also reads the act sources: more than three stamps, two flips, two letterboxes or one spin-in, special cuts on more than a quarter of the cuts, an image in more than three places, a print dropped in a loop, a kicker on the film's first shot, an act with real images and no `caption()`). Read its numbers aloud to yourself: the share of text-free shots, the spread of shot lengths, repeated environments. Fix the film, not the numbers.
 
 ### 15. QC before rendering
 
