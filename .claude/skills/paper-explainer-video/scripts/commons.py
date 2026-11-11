@@ -4,6 +4,7 @@
     python commons.py get P02 "File:Name.jpg" [--w 2400]    # download into assets/ + credits.json
     python commons.py links [picks.json]                     # table of picks: page + direct file link
     python commons.py credit P02 "File:Name.jpg"             # record the credit of a file the user saved
+    python commons.py fetch P02 "File:Name.jpg"              # get without the API (when only the API is rate-limited)
 
 sources.json: {"P02": ["Schöningen Speer im Sediment", "Schöningen spear"], ...}  (queries per slot)
 
@@ -182,6 +183,27 @@ def cmd_links(picks_path='picks.json'):
         print(f"| `{code}.jpg` | [page]({page}) | [file]({direct}) | {x['licence'] if x else '?'} |")
 
 
+def cmd_fetch(slot, title, width=2400):
+    """Like get, but with no API call: downloads the original from upload.wikimedia.org using
+    the URL and licence found by `search` (candidates.json). Use it when the API answers 429
+    but the file server does not (common on shared cloud IPs)."""
+    cpath = os.path.join(PROJECT, 'out', 'commons', 'candidates.json')
+    known = {x['title']: x for v in json.load(open(cpath, encoding='utf-8')).values() for x in v} if os.path.exists(cpath) else {}
+    cd = known.get(title)
+    if not cd:
+        sys.exit(f'{title} is not in candidates.json: run search for its slot first, or use get')
+    if not cd['free']:
+        sys.exit(f'not a free licence: {cd["licence"]}')
+    im = Image.open(io.BytesIO(_fetch(cd['url'].split('?')[0]))).convert('RGB')
+    if max(im.size) > width:
+        im.thumbnail((width, width), Image.LANCZOS)
+    os.makedirs(os.path.join(PROJECT, 'assets'), exist_ok=True)
+    out = os.path.join(PROJECT, 'assets', f'{slot}.jpg')
+    im.save(out, quality=95)
+    cmd_credit(slot, title)
+    print(f'{out}: {im.size[0]}x{im.size[1]}')
+
+
 def cmd_credit(slot, title):
     """Record the credit for a file the user downloaded by hand (no image download here)."""
     cpath = os.path.join(PROJECT, 'out', 'commons', 'candidates.json')
@@ -201,6 +223,6 @@ if __name__ == '__main__':
         cmd_links(sys.argv[2] if len(sys.argv) > 2 else 'picks.json')
     elif sys.argv[1] == 'credit':
         cmd_credit(sys.argv[2], sys.argv[3])
-    elif sys.argv[1] == 'get':
+    elif sys.argv[1] in ('get', 'fetch'):
         w = int(sys.argv[sys.argv.index('--w') + 1]) if '--w' in sys.argv else 2400
-        cmd_get(sys.argv[2], sys.argv[3], w)
+        (cmd_get if sys.argv[1] == 'get' else cmd_fetch)(sys.argv[2], sys.argv[3], w)

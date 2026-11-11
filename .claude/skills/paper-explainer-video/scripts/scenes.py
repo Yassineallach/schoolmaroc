@@ -174,15 +174,16 @@ def _overlay(g, kind, dark, seed):
                 d.point((x, y), fill=col)
                 d.point((x + 1, y), fill=col)
     elif kind == 'marble' and not dark:                             # faint marble veins
-        for _ in range(5):
+        for _ in range(4):                                          # long, slow, barely-there veins (never cracks)
             x, y = r.uniform(-200, W), r.uniform(0, H)
-            pts = []
+            dy, pts = r.normal(0, 3), []
             for k in range(40):
-                x += r.uniform(30, 60)
-                y += r.normal(0, 14)
+                dy = 0.85 * dy + r.normal(0, 2.2)
+                x += r.uniform(40, 60)
+                y += dy
                 pts.append((x, y))
-            d.line(pts, fill=PAL.border + (90,), width=int(r.uniform(1, 3)))
-        ov = ov.filter(ImageFilter.GaussianBlur(1.2))
+            d.line(pts, fill=PAL.border + (38,), width=2)
+        ov = ov.filter(ImageFilter.GaussianBlur(2.5))
     elif kind == 'deckle' and not dark:                             # organic fibre clouds
         m = Image.fromarray(((_noise(H, W, 160, seed + 9, 1.0) + 1) * 40).clip(0, 255).astype(np.uint8))
         t = Image.new('RGBA', (W, H), PAL.tint + (0,))

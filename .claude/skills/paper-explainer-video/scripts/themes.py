@@ -759,7 +759,11 @@ class Astrolabe(Theme):
                     h = math.sqrt(max(0, r * r - k * k))
                     d.line([(c0 + k * S2, c0 - h * S2), (c0 + k * S2, c0 + h * S2)], fill=90, width=S2)
                     d.line([(c0 - h * S2, c0 + k * S2), (c0 + h * S2, c0 + k * S2)], fill=90, width=S2)
-        for r, text, size, a_start in letters:                 # lettering set along a ring
+        for item in letters:                                   # lettering set along a ring
+            r, text, size, a_start = item[:4]
+            flip = len(item) > 4 and item[4]                   # bottom arc: glyphs upright, read left to right
+            if flip:
+                text = text[::-1]
             f = self._font(size * S2)
             a = a_start
             for ch in text:
@@ -768,7 +772,7 @@ class Astrolabe(Theme):
                     continue
                 g = Image.new('L', (size * 3 * S2, size * 3 * S2), 0)
                 ImageDraw.Draw(g).text((g.width / 2, g.height / 2), ch, font=f, fill=210, anchor='mm')
-                g = g.rotate(-math.degrees(a) - 90, Image.BICUBIC)
+                g = g.rotate(-math.degrees(a) - 90 + (180 if flip else 0), Image.BICUBIC)
                 x, y = c0 + r * S2 * math.cos(a), c0 + r * S2 * math.sin(a)
                 m.paste(255, (int(x - g.width / 2), int(y - g.height / 2)), g)
                 a += size * 0.78 / r
@@ -808,3 +812,89 @@ class Astrolabe(Theme):
 
 
 THEMES['astrolabe'] = Astrolabe()
+
+
+# ---- Carnet des nombres: ivory, lapis and gold leaf (Les très grands nombres) -----------
+# The philosophy identity's ground: smooth marble-ivory paper with fine grain, a faint lapis
+# chessboard corner bleeding off the bottom-left (the film's motif), an engraved dial in the
+# top-right whose ring carries the doubling numbers 1 2 4 8 ..., a gold-leaf dot travelling
+# that ring, a dot grid that breathes and two thin rules. Centre left open for the collage.
+CN_PAPER = (241, 236, 226)
+CN_EDGE = (222, 214, 198)
+CN_LAPIS = (43, 74, 155)
+CN_GOLD = (190, 150, 70)
+CN_DOT = (150, 146, 160)
+
+
+class Carnet(Astrolabe):
+    def __init__(self):
+        Theme.__init__(self, 'carnet', 'Carnet des nombres (Les très grands nombres)', [], CN_PAPER, 64)
+
+    def _paper(self, seed):
+        a = np.empty((H, W, 3), np.float32)
+        a[:] = CN_PAPER
+        a += _noise(H, W, 120, seed, 1.0)[..., None] + _noise(H, W, 4, seed + 2, 1.6)[..., None]
+        yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+        r = np.sqrt(((xx / W - 0.5) * 1.1) ** 2 + ((yy / H - 0.5) * 1.0) ** 2)
+        k = np.clip((r - 0.35) / 0.45, 0, 1) ** 1.6 * 0.55
+        a = a * (1 - k[..., None]) + np.array(CN_EDGE, np.float32) * k[..., None]
+        img = Image.fromarray(a.clip(0, 255).astype(np.uint8))
+        d = ImageDraw.Draw(img)
+        rng = np.random.default_rng(seed + 5)
+        for _ in range(0):                                    # (no veins: grounds stay smooth)
+            x, y = rng.uniform(0, W), rng.uniform(0, H)
+            pts = [(x, y)]
+            ang = rng.uniform(-0.6, 0.6)
+            for _ in range(int(rng.uniform(3, 7))):
+                ang += rng.normal(0, 0.35)
+                x += 14 * math.cos(ang); y += 14 * math.sin(ang)
+                pts.append((x, y))
+            c = int(rng.uniform(222, 232))
+            d.line(pts, fill=(c, c - 2, c - 8), width=1)
+        return img.filter(ImageFilter.GaussianBlur(0.6))
+
+    def _board(self, n_x, n_y, s):
+        S2 = 2
+        m = Image.new('L', ((n_x * s + 8) * S2, (n_y * s + 8) * S2), 0)
+        d = ImageDraw.Draw(m)
+        for i in range(n_x):
+            for j in range(n_y):
+                x0, y0 = (4 + i * s) * S2, (4 + j * s) * S2
+                if (i + j) % 2:
+                    d.rectangle((x0, y0, x0 + s * S2, y0 + s * S2), fill=70)
+                d.rectangle((x0, y0, x0 + s * S2, y0 + s * S2), outline=200, width=S2)
+        d.rectangle((4 * S2 - 6, 4 * S2 - 6, (4 + n_x * s) * S2 + 6, (4 + n_y * s) * S2 + 6), outline=255, width=2 * S2)
+        return m.resize((m.width // S2, m.height // S2), Image.LANCZOS)
+
+    def build(self):
+        self.g1 = self._paper(self.seed)
+        self.board = self._board(5, 4, 118).rotate(-9, Image.BICUBIC, expand=True)
+        dial = [('ring', 360, 2), ('ring', 346, 1), ('ticks', 346, 330, 64, 8), ('ring', 330, 1),
+                ('ring', 250, 2), ('spokes', 120, 250, 8), ('ring', 180, 1), ('ring', 120, 2)]
+        self.dial = self._dial(370, dial, self.seed, [(292, '1  2  4  8  16  32  64  128', 24, 1.62, True)])
+        self.ink = CN_LAPIS
+        r = np.random.default_rng(self.seed + 9)
+        self.dots = [(1500 + i * 30, 840 + j * 30, r.uniform(0, TAU), r.uniform(5, 9)) for i in range(6) for j in range(4)]
+
+    def frame(self, t):
+        if not self._built:
+            self.build()
+            self._built = True
+        c = self.g1.copy()
+        self._put(c, self.board, 250, 905, 0.16, 6 * _s(t, 41), 4 * _s(t, 33, 0.6))
+        ang = -t * 0.08                                                  # a slow turn, about 25 degrees over a film
+        self._put(c, self.dial.rotate(ang, Image.BILINEAR), W - 150, 110, 0.24, -5 * _s(t, 37, 1.2), 4 * _s(t, 29))
+        a = 1.75 + 1.2 * (0.5 + 0.5 * _s(t, 46, -1.0))                  # gold leaf on the visible arc
+        _dot(c, W - 150 + 360 * math.cos(a), 110 + 360 * math.sin(a), 11, CN_GOLD, 1.0)
+        for x, y, ph, per in self.dots:
+            _dot(c, x, y, 3.5, CN_DOT, 0.55 * (0.35 + 0.65 * (0.5 + 0.5 * math.sin(TAU * t / per + ph))))
+        g = 70 * (0.5 - 0.5 * _s(t, 23, 0.4))
+        a0 = int(90 + g)
+        c.paste(CN_LAPIS, (a0, 70, 640, 72), Image.new('L', (640 - a0, 2), 70))
+        g = 60 * (0.5 - 0.5 * _s(t, 27, 1.7))
+        b1 = int(1820 - g)
+        c.paste(CN_GOLD, (1180, 1010, b1, 1012), Image.new('L', (b1 - 1180, 2), 120))
+        return c
+
+
+THEMES['carnet'] = Carnet()

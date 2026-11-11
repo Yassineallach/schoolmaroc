@@ -15,19 +15,19 @@
   "wheat pile"
  ],
  "R04": [
-  "Ibn Khallikan Wafayat manuscript",
-  "Wafayat al-a'yan manuscript",
-  "Ibn Khallikan"
+  "وفيات الأعيان مخطوط",
+  "Wafayat al-Ayan manuscript",
+  "Ibn Khallikan manuscript"
  ],
  "R05": [
-  "Narmer macehead numerals",
-  "Narmer macehead drawing",
-  "Egyptian hieroglyph numerals"
+  "Narmer Macehead",
+  "Narmer mace head drawing Quibell",
+  "Narmer macehead captives numbers"
  ],
  "R06": [
-  "Heh god hieroglyph relief",
-  "Heh deity million relief",
-  "Heh kneeling god"
+  "Heh hieroglyph",
+  "Heh god relief",
+  "Heh deity holding palm ribs"
  ],
  "R07": [
   "Roman numerals inscription",
@@ -103,5 +103,31 @@
   "Krönlein Wortschatz der Khoi-Khoin",
   "Nama language dictionary 1889",
   "Khoekhoe grammar book"
+ ],
+ "H01": [
+  "George Gamow",
+  "George Gamow portrait",
+  "Gamow physicist"
+ ],
+ "H02": [
+  "Edward Kasner",
+  "Edward Kasner mathematician"
+ ],
+ "H03": [
+  "Donald Knuth",
+  "Donald Knuth portrait"
+ ],
+ "H04": [
+  "Ronald Graham",
+  "Ronald Graham mathematician",
+  "Ron Graham juggling"
+ ],
+ "H05": [
+  "Harvey Friedman logician",
+  "Harvey Friedman mathematician"
+ ],
+ "H06": [
+  "Agustín Rayo philosopher",
+  "Adam Elga philosopher"
  ]
 }
