@@ -128,6 +128,34 @@ def _logo_lum(im):
     return float((a[..., :3][m] @ [0.299, 0.587, 0.114]).mean()) if m.any() else 128.0
 
 
+def _ground_of(layer, box, default=230.0):
+    """The tone under box on a layer that may be transparent (a HUD layer): measured where the
+    layer is opaque, else `default` (the grounds are light unless a scene says otherwise)."""
+    x0, y0, x1, y1 = [int(v) for v in box]
+    x0, y0, x1, y1 = max(0, x0), max(0, y0), min(layer.width, x1), min(layer.height, y1)
+    if x1 <= x0 or y1 <= y0:
+        return default
+    reg = layer.crop((x0, y0, x1, y1))
+    if reg.mode == 'RGBA' and np.asarray(reg.getchannel('A')).mean() < 128:
+        return default
+    return float(np.asarray(reg.convert('L'), np.float32).mean())
+
+
+def _lum(c):
+    return 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]
+
+
+def _clash(im, ground):
+    """True when a real part of the logo (a quarter of its ink or more) is too close in tone to the
+    ground to read: e.g. a cream 'Lab' on cream paper, even if the orange 'AX' would read."""
+    a = np.asarray(im, np.float32)
+    m = a[..., 3] > 120
+    if not m.any():
+        return False
+    lum = a[..., :3][m] @ [0.299, 0.587, 0.114]
+    return float((np.abs(lum - ground) < 75).mean()) > 0.25
+
+
 def _ground_lum(base, box):
     x0, y0, x1, y1 = [int(v) for v in box]
     x0, y0, x1, y1 = max(0, x0), max(0, y0), min(W, x1), min(H, y1)
@@ -137,7 +165,7 @@ def _ground_lum(base, box):
     return float(a.mean())
 
 
-def place_logo(img, x, y, width, op=1.0, force=False, plate=None, anchor='lt'):
+def place_logo(img, x, y, width, op=1.0, force=False, plate=None, anchor='lt', ground=None):
     """Composite the logo onto img (RGBA) with readability handled: an official variant for the
     ground if there is one, else a soft plate behind it when logo and ground are too close."""
     base = logo(width, force=force)
@@ -148,16 +176,17 @@ def place_logo(img, x, y, width, op=1.0, force=False, plate=None, anchor='lt'):
         x, y = x - w_ / 2, y - h_ / 2
     elif anchor == 'rt':
         x = x - w_
-    g = _ground_lum(img, (x, y, x + w_, y + h_))
+    g = ground if ground is not None else _ground_lum(img, (x, y, x + w_, y + h_))   # pass `ground` when drawing on a transparent layer
     dark_ground = g < 110
     variant = 'on_dark' if dark_ground else 'on_light'
     im = logo(width, variant, force) if _logo_path(variant) else base
-    need = plate if plate is not None else (CFG['logo']['plate'] == 'auto' and abs(_logo_lum(im) - g) < 70)
+    need = plate if plate is not None else (CFG['logo']['plate'] == 'auto' and _clash(im, g))
     if need:
-        pad = max(10, int(h_ * 0.22))
+        pad = max(8, int(h_ * 0.30))
         pl = Image.new('RGBA', (w_ + 2 * pad, h_ + 2 * pad), (0, 0, 0, 0))
-        col = PAPER if _logo_lum(im) < 128 else PAL.dark
-        ImageDraw.Draw(pl).rounded_rectangle((0, 0, pl.width - 1, pl.height - 1), radius=pad, fill=col + (int(255 * CFG['logo']['plate_opacity']),))
+        pc = CFG['logo'].get('plate_color')
+        col = tuple(int(pc.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4)) if pc else (PAPER if _logo_lum(im) < 128 else PAL.dark)
+        ImageDraw.Draw(pl).rounded_rectangle((0, 0, pl.width - 1, pl.height - 1), radius=max(3, pad // 3), fill=col + (int(255 * CFG['logo']['plate_opacity']),))
         img.alpha_composite(alpha_mul(pl, op), (int(x - pad), int(y - pad)))
     img.alpha_composite(alpha_mul(im, op), (int(x), int(y)))
     return (x, y, x + w_, y + h_)
@@ -259,7 +288,7 @@ def signature(layer, x, y, t, start, length=None, colour=None, dur=0.6, op=1.0, 
 
 
 # ------------------------------------------------------------------ animated logo reveal
-def reveal(layer, cx, cy, width, t, start, style=None, hold=None, exit_dur=0.6, force=False, signature_under=True, T=None):
+def reveal(layer, cx, cy, width, t, start, style=None, hold=None, exit_dur=0.6, force=False, signature_under=True, T=None, ground=None):
     """Logo reveal centred on (cx, cy). style: 'mask' (a clean wipe behind a moving edge),
     'scale' (opacity + 0.94 -> 1 settle), 'assemble' (four fine rules close in, then the logo).
     hold=None keeps it on screen; otherwise it exits gently after `hold` seconds."""
@@ -277,11 +306,13 @@ def reveal(layer, cx, cy, width, t, start, style=None, hold=None, exit_dur=0.6, 
             return
     w_, h_ = im.size
     x0, y0 = cx - w_ / 2, cy - h_ / 2
+    if ground is None:
+        ground = _ground_of(layer, (x0, y0, x0 + w_, y0 + h_))
     u = _c((t - start) / dur)
     tmp = Image.new('RGBA', layer.size, (0, 0, 0, 0))
     if style == 'scale':
         s = 0.94 + 0.06 * _eo(u)
-        place_logo(tmp, cx, cy, width * s, op=_eo(u * 1.4), force=force, anchor='mm')
+        place_logo(tmp, cx, cy, width * s, op=_eo(u * 1.4), force=force, anchor='mm', ground=ground)
     elif style == 'assemble':
         d = ImageDraw.Draw(tmp)
         col = _ink_for(layer.convert('RGBA') if layer.mode != 'RGBA' else layer, (x0, y0, x0 + w_, y0 + h_))
@@ -291,9 +322,9 @@ def reveal(layer, cx, cy, width, t, start, style=None, hold=None, exit_dur=0.6, 
             for (xa, ya, xb, yb) in ((x0 - 30 - g, y0 - 18, x0 + w_ * 0.35 - g, y0 - 18), (x0 + w_ * 0.65 + g, y0 - 18, x0 + w_ + 30 + g, y0 - 18),
                                      (x0 - 30 - g, y0 + h_ + 18, x0 + w_ * 0.35 - g, y0 + h_ + 18), (x0 + w_ * 0.65 + g, y0 + h_ + 18, x0 + w_ + 30 + g, y0 + h_ + 18)):
                 d.line((xa, ya, xb, yb), fill=col + (a,), width=2)
-        place_logo(tmp, cx, cy, width, op=_eo((u - 0.35) / 0.5), force=force, anchor='mm')
+        place_logo(tmp, cx, cy, width, op=_eo((u - 0.35) / 0.5), force=force, anchor='mm', ground=ground)
     else:                                                   # mask: the logo appears behind a soft moving edge
-        place_logo(tmp, cx, cy, width, op=1.0, force=force, anchor='mm')
+        place_logo(tmp, cx, cy, width, op=1.0, force=force, anchor='mm', ground=ground)
         m = Image.new('L', layer.size, 0)
         edge = x0 - 40 + (w_ + 80) * _eio(u)
         if RTL:
@@ -306,7 +337,8 @@ def reveal(layer, cx, cy, width, t, start, style=None, hold=None, exit_dur=0.6, 
             ImageDraw.Draw(tmp).rectangle((edge - 1, y0 - 6, edge + 1, y0 + h_ + 6), fill=PAL.accent + (int(200 * (1 - u)),))
     layer.alpha_composite(alpha_mul(tmp, k))
     if signature_under:
-        signature(layer, cx - (CFG['signature']['length'] + CFG['signature']['gap'] + CFG['signature']['square']) / 2, cy + h_ / 2 + 26,
+        below = h_ / 2 + (int(h_ * 0.30) + 22 if _clash(im, ground) else 26)          # clear of the plate when there is one
+        signature(layer, cx - (CFG['signature']['length'] + CFG['signature']['gap'] + CFG['signature']['square']) / 2, cy + below,
                   t, start + dur * 0.7, op=k)
 
 
@@ -402,7 +434,7 @@ def cta_subscribe(layer, x, y, t, start, dur=4.2, T0=None, force=False, show_log
     bw = int(max(f.getlength(lab), f.getlength(done) + 34) + 56)
     lg = logo(150, force=force) if show_logo else None
     lw_ = lg.width if lg is not None else 0
-    name = CFG.get('channel_name')
+    name = CFG.get('channel_name') if lg is None else None          # the logo already names the channel
     nf = _font('title', 30)
     nw = int(nf.getlength(name)) if name else 0
     w_ = 28 + (lw_ + 22 if lg is not None else 0) + max(nw, 0) + (22 if name else 0) + bw + (64 if bell else 0) + 24
@@ -411,8 +443,8 @@ def cta_subscribe(layer, x, y, t, start, dur=4.2, T0=None, force=False, show_log
     d = ImageDraw.Draw(card)
     cx = 28
     if lg is not None:
-        card.alpha_composite(lg, (cx, (h_ - lg.height) // 2))
-        cx += lw_ + 22
+        box = place_logo(card, cx + 6, (h_ - lg.height) // 2, lg.width, force=force, ground=_lum(PAPER))
+        cx += lw_ + 22 + (12 if box and _clash(lg, _lum(PAPER)) else 0)
     if name:
         _text(d, (cx, h_ / 2), name, nf, INK + (255,), 'lm')
         cx += nw + 22
@@ -755,7 +787,8 @@ def overlay(frame, T, shot=None, shot_span=None, neighbours=None, force=False):
                 tmp = Image.new('RGBA', img.size, (0, 0, 0, 0))
                 lg = logo(wm['width'], force=force)
                 if lg is not None:
-                    reveal(tmp, x + lg.width / 2, y + lg.height / 2, wm['width'], first, 0.0, style='mask', force=force, signature_under=False)
+                    reveal(tmp, x + lg.width / 2, y + lg.height / 2, wm['width'], first, 0.0, style='mask', force=force, signature_under=False,
+                           ground=_ground_lum(img, (x, y, x + lg.width, y + lg.height)))
                     img.alpha_composite(alpha_mul(tmp, wm['opacity'] * op))
             else:
                 place_logo(img, x, y, wm['width'], op=wm['opacity'] * op, force=force)
@@ -831,6 +864,7 @@ def outro_scene(t, D, force=False):
     o = CFG['outro']
     ink = S.ink(s)
     T0 = vox._SCENE_START
+    gl = _lum(PAL.dark) if _lum(ink) > 128 else _lum(PAL.light)          # the outro's ground tone, from its ink
     cx0 = col[0] if name != 'centered' else W // 2
     lw = 420 if name != 'centered' else 460
     lg = logo(lw, force=force)
@@ -839,7 +873,7 @@ def outro_scene(t, D, force=False):
     lx = cx0 + lw / 2 if name != 'centered' else W / 2
     if RTL and name != 'centered':
         lx = col[2] - lw / 2
-    reveal(s.hud, lx, ly, lw, t, 0.2, style=CFG['animation']['reveal'], force=force, T=T0 + 0.2)
+    reveal(s.hud, lx, ly, lw, t, 0.2, style=CFG['animation']['reveal'], force=force, T=T0 + 0.2, ground=gl)
     _voice('outro', T0 + 0.6)
     y = ly + lh / 2 + 60
     if CFG.get('tagline'):
@@ -869,7 +903,7 @@ def outro_scene(t, D, force=False):
         sl = logo(int(r * 1.3), force=force)
         if sl is not None:
             tmp = Image.new('RGBA', s.hud.size, (0, 0, 0, 0))
-            place_logo(tmp, cxc, cyc, int(r * 1.3), force=force, anchor='mm')
+            place_logo(tmp, cxc, cyc, int(r * 1.3), force=force, anchor='mm', ground=gl)
             s.hud.alpha_composite(alpha_mul(tmp, a * 0.9))
         mf = _font('title', 40)
         msg = TXT['outro_sub']
@@ -880,7 +914,11 @@ def outro_scene(t, D, force=False):
             lines = _wrap(msg, mf, (col[2] - tx) if not RTL else (tx - col[0]))
             for i, ln in enumerate(lines):
                 d.text((tx, cyc - 26 * len(lines) + 52 * i + 26), ln, font=mf, fill=ink + (int(255 * a),), anchor='lm' if not RTL else 'rm')
-        signature(s.hud, tx if not RTL else tx, cyc + 26 * len(_wrap(msg, mf, 600)) + 30, t, switch + 0.5, length=110, colour=PAL.accent)
+        if name == 'centered':
+            sl_ = CFG['signature']
+            signature(s.hud, W / 2 - (110 + sl_['gap'] + sl_['square']) / 2, cyc + r + 116, t, switch + 0.5, length=110, colour=PAL.accent)
+        else:
+            signature(s.hud, tx, cyc + 26 * len(_wrap(msg, mf, 600)) + 30, t, switch + 0.5, length=110, colour=PAL.accent)
         _sound('pop', T0 + switch, cxc, 0.4)
     return s
 

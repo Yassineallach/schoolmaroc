@@ -14,6 +14,7 @@ import vox, style, scenes as S, brand as B
 from vox import W, H
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else 'out/brand'
+NEXT = list(B.CFG['outro']['next_videos'])
 os.makedirs(OUT, exist_ok=True)
 
 
@@ -93,7 +94,7 @@ B.CFG['outro'].update(layout='auto', env='paper')
 print('stills in', OUT)
 
 if '--reel' in sys.argv:
-    B.CFG['outro']['next_videos'] = [{'title': 'Histoire des armes', 'thumbnail': None}, {'title': None, 'thumbnail': None}]
+    B.CFG['outro']['next_videos'] = list(NEXT)                # the channel's own setting
     style.EVENTS.clear()
     base = act_frame(22.0)
     D = 30.0
@@ -109,7 +110,8 @@ if '--reel' in sys.argv:
             wm = B.CFG['watermark']
             x, y = B._corner_xy(wm['corner'], wm['margin'], 0, wm['width'])
             lg = B.logo(wm['width'], force=True)
-            B.reveal(tmp, x + lg.width / 2, y + lg.height / 2, wm['width'], t - 3.4, 0.0, style='mask', force=True, signature_under=False)
+            B.reveal(tmp, x + lg.width / 2, y + lg.height / 2, wm['width'], t - 3.4, 0.0, style='mask', force=True, signature_under=False,
+                     ground=B._ground_lum(g, (x, y, x + lg.width, y + lg.height)))
             g.alpha_composite(vox.alpha_mul(tmp, wm['opacity']))
             return np.asarray(g.convert('RGB'))
         if t < 13.0:
