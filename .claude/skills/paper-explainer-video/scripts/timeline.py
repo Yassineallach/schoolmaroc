@@ -96,7 +96,7 @@ class Timeline:
         k = A.life(t, start, until, exit)
         xa, xb, y = self.x(a), self.x(b), self.y - 70
         p = A.pen((t - start) / 0.6)
-        A.stroke(layer, A.wobble([(xa, y + 24), (xa, y), (xb, y), (xb, y + 24)], 0.8, int(a)), p, 5, colour, k)
+        A.stroke(layer, A.wobble([(xa, y + 24), (xa, y), (xb, y), (xb, y + 24)], 0.8, abs(int(a))), p, 5, colour, k)   # BC years are negative: seeds are not
         if p > 0.6:
             ImageDraw.Draw(layer).text(((xa + xb) / 2, y - 30), label, font=F_TYPE(30), fill=colour + (int(255 * k * min(1, (p - 0.6) / 0.3)),), anchor='mm')
 
