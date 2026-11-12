@@ -96,34 +96,30 @@ print('stills in', OUT)
 if '--reel' in sys.argv:
     B.CFG['outro']['next_videos'] = list(NEXT)                # the channel's own setting
     style.EVENTS.clear()
-    base = act_frame(22.0)
-    D = 30.0
+    base = act_frame(11.5)
+    D = 18.4
+
+    import brand_cta as BC
+    marker = B.CFG['cta'].get('style') == 'marker'
+    c_, qx, qy = BC.quiet_corner(np.asarray(base.convert('RGB')), 720, 160)
 
     def frame(t):
-        if t < 3.0:                                           # the reveal, on its own
-            g = ground('cream', t)
-            B.reveal(g, W / 2, H / 2 - 40, 520, t, 0.3, hold=1.6, force=True, T=0.3)
-            return np.asarray(g.convert('RGB'))
-        if t < 8.0:                                           # watermark ident on a shot of the film
+        if t < 4.0:                                           # the like card, in the frame's quiet corner
             g = base.copy()
-            tmp = Image.new('RGBA', g.size, (0, 0, 0, 0))
-            wm = B.CFG['watermark']
-            x, y = B._corner_xy(wm['corner'], wm['margin'], 0, wm['width'])
-            lg = B.logo(wm['width'], force=True)
-            B.reveal(tmp, x + lg.width / 2, y + lg.height / 2, wm['width'], t - 3.4, 0.0, style='mask', force=True, signature_under=False,
-                     ground=B._ground_lum(g, (x, y, x + lg.width, y + lg.height)))
-            g.alpha_composite(vox.alpha_mul(tmp, wm['opacity']))
+            if marker:
+                BC.like(g, qx, qy + 20, t - 0.4, 3.4, T0=0.4, motif=B._motif())
+            else:
+                B.cta_like(g, 64, 900, t - 0.4, 0.0, 3.2, T0=0.4)
             return np.asarray(g.convert('RGB'))
-        if t < 13.0:
+        if t < 8.4:                                           # the subscribe tab
             g = base.copy()
-            B.cta_subscribe(g, 64, 900, t - 8.3, 0.0, 4.4, T0=8.3, force=True)
+            if marker:
+                BC.subscribe(g, qx, qy + 20, t - 4.3, 3.8, T0=4.3, force=True)
+            else:
+                B.cta_subscribe(g, 64, 900, t - 4.3, 0.0, 4.0, T0=4.3, force=True)
             return np.asarray(g.convert('RGB'))
-        if t < 18.5:
-            g = ground('paper', t)
-            B.cta_comment(g, 120, 340, t - 13.3, 0.0, 4.8, width=900, T0=13.3)
-            return np.asarray(g.convert('RGB'))
-        vox._SCENE_START = 18.5
-        return style.compose(B.outro_scene(t - 18.5, 11.5, force=True), t)
+        vox._SCENE_START = 8.4
+        return style.compose(B.outro_scene(t - 8.4, 10.0, force=True), t)
 
     silent = os.path.join(OUT, 'reel_silent.mp4')
     p = subprocess.Popen(['ffmpeg', '-y', '-v', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', '30', '-i', '-',

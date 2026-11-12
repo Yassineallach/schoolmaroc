@@ -21,8 +21,8 @@
   "light": "Inter400.ttf"
  },
  "colors": {
-  "cta": null,
-  "cta_text": null,
+  "cta": "#F55200",
+  "cta_text": "#F6F1EA",
   "signature": null
  },
  "signature": {
@@ -65,7 +65,10 @@
   "like": {
    "enabled": true,
    "at": "auto",
-   "dur": 3.2
+   "dur": 3.2,
+   "motif": null,
+   "max_dur": 3.5,
+   "min_dur": 2.4
   },
   "subscribe_mid": {
    "enabled": false,
@@ -81,7 +84,8 @@
    "enabled": true,
    "question": null
   },
-  "voice": {}
+  "voice": {},
+  "style": "marker"
  },
  "placement": {
   "protect_hook": true,
@@ -130,7 +134,7 @@
   "fr": {
    "subscribe": "S’abonner",
    "subscribed": "Abonné",
-   "like": "Cette histoire vous a plu ? Un j’aime nous aide.",
+   "like": "Cette histoire vous a plu ?",
    "comment_label": "En commentaire",
    "share": "Partagez-la avec un curieux",
    "next_label": "À voir ensuite",
@@ -138,12 +142,16 @@
    "outro_sub": "Abonnez-vous pour la prochaine histoire.",
    "outro_more": "Une autre histoire vous attend.",
    "question_template": "Quel sujet aimeriez-vous que l’on explore ensuite ?",
-   "intro_line": "Une histoire présentée par"
+   "intro_line": "Une histoire présentée par",
+   "like_verb": "Un j’aime aide la chaîne",
+   "subscribe_reason": "pour la prochaine histoire",
+   "outro_sub_verb": "Abonnez-vous",
+   "outro_sub_reason": "pour la prochaine histoire."
   },
   "en": {
    "subscribe": "Subscribe",
    "subscribed": "Subscribed",
-   "like": "Enjoyed this story? A like helps.",
+   "like": "Enjoyed this story?",
    "comment_label": "In the comments",
    "share": "Share it with someone curious",
    "next_label": "Watch next",
@@ -151,12 +159,16 @@
    "outro_sub": "Subscribe for the next story.",
    "outro_more": "Another story is waiting.",
    "question_template": "What should we explore next?",
-   "intro_line": "A story presented by"
+   "intro_line": "A story presented by",
+   "like_verb": "A like helps the channel",
+   "subscribe_reason": "for the next story",
+   "outro_sub_verb": "Subscribe",
+   "outro_sub_reason": "for the next story."
   },
   "ar": {
    "subscribe": "اشترك",
    "subscribed": "مشترك",
-   "like": "أعجبتك القصة؟ إعجابك يساعدنا.",
+   "like": "أعجبتك القصة؟",
    "comment_label": "في التعليقات",
    "share": "شاركها مع شخص فضولي",
    "next_label": "شاهد التالي",
@@ -164,7 +176,11 @@
    "outro_sub": "اشترك لتصلك القصة القادمة.",
    "outro_more": "قصة أخرى في انتظارك.",
    "question_template": "ما الموضوع الذي تريد أن نستكشفه بعد ذلك؟",
-   "intro_line": "قصة تقدمها"
+   "intro_line": "قصة تقدمها",
+   "like_verb": "إعجابك يساعد القناة",
+   "subscribe_reason": "لتصلك القصة القادمة",
+   "outro_sub_verb": "اشترك",
+   "outro_sub_reason": "لتصلك القصة القادمة."
   }
  },
  "music": {
@@ -174,6 +190,8 @@
   "outro": "sting_short.wav",
   "intro_gain": 1.0,
   "outro_gain": 0.8,
-  "lufs": -18
+  "lufs": -18,
+  "tap": "sting_tap.wav",
+  "tap_gain": 0.55
  }
 }

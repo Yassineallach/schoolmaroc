@@ -8,6 +8,9 @@
   "cta": {
    "comment": {
     "question": "Et vous, jusqu’où arrivez-vous à compter avant de penser simplement « beaucoup » ?"
+   },
+   "like": {
+    "motif": "assets/motif_grain.png"
    }
   }
  },

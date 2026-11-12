@@ -721,7 +721,12 @@ def plan():
         if T0 is None:
             continue
         used.append(T0)
-        items.append((kind, T0 + 0.15, c.get('dur', 3.2), {}))
+        dur = c.get('dur', 3.2)
+        if CFG['cta'].get('style') == 'marker':             # live exactly as long as the narration's pause allows
+            lo_, hi_ = c.get('min_dur', 2.4), c.get('max_dur', 3.5)
+            nxt = [Tp for Tp, g in pauses(0.3) if Tp > T0 + lo_]
+            dur = min(hi_, (nxt[0] - T0 + 0.2) if nxt else hi_)
+        items.append((kind, T0 + 0.15, dur, {}))
     wm = CFG['watermark']
     wm_from = first_end if wm['from'] == 'after_hook' else float(wm['from'] or 0)
     items.append(('watermark', wm_from, total - wm_from, {}))
@@ -738,6 +743,21 @@ def describe_plan():
 
 # ------------------------------------------------------------------ the per-frame overlay
 _ENV_CACHE = {}
+
+
+_CORNER = {}
+_MOTIF = {}
+
+
+def _motif():
+    """The film's own element for the like card (episode.json brand.cta.like.motif), or None."""
+    f = CFG['cta']['like'].get('motif')
+    if not f:
+        return None
+    if f not in _MOTIF:
+        p = f if os.path.isabs(f) else os.path.join(PROJECT, f)
+        _MOTIF[f] = Image.open(p).convert('RGBA') if os.path.exists(p) else None
+    return _MOTIF[f]
 
 
 def _visible_env(env):
@@ -757,10 +777,22 @@ def overlay(frame, T, shot=None, shot_span=None, neighbours=None, force=False):
         return frame
     img = Image.fromarray(frame).convert('RGBA')
     ctas = [it for it in items if it[0] != 'watermark']
+    marker = CFG['cta'].get('style') == 'marker'
     for kind, T0, dur, opts in ctas:
         x, y = _corner_xy(CFG['placement']['corner'], CFG['placement']['margin'], 84)
         tl = T - T0
         _voice(kind, T0 + 0.2)
+        if marker and kind in ('like', 'subscribe_mid'):
+            import brand_cta as BC
+            key = (kind, round(T0, 2))
+            if key not in _CORNER:
+                _CORNER[key] = BC.quiet_corner(np.asarray(img.convert('RGB')), 720, 160)
+            c_, cx_, cy_ = _CORNER[key]
+            if kind == 'like':
+                BC.like(img, cx_, cy_ + 20, tl, dur, T0=T0, motif=_motif())
+            else:
+                BC.subscribe(img, cx_, cy_ + 20, tl, dur, T0=T0, force=force)
+            continue
         if kind == 'like':
             cta_like(img, x, y, tl, 0.0, dur, T0=T0)
         elif kind == 'subscribe_mid':
@@ -828,7 +860,7 @@ def endscreen_layout(n_videos=None):
         col = (132, 150, 860, 980)
     else:
         slots = []
-        circle = (W // 2, 720, 96)
+        circle = (W // 2, 500 if CFG['cta'].get('style') == 'marker' else 720, 96)
         col = (360, 160, W - 360, 960)
     if RTL:                                                   # mirrored for right-to-left channels
         slots = [(W - b[2], b[1], W - b[0], b[3]) for b in slots]
@@ -874,7 +906,8 @@ def outro_scene(t, D, force=False):
     lx = cx0 + lw / 2 if name != 'centered' else W / 2
     if RTL and name != 'centered':
         lx = col[2] - lw / 2
-    reveal(s.hud, lx, ly, lw, t, 0.2, style=CFG['animation']['reveal'], force=force, T=T0 + 0.2, ground=gl)
+    if not (CFG['cta'].get('style') == 'marker' and t >= min(D - 4.2, 5.4)):
+        reveal(s.hud, lx, ly, lw, t, 0.2, style=CFG['animation']['reveal'], force=force, T=T0 + 0.2, ground=gl)
     _voice('outro', T0 + 0.6)
     _sting('outro', T0 + 0.2)
     y = ly + lh / 2 + 60
@@ -891,10 +924,19 @@ def outro_scene(t, D, force=False):
                      T0=T0 + 1.0 + 0.35 * i, colour=ink)
     qy = y + 20
     switch = min(D - 4.2, 5.4)
+    marker = CFG['cta'].get('style') == 'marker'
     if o.get('comment_card') and CFG['cta']['comment']['enabled']:
         qw = (col[2] - col[0]) if name != 'centered' else 900
         qx = col[0] if name != 'centered' else (W - qw) / 2
-        cta_comment(s.hud, qx, qy, t, 1.6, dur=switch - 1.6, width=qw, T0=T0 + 1.6)
+        if marker:
+            import brand_cta as BC
+            k_out = 1 - _eio((t - switch + 0.4) / 0.5)
+            if k_out > 0:
+                tmp = Image.new('RGBA', s.hud.size, (0, 0, 0, 0))
+                BC.comment_note(tmp, qx, qy, t - 1.6, width=qw, T0=T0 + 1.6)
+                s.hud.alpha_composite(alpha_mul(tmp, k_out))
+        else:
+            cta_comment(s.hud, qx, qy, t, 1.6, dur=switch - 1.6, width=qw, T0=T0 + 1.6)
     # the subscribe element's place: a fine circle with the logo inside, and the message beside it
     a = _eo((t - switch) / 0.7)
     if a > 0:
@@ -905,10 +947,24 @@ def outro_scene(t, D, force=False):
         sl = logo(int(r * 1.3), force=force)
         if sl is not None:
             tmp = Image.new('RGBA', s.hud.size, (0, 0, 0, 0))
-            place_logo(tmp, cxc, cyc, int(r * 1.3), force=force, anchor='mm', ground=gl)
-            s.hud.alpha_composite(alpha_mul(tmp, a * 0.9))
+            if marker:                                       # the logo glides down from the top into the circle
+                g_ = _eio((t - switch) / 0.9)
+                gx, gy = lx + (cxc - lx) * g_, ly + (cyc - ly) * g_
+                gw = lw + (int(r * 1.3) - lw) * g_
+                place_logo(tmp, gx, gy, gw, force=force, anchor='mm', ground=gl)
+                s.hud.alpha_composite(tmp)
+            else:
+                place_logo(tmp, cxc, cyc, int(r * 1.3), force=force, anchor='mm', ground=gl)
+                s.hud.alpha_composite(alpha_mul(tmp, a * 0.9))
         mf = _font('title', 40)
         msg = TXT['outro_sub']
+        if marker and name == 'centered':                    # the verb and the reason, set apart
+            vf = _font('label', 44)
+            aa = int(255 * _eo((t - switch - 0.6) / 0.5))
+            d.text((W / 2, cyc + r + 34), TXT.get('outro_sub_verb', ''), font=vf, fill=CTA_FILL + (aa,), anchor='ma')
+            d.text((W / 2, cyc + r + 92), TXT.get('outro_sub_reason', ''), font=_font('title', 36), fill=ink + (aa,), anchor='ma')
+            _sound('pop', T0 + switch, cxc, 0.4)
+            return s
         tx = cxc + r + 40 if not RTL else cxc - r - 40
         if name == 'centered':
             d.text((W / 2, cyc + r + 40), msg, font=mf, fill=ink + (int(255 * a),), anchor='ma')
@@ -1309,7 +1365,39 @@ def write_stings():
                         '-ar', '48000', '-ac', '2', '-c:a', 'pcm_s16le', dst], check=True)
         os.remove(raw)
         paths.append(dst)
+    if CFG['music'].get('tap'):
+        a = compose_tap()
+        raw = os.path.join(BRAND_DIR, '_tap.wav')
+        with wave.open(raw, 'wb') as w:
+            w.setnchannels(2); w.setsampwidth(2); w.setframerate(48000)
+            w.writeframes((a * 32767).astype('<i2').tobytes())
+        dst = os.path.join(BRAND_DIR, CFG['music']['tap'])
+        subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', raw, '-af', 'loudnorm=I=-26:TP=-6:LRA=7', '-ar', '48000', '-ac', '2', '-c:a', 'pcm_s16le', dst], check=True)
+        os.remove(raw)
+        paths.append(dst)
     return paths
+
+
+def compose_tap(sr=48000):
+    """The first two notes of the sting (D4, F#4), softly: the subscribe press."""
+    n = int(1.4 * sr)
+    out = np.zeros(n)
+    for at, m, v in ((0.0, 62, 0.34), (0.11, 66, 0.30)):
+        sig = _synth_note(_midi(m), 0.35, v, sr, seed=m)
+        i = int(at * sr)
+        out[i:i + len(sig)] += sig[:n - i]
+    f = int(0.4 * sr)
+    out[-f:] *= np.linspace(1, 0, f)
+    out /= np.abs(out).max() / 0.8
+    return np.stack([out, out], 1)
+
+
+def write_pinned_comment(path=None):
+    """The video's comment question, ready to post as the pinned comment."""
+    path = path or os.path.join(PROJECT, 'out', 'pinned_comment.txt')
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    open(path, 'w', encoding='utf-8').write(comment_question() + '\n')
+    return path
 
 
 def _sting(kind, T, gain=None):
