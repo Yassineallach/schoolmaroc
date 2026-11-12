@@ -1,0 +1,98 @@
+{
+ "_doc": "Channel branding, shared by every video. A video overrides any key in episode.json under \"brand\". Colours are channel colours only: everything else on screen keeps the video's own identity.",
+ "enabled": true,
+ "channel_name": null,
+ "tagline": null,
+
+ "logo": {
+  "file": "logo.svg",
+  "on_dark": null,
+  "on_light": null,
+  "placeholder": "placeholder.svg",
+  "plate": "auto",
+  "plate_opacity": 0.86
+ },
+
+ "typography": {"label": "Inter600.ttf", "title": "Playfair700.ttf", "body": "PTSerif.ttf"},
+
+ "colors": {"cta": null, "cta_text": null, "signature": null},
+
+ "signature": {"style": "rule_square", "length": 150, "width": 3, "square": 10, "gap": 18},
+
+ "animation": {"enter": 0.7, "exit": 0.5, "rise": 14, "reveal": "mask", "reveal_dur": 1.2},
+
+ "watermark": {
+  "enabled": true,
+  "corner": "tr",
+  "width": 112,
+  "opacity": 0.62,
+  "margin": [52, 46],
+  "from": "after_hook",
+  "hide_env": ["bleed", "accent", "charcoal"],
+  "fade": 0.5,
+  "ident": true
+ },
+
+ "sounds": {"enabled": true, "gain": 0.6},
+
+ "cta": {
+  "like": {"enabled": true, "at": "auto", "dur": 3.2},
+  "subscribe_mid": {"enabled": false, "at": "auto", "dur": 4.2},
+  "share": {"enabled": false, "at": "auto", "dur": 3.0},
+  "comment": {"enabled": true, "question": null},
+  "voice": {}
+ },
+
+ "placement": {
+  "protect_hook": true,
+  "mid_window": [0.38, 0.72],
+  "min_pause": 0.45,
+  "avoid_act_start": 6.0,
+  "avoid_last_act": true,
+  "corner": "bl",
+  "margin": [64, 70]
+ },
+
+ "outro": {
+  "enabled": true,
+  "seconds": 10.0,
+  "env": "paper",
+  "layout": "auto",
+  "next_videos": [{"title": null, "thumbnail": null}, {"title": null, "thumbnail": null}],
+  "show_slot_frames": true,
+  "comment_card": true
+ },
+
+ "text": {
+  "fr": {
+   "subscribe": "S’abonner", "subscribed": "Abonné",
+   "like": "Cette histoire vous a plu ? Un j’aime nous aide.",
+   "comment_label": "En commentaire",
+   "share": "Partagez-la avec un curieux",
+   "next_label": "À voir ensuite", "continue": "Continuer avec",
+   "outro_sub": "Abonnez-vous pour la prochaine histoire.",
+   "outro_more": "Une autre histoire vous attend.",
+   "question_template": "Quel sujet aimeriez-vous que l’on explore ensuite ?"
+  },
+  "en": {
+   "subscribe": "Subscribe", "subscribed": "Subscribed",
+   "like": "Enjoyed this story? A like helps.",
+   "comment_label": "In the comments",
+   "share": "Share it with someone curious",
+   "next_label": "Watch next", "continue": "Continue with",
+   "outro_sub": "Subscribe for the next story.",
+   "outro_more": "Another story is waiting.",
+   "question_template": "What should we explore next?"
+  },
+  "ar": {
+   "subscribe": "اشترك", "subscribed": "مشترك",
+   "like": "أعجبتك القصة؟ إعجابك يساعدنا.",
+   "comment_label": "في التعليقات",
+   "share": "شاركها مع شخص فضولي",
+   "next_label": "شاهد التالي", "continue": "تابع مع",
+   "outro_sub": "اشترك لتصلك القصة القادمة.",
+   "outro_more": "قصة أخرى في انتظارك.",
+   "question_template": "ما الموضوع الذي تريد أن نستكشفه بعد ذلك؟"
+  }
+ }
+}

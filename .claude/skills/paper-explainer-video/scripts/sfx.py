@@ -317,7 +317,11 @@ def build_track(events, length, narration=None, level_db=-13.0, duck_db=-9.0):
     narration: optional (n, 2) array; the effects duck by duck_db while it is speaking."""
     n = _sec(length)
     out = np.zeros((n, 2), np.float32)
+    voices = []
     for kind, t, x, p in sorted(events, key=lambda e: e[1]):
+        if kind == 'voice':                       # recorded CTA lines: mixed after the effects, at full level
+            voices.append((t, p))
+            continue
         fn = DESIGNS.get(kind)
         if fn is None:
             continue
@@ -341,6 +345,12 @@ def build_track(events, length, narration=None, level_db=-13.0, duck_db=-9.0):
         sm = np.convolve(speaking, np.ones(att) / att, 'same')
         gain = 10 ** (duck_db * sm / 20)
         out[:m] *= gain[:, None]
+    for t, p in voices:
+        v = read_wav(p['file']) * float(p.get('gain', 1.0))
+        i0 = _sec(t)
+        b = min(n, i0 + len(v))
+        if b > i0 >= 0:
+            out[i0:b] += v[:b - i0]
     return np.clip(out, -1, 1)
 
 

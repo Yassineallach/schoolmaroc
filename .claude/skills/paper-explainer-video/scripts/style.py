@@ -239,10 +239,28 @@ def make_frame(shots, end, t, clips, pre=0.38, post=0.17):
         else:
             event('sheet' if kind == 'up' else 'wipe', starts[j], W * (0.3 if kind == 'lr' else 0.7 if kind == 'rl' else 0.5))
 
+    cur = {}
+
     def render(j, tt):
         s0, fn = shots[j][0], shots[j][1]
         vox._SCENE_START = s0
-        return compose(fn(tt - s0, starts[j + 1] - s0), T)
+        shot = fn(tt - s0, starts[j + 1] - s0)
+        cur['j'], cur['shot'] = j, shot
+        return compose(shot, T)
+
+    def branded(frame):
+        # channel branding (brand.py): watermark and planned CTAs on the finished frame. Off unless
+        # the official logo exists; a video turns it off with episode.json {"brand": {"enabled": false}}
+        try:
+            import brand
+        except Exception:
+            return frame
+        if not brand.ACTIVE:
+            return frame
+        j = cur.get('j', 0)
+        off = T - t
+        return brand.overlay(frame, T, cur.get('shot'), (starts[j] + off, starts[j + 1] + off),
+                             (_env_of(shots, starts, j - 1), _env_of(shots, starts, j + 1)))
 
     i = max(j for j in range(len(shots)) if starts[j] <= t)
     for j in (i, i + 1):
@@ -253,9 +271,29 @@ def make_frame(shots, end, t, clips, pre=0.38, post=0.17):
         if starts[j] - a_ <= t < starts[j] + b_:
             p = (t - (starts[j] - a_)) / (a_ + b_)
             if kind in TR.KINDS:
-                return TR.apply(kind, render(j - 1, t), render(j, t), p, opts)
-            return _tear(render(j - 1, t), render(j, t), p, kind)
-    return render(i, t)
+                return branded(TR.apply(kind, render(j - 1, t), render(j, t), p, opts))
+            return branded(_tear(render(j - 1, t), render(j, t), p, kind))
+    return branded(render(i, t))
+
+
+_ENVS = {}
+
+
+def _env_of(shots, starts, j):
+    """The environment a shot uses (probed once, cached), so the watermark can fade only where
+    its visibility changes between neighbouring shots."""
+    if not 0 <= j < len(shots):
+        return None
+    key = (id(shots), j)
+    if key not in _ENVS:
+        keep = vox._SCENE_START
+        vox._SCENE_START = starts[j]
+        try:
+            _ENVS[key] = getattr(shots[j][1](0.5, starts[j + 1] - starts[j]), 'env', 'theme')
+        except Exception:
+            _ENVS[key] = 'theme'
+        vox._SCENE_START = keep
+    return _ENVS[key]
 
 
 # ---------------------------------------------------------------- elements

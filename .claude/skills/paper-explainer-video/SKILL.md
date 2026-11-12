@@ -96,6 +96,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `check_pacing.py` | the pacing and variety check: shot lengths and their spread, repeated environments and cuts, how many shots carry text, text-heavy frames, effect budgets, images used too often or multiplied, a title before the hook, real images without a caption |
 | `music.py` | lays a music bed under a finished film (looped, faded, ducked by the voice) without re-rendering the picture |
 | `check_empty.py` | the no-empty-screens check: flags every stretch where a shot shows only its ground |
+| `brand.py` | channel branding: the official SVG logo, watermark, reveal, signature, subscribe / like / comment / share / next-video CTAs, CTA placement from the narration's pauses, the YouTube end screen (config: `brand/brand.json`) |
 
 ## Phases
 
@@ -680,6 +681,39 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 - **Final:** all acts, CRF 12, joined losslessly into `out/full.mp4`, narration mastered to −16 LUFS. Check the duration with ffprobe, measure the loudness of the joined file (`-af ebur128`; −17 to −15 LUFS, the first final of *Histoire des armes* came out at −17.1), spot-check frames, then send it. If the user supplied music, run `music.py` on the joined file and send that version.
 - **Files over 100 MB** stay out of git. Send them directly.
 
+### 17. Channel branding and calls to action
+
+The channel stays recognisable in every film; each film keeps its own identity. `brand.py` holds the system, `brand/brand.json` the channel's settings, and each video overrides any key in `episode.json` under `"brand"`.
+
+**The logo.** The official file is `brand/logo.svg`, used as supplied: rendered by cairosvg at the exact pixel size of each use (sharp at any size, transparency and proportions kept), never redrawn, recoloured or distorted. Official variants for dark or light grounds go in `logo.on_dark` / `logo.on_light`; without them a soft paper plate sits behind the logo wherever logo and ground are too close in tone. **Until `brand/logo.svg` exists, real renders draw no branding at all**: a placeholder can never reach a film (the demos alone show `brand/placeholder.svg`, marked LOGO).
+
+| Element | Function | Use |
+|---|---|---|
+| Watermark | drawn by `overlay()` | small (112 px), top-right, 62 % opacity; starts after the hook with a small reveal; hidden on `bleed`, `accent` and `charcoal` shots and while a CTA is up; fades only where its visibility changes |
+| Logo reveal | `reveal(layer, cx, cy, width, t, start, style=)` | `mask` (a clean wipe behind a moving edge), `scale` (0.94 → 1 settle), `assemble` (four fine rules close in); optional `hold` then a gentle exit |
+| Signature | `signature(layer, x, y, t, start)` | the brand's mark: a fine rule that draws, a small square at its end; under the logo, under the subscribe message |
+| Subscribe | `cta_subscribe(...)` | logo, channel name if set, a quiet button pressed once (it turns to « Abonné » with a drawn tick), a bell that rings twice |
+| Like | `cta_like(...)` | an outlined thumb that fills with the accent once, one short line |
+| Comment | `cta_comment(..., question=)` | a speech-bubble card with the video's own question, revealed line by line |
+| Share | `cta_share(...)` | three nodes whose lines draw out; one short line |
+| Next video | `cta_next(layer, box, ...)` | the thumbnail (or a quiet placeholder), a frame drawn around it, « À voir ensuite », the title |
+| Outro | `outro_scene(t, D)` | the end screen, as a Shot |
+
+**Placement is read from the narration** (`plan()`, printed by `python SK/scripts/brand.py`): nothing during act 1 (the hook plays clean); a mid-film CTA (the like card by default) only in a real pause of the narration inside 38–72 % of the film, never within 6 s of an act opening and never in the last act; the subscribe CTA and the comment question in the outro, after the narration has ended. Explicit times in the config (`"at": 212.5`) win. Different films get different schedules; none is forced.
+
+**The comment question is written per video**, specific and connected to the subject (`brand.cta.comment.question`), in the video's language: « Et vous, jusqu’où arrivez-vous à compter avant de penser simplement « beaucoup » ? » for *Les très grands nombres*. Without one, a question shaped by the identity is used, then the generic one. All CTA texts are in `brand.json` `"text"` per language (fr, en, ar); Arabic is checked by a native reader.
+
+**The outro** (8–12 s, default 10) is appended to the last act after the narration:
+```
+SHOTS += [(cue.total + 0.4, brand.outro_scene)]
+END = cue.total + 0.4 + brand.outro_seconds()
+```
+It takes the video's ground (`outro.env`, default the identity's paper) and palette; only the logo, signature and type are the channel's. Layouts adapt to the recommendations available: `split` (two slots stacked right, logo and messages left), `feature` (one large slot), `centered` (no slots). The slots are 16:9 at about a third of the frame, the size YouTube's video elements take; the subscribe element gets a circle with the logo; nothing essential sits inside a slot, the circle, or the bottom tenth (player controls). `brand.write_endscreen()` writes `out/endscreen.json` with every rectangle in pixels and percent, to place the elements in YouTube Studio exactly over them.
+
+**Sound and voice.** CTA sounds are the engine's own (`tick` on the press, `pop` on cards, `reveal`, `pencil` on slot frames), at 60 % of their usual level; `"sounds": {"enabled": false}` turns them off. No CTA is ever spoken unless a recorded line is configured (`"cta": {"voice": {"like": "audio/cta_like.wav", "outro": "audio/cta_outro.wav"}}`); a voiced mid-film CTA is only placed in a pause long enough to hold the whole line, so it never talks over the narration.
+
+**Demo:** `python SK/examples/demo_brand.py out/brand [--reel]` renders the watermark on a frame of the film, the three reveals, the subscribe CTA, the comment/like/share cards, the three outro layouts on three grounds, and with `--reel` a 30 s reel with its sounds.
+
 ## Rules learned from the user (keep them)
 
 1. Base everything on the transcript.
@@ -714,3 +748,4 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 30. **Hook, shape, close.** The film opens on its strongest image with no title before it, varies its rhythm between quick beats and long holds, returns to one motif, and ends on an image that answers the first.
 31. **Honest pictures.** The image is the thing the narration names, or the user decides on a near match; real images carry a small caption of what they are; generated drawings are few, checked for faults and anachronisms, and marked as illustrations.
 32. **A finished film has a music bed and packaging**: music supplied by the user, mixed far under the voice; measured loudness; chapters, thumbnail and description offered with the file.
+33. **The brand is recognisable but never overshadows the story.** The official logo is used as supplied (never redrawn or recoloured); no branding in the hook; CTAs only in real pauses and in the outro; the comment question is specific to the video; the outro keeps the video's own palette and leaves YouTube's end-screen areas clear.
