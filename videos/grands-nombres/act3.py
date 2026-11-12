@@ -11,6 +11,7 @@ import typo as TY
 import timeline as TL
 from style import sfx, ENTER, Shot, words, tag, kicker, caption
 import gn as N
+from gn import power
 
 CLIPS = (6, 7)
 cue = make_cue(CLIPS)
@@ -25,26 +26,6 @@ HUBBLE = N.image('R11', (1920, 1920), 'Hubble')
 FETTI_CARD = P.print_card(S.treated(FETTI), 620, seed=91)
 ARIST_CARD = P.print_card(S.treated(ARISTARCHUS), 980, seed=92)
 KASNER_CARD = P.print_card(S.treated(KASNER), 400, seed=93)
-
-
-def power(layer, xy, base, exp, size, t, start, colour=None, anchor='l'):
-    """'10' with a raised exponent (drawn, not a superscript glyph), revealed like the big numbers."""
-    colour = colour or PAL.ink
-    k = P.ease_out(P.clamp01((t - start) / 0.6))
-    if k <= 0:
-        return
-    fb, fe = F_HEAD(size), F_HEAD(int(size * 0.46))
-    wb, we = fb.getlength(base), fe.getlength(exp)
-    x, y = xy
-    if anchor == 'm':
-        x -= (wb + we + size * 0.04) / 2
-    tile = Image.new('RGBA', (int(wb + we + size * 0.2), int(size * 1.4)), (0, 0, 0, 0))
-    d = ImageDraw.Draw(tile)
-    d.text((0, size * 0.12), base, font=fb, fill=colour + (255,))
-    ke = P.ease_out(P.clamp01((t - start - 0.35) / 0.5))
-    if ke > 0:
-        d.text((wb + size * 0.04, size * 0.02 + (1 - ke) * 20), exp, font=fe, fill=PAL.accent + (int(255 * ke),))
-    layer.alpha_composite(alpha_mul(tile, k), (int(x), int(y + (1 - k) * 30)))
 
 
 def sA(t, D):

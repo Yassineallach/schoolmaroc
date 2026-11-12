@@ -155,7 +155,9 @@ def sH(t, D):
     """Les Romains écrivaient M pour mille."""
     s = Shot(t, D)
     S.env(s, 'theme')
+    s.camera(1.0, 1.12, (W / 2, 520), (W / 2 + 40, 470))           # towards the inscription
     P.put(s.mid, MILESTONE_CARD, W / 2, 520)
+    caption(s.hud, 'Borne milliaire romaine de Middleton, Cumbria (« M P LIII »)', t, ENTER + 0.8)
     return s
 
 

@@ -103,5 +103,33 @@
   "credit": "Popular Science Monthly Volume 70",
   "licence": "Public domain",
   "page": "https://commons.wikimedia.org/wiki/File:PSM_V70_D187_Edward_Kasner.jpg"
+ },
+ "R07": {
+  "title": "File:Middleton Roman Milestone, Church of the Holy Ghost, Lonsdale, England.jpg",
+  "author": "Rosser1954",
+  "credit": "Own work",
+  "licence": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Middleton_Roman_Milestone,_Church_of_the_Holy_Ghost,_Lonsdale,_England.jpg"
+ },
+ "R15": {
+  "title": "File:Card shuffle.jpg",
+  "author": "U.S. Air Force photo by Charles Haymond",
+  "credit": "http://www.offutt.af.mil/shared/media/photodb/photos/2012/09/120913-F-AJ823-%20021.jpg",
+  "licence": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File:Card_shuffle.jpg"
+ },
+ "R16": {
+  "title": "File:Pacific Ocean as viewed from GOES-18 on September 23, 2023.jpg",
+  "author": "ABI imagery from NOAA's GOES-18 satellite",
+  "credit": "AWS S3 Explorer",
+  "licence": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File:Pacific_Ocean_as_viewed_from_GOES-18_on_September_23,_2023.jpg"
+ },
+ "R17": {
+  "title": "File:The Sun by the Atmospheric Imaging Assembly of NASA's Solar Dynamics Observatory - 20100819.jpg",
+  "author": "NASA/SDO (AIA)",
+  "credit": "http://sdo.gsfc.nasa.gov/assets/img/browse/2010/08/19/20100819_003221_4096_0304.jpg",
+  "licence": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File:The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg"
  }
 }

@@ -8,7 +8,7 @@ import os
 import math
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
-from vox import asset, font, W, H, PAL
+from vox import asset, font, W, H, PAL, F_HEAD, alpha_mul
 import presets as P
 import scenes as S
 
@@ -106,3 +106,23 @@ def square_centre(cx, cy, size, k, pad=34):
     x0 = cx - size / 2
     y0 = cy - size / 2
     return x0 + (i + 0.5) * s, y0 + (j + 0.5) * s
+
+
+def power(layer, xy, base, exp, size, t, start, colour=None, anchor='l'):
+    """'10' with a raised exponent (drawn, not a superscript glyph), revealed like the big numbers."""
+    colour = colour or PAL.ink
+    k = P.ease_out(P.clamp01((t - start) / 0.6))
+    if k <= 0:
+        return
+    fb, fe = F_HEAD(size), F_HEAD(int(size * 0.46))
+    wb, we = fb.getlength(base), fe.getlength(exp)
+    x, y = xy
+    if anchor == 'm':
+        x -= (wb + we + size * 0.04) / 2
+    tile = Image.new('RGBA', (int(wb + we + size * 0.2), int(size * 1.4)), (0, 0, 0, 0))
+    d = ImageDraw.Draw(tile)
+    d.text((0, size * 0.12), base, font=fb, fill=colour + (255,))
+    ke = P.ease_out(P.clamp01((t - start - 0.35) / 0.5))
+    if ke > 0:
+        d.text((wb + size * 0.04, size * 0.02 + (1 - ke) * 20), exp, font=fe, fill=PAL.accent + (int(255 * ke),))
+    layer.alpha_composite(alpha_mul(tile, k), (int(x), int(y + (1 - k) * 30)))
