@@ -182,9 +182,9 @@ SHOTS = [
     (cue(2, 'Avant') - LEAD, sE, 'rl'),
     (cue(2, 'Pour couvrir') - LEAD, sF, 'up'),
     (cue(2, 'environ') - LEAD, sG, 'lr'),
-    (cue(3, 'une legende') - LEAD - 0.3, sH, 'pageturn'),
+    (cue(3, 'Cette legende') - LEAD, sH, 'pageturn'),
     (cue(3, 'ouvre') - LEAD, sI, 'rl'),
-    (cue(3, '1947') - LEAD, sJ, 'up'),
+    (cue(3, 'le physicien') - LEAD, sJ, 'up'),
 ]
 END = cue.total
 
