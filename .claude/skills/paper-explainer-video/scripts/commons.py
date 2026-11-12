@@ -183,6 +183,11 @@ def cmd_links(picks_path='picks.json'):
         print(f"| `{code}.jpg` | [page]({page}) | [file]({direct}) | {x['licence'] if x else '?'} |")
 
 
+def _fetch_once(url):
+    with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=60) as r:
+        return r.read()
+
+
 def cmd_fetch(slot, title, width=2400):
     """Like get, but with no API call: downloads the original from upload.wikimedia.org using
     the URL and licence found by `search` (candidates.json). Use it when the API answers 429
@@ -194,7 +199,15 @@ def cmd_fetch(slot, title, width=2400):
         sys.exit(f'{title} is not in candidates.json: run search for its slot first, or use get')
     if not cd['free']:
         sys.exit(f'not a free licence: {cd["licence"]}')
-    im = Image.open(io.BytesIO(_fetch(cd['url'].split('?')[0]))).convert('RGB')
+    try:
+        im = Image.open(io.BytesIO(_fetch_once(cd['url'].split('?')[0]))).convert('RGB')
+    except Exception:                                   # the file server refuses: ask Commons' own FilePath redirect for a resized copy
+        # thumbnails come from thumb.wikimedia.org, which serves when the file server does not; asking
+        # for the original's width or more redirects back to the file server, so take a standard step below it
+        name = urllib.parse.quote(title.split(':', 1)[1].replace(' ', '_'))
+        ow = cd.get('w') or 99999
+        tw = max([s_ for s_ in (1920, 1280, 960, 640) if s_ < ow] or [ow - 1])
+        im = Image.open(io.BytesIO(_fetch(f'https://commons.wikimedia.org/wiki/Special:FilePath/{name}?width={tw}'))).convert('RGB')
     if max(im.size) > width:
         im.thumbnail((width, width), Image.LANCZOS)
     os.makedirs(os.path.join(PROJECT, 'assets'), exist_ok=True)

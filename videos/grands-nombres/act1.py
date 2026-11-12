@@ -16,7 +16,24 @@ cue = make_cue(CLIPS)
 
 # ---- real images (Wikimedia Commons, credits in assets/credits.json) ----
 MINIATURE = N.image('R01', (1600, 1200), 'miniature')
-PAINTING = N.crop_frac(MINIATURE, (0.16, 0.13, 0.84, 0.66)) if N.have('R01') else MINIATURE   # the painted scene, without the margin
+PAINTING = N.crop_frac(MINIATURE, (0.105, 0.205, 0.645, 0.69)) if N.have('R01') else MINIATURE   # the painted scene, without the page margin
+PAINT_CARD = P.print_card(S.treated(PAINTING), 740, seed=10)
+PCX, PCY = W / 2, 540                                     # where the print sits
+_pw, _ph = PAINT_CARD.size
+
+
+def on_paint(fx, fy):
+    """Screen point of a point given as fractions of the painted scene."""
+    return PCX - _pw / 2 + 16 + fx * (_pw - 32), PCY - _ph / 2 + 16 + fy * (_ph - 32)
+
+
+CHESS = on_paint(0.676, 0.845)                            # the chessboard in the painting
+KING = on_paint(0.27, 0.46)                               # the king on his throne
+
+
+def set_cam(s, z, F):
+    s.zoom = z
+    s.lx, s.ly = F[0] - (F[0] - W / 2) / z, F[1] - (F[1] - H / 2) / z
 GRAIN = N.image('R02', (1600, 960), 'grain')
 SACKS = N.image('R03b', (1400, 1080), 'sacs de grain')
 GAMOW = N.image('H01', (900, 1100), 'Gamow')
@@ -33,8 +50,9 @@ def sA(t, D):
     """Dans un palais de l'Inde, un roi veut récompenser l'homme qui vient de lui offrir un jeu
     nouveau : les échecs."""
     s = Shot(t, D)
-    S.env(s, 'bleed')
-    S.fullbleed(s, PAINTING, t, 0.0, ken=(1.0, 1.10), focus=(0.5, 0.45), focus_to=(0.5, 0.62), fade=0.01)
+    S.env(s, 'charcoal')                                  # the night ground: the miniature glows on it
+    s.camera(1.0, 1.16, (PCX, PCY), (CHESS[0], CHESS[1] - 120))   # a slow push towards the chessboard
+    P.put(s.mid, PAINT_CARD, PCX, PCY)
     caption(s.hud, 'Bozorgmehr et le jeu d’échecs, Shâhnâmeh de Shah Tahmasp, vers 1530', t, 1.2, on_dark=True)
     return s
 
@@ -74,15 +92,12 @@ def sC(t, D):
 def sD(t, D):
     """Le roi sourit de cette modestie."""
     s = Shot(t, D)
-    S.env(s, 'bleed')
-    back = w(cue(2, 'intendants'))                                          # held on the king, then back to the court
+    S.env(s, 'charcoal')
+    back = w(cue(2, 'intendants'))                        # held on the king, then back to the court
     k = P.ease_io(P.clamp01((t - back) / 1.6))
-    S.fullbleed(s, PAINTING, t, 0.0, ken=(1.9 - 0.75 * k, 1.9 - 0.75 * k),
-                focus=(KING[0] + (0.5 - KING[0]) * k, KING[1] + (0.5 - KING[1]) * k), fade=0.01)
+    set_cam(s, 2.1 - 1.0 * k, (KING[0] + (PCX - KING[0]) * k, KING[1] + (PCY - KING[1]) * k))
+    P.put(s.mid, PAINT_CARD, PCX, PCY)
     return s
-
-
-KING = (0.5, 0.3)          # set once R01 is in: where the king sits in the painting (fractions)
 
 
 def sE(t, D):

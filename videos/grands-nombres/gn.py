@@ -38,7 +38,7 @@ def crop_frac(im, box):
 
 
 # ------------------------------------------------------------------ grains
-def grain_sprite(length=46, seed=0):
+def grain_sprite(length=62, seed=0):
     """One grain of wheat: cut from the real macro photo (R02) when present, else drawn."""
     rng = np.random.default_rng(seed)
     if have('R02'):
@@ -49,9 +49,9 @@ def grain_sprite(length=46, seed=0):
         mask = ((sat > 38) | (lum < 150)).astype(np.uint8) * 255      # the grain against its pale ground
         m = Image.fromarray(mask).filter(ImageFilter.MedianFilter(9)).filter(ImageFilter.GaussianBlur(1.2))
         bb = m.point(lambda v: 255 if v > 128 else 0).getbbox()
-        g = im.crop(bb).convert('RGBA')
-        g.putalpha(m.crop(bb))
-        g = S.treated(g)
+        a = m.crop(bb)
+        g = S.treated(im.crop(bb)).convert('RGBA')      # the identity's treatment, then the cut-out's alpha
+        g.putalpha(a)
     else:
         g = Image.new('RGBA', (200, 110), (0, 0, 0, 0))
         d = ImageDraw.Draw(g)
