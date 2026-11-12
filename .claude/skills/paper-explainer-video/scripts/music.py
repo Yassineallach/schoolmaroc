@@ -9,20 +9,28 @@ is copied. The result is measured and printed: integrated loudness should stay n
 
 Only use music the user supplies or names, with a licence that covers YouTube.
 """
-import argparse, subprocess, re
+import argparse, subprocess, re, os
 
 ap = argparse.ArgumentParser()
 ap.add_argument('film'); ap.add_argument('music'); ap.add_argument('out')
 ap.add_argument('--level', type=float, default=-30.0)
 ap.add_argument('--duck', type=float, default=8.0)
 ap.add_argument('--tail', type=float, default=4.0)
+ap.add_argument('--start', type=float, default=None, help='seconds before the bed starts (default: the brand intro length)')
 a = ap.parse_args()
 
 dur = float(subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', a.film],
                            capture_output=True, text=True).stdout)
 ratio = max(2.0, 10 ** (a.duck / 20) * 1.6)
-fc = (f"[1:a]aloop=loop=-1:size=2e9,atrim=0:{dur:.3f},loudnorm=I={a.level}:TP=-3:LRA=7,"
-      f"afade=t=in:d=2,afade=t=out:st={dur - a.tail:.3f}:d={a.tail}[m];"
+if a.start is None:                       # the channel intro carries its own sting: the bed starts after it
+    try:
+        import brand
+        a.start = brand.intro_seconds() if os.path.exists(os.path.join(brand.PROJECT, 'act0.py')) else 0.0
+    except Exception:
+        a.start = 0.0
+ms = int(a.start * 1000)
+fc = (f"[1:a]aloop=loop=-1:size=2e9,atrim=0:{dur - a.start:.3f},loudnorm=I={a.level}:TP=-3:LRA=7,"
+      f"afade=t=in:d=2,afade=t=out:st={dur - a.start - a.tail:.3f}:d={a.tail},adelay={ms}|{ms},apad[m];"
       f"[0:a]asplit=2[v][key];"
       f"[m][key]sidechaincompress=threshold=0.02:ratio={ratio:.1f}:attack=40:release=600[md];"
       f"[v][md]amix=inputs=2:normalize=0:duration=first,alimiter=limit=0.89[a]")

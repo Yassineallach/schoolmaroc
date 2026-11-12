@@ -165,5 +165,14 @@
    "question_template": "ما الموضوع الذي تريد أن نستكشفه بعد ذلك؟",
    "intro_line": "قصة تقدمها"
   }
+ },
+ "music": {
+  "_doc": "The channel's sonic signature, composed in code (brand.compose_sting): the same motif opens every video under the intro and closes it under the outro's logo reveal. Regenerate with: python SK/scripts/brand.py --sting",
+  "enabled": true,
+  "intro": "sting.wav",
+  "outro": "sting_short.wav",
+  "intro_gain": 1.0,
+  "outro_gain": 0.8,
+  "lufs": -18
  }
 }

@@ -707,6 +707,8 @@ The channel stays recognisable in every film; each film keeps its own identity. 
 - `color_in` (default): the logo coloured in by hand on its own ground (#2B2A2A): each letter's outline is traced, then diagonal marker strokes fill it colour by colour (the logo's own colours, left to right) leaving the small gaps real colouring leaves, with the marker sound; the hand-coloured logo then settles into the exact official logo, holds and clears (4.6 s). Stroke spacing, width and angle are in `brand.json` `intro`.
 - `card`: « Une histoire présentée par », the official tile, a rule drawing down and the video's title (`episode.json` `title`) sliding out from behind it.
 
+**The channel's sonic signature.** `brand/sting.wav` (4.6 s) and `brand/sting_short.wav` (2.6 s), composed in code by `brand.compose_sting()` (no samples, no rights) and normalised to −18 LUFS: under the intro a pad breathes in while the outlines are traced, a felt-piano motif rises D–F♯–A–D as « AX » is coloured, answers E–A–C♯ as « Lab » is coloured, and a D major add9 chord blooms with a low D and a glass bell when the logo resolves. The short version (the answer and the bloom) plays under the outro's logo reveal, so every film opens and closes on the same motif. They are mixed at full level (`music.intro_gain`, `outro_gain`); `music.py` starts the film's music bed after the intro (`--start`, default the intro's length when the project has `act0.py`). Regenerate after changing the motif: `python SK/scripts/brand.py --sting`.
+
 **The outro** (8–12 s, default 10) is appended to the last act after the narration:
 ```
 SHOTS += [(cue.total + 0.4, brand.outro_scene)]

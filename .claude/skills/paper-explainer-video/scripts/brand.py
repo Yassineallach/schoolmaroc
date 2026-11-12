@@ -27,6 +27,7 @@ import json
 import math
 import os
 import re
+import sys
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
@@ -875,6 +876,7 @@ def outro_scene(t, D, force=False):
         lx = col[2] - lw / 2
     reveal(s.hud, lx, ly, lw, t, 0.2, style=CFG['animation']['reveal'], force=force, T=T0 + 0.2, ground=gl)
     _voice('outro', T0 + 0.6)
+    _sting('outro', T0 + 0.2)
     y = ly + lh / 2 + 60
     if CFG.get('tagline'):
         tf = _font('body', 30)
@@ -928,14 +930,6 @@ def write_endscreen(path=None):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     json.dump(endscreen_slots(), open(path, 'w'), indent=1)
     return path
-
-
-if __name__ == '__main__':
-    print('official logo:', OFFICIAL or '(none: overlays are off in real renders until brand/logo.svg exists)')
-    print('language:', LANG)
-    print('comment question:', comment_question())
-    print(describe_plan())
-    print(json.dumps(endscreen_slots(), indent=1))
 
 
 # ------------------------------------------------------------------ the intro card (before the narration)
@@ -1158,6 +1152,7 @@ def intro_color_scene(t, D, force=False):
     ground = tuple(int(gc.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4)) if gc else PAL.dark
     s.hud.paste(ground + (255,), (0, 0, W, H))
     T0 = vox._SCENE_START
+    _sting('intro', T0)
     im, groups = _ci_build(ic['logo_width'], force)
     ox, oy = int((W - im.width) / 2), int((H - im.height) / 2 - 10)
     n = len(groups)
@@ -1210,3 +1205,131 @@ def intro_act():
     brand.json intro.style: 'color_in' (the logo coloured in by hand) or 'card' (presented-by card)."""
     fn = intro_color_scene if CFG['intro'].get('style', 'color_in') == 'color_in' else intro_scene
     return [(0.0, fn)], intro_seconds(), ()
+
+
+# ------------------------------------------------------------------ the channel's sonic signature
+def _synth_note(f, dur, vel, sr, kind='piano', seed=0):
+    rng = np.random.default_rng(seed)
+    n = int((dur + 2.5) * sr)
+    t = np.arange(n) / sr
+    out = np.zeros(n)
+    if kind == 'bell':                                     # soft glass bell: inharmonic partials, long decay
+        for k, (r, a, dec) in enumerate(((1.0, 1.0, 2.2), (2.76, 0.32, 1.0), (5.40, 0.12, 0.5), (8.93, 0.05, 0.25))):
+            out += a * np.sin(2 * np.pi * f * r * t + rng.uniform(0, 6.28)) * np.exp(-t / dec)
+        att = int(0.004 * sr)
+    else:                                                  # felt piano pluck
+        for k, (a, dec) in enumerate(((1.0, 1.4), (0.45, 0.8), (0.18, 0.5), (0.07, 0.3)), start=1):
+            out += a * np.sin(2 * np.pi * f * k * (1 + 0.0004 * k * k) * t + rng.uniform(0, 6.28)) * np.exp(-t / dec)
+        att = int(0.006 * sr)
+    out[:att] *= np.linspace(0, 1, att) ** 2
+    off = int(dur * sr)
+    if off < n:
+        out[off:] *= np.exp(-np.arange(n - off) / (0.5 * sr))
+    return out * vel
+
+
+def _midi(m):
+    return 440.0 * 2 ** ((m - 69) / 12)
+
+
+def compose_sting(short=False, sr=48000):
+    """The AX Lab sting (stereo float array). Long version, timed to the colouring-in intro: a pad
+    breathes in while the outlines are traced; as « AX » is coloured, a felt-piano motif rises
+    (D, F#, A, D); as « Lab » is coloured it answers (E, A, C#); when the logo resolves, a D major
+    add9 chord blooms with a low D and a glass bell; then it rings out under the clearing card.
+    Short version (outro): the answer and the bloom only."""
+    dur = 2.6 if short else 4.6
+    n = int((dur + 0.4) * sr)
+    L, R = np.zeros(n), np.zeros(n)
+
+    def add(sig, at, pan=0.0, g=1.0):
+        i = int(at * sr)
+        j = min(n, i + len(sig))
+        if j > i:
+            L[i:j] += sig[:j - i] * g * math.sqrt(0.5 - pan / 2)
+            R[i:j] += sig[:j - i] * g * math.sqrt(0.5 + pan / 2)
+
+    def pad(notes, at, length, g):
+        m = int((length + 1.5) * sr)
+        t = np.arange(m) / sr
+        s = np.zeros(m)
+        for nt in notes:
+            for det in (-0.1, 0.0, 0.09):
+                f = _midi(nt) * 2 ** (det / 12)
+                s += np.sin(2 * np.pi * f * t) + 0.25 * np.sin(4 * np.pi * f * t)
+        a = int(length * 0.6 * sr)
+        env = np.ones(m)
+        env[:a] = np.linspace(0, 1, a) ** 2
+        env[int(length * sr):] = np.exp(-np.arange(m - int(length * sr)) / (0.7 * sr))
+        add(s * env / (len(notes) * 3), at, 0.0, g)
+
+    if short:
+        rise, ans, bloom = [], [(0.10, 64), (0.42, 69), (0.74, 73)], 1.05
+    else:
+        pad([50, 57, 62], 0.0, 2.9, 0.22)                  # breath under the outlines
+        rise = [(0.50, 62), (0.82, 66), (1.12, 69), (1.42, 74)]     # « AX » being coloured
+        ans = [(1.78, 76), (2.12, 69), (2.44, 73)]                  # « Lab » answers
+        bloom = 2.86                                                # the logo resolves
+    for i, (at, m) in enumerate(rise + ans):
+        add(_synth_note(_midi(m), 0.45, 0.34 if i % 2 == 0 else 0.28, sr, seed=i), at, -0.3 + 0.6 * ((i % 4) / 3), 1.0)
+    for j, m in enumerate((50, 57, 62, 66, 69, 76)):         # D major add9, spread
+        add(_synth_note(_midi(m), 1.6, 0.22, sr, seed=20 + j), bloom + 0.012 * j, -0.4 + 0.16 * j, 1.0)
+    add(_synth_note(_midi(38), 1.8, 0.45, sr, seed=40), bloom, 0.0, 1.0)          # low D
+    add(_synth_note(_midi(86), 1.4, 0.16, sr, 'bell', seed=41), bloom + 0.03, 0.25, 1.0)
+    add(_synth_note(_midi(93), 1.2, 0.08, sr, 'bell', seed=42), bloom + 0.09, -0.25, 1.0)
+    pad([50, 57, 62, 66, 76], bloom, dur - bloom - 0.3, 0.18)
+    # a short room, then a fade to silence at the end of the card
+    from scipy.signal import fftconvolve
+    m = int(1.6 * sr)
+    tt = np.arange(m) / sr
+    rng = np.random.default_rng(3)
+    irl = rng.normal(0, 1, m) * np.exp(-tt / 0.55)
+    irr = rng.normal(0, 1, m) * np.exp(-tt / 0.55)
+    irl /= np.sqrt((irl ** 2).sum()); irr /= np.sqrt((irr ** 2).sum())
+    L = 0.75 * L + 0.35 * fftconvolve(L, irl)[:n]
+    R = 0.75 * R + 0.35 * fftconvolve(R, irr)[:n]
+    out = np.stack([L, R], 1)[:int(dur * sr)]
+    f = int(0.5 * sr)
+    out[-f:] *= np.linspace(1, 0, f)[:, None] ** 1.5
+    return out / (np.abs(out).max() / 0.8)
+
+
+def write_stings():
+    """Render the channel's stings into SK/brand/ (normalised to brand.json music.lufs)."""
+    import subprocess, wave
+    paths = []
+    for short, name in ((False, CFG['music']['intro']), (True, CFG['music']['outro'])):
+        a = compose_sting(short)
+        raw = os.path.join(BRAND_DIR, '_' + name)
+        with wave.open(raw, 'wb') as w:
+            w.setnchannels(2); w.setsampwidth(2); w.setframerate(48000)
+            w.writeframes((a * 32767).astype('<i2').tobytes())
+        dst = os.path.join(BRAND_DIR, name)
+        subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', raw, '-af', f"loudnorm=I={CFG['music']['lufs']}:TP=-2:LRA=7",
+                        '-ar', '48000', '-ac', '2', '-c:a', 'pcm_s16le', dst], check=True)
+        os.remove(raw)
+        paths.append(dst)
+    return paths
+
+
+def _sting(kind, T, gain=None):
+    """Place the channel sting (intro | outro) at film time T in the mix, at full level."""
+    mc = CFG.get('music', {})
+    if not mc.get('enabled') or not mc.get(kind):
+        return
+    p = os.path.join(BRAND_DIR, mc[kind])
+    if not os.path.exists(p):
+        return
+    import style
+    style.EVENTS[('voice', round(T, 3), 960)] = {'file': p, 'gain': mc.get(f'{kind}_gain', 1.0) if gain is None else gain}
+
+
+if __name__ == '__main__' and '--sting' in sys.argv:
+    print(write_stings())
+    sys.exit()
+if __name__ == '__main__':
+    print('official logo:', OFFICIAL or '(none: overlays are off in real renders until brand/logo.svg exists)')
+    print('language:', LANG)
+    print('comment question:', comment_question())
+    print(describe_plan())
+    print(json.dumps(endscreen_slots(), indent=1))
