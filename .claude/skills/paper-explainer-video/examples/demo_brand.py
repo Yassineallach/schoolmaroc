@@ -89,7 +89,7 @@ for layout, env, nv in (('split', 'cream', 2), ('feature', 'theme', 1), ('center
     for i, im in enumerate(outs):
         sheet.paste(im.resize((960, 540)), (960 * i, 0))
     save(sheet, f'5_outro_{layout}_{env}.png')
-B.CFG['outro'].update(layout='auto', env='cream')
+B.CFG['outro'].update(layout='auto', env='paper')
 print('stills in', OUT)
 
 if '--reel' in sys.argv:
