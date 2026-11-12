@@ -225,7 +225,7 @@ def _tear(a, b, p, kind):
 def make_frame(shots, end, t, clips, pre=0.38, post=0.17):
     """shots: list of (start, fn) or (start, fn, kind). fn(t, D) -> Shot. T for the background
     runs continuously across the whole film."""
-    T = sum(vox._DUR[c] for c in vox._DUR if c < min(clips)) + t
+    T = (sum(vox._DUR[c] for c in vox._DUR if c < min(clips)) + t) if clips else t   # no clips: a segment before the narration
     starts = [s[0] for s in shots] + [end]
     import transitions as TR
 

@@ -427,7 +427,11 @@ def make_frame(shots, end, t, xf=0.2):
 
 
 def master_audio(clips, out_wav):
-    """Concatenate narration clips and apply the vox-skill mastering chain."""
+    """Concatenate narration clips and apply the vox-skill mastering chain. No clips (a brand intro
+    or any segment without narration): silence, trimmed to the picture by -shortest."""
+    if not clips:
+        subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=stereo', '-t', '60', out_wav], check=True)
+        return
     lst = out_wav + '.txt'
     with open(lst, 'w') as fh:
         for n in clips:

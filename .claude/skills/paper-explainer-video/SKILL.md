@@ -703,6 +703,10 @@ The channel stays recognisable in every film; each film keeps its own identity. 
 
 **The comment question is written per video**, specific and connected to the subject (`brand.cta.comment.question`), in the video's language: « Et vous, jusqu’où arrivez-vous à compter avant de penser simplement « beaucoup » ? » for *Les très grands nombres*. Without one, a question shaped by the identity is used, then the generic one. All CTA texts are in `brand.json` `"text"` per language (fr, en, ar); Arabic is checked by a native reader.
 
+**The intro** plays before the narration, as `act0.py` in the project (`SHOTS, END, CLIPS = brand.intro_act()`; `render_all.py` renders it first and joins it before act 1; a segment with no clips gets silence). `intro.style`:
+- `color_in` (default): the logo coloured in by hand on its own ground (#2B2A2A): each letter's outline is traced, then diagonal marker strokes fill it colour by colour (the logo's own colours, left to right) leaving the small gaps real colouring leaves, with the marker sound; the hand-coloured logo then settles into the exact official logo, holds and clears (4.6 s). Stroke spacing, width and angle are in `brand.json` `intro`.
+- `card`: « Une histoire présentée par », the official tile, a rule drawing down and the video's title (`episode.json` `title`) sliding out from behind it.
+
 **The outro** (8–12 s, default 10) is appended to the last act after the narration:
 ```
 SHOTS += [(cue.total + 0.4, brand.outro_scene)]

@@ -936,3 +936,277 @@ if __name__ == '__main__':
     print('comment question:', comment_question())
     print(describe_plan())
     print(json.dumps(endscreen_slots(), indent=1))
+
+
+# ------------------------------------------------------------------ the intro card (before the narration)
+def tile(size, force=False):
+    """The official square logo (brand.json logo.tile) at size x size px."""
+    p = _logo_path('tile')
+    if p is None:
+        lg = logo(size, force=force)
+        return lg
+    key = (p, int(size))
+    if key not in _LOGO:
+        _LOGO[key] = _svg(p, int(size))
+    return _LOGO[key]
+
+
+def intro_seconds():
+    return float(CFG['intro']['seconds']) if CFG['intro']['enabled'] else 0.0
+
+
+def _episode_title():
+    if CFG['intro'].get('title'):
+        return CFG['intro']['title']
+    p = os.path.join(PROJECT, 'episode.json')
+    return json.load(open(p, encoding='utf-8')).get('title') if os.path.exists(p) else None
+
+
+def intro_scene(t, D, force=False):
+    """The channel's opening card, played before the narration (act0.py): a thin line of text
+    (« Une histoire présentée par »), then the official square tile, a fine vertical rule and the
+    video's title. Choreography: the line rises word by word; the tile opens from its centre and
+    settles; the rule draws down; the title slides out from behind the rule; a hold; then the card
+    clears to the ground so the hook can cut in. The ground and the title's ink are the video's."""
+    import style
+    import scenes as S
+    s = style.Shot(t, D)
+    s.brand_free = True
+    S.env(s, CFG['intro']['env'])
+    ink = S.ink(s)
+    soft = tuple(int(a * 0.62 + b * 0.38) for a, b in zip(ink, PAL.light if _lum(ink) < 128 else PAL.dark))
+    T0 = vox._SCENE_START
+    out = 1 - _eio((t - (D - 0.65)) / 0.55)                      # the whole card clears at the end
+    if out <= 0:
+        return s
+    layer = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+
+    # 1. the line, word by word, each rising inside its own slot
+    line = CFG['intro'].get('line') or TXT.get('intro_line', '')
+    lf = _font('light', 66)
+    words_ = line.split(' ')
+    widths = [lf.getlength(w_) for w_ in words_]
+    space = lf.getlength(' ')
+    total = sum(widths) + space * (len(words_) - 1)
+    x = (W - total) / 2
+    y = 300
+    for i, (w_, ww) in enumerate(zip(words_, widths)):
+        p = _eo((t - 0.2 - 0.07 * i) / 0.55)
+        if p > 0:
+            tile_ = Image.new('RGBA', (int(ww) + 8, 110), (0, 0, 0, 0))
+            ImageDraw.Draw(tile_).text((2, 14 + (1 - p) * 60), w_, font=lf, fill=soft + (int(255 * min(1, p * 1.6)),))
+            layer.alpha_composite(tile_, (int(x), int(y - 14)))
+        x += ww + space
+
+    # 2. the row: tile | rule | title, centred as a group
+    ts = int(CFG['intro']['tile_size'])
+    title = _episode_title() or ''
+    tf = _font('title', 82)
+    tl = _wrap(title, tf, 700) if title else []
+    tw = max((tf.getlength(l_) for l_ in tl), default=0)
+    gap = 64
+    row_w = ts + gap + 3 + (gap + tw if tl else 0)
+    x0 = (W - row_w) / 2
+    cy = 640
+    rule_x = x0 + ts + gap
+
+    # the tile opens from its centre (a square mask growing), with a small settle in scale
+    u = _c((t - 0.75) / 0.75)
+    if u > 0:
+        im = tile(ts, force=force)
+        if im is not None:
+            k = 0.94 + 0.06 * _eo(u)
+            im2 = im.resize((max(1, int(im.width * k)), max(1, int(im.height * k))), Image.LANCZOS)
+            m = Image.new('L', im2.size, 0)
+            r = _eio(u) * 0.5
+            ImageDraw.Draw(m).rectangle((im2.width * (0.5 - r), im2.height * (0.5 - r), im2.width * (0.5 + r), im2.height * (0.5 + r)), fill=255)
+            im2.putalpha(Image.fromarray(np.minimum(np.asarray(im2.getchannel('A')), np.asarray(m))))
+            if _lum(PAL.light) - _lum(ink) < 0 or _ground_dark(s):
+                ImageDraw.Draw(im2).rectangle((0, 0, im2.width - 1, im2.height - 1), outline=soft + (120,), width=1)
+            layer.alpha_composite(im2, (int(x0 + (ts - im2.width) / 2), int(cy - im2.height / 2)))
+        if CFG['intro']['sound']:
+            _sound('reveal', T0 + 0.75, x0 + ts / 2, 0.5)
+
+    # the rule draws downwards
+    v = _eio((t - 1.05) / 0.55)
+    if v > 0:
+        hh = ts * 1.0
+        d.rectangle((rule_x, cy - hh / 2, rule_x + 2, cy - hh / 2 + hh * v), fill=ink + (255,))
+        if CFG['intro']['sound']:
+            _sound('pencil', T0 + 1.05, rule_x, 0.35)
+
+    # the title slides out from behind the rule
+    if tl:
+        q = _eo((t - 1.4) / 0.8)
+        if q > 0:
+            lh = 92
+            blk = Image.new('RGBA', (int(tw) + 40, lh * len(tl) + 30), (0, 0, 0, 0))
+            bd = ImageDraw.Draw(blk)
+            for i, l_ in enumerate(tl):
+                bd.text((0, i * lh), l_, font=tf, fill=ink + (255,))
+            off = -(1 - q) * (tw * 0.35 + 60)
+            clip = Image.new('RGBA', (int(tw) + 60, blk.height), (0, 0, 0, 0))
+            clip.alpha_composite(blk, (int(off) if off > -blk.width else 0, 0))
+            layer.alpha_composite(alpha_mul(clip, min(1.0, q * 1.5)), (int(rule_x + 3 + gap), int(cy - blk.height / 2 + 6)))
+        sig_at = 2.0
+        signature(layer, rule_x + 3 + gap, cy + (92 * len(tl)) / 2 + 30, t, sig_at, length=96, colour=PAL.accent)
+    s.hud.alpha_composite(alpha_mul(layer, out))
+    return s
+
+
+def _ground_dark(shot):
+    import scenes as S
+    return _lum(S.ink(shot)) > 128
+
+
+def intro_act():
+    """(SHOTS, END, CLIPS) for a project's act0.py: the intro card on its own, before act 1."""
+    return [(0.0, intro_scene)], intro_seconds(), ()
+
+
+# ------------------------------------------------------------------ the colouring-in intro
+_CI = {}
+
+
+def _ci_build(width, force=False):
+    """Masks and marker strokes for the colouring-in intro, built once. The colours come from the
+    official logo itself: each flat colour of the SVG is one group, coloured in left to right."""
+    key = (int(width), force)
+    if key in _CI:
+        return _CI[key]
+    from PIL import ImageFilter as F
+    im = logo(width, force=force)
+    a = np.asarray(im).astype(np.int16)
+    alpha = a[..., 3] > 100
+    rgb = a[..., :3]
+    # group the logo's pixels by colour (its flat colours), largest first, left to right
+    cols = {}
+    for c in map(tuple, rgb[alpha].reshape(-1, 3)[::17] // 24 * 24):
+        cols[c] = cols.get(c, 0) + 1
+    groups = []
+    for c, n in sorted(cols.items(), key=lambda kv: -kv[1])[:4]:
+        m = alpha & (np.abs(rgb // 24 * 24 - np.array(c)).sum(2) == 0)
+        if m.sum() < 0.04 * alpha.sum():
+            continue
+        m = np.asarray(Image.fromarray((m * 255).astype(np.uint8)).filter(F.MaxFilter(3)).filter(F.MinFilter(3))) > 127
+        real = tuple(int(v) for v in np.median(a[..., :3][m & alpha], axis=0))
+        xs = np.where(m.any(0))[0]
+        groups.append(dict(mask=m, colour=real, x0=int(xs.min()), x1=int(xs.max())))
+    groups.sort(key=lambda g: g['x0'])
+    rng = np.random.default_rng(7)
+    ic = CFG['intro']
+    ang = math.radians(ic['stroke_angle'])
+    dx, dy = math.cos(ang), -math.sin(ang)                 # stroke direction (up and to the right)
+    nx, ny = -dy, dx                                       # across the strokes
+    hh, ww = im.height, im.width
+    for g in groups:
+        ys, xs = np.where(g['mask'])
+        proj = xs * nx + ys * ny
+        lo, hi = proj.min() - 4, proj.max() + 4
+        strokes = []
+        k = lo
+        flip = False
+        while k < hi:
+            cx, cy = nx * k, ny * k
+            L = (ww + hh) * 1.2
+            p0 = (cx - dx * L, cy - dy * L)
+            p1 = (cx + dx * L, cy + dy * L)
+            pts = []
+            for f in np.linspace(0, 1, 7):
+                j = rng.normal(0, 1.4)
+                pts.append((p0[0] + (p1[0] - p0[0]) * f + nx * j, p0[1] + (p1[1] - p0[1]) * f + ny * j))
+            if flip:
+                pts = pts[::-1]
+            strokes.append((pts, float(rng.uniform(*ic['stroke_width']))))
+            k += ic['stroke_spacing'] * float(rng.uniform(0.82, 1.18))
+            flip = not flip
+        g['strokes'] = strokes
+        edge = Image.fromarray((g['mask'] * 255).astype(np.uint8))
+        outer = edge.filter(F.MaxFilter(5))
+        inner = edge.filter(F.MinFilter(3))
+        g['edge'] = np.asarray(outer).astype(np.int16) - np.asarray(inner).astype(np.int16) > 100
+    _CI[key] = (im, groups)
+    return _CI[key]
+
+
+def _stroke_partial(d, pts, frac, width, fill):
+    """Draw the first `frac` of a polyline (a marker stroke being drawn)."""
+    seg = [math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts[:-1], pts[1:])]
+    total = sum(seg) * frac
+    out = [pts[0]]
+    for (a, b), l in zip(zip(pts[:-1], pts[1:]), seg):
+        if total <= 0:
+            break
+        f = min(1.0, total / l)
+        out.append((a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f))
+        total -= l
+    if len(out) > 1:
+        d.line(out, fill=fill, width=int(width), joint='curve')
+
+
+def intro_color_scene(t, D, force=False):
+    """The logo coloured in by hand: each letter's outline is traced, then marker strokes fill
+    it colour by colour (the logo's own colours, left to right), leaving the small gaps real
+    colouring leaves; the hand-coloured logo then settles into the exact official logo, holds,
+    and clears. Played on the logo's own ground."""
+    import style
+    s = style.Shot(t, D)
+    s.brand_free = True
+    ic = CFG['intro']
+    gc = ic.get('ground')
+    ground = tuple(int(gc.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4)) if gc else PAL.dark
+    s.hud.paste(ground + (255,), (0, 0, W, H))
+    T0 = vox._SCENE_START
+    im, groups = _ci_build(ic['logo_width'], force)
+    ox, oy = int((W - im.width) / 2), int((H - im.height) / 2 - 10)
+    n = len(groups)
+    t_out, t_res = D - 0.7, D - 1.75                       # resolve to the clean logo, then clear
+    fill_span = (t_res - 0.55) / max(n, 1)
+    canvas = Image.new('RGBA', im.size, (0, 0, 0, 0))
+    for gi, g in enumerate(groups):
+        col = g['colour']
+        # 1. the outline is traced left to right
+        p_out = _eio((t - 0.15 - 0.25 * gi) / 0.85)
+        if p_out > 0:
+            xcut = g['x0'] + (g['x1'] - g['x0'] + 10) * p_out
+            e = g['edge'].copy()
+            e[:, int(xcut):] = False
+            ov = np.zeros(im.size[::-1] + (4,), np.uint8)
+            ov[e] = col + (230,)
+            canvas.alpha_composite(Image.fromarray(ov, 'RGBA'))
+        # 2. marker strokes colour it in, each one drawn quickly, left to right
+        start = 0.45 + fill_span * gi
+        strokes = g['strokes']
+        if t > start:
+            sm = Image.new('L', im.size, 0)
+            sd = ImageDraw.Draw(sm)
+            per = fill_span * 1.15 / max(len(strokes), 1)
+            for i, (pts, wd) in enumerate(strokes):
+                f = (t - start - i * per) / 0.12
+                if f <= 0:
+                    break
+                _stroke_partial(sd, pts, min(1.0, f), wd, 255)
+            m = np.minimum(np.asarray(sm), (g['mask'] * 255).astype(np.uint8))
+            ov = np.zeros(im.size[::-1] + (4,), np.uint8)
+            ov[..., :3] = col
+            ov[..., 3] = m
+            canvas.alpha_composite(Image.fromarray(ov, 'RGBA'))
+        if ic.get('sound', True):
+            for j in range(4):
+                _sound('marker', T0 + start + fill_span * j / 4, ox + g['x0'] + (g['x1'] - g['x0']) * j / 4, 0.55)
+    # 3. the hand-coloured logo settles into the exact official logo
+    r = _eio((t - t_res) / 0.6)
+    if r > 0:
+        canvas = Image.blend(canvas, im, r) if r < 1 else im.copy()
+    k = 1 - _eio((t - t_out) / 0.6)
+    if k > 0:
+        s.hud.alpha_composite(alpha_mul(canvas, k), (ox, oy))
+    return s
+
+
+def intro_act():
+    """(SHOTS, END, CLIPS) for a project's act0.py: the intro on its own, before act 1.
+    brand.json intro.style: 'color_in' (the logo coloured in by hand) or 'card' (presented-by card)."""
+    fn = intro_color_scene if CFG['intro'].get('style', 'color_in') == 'color_in' else intro_scene
+    return [(0.0, fn)], intro_seconds(), ()
