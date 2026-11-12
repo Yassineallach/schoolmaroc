@@ -148,7 +148,7 @@ def sH(t, D):
     S.env(s, 'archive')
     s.camera(1.0, 1.03)
     P.slide(s.mid, BOARD_SMALL, (-400, 560), (560, 560), t, ENTER, dur=1.0, rot=-3, key='legend')
-    TY.name_card(s.top, (1020, 430), 'Ibn Khallikan', 'HISTORIEN', t, w(cue(3, 'Ibn')))
+    TY.name_card(s.top, (1020, 430), 'Ibn Khallikan', 'HISTORIEN · 1256', t, w(cue(3, '1256')))
     return s
 
 
@@ -182,7 +182,7 @@ SHOTS = [
     (cue(2, 'Avant') - LEAD, sE, 'rl'),
     (cue(2, 'Pour couvrir') - LEAD, sF, 'up'),
     (cue(2, 'environ') - LEAD, sG, 'lr'),
-    (cue(3, 'Cette legende') - LEAD, sH, 'pageturn'),
+    (cue(3, 'legende') - LEAD - 0.3, sH, 'pageturn'),
     (cue(3, 'ouvre') - LEAD, sI, 'rl'),
     (cue(3, 'le physicien') - LEAD, sJ, 'up'),
 ]
