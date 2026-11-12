@@ -100,7 +100,7 @@
  },
  "intro": {
   "enabled": true,
-  "seconds": 4.6,
+  "seconds": 5.0,
   "env": "paper",
   "line": null,
   "title": null,
@@ -114,7 +114,8 @@
    7,
    10
   ],
-  "stroke_angle": 62
+  "stroke_angle": 62,
+  "exit": "tear"
  },
  "outro": {
   "enabled": true,
