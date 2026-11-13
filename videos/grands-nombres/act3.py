@@ -23,7 +23,11 @@ ARISTARCHUS = N.image('R10', (1920, 1401), 'Aristarque')
 KASNER = N.image('H02', (782, 977), 'Kasner')
 HUBBLE = N.image('R11', (1920, 1920), 'Hubble')
 
-FETTI_CARD = P.print_card(S.treated(FETTI), 620, seed=91)
+import os
+import cutout
+# Archimedes: the user's G05 drawing (a hand on a wax tablet, no likeness) when it is uploaded, else Fetti's painting
+G05 = os.path.exists(asset('G05.png'))
+FETTI_CARD = cutout.ink_image(asset('G05.png'), 880) if G05 else P.print_card(S.treated(FETTI), 620, seed=91)
 ARIST_CARD = P.print_card(S.treated(ARISTARCHUS), 980, seed=92)
 KASNER_CARD = P.print_card(S.treated(KASNER), 400, seed=93)
 
@@ -37,7 +41,10 @@ def sA(t, D):
     P.mask_reveal(s.mid, FETTI_CARD, 720, 540, t, ENTER + 0.1, dur=1.4)
     TY.name_card(s.top, (1120, 420), 'Archimède', 'SYRACUSE', t, w(cue(6, 'Archimede')))
     kicker(s.hud, t, 3, 'Compter le sable', start=0.3)
-    caption(s.hud, 'Domenico Fetti, portrait d’un savant (dit Archimède), vers 1620, Dresde', t, ENTER + 1.4)
+    if G05:
+        caption(s.hud, 'Illustration', t, ENTER + 1.4, corner='bl')
+    else:
+        caption(s.hud, 'Domenico Fetti, portrait d’un savant (dit Archimède), vers 1620, Dresde', t, ENTER + 1.4)
     return s
 
 
