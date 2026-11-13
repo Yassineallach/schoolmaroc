@@ -74,6 +74,8 @@ def main(acts):
     lengths, textless, total, flags = [], 0, 0, []
     for a in acts:
         m = importlib.import_module(a)
+        if not getattr(m, 'SHOTS', None) or not getattr(m, 'CLIPS', None):   # the brand intro (act0): not a story act
+            continue
         starts = [s[0] for s in m.SHOTS] + [m.END]
         prev_env, prev_cut = None, None
         for j, sh in enumerate(m.SHOTS):
@@ -114,4 +116,5 @@ def main(acts):
 
 if __name__ == '__main__':
     acts = [f'act{a}' for a in sys.argv[1:]] or sorted((f[:-3] for f in os.listdir('.') if f.startswith('act') and f[3:-3].isdigit()), key=lambda x: int(x[3:]))
+    acts = [a for a in acts if a != 'act0']                  # act0 is the brand intro, not a story act
     main(acts)
