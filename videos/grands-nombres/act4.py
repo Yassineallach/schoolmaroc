@@ -108,9 +108,7 @@ def sC(t, D):
     """un à la fois, sans jamais poser un grand disque sur un petit."""
     s = Shot(t, D)
     S.env(s, 'paper')
-    hanoi(s.mid, 820, 520, t, ENTER + 0.1, per=0.24)
-    P.put(s.mid, TOY_CARD.rotate(4, Image.BICUBIC, expand=True), 1640, 640)
-    caption(s.hud, 'Tour d’Hanoï en bois, Chanteloup', t, ENTER + 1.0)
+    hanoi(s.mid, W / 2, 520, t, ENTER + 0.1, per=0.24)
     return s
 
 
