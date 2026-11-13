@@ -14,11 +14,21 @@ import gn as N
 CLIPS = (1, 2, 3)
 cue = make_cue(CLIPS)
 
-# ---- real images (Wikimedia Commons, credits in assets/credits.json) ----
-MINIATURE = N.image('R01', (1600, 1200), 'miniature')
-PAINTING = N.crop_frac(MINIATURE, (0.105, 0.205, 0.645, 0.69)) if N.have('R01') else MINIATURE   # the painted scene, without the page margin
-PAINT_CARD = P.print_card(S.treated(PAINTING), 740, seed=10)
-PCX, PCY = W / 2, 540                                     # where the print sits
+# ---- the legend has no historical picture: engraving-style drawings (PROMPTS.md, G01 / G02),
+# printed on the film's paper; a labelled placeholder until the file is uploaded ----
+import os
+import cutout
+
+
+def drawing(code, width, label):
+    p = asset(f'{code}.png')
+    if os.path.exists(p):
+        return cutout.ink_image(p, width)
+    return P.print_card(N.image(code, (1600, 900), label), width, seed=10)
+
+
+PAINT_CARD = drawing('G01', 1500, 'le roi et l’inventeur (à générer)')
+PCX, PCY = W / 2, 540                                     # where the drawing sits
 _pw, _ph = PAINT_CARD.size
 
 
@@ -27,20 +37,17 @@ def on_paint(fx, fy):
     return PCX - _pw / 2 + 16 + fx * (_pw - 32), PCY - _ph / 2 + 16 + fy * (_ph - 32)
 
 
-CHESS = on_paint(0.676, 0.845)                            # the chessboard in the painting
-KING = on_paint(0.27, 0.46)                               # the king on his throne
+CHESS = on_paint(0.50, 0.70)                              # the chessboard in G01 (set once the drawing is in)
+KING = on_paint(0.72, 0.40)                               # the king on his throne (set once the drawing is in)
 
 
 def set_cam(s, z, F):
     s.zoom = z
     s.lx, s.ly = F[0] - (F[0] - W / 2) / z, F[1] - (F[1] - H / 2) / z
 GRAIN = N.image('R02', (1600, 960), 'grain')
-SACKS = N.image('R03b', (1400, 1080), 'sacs de grain')
-GAMOW = N.image('H01', (900, 1100), 'Gamow')
+SACKS_CARD = drawing('G02', 1000, 'le sac vide (à générer)')
 
 GRAIN_CARD = P.print_card(S.treated(GRAIN), 760, seed=12)
-SACKS_CARD = P.print_card(S.treated(SACKS), 820, seed=13)
-GAMOW_CARD = P.print_card(S.treated(GAMOW), 560, seed=14)
 BOARD, BPAD, BSQ = N.board_image(760)
 BOARD_SMALL = BOARD.resize((560, 560), Image.LANCZOS)
 BS = 760 * 560 / BOARD.width        # playing area of the small board on screen
@@ -50,10 +57,10 @@ def sA(t, D):
     """Dans un palais de l'Inde, un roi veut récompenser l'homme qui vient de lui offrir un jeu
     nouveau : les échecs."""
     s = Shot(t, D)
-    S.env(s, 'charcoal')                                  # the night ground: the miniature glows on it
+    S.env(s, 'cream')                                     # the engraving is printed on the film's ivory paper
     s.camera(1.0, 1.16, (PCX, PCY), (CHESS[0], CHESS[1] - 120))   # a slow push towards the chessboard
     P.put(s.mid, PAINT_CARD, PCX, PCY)
-    caption(s.hud, 'Bozorgmehr et le jeu d’échecs, Shâhnâmeh de Shah Tahmasp, vers 1530', t, 1.2, on_dark=True)
+    caption(s.hud, 'Illustration', t, 1.2, corner='bl')
     return s
 
 
@@ -92,7 +99,7 @@ def sC(t, D):
 def sD(t, D):
     """Le roi sourit de cette modestie."""
     s = Shot(t, D)
-    S.env(s, 'charcoal')
+    S.env(s, 'cream')
     back = w(cue(2, 'intendants'))                        # held on the king, then back to the court
     k = P.ease_io(P.clamp01((t - back) / 1.6))
     set_cam(s, 2.1 - 1.0 * k, (KING[0] + (PCX - KING[0]) * k, KING[1] + (PCY - KING[1]) * k))
@@ -110,7 +117,7 @@ def sE(t, D):
     P.put(s.mid, BOARD_SMALL, bx, by)
     x, y = N.square_centre(bx, by, BS, 20)
     A.ring(s.mid, (x - 44, y - 44, x + 44, y + 44), t, w(cue(2, 'vingtieme')))
-    caption(s.hud, 'Récolte de céréales, 1960', t, ENTER + 1.0)
+    caption(s.hud, 'Illustration', t, ENTER + 1.0, corner='bl')
     return s
 
 
@@ -182,10 +189,13 @@ def sJ(t, D):
     s = Shot(t, D)
     S.env(s, 'theme')
     s.camera(1.0, 1.03, (W / 2, H / 2), (900, 520))
-    P.drop(s.mid, GAMOW_CARD, 560, 520, t, ENTER, rot=-3, spin=10, key='gamow')
+    book = P.paper_card(620, 300, seed=14, colour=PAL.light)            # the book, as a title card (no portrait: none is free)
+    bd = ImageDraw.Draw(book)
+    bd.text((310, 120), '« Un, deux, trois…', font=F_BODY(54), fill=PAL.ink + (255,), anchor='mm')
+    bd.text((310, 190), 'l’infini »', font=F_BODY(54), fill=PAL.ink + (255,), anchor='mm')
+    P.drop(s.mid, book, 560, 540, t, ENTER, rot=-3, spin=10, key='book')
     TY.name_card(s.top, (1000, 330), 'George Gamow', 'PHYSICIEN · 1947', t, w(cue(3, 'physicien')))
     tag(s.hud, (1250, 760), 'Shirham', 54, t, w(cue(3, 'Shirham')), bg=PAL.accent, fg=CREAM)
-    caption(s.hud, 'Plaque commémorative de George Gamow, Göttingen', t, w(cue(3, 'George')) + 1.0)
     return s
 
 
