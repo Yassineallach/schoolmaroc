@@ -67,6 +67,10 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `histoire_armes_act1.py` | *Histoire des armes* (French narration, history identity, astrolabe background, real Commons photos): mask reveal of a real site photo + name card, strikes on spoken words, full-bleed excavation photo, a spear strip cut from a photo with a measuring line, term card, timeline on archive, distance diagram, a row of real objects for "succession" |
 | `histoire_armes_act2.py` | the user's ChatGPT ink drawing printed on the parchment (`cutout.ink_image`), a camera move into that plate instead of a diagram, wood breaking apart beside a stone that stays, map zoom to a town, a number struck and corrected, a public-domain engraving as an ink cut-out, a real object with its detail circled |
 | `histoire_armes_*.json` | that film's `episode.json`, Commons `sources.json` and `picks.json` |
+| `grands_nombres_act0.py` | *Les très grands nombres* (French, philosophy identity, `carnet` background): the channel intro as act 0 (`brand_intro`), its glide exit onto act 1's first frame |
+| `grands_nombres_act1.py` | the user's engraving-style drawings for a legend with no historical picture (`cutout.ink_image`, labelled placeholder until uploaded), the chessboard motif with grains landing on spoken words, a camera hold on a detail of a drawing |
+| `grands_nombres_act6.py` | the returning motif (Gamow's struck card, the chessboard) closing the film, a 3 s hold, then `brand.outro_scene` appended as the last shot |
+| `grands_nombres_PROMPTS.md`, `grands_nombres_episode.json` | that film's drawing prompts (style reference cropped from its own 1884 engraving) and its `episode.json` with the brand overrides |
 | `brief_history_act6.py` | typed title struck and corrected, a counter, stacked covers, `page_flip` with a bookmark, crowd + unfold, end title held over the last plate |
 
 `demo_presets.py`, `demo_annotate.py`, `demo_toolkit.py`, `demo_typo.py` and `demo_scenes.py` render numbered reels of the presets, the annotations, the storytelling toolkit (maps, timeline, charts, objects, camera, transitions), the typography system and the scene environments on a project's own assets. Show one to the user when they ask what the animations look like. `demo_palettes.py <out_dir>` (or `scripts/identity_board.py --all`) renders the visual identity guide: a page per identity, an overview, and identities derived from sample topics.
@@ -133,16 +137,20 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 1. **Search Wikimedia Commons.** Write `sources.json` (slot → 2–3 queries, in English and in the subject's language), then:
    `python SK/scripts/commons.py search sources.json out/commons`
    It keeps only public domain, CC0, CC BY and CC BY-SA files and draws one contact sheet per slot (`out/commons/<slot>.jpg`). It pauses between slots, honours `Retry-After` and resumes where it stopped, so run it in the background.
-2. **Pick by looking at the sheets.** Choose what shows exactly what the sentence says (the real Schöningen spear, a sword found in the Thames), not something merely related. Avoid photos of people unless the user agrees. Record picks in `picks.json` (`{"P02": "File:..."}`).
+2. **Pick by looking at the sheets.** Choose what shows exactly what the sentence says (the real Schöningen spear, a sword found in the Thames), not something merely related. **A nearby subject is an unrelated image to the viewer:** on *Les très grands nombres* the user rejected a Persian miniature of chess at court (a different legend), a 1960 farm photo for « le premier sac est vide », a memorial plaque standing in for a portrait, a weathered milestone whose M could not be read and a peg toy that was not a Tower of Hanoi. When the image is not the thing itself, use a drawing (below) or nothing. Avoid photos of people unless the user agrees. Record picks in `picks.json` (`{"P02": "File:..."}`).
 3. **Download:** `python SK/scripts/commons.py get P02 "File:..."` (saves `assets/P02.jpg` and its credit).
-4. **When Commons rate-limits this machine** (HTTP 429 is common on shared cloud IPs), don't wait: give the user the links and let them download.
+4. **When Commons rate-limits this machine** (HTTP 429 is common on shared cloud IPs), first try `python SK/scripts/commons.py fetch P02 "File:..."`: it needs no API call (it reads the URL and licence `search` stored) and, when the file server refuses, takes a resized copy from Commons' `Special:FilePath` thumbnail server at a standard width below the original (1920, 1280…), which usually still answers. On *Les très grands nombres* the API and file server returned 429 for hours while `fetch` downloaded every pick at once. Only if that fails too, give the user the links and let them download.
    `python SK/scripts/commons.py links` prints a table of every pick not yet in `assets/`: the code to save it as, the file page and the **direct file link** (the direct link opens the original image; a file page can show a different picture first). Put each link in a markdown link or a code block so it doesn't break across lines. When the user uploads the files, save them under their codes and record the credits with `python SK/scripts/commons.py credit P02 "File:..."`.
 5. **Nothing free found?** Tell the user which slots have no public-domain or freely licensed image, and **ask them to search** (museum sites, Europeana, Gallica, the Met open access, their own photos) before falling back to a generated drawing.
 6. **Credits are mandatory** for CC BY and CC BY-SA: `assets/credits.json` feeds a `CREDITS.txt` the user pastes into the video description. **No credits card in the video** unless the user asks for one (the user's choice on *Histoire des armes*). For images the user found and uploaded, ask for the file page link so the author and licence can be recorded.
 
 Real images get the identity's treatment (sepia duotone in history) and are placed as torn prints, full-bleed plates or split screens like any other image.
 
-**Generated drawings** (only for what remains):
+**Generated drawings** (only for what remains, and for every legend, story or scene that was never photographed or painted: the wheat-and-chessboard legend has no historical picture, so the king and the sage, the empty sack and the sack of wheat were drawn):
+
+- **Style reference from the film itself:** crop a public-domain engraving the film already uses (the 1884 *Popular Science Monthly* Tower of Hanoi) to one clean drawing and give it to the user as `style_reference.png`; once the first drawing is approved it replaces the reference. The drawings are printed with `cutout.ink_image(path, width)`, so they sit on the film's paper in its ink, on a light ground (`cream`, `paper`, `theme`): an ink drawing on a dark ground does not read. Caption each « Illustration ».
+- **Check period details** in what comes back (modern Staunton chess pieces in ancient India were sent back as « replace the pieces with carved elephants, horses, chariots, foot soldiers »), and **lettering** (the Roman M and « MDCCLXV » were checked letter by letter).
+- **Prompts go in the project's `PROMPTS.md`** with codes (`G01`, `G02`…); the act loads the drawing when `assets/G01.png` exists and a labelled placeholder until then, so uploading is all it takes.
 
 - **Ask which tool and which style.** Ask which image tool the user generates with (ChatGPT, Midjourney, others) and whether they have reference images.
 - **Reference image plus a short prompt** (see `references/prompts.md`, "Reference-image workflow"). Crop the reference for the user to the single cleanest figure, with no UI, cards or icons.
@@ -191,6 +199,8 @@ Build the acts one at a time. Word timing is created **together with each act**,
 - **Check every clip is complete.** Whisper can skip speech that matches its transcript prompt word for word (clip 13 of the Hawking film came back with 19 of 61 words). `align.py` now retries automatically when it gets under 80 % of the transcript, but compare word counts after aligning anyway:
   `python -c "import json;t=json.load(open('timing/words.json'));[print(k,len(v),len(open(f'audio/{k}.txt').read().split())) for k,v in sorted(t.items(),key=lambda x:int(x[0]))]"`
 - **Narration not in English:** set `VOX_LANG` (`VOX_LANG=fr python SK/scripts/align.py`; the multilingual `small` model is used, and a prompted pass that does not match the transcript is retried unprompted). `storyboard.py` and the topic analysis read English keywords, so write the `episode.json` subject in English and plan the shots by hand. Whisper splits elisions: *n'est* comes back as `n` + `'est`, *d'une* as `d` + `'une`, so cue the word before or after (`cue(1, 'Ce')`, `cue(1, "'archeologue")`); *l'hoplologie* written with ’ stays one token. Accents are folded for matching (`'sediment'` finds *sédiment*). Proper names can be misheard ("Thieme" came back as "Art Mutiem"): cue a neighbouring word instead.
+- **Check every spoken number against the transcript before putting it on screen.** Synthetic voices read numbers wrongly: a take said « sept billions six cent… » for 7 625 597 484 987 (a digit group lost), another read « 1256 » so Whisper heard « 1156 ». Transcribe the clip with the `medium` model (`faster_whisper.WhisperModel('medium')`, audio decoded with ffmpeg) and compare; if the voice is wrong, ask for a re-recorded clip with the number written out in words, and keep it off screen until then.
+- **Whisper can invent words** at the start of a clip (« La première, à la fin de l'année 7… » at 0 s before the real first word): drop them from `timing/words.json` and rewrite `words.txt` with `align.save_timing`.
 - **Cue pitfalls:** `cue()` finds the *first* occurrence, so a repeated word needs its number (`cue(11, 'one', 2)` when "no one" comes before "one-way"). Hyphenated words split into separate tokens (`one`, `-way`). Punctuation is ignored, so `'Pole.'` and `'Pole'` match the same word.
 
 Copy `templates/act_template.py` to `actN.py`. Rules:
@@ -660,7 +670,10 @@ cd project && PYTHONPATH=SK/scripts:. python act1.py sheet out/act1_sheet.png 2 
 - **the same print twice in one frame**, or an image already used twice in the film (Craft 5);
 - **an image that is not what the narration names**, or a stand-in passing as the real thing (Craft 6);
 - **a caption or label in the wrong language convention** (missing accent on a capital, straight apostrophe, no space before `?` in French);
-- anything on screen the narration does not say, image captions excepted (Craft 6).
+- anything on screen the narration does not say, image captions excepted (Craft 6);
+- **marks on the right detail:** before ringing signs on a plate, grid a crop of it and check what each sign is (on the Narmer macehead the « birds » are the tadpoles, the forked stem is the lotus, the kneeling figure is Heh; the first rings were on the wrong signs);
+- **glyphs the faces lack:** logic and math symbols (∀ ∃ ∧ ∨ ∈ ⊂ ∅) are missing from the bundled fonts; use a system font that has them (FreeSerif) with a plain fallback;
+- **a negative number used as a seed** crashes numpy (BC years on a timeline): use `abs()`.
 
 Fix, re-check. Show the user sheets or a draft per act and get approval before moving on.
 
@@ -677,7 +690,9 @@ cd project && python SK/scripts/render_all.py                    # FINAL: CRF 12
 - **Cost of the heavier tools** (4 cores): a held map view is about 16 ms because frames are cached, but a zooming map is about 0.6 s a frame, so keep map zooms to 1.5–2.5 s. Transitions add about 0.3 s per frame while they run. Plan longer renders for map-heavy acts.
 - **Demo reels without narration:** `vox.collect_events(frame, END, step=0.25)` then `sfx.build_track(events, END, None, level_db=-9)`, and mux with `ffmpeg -c:v copy`. Without a voice to duck under, −9 dB keeps the effects audible.
 - **Draft of the whole film:** `out/acts.txt` lists the act files; `ffmpeg -f concat -safe 0 -i out/acts.txt -c copy out/full_draft.mp4` joins them losslessly. An act whose audio was remixed separately (e.g. `act1_sfx.mp4`) can be copied over its act file first.
-- **Act drafts:** after each act is approved on its contact sheet, render a `--draft` and send it with `SendUserFile`.
+- **Act drafts, one at a time, and hold:** render one act (`--acts N --draft`), check it (duration, loudness, a few frames), send it, and **render nothing else until the user approves it** (the user's rule on *Les très grands nombres*: « hold the rendering till I approve »). Send the intro (act 0) and act 1 together, as they play. Before each act, audit its images with the user (a table: image, the line it illustrates, keep or replace) and only then render.
+- **Stopping `render_all.py` kills the act it is rendering mid-file** (act 1 came out 10 s long): stop only the scheduler and the acts not yet wanted, or re-render the interrupted act from scratch (`rm -rf out/_work_actN out/actN.mp4`).
+- **Re-render the intro when act 1's first frame changes:** the intro's exit reveals act 1's first frame, so act0.mp4 keeps the old image (the user spotted the replaced Wikimedia miniature still there).
 - **Final:** all acts, CRF 12, joined losslessly into `out/full.mp4`, narration mastered to −16 LUFS. Check the duration with ffprobe, measure the loudness of the joined file (`-af ebur128`; −17 to −15 LUFS, the first final of *Histoire des armes* came out at −17.1), spot-check frames, then send it. If the user supplied music, run `music.py` on the joined file and send that version.
 - **Files over 100 MB** stay out of git. Send them directly.
 
@@ -689,11 +704,11 @@ The channel stays recognisable in every film; each film keeps its own identity. 
 
 | Element | Function | Use |
 |---|---|---|
-| Watermark | drawn by `overlay()` | small (112 px), top-right, 62 % opacity; starts after the hook with a small reveal; hidden on `bleed`, `accent` and `charcoal` shots and while a CTA is up; fades only where its visibility changes |
+| Watermark | drawn by `overlay()` | small (112 px), top-right, 62 % opacity; `from: after_intro` (default) holds the corner from the film's first frame, where the intro's logo glides into it (`after_hook` waited for act 1 to end and left the corner empty: the user noticed); hidden on `bleed`, `accent` and `charcoal` shots and while a CTA is up; fades only where its visibility changes |
 | Logo reveal | `reveal(layer, cx, cy, width, t, start, style=)` | `mask` (a clean wipe behind a moving edge), `scale` (0.94 → 1 settle), `assemble` (four fine rules close in); optional `hold` then a gentle exit |
 | Signature | `signature(layer, x, y, t, start)` | the brand's mark: a fine rule that draws, a small square at its end; under the logo, under the subscribe message |
 | Subscribe | `cta_subscribe(...)` | logo, channel name if set, a quiet button pressed once (it turns to « Abonné » with a drawn tick), a bell that rings twice |
-| Like | `cta_like(...)` | an outlined thumb that fills with the accent once, one short line |
+| Like | `cta_like(...)` | an outlined thumb that fills with the accent once, one short line that fits any video (« Un j’aime aide la chaîne »); never a line about « this story », and no story element on the thumb unless the user asks (both were rejected) |
 | Comment | `cta_comment(..., question=)` | a speech-bubble card with the video's own question, revealed line by line |
 | Share | `cta_share(...)` | three nodes whose lines draw out; one short line |
 | Next video | `cta_next(layer, box, ...)` | the thumbnail (or a quiet placeholder), a frame drawn around it, « À voir ensuite », the title |
@@ -757,3 +772,6 @@ It takes the video's ground (`outro.env`, default the identity's paper) and pale
 31. **Honest pictures.** The image is the thing the narration names, or the user decides on a near match; real images carry a small caption of what they are; generated drawings are few, checked for faults and anachronisms, and marked as illustrations.
 32. **A finished film has a music bed and packaging**: music supplied by the user, mixed far under the voice; measured loudness; chapters, thumbnail and description offered with the file.
 33. **The brand is recognisable but never overshadows the story.** The official logo is used as supplied (never redrawn or recoloured); no branding in the hook; CTAs only in real pauses and in the outro; the comment question is specific to the video; the outro keeps the video's own palette and leaves YouTube's end-screen areas clear.
+34. **The image is the thing named, or it is drawn.** Every image is audited with the user, act by act, before rendering: a nearby subject (another legend, another place, a plaque for a portrait, a toy for the real object) is replaced by a drawing in the film's engraving style or removed. Legends and stories with no historical picture are always drawn.
+35. **One act at a time, and wait.** Render and send one act, then hold every other render until the user approves it. A changed first frame means the intro is re-rendered too.
+36. **Numbers are checked against the voice.** A spoken number or date goes on screen only after a transcription confirms the voice says what the transcript says; otherwise the user re-records it.
