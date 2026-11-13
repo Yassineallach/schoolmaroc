@@ -44,11 +44,10 @@ KING = on_paint(0.79, 0.24)                               # the smiling king in 
 def set_cam(s, z, F):
     s.zoom = z
     s.lx, s.ly = F[0] - (F[0] - W / 2) / z, F[1] - (F[1] - H / 2) / z
-GRAIN = N.image('R02', (1600, 960), 'grain')
 SACKS_CARD = drawing('G02', 1000, 'le sac vide (à générer)')
 GAMOW_CARD = P.print_card(S.treated(N.image('H01', (250, 334), 'Gamow')), 330, seed=14)
 
-GRAIN_CARD = P.print_card(S.treated(GRAIN), 760, seed=12)
+GRAIN_CARD = drawing('G03', 560, 'le sac de blé')                      # the sack of wheat, engraving
 BOARD, BPAD, BSQ = N.board_image(760)
 BOARD_SMALL = BOARD.resize((560, 560), Image.LANCZOS)
 BS = 760 * 560 / BOARD.width        # playing area of the small board on screen
@@ -70,9 +69,9 @@ def sB(t, D):
     s = Shot(t, D)
     S.env(s, 'theme')
     P.put(s.mid, BOARD_SMALL, 1330, 560)                                     # the empty board is already there
-    P.drop(s.mid, GRAIN_CARD, 600, 520, t, w(cue(1, 'demande')) - 0.1, rot=-4, spin=12, key='grain')
+    P.drop(s.mid, GRAIN_CARD, 600, 540, t, w(cue(1, 'demande')) - 0.1, rot=-2, spin=8, key='grain')
     kicker(s.hud, t, 1, 'Un grain sur la première case', start=0.6)
-    caption(s.hud, 'Grain de blé épeautre', t, w(cue(1, 'demande')) + 0.8)
+    caption(s.hud, 'Illustration', t, w(cue(1, 'demande')) + 0.8, corner='bl')
     return s
 
 
