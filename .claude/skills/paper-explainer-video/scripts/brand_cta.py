@@ -309,7 +309,7 @@ def like(layer, x, y, t, dur=3.0, T0=None, motif=None):
     # words: the reason, then the verb set apart
     tx = ix + icon + 26
     a1 = int(255 * _eo((t - 0.45) / 0.4))
-    d.text((tx, 24), msg, font=rf, fill=INK + (a1,))
+    d.text((tx, 24) if verb else (tx, ch / 2), msg, font=rf, fill=INK + (a1,), anchor='la' if verb else 'lm')   # one line: centred
     a2 = int(255 * _eo((t - 0.95) / 0.4))
     sp = 0
     for ch_ in verb:                                          # small caps with a little tracking

@@ -134,7 +134,7 @@
   "fr": {
    "subscribe": "S’abonner",
    "subscribed": "Abonné",
-   "like": "Cette histoire vous a plu ?",
+   "like": "Un j’aime aide la chaîne",
    "comment_label": "En commentaire",
    "share": "Partagez-la avec un curieux",
    "next_label": "À voir ensuite",
@@ -143,7 +143,7 @@
    "outro_more": "Une autre histoire vous attend.",
    "question_template": "Quel sujet aimeriez-vous que l’on explore ensuite ?",
    "intro_line": "Une histoire présentée par",
-   "like_verb": "Un j’aime aide la chaîne",
+   "like_verb": "",
    "subscribe_reason": "pour la prochaine histoire",
    "outro_sub_verb": "Abonnez-vous",
    "outro_sub_reason": "pour la prochaine histoire."
@@ -151,7 +151,7 @@
   "en": {
    "subscribe": "Subscribe",
    "subscribed": "Subscribed",
-   "like": "Enjoyed this story?",
+   "like": "A like helps the channel",
    "comment_label": "In the comments",
    "share": "Share it with someone curious",
    "next_label": "Watch next",
@@ -160,7 +160,7 @@
    "outro_more": "Another story is waiting.",
    "question_template": "What should we explore next?",
    "intro_line": "A story presented by",
-   "like_verb": "A like helps the channel",
+   "like_verb": "",
    "subscribe_reason": "for the next story",
    "outro_sub_verb": "Subscribe",
    "outro_sub_reason": "for the next story."
@@ -168,7 +168,7 @@
   "ar": {
    "subscribe": "اشترك",
    "subscribed": "مشترك",
-   "like": "أعجبتك القصة؟",
+   "like": "إعجابك يساعد القناة",
    "comment_label": "في التعليقات",
    "share": "شاركها مع شخص فضولي",
    "next_label": "شاهد التالي",
@@ -177,7 +177,7 @@
    "outro_more": "قصة أخرى في انتظارك.",
    "question_template": "ما الموضوع الذي تريد أن نستكشفه بعد ذلك؟",
    "intro_line": "قصة تقدمها",
-   "like_verb": "إعجابك يساعد القناة",
+   "like_verb": "",
    "subscribe_reason": "لتصلك القصة القادمة",
    "outro_sub_verb": "اشترك",
    "outro_sub_reason": "لتصلك القصة القادمة."
