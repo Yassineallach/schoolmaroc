@@ -185,7 +185,7 @@ def sJ(t, D):
     P.drop(s.mid, GAMOW_CARD, 560, 520, t, ENTER, rot=-3, spin=10, key='gamow')
     TY.name_card(s.top, (1000, 330), 'George Gamow', 'PHYSICIEN · 1947', t, w(cue(3, 'physicien')))
     tag(s.hud, (1250, 760), 'Shirham', 54, t, w(cue(3, 'Shirham')), bg=PAL.accent, fg=CREAM)
-    caption(s.hud, 'George Gamow', t, w(cue(3, 'George')) + 1.0)
+    caption(s.hud, 'Plaque commémorative de George Gamow, Göttingen', t, w(cue(3, 'George')) + 1.0)
     return s
 
 
