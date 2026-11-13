@@ -44,9 +44,9 @@ def on_narmer(fx, fy, cx=W / 2, cy=520):
     return cx - w_ / 2 + 16 + fx * (w_ - 32), cy - h_ / 2 + 16 + fy * (h_ - 32)
 
 
-LOTUS = on_narmer(0.615, 0.945)
-TADPOLE = on_narmer(0.515, 0.94)
-HEH_PT = on_narmer(0.632, 0.855)
+LOTUS = on_narmer(0.622, 0.930)                    # the lotus (1 000), the branching stem
+TADPOLE = on_narmer(0.482, 0.925)                  # the tadpoles (100 000)
+HEH_PT = on_narmer(0.622, 0.860)                   # Heh, kneeling, arms raised (1 000 000)
 
 
 def sA(t, D):
@@ -142,14 +142,16 @@ def sG(t, D):
     et un dieu agenouillé, bras levés, pour un million."""
     s = Shot(t, D)
     S.env(s, 'paper')
-    cx, cy = (LOTUS[0] + TADPOLE[0]) / 2, (HEH_PT[1] + LOTUS[1]) / 2
-    s.camera(2.1, 2.3, (cx, cy), (cx + 30, cy))
-    P.put(s.mid, NARMER_CARD, W / 2, 520)
-    marks = (('lotus', LOTUS, '1 000', 34), ('tetard', TADPOLE, '100 000', 46), ('dieu', HEH_PT, '1 000 000', 30))
+    lift = 300                                               # the drawing sits higher so its bottom row of signs is mid-frame
+    cx, cy = (LOTUS[0] + TADPOLE[0]) / 2, (HEH_PT[1] + LOTUS[1]) / 2 - lift
+    s.camera(1.7, 1.85, (cx, cy), (cx + 20, cy))
+    P.put(s.mid, NARMER_CARD, W / 2, 520 - lift)
+    marks = (('lotus', LOTUS, '1 000', 30), ('tetard', TADPOLE, '100 000', 40), ('dieu', HEH_PT, '1 000 000', 30))
     for ph, (x, y), lab, r in marks:
+        y -= lift
         at = w(cue(5, ph))
         A.ring(s.mid, (x - r, y - r, x + r, y + r), t, at, width=4, until=at + 2.6)
-    P.slide(s.hud, HEH_CARD, (W + 300, 560), (1560, 560), t, w(cue(5, 'agenouille')), dur=1.0, rot=3, key='heh')
+    P.slide(s.hud, HEH_CARD, (W + 300, 470), (1620, 470), t, w(cue(5, 'agenouille')), dur=1.0, rot=3, key='heh')
     caption(s.hud, 'Signe heh, « millions », faïence, Égypte (Met)', t, w(cue(5, 'agenouille')) + 0.9)
     return s
 
@@ -160,7 +162,7 @@ def sH(t, D):
     S.env(s, 'theme')
     s.camera(1.0, 1.10, (W / 2, 520), (W / 2, 440))                # towards the big M
     P.put(s.mid, MILESTONE_CARD, W / 2, 520)
-    words(s.top, (W / 2 + 330, 380), '= 1 000', 72, t, w(cue(5, 'pour mille', 2)) + 0.25, fill=PAL.accent)
+    tag(s.hud, (W / 2, 975), 'M = 1 000', 60, t, w(cue(5, 'pour mille', 2)) + 0.25, bg=PAL.accent, fg=CREAM)   # fixed to the screen, clear of the stone
     caption(s.hud, 'Illustration', t, ENTER + 0.8, corner='bl')
     return s
 
@@ -170,7 +172,7 @@ def sI(t, D):
     les nombres s'arrêtaient là où s'arrêtaient les signes."""
     s = Shot(t, D)
     S.env(s, 'cream')
-    signs = [N.crop_frac(NARMER, b) for b in ((0.598, 0.905, 0.632, 0.985), (0.47, 0.895, 0.56, 0.985))]
+    signs = [N.crop_frac(NARMER, b) for b in ((0.603, 0.900, 0.642, 0.985), (0.452, 0.898, 0.515, 0.958))]   # lotus, one tadpole whole
     signs.append(HEH)
     xs = (360, 760, 1160)
     for i, (im, x) in enumerate(zip(signs, xs)):
