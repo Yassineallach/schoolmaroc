@@ -249,31 +249,22 @@ def _head(scale=1.0):
     return [(x * 520 * scale, y * 620 * scale) for x, y in pts]
 
 
+import os
+import cutout
+# the head that would collapse into a black hole: the user's engraving-style drawing G06
+# (PROMPTS.md), a labelled placeholder until it is uploaded
+HEAD = (cutout.ink_image(asset('G06.png'), 1500) if os.path.exists(asset('G06.png'))
+        else P.print_card(N.image('G06', (1600, 900), 'la tête et le trou noir (à générer)'), 1300, seed=171))
+
+
 def sK(t, D):
     """Une image répandue par la chaîne Numberphile affirme qu'une tête qui en retiendrait tous les
     chiffres s'effondrerait en trou noir,"""
     s = Shot(t, D)
-    S.env(s, 'paper')
-    ox, oy = W / 2 - 260, 200
-    pts = [(ox + x, oy + y) for x, y in _head()]
-    collapse = P.ease_io(P.clamp01((t - w(cue(11, "'effondreraient"))) / 1.0))
-    d = ImageDraw.Draw(s.mid)
-    if collapse < 1:
-        cx, cy = ox + 260, oy + 300
-        sp = [(cx + (x - cx) * (1 - collapse), cy + (y - cy) * (1 - collapse)) for x, y in pts]
-        A.stroke(s.mid, sp, A.pen((t - ENTER) / 1.0), 6, PAL.ink, 1.0)
-        # digits filling the head
-        fill = P.clamp01((t - w(cue(11, 'chiffres')) + 1.2) / 1.6)
-        rng = np.random.default_rng(3)
-        n = int(220 * fill)
-        f = F_TYPE(26)
-        for i in range(n):
-            x = cx + rng.uniform(-170, 170) * (1 - collapse)
-            y = cy + rng.uniform(-220, 220) * (1 - collapse)
-            d.text((x, y), str(rng.integers(0, 10)), font=f, fill=PAL.ink + (190,), anchor='mm')
-    if collapse > 0:
-        r = 140 * P.ease_out(collapse)
-        d.ellipse((ox + 260 - r, oy + 300 - r, ox + 260 + r, oy + 300 + r), fill=(12, 12, 16, 255))
+    S.env(s, 'cream')
+    s.camera(1.0, 1.0)
+    s.push(w(cue(11, "'effondreraient")) - 0.3, 0.45, (W / 2 + 40, 470), dur=1.6)   # into the black sphere as it is spoken
+    P.put(s.mid, HEAD, W / 2, 540)
     caption(s.hud, 'Illustration', t, ENTER + 0.6, corner='bl')
     return s
 
@@ -282,11 +273,10 @@ def sL(t, D):
     """une simplification que le site IFLScience juge fausse."""
     s = Shot(t, D)
     S.env(s, 'cream')
-    ox, oy = W / 2 - 260, 200
-    d = ImageDraw.Draw(s.mid)
-    d.ellipse((ox + 120, oy + 160, ox + 400, oy + 440), fill=(12, 12, 16, 255))
-    A.strike(s.mid, (ox + 60, oy + 270, ox + 460, oy + 330), t, w(cue(11, 'fausse')) - 0.2, scribble=True)
-    TY.Text('simplification', 'caption', size=50).draw(s.top, (W / 2 + 330, 650), t, w(cue(11, 'simplification')), anim='type', anchor='l')
+    P.put(s.mid, HEAD.resize((HEAD.width * 2 // 3, HEAD.height * 2 // 3), Image.LANCZOS), 700, 520)
+    hw, hh = HEAD.width / 3, HEAD.height / 3
+    A.strike(s.mid, (700 - hw * 0.9, 500, 700 + hw * 0.9, 560), t, w(cue(11, 'fausse')) - 0.2, scribble=True)
+    TY.Text('simplification', 'caption', size=50).draw(s.top, (1300, 650), t, w(cue(11, 'simplification')), anim='type', anchor='l')
     return s
 
 

@@ -47,3 +47,17 @@ Fill the whole 16:9 frame edge to edge, on plain white paper, no border, no fram
 Gamow is a real person, so his face is never drawn or generated. If you have a photograph of
 George Gamow that you have the right to use, upload it and I'll show it as a torn print with
 his name card. Without one, the shot keeps the name card and the book title on their own.
+
+---
+
+## Act 5
+
+**G06 — The head and the black hole**
+Used for « une tête qui en retiendrait tous les chiffres s'effondrerait en trou noir » (the camera pushes into the black sphere), then struck out on « une simplification … fausse ».
+```
+Use ONLY the drawing style of the attached image: black 19th-century wood engraving, clean confident contours, shading only with fine parallel hatching, solid black only in the deepest shadows. No colour, no grey wash, no gradients.
+Ignore the people and objects in the attached image; do not copy them.
+
+Draw: an anonymous man's head and shoulders in strict profile, facing right, calm expression, in a plain 19th-century coat. Inside his head, countless tiny numerals spiral inward and are swallowed by a small, perfectly black sphere at the centre of the skull; around the sphere the hatching bends like a whirlpool. The numerals near the edge of the head are clear, those near the sphere stretch and vanish.
+Fill the whole 16:9 frame edge to edge, on plain white paper, no border, no frame. No other text.
+```
