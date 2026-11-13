@@ -728,7 +728,7 @@ def plan():
             dur = min(hi_, (nxt[0] - T0 + 0.2) if nxt else hi_)
         items.append((kind, T0 + 0.15, dur, {}))
     wm = CFG['watermark']
-    wm_from = first_end if wm['from'] == 'after_hook' else float(wm['from'] or 0)
+    wm_from = first_end if wm['from'] == 'after_hook' else 0.0 if wm['from'] == 'after_intro' else float(wm['from'] or 0)   # after_intro: the intro's logo glides into the corner, the watermark holds it
     items.append(('watermark', wm_from, total - wm_from, {}))
     _PLAN = items
     return items

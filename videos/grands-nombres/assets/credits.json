@@ -35,11 +35,11 @@
   "page": "https://commons.wikimedia.org/wiki/File:Narmer_Macehead_Quibell_1900.jpg"
  },
  "H01": {
-  "title": "File:Göttinger Gedenktafel, Gamow, George, 1, Herzberger Landstraße 6, Oststadt, Göttingen, Landkreis Göttingen.jpg",
-  "author": "GeorgDerReisende",
-  "credit": "Own work",
-  "licence": "CC BY-SA 4.0",
-  "page": "https://commons.wikimedia.org/wiki/File:G%C3%B6ttinger_Gedenktafel,_Gamow,_George,_1,_Herzberger_Landstra%C3%9Fe_6,_Oststadt,_G%C3%B6ttingen,_Landkreis_G%C3%B6ttingen.jpg"
+  "title": "Photograph of George Gamow (supplied by the channel)",
+  "author": "?",
+  "credit": "",
+  "licence": "to confirm",
+  "page": ""
  },
  "R06": {
   "title": "File:Inlay of the hieroglyphic sign \"heh\" meaning \"millions of years\" MET DP239685.jpg",
@@ -159,5 +159,19 @@
   "credit": "Own work",
   "licence": "CC0",
   "page": "https://commons.wikimedia.org/wiki/File:Agustin_Rayo_MIT.jpg"
+ },
+ "G01": {
+  "title": "Illustration, generated for the film",
+  "author": "AX Lab (ChatGPT)",
+  "credit": "",
+  "licence": "own",
+  "page": ""
+ },
+ "G02": {
+  "title": "Illustration, generated for the film",
+  "author": "AX Lab (ChatGPT)",
+  "credit": "",
+  "licence": "own",
+  "page": ""
  }
 }

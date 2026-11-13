@@ -37,8 +37,8 @@ def on_paint(fx, fy):
     return PCX - _pw / 2 + 16 + fx * (_pw - 32), PCY - _ph / 2 + 16 + fy * (_ph - 32)
 
 
-CHESS = on_paint(0.50, 0.70)                              # the chessboard in G01 (set once the drawing is in)
-KING = on_paint(0.72, 0.40)                               # the king on his throne (set once the drawing is in)
+CHESS = on_paint(0.45, 0.69)                              # the chessboard in G01
+KING = on_paint(0.79, 0.24)                               # the smiling king in G01
 
 
 def set_cam(s, z, F):
@@ -46,6 +46,7 @@ def set_cam(s, z, F):
     s.lx, s.ly = F[0] - (F[0] - W / 2) / z, F[1] - (F[1] - H / 2) / z
 GRAIN = N.image('R02', (1600, 960), 'grain')
 SACKS_CARD = drawing('G02', 1000, 'le sac vide (à générer)')
+GAMOW_CARD = P.print_card(S.treated(N.image('H01', (250, 334), 'Gamow')), 330, seed=14)
 
 GRAIN_CARD = P.print_card(S.treated(GRAIN), 760, seed=12)
 BOARD, BPAD, BSQ = N.board_image(760)
@@ -189,13 +190,15 @@ def sJ(t, D):
     s = Shot(t, D)
     S.env(s, 'theme')
     s.camera(1.0, 1.03, (W / 2, H / 2), (900, 520))
-    book = P.paper_card(620, 300, seed=14, colour=PAL.light)            # the book, as a title card (no portrait: none is free)
+    book = P.paper_card(620, 300, seed=14, colour=PAL.light)            # the book, as a title card
     bd = ImageDraw.Draw(book)
     bd.text((310, 120), '« Un, deux, trois…', font=F_BODY(54), fill=PAL.ink + (255,), anchor='mm')
     bd.text((310, 190), 'l’infini »', font=F_BODY(54), fill=PAL.ink + (255,), anchor='mm')
-    P.drop(s.mid, book, 560, 540, t, ENTER, rot=-3, spin=10, key='book')
-    TY.name_card(s.top, (1000, 330), 'George Gamow', 'PHYSICIEN · 1947', t, w(cue(3, 'physicien')))
-    tag(s.hud, (1250, 760), 'Shirham', 54, t, w(cue(3, 'Shirham')), bg=PAL.accent, fg=CREAM)
+    P.drop(s.mid, GAMOW_CARD, 470, 470, t, ENTER, rot=-3, spin=10, key='gamow')
+    TY.name_card(s.top, (820, 300), 'George Gamow', 'PHYSICIEN · 1947', t, w(cue(3, 'physicien')))
+    P.drop(s.mid, book.resize((500, 242), Image.LANCZOS), 1080, 650, t, w(cue(3, 'raconte')), rot=2.5, spin=8, key='book')
+    tag(s.hud, (1520, 820), 'Shirham', 54, t, w(cue(3, 'Shirham')), bg=PAL.accent, fg=CREAM)
+    caption(s.hud, 'George Gamow', t, ENTER + 1.0)
     return s
 
 

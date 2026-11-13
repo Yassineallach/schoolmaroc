@@ -48,14 +48,14 @@
    52,
    46
   ],
-  "from": "after_hook",
+  "from": "after_intro",
   "hide_env": [
    "bleed",
    "accent",
    "charcoal"
   ],
   "fade": 0.5,
-  "ident": true
+  "ident": false
  },
  "sounds": {
   "enabled": true,
