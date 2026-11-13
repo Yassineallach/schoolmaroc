@@ -18,11 +18,14 @@ cue = make_cue(CLIPS)
 # ---- real images (Wikimedia Commons, credits in assets/credits.json) ----
 NARMER = N.image('R05', (1920, 1203), 'massue de Narmer')
 HEH = N.image('R06', (1500, 2000), 'Heh')
-MILESTONE = N.image('R07', (1400, 1050), 'borne milliaire')
 
 NARMER_CARD = P.print_card(S.treated(NARMER), 1640, seed=51)
 HEH_CARD = P.print_card(S.treated(HEH).crop((int(HEH.width * 0.12), int(HEH.height * 0.12), int(HEH.width * 0.88), int(HEH.height * 0.92))), 430, seed=52)
-MILESTONE_CARD = P.print_card(S.treated(MILESTONE), 900, seed=53)
+import os
+import cutout
+# the Roman M: an engraving-style drawing (PROMPTS.md, G04); a labelled placeholder until it is uploaded
+MILESTONE_CARD = (cutout.ink_image(asset('G04.png'), 1300) if os.path.exists(asset('G04.png'))
+                  else P.print_card(N.image('G04', (1600, 900), 'le M romain (à générer)'), 1100, seed=53))
 
 M = maps.WorldMap(box=(0, 0, W, H))
 AFRICA_S = M.around((22.0, -26.0), km=2600)
@@ -155,9 +158,10 @@ def sH(t, D):
     """Les Romains écrivaient M pour mille."""
     s = Shot(t, D)
     S.env(s, 'theme')
-    s.camera(1.0, 1.12, (W / 2, 520), (W / 2 + 40, 470))           # towards the inscription
+    s.camera(1.0, 1.10, (W / 2, 520), (W / 2, 440))                # towards the big M
     P.put(s.mid, MILESTONE_CARD, W / 2, 520)
-    caption(s.hud, 'Borne milliaire romaine de Middleton, Cumbria (« M P LIII »)', t, ENTER + 0.8)
+    words(s.top, (W / 2 + 330, 380), '= 1 000', 72, t, w(cue(5, 'pour mille', 2)) + 0.25, fill=PAL.accent)
+    caption(s.hud, 'Illustration', t, ENTER + 0.8, corner='bl')
     return s
 
 
