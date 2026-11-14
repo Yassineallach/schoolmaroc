@@ -105,11 +105,11 @@ def sD(t, D):
     s = Shot(t, D)
     S.env(s, 'geometric')
     P.drop(s.mid, MIT_CARD, 620, 420, t, ENTER, rot=-2, spin=8, key='mit')
-    TY.big_number(s.top, (620, 800), '2007', t, w(cue(12, '26')), role='date', label='26 JANVIER · MIT')
+    TY.big_number(s.top, (620, 700), '2007', t, w(cue(12, '26')), role='date', label='26 JANVIER · MIT')
     P.drop(s.mid, RAYO_CARD, 1300, 380, t, w(cue(12, 'Agustin')), rot=2.5, spin=9, key='rayo')
     TY.name_card(s.top, (1180, 600), 'Agustín Rayo', 'PHILOSOPHE', t, w(cue(12, 'Rayo')))
     TY.name_card(s.top, (1180, 800), 'Adam Elga', 'PHILOSOPHE', t, w(cue(12, 'Adam')))
-    caption(s.hud, 'Great Dome, MIT ; Agustín Rayo, MIT, 2025', t, ENTER + 1.0, corner='bl')
+    caption(s.hud, 'Great Dome, MIT ; Agustín Rayo, MIT, 2025', t, ENTER + 1.0, corner='tl')
     return s
 
 
@@ -197,8 +197,9 @@ def sI(t, D):
     s = Shot(t, D)
     S.env(s, 'paper')
     TY.Text('TREE(3)', 'headline', size=110, colour=PAL.muted).draw(s.top, (W / 2, 220), t, ENTER + 0.1, anim='words', anchor='m', sound=False)
-    P.slide(s.mid, QUOTE, (W + 500, 560), (W / 2, 560), t, w(cue(13, 'Gamow')) - 0.3, dur=1.1, rot=-3, key='callback')
-    A.strike(s.mid, (W / 2 - 330, 535, W / 2 + 330, 590), t, -9.0, sound=False)     # still struck, as in act 2
+    at = w(cue(13, 'Gamow')) - 0.3
+    P.slide(s.mid, QUOTE, (W + 500, 560), (W / 2, 560), t, at, dur=1.1, rot=-3, key='callback')
+    A.strike(s.mid, (W / 2 - 330, 535, W / 2 + 330, 590), t, at + 1.2, sound=False)    # struck again once it has landed, as in act 2
     return s
 
 
