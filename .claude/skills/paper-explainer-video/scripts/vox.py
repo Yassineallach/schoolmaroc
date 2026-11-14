@@ -475,6 +475,9 @@ def render_video(frame_fn, end, clips, out, workdir):
     os.makedirs(workdir, exist_ok=True)
     wav = os.path.join(workdir, 'mastered.wav')
     master_audio(clips, wav)
+    padded = os.path.join(workdir, 'mastered_full.wav')        # silence up to END: acts that run past the narration
+    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', wav, '-af', f'apad=whole_dur={end + 0.5:.3f}', padded], check=True)   # (an end hold, the outro) keep their picture
+    wav = padded
     n = int(round(end * FPS))
     wav = _with_sfx(frame_fn, end, wav, workdir)
     p = subprocess.Popen(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-',
