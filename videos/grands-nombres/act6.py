@@ -56,16 +56,40 @@ def tree(layer, root, length, angle, depth, t, start, colour, seed=0, per=0.12):
             d.ellipse((q[0] - 6, q[1] - 6, q[0] + 6, q[1] + 6), fill=colour + (255,))
 
 
+import cutout
+
+
+def drawing(code, width, label):
+    """The user's engraving-style drawing (PROMPTS.md), printed on the film's paper; a labelled
+    placeholder until the file is uploaded."""
+    pth = asset(f'{code}.png')
+    if os.path.exists(pth):
+        return cutout.ink_image(pth, width)
+    return P.print_card(N.image(code, (1600, 900), label), int(width * 0.8), seed=200)
+
+
+GIANT_TREE = drawing('G07', 1700, 'l’arbre géant (à générer)')
+BOARD_DUEL = drawing('G08', 1700, 'le tableau du duel (à générer)')
+
+
+def tower(layer, cx, base_y, n, t, start, size=60, step=66):
+    """The tower of 3s from act 5, floor by floor."""
+    d = ImageDraw.Draw(layer)
+    for i in range(n):
+        k = P.ease_out(P.clamp01((t - start - 0.04 * i) / 0.3))
+        if k <= 0:
+            continue
+        y = base_y - i * step
+        x = cx + ((i * 53) % 21 - 10)
+        d.text((x, y), '3', font=F_HEAD(size), fill=(PAL.accent if i % 7 == 0 else PAL.ink) + (int(255 * k),), anchor='mm')
+
+
 def sA(t, D):
     """Mais le nombre de Graham a été dépassé."""
     s = Shot(t, D)
-    S.env(s, 'theme')
-    card = P.paper_card(520, 300, seed=191, colour=PAL.light)
-    d = ImageDraw.Draw(card)
-    for i in range(6):                                        # the tower of 3s, as act 5 left it
-        d.text((260 + ((i * 37) % 9 - 4), 38 + 34 * i), '3', font=F_HEAD(30), fill=PAL.ink + (255,), anchor='mm')
-    d.text((260, 270), 'nombre de Graham', font=F_BODY(30), fill=PAL.muted + (255,), anchor='mm')
-    P.put(s.mid, card.rotate(-3, Image.BICUBIC, expand=True), W / 2, 520)
+    S.env(s, 'paper')
+    climb = P.ease_io(P.clamp01((t - ENTER) / max(D, 0.1)))
+    tower(s.mid, W / 2, 1000 + 1400 * climb, 40, t, ENTER - 9.0)    # the floors slide down: we climb the tower of 3s of act 5
     kicker(s.hud, t, 6, 'Un, deux, trois, beaucoup', start=0.3)
     return s
 
@@ -74,28 +98,35 @@ def sB(t, D):
     """Le logicien Harvey Friedman a étudié une suite née de la théorie des graphes."""
     s = Shot(t, D)
     S.env(s, 'cream')
-    TY.name_card(s.top, (180, 260), 'Harvey Friedman', 'LOGICIEN', t, ENTER + 0.1)
-    at = w(cue(12, 'graphes')) - 0.9
-    tree(s.mid, (1060, 860), 150, math.pi / 2, 4, t, at, PAL.ink, seed=1)
-    tree(s.mid, (1420, 860), 120, math.pi / 2 + 0.2, 3, t, at + 0.3, PAL.accent, seed=2)
-    tree(s.mid, (1700, 860), 100, math.pi / 2 - 0.15, 4, t, at + 0.55, PAL.ink, seed=3)
+    TY.name_card(s.top, (180, 300), 'Harvey Friedman', 'LOGICIEN', t, ENTER + 0.1)
+    at = w(cue(12, 'graphes')) - 1.2
+    tree(s.mid, (1160, 880), 160, math.pi / 2, 5, t, at, PAL.ink, seed=1, per=0.10)
+    tree(s.mid, (1560, 880), 130, math.pi / 2 + 0.15, 4, t, at + 0.35, PAL.accent, seed=2, per=0.10)
     return s
 
 
 def sC(t, D):
-    """TREE(1) vaut 1, TREE(2) vaut 3, et TREE(3) écrase le nombre de Graham."""
+    """TREE 1 vaut 1, TREE 2 vaut 3,"""
     s = Shot(t, D)
     S.env(s, 'grid')
-    a1, a2, a3 = w(cue(12, 'TREE')), w(cue(12, 'TREE', 2)), w(cue(12, '3'))
-    words(s.top, (520, 260), 'TREE(1) = 1', 64, t, a1)
-    words(s.top, (520, 380), 'TREE(2) = 3', 64, t, a2)
-    # the Graham card, crushed under TREE(3)
-    crush = P.ease_io(P.clamp01((t - w(cue(12, 'ecrase'))) / 0.8))
-    card = P.paper_card(380, 220, seed=192, colour=PAL.light)
-    ImageDraw.Draw(card).text((190, 110), 'Graham', font=F_BODY(46), fill=PAL.muted + (255,), anchor='mm')
-    sq = card.resize((380, max(6, int(220 * (1 - 0.88 * crush)))), Image.LANCZOS)
-    P.put(s.mid, sq, 1360, 900 - sq.height / 2)
-    TY.Text('TREE(3)', 'headline', size=200).draw(s.top, (1360, 420 + 200 * crush), t, a3, anim='scale', anchor='m')
+    for (n, val, k, x) in ((1, '1', 1, 640), (2, '3', 2, 1280)):
+        a = w(cue(12, 'TREE', k))
+        TY.Text(f'TREE({n})', 'stat', size=110).draw(s.top, (x, 300), t, a, anim='scale', anchor='m', sound=False)
+        words(s.top, (x, 520), f'= {val}', 120, t, w(cue(12, 'vaut', k)) + 0.15, fill=PAL.accent)
+        tree(s.mid, (x, 900), 90, math.pi / 2, 1 + 2 * (n - 1), t, a + 0.2, PAL.ink, seed=10 + n, per=0.08)
+    return s
+
+
+def sC2(t, D):
+    """et TREE 3 écrase le nombre de Graham."""
+    s = Shot(t, D)
+    S.env(s, 'cream')
+    climb = P.ease_io(P.clamp01((t - ENTER) / max(D + 1.0, 0.1)))
+    s.zoom = 1.35
+    s.lx, s.ly = W / 2, H / 2 + 120 - 260 * climb                # up the trunk, which never ends
+    P.put(s.mid, GIANT_TREE, W / 2, 520)
+    tag(s.hud, (W / 2, 975), 'TREE(3)', 64, t, w(cue(12, 'TREE', 3)) + 0.1, bg=PAL.accent, fg=CREAM)
+    caption(s.hud, 'Illustration', t, ENTER + 0.8, corner='bl')
     return s
 
 
@@ -118,61 +149,43 @@ def sE(t, D):
     symboles en théorie des ensembles."""
     s = Shot(t, D)
     S.env(s, 'cream')
-    # a ribbon of logic symbols that never ends (the googolplex strip returns, made of symbols)
-    pan = (t - ENTER) * 140
-    f = SYM_FONT
-    d = ImageDraw.Draw(s.mid)
-    rib = P.paper_card(W + 200, 96, seed=193, colour=PAL.light)
-    rd = ImageDraw.Draw(rib)
-    x = 40 - (pan % 52)
-    i = int(pan // 52)
-    while x < W + 160:
-        rd.text((x, 48), SYMBOLS[i % len(SYMBOLS)], font=f, fill=PAL.ink + (255,), anchor='lm')
-        x += 52
-        i += 1
-    P.put(s.mid, rib, W / 2, 820)
-    TY.term_card(s.top, (440, 330), 'LE NOMBRE DE RAYO', 'un googol de symboles', t, w(cue(12, 'propose')), width=1000)
-    return s
-
-
-def sF(t, D):
-    """Les mathématiciens savent définir ces géants, prouver leurs propriétés, parfois calculer leurs
-    derniers chiffres."""
-    s = Shot(t, D)
-    S.env(s, 'paper')
-    card = P.paper_card(900, 520, seed=194, colour=PAL.light)
-    d = ImageDraw.Draw(card)
-    for yy in range(90, 520, 70):
-        d.line((50, yy, 850, yy), fill=PAL.soft + (255,), width=2)
-    P.put(s.mid, card.rotate(-1.5, Image.BICUBIC, expand=True), W / 2, 540)
-    for i, ph in enumerate(('definir', 'prouver', 'calculer')):
-        A.mark(s.mid, (W / 2 - 340, 410 + 110 * i), 'tick', t, w(cue(13, ph)), size=44)
-        k = A.pen((t - w(cue(13, ph)) - 0.15) / 0.6)
-        if k > 0:
-            A.stroke(s.mid, [(W / 2 - 270, 412 + 110 * i), (W / 2 - 270 + 560 * (0.6 + 0.3 * (i % 2)), 412 + 110 * i)], k, 6, PAL.muted, 1.0)
+    s.camera(1.0, 1.14, (W / 2, 520), (W / 2, 440))               # slowly into the board
+    P.put(s.mid, BOARD_DUEL, W / 2, 540)
+    tag(s.hud, (W / 2, 975), 'Le nombre de Rayo', 52, t, w(cue(12, 'propose')), bg=PAL.accent, fg=CREAM)
+    caption(s.hud, 'Illustration', t, ENTER + 0.8, corner='bl')
     return s
 
 
 DIGITS = '2464195387'
+DIG_CUES = (('2', 1), ('4', 1), ('6', 1), ('4', 2), ('1', 1), ('9', 1), ('5', 1), ('3', 1), ('8', 1), ('7', 1))
+STRIP_FONT = F_TYPE(64)
+DW = STRIP_FONT.getlength('0')
 
 
-def sG(t, D):
-    """Le nombre de Graham se termine par 2464195387."""
+def sF(t, D):
+    """Les mathématiciens savent définir ces géants, prouver leurs propriétés, parfois calculer leurs
+    derniers chiffres : le nombre de Graham se termine par 2, 4, 6, 4, 1, 9, 5, 3, 8, 7."""
     s = Shot(t, D)
-    S.env(s, 'cream')
-    f = F_HEAD(130)
-    at = w(cue(13, 'par')) + 0.2
-    total = f.getlength('…' + DIGITS)
-    x0 = W / 2 - total / 2
-    d = ImageDraw.Draw(s.top)
-    d.text((x0, 560), '…', font=f, fill=PAL.muted + (255,), anchor='ls')
-    x = x0 + f.getlength('…')
-    n = int(max(0, (t - at) / 0.33))
-    for i, ch in enumerate(DIGITS[:n]):
-        d.text((x, 560), ch, font=f, fill=(PAL.accent if i == len(DIGITS) - 1 else PAL.ink) + (255,), anchor='ls')
-        x += f.getlength(ch)
-    sfx('type', at, W / 2, n=10, cps=3)
-    TY.Text('nombre de Graham', 'label', size=28).draw(s.top, (x0, 620), t, ENTER + 0.2, anchor='l', sound=False)
+    S.env(s, 'paper')
+    # the endless strip of the googolplex returns, made of the digits of Graham's number; it runs
+    # past until it reaches its end, where the last ten digits land one by one, as they are spoken
+    rng = np.random.default_rng(7)
+    body = ''.join(str(v) for v in rng.integers(0, 10, 120))
+    reach = w(cue(13, 'calculer'))
+    run = P.ease_io(P.clamp01((t - ENTER) / max(reach - ENTER + 1.2, 0.1)))
+    end_x = W * 0.78                                              # where the strip's last digit sits once it has arrived
+    shift = (1 - run) * 2600
+    strip_w = int(STRIP_FONT.getlength(body + '…') + DW * 10 + 120)
+    card = P.paper_card(strip_w, 120, seed=211, colour=PAL.light)
+    cd = ImageDraw.Draw(card)
+    cd.text((40, 60), body + '…', font=STRIP_FONT, fill=PAL.muted + (255,), anchor='lm')
+    x0 = 40 + STRIP_FONT.getlength(body + '…') + 6
+    for i, (ch, nth) in enumerate(DIG_CUES):
+        if t >= w(cue(13, ch, nth)):
+            cd.text((x0 + DW * i, 60), DIGITS[i], font=STRIP_FONT, fill=(PAL.accent if i == 9 else PAL.ink) + (255,), anchor='lm')
+            sfx('tick', w(cue(13, ch, nth)), end_x)
+    P.put(s.mid, card, end_x - strip_w / 2 + 70 + shift, 560)
+    TY.Text('nombre de Graham', 'label', size=28).draw(s.hud, (end_x - DW * 10 + 10, 650), t, w(cue(13, 'Le nombre')), anchor='l', sound=False)
     return s
 
 
@@ -196,7 +209,7 @@ def sI(t, D):
     Khoïkhoïs :"""
     s = Shot(t, D)
     S.env(s, 'paper')
-    TY.Text('TREE(3)', 'headline', size=110, colour=PAL.muted).draw(s.top, (W / 2, 220), t, ENTER + 0.1, anim='words', anchor='m', sound=False)
+    P.put(s.mid, GIANT_TREE.resize((GIANT_TREE.width // 3, GIANT_TREE.height // 3), Image.LANCZOS), 360, 300)   # the giant tree, small, at the back
     at = w(cue(13, 'Gamow')) - 0.3
     P.slide(s.mid, QUOTE, (W + 500, 560), (W / 2, 560), t, at, dur=1.1, rot=-3, key='callback')
     A.strike(s.mid, (W / 2 - 330, 535, W / 2 + 330, 590), t, at + 1.2, sound=False)    # struck again once it has landed, as in act 2
@@ -230,10 +243,10 @@ SHOTS = [
     (0.0, sA),
     (cue(12, 'Le logicien') - LEAD, sB, 'lr'),
     (cue(12, 'TREE') - LEAD, sC, 'up'),
+    (cue(12, 'et TREE') - LEAD, sC2, ('zoom', {'at': (W / 2, 620)})),
     (cue(12, 'Le 26') - LEAD, sD, 'rl'),
     (cue(12, 'Rayo propose') - LEAD, sE, 'up'),
     (cue(13, 'Les mathematiciens') - LEAD, sF, 'pageturn'),
-    (cue(13, 'Le nombre') - LEAD, sG, 'lr'),
     (cue(13, 'Aucun') - LEAD, sH, 'rl'),
     (cue(13, 'Devant') - LEAD, sI, 'up'),
     (cue(13, 'Un,') - LEAD, sJ, 'lr'),

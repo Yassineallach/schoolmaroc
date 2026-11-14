@@ -61,3 +61,25 @@ Ignore the people and objects in the attached image; do not copy them.
 Draw: an anonymous man's head and shoulders in strict profile, facing right, calm expression, in a plain 19th-century coat. Inside his head, countless tiny numerals spiral inward and are swallowed by a small, perfectly black sphere at the centre of the skull; around the sphere the hatching bends like a whirlpool. The numerals near the edge of the head are clear, those near the sphere stretch and vanish.
 Fill the whole 16:9 frame edge to edge, on plain white paper, no border, no frame. No other text.
 ```
+
+---
+
+## Act 6
+
+**G07 — The giant tree (TREE(3))**
+```
+Use ONLY the drawing style of the attached image: black 19th-century wood engraving, clean confident contours, shading only with fine parallel hatching, solid black only in the deepest shadows. No colour, no grey wash, no gradients.
+Ignore the people and objects in the attached image; do not copy them.
+
+Draw: a colossal ancient tree seen from near its base, the trunk rising out of the top of the frame. Every branch splits into smaller branches, and each twig ends in a tiny tree of the same shape, which splits again, endlessly, into finer and finer trees. At the foot of the trunk, tiny by comparison, a small tower of stacked stone blocks. A lone traveller with a walking stick looks up at it, seen from behind.
+Fill the whole 16:9 frame edge to edge, on plain white paper, no border, no frame. No text.
+```
+
+**G08 — The blackboard of the duel (Rayo's number)**
+```
+Use ONLY the drawing style of the attached image: black 19th-century wood engraving, clean confident contours, shading only with fine parallel hatching, solid black only in the deepest shadows. No colour, no grey wash, no gradients.
+Ignore the people and objects in the attached image; do not copy them.
+
+Draw: a large 19th-century university lecture hall seen from the front rows. A huge blackboard fills the wall, completely covered in dense handwritten mathematical-logic formulas: symbols like ∀, ∃, ¬, parentheses, x, y, z, arrows, set brackets. In front of the board, two empty wooden chairs face each other as if for a duel, a piece of chalk on each seat. No people.
+Fill the whole 16:9 frame edge to edge, on plain white paper, no border, no frame. No other text.
+```
