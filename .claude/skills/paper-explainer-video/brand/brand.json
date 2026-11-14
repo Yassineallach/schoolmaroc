@@ -146,7 +146,7 @@
    "like_verb": "",
    "subscribe_reason": "pour la prochaine histoire",
    "outro_sub_verb": "Abonnez-vous",
-   "outro_sub_reason": "pour la prochaine histoire."
+   "outro_sub_reason": ""
   },
   "en": {
    "subscribe": "Subscribe",
@@ -163,7 +163,7 @@
    "like_verb": "",
    "subscribe_reason": "for the next story",
    "outro_sub_verb": "Subscribe",
-   "outro_sub_reason": "for the next story."
+   "outro_sub_reason": ""
   },
   "ar": {
    "subscribe": "اشترك",
@@ -180,7 +180,7 @@
    "like_verb": "",
    "subscribe_reason": "لتصلك القصة القادمة",
    "outro_sub_verb": "اشترك",
-   "outro_sub_reason": "لتصلك القصة القادمة."
+   "outro_sub_reason": ""
   }
  },
  "music": {

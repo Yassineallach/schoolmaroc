@@ -947,11 +947,22 @@ def outro_scene(t, D, force=False):
         sl = logo(int(r * 1.3), force=force)
         if sl is not None:
             tmp = Image.new('RGBA', s.hud.size, (0, 0, 0, 0))
-            if marker:                                       # the logo glides down from the top into the circle
+            if marker:                                       # the logo glides down into the circle, which fills like an avatar
                 g_ = _eio((t - switch) / 0.9)
+                pc = CFG['logo'].get('plate_color') or '#2B2A2A'
+                disc = tuple(int(pc.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))
+                fa = _eio((t - switch - 0.35) / 0.6)
+                if fa > 0:
+                    S4 = 4
+                    m = Image.new('L', (2 * r * S4, 2 * r * S4), 0)
+                    ImageDraw.Draw(m).ellipse((0, 0, 2 * r * S4 - 1, 2 * r * S4 - 1), fill=int(255 * fa))
+                    m = m.resize((2 * r, 2 * r), Image.LANCZOS)
+                    dk = Image.new('RGBA', (2 * r, 2 * r), disc + (0,))
+                    dk.putalpha(m)
+                    s.hud.alpha_composite(dk, (int(cxc - r), int(cyc - r)))
                 gx, gy = lx + (cxc - lx) * g_, ly + (cyc - ly) * g_
-                gw = lw + (int(r * 1.3) - lw) * g_
-                place_logo(tmp, gx, gy, gw, force=force, anchor='mm', ground=gl)
+                gw = lw + (int(r * 1.62) - lw) * g_          # lands large, filling the disc's width
+                place_logo(tmp, gx, gy, gw, force=force, anchor='mm', ground=gl, plate=False if fa > 0.5 else None)
                 s.hud.alpha_composite(tmp)
             else:
                 place_logo(tmp, cxc, cyc, int(r * 1.3), force=force, anchor='mm', ground=gl)
@@ -962,7 +973,8 @@ def outro_scene(t, D, force=False):
             vf = _font('label', 44)
             aa = int(255 * _eo((t - switch - 0.6) / 0.5))
             d.text((W / 2, cyc + r + 34), TXT.get('outro_sub_verb', ''), font=vf, fill=CTA_FILL + (aa,), anchor='ma')
-            d.text((W / 2, cyc + r + 92), TXT.get('outro_sub_reason', ''), font=_font('title', 36), fill=ink + (aa,), anchor='ma')
+            if TXT.get('outro_sub_reason'):
+                d.text((W / 2, cyc + r + 92), TXT['outro_sub_reason'], font=_font('title', 36), fill=ink + (aa,), anchor='ma')
             _sound('pop', T0 + switch, cxc, 0.4)
             return s
         tx = cxc + r + 40 if not RTL else cxc - r - 40
