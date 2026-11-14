@@ -263,7 +263,9 @@ def sK(t, D):
     s = Shot(t, D)
     S.env(s, 'cream')
     s.camera(1.0, 1.0)
-    s.push(w(cue(11, "'effondreraient")) - 0.3, 0.45, (W / 2 + 40, 470), dur=1.6)   # into the black sphere as it is spoken
+    hw, hh = HEAD.size
+    sphere = (W / 2 - hw / 2 + 0.478 * hw, 540 - hh / 2 + 0.372 * hh)          # the black sphere in G06
+    s.push(w(cue(11, "'effondreraient")) - 0.3, 0.6, sphere, dur=1.6)   # into the sphere as it is spoken
     P.put(s.mid, HEAD, W / 2, 540)
     caption(s.hud, 'Illustration', t, ENTER + 0.6, corner='bl')
     return s
@@ -273,10 +275,11 @@ def sL(t, D):
     """une simplification que le site IFLScience juge fausse."""
     s = Shot(t, D)
     S.env(s, 'cream')
-    P.put(s.mid, HEAD.resize((HEAD.width * 2 // 3, HEAD.height * 2 // 3), Image.LANCZOS), 700, 520)
-    hw, hh = HEAD.width / 3, HEAD.height / 3
-    A.strike(s.mid, (700 - hw * 0.9, 500, 700 + hw * 0.9, 560), t, w(cue(11, 'fausse')) - 0.2, scribble=True)
-    TY.Text('simplification', 'caption', size=50).draw(s.top, (1300, 650), t, w(cue(11, 'simplification')), anim='type', anchor='l')
+    small = HEAD.resize((HEAD.width * 2 // 3, HEAD.height * 2 // 3), Image.LANCZOS)
+    P.put(s.mid, small, 700, 520)
+    sx, sy = 700 - small.width / 2 + 0.478 * small.width, 520 - small.height / 2 + 0.372 * small.height
+    A.strike(s.mid, (sx - 190, sy - 25, sx + 190, sy + 25), t, w(cue(11, 'fausse')) - 0.2, scribble=True)
+    TY.Text('simplification', 'caption', size=50).draw(s.top, (1260, 760), t, w(cue(11, 'simplification')), anim='type', anchor='l')
     return s
 
 
