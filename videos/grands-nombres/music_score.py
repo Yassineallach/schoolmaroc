@@ -15,8 +15,8 @@ SR = 44100
 BPM = 66
 BEAT = 60 / BPM
 BAR = 4 * BEAT
-TURN = 205.9          # act 5 starts: tension
-CLOSE = 271.8         # act 6 starts: return and thin out
+TURN = 214.0          # act 5 starts (time from the end of the brand intro): tension
+CLOSE = 284.6         # act 6 starts: return and thin out
 rng = np.random.default_rng(1883)
 
 
