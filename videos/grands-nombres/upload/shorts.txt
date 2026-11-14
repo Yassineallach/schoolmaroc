@@ -1,0 +1,25 @@
+SHORTS — Les très grands nombres
+Each Short: post it, then in YouTube Studio set "Related video" to the full video, so a link
+to it appears under the Short. Pin the same comment as the full video.
+
+1. s1_echiquier.mp4 (33 s)
+Titre : Le roi qui a promis du blé… et ne pouvait pas payer #shorts
+Description : Un grain sur la première case, deux sur la deuxième… La suite de l'histoire dans « Les très grands nombres » sur la chaîne.
+Tags : échiquier, légende, grains de blé, grands nombres, mathématiques, shorts
+
+2. s2_googol.mp4 (26 s)
+Titre : Le nom de Google vient d'un enfant de 9 ans #shorts
+Description : Un 1 suivi de cent zéros, et une faute d'orthographe devenue célèbre. Toute l'histoire dans « Les très grands nombres ».
+Tags : googol, google, googolplex, Kasner, grands nombres, mathématiques, shorts
+
+3. s3_hanoi.mp4 (31 s)
+Titre : Le jeu qui finit avec la fin du monde #shorts
+Description : 64 disques d'or, une seule règle, 585 milliards d'années. La tour de Hanoï dans « Les très grands nombres ».
+Tags : tour de Hanoï, Édouard Lucas, énigme, grands nombres, mathématiques, shorts
+
+4. s4_cartes.mp4 (32 s)
+Titre : Ce jeu de cartes cache un nombre plus grand que l'univers #shorts
+Description : 52 ! : chaque mélange de cartes est probablement unique dans l'histoire. La suite dans « Les très grands nombres ».
+Tags : jeu de cartes, factorielle, 52 factorielle, grands nombres, mathématiques, shorts
+
+Suggested order: 2, 4, 1, 3, one every two days; the googol Short is the widest hook.

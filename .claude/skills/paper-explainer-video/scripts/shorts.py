@@ -64,6 +64,18 @@ def ass_subs(clips, start, end, path):
         acc += vox._DUR[c]
     words = [(off[c] + w['s'], off[c] + w['e'], w['w']) for c in clips for w in vox._WORDS[c]]
     words = [(s - start, e - start, t) for s, e, t in words if start - 0.05 <= s < end]
+    merged = []                                             # Whisper splits « soixante-quatre », « d'or »: join them back
+    for s, e, t in words:
+        if merged and (t.startswith('-') or t.startswith("'") or t.startswith('’') or merged[-1][2].endswith(("'", '’'))):
+            ps, pe, pt = merged[-1]
+            joiner = '' if not t.startswith(("'", '’')) else ''
+            merged[-1] = (ps, e, pt + joiner + t.replace("'", '’'))
+        elif merged and merged[-1][2] in ('l', 'd', 'n', 's', 'c', 'j', 'm', 'qu', 'L', 'D', 'N', 'S', 'C', 'J', 'M', 'Qu') and t[:1].isalpha():
+            ps, pe, pt = merged[-1]
+            merged[-1] = (ps, e, pt + '’' + t)
+        else:
+            merged.append((s, e, t))
+    words = merged
     groups, cur = [], []
     for wd in words:
         cur.append(wd)
