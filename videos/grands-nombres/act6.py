@@ -21,7 +21,6 @@ RAYO = N.image('H06', (1280, 1715), 'Rayo')
 MIT_CARD = P.print_card(S.treated(MIT), 760, seed=181)
 RAYO_CARD = P.print_card(S.treated(RAYO), 300, seed=182)
 BOARD, BPAD, BSQ = N.board_image(760)
-GRAIN_BIG = N.grain_sprite(length=240, seed=4)
 
 QUOTE = P.paper_card(760, 150, seed=61, colour=PAL.light)            # the same card as in act 2
 ImageDraw.Draw(QUOTE).text((380, 75), '« un, deux, trois, beaucoup »', font=F_TYPE(46), fill=PAL.ink + (255,), anchor='mm')
@@ -68,7 +67,6 @@ def drawing(code, width, label):
     return P.print_card(N.image(code, (1600, 900), label), int(width * 0.8), seed=200)
 
 
-GIANT_TREE = drawing('G07', 1700, 'l’arbre géant (à générer)')
 BOARD_DUEL = drawing('G08', 1700, 'le tableau du duel (à générer)')
 
 
@@ -117,16 +115,46 @@ def sC(t, D):
     return s
 
 
+TREE_COLOURS = None
+
+
+def math_tree(d, x, y, size, seed, k=1.0):
+    """A small rooted tree from graph theory: nodes in the three colours of TREE(3), joined by lines."""
+    rng = np.random.default_rng(seed)
+    cols = (PAL.ink, PAL.accent, (176, 132, 48))
+    nodes = [(x, y)]
+    edges = []
+    for n in range(int(2 + rng.integers(1, 5))):
+        px, py = nodes[int(rng.integers(0, len(nodes)))]
+        nx_, ny_ = px + rng.uniform(-0.6, 0.6) * size, py - rng.uniform(0.5, 0.9) * size
+        nodes.append((nx_, ny_))
+        edges.append(((px, py), (nx_, ny_)))
+    a = int(255 * k)
+    for p0, p1 in edges:
+        d.line((*p0, *p1), fill=PAL.ink + (a,), width=max(2, int(size / 12)))
+    r = max(3, size / 7)
+    for q, (nx_, ny_) in enumerate(nodes):
+        c = cols[int(rng.integers(0, 3))]
+        d.ellipse((nx_ - r, ny_ - r, nx_ + r, ny_ + r), fill=c + (a,))
+
+
 def sC2(t, D):
     """et TREE 3 écrase le nombre de Graham."""
     s = Shot(t, D)
     S.env(s, 'cream')
-    climb = P.ease_io(P.clamp01((t - ENTER) / max(D + 1.0, 0.1)))
-    s.zoom = 1.35
-    s.lx, s.ly = W / 2, H / 2 + 120 - 260 * climb                # up the trunk, which never ends
-    P.put(s.mid, GIANT_TREE, W / 2, 520)
+    d = ImageDraw.Draw(s.mid)
+    # trees of three colours appear in ever greater numbers while the camera pulls back
+    grow = P.ease_io(P.clamp01((t - ENTER) / max(D, 0.1)))
+    n = int(3 + 900 * grow ** 2.2)
+    rng = np.random.default_rng(31)
+    pos = [(W / 2, 640, 150), (W / 2 - 330, 620, 110), (W / 2 + 330, 660, 110)] + \
+          [(rng.uniform(-900, W + 900), rng.uniform(-500, H + 400), rng.uniform(40, 80)) for _ in range(903)]
+    for i in range(n):
+        x, y, sz = pos[i]
+        math_tree(d, x, y, sz, 100 + i, k=min(1.0, (n - i) / 30))
+    s.zoom = 1.8 - 0.8 * grow
+    s.lx, s.ly = W / 2, H / 2
     tag(s.hud, (W / 2, 975), 'TREE(3)', 64, t, w(cue(12, 'TREE', 3)) + 0.1, bg=PAL.accent, fg=CREAM)
-    caption(s.hud, 'Illustration', t, ENTER + 0.8, corner='bl')
     return s
 
 
@@ -189,18 +217,16 @@ def sF(t, D):
     return s
 
 
+HEAD = cutout.ink_image(asset('G06.png'), 1400) if os.path.exists(asset('G06.png')) else None
+
+
 def sH(t, D):
     """Aucun esprit, en revanche, ne peut se représenter leur taille."""
     s = Shot(t, D)
-    S.env(s, 'charcoal', mood='calm')
-    k = P.ease_out(P.clamp01((t - ENTER) / 1.2))                # locked off: one grain, lit, in the dark
-    glow = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    gd = ImageDraw.Draw(glow)
-    for r, a in ((260, 18), (180, 24), (110, 30)):
-        gd.ellipse((W / 2 - r, 520 - r, W / 2 + r, 520 + r), fill=(230, 190, 120, int(a * k)))
-    from PIL import ImageFilter
-    s.mid.alpha_composite(glow.filter(ImageFilter.GaussianBlur(60)))
-    P.put(s.mid, alpha_mul(GRAIN_BIG, k), W / 2, 520, shadow=False)
+    S.env(s, 'cream', mood='calm')
+    if HEAD is not None:                                         # locked off: the head of act 5, no push this time
+        P.put(s.mid, HEAD, W / 2, 540)
+    caption(s.hud, 'Illustration', t, ENTER + 0.6, corner='bl')
     return s
 
 
@@ -209,7 +235,7 @@ def sI(t, D):
     Khoïkhoïs :"""
     s = Shot(t, D)
     S.env(s, 'paper')
-    P.put(s.mid, GIANT_TREE.resize((GIANT_TREE.width // 3, GIANT_TREE.height // 3), Image.LANCZOS), 360, 300)   # the giant tree, small, at the back
+    TY.Text('TREE(3)', 'headline', size=110, colour=PAL.muted).draw(s.top, (W / 2, 220), t, ENTER + 0.1, anim='words', anchor='m', sound=False)
     at = w(cue(13, 'Gamow')) - 0.3
     P.slide(s.mid, QUOTE, (W + 500, 560), (W / 2, 560), t, at, dur=1.1, rot=-3, key='callback')
     A.strike(s.mid, (W / 2 - 330, 535, W / 2 + 330, 590), t, at + 1.2, sound=False)    # struck again once it has landed, as in act 2
@@ -219,23 +245,25 @@ def sI(t, D):
 def sJ(t, D):
     """un, deux, trois, puis seulement, beaucoup."""
     s = Shot(t, D)
-    S.env(s, 'theme')
-    cx, cy = W / 2, 540
-    P.put(s.mid, BOARD, cx, cy)
-    for k, ph in ((1, 'Un'), (2, 'deux'), (3, 'trois')):
-        x, y = N.square_centre(cx, cy, 760, k)
-        N.scatter(s.mid, x, y, 1, 8, t, w(cue(13, ph)), seed=10 + k, dur=0.1)
-    # « beaucoup »: grains pour onto the board and off the frame
-    at = w(cue(13, 'beaucoup'))
+    S.env(s, 'grid')
+    d = ImageDraw.Draw(s.mid)
+    for k, ph in enumerate(('Un', 'deux', 'trois')):            # the dots of act 2, counted one by one
+        a = P.ease_out(P.clamp01((t - w(cue(13, ph))) / 0.25))
+        if a > 0:
+            x = W / 2 - 160 + 160 * k
+            r = 34 * a
+            d.ellipse((x - r, 540 - r, x + r, 540 + r), fill=PAL.ink + (255,))
+    at = w(cue(13, 'beaucoup'))                                  # then « beaucoup »: past counting, the dots fill the frame
     if t > at:
         rng = np.random.default_rng(99)
-        n = int(min(1, (t - at) / 2.4) * 900)
+        n = int(min(1.0, (t - at) / 2.6) ** 1.6 * 2600)
         for i in range(n):
-            ang = rng.uniform(0, 2 * math.pi)
-            rad = 520 * math.sqrt(rng.uniform(0, 1)) * (0.35 + 0.65 * min(1, (t - at) / 2.4))
-            gx, gy = cx + rad * math.cos(ang), cy + rad * math.sin(ang) * 0.9
-            N.scatter(s.mid, gx, gy, 1, 0, t, at + i * 0.0026, seed=200 + i, dur=0.0, size=0.55)
-        sfx('assemble', at + 0.1, cx, n=8)
+            x, y = rng.uniform(0, W), rng.uniform(0, H)
+            if abs(y - 540) < 50 and abs(x - W / 2) < 210:
+                continue
+            r = rng.uniform(6, 16)
+            d.ellipse((x - r, y - r, x + r, y + r), fill=(PAL.accent if i % 9 == 0 else PAL.ink) + (230,))
+        sfx('assemble', at + 0.1, W / 2, n=8)
     return s
 
 
