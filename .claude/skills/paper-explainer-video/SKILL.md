@@ -100,6 +100,8 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `check_pacing.py` | the pacing and variety check: shot lengths and their spread, repeated environments and cuts, how many shots carry text, text-heavy frames, effect budgets, images used too often or multiplied, a title before the hook, real images without a caption |
 | `music.py` | lays a music bed under a finished film (looped, faded, ducked by the voice) without re-rendering the picture |
 | `check_empty.py` | the no-empty-screens check: flags every stretch where a shot shows only its ground |
+| `remotion_export.py` | exports an act's grounds, fonts, logo, soundtrack, word timing and palette to a Remotion project (section 18); `templates/remotion/cues.ts` cues on spoken words in React |
+| `shorts.py` | vertical Shorts cut from the finished film: hook headline, word-synced subtitles, call to the full video |
 | `brand.py` | channel branding: the official SVG logo, watermark, reveal, signature, subscribe / like / comment / share / next-video CTAs, CTA placement from the narration's pauses, the YouTube end screen (config: `brand/brand.json`) |
 
 ## Phases
@@ -737,6 +739,49 @@ It takes the video's ground (`outro.env`, default the identity's paper) and pale
 
 **Demo:** `python SK/examples/demo_brand.py out/brand [--reel]` renders the watermark on a frame of the film, the three reveals, the subscribe CTA, the comment/like/share cards, the three outro layouts on three grounds, and with `--reel` a 30 s reel with its sounds.
 
+### 18. Remotion: the React engine, called through its own skills
+
+The Python engine stays the main pipeline (identity, scenes, presets, sound, checks, renders).
+Remotion is an optional second engine for an act or a scene the user wants rebuilt in React:
+spring physics, `TransitionSeries` cuts, SVG strokes, Studio preview. Its official agent skills
+are installed in the repo (`.claude/skills/remotion-*`).
+
+**When to call it:** only when the user asks for Remotion, or approves a Remotion version of a
+scene after comparing it with the Python one. Never switch a whole film without asking.
+
+**How:**
+1. **Load the skills first:** `Skill remotion-best-practices` (the router), then `remotion-markup`
+   before writing React and `remotion-render` before rendering. Follow them: animations driven by
+   `useCurrentFrame()` / `interpolate()` / `spring()` (never CSS transitions), `staticFile()` for
+   assets, `@remotion/fonts` `loadFont()` for the film's typefaces, `<Audio>` from `@remotion/media`.
+2. **Scaffold once per project:** `npx create-video@latest --yes --blank --no-tailwind remotion`
+   in the project folder, then `npx remotion add @remotion/transitions @remotion/fonts @remotion/media`.
+   `node_modules` stays out of git.
+3. **Export the act's material from the Python engine**, so both engines share it:
+   `python SK/scripts/remotion_export.py N remotion/public/aN --film out/final/film.mp4`
+   writes every ground of the identity, the fonts, the logo, the act's soundtrack cut from the
+   finished film (voice, effects and music as approved; without `--film`, the narration alone),
+   the word timing and the palette. Act-specific images (drawings, prints, the board) are saved
+   by the act's own code (`act1.PAINT_CARD.save(...)`).
+4. **Cue on words** with `templates/remotion/cues.ts` (copy it to `src/`):
+   `const cue = makeCue(words); Math.round(cue(1, 'demande') * fps)`. Same matching as the
+   Python `cue()` (accents folded, nth occurrence, elisions by the second token).
+5. **Keep the act's timing exact:** in a `TransitionSeries`, give every scene except the last a
+   duration of (its shot length + the transition's frames), so each cut still lands on its word
+   and the act keeps its length; the composition's duration is `Math.round(cue.end * fps)`.
+6. **Render with the machine's Chromium:**
+   `npx remotion render <Id> out.mp4 --browser-executable=/opt/pw-browsers/chromium --crf=16`
+   (stills: `npx remotion still <Id> f.png --frame=N --browser-executable=...` for the contact
+   sheet). Check duration and loudness as for any act, send it beside the Python version, and let
+   the user choose.
+7. **Licence:** Remotion is free for individuals and companies of up to 3 people; above that a
+   company licence is needed (`Skill remotion-license`). Say so the first time.
+
+**What Remotion does not have out of the box** (rebuild it when the user wants the paper feel):
+torn-paper cuts (a custom presentation that masks with a jagged edge), paper shadows that grow
+with the lift, pen strokes with tremor (SVG paths with a seeded wobble). Worked example:
+`videos/grands-nombres/remotion/src/Act1.tsx` (act 1 of *Les très grands nombres*).
+
 ## Rules learned from the user (keep them)
 
 1. Base everything on the transcript.
@@ -775,3 +820,4 @@ It takes the video's ground (`outro.env`, default the identity's paper) and pale
 34. **The image is the thing named, or it is drawn.** Every image is audited with the user, act by act, before rendering: a nearby subject (another legend, another place, a plaque for a portrait, a toy for the real object) is replaced by a drawing in the film's engraving style or removed. Legends and stories with no historical picture are always drawn.
 35. **One act at a time, and wait.** Render and send one act, then hold every other render until the user approves it. A changed first frame means the intro is re-rendered too.
 36. **Numbers are checked against the voice.** A spoken number or date goes on screen only after a transcription confirms the voice says what the transcript says; otherwise the user re-records it.
+37. **Remotion is called through its skills, on request.** Load `remotion-best-practices` (then `remotion-markup`, `remotion-render`) before writing or rendering Remotion code; export the act's material with `remotion_export.py` so both engines share the same images, timing and soundtrack; send the Remotion version beside the Python one and let the user choose.
