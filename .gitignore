@@ -1,1 +1,3 @@
 __pycache__/
+videos/*/remotion/node_modules/
+videos/*/remotion/out/

@@ -1,0 +1,70 @@
+{
+ "cues": {
+  "vizir": 5.46,
+  "demande": 7.5,
+  "un_grain": 8.56,
+  "deux": 10.7,
+  "quatre": 11.86,
+  "doublant": 13.44,
+  "le_roi": 14.68,
+  "intendants": 16.7,
+  "avant": 19.18,
+  "vingtieme": 19.56,
+  "pour_couvrir": 21.92,
+  "dix": 24.46,
+  "milliards": 24.9,
+  "environ": 26.92,
+  "mille": 29.84,
+  "legende": 33.09,
+  "1256": 34.03,
+  "ouvre": 36.87,
+  "des": 33.93,
+  "tres": 37.83,
+  "grands": 38.03,
+  "nombres": 38.17,
+  "physicien": 39.69,
+  "raconte": 41.03,
+  "shirham": 44.85,
+  "end": 45.82
+ },
+ "pal": {
+  "ink": "#1a1a26",
+  "accent": "#2b4a9b",
+  "light": "#f0eadb",
+  "muted": "#5f5c6e",
+  "dark": "#1a1730",
+  "paper": "#f1ece2"
+ },
+ "geo": {
+  "board_size": [
+   828,
+   828
+  ],
+  "chess": [
+   886.6,
+   694.28
+  ],
+  "king": [
+   1385.72,
+   328.88
+  ],
+  "pcx": 960.0,
+  "pcy": 540,
+  "g01": [
+   1500,
+   844
+  ]
+ },
+ "shots": [
+  0.0,
+  5.34,
+  8.44,
+  14.56,
+  19.06,
+  21.8,
+  26.8,
+  32.67,
+  36.75,
+  39.57
+ ]
+}
