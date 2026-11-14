@@ -1,0 +1,10 @@
+[
+ {"name": "s1_echiquier", "start": 5.0, "end": 37.63, "clips": [1, 2],
+  "title": "Un grain de blé sur la première case de l’échiquier…"},
+ {"name": "s2_googol", "start": 131.26, "end": 156.42, "clips": [7],
+  "title": "Un mot inventé par un enfant de neuf ans"},
+ {"name": "s3_hanoi", "start": 156.42, "end": 187.22, "clips": [8],
+  "title": "Quand ils auront fini, le monde s’achèvera"},
+ {"name": "s4_cartes", "start": 187.22, "end": 219.02, "clips": [9],
+  "title": "Un simple jeu de cartes suffit à dépasser l’échiquier"}
+]
