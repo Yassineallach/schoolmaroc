@@ -59,12 +59,23 @@ def article(head, body, outlet, date, width=1180, seed=21, pad=46):
     return card, boxes
 
 
-def highlight(layer, card_xy, boxes, t, start, gap=0.35, until=None):
-    """Marker sweeps over one phrase of an article placed with its top-left at card_xy,
-    line by line, as the narration reaches it."""
+def highlight(layer, card_xy, boxes, t, start, gap=0.35, until=None, colour=None, strength=0.85):
+    """Highlighter over one phrase of an article placed with its top-left at card_xy, line by
+    line, as the narration reaches it. Multiplied into the page like real marker ink, so the
+    printed words stay dark and readable on top of the colour."""
     x, y = card_xy
+    tmp = Image.new('RGBA', layer.size, (0, 0, 0, 0))
     for i, (x0, y0, x1, y1) in enumerate(boxes):
-        A.sweep(layer, (x + x0, y + y0, x + x1, y + y1), t, start + i * gap, until=until, sound=(i == 0), seed=7 + i)
+        A.sweep(tmp, (x + x0, y + y0, x + x1, y + y1), t, start + i * gap, until=until, sound=(i == 0), seed=7 + i,
+                colour=colour or PAL.highlight, alpha=1.0)
+    a = np.asarray(tmp).astype(np.float32)
+    k = a[..., 3:4] / 255.0 * strength
+    if k.max() <= 0:
+        return
+    base = np.asarray(layer).astype(np.float32)
+    mul = 1 - k + k * a[..., :3] / 255.0
+    base[..., :3] *= mul
+    layer.paste(Image.fromarray(base.clip(0, 255).astype(np.uint8), 'RGBA'))
 
 
 # ------------------------------------------------------------------ the paper city
