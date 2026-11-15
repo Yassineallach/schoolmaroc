@@ -158,11 +158,48 @@ def put_line(layer, cx, cy, scale=1.0, only=None, op=1.0):
 _HATS = {}
 
 
+_GEN = {}
+
+
+def _generated_hats():
+    """The user's ChatGPT hats (assets/H01.png: black hat left, white hat right, on white).
+    Split at the widest empty gap, then the white paper connected to the border is cut away:
+    the black outline closes each hat, so the white hat's inside survives."""
+    if _GEN or not have('H01'):
+        return _GEN
+    from scipy import ndimage
+    im = Image.open(asset('H01.png')).convert('RGB')
+    a = np.asarray(im).astype(np.float32)
+    ink = a.mean(2) < 200
+    cols = ink.any(0)
+    xs = np.where(cols)[0]
+    gaps = [(x1 - x0, x0, x1) for x0, x1 in zip(xs[:-1], xs[1:]) if x1 - x0 > 20]
+    split = max(gaps)[1] + max(gaps)[0] // 2 if gaps else im.width // 2
+    for name, (x0, x1) in (('noir', (0, split)), ('blanc', (split, im.width))):
+        sub = a[:, x0:x1]
+        light = sub.mean(2) > 225
+        lab, _ = ndimage.label(light)
+        border = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}
+        bg = np.isin(lab, list(border))
+        bg = ndimage.binary_dilation(bg, iterations=1) & (sub.mean(2) > 160)
+        rgba = np.dstack([sub, (~bg * 255).astype(np.float32)]).clip(0, 255).astype(np.uint8)
+        cut = Image.fromarray(rgba, 'RGBA')
+        _GEN[name] = cut.crop(cut.getbbox())
+    return _GEN
+
+
 def hat(colour, w):
-    """A paper top hat, cut out: black (ink) or white (paper with an ink edge), with a faint fibre."""
+    """A hat, cut out: black or white. The user's generated hats when assets/H01.png exists,
+    otherwise a drawn stand-in (a paper top hat with an ink edge)."""
     key = (colour, int(w))
     if key in _HATS:
         return _HATS[key]
+    gen = _generated_hats()
+    if colour in gen:
+        g = gen[colour]
+        im = g.resize((int(w), max(1, int(g.height * w / g.width))), Image.LANCZOS)
+        _HATS[key] = im
+        return im
     S = 4
     hw = int(w * S)
     hh = int(w * 0.92 * S)
@@ -223,6 +260,9 @@ def hat_at(i, cx, cy, scale=1.0):
     """Centre of the hat sitting on figure i."""
     hx, hy = head(i, cx, cy, scale)
     w = hat_w(i, scale)
+    if _generated_hats():                                      # brim bottom a little below the top of the head
+        h = hat('noir', w).height
+        return hx, hy + 0.22 * w - h / 2
     return hx, hy - w * 0.92 * 0.16
 
 

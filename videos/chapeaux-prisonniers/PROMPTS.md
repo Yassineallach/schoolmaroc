@@ -20,6 +20,17 @@ Use the attached image only as the style reference: clean hand-drawn doodle line
 Draw ten adults standing in one single line, seen exactly from the side, all facing right, one behind the other, with a small gap between them so that nobody overlaps. They are sorted by height: the tallest on the far left, the shortest on the far right, the heights going down steadily. Men and women mixed, everyday modern clothes, arms relaxed at their sides, calm faces, all bareheaded (no hats, no caps, no hair ornaments). Full figures from head to feet, feet on one shared ground line. Plain white background: no floor, no shadows, no scenery. Wide 16:9 image, the line filling the width.
 ```
 
+## H01 · the two hats (black and white, one image)
+
+The code splits the image at the gap between the hats, cuts away the white background (the black
+outline must close each hat) and places them on the heads of G03. The « ? » hat is made from the white one.
+
+```
+Same doodle line-art style as the attached drawing: thick even black outlines, no shading, no grey, no colour.
+
+Two identical top hats side by side, seen exactly from the side, the same size: on the left a black hat filled solid black, on the right a white hat left white inside with a thick black outline all around. Each hat has a band around the crown and a flat brim. A wide empty gap between the two hats. Plain white background, no shadows, nothing else.
+```
+
 ## Next (after G03 is approved, with G03 as the reference)
 
 ### G01 · the aliens' hall (the hook, full frame)
