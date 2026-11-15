@@ -46,8 +46,12 @@ def placeholder(size, code, label, figures=0):
 
 def plate(code, label):
     """A full-frame drawing (RGB, 16:9) for S.fullbleed."""
-    if have(code):
-        return Image.open(asset(f'{code}.png')).convert('RGB')
+    if have(code):                                             # printed in ink on the film's paper, edge to edge
+        import cutout
+        ink = cutout.ink_image(asset(f'{code}.png'), 1920)
+        base = Image.new('RGBA', (1920, 1080), PAL.paper + (255,))
+        base.alpha_composite(ink, (0, (1080 - ink.height) // 2))
+        return base.convert('RGB')
     return placeholder((1920, 1080), code, label).convert('RGB')
 
 
@@ -60,7 +64,7 @@ def drawing(code, width, label, aspect=0.5625):
 
 
 # ------------------------------------------------------------------ the line of ten (G03)
-LINE_W = 1720
+LINE_W = 1640
 
 
 def _line_placeholder(w):

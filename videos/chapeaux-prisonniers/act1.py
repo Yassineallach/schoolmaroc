@@ -16,13 +16,12 @@ cue = make_cue(CLIPS)
 
 # ---- drawings (PROMPTS.md); a labelled placeholder until uploaded
 HALL = C.plate('G01', 'la salle des ravisseurs')
-GUARD = (0.78, 0.36)                          # the translator in G01, as fractions of the plate (set when G01 arrives)
-TABLE = C.drawing('G02', 1180, 'la table extraterrestre')
-TABLE_BIG = C.drawing('G02', 1760, 'la table extraterrestre')
-CUTLERY = (0.68, 0.62)                        # the knife and fork in G02, as fractions (set when G02 arrives)
-HUDDLE = C.drawing('G04', 1080, 'les dix se concertent')
+GUARD = (0.80, 0.33)                          # the guard's horn in G01, as fractions of the plate
+TABLE = C.drawing('G02', 1920, 'la table extraterrestre')     # every drawing full screen, no frame
+CUTLERY = (0.84, 0.56)                        # the fork and knife in G02, as fractions
+HUDDLE = C.drawing('G04', 1920, 'les dix se concertent')
 
-LCX, LCY = W / 2, 610                         # where the line of ten stands
+LCX, LCY = W / 2, H - C.LINE.height / 2 + 40  # the line of ten, full width, feet near the bottom edge
 HATS_RANDOM = ['noir', 'blanc', 'blanc', 'noir', 'blanc', 'noir', 'noir', 'blanc', 'blanc', 'blanc']
 
 
@@ -49,51 +48,48 @@ def _glyph(d, x, y, s, r):
 
 
 def _law():
-    w, h = 720, 880
-    card = P.paper_card(w, h, seed=61, colour=PAL.cream)
-    d = ImageDraw.Draw(card)
+    """The law, written straight on the screen in the aliens' script (no sheet)."""
+    layer = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
     r = np.random.default_rng(1977)
     rows = []
-    x = 70
-    for k in range(5):                                         # the title, larger
-        _glyph(d, x, 70, 56, r)
-        x += 84
-    d.line((70, 170, w - 70, 170), fill=INK + (255,), width=3)
-    y = 220
-    for row in range(9):
-        x, n = 70, r.integers(8, 13)
+    x = 200
+    for k in range(6):                                         # the title, larger
+        _glyph(d, x, 90, 84, r)
+        x += 124
+    rows.append((180, 70, x, 210))
+    d.line((200, 230, W - 200, 230), fill=INK + (255,), width=4)
+    y = 290
+    for row in range(8):
+        x, n = 200, r.integers(14, 22)
         for k in range(n):
-            if x > w - 110:
+            if x > W - 260:
                 break
-            _glyph(d, x, y, 34, r)
-            x += 48 + (14 if r.random() < 0.18 else 0)
-        rows.append((70, y - 12, x, y + 46))
-        y += 70
-    return card, rows
+            _glyph(d, x, y, 52, r)
+            x += 72 + (22 if r.random() < 0.18 else 0)
+        rows.append((180, y - 16, x + 10, y + 70))
+        y += 96
+    return layer, rows
 
 
 LAW, LAW_ROWS = _law()
-LAW_XY = (W / 2 + 40, 560)
 
 
 def law_box(i):
     x0, y0, x1, y1 = LAW_ROWS[i]
-    ox, oy = LAW_XY[0] - LAW.width / 2, LAW_XY[1] - LAW.height / 2
-    return (ox + x0 - 10, oy + y0, ox + x1 + 6, oy + y1)
+    return (x0, y0, x1, y1)
 
 
 def _dossier():
-    w, h = 820, 560
-    card = P.paper_card(w, h, seed=63, colour=PAL.cream)
-    d = ImageDraw.Draw(card)
-    d.text((60, 56), 'SUJETS', font=F_HEAD(40), fill=INK + (255,))
-    d.line((60, 116, w - 60, 116), fill=INK + (255,), width=3)
+    """Ten empty boxes, one per prisoner, straight on the screen (no card)."""
+    layer = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
     for i in range(10):
-        cx = 120 + (i % 5) * 145
-        cy = 220 + (i // 5) * 170
-        d.rectangle((cx - 40, cy - 40, cx + 40, cy + 40), outline=INK + (255,), width=4)
-        d.text((cx, cy + 74), str(i + 1), font=F_TYPE(30), fill=PAL.ink2 + (255,), anchor='mm')
-    return card
+        cx = 420 + (i % 5) * 270
+        cy = 380 + (i // 5) * 330
+        d.rectangle((cx - 80, cy - 80, cx + 80, cy + 80), outline=INK + (255,), width=8)
+        d.text((cx, cy + 135), str(i + 1), font=F_TYPE(48), fill=PAL.ink2 + (255,), anchor='mm')
+    return layer
 
 
 DOSSIER = _dossier()
@@ -138,7 +134,8 @@ def sB(t, D):
     """Ils trouvent les humains plutôt appétissants..."""
     s = Shot(t, D)
     S.env(s, 'theme')
-    P.drop(s.mid, TABLE, 900, 560, t, ENTER + 0.05, rot=-2.5, spin=9, key='table')
+    s.camera(1.0, 1.05, (W / 2, H / 2), (W / 2, 520))
+    P.put(s.mid, TABLE, W / 2, H / 2, shadow=False)
     kicker(s.hud, t, 1, 'Le test', start=0.5)
     caption(s.hud, 'Illustration', t, 1.0, corner='bl')
     return s
@@ -148,10 +145,15 @@ def sC(t, D):
     """... mais leur civilisation interdit de manger des êtres très logiques et capables de coopérer."""
     s = Shot(t, D)
     S.env(s, 'archive')
-    s.camera(1.0, 1.05, LAW_XY, (LAW_XY[0], LAW_XY[1] + 60))
-    P.unfold(s.mid, LAW, LAW_XY[0], LAW_XY[1], t, ENTER + 0.05)
-    A.ring(s.mid, law_box(4), t, w(cue(1, 'logiques')), seed=21)
-    A.ring(s.mid, law_box(6), t, w(cue(1, 'cooperer')), seed=22)
+    s.camera(1.0, 1.04, (W / 2, H / 2), (W / 2, 600))
+    for k, (x0, y0, x1, y1) in enumerate(LAW_ROWS):           # the law writes itself, row by row
+        at = ENTER + [0.0, 0.35, 0.5, 0.62, 0.8, 0.9, 1.05, 1.2, 1.3][k]
+        u = P.ease_io((t - at) / 0.45)
+        if u > 0:
+            xr = int(x0 + (x1 - x0) * u)
+            s.mid.alpha_composite(LAW.crop((x0, y0, xr, y1)), (x0, y0))
+    A.ring(s.mid, law_box(5), t, w(cue(1, 'logiques')), seed=21)
+    A.ring(s.mid, law_box(7), t, w(cue(1, 'cooperer')), seed=22)
     return s
 
 
@@ -159,10 +161,8 @@ def sD(t, D):
     """Problème : ils ne savent pas si vous entrez dans cette catégorie."""
     s = Shot(t, D)
     S.env(s, 'cream')                                          # locked off: no camera move
-    P.put(s.mid, P.rot_scale(LAW, -3, 0.62), 520, 540)
-    sc = 0.52
-    C.put_line(s.mid, 1350, 600, scale=sc)
-    A.mark(s.mid, (930, 500), 'question', t, w(cue(1, 'savent')), size=150, width=12)
+    C.put_line(s.mid, LCX, LCY)
+    A.mark(s.top, (W / 2 + 40, 150), 'question', t, w(cue(1, 'savent')), size=170, width=13)
     caption(s.hud, 'Illustration', t, 0.6, corner='bl')
     return s
 
@@ -172,8 +172,8 @@ def sE(t, D):
     s = Shot(t, D)
     S.env(s, 'paper')
     s.camera(1.0, 1.03)
-    P.slide(s.mid, DOSSIER, (W / 2, H + 400), (W / 2, 560), t, ENTER, dur=0.9, rot=-1.5, key='dossier')
-    P.stamp_hit(s.mid, 'TEST', 1180, 400, t, w(cue(1, 'test')), size=110, ang=-9, shot=s)
+    P.put(s.mid, DOSSIER, W / 2, H / 2, shadow=False)
+    P.stamp_hit(s.mid, 'TEST', W / 2, H / 2 - 20, t, w(cue(1, 'test')), size=170, ang=-9, shot=s)
     return s
 
 
@@ -182,7 +182,7 @@ def sF(t, D):
     s = Shot(t, D)
     S.env(s, 'bleed')
     S.fullbleed(s, HALL, t, 0.0, ken=(1.04, 1.04), focus=(0.5, 0.5), fade=0.01)
-    gx, gy = GUARD[0] * W, GUARD[1] * H
+    gx, gy = W / 2 + (GUARD[0] - 0.5) * W * 1.04, H / 2 + (GUARD[1] - 0.5) * H * 1.04
     s.zoom_to((gx - 330, gy - 190, gx + 330, gy + 190), w(cue(2, 'traducteur')), dur=2.2, fill=0.9)
     caption(s.hud, 'Illustration', t, 0.6, corner='bl', on_dark=True)
     return s
@@ -228,18 +228,14 @@ def sH(t, D):
     combien il y en a de chaque couleur."""
     s = Shot(t, D)
     S.env(s, 'theme')
-    s.camera(1.22, 1.28, (W / 2, 470), (W / 2, 450))
+    s.camera(1.0, 1.0)                                         # locked off: only the hats move
     C.put_line(s.mid, LCX, LCY)
     start = w(cue(3, 'chapeau'))
     lags = [0.0, 0.35, 0.5, 0.95, 1.1, 1.5, 1.75, 2.0, 2.45, 2.6]
     for i in range(10):
         C.place_hat(s.mid, i, HATS_RANDOM[i], LCX, LCY, t, start + lags[i], seed=3)
-    note = C.note_card(['? noirs', '? blancs'], 40)
-    at = w(cue(3, 'combien'))
-    C.pop_in(s.hud, note, 1640, 200, t, at)
-    if t >= at + 0.25:
-        from objects import pushpin
-        pushpin(s.hud, 1640, 200 - note.height / 2 + 22, t, at + 0.25)
+    TY.Text('? noirs · ? blancs', 'subhead', size=60).draw(s.hud, (1840, 70), t, w(cue(3, 'combien')),
+                                                            anim='words', anchor='r', cues=[w(cue(3, 'combien'))] * 5)
     return s
 
 
@@ -294,9 +290,9 @@ def sK(t, D):
     s = Shot(t, D)
     S.env(s, 'paper')                                          # locked off on the cutlery
     cx, cy = W / 2, H / 2
-    P.put(s.mid, TABLE_BIG, cx, cy, sh_op=0.1)
-    fx = cx + (CUTLERY[0] - 0.5) * TABLE_BIG.width
-    fy = cy + (CUTLERY[1] - 0.5) * TABLE_BIG.height
+    P.put(s.mid, TABLE, cx, cy, shadow=False)
+    fx = cx + (CUTLERY[0] - 0.5) * TABLE.width
+    fy = cy + (CUTLERY[1] - 0.5) * TABLE.height
     set_cam(s, 2.0, (fx, fy))
     return s
 
@@ -315,16 +311,14 @@ def sM(t, D):
     s = Shot(t, D)
     S.env(s, 'paper')
     s.camera(1.0, 1.04, (W / 2, H / 2), (760, 520))
-    P.drop(s.mid, HUDDLE, 780, 560, t, ENTER, rot=-2, spin=8, key='huddle')
+    P.put(s.mid, HUDDLE, W / 2, H / 2, shadow=False)
     at = w(cue(5, 'cinq'))
-    if t >= at:
+    if t >= at:                                                # the five minutes start running, no card
         left = max(0, 300 - int(t - at))
-        card = P.paper_card(330, 160, seed=71, colour=PAL.light)
-        d = ImageDraw.Draw(card)
-        d.text((165, 82), f'{left // 60}:{left % 60:02d}', font=F_TYPE(92), fill=INK + (255,), anchor='mm')
-        C.pop_in(s.mid, card, 1580, 330, t, at, sound=False)
+        TY.Text(f'{left // 60}:{left % 60:02d}', 'stat', size=120, colour=PAL.accent).draw(
+            s.hud, (1700, 70), t, at, anim='scale', anchor='m', sound=False)
         if abs(t - at) < 1 / 30:
-            sfx('type', at, 1580)
+            sfx('type', at, 1700)
     caption(s.hud, 'Illustration', t, 0.9, corner='bl')
     return s
 
