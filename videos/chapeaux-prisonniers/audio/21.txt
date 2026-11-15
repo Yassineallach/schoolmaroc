@@ -1,0 +1,1 @@
+Cette stratégie fonctionne quelle que soit la répartition des chapeaux. Le premier prisonnier a une chance sur deux de se tromper sur son propre chapeau, mais l'information de parité qu'il transmet permet à tous les autres de deviner le leur avec une certitude absolue.

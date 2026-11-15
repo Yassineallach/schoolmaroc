@@ -1,0 +1,1 @@
+La solution consiste donc à convenir que le premier à parler dira, par exemple, « noir » s'il voit un nombre impair de chapeaux noirs, et « blanc » s'il en voit un nombre pair.

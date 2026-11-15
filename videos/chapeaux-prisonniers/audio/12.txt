@@ -1,0 +1,1 @@
+Ce ne peut pas être le nombre total de chapeaux noirs ou blancs : il a plus de deux valeurs possibles. En revanche, une chose n'en a que deux : la parité de ce nombre, c'est-à-dire le fait qu'il soit pair ou impair.

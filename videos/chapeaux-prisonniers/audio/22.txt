@@ -1,0 +1,1 @@
+Chacun commence par s'attendre à voir un nombre pair ou impair de chapeaux de la couleur convenue. Si ce qu'il compte ne correspond pas, c'est que son propre chapeau est de cette couleur. Et chaque fois que cela arrive, la personne suivante inverse la parité qu'elle s'attend à voir.
