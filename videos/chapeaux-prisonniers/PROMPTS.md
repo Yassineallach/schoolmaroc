@@ -57,8 +57,12 @@ Same doodle line-art style as the attached drawing: thick even black outlines, s
 The same ten people from the attached drawing, with the same faces and clothes, standing close together in a tight circle, heads leaning in, whispering and planning together. One of them counts on her fingers, another points at his own head. All bareheaded. Full figures. Plain white background: no floor, no shadows, no scenery. Wide 16:9 image.
 ```
 
-### G05 · free (act 4)
+### G05 · free (act 4, « Voilà, vous êtes libres »)
+
+Attach G01 (the hall) and G03 (the ten) so the place and the people match.
 
 ```
-Same doodle line-art style as the attached drawing. The same ten people, seen from behind, walking out through a huge round doorway into bright daylight; the ribbed vaults of the alien hall stay in shadow around them. Fill the whole 16:9 frame edge to edge.
+Same doodle line-art style as the attached drawings: thick even black outlines, some areas filled solid black, the rest white, no shading, no grey, no colour.
+
+The same ten people from the attached drawing, seen from behind, walking out of the alien spaceship hall from the other attached drawing, through a huge open round door into bright empty daylight. They look relieved and happy; two of them throw their top hats in the air, one black hat and one white hat. The curved ribs of the hall frame the door around them. The aliens are not visible. Fill the whole 16:9 frame edge to edge.
 ```
