@@ -786,7 +786,8 @@ def overlay(frame, T, shot=None, shot_span=None, neighbours=None, force=False):
             import brand_cta as BC
             key = (kind, round(T0, 2))
             if key not in _CORNER:
-                _CORNER[key] = BC.quiet_corner(np.asarray(img.convert('RGB')), 720, 160)
+                pin = (CFG['cta'].get(kind) or {}).get('corner')     # pinned: a card that spans two acts keeps its place
+                _CORNER[key] = BC.quiet_corner(np.asarray(img.convert('RGB')), 720, 160, **({'candidates': (pin,)} if pin else {}))
             c_, cx_, cy_ = _CORNER[key]
             if kind == 'like':
                 BC.like(img, cx_, cy_ + 20, tl, dur, T0=T0, motif=_motif())

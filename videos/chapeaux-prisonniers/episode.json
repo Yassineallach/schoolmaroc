@@ -9,7 +9,11 @@
    "comment": {
     "question": "Et avec trois couleurs de chapeaux, quelle information le dernier devrait-il transmettre ?"
    },
-   "like": {}
+   "like": {
+    "at": 114.16,
+    "dur": 3.5,
+    "corner": "tr"
+   }
   },
   "watermark": {
    "hide_env": []
