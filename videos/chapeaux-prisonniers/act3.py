@@ -65,8 +65,9 @@ def say(s, t, i, until=None):
     if t < at:
         return
     x, y = C.hat_at(i, LCX, LCY, SC)
-    bx = x + 150 if i < 7 else x - 130
-    by = max(95, y - C.hat_w(i, SC) * 0.6 - 80)
+    b = B[SAYS[i]]                                    # right above their own hat, the tail pointing down at it
+    bx = min(x + b.width * 0.27, W - b.width / 2 - 20)
+    by = max(95, y - C.hat_w(i, SC) * 0.42 - b.height / 2 - 18)
     C.pop_in(s.top, B[SAYS[i]], bx, by, t, at, until=until)
 
 
@@ -137,7 +138,8 @@ def sA(t, D):
     at = w(cue(15, 'noir'))
     if t >= at:
         x, y = C.hat_at(0, LCX, LCY, SC)
-        C.pop_in(s.top, B['noir'], x + 150, max(95, y - C.hat_w(0, SC) * 0.6 - 70), t, at)
+        b = B['noir']
+        C.pop_in(s.top, b, x + b.width * 0.27, max(95, y - C.hat_w(0, SC) * 0.42 - b.height / 2 - 18), t, at)
     expect(s, t)
     kicker(s.hud, t, 3, 'Un par un', start=0.4)
     return s
