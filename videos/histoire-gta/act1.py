@@ -8,7 +8,6 @@ import presets as P
 import annotate as A
 import scenes as S
 import typo as TY
-import maps
 from style import sfx, ENTER, Shot, words, tag, kicker, caption
 import gta as G
 
@@ -25,8 +24,7 @@ PENN, PENN_BOX = G.article('A01_penn_head.png', 'A01_penn_quote.png', 'Game Deve
 GD, GD_BOX = G.article('A02_gd_head.png', 'A02_gd_475.png', 'Game Developer', '7 AOÛT 2026', width=1080, seed=23)
 FOLDER = document(560, 660, ['---', '---', '---', '---', '---', '---'], seed=8, title='PROJET', typed=True)
 
-M = maps.WorldMap(box=(0, 0, W, H))
-DUNDEE = (-2.97, 56.46)
+DUNDEE_PHOTO = Image.open(asset('P01_dundee.jpg'))                                # Colin Smith, CC BY-SA 2.0 (Geograph / Commons)
 
 # ---- the chase: one loop round the two middle blocks, the police 300 px behind
 LOOP = G.Route([(330, 830), (1590, 830), (1590, 250), (330, 250), (330, 830)] * 3)
@@ -68,15 +66,11 @@ def chase(s, T, t, ram=True):
 def sA(t, D):
     """Au milieu des années 1990, dans un studio de Dundee, en Écosse, ..."""
     s = Shot(t, D)
-    S.env(s, 'archive')
-    uk = M.around((-3.5, 55.5), 1300)
-    tay = M.around(DUNDEE, 700)
-    a = w(cue(1, 'Dundee'))
-    view = M.zoom(t, [(0.0, uk), (a - 0.6, uk), (a + 1.2, tay)])
-    M.draw(s.mid, view, t)
-    M.marker(s.mid, view, DUNDEE, 'DUNDEE', t, a)
+    S.env(s, 'bleed')
+    S.fullbleed(s, DUNDEE_PHOTO, t, 0.0, ken=(1.12, 1.0), focus=(0.55, 0.42), focus_to=(0.5, 0.5), darken=0.35, fade=0.01)
     tag(s.hud, (W / 2, 140), 'MILIEU DES ANNÉES 1990', 46, t, w(cue(1, 'annees')))
-    words(s.hud, (W / 2, 960), 'ÉCOSSE', 58, t, w(cue(1, 'Ecosse')), fill=S.ink(s))
+    tag(s.hud, (W / 2, 930), 'DUNDEE, ÉCOSSE', 58, t, w(cue(1, 'Dundee')), bg=CREAM, fg=INK)
+    caption(s.hud, 'Dundee vu de Newport-on-Tay · Colin Smith, CC BY-SA 2.0', t, 0.5, on_dark=True)
     return s
 
 
@@ -192,7 +186,7 @@ MOCK_XY = (620, 520)
 def sH(t, D):
     """Ce projet s'appelait Race'n'Chase."""
     s = Shot(t, D)
-    S.env(s, 'archive')
+    S.env(s, 'paper')
     s.camera(1.0, 1.04, MOCK_XY)
     P.drop(s.mid, MOCKUP, *MOCK_XY, t, w(cue(3, 'Race')) - 0.3, rot=-3, spin=12, key='mock')
     words(s.top, (1400, 520), "RACE'N'CHASE", 104, t, w(cue(3, 'Race')))
@@ -204,7 +198,7 @@ def sI(t, D):
     """Il deviendra Grand Theft Auto, une série dont l'éditeur Take-Two revendique aujourd'hui près
     de 475 millions d'exemplaires vendus."""
     s = Shot(t, D)
-    S.env(s, 'archive')
+    S.env(s, 'paper')
     P.flip(s.mid, MOCKUP, LOGO_CARD, 440, 400, t, w(cue(3, 'Grand')) - 0.2)
     gx, gy = 1330 - GD.width / 2, 330
     P.slide(s.mid, GD, (W + GD.width, gy + GD.height / 2), (gx + GD.width / 2, gy + GD.height / 2), t,

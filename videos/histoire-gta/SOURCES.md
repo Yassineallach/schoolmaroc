@@ -136,6 +136,12 @@ Free licence (Wikimedia Commons, credited in the description, like *Histoire des
 | BMG Interactive (1996) | https://en.wikipedia.org/wiki/File:BMG_Interactive_1996.png |
 | Leonida flag (GTA VI) | https://commons.wikimedia.org/wiki/File:State_of_Leonida_flag.png |
 
+### Photos in assets/
+| File | Source |
+|---|---|
+| P01_dundee.jpg (act 1 opening) | Dundee from Fife, Colin Smith, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Dundee_-_From_Fife_-_geograph.org.uk_-_6608715.jpg |
+| P02_dma_offices.png (act 2) | DMA Design's original offices (2005), Murray Barnes, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:DMA_Design_original_offices.png |
+
 ### Logos in assets/ (from English Wikipedia, non-free logos used for identification)
 | File | Wikipedia file page |
 |---|---|
