@@ -40,9 +40,17 @@ def sA(t, D):
     s = Shot(t, D)
     S.env(s, 'grid')
     C.put_line(s.mid, LCX, LCY)
-    turns = [ENTER, w(cue(21, 'quelle')), w(cue(21, 'repartition'))]
-    k = max(i for i, a in enumerate(turns) if t >= a - 0.01) if t >= turns[0] - 0.01 else 0
-    hats(s, t, OTHERS[k], start=turns[k], stagger=0.03)          # the hats change, again and again
+    turns = [w(cue(21, 'quelle')), w(cue(21, 'repartition'))]
+    for i in range(10):                               # the hats turn over to a new line-up, twice
+        w_ = C.hat_w(i)
+        x, y = C.hat_at(i, LCX, LCY)
+        lag = [0, .06, .1, .17, .2, .27, .31, .38, .42, .47][i]
+        if t < turns[0] + lag:
+            P.put(s.mid, C.hat(OTHERS[0][i], w_), x, y, sh_op=0.18)
+        elif t < turns[1] + lag:
+            P.flip(s.mid, C.hat(OTHERS[0][i], w_), C.hat(OTHERS[1][i], w_), x, y, t, turns[0] + lag, dur=0.45)
+        else:
+            P.flip(s.mid, C.hat(OTHERS[1][i], w_), C.hat(OTHERS[2][i], w_), x, y, t, turns[1] + lag, dur=0.45)
     kicker(s.hud, t, 4, 'Toujours', start=0.4)
     return s
 
