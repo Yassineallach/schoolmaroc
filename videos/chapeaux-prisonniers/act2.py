@@ -140,10 +140,10 @@ def sG(t, D):
 SHOTS = [
     (0.0, sA),
     (cue(11, 'peut') - LEAD, sB, 'cut'),
-    (cue(11, 'Mais') - LEAD, sC, 'cut'),
-    (cue(12, 'Ce') - LEAD, sD, 'cut'),
+    (cue(11, 'Mais') - LEAD, sC, 'lr'),
+    (cue(12, 'Ce') - LEAD, sD, 'rl'),
     (cue(12, 'En revanche') - LEAD, sE, 'cut'),
-    (cue(13, 'La solution') - LEAD, sF, 'cut'),
+    (cue(13, 'La solution') - LEAD, sF, 'up'),
     (cue(14, 'Voyons') - LEAD, sG, 'pageturn'),
 ]
 END = cue.total

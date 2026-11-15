@@ -368,20 +368,20 @@ def sP(t, D):
 
 SHOTS = [
     (0.0, sA),
-    (cue(1, 'Ils trouvent') - LEAD, sB, 'cut'),
-    (cue(1, 'mais') - LEAD, sC, 'cut'),
+    (cue(1, 'Ils trouvent') - LEAD, sB, 'lr'),
+    (cue(1, 'mais') - LEAD, sC, 'rl'),
     (cue(1, 'Probleme') - LEAD, sD, 'cut'),
     (cue(1, 'Ils decident') - LEAD, sE, 'cut'),
-    (cue(2, 'Grace') - LEAD, sF, 'cut'),
+    (cue(2, 'Grace') - LEAD, sF, 'up'),
     (cue(3, 'Vous') - LEAD, sG, ('zoom', {'at': (GUARD[0] * W, GUARD[1] * H)})),
     (cue(3, 'Chacun portera') - LEAD, sH, 'cut'),
     (cue(4, 'A mon') - LEAD, sI, 'cut'),
-    (cue(4, 'Et n') - LEAD, sJ, 'cut'),
+    (cue(4, 'Et n') - LEAD, sJ, 'lr'),
     (cue(4, 'Vous') - LEAD, sK, 'cut'),
-    (cue(5, 'au') - LEAD, sL, 'cut'),
-    (cue(5, 'Vous avez') - LEAD, sM, 'cut'),
+    (cue(5, 'au') - LEAD, sL, 'up'),
+    (cue(5, 'Vous avez') - LEAD, sM, 'rl'),
     (cue(5, 'Ensuite') - LEAD, sN, 'cut'),
-    (cue(6, 'Quelle') - LEAD, sO, 'cut'),
+    (cue(6, 'Quelle') - LEAD, sO, 'up'),
     (cue(7, 'Mettez') - LEAD, sP, 'cut'),
 ]
 END = cue.total
