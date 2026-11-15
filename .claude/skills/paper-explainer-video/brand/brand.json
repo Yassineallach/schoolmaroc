@@ -147,7 +147,7 @@
    "subscribe_reason": "pour la prochaine histoire",
    "outro_sub_verb": "Abonnez-vous",
    "outro_sub_reason": "",
-   "short_cta": "La suite : « Les très grands nombres » sur la chaîne"
+   "short_cta": "La suite : « {title} » sur la chaîne"
   },
   "en": {
    "subscribe": "Subscribe",

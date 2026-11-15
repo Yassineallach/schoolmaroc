@@ -17,6 +17,11 @@
   },
   "watermark": {
    "hide_env": []
+  },
+  "text": {
+   "fr": {
+    "short_cta": "La réponse dans la vidéo complète, sur la chaîne"
+   }
   }
  }
 }

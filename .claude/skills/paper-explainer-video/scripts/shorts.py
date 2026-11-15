@@ -52,7 +52,10 @@ def frame_png(title, path):
     if lg is not None:
         im.paste(lg, (int(W9 / 2 - lg.width / 2), 1560), lg)
     cf = font('Inter600.ttf', 40)
-    d.text((W9 / 2, 1750), B.TXT.get('short_cta', 'Vidéo complète sur la chaîne'), font=cf, fill=PAL.ink, anchor='ma')
+    title = B._episode_title() or ''
+    cta = B.TXT.get('short_cta', 'Vidéo complète sur la chaîne')
+    cta = cta.replace('{title}', title) if title else cta.replace('« {title} » ', '').replace('{title}', '')
+    d.text((W9 / 2, 1750), cta, font=cf, fill=PAL.ink, anchor='ma')
     im.save(path)
 
 
