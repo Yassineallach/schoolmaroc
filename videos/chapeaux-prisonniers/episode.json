@@ -10,6 +10,9 @@
     "question": "Et avec trois couleurs de chapeaux, quelle information le dernier devrait-il transmettre ?"
    },
    "like": {}
+  },
+  "watermark": {
+   "hide_env": []
   }
  }
 }

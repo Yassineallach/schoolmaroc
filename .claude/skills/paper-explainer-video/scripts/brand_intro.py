@@ -360,7 +360,8 @@ def intro_frame(t, next_frame=None, exit_kind='tear'):
     x = ox + (x1 - ox) * u
     y = oy + (y1 - oy) * u
     op = 1.0 - (1 - wm['opacity']) * u
-    op *= 1 - _ease((p - 0.8) / 0.2)
+    if wm.get('from', 'after_intro') != 'after_intro':          # the watermark takes over on the next frame: land and stay
+        op *= 1 - _ease((p - 0.8) / 0.2)
     if op > 0:
         small = lg.resize((max(2, int(ww)), max(2, int(hh))), Image.LANCZOS)
         g = B._ground_lum(Image.fromarray(nxt), (x1, y1, x1 + w1, y1 + w1 * lg.height / lg.width))

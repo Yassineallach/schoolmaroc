@@ -16,7 +16,12 @@ _FIRST = {}
 def _first_frame():
     if 'f' not in _FIRST:
         import act1
-        _FIRST['f'] = act1.frame(0.05)          # the hook's first image, fully in
+        wm = brand.CFG['watermark']
+        was, wm['enabled'] = wm['enabled'], False   # the gliding logo is the only logo until it lands
+        try:
+            _FIRST['f'] = act1.frame(0.05)          # the hook's first image, fully in
+        finally:
+            wm['enabled'] = was
     return _FIRST['f']
 
 
