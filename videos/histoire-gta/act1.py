@@ -17,7 +17,8 @@ cue = make_cue(CLIPS)
 
 # ---- real material (SOURCES.md)
 MOCKUP = P.print_card(Image.open(asset('R01_racenchase.jpg')), 560, seed=11)     # Race'n'Chase mock-up, DMA Design (non-free still)
-LOGO = P.load(asset('L01_gta_logo.png'), width=470)                               # series logo (Wikimedia Commons)
+LOGO = P.load(asset('G01_gta1997.png'), width=480)                                # the first game's logo (Wikipedia)
+TAKE2 = P.load(asset('L02_take2.png'), width=170)                                 # Take-Two Interactive logo (Wikipedia)
 LOGO_CARD = P.paper_card(MOCKUP.width, MOCKUP.height, seed=12, colour=CREAM)
 LOGO_CARD.alpha_composite(LOGO, ((LOGO_CARD.width - LOGO.width) // 2, (LOGO_CARD.height - LOGO.height) // 2))
 PENN, PENN_BOX = G.article('A01_penn_head.png', 'A01_penn_quote.png', 'Game Developer (Gamasutra)', '31 JANVIER 2011', width=1380)
@@ -208,12 +209,13 @@ def sI(t, D):
     gx, gy = 1330 - GD.width / 2, 330
     P.slide(s.mid, GD, (W + GD.width, gy + GD.height / 2), (gx + GD.width / 2, gy + GD.height / 2), t,
             w(cue(3, 'Take')) - 0.3, rot=0.0, lag=5.0, key='gd')
+    P.drop(s.mid, TAKE2, gx + GD.width - 190, gy - 95, t, w(cue(3, 'Take')), rot=0, spin=8, height=0.6, key='t2')
     box = GD_BOX[list(GD_BOX)[0]]
     G.highlight(s.mid, (gx, gy), box, t, w(cue(3, '475')))
     x0, y1, x1 = gx + box[0][0], gy + box[-1][3], gx + max(b[2] for b in box)
-    s.zoom_to((x0 - 40, gy + 40, x1 + 40, y1 + 60), w(cue(3, 'revendique')), dur=1.3, fill=0.95)
-    tag(s.hud, (W / 2, 900), "PRÈS DE 475 MILLIONS D'EXEMPLAIRES", 54, t, w(cue(3, '475')))
-    caption(s.hud, 'Game Developer, « GTA V surpasses 230 million sales… », 2026 · chiffres Take-Two', t, w(cue(3, 'Take')))
+    s.zoom_to((x0 - 40, gy - 190, x1 + 40, y1 + 60), w(cue(3, 'aujourd')), dur=1.2, fill=0.95)
+    tag(s.hud, (W / 2, 1002), "PRÈS DE 475 MILLIONS D'EXEMPLAIRES", 54, t, w(cue(3, '475')))
+    caption(s.hud, 'Game Developer, « GTA V surpasses 230 million sales… », 2026 · chiffres Take-Two', t, w(cue(3, 'Take')), corner='tl')
     return s
 
 
