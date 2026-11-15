@@ -25,19 +25,25 @@ Draw ten adults standing in one single line, seen exactly from the side, all fac
 ### G01 · the aliens' hall (the hook, full frame)
 
 ```
-Same doodle line-art style as the attached drawing. A vast hall inside an alien ship: ribbed vaults, a great round window. In the middle distance, the ten people from the attached drawing stand in their single line, small and bareheaded. Around them, three towering alien beings (very tall, thin, long-fingered, large smooth heads, no human faces) watch them from above; the nearest one holds a horn-shaped translating device near its mouth. Fill the whole 16:9 frame edge to edge.
+Same doodle line-art style as the attached drawing: thick even black outlines, some areas filled solid black, the rest white, no shading, no grey, no colour.
+
+A vast hall inside an alien spaceship, with tall curved ribs along the walls and a big round window. In the lower middle of the image, the ten people from the attached drawing stand in their single line, seen from the side, facing right, small and bareheaded. Three huge alien beings tower over them and watch them: very tall and thin, long arms and long fingers, big smooth heads with large dark eyes, slightly menacing but a little funny. The alien in the right third of the image is the guard: it holds a horn-shaped translating device in front of its mouth. Fill the whole 16:9 frame edge to edge.
 ```
 
 ### G02 · the alien's table (act 1, then the last shot)
 
 ```
-Same doodle line-art style as the attached drawing. A long dining table set for a giant: an enormous empty plate, a fork and a knife of the same giant size, a folded napkin, a candlestick. At the right edge, only the long thin fingers of an alien hand resting on the tablecloth. No food, no people. Fill the whole 16:9 frame edge to edge.
+Same doodle line-art style as the attached drawing: thick even black outlines, some areas filled solid black, the rest white, no shading, no grey, no colour.
+
+A dining table set for a giant, seen from the front. In the middle, an enormous empty plate. In the right half of the image, a giant fork and a giant knife lie side by side next to the plate, clearly visible. A folded napkin and a tall candlestick on the left. At the right edge, only the long thin fingers of an alien hand resting on the tablecloth. No food, no people. Fill the whole 16:9 frame edge to edge.
 ```
 
 ### G04 · the five minutes to agree on a plan (act 1)
 
 ```
-Same doodle line-art style as the attached drawing. The same ten people standing close together in a circle, heads leaning in, whispering and planning; one of them counts on her fingers. Bareheaded. Plain white background, no floor, no shadows.
+Same doodle line-art style as the attached drawing: thick even black outlines, some clothes filled solid black, the rest white, no shading, no grey, no colour.
+
+The same ten people from the attached drawing, with the same faces and clothes, standing close together in a tight circle, heads leaning in, whispering and planning together. One of them counts on her fingers, another points at his own head. All bareheaded. Full figures. Plain white background: no floor, no shadows, no scenery. Wide 16:9 image.
 ```
 
 ### G05 · free (act 4)
