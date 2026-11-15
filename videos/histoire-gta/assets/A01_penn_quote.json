@@ -1,0 +1,34 @@
+{
+ "url": "https://www.gamedeveloper.com/design/the-replay-interviews-gary-penn",
+ "title": "The Replay Interviews: Gary Penn",
+ "boxes": {
+  "Then one day, I think it was a bug, the police suddenly became mental and aggressive.": [
+   [
+    60,
+    60,
+    1249.3125,
+    104
+   ],
+   [
+    60,
+    114,
+    239.8125,
+    158
+   ]
+  ],
+  "the police are psycho -- they're trying to ram me off the road.": [
+   [
+    783.09375,
+    222,
+    1286.53125,
+    266
+   ],
+   [
+    60,
+    276,
+    534.28125,
+    320
+   ]
+  ]
+ }
+}
