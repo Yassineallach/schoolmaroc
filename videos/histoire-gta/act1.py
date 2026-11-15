@@ -70,7 +70,6 @@ def sA(t, D):
     S.fullbleed(s, DUNDEE_PHOTO, t, 0.0, ken=(1.12, 1.0), focus=(0.55, 0.42), focus_to=(0.5, 0.5), darken=0.35, fade=0.01)
     tag(s.hud, (W / 2, 140), 'MILIEU DES ANNÉES 1990', 46, t, w(cue(1, 'annees')))
     tag(s.hud, (W / 2, 930), 'DUNDEE, ÉCOSSE', 58, t, w(cue(1, 'Dundee')), bg=CREAM, fg=INK)
-    caption(s.hud, 'Dundee vu de Newport-on-Tay · Colin Smith, CC BY-SA 2.0', t, 0.5, on_dark=True)
     return s
 
 
@@ -163,7 +162,6 @@ def sF(t, D):
     TY.name_card(s.top, (PENN_XY[0] + 10, 120), 'Gary Penn', 'CONCEPTEUR, DMA DESIGN', t, w(cue(2, 'Gary')))
     tag(s.hud, (W / 2, 965), '« LA POLICE EST FOLLE : ELLE ESSAIE DE ME SORTIR DE LA ROUTE »', 38, t, w(cue(2, 'premiere')) + 0.3,
         bg=CREAM, fg=INK)
-    caption(s.hud, 'Game Developer (Gamasutra), « The Replay Interviews: Gary Penn », 2011', t, ENTER + 0.6)
     return s
 
 
@@ -190,7 +188,6 @@ def sH(t, D):
     s.camera(1.0, 1.04, MOCK_XY)
     P.drop(s.mid, MOCKUP, *MOCK_XY, t, w(cue(3, 'Race')) - 0.3, rot=-3, spin=12, key='mock')
     words(s.top, (1400, 520), "RACE'N'CHASE", 104, t, w(cue(3, 'Race')))
-    caption(s.hud, "Maquette de Race'n'Chase, DMA Design (photo Mike Dailly)", t, w(cue(3, 'Race')))
     return s
 
 
@@ -209,7 +206,6 @@ def sI(t, D):
     x0, y1, x1 = gx + box[0][0], gy + box[-1][3], gx + max(b[2] for b in box)
     s.zoom_to((x0 - 40, gy - 190, x1 + 40, y1 + 60), w(cue(3, 'aujourd')), dur=1.2, fill=0.95)
     tag(s.hud, (W / 2, 1002), "PRÈS DE 475 MILLIONS D'EXEMPLAIRES", 54, t, w(cue(3, '475')))
-    caption(s.hud, 'Game Developer, « GTA V surpasses 230 million sales… », 2026 · chiffres Take-Two', t, w(cue(3, 'Take')), corner='tl')
     return s
 
 
