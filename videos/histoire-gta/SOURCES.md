@@ -136,6 +136,26 @@ Free licence (Wikimedia Commons, credited in the description, like *Histoire des
 | BMG Interactive (1996) | https://en.wikipedia.org/wiki/File:BMG_Interactive_1996.png |
 | Leonida flag (GTA VI) | https://commons.wikimedia.org/wiki/File:State_of_Leonida_flag.png |
 
+### Logos in assets/ (from English Wikipedia, non-free logos used for identification)
+| File | Wikipedia file page |
+|---|---|
+| L02_take2.png | https://en.wikipedia.org/wiki/File:Take-Two_Interactive_Logo.svg |
+| L03_dma.png | https://en.wikipedia.org/wiki/File:DMA_Design_Logo_(1994-2001).svg |
+| L04_rockstar.png | https://en.wikipedia.org/wiki/File:Rockstar_Games_Logo.svg |
+| L05_rockstar_north.png | https://en.wikipedia.org/wiki/File:Rockstar_North_Logo.svg |
+| L06_bmg.png | https://en.wikipedia.org/wiki/File:BMG_Interactive_1996.png |
+| G01_gta1997.png | https://en.wikipedia.org/wiki/File:Grand_Theft_Auto_(1997)_logo_(SGDB_88763).png |
+| G02_gta2.png | https://en.wikipedia.org/wiki/File:Grand_Theft_Auto_2_logo.svg |
+| G03_gta3.png | https://en.wikipedia.org/wiki/File:Grand_Theft_Auto_III_logo.svg |
+| G04_vicecity.png | https://en.wikipedia.org/wiki/File:Grand_Theft_Auto_Vice_City_logo.svg |
+| G05_sanandreas.png | https://en.wikipedia.org/wiki/File:Grand_Theft_Auto_San_Andreas_logo.svg |
+| G06_gta4.png | https://en.wikipedia.org/wiki/File:GTA_IV_logo.svg |
+| G08_online.png | https://en.wikipedia.org/wiki/File:Grand_Theft_Auto_Online_Logo.svg |
+| G09_gta6.png | https://en.wikipedia.org/wiki/File:Grand_Theft_Auto_VI_logo.svg |
+| still to fetch | GTA V logo, ESRB logo (1994–2006) — Wikipedia rate-limited the download |
+
+Take-Two's Q1 FY2027 release (SEC, saved by you) is in assets/sources/take2_q1fy27/: it lists GTA VI for 19 November 2026 (act 7). It does not contain the 475 million figure, which came from the earnings call, so act 1 shows Game Developer's report of it.
+
 ### Game covers (non-free, English Wikipedia)
 GTA (1997) `GTA - Box Front.jpg` · GTA 2 `GTA2 Box art.jpg` · GTA III `GTA3boxcover.jpg` · Vice City `Vice-city-cover.jpg` · San Andreas `GTASABOX.jpg` · GTA IV `Grand Theft Auto IV cover.jpg` · GTA V `Grand Theft Auto V.png` · GTA Online `Grand Theft Auto Online.jpg` · GTA VI `Grand Theft Auto VI.png` · Lemmings `Lemmings-BoxScan.jpg`
 (each at `https://en.wikipedia.org/wiki/File:<name>`)
