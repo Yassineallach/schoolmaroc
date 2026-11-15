@@ -234,6 +234,8 @@ def make_frame(shots, end, t, clips, pre=0.38, post=0.17):
         return (k, {}) if isinstance(k, str) else (k[0], k[1] if len(k) > 1 else {})
     for j in range(1, len(shots)):            # transition sounds, at the cut
         kind, opts = cut(j)
+        if kind == 'cut':                     # a plain cut: no wipe, no sound
+            continue
         if kind in TR.KINDS:
             event(TR.SOUND[kind], starts[j] - TR.DUR[kind][0] * 0.4, opts.get('at', (W / 2, 0))[0], dur=sum(TR.DUR[kind]))
         else:
@@ -267,6 +269,8 @@ def make_frame(shots, end, t, clips, pre=0.38, post=0.17):
         if not 0 < j < len(shots):
             continue
         kind, opts = cut(j)
+        if kind == 'cut':
+            continue
         a_, b_ = TR.DUR[kind] if kind in TR.KINDS else (pre, post)
         if starts[j] - a_ <= t < starts[j] + b_:
             p = (t - (starts[j] - a_)) / (a_ + b_)
