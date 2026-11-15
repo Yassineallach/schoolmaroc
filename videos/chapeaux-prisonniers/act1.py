@@ -125,7 +125,7 @@ def sA(t, D):
     redoutable."""
     s = Shot(t, D)
     S.env(s, 'bleed')
-    S.fullbleed(s, HALL, t, 0.0, ken=(1.0, 1.10), focus=(0.5, 0.5), focus_to=(0.45, 0.62), fade=0.01)
+    S.fullbleed(s, HALL, t, -0.05, ken=(1.0, 1.10), focus=(0.5, 0.5), focus_to=(0.45, 0.62), fade=0.01)   # on screen from frame 0
     caption(s.hud, 'Illustration', t, 1.2, corner='bl', on_dark=True)
     return s
 
@@ -181,7 +181,7 @@ def sF(t, D):
     """Grâce à son traducteur universel, le garde extraterrestre vous annonce ceci :"""
     s = Shot(t, D)
     S.env(s, 'bleed')
-    S.fullbleed(s, HALL, t, 0.0, ken=(1.04, 1.04), focus=(0.5, 0.5), fade=0.01)
+    S.fullbleed(s, HALL, t, -0.05, ken=(1.04, 1.04), focus=(0.5, 0.5), fade=0.01)
     gx, gy = W / 2 + (GUARD[0] - 0.5) * W * 1.04, H / 2 + (GUARD[1] - 0.5) * H * 1.04
     s.zoom_to((gx - 330, gy - 190, gx + 330, gy + 190), w(cue(2, 'traducteur')), dur=2.2, fill=0.9)
     caption(s.hud, 'Illustration', t, 0.6, corner='bl', on_dark=True)
