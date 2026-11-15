@@ -349,3 +349,11 @@ def note_card(lines, size=46, w=None, colour=(240, 220, 170), seed=41):
     for k, s in enumerate(lines):
         d.text((w / 2, size * (1.2 + 1.5 * k)), s, font=f, fill=INK + (255,), anchor='mm')
     return card
+
+
+# ------------------------------------------------------------------ the hats of the film
+# act 1's last line-up (act1.HATS_NEXT), seen again at the start of act 2
+SHOWN = ['blanc', 'noir', 'noir', 'blanc', 'blanc', 'noir', 'blanc', 'noir', 'blanc', 'blanc']
+# the narration's example (clips 14-20), from the back of the line (1, the tallest) to the front (10, « vous »):
+# 1 sees 3 black (3, 4, 10) and says « noir » (wrong: his is white); 2 white; 3 and 4 black; 5-9 white; 10 black
+EXAMPLE = ['blanc', 'blanc', 'noir', 'noir', 'blanc', 'blanc', 'blanc', 'blanc', 'blanc', 'noir']
