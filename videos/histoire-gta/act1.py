@@ -20,8 +20,8 @@ LOGO = P.load(asset('G01_gta1997.png'), width=480)                              
 TAKE2 = P.load(asset('L02_take2.png'), width=170)                                 # Take-Two Interactive logo (Wikipedia)
 LOGO_CARD = P.paper_card(MOCKUP.width, MOCKUP.height, seed=12, colour=CREAM)
 LOGO_CARD.alpha_composite(LOGO, ((LOGO_CARD.width - LOGO.width) // 2, (LOGO_CARD.height - LOGO.height) // 2))
-PENN, PENN_BOX = G.article('A01_penn_head.png', 'A01_penn_quote.png', 'Game Developer (Gamasutra)', '31 JANVIER 2011', width=1380)
-GD, GD_BOX = G.article('A02_gd_head.png', 'A02_gd_475.png', 'Game Developer', '7 AOÛT 2026', width=1080, seed=23)
+PENN = G.Page('penn')                     # Game Developer (Gamasutra), The Replay Interviews: Gary Penn, 2011
+GD = G.Page('gd')                         # Game Developer, GTA V surpasses 230 million sales..., 7 Aug 2026
 GTA1_SHOT = P.print_card(Image.open(asset('game/wikipedia/s01_gta1.png')), 520, seed=13)   # GTA (1997), in-game (Wikipedia)
 FOLDER = document(560, 660, ['---', '---', '---', '---', '---', '---'], seed=8, title='PROJET', typed=True)
 
@@ -146,21 +146,17 @@ def sE(t, D):
     return s
 
 
-PENN_XY = (W / 2 - PENN.width / 2, 230)
-
-
 def sF(t, D):
     """Le concepteur Gary Penn racontera plus tard qu'il a vécu là un moment génial, parce que pour
     la première fois, la poursuite faisait peur."""
     s = Shot(t, D)
-    S.env(s, 'paper')
-    s.camera(1.0, 1.02)
-    cx, cy = W / 2, PENN_XY[1] + PENN.height / 2
-    P.slide(s.mid, PENN, (W + PENN.width, cy), (cx, cy), t, ENTER, dur=1.0, rot=0.0, lag=5.0, key='penn')
-    ph1, ph2 = list(PENN_BOX)
-    G.highlight(s.mid, PENN_XY, PENN_BOX[ph1], t, w(cue(2, 'racontera')))
-    G.highlight(s.mid, PENN_XY, PENN_BOX[ph2], t, w(cue(2, 'premiere')))
-    TY.name_card(s.top, (PENN_XY[0] + 10, 120), 'Gary Penn', 'CONCEPTEUR, DMA DESIGN', t, w(cue(2, 'Gary')))
+    S.env(s, 'bleed')
+    q1, q2 = 'Then one day', 'the police are psycho'
+    G.browse(s, PENN, t, [(ENTER - 1.0, PENN.top()), (w(cue(2, 'racontera')) - 0.5, PENN.on(q1)),
+                          (w(cue(2, 'premiere')) - 0.6, PENN.on(q2))],
+             marks=[(q1, w(cue(2, 'racontera')) + 0.9), (q2, w(cue(2, 'premiere')) + 0.8)], dur=1.4)
+    if t < w(cue(2, 'parce')) - 0.2:                       # his name, then his words in the same place
+        tag(s.hud, (W / 2, 960), 'GARY PENN, CONCEPTEUR CHEZ DMA DESIGN', 46, t, w(cue(2, 'Gary')))
     G.typed_quote(s.hud, (W / 2, 940), '« La police est devenue folle : elle essaie de me sortir de la route. »', t,
                   w(cue(2, 'parce')), size=40, cps=34)
     return s
@@ -193,21 +189,25 @@ def sH(t, D):
 
 
 def sI(t, D):
-    """Il deviendra Grand Theft Auto, une série dont l'éditeur Take-Two revendique aujourd'hui près
-    de 475 millions d'exemplaires vendus."""
+    """Il deviendra Grand Theft Auto, ..."""
     s = Shot(t, D)
     S.env(s, 'paper')
-    P.flip(s.mid, MOCKUP, LOGO_CARD, 440, 400, t, w(cue(3, 'Grand')) - 0.2)
-    P.drop(s.mid, GTA1_SHOT, 440, 830, t, w(cue(3, 'Auto')), rot=-3, spin=10, key='g1s')
-    gx, gy = 1330 - GD.width / 2, 330
-    P.slide(s.mid, GD, (W + GD.width, gy + GD.height / 2), (gx + GD.width / 2, gy + GD.height / 2), t,
-            w(cue(3, 'Take')) - 0.3, rot=0.0, lag=5.0, key='gd')
-    P.drop(s.mid, TAKE2, gx + GD.width - 190, gy - 95, t, w(cue(3, 'Take')), rot=0, spin=8, height=0.6, key='t2')
-    box = GD_BOX[list(GD_BOX)[0]]
-    G.highlight(s.mid, (gx, gy), box, t, w(cue(3, '475')))
-    x0, y1, x1 = gx + box[0][0], gy + box[-1][3], gx + max(b[2] for b in box)
-    s.zoom_to((x0 - 40, gy - 190, x1 + 40, y1 + 60), w(cue(3, 'aujourd')), dur=1.2, fill=0.95)
-    tag(s.hud, (W / 2, 1002), "PRÈS DE 475 MILLIONS D'EXEMPLAIRES", 54, t, w(cue(3, '475')))
+    s.camera(1.0, 1.03, (W / 2, 540))
+    P.flip(s.mid, MOCKUP, LOGO_CARD, 620, 470, t, w(cue(3, 'Grand')) - 0.2)
+    P.drop(s.mid, GTA1_SHOT, 1340, 520, t, w(cue(3, 'Auto')), rot=3, spin=10, key='g1s')
+    return s
+
+
+def sI2(t, D):
+    """... une série dont l'éditeur Take-Two revendique aujourd'hui près de 475 millions
+    d'exemplaires vendus."""
+    s = Shot(t, D)
+    S.env(s, 'bleed')
+    q = 'The entire Grand Theft Auto'
+    G.browse(s, GD, t, [(ENTER - 1.0, GD.top()), (w(cue(3, 'aujourd')) - 0.3, GD.on(q, width=1560))], marks=[(q, w(cue(3, '475')))])
+    P.drop(s.hud, P.print_card(TAKE2.convert('RGB').convert('RGBA'), 260, border=18, seed=19) if False else TAKE2,
+           1700, 170, t, ENTER + 0.3, rot=0, spin=8, height=0.6, key='t2')
+    tag(s.hud, (W / 2, 990), "PRÈS DE 475 MILLIONS D'EXEMPLAIRES", 54, t, w(cue(3, '475')))
     return s
 
 
@@ -241,6 +241,7 @@ SHOTS = [
     (cue(2, 'Ce bug') - LEAD, sG, 'up'),
     (cue(3, 'Ce projet') - LEAD, sH, ('circle', {'at': MOCK_XY})),
     (cue(3, 'Il deviendra') - LEAD, sI, 'cut'),
+    (cue(3, 'Take') - LEAD, sI2, 'up'),
     (cue(3, 'Reste') - LEAD, sJ, 'shape'),
 ]
 SCENE0 = {f.__name__: t0 for t0, f, *_ in SHOTS}

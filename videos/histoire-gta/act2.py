@@ -24,7 +24,7 @@ GTA_BOX = P.print_card(Image.open(asset('B02_gta_box.jpg')), 520, seed=24)      
 GTA1_SHOT = P.print_card(Image.open(asset('game/wikipedia/s01_gta1.png')), 600, seed=26)   # GTA (1997), in-game (Wikipedia)
 CITIES = [P.print_card(Image.open(asset(f)), 520, seed=30 + i)
           for i, f in enumerate(('C01_newyork.jpg', 'C02_miami.jpg', 'C03_sanfrancisco.jpg'))]
-COP_Q, COP_BOX = G.article('A01_penn_head.png', 'A03_penn_cop.png', 'Game Developer (Gamasutra)', '31 JANVIER 2011', width=1380, seed=25)
+PENN = G.Page('penn')                     # Game Developer (Gamasutra), The Replay Interviews: Gary Penn, 2011
 
 
 def sA(t, D):
@@ -121,22 +121,16 @@ def sF(t, D):
     return s
 
 
-COP_XY = (W / 2 - COP_Q.width / 2, 200)
-
-
 def sG(t, D):
     """L'équipe a abandonné le rôle du policier, adouci les forces de l'ordre et bâti le jeu autour
     de cette liberté."""
     s = Shot(t, D)
-    S.env(s, 'paper')
-    s.camera(1.0, 1.0)
-    hb = COP_BOX[list(COP_BOX)[0]][0]
-    s.push(w(cue(4, 'abandonne')) - 0.4, 0.35, focus=(COP_XY[0] + (hb[0] + hb[2]) / 2, COP_XY[1] + hb[1]), dur=1.4)
-    cx, cy = W / 2, COP_XY[1] + COP_Q.height / 2
-    P.slide(s.mid, COP_Q, (-COP_Q.width, cy), (cx, cy), t, ENTER, dur=1.0, rot=0.0, lag=5.0, key='copq')
-    G.highlight(s.mid, COP_XY, COP_BOX[list(COP_BOX)[0]], t, w(cue(4, 'abandonne')))
+    S.env(s, 'bleed')
+    q = 'nobody wants to be the cop'
+    G.browse(s, PENN, t, [(ENTER - 1.0, PENN.top()), (w(cue(4, "'equipe")) + 0.2, PENN.on(q))],
+             marks=[(q, w(cue(4, 'abandonne')) + 0.3)], dur=1.4)
     G.typed_quote(s.hud, (W / 2, 870), "« Personne ne veut être le flic, c'est plus drôle d'être méchant. »", t,
-                  w(cue(4, 'abandonne')) + 0.4, size=40)
+                  w(cue(4, 'abandonne')) + 0.5, size=40, cps=30)
     tag(s.hud, (W / 2, 990), 'CETTE LIBERTÉ', 54, t, w(cue(4, 'liberte')))
     return s
 

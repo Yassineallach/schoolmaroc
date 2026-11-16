@@ -282,3 +282,98 @@ def typed_quote(layer, xy, text, t, start, size=40, width=1500, cps=24, paper=Tr
         strip = P.paper_card(int(T.w + 70), int(T.h + 40), seed=91, colour=CREAM)
         P.put(layer, P.fade_img(strip, k), x, y + T.h / 2, sh_op=0.25)
     T.draw(layer, (x, y), t, start, anim='type', anchor='m', stagger=1.0 / cps)
+
+
+# ------------------------------------------------------------------ whole web pages (browse)
+class Page:
+    """A press article captured as the whole web page (assets/pages/<name>.png, 2x, 2560 px wide)
+    with the boxes of its quoted phrases (<name>.json)."""
+    _cache = {}
+
+    def __init__(self, name):
+        if name not in Page._cache:
+            im = Image.open(asset(f'pages/{name}.png')).convert('RGB')
+            meta = json.load(open(asset(f'pages/{name}.json')))
+            Page._cache[name] = (im, {k: v for k, v in meta['boxes'].items() if v})
+        self.im, self.boxes = Page._cache[name]
+        self.w, self.h = self.im.size
+
+    def box(self, phrase):
+        """Union box of a phrase (x0, y0, x1, y1) in page pixels; phrase may be a prefix."""
+        k = next(k for k in self.boxes if k.startswith(phrase))
+        r = self.boxes[k]
+        return (min(b[0] for b in r), min(b[1] for b in r), max(b[2] for b in r), max(b[3] for b in r))
+
+    def lines(self, phrase):
+        k = next(k for k in self.boxes if k.startswith(phrase))
+        return self.boxes[k]
+
+    def top(self):
+        """The view that opens on the page: its full width, from the very top."""
+        return (self.w / 2, self.w * 9 / 32, self.w)
+
+    def column_left(self, y0, y1, x_max):
+        """Left edge of the text column at this height: the leftmost ink in the phrase's row band."""
+        band = np.asarray(self.im.crop((0, int(y0), int(x_max), int(y1))).convert('L')).astype(np.int16)
+        bg = int(np.median(band[:, :8]))
+        ink = np.abs(band - bg) > 60
+        cols = np.where(ink.any(axis=0))[0]
+        return float(cols[0]) if len(cols) else float(x_max)
+
+    def column_right(self, y0, y1, x_from, gutter=110):
+        """Right edge of the text column: ink continues right of the phrase until a gap wider than
+        a column gutter."""
+        band = np.asarray(self.im.crop((0, int(y0) - 60, self.w, int(y1) + 60)).convert('L')).astype(np.int16)
+        bg = int(np.median(band[:, :8]))
+        ink = (np.abs(band - bg) > 60).any(axis=0)
+        x, last, gap = int(x_from), int(x_from), 0
+        while x < self.w and gap < gutter:
+            if ink[x]:
+                last, gap = x, 0
+            else:
+                gap += 1
+            x += 1
+        return float(last)
+
+    def on(self, phrase, width=None, pad=1.25, dy=0.0):
+        """A view on a phrase: as wide as its paragraph needs, starting at the text column's left
+        edge (so lines are never cut on the left), vertically centred on the phrase."""
+        x0, y0, x1, y1 = self.box(phrase)
+        left = self.column_left(y0, y1, x0 + 2)
+        right = self.column_right(y0, y1, x1)
+        wv = width or min(self.w, max(900, (right - left) * 1.14))
+        cx = left - 0.06 * wv + wv / 2
+        cx = min(max(cx, wv / 2), self.w - wv / 2)
+        return (cx, (y0 + y1) / 2 + dy, wv)
+
+
+def browse(s, page, t, views, marks=(), dur=1.3):
+    """The page fills the frame like a browser window, and the camera scrolls and zooms between
+    views [(start, (cx, cy, width)), ...] (page pixels). marks: [(phrase, start)] highlighted
+    with the marker, in the page, when the narration reaches them."""
+    k = 0
+    for i, (a, v) in enumerate(views):
+        if t >= a:
+            k = i
+    a, v1 = views[k]
+    v0 = views[k - 1][1] if k > 0 else v1
+    u = P.ease_io((t - a) / dur) if k > 0 else 1.0
+    cx, cy, wv = (v0[j] + (v1[j] - v0[j]) * u for j in range(3))
+    hv = wv * H / W
+    cx = min(max(cx, wv / 2), page.w - wv / 2) if wv <= page.w else page.w / 2
+    cy = max(hv / 2, min(cy, page.h - hv / 2)) if page.h > hv else hv / 2
+    x0, y0 = cx - wv / 2, cy - hv / 2
+    if y0 + hv > page.h or x0 + wv > page.w:                       # page shorter than the view: extend its own background
+        bg = page.im.getpixel((8, page.h - 8))
+        canvas = Image.new('RGB', (int(wv) + 2, int(hv) + 2), bg)
+        part = page.im.crop((int(x0), int(y0), int(min(page.w, x0 + wv)), int(min(page.h, y0 + hv))))
+        canvas.paste(part, (0, 0))
+        crop = canvas.crop((0, 0, int(wv), int(hv))).resize((W, H), Image.LANCZOS)
+    else:
+        crop = page.im.crop((int(x0), int(y0), int(x0 + wv), int(y0 + hv))).resize((W, H), Image.LANCZOS)
+    s.mid.paste(crop.convert('RGBA'), (0, 0))
+    sc = W / wv
+    for phrase, start in marks:
+        boxes = [((b[0] - x0) * sc, (b[1] - y0) * sc, (b[2] - x0) * sc, (b[3] - y0) * sc) for b in page.lines(phrase)]
+        dark = np.asarray(crop.crop(tuple(int(c) for c in boxes[0])).convert('L')).mean() < 100 if boxes else False
+        highlight(s.mid, (0, 0), boxes, t, start, dark=dark)

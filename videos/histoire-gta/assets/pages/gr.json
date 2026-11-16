@@ -1,0 +1,28 @@
+{
+ "url": "https://www.gamesradar.com/games/grand-theft-auto/gta-3-dev-says-that-the-open-world-games-hardest-technical-challenge-was-partially-solved-with-careful-city-planning-and-some-extra-windy-weather/",
+ "title": "GTA 3 dev says that the open-world game's \"hardest technical challenge\" was partially solved with careful city planning and some extra windy weather | GamesRadar+",
+ "boxes": {
+  "there was no way we could fit the whole map of GTA 3 in PS2 memory": [
+   [
+    803.84375,
+    3281.25,
+    1530.3125,
+    3325.25
+   ],
+   [
+    358,
+    3333.25,
+    749.8125,
+    3377.25
+   ]
+  ],
+  "we had no option but to slow the player down": [
+   [
+    589.65625,
+    5470.5,
+    1326,
+    5514.5
+   ]
+  ]
+ }
+}
