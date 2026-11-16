@@ -1,0 +1,27 @@
+{
+ "url": "https://api.parliament.uk/historic-hansard/lords/1997/may/20/grand-theft-auto-computer-game",
+ "boxes": {
+  "Lord Campbell of Croy": [
+   [
+    112,
+    18,
+    432.15625,
+    52
+   ]
+  ],
+  "Whether they will take any action concerning the reported release for sale later this year of a new computer game entitled Grand Theft Auto.": [
+   [
+    112,
+    108,
+    1485.1875,
+    142
+   ],
+   [
+    112,
+    152.8125,
+    707.3125,
+    186.8125
+   ]
+  ]
+ }
+}
