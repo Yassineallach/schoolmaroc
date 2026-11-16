@@ -492,3 +492,92 @@ def sync(mod):
         return _st.tag(layer, xy, s, size, t, start, *a, **k)
 
     mod.words, mod.tag = words_synced, tag_synced
+
+
+# ------------------------------------------------------------------ vox-director motion on the paper-desk design
+def vox_motion(g, confetti=True):
+    """Keep the act's paper-desk design but animate it the vox-director way (vd_motion.py, MIT):
+    prints and clippings fly in from the side and snap with a back-overshoot (instead of the
+    paper drop / friction slide), settled pieces breathe (sway + pulse), every landing kicks the
+    camera (impact shake), shots are joined by whip pans with motion blur (instead of torn wipes),
+    and light confetti drifts over the film. g = the act's globals()."""
+    import vd_motion as M
+    import style as ST
+    import transitions as TR
+    from style import sfx as _sfx
+    IMPACTS = g.setdefault('_IMPACTS', set())
+
+    def fly(layer, im, cx, cy, t, start, frm, spin, dur=0.6, sway=0.5, key=None):
+        IMPACTS.add(round(_vox._SCENE_START + start + dur * 0.8, 3))
+        _sfx('whoosh', start, cx, dur=0.35)
+        _sfx('drop', start + dur * 0.8, cx, gain=0.4)
+        if t < start:
+            return
+        off = {'R': (W + im.width / 2 + 60, cy), 'L': (-im.width / 2 - 60, cy),
+               'T': (cx, -im.height / 2 - 60), 'B': (cx, H + im.height / 2 + 60)}[frm]
+        keys = [dict(t=start, x=off[0], y=off[1], s=1.0, r=spin, a=1, e='out'),
+                dict(t=start + dur, x=cx, y=cy, s=1.0, r=0, a=1, e='back')]
+        L = M.Layer.__new__(M.Layer)
+        L.keys, L.sway, L.pulse = keys, sway, 0.004
+        x, y, s, r, a = L.state(t)
+        settled = t >= start + dur
+        r += sway * math.sin(t * 1.3) * (1 if settled else 0)
+        s *= 1 + (0.004 * math.sin(t * 2.1) if settled else 0)
+        lift = 0.0 if settled else 0.25
+        P.put(layer, P.rot_scale(im, r, s, None), x, y, lift=lift)
+
+    def drop(layer, im, cx, cy, t, start, rot=-3.0, spin=16.0, height=1.0, speed=1.0, key=None, from_y=-140):
+        fly(layer, P.rot_scale(im, rot, 1.0, key) if rot else im, cx, cy, t, start,
+            'L' if cx < W / 2 else 'R', spin=spin * (-1 if cx < W / 2 else 1) * 0.6, dur=0.6 / max(speed, 0.3), key=key)
+
+    def slide(layer, im, frm, to, t, start, dur=1.1, rot=-2.0, lag=9.0, key=None):
+        side = 'L' if frm[0] < to[0] else 'R'
+        if abs(frm[0] - to[0]) < abs(frm[1] - to[1]):
+            side = 'T' if frm[1] < to[1] else 'B'
+        fly(layer, P.rot_scale(im, rot, 1.0, key) if rot else im, to[0], to[1], t, start, side,
+            spin=6 if side == 'R' else -6, dur=min(0.75, dur), sway=0.25, key=key)
+
+    P.drop, P.slide = drop, slide
+
+    def whip(a, b, p, *rest):
+        q = 0.5 - 0.5 * math.cos(math.pi * max(0.0, min(1.0, p)))
+        strip = np.concatenate([np.asarray(a)[..., :3], np.asarray(b)[..., :3]], axis=1)
+        off = int(q * W)
+        img = Image.fromarray(np.ascontiguousarray(strip[:, off:off + W]).astype(np.uint8))
+        blur = int(70 * math.sin(math.pi * q))
+        if blur > 2:
+            small = img.resize((max(1, W // blur), H), Image.BILINEAR)
+            img = Image.blend(img, small.resize((W, H), Image.BILINEAR), 0.75)
+        return np.asarray(img)
+
+    ST._tear = lambda a, b, p, kind: whip(a, b, p)
+    TR.apply = lambda kind, a, b, p, opts=None: whip(a, b, p)
+    conf = M.Confetti(W, H, n=22, seed=11) if confetti else None
+    base = g['frame']
+    state = {'t': None}
+
+    def frame(t):
+        out = np.asarray(base(t))[..., :3]
+        sx = sy = 0.0
+        for h in IMPACTS:
+            d = t - h
+            if 0 <= d < 0.6:
+                amp = 12 * math.exp(-8 * d)
+                sx += amp * math.sin(d * 60)
+                sy += amp * math.cos(d * 55)
+        img = Image.fromarray(np.ascontiguousarray(out))
+        if conf is not None:
+            dt = 1 / 30 if state['t'] is None else max(0.0, min(0.2, t - state['t']))
+            state['t'] = t
+            cv = img.convert('RGBA')
+            conf.draw(cv, t, dt)
+            img = cv.convert('RGB')
+        if abs(sx) > 0.3 or abs(sy) > 0.3:
+            z = 1.03
+            big = img.resize((int(W * z), int(H * z)), Image.BILINEAR)
+            cx = int((big.width - W) / 2 + sx)
+            cy = int((big.height - H) / 2 + sy)
+            img = big.crop((cx, cy, cx + W, cy + H))
+        return np.asarray(img)
+
+    g['frame'] = frame

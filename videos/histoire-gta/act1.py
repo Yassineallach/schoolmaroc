@@ -187,7 +187,7 @@ def sH(t, D):
     s = Shot(t, D)
     S.env(s, 'paper')
     s.camera(1.0, 1.04, MOCK_XY)
-    P.drop(s.mid, MOCKUP, *MOCK_XY, t, w(cue(3, 'Race')) - 0.3, rot=-3, spin=12, key='mock')
+    P.drop(s.mid, MOCKUP, *MOCK_XY, t, ENTER, rot=-3, spin=12, key='mock')
     words(s.top, (1400, 520), "RACE'N'CHASE", 104, t, w(cue(3, 'Race')))
     return s
 
