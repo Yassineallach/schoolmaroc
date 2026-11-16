@@ -185,3 +185,14 @@ Wikipedia's screenshots are small. For full-screen gameplay, your own captures o
 
 ### Articles shown on screen
 I'll capture each **bold** article above from the live page and highlight the sentence that matches the narration, as a newspaper clipping on the desk. The strongest ones: the Hansard record (act 3), the Gary Penn interview (act 1), CNN Money and BBC on Hot Coffee (act 5), the APA resolution (act 5), and Take-Two's investor presentation (acts 1 and 7).
+
+### Act 4 material
+| File | Source |
+|---|---|
+| game/steam/gta3_*.jpg | Official GTA III screenshots, Steam store page (app 12100) |
+| game/wikipedia/s03_gta3_copcar.jpg | GTA III police car before/after 9/11 (non-free, Wikipedia) — https://en.wikipedia.org/wiki/File:GTAIII_LCPD_copcar_change.jpg |
+| game/wikipedia/b03_gta3_box.jpg | GTA III box art (non-free, Wikipedia) |
+| A07_rockstar_* | Capture, Rockstar Newswire, "Grand Theft Auto III: Your Questions Answered – Part Two" |
+| A08_ign_* | Capture, IGN, "Take-Two Examines, Changes Fall Games" (19 Sept 2001) |
+| A09_gr_* | Capture, GamesRadar+, "GTA 3 dev says that the open-world game's 'hardest technical challenge'…" (26 April 2024) |
+| A10_clones_head.png | Capture, Game Rant, "The Best GTA Clones Ever Made" |

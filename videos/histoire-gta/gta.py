@@ -59,7 +59,7 @@ def article(head, body, outlet, date, width=1180, seed=21, pad=46):
     return card, boxes
 
 
-def highlight(layer, card_xy, boxes, t, start, gap=0.35, until=None, colour=None, strength=0.85):
+def highlight(layer, card_xy, boxes, t, start, gap=0.35, until=None, colour=None, strength=0.85, dark=False):
     """Highlighter over one phrase of an article placed with its top-left at card_xy, line by
     line, as the narration reaches it. Multiplied into the page like real marker ink, so the
     printed words stay dark and readable on top of the colour."""
@@ -73,8 +73,13 @@ def highlight(layer, card_xy, boxes, t, start, gap=0.35, until=None, colour=None
     if k.max() <= 0:
         return
     base = np.asarray(layer).astype(np.float32)
-    mul = 1 - k + k * a[..., :3] / 255.0
-    base[..., :3] *= mul
+    c = a[..., :3] / 255.0
+    if dark:                                   # white-on-black page: screen the colour in, the text stays white
+        bb = base[..., :3] / 255.0
+        base[..., :3] = 255.0 * (bb + k * (1 - bb) * c * 0.75)
+    else:
+        mul = 1 - k + k * c
+        base[..., :3] *= mul
     layer.paste(Image.fromarray(base.clip(0, 255).astype(np.uint8), 'RGBA'))
 
 
