@@ -141,6 +141,13 @@ Free licence (Wikimedia Commons, credited in the description, like *Histoire des
 |---|---|
 | P01_dundee.jpg (act 1 opening) | Dundee from Fife, Colin Smith, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Dundee_-_From_Fife_-_geograph.org.uk_-_6608715.jpg |
 | P02_dma_offices.png (act 2) | DMA Design's original offices (2005), Murray Barnes, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:DMA_Design_original_offices.png |
+| P03_jones.jpg (act 2) | David Jones at Gamelab 2018, Gamelab Co — https://commons.wikimedia.org/wiki/File:David_Jones,_Gamelab_2018_(cropped).jpg |
+| C01_newyork.jpg (act 2) | Empire State Building, aerial view, Sam Valadi, CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Empire_State_Building_(aerial_view).jpg |
+| C02_miami.jpg (act 2) | Lummus Park and Ocean Drive, Miami Beach, postcard c. 1945, Colourpicture Publishers, public domain — https://commons.wikimedia.org/wiki/File:Miami_Beach_-_Aerial_view_of_Lummus_Park_and_Ocean_Drive.jpg |
+| C03_sanfrancisco.jpg (act 2) | Downtown San Francisco, Treasure Island and Bay Bridge, Mitchtobias, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Downtown_San_Francisco,_Treasure_Island,_Bay_Bridge_Aerial_Photo.jpg |
+| B01_lemmings_box.jpg (act 2) | Lemmings box art, Psygnosis 1991 (non-free, Wikipedia) — https://en.wikipedia.org/wiki/File:Lemmings-BoxScan.jpg |
+| B02_gta_box.jpg (act 2) | Grand Theft Auto box art, 1997 (non-free, Wikipedia) — https://en.wikipedia.org/wiki/File:GTA_-_Box_Front.jpg |
+| A03_penn_cop.png (act 2) | Capture, Game Developer, "The Replay Interviews: Gary Penn" |
 
 ### Logos in assets/ (from English Wikipedia, non-free logos used for identification)
 | File | Wikipedia file page |
