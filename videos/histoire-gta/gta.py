@@ -395,3 +395,86 @@ def browse(s, page, t, views, marks=(), dur=1.3, jump=1.2):
         boxes = [((b[0] - x0) * sc, (b[1] - y0) * sc, (b[2] - x0) * sc, (b[3] - y0) * sc) for b in page.lines(phrase)]
         dark = np.asarray(crop.crop(tuple(int(c) for c in boxes[0])).convert('L')).mean() < 100 if boxes else False
         highlight(s.mid, (0, 0), boxes, t, start, dark=dark)
+
+
+# ------------------------------------------------------------------ words never before the narration
+import re as _re
+import unicodedata as _ud
+import vox as _vox
+import style as _st
+
+_STOP = {'le', 'la', 'les', 'de', 'des', 'du', 'un', 'une', 'et', 'a', 'au', 'aux', 'en', 'l', 'd', 'dans',
+         'par', 'sur', 'pour', 'son', 'sa', 'ses', 'qui', 'que'}
+
+
+def _norm(s):
+    s = _ud.normalize('NFKD', s.lower().replace('’', "'"))
+    s = ''.join(c for c in s if not _ud.combining(c))
+    return _re.sub(r"[^a-z0-9]", '', s)
+
+
+def _same(a, b):
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    n = min(len(a), len(b))
+    return n >= 4 and a[:max(4, n - 2)] == b[:max(4, n - 2)]
+
+
+def sync(mod):
+    """Make the act's words() and tag() wait for the narration: each on-screen word that the
+    narration says in this shot appears no earlier than it is spoken (a label appears once its
+    last spoken word is said). Paraphrased words follow the word before them."""
+    said, off = [], 0.0
+    for c in mod.CLIPS:
+        for wd in _vox._WORDS[c]:
+            for part in _re.split(r"[\s'’\-]+", wd['w']):
+                if _norm(part):
+                    said.append((_norm(part), off + wd['s']))
+        off += _vox._DUR[c]
+    cache = {}
+
+    def window():
+        s0 = _vox._SCENE_START
+        starts = [x[0] for x in mod.SHOTS] + [mod.END]
+        nxt = min([x for x in starts if x > s0 + 1e-6] or [mod.END])
+        return s0, nxt
+
+    def spoken_times(text):
+        s0, s1 = window()
+        key = (s0, text)
+        if key not in cache:
+            out, last = [], s0 - 0.3
+            for word in text.split():
+                nw = _norm(word)
+                hit = None
+                if nw and nw not in _STOP and not (nw.isdigit() and len(nw) < 3):
+                    hit = next((tt for (sw, tt) in said if last - 0.05 <= tt < s1 - 0.25 and _same(nw, sw)), None)
+                if hit is not None:
+                    last = hit
+                out.append(hit)
+            cache[key] = out
+        return cache[key]
+
+    def words_synced(layer, xy, s, size, t, times, *a, **k):
+        n = len(s.split())
+        ts = list(times) if isinstance(times, (list, tuple)) else [times] * n
+        ts += [ts[-1]] * (n - len(ts))
+        sp = spoken_times(s)
+        s0 = _vox._SCENE_START
+        out, floor = [], -1e9
+        for given, hit in zip(ts, sp):
+            v = given if hit is None else max(given, hit - s0)
+            v = max(v, floor)                         # never ahead of the word before it
+            out.append(v)
+            floor = v
+        return _st.words(layer, xy, s, size, t, out, *a, **k)
+
+    def tag_synced(layer, xy, s, size, t, start, *a, **k):
+        sp = [h for h in spoken_times(s) if h is not None]
+        if sp:
+            start = max(start, max(sp) - _vox._SCENE_START)
+        return _st.tag(layer, xy, s, size, t, start, *a, **k)
+
+    mod.words, mod.tag = words_synced, tag_synced

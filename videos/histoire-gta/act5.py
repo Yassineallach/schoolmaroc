@@ -227,7 +227,7 @@ def sN(t, D):
     s.camera(1.03, 1.0)
     words(s.top, (W / 2, 330), 'UN DÉBAT ANCIEN', 70, t, [ENTER, ENTER + 0.25, w(cue(12, 'ancien'))], fill=S.ink(s))
     S.type_page(s, 'Les jeux vidéo violents rendent-ils violents ?', t, w(cue(12, 'les')), role='statement', size=86,
-                xy=(W / 2, 560), cues=[w(cue(12, x)) for x in ('les', 'jeux', 'video', 'violents', 'rendent', 'violents', 'violents')])
+                xy=(W / 2, 560), cues=[w(cue(12, x)) for x in ('les', 'jeux', 'video', 'violents', 'rendent', "-ils", 'violents', 'violents')][:3] + [w(cue(12, 'violents')), w(cue(12, 'rendent')), w(cue(12, 'violents', 2)), w(cue(12, 'violents', 2))])
     return s
 
 
@@ -283,6 +283,9 @@ SHOTS = [
     (cue(12, 'Entre') - LEAD, sP, 'shape'),
 ]
 END = cue.total + 1.2
+
+
+G.sync(sys.modules[__name__])
 
 
 def frame(t):

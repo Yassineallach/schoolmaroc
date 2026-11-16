@@ -222,6 +222,9 @@ SHOTS = [
 END = cue.total
 
 
+G.sync(sys.modules[__name__])
+
+
 def frame(t):
     return st.make_frame(SHOTS, END, t, CLIPS)
 

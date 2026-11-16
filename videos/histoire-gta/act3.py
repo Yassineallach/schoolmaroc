@@ -240,6 +240,9 @@ SHOTS = [
 END = cue.total + 1.2          # hold the GTA III image a moment after the last word
 
 
+G.sync(sys.modules[__name__])
+
+
 def frame(t):
     return st.make_frame(SHOTS, END, t, CLIPS)
 
