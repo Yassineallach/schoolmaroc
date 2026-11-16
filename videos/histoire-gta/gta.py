@@ -184,3 +184,74 @@ class Route:
 
 def look(frm, to):
     return math.degrees(math.atan2(to[1] - frm[1], to[0] - frm[0]))
+
+
+# ------------------------------------------------------------------ small drawn props (act 2)
+def creature(layer, x, y, t, scale=1.0):
+    """A tiny marching creature (generic: round head, tuft of hair, small body), walking right."""
+    s = scale
+    step = math.sin(t * 12 + x * 0.05)
+    d = ImageDraw.Draw(layer)
+    d.ellipse((x - 9 * s, y - 34 * s, x + 9 * s, y - 16 * s), fill=(240, 200, 170, 255))      # head
+    d.ellipse((x - 10 * s, y - 42 * s, x + 6 * s, y - 28 * s), fill=(70, 160, 70, 255))        # hair
+    d.rounded_rectangle((x - 8 * s, y - 18 * s, x + 8 * s, y + 2 * s), radius=4 * s, fill=(60, 80, 190, 255))
+    d.line((x - 4 * s, y + 2 * s, x - 4 * s + 5 * s * step, y + 12 * s), fill=(60, 80, 190, 255), width=int(5 * s))
+    d.line((x + 4 * s, y + 2 * s, x + 4 * s - 5 * s * step, y + 12 * s), fill=(60, 80, 190, 255), width=int(5 * s))
+
+
+def exit_door(layer, x, y, scale=1.0):
+    s = scale
+    d = ImageDraw.Draw(layer)
+    d.rectangle((x - 40 * s, y - 90 * s, x + 40 * s, y + 12 * s), fill=(120, 80, 50, 255), outline=(40, 30, 20, 255), width=4)
+    d.rectangle((x - 26 * s, y - 70 * s, x + 26 * s, y + 12 * s), fill=(20, 20, 20, 255))
+    d.text((x, y - 104 * s), 'SORTIE', font=F_HEAD(int(26 * s)), fill=PAL.ink + (255,), anchor='mm')
+
+
+@lru_cache(maxsize=4)
+def radio_card(seed=51):
+    """A car radio cut out of paper: chrome face, frequency scale, two knobs."""
+    w, h = 520, 230
+    im = P.paper_card(w, h, seed=seed, colour=(70, 74, 80))
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle((90, 50, w - 90, 130), radius=10, fill=(230, 200, 120, 255), outline=(30, 30, 30, 255), width=3)
+    for i, f in enumerate(range(88, 109, 4)):
+        x = 110 + i * (w - 220) / 5
+        d.line((x, 105, x, 125), fill=(40, 40, 40, 255), width=3)
+        d.text((x, 80), str(f), font=F_TYPE(26), fill=(40, 40, 40, 255), anchor='mm')
+    for cx in (50, w - 50):
+        d.ellipse((cx - 32, 58, cx + 32, 122), fill=(30, 30, 30, 255), outline=(150, 150, 150, 255), width=4)
+    for i in range(5):
+        d.rounded_rectangle((120 + i * 60, 158, 160 + i * 60, 190), radius=5, fill=(30, 30, 30, 255))
+    return im
+
+
+def radio_needle(layer, cx, cy, k):
+    """The tuning needle over radio_card placed at (cx, cy), k in 0..1 across the scale."""
+    x = cx - 260 + 110 + k * (520 - 220)
+    ImageDraw.Draw(layer).line((x, cy - 65, x, cy - 10), fill=(200, 30, 30, 255), width=5)
+
+
+@lru_cache(maxsize=4)
+def payphone_card(seed=61):
+    """A public payphone cut out of paper: box, handset on its hook, keypad."""
+    w, h = 300, 470
+    im = P.paper_card(w, h, seed=seed, colour=(150, 155, 160))
+    d = ImageDraw.Draw(im)
+    d.rectangle((30, 30, w - 30, 90), fill=(40, 70, 140, 255))
+    d.text((w / 2, 60), 'TÉLÉPHONE', font=F_HEAD(30), fill=(240, 240, 240, 255), anchor='mm')
+    for r in range(4):
+        for c in range(3):
+            x, y = 110 + c * 46, 150 + r * 52
+            d.rounded_rectangle((x - 18, y - 18, x + 18, y + 18), radius=5, fill=(60, 60, 60, 255))
+    d.rectangle((60, 380, w - 60, 420), fill=(60, 60, 60, 255))
+    return im
+
+
+@lru_cache(maxsize=2)
+def handset():
+    im = Image.new('RGBA', (90, 300), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle((25, 40, 65, 260), radius=18, fill=(25, 25, 25, 255))
+    d.rounded_rectangle((5, 0, 85, 60), radius=20, fill=(25, 25, 25, 255))
+    d.rounded_rectangle((5, 240, 85, 300), radius=20, fill=(25, 25, 25, 255))
+    return im
