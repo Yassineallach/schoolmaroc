@@ -247,7 +247,7 @@ SCENE0 = {f.__name__: t0 for t0, f, *_ in SHOTS}
 END = cue.total
 
 
-G.sync(sys.modules[__name__])
+G.sync(globals())
 
 
 def frame(t):

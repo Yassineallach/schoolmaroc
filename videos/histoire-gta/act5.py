@@ -285,7 +285,7 @@ SHOTS = [
 END = cue.total + 1.2
 
 
-G.sync(sys.modules[__name__])
+G.sync(globals())
 
 
 def frame(t):

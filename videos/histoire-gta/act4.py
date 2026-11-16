@@ -220,7 +220,7 @@ SHOTS = [
 END = cue.total + 1.5          # hold the highlighted « GTA clones » after the last word
 
 
-G.sync(sys.modules[__name__])
+G.sync(globals())
 
 
 def frame(t):

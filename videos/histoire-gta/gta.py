@@ -422,7 +422,21 @@ def _same(a, b):
     return n >= 4 and a[:max(4, n - 2)] == b[:max(4, n - 2)]
 
 
+class _NS:
+    """Attribute view of an act's globals() (render_all loads acts without sys.modules)."""
+    def __init__(self, g):
+        object.__setattr__(self, 'g', g)
+
+    def __getattr__(self, k):
+        return self.g[k]
+
+    def __setattr__(self, k, v):
+        self.g[k] = v
+
+
 def sync(mod):
+    if isinstance(mod, dict):
+        mod = _NS(mod)
     """Make the act's words() and tag() wait for the narration: each on-screen word that the
     narration says in this shot appears no earlier than it is spoken (a label appears once its
     last spoken word is said). Paraphrased words follow the word before them."""
