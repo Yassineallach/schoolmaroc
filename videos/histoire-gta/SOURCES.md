@@ -196,3 +196,14 @@ I'll capture each **bold** article above from the live page and highlight the se
 | A08_ign_* | Capture, IGN, "Take-Two Examines, Changes Fall Games" (19 Sept 2001) |
 | A09_gr_* | Capture, GamesRadar+, "GTA 3 dev says that the open-world game's 'hardest technical challenge'…" (26 April 2024) |
 | A10_clones_head.png | Capture, Game Rant, "The Best GTA Clones Ever Made" |
+
+### Act 5 material
+| File | Source |
+|---|---|
+| game/steam/vicecity_*.jpg, sanandreas_*.jpg | Official Vice City and San Andreas screenshots, Steam store pages (apps 12110, 12120) |
+| P06_liotta.jpg | Ray Liotta, Deauville 2014, Georges Biard, CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:Ray_Liotta_Deauville_2014_3.jpg |
+| P07_thompson.jpg | Jack Thompson, Wikimedia Commons (Flickr) — https://commons.wikimedia.org/wiki/File:JackThompsonAttorney_crop.jpg |
+| A11_vc_* | Capture, IGN, "The Voice of Vice City" (2002) — https://ign.com/articles/2002/10/25/the-voice-of-vice-city |
+| A12_jt_* | Capture, Game Developer, "Anti-Game Lawyer Jack Thompson Permanently Disbarred" (25 Sept 2008) |
+| A14_esrb_* | Capture, ESRB press release, 20 July 2005: "will immediately advise retailers to cease all sales of the game" — https://www.esrb.org/blog/esrb-concludes-investigation-into-grand-theft-auto-san-andreas-revokes-m-mature-rating/ |
+| A15_apa_* | Capture, APA press release, 3 March 2020 — https://www.apa.org/news/press/releases/2020/03/violent-video-games-behavior |
