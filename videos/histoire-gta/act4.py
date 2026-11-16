@@ -197,7 +197,7 @@ SHOTS = [
     (cue(9, 'Le resultat') - LEAD, sK, 'rl'),
     (cue(9, 'et pendant') - LEAD, sL, 'shape'),
 ]
-END = cue.total
+END = cue.total + 1.5          # hold the highlighted « GTA clones » after the last word
 
 
 def frame(t):
