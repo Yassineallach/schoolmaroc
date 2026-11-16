@@ -68,7 +68,7 @@ def sA(t, D):
     """Au milieu des années 1990, dans un studio de Dundee, en Écosse, ..."""
     s = Shot(t, D)
     S.env(s, 'bleed')
-    S.fullbleed(s, DUNDEE_PHOTO, t, 0.0, ken=(1.12, 1.0), focus=(0.55, 0.42), focus_to=(0.5, 0.5), darken=0.35, fade=0.01)
+    S.fullbleed(s, DUNDEE_PHOTO, t, -1.0, ken=(1.12, 1.0), focus=(0.55, 0.42), focus_to=(0.5, 0.5), darken=0.35, fade=0.01)
     tag(s.hud, (W / 2, 140), 'MILIEU DES ANNÉES 1990', 46, t, w(cue(1, 'annees')))
     tag(s.hud, (W / 2, 930), 'DUNDEE, ÉCOSSE', 58, t, w(cue(1, 'Dundee')), bg=CREAM, fg=INK)
     return s
@@ -162,7 +162,7 @@ def sF(t, D):
     G.highlight(s.mid, PENN_XY, PENN_BOX[ph2], t, w(cue(2, 'premiere')))
     TY.name_card(s.top, (PENN_XY[0] + 10, 120), 'Gary Penn', 'CONCEPTEUR, DMA DESIGN', t, w(cue(2, 'Gary')))
     G.typed_quote(s.hud, (W / 2, 940), '« La police est devenue folle : elle essaie de me sortir de la route. »', t,
-                  w(cue(2, 'premiere')) + 0.3, size=40)
+                  w(cue(2, 'parce')), size=40, cps=34)
     return s
 
 

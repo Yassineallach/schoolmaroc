@@ -78,11 +78,10 @@ def sC(t, D):
     cy = GI_XY[1] + GI.height / 2
     P.slide(s.mid, GI, (W + GI.width, cy), (GI_XY[0] + GI.width / 2, cy), t, ENTER + 0.2, dur=0.9, rot=0.0, lag=4.0, key='gi')
     box = GI_BOX[list(GI_BOX)[0]]
-    G.highlight(s.mid, GI_XY, box, t, w(cue(6, "'entretenir")))
+    G.highlight(s.mid, GI_XY, box, t, w(cue(6, 'Clifford')) + 0.5)
     s.zoom_to((GI_XY[0] - 20, GI_XY[1] + box[0][1] - 260, GI_XY[0] + GI.width + 20, GI_XY[1] + box[-1][3] + 80),
               w(cue(6, 'Clifford')) + 0.2, dur=1.0, fill=0.95)
-    G.typed_quote(s.hud, (W / 2, 950), '« Il a orchestré tout le scandale, pour que les députés s’en mêlent. »', t,
-                  w(cue(6, "'entretenir")) + 0.3, size=40)
+    G.typed_quote(s.hud, (W / 2, 950), '« Il a orchestré tout le scandale. »', t, w(cue(6, 'Max')), size=44, cps=30)
     return s
 
 
@@ -217,9 +216,9 @@ def sK(t, D):
     front = P.print_card(GTA2_SHOT, 900, seed=74)
     back = P.print_card(GTA3_SHOT, 900, seed=75)
     back = back.resize((front.width, front.height), Image.LANCZOS)
-    P.flip(s.mid, front, back, W / 2, 500, t, w(cue(7, 'basculent')))
+    P.flip(s.mid, front, back, W / 2, 500, t, w(cue(7, 'arrive', 1)) - 0.2)
     tag(s.hud, (330, 500), 'EN 2D', 60, t, w(cue(7, '2D')))
-    tag(s.hud, (1590, 500), 'LA 3D', 60, t, w(cue(7, '3D')), bg=G.THIEF, fg=INK)
+    tag(s.hud, (1590, 500), 'LA 3D', 60, t, w(cue(7, 'consoles')), bg=G.THIEF, fg=INK)
     words(s.hud, (W / 2, 960), "l'idée restera au cœur de la série", 50, t,
           [w(cue(7, x)) for x in ("l", "'idee", 'restera', 'au', 'cœur', 'de la', 'serie')], font=F_TYPE)
     return s
@@ -238,7 +237,7 @@ SHOTS = [
     (cue(7, 'Le jeu ajoute') - LEAD, sJ, 'lr'),
     (cue(7, "L 'idee") - LEAD, sK, 'cut'),
 ]
-END = cue.total
+END = cue.total + 1.2          # hold the GTA III image a moment after the last word
 
 
 def frame(t):
