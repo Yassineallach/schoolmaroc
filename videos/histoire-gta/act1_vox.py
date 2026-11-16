@@ -215,7 +215,7 @@ def beat_layers(i):
                Piece(GD, fly(C(3, 'Take') - 0.2, 1200, 640, 'R', spin=4, dur=0.6), sway=0.12, sound='slide'),
                Piece(GD_HL, reveal(C(3, '475') - 0.2, 1200, 640), sway=0.12, shadow=False),
                Piece(TAKE2, pop(C(3, 'Take') + 0.3, 1680, 330), sway=0.6),
-               Piece(sticker('475 MILLIONS', 110, (242, 196, 48), INK, seed=23), slap(C(3, '475'), 420, 1000), sway=0.8, pulse=0.006, sound='stamp')]
+               Piece(sticker('475 MILLIONS', 110, (242, 196, 48), INK, seed=23), slap(C(3, '475'), 560, 960), sway=0.8, pulse=0.006, sound='stamp')]
     elif i == 9:    # « Reste à comprendre comment une course-poursuite déréglée a donné naissance ... »
         cards = [(DUNDEE, 300, 300, -6), (GTA1, 1650, 280, 5), (MOCKUP, 330, 820, 4), (PENN, 1560, 830, -3)]
         for k, (im, x, y, r) in enumerate(cards):
