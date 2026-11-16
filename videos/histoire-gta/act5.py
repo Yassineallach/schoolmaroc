@@ -42,7 +42,7 @@ def sA(t, D):
     S.env(s, 'bleed')
     S.fullbleed(s, VC(3), t, -1.0, ken=(1.0, 1.08), focus=(0.5, 0.5), darken=0.3, fade=0.01)
     words(s.hud, (W / 2, 470), 'UN PHÉNOMÈNE CULTUREL', 96, t,
-          [w(cue(10, 'transforme')), w(cue(10, 'phenomene')), w(cue(10, 'culturel'))], fill=CREAM)
+          [ENTER + 0.1, w(cue(10, 'transforme')), w(cue(10, 'phenomene'))], fill=CREAM)
     kicker(s.hud, t, 5, 'Le phénomène')
     return s
 
@@ -64,8 +64,8 @@ def sC(t, D):
     S.env(s, 'paper')
     s.camera(1.0, 1.03, (700, 540))
     P.drop(s.mid, TOMMY, 640, 520, t, ENTER, rot=-2, spin=10, key='tommy')
-    TY.name_card(s.top, (1180, 360), 'Tommy Vercetti', 'LE HÉROS DE VICE CITY', t, w(cue(10, 'Tommy')))
-    words(s.hud, (1480, 640), 'le premier à parler', 52, t, [w(cue(10, x)) for x in ('premier', 'personnage', 'parler', 'parler')], font=F_TYPE)
+    TY.name_card(s.top, (1080, 360), 'Tommy Vercetti', 'LE HÉROS DE VICE CITY', t, w(cue(10, 'Tommy')))
+    words(s.hud, (1380, 640), 'le premier à parler', 52, t, [w(cue(10, x)) for x in ('heros', 'Tommy', 'premier', 'personnage')], font=F_TYPE)
     return s
 
 
@@ -80,9 +80,9 @@ def sD(t, D):
     P.drop(s.mid, LIOTTA, 330, 540, t, ENTER, rot=-3, spin=10, key='liotta')
     cy = VCQ_XY[1] + VCQ.height / 2
     P.slide(s.mid, VCQ, (W + VCQ.width, cy), (VCQ_XY[0] + VCQ.width / 2, cy), t, ENTER + 0.15, dur=0.8, rot=0.0, lag=4.0, key='vcq')
-    G.highlight(s.mid, VCQ_XY, VCQ_BOX[list(VCQ_BOX)[0]], t, w(cue(10, 'Ray')))
-    into(s, VCQ_XY, VCQ, VCQ_BOX[list(VCQ_BOX)[0]], w(cue(10, "'acteur")) - 0.2)
-    tag(s.hud, (W / 2, 990), 'RAY LIOTTA, LA VOIX DE TOMMY VERCETTI', 46, t, w(cue(10, 'Ray')))
+    G.highlight(s.mid, VCQ_XY, VCQ_BOX[list(VCQ_BOX)[0]], t, w(cue(10, 'voix')) - 0.2)
+    into(s, VCQ_XY, VCQ, VCQ_BOX[list(VCQ_BOX)[0]], ENTER + 0.4, dur=0.8)
+    tag(s.hud, (W / 2, 990), 'RAY LIOTTA, LA VOIX DE TOMMY VERCETTI', 46, t, ENTER + 0.2)
     return s
 
 
@@ -127,10 +127,16 @@ def sH(t, D):
     """San Andreas devient le jeu le plus vendu de l'histoire de la PlayStation 2."""
     s = Shot(t, D)
     S.env(s, 'grid')
-    s.camera(1.0, 1.04, (W / 2, 540))
-    P.drop(s.mid, SA_BOX, 620, 540, t, ENTER, rot=-3, spin=10, key='sab')
-    P.stamp_hit(s.mid, 'N° 1', 1320, 420, t, w(cue(10, 'le jeu')), size=160, ang=-8, shot=s)
-    tag(s.hud, (1320, 700), 'LE PLUS VENDU DE LA PLAYSTATION 2', 46, t, w(cue(10, 'PlayStation')))
+    s.camera(1.0, 1.03, (W / 2, 540))
+    P.drop(s.mid, SA_BOX, 330, 540, t, ENTER, rot=-3, spin=10, key='sab')
+    a, b = w(cue(10, 'deviant')), w(cue(10, 'PlayStation'))
+    line1 = 'LE JEU LE PLUS VENDU'
+    line2 = "DE L'HISTOIRE DE LA PLAYSTATION 2"
+    n1, n2 = len(line1.split()), len(line2.split())
+    k = (b - a) / (n1 + n2 - 1)
+    words(s.top, (1250, 400), line1, 72, t, [a + k * i for i in range(n1)])
+    words(s.top, (1250, 520), line2, 54, t, [a + k * (n1 + i) for i in range(n2)])
+    P.stamp_hit(s.mid, 'N° 1', 1250, 760, t, w(cue(10, 'le jeu')) + 0.2, size=150, ang=-8, shot=s)
     return s
 
 
