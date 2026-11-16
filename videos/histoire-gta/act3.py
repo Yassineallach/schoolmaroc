@@ -15,15 +15,13 @@ CLIPS = (6, 7)
 cue = make_cue(CLIPS)
 
 # ---- real material (SOURCES.md)
-HANS = G.Page('hansard')                  # Hansard, House of Lords, 20 May 1997
-GI = G.Page('gi')                         # GamesIndustry.biz, 22 Oct 2012
-MEL = G.Page('mel')                       # MEL Magazine, 27 Jan 2022
+HANS, HANS_BOX = G.article('A04_hansard_head.png', 'A04_hansard_q.png', 'Hansard · Chambre des lords', '20 MAI 1997', width=1500, seed=31)
+GI, GI_BOX = G.article('A05_gi_head.png', 'A05_gi_q.png', 'GamesIndustry.biz', '22 OCTOBRE 2012', width=1000, seed=32)
+MEL, MEL_BOX = G.article('A06_mel_head.png', 'A06_mel_q.png', 'MEL Magazine', '27 JANVIER 2022', width=1000, seed=33)
 CLIFFORD = P.print_card(Image.open(asset('P04_clifford.jpg')), 430, seed=34)          # Max Clifford, 2014, CC BY 2.0
 HOUSERS = P.print_card(Image.open(asset('P05_housers.png')), 520, seed=35)            # Sam and Dan Houser, CC BY-SA 4.0
 BRAZIL = P.print_card(Image.open(asset('F01_brazil.png')).convert('RGB'), 560, border=10, seed=36)
 BMG = P.load(asset('L06_bmg.png'), width=380)
-BMG_CARD = P.paper_card(BMG.width + 60, BMG.height + 50, seed=38, colour=CREAM)
-BMG_CARD.alpha_composite(BMG, (30, 25))
 TAKE2 = P.load(asset('L02_take2.png'), width=330)
 ROCKSTAR = P.load(asset('L04_rockstar.png'), width=300)
 GTA_LOGO = P.load(asset('G01_gta1997.png'), width=420)
@@ -46,52 +44,69 @@ def sA(t, D):
     return s
 
 
+HANS_XY = (W / 2 - HANS.width / 2, 260)
+
+
 def sB(t, D):
     """En mai 1997, Lord Campbell of Croy en dénonce le contenu à la Chambre des lords."""
     s = Shot(t, D)
-    S.env(s, 'bleed')
-    q1, q2 = 'Lord Campbell of Croy', 'Whether they will take'
-    G.browse(s, HANS, t, [(ENTER - 1.0, HANS.top()), (w(cue(6, 'Lord')) - 0.4, HANS.on(q2, dy=-40))],
-             marks=[(q1, w(cue(6, 'Lord')) + 0.6), (q2, w(cue(6, 'denonce')))], dur=1.2)
-    tag(s.hud, (1560, 130), 'MAI 1997', 52, t, w(cue(6, 'mai')))
-    tag(s.hud, (W / 2, 960), 'LA CHAMBRE DES LORDS', 52, t, w(cue(6, 'Chambre')))
+    S.env(s, 'paper')
+    s.camera(1.0, 1.0)
+    cx, cy = W / 2, HANS_XY[1] + HANS.height / 2
+    P.slide(s.mid, HANS, (W + HANS.width, cy), (cx, cy), t, ENTER, dur=0.9, rot=0.0, lag=4.0, key='hans')
+    keys = list(HANS_BOX)
+    G.highlight(s.mid, HANS_XY, HANS_BOX[keys[0]], t, w(cue(6, 'Lord')))
+    G.highlight(s.mid, HANS_XY, HANS_BOX[keys[1]], t, w(cue(6, 'denonce')))
+    s.push(w(cue(6, 'denonce')) - 0.3, 0.22, focus=(W / 2, cy + 40), dur=1.6)
+    tag(s.hud, (W / 2, 140), 'MAI 1997', 52, t, w(cue(6, 'mai')))
+    tag(s.hud, (W / 2, 960), 'LA CHAMBRE DES LORDS', 52, t, w(cue(6, 'Chambre')), bg=CREAM, fg=INK)
     return s
+
+
+GI_XY = (820, 330)
 
 
 def sC(t, D):
     """Plutôt que d'éteindre la polémique, l'éditeur BMG Interactive engage le publicitaire Max
     Clifford pour l'entretenir."""
     s = Shot(t, D)
-    S.env(s, 'bleed')
-    q = 'He designed all the outcry'
-    G.browse(s, GI, t, [(ENTER - 1.0, GI.top()), (w(cue(6, 'Clifford')) - 0.3, GI.on(q))],
-             marks=[(q, w(cue(6, 'Clifford')) + 0.8)], dur=1.2)
-    P.drop(s.hud, BMG_CARD, 1620, 330, t, w(cue(6, 'BMG')) - 0.1, rot=3, spin=8, height=0.7, key='bmg')
-    tag(s.hud, (W / 2, 140), 'MAX CLIFFORD, PUBLICITAIRE', 50, t, w(cue(6, 'Max')))
-    G.typed_quote(s.hud, (W / 2, 950), '« Il a orchestré tout le scandale. »', t, w(cue(6, 'Max')) + 0.2, size=44, cps=30)
+    S.env(s, 'cream')
+    s.camera(1.0, 1.0)
+    P.drop(s.mid, BMG, 1320, 190, t, w(cue(6, 'BMG')) - 0.1, rot=0, spin=8, height=0.7, key='bmg')
+    P.drop(s.mid, CLIFFORD, 420, 500, t, ENTER, rot=-3, spin=10, key='cliff')
+    TY.name_card(s.top, (230, 830), 'Max Clifford', 'PUBLICITAIRE', t, w(cue(6, 'Max')) - 0.6, until=w(cue(6, 'Clifford')) + 0.15)
+    cy = GI_XY[1] + GI.height / 2
+    P.slide(s.mid, GI, (W + GI.width, cy), (GI_XY[0] + GI.width / 2, cy), t, ENTER + 0.2, dur=0.9, rot=0.0, lag=4.0, key='gi')
+    box = GI_BOX[list(GI_BOX)[0]]
+    G.highlight(s.mid, GI_XY, box, t, w(cue(6, 'Clifford')) + 0.5)
+    s.zoom_to((GI_XY[0] - 20, GI_XY[1] + box[0][1] - 260, GI_XY[0] + GI.width + 20, GI_XY[1] + box[-1][3] + 80),
+              w(cue(6, 'Clifford')) + 0.2, dur=1.0, fill=0.95)
+    G.typed_quote(s.hud, (W / 2, 950), '« Il a orchestré tout le scandale. »', t, w(cue(6, 'Max')), size=44, cps=30)
     return s
+
+
+MEL_Y = 200
 
 
 def sD(t, D):
-    """Le jeu est interdit aux moins de 18 ans au Royaume-Uni ..."""
-    s = Shot(t, D)
-    S.env(s, 'bleed')
-    q = 'classification by the BBFC'
-    G.browse(s, MEL, t, [(ENTER - 1.0, MEL.top()), (w(cue(6, 'jeu')) + 0.1, MEL.on(q))],
-             marks=[(q, w(cue(6, 'moins')) + 0.2)], dur=1.1)
-    P.stamp_hit(s.hud, '18', 1640, 300, t, w(cue(6, 'moins')) + 0.4, size=140, ang=-8, shot=s)
-    tag(s.hud, (W / 2, 960), 'ROYAUME-UNI : INTERDIT AUX MOINS DE 18 ANS', 46, t, w(cue(6, 'Royaume')))
-    return s
-
-
-def sD2(t, D):
-    """... et interdit tout court au Brésil."""
+    """Le jeu est interdit aux moins de 18 ans au Royaume-Uni et interdit tout court au Brésil."""
     s = Shot(t, D)
     S.env(s, 'paper')
-    s.camera(1.0, 1.05)
-    P.drop(s.mid, BRAZIL, W / 2, 470, t, ENTER, rot=3, spin=10, key='br')
-    P.stamp_hit(s.mid, 'INTERDIT', W / 2, 480, t, w(cue(6, 'Bresil')) - 0.2, size=120, ang=-12, shot=s)
-    tag(s.hud, (W / 2, 900), 'BRÉSIL', 56, t, ENTER + 0.2)
+    s.camera(1.0, 1.02)
+    move = w(cue(6, 'interdit', 2)) - 0.2
+    k = P.ease_io((t - move) / 0.8)
+    x0 = W / 2 - MEL.width / 2 + (90 - (W / 2 - MEL.width / 2)) * k        # centred, then aside for Brazil
+    cy = MEL_Y + MEL.height / 2
+    if t < ENTER + 0.9:
+        P.slide(s.mid, MEL, (-MEL.width, cy), (x0 + MEL.width / 2, cy), t, ENTER, dur=0.9, rot=0.0, lag=4.0, key='mel')
+    else:
+        P.put(s.mid, MEL, x0 + MEL.width / 2, cy)
+    G.highlight(s.mid, (x0, MEL_Y), MEL_BOX[list(MEL_BOX)[0]], t, w(cue(6, 'moins')))
+    P.stamp_hit(s.mid, '18', x0 + MEL.width - 60, MEL_Y + MEL.height - 40, t, w(cue(6, 'moins')) + 0.2, size=130, ang=-8, shot=s)
+    tag(s.hud, (W / 2 + (90 + MEL.width / 2 - W / 2) * k, 120), 'ROYAUME-UNI : INTERDIT AUX MOINS DE 18 ANS', 40, t, w(cue(6, 'Royaume')))
+    P.drop(s.mid, BRAZIL, 1500, 460, t, move + 0.3, rot=3, spin=10, key='br')
+    P.stamp_hit(s.mid, 'INTERDIT', 1500, 470, t, w(cue(6, 'Bresil')), size=100, ang=-12, shot=s)
+    tag(s.hud, (1500, 840), 'BRÉSIL', 52, t, w(cue(6, 'Bresil')))
     return s
 
 
@@ -214,7 +229,6 @@ SHOTS = [
     (cue(6, 'En mai') - LEAD, sB, 'up'),
     (cue(6, 'Plutot') - LEAD, sC, 'lr'),
     (cue(6, 'Le jeu est') - LEAD, sD, 'rl'),
-    (cue(6, 'interdit', 2) - 0.25, sD2, 'cut'),
     (cue(6, 'Le programmeur') - LEAD, sE, 'up'),
     (cue(6, 'Ce Noel') - LEAD, sF, 'shape'),
     (cue(7, 'En 1998') - LEAD, sG, 'pageturn'),

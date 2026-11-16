@@ -20,10 +20,10 @@ NEON, WALK, DRIVE, FIGHT, SNIPE = STEAM(2), STEAM(7), STEAM(9), STEAM(4), STEAM(
 GTA3_LOGO = P.load(asset('G03_gta3.png'), width=520)
 GTA3_BOX = P.print_card(Image.open(asset('game/wikipedia/b03_gta3_box.jpg')), 470, seed=41)
 COPCAR = P.print_card(Image.open(asset('game/wikipedia/s03_gta3_copcar.jpg')), 1100, seed=42)     # before / after (Wikipedia)
-IGN = G.Page('ign')                       # IGN, 19 Sept 2001
-RQ = G.Page('rockstar')                   # Rockstar Newswire, GTA III Q&A part two, 2012
-GR = G.Page('gr')                         # GamesRadar+, 26 April 2024
-SAINTS = G.Page('ign_sr')                 # IGN, Saints Row review, 2006: 'better than most ... of the other GTA clones'
+IGN, IGN_BOX = G.article('A08_ign_head.png', 'A08_ign_q.png', 'IGN', '19 SEPTEMBRE 2001', width=1400, seed=43)
+RQ, RQ_BOX = G.article('A07_rockstar_head.png', 'A07_rockstar_q.png', 'Rockstar Newswire', 'GTA III : vos questions', width=1120, seed=44)
+GR, GR_BOX = G.article('A09_gr_head.png', 'A09_gr_slow.png', 'GamesRadar+', '26 AVRIL 2024', width=1000, seed=45)
+SR, SR_BOX = G.article('A10_sr_head.png', 'A10_sr_q.png', 'IGN', '25 AOÛT 2006', width=1400, seed=46)   # Saints Row review
 
 
 def sA(t, D):
@@ -48,14 +48,18 @@ def sB(t, D):
     return s
 
 
+IGN_XY = (W / 2 - IGN.width / 2, 300)
+
+
 def sC(t, D):
     """Rockstar repousse le jeu, ..."""
     s = Shot(t, D)
-    S.env(s, 'bleed')
-    q = 'Grand Theft Auto 3 and Smuggler'
-    G.browse(s, IGN, t, [(ENTER - 1.0, IGN.top()), (w(cue(8, 'repousse')) - 0.2, IGN.on(q))],
-             marks=[(q, w(cue(8, 'repousse')) + 0.6)], dur=0.9)
-    tag(s.hud, (W / 2, 960), 'REPOUSSÉ', 60, t, w(cue(8, 'repousse')) + 0.2)
+    S.env(s, 'paper')
+    s.camera(1.0, 1.04, (W / 2, 450))
+    cy = IGN_XY[1] + IGN.height / 2
+    P.slide(s.mid, IGN, (W + IGN.width, cy), (W / 2, cy), t, ENTER, dur=0.8, rot=0.0, lag=4.0, key='ign')
+    G.highlight(s.mid, IGN_XY, IGN_BOX[list(IGN_BOX)[0]], t, w(cue(8, 'repousse')))
+    tag(s.hud, (W / 2, 150), 'REPOUSSÉ', 60, t, w(cue(8, 'repousse')) + 0.2)
     return s
 
 
@@ -71,13 +75,17 @@ def sD(t, D):
     return s
 
 
+RQ_XY = (W / 2 - RQ.width / 2, 70)
+
+
 def sE(t, D):
     """... et retire une mission qui évoquait des terroristes."""
     s = Shot(t, D)
-    S.env(s, 'bleed')
-    q = 'We removed only one mission'
-    G.browse(s, RQ, t, [(ENTER - 1.0, RQ.top()), (w(cue(8, 'retire')) + 0.1, RQ.on(q))],
-             marks=[(q, w(cue(8, 'mission')) + 0.4)], dur=0.9)
+    S.env(s, 'paper')
+    s.camera(1.0, 1.03, (W / 2, 520))
+    cy = RQ_XY[1] + RQ.height / 2
+    P.slide(s.mid, RQ, (-RQ.width, cy), (W / 2, cy), t, ENTER, dur=0.8, rot=0.0, lag=4.0, key='rq')
+    G.highlight(s.mid, RQ_XY, RQ_BOX[list(RQ_BOX)[0]], t, w(cue(8, 'mission')), dark=True)
     G.typed_quote(s.hud, (W / 2, 960), '« Nous avons retiré une seule mission qui évoquait des terroristes. »', t,
                   w(cue(8, 'mission')) - 0.2, size=38, cps=40)
     return s
@@ -149,15 +157,22 @@ def sI(t, D):
     return s
 
 
+GR_XY = (W / 2 - GR.width / 2, 210)
+
+
 def sJ(t, D):
     """... et les développeurs ont placé des bâtiments en travers des grandes avenues pour ralentir
     le joueur."""
     s = Shot(t, D)
-    S.env(s, 'bleed')
-    q1, q2 = 'there was no way we could fit', 'we had no option'
-    G.browse(s, GR, t, [(ENTER - 1.0, GR.top()), (ENTER + 0.4, GR.on(q1)), (w(cue(9, 'avenues')) - 0.6, GR.on(q2))],
-             marks=[(q1, ENTER + 1.4), (q2, w(cue(9, 'ralentir')) - 0.2)], dur=1.1)
-    G.typed_quote(s.hud, (W / 2, 960), '« Nous n’avions pas d’autre choix que de ralentir le joueur. »', t,
+    S.env(s, 'paper')
+    s.camera(1.0, 1.0)
+    cy = GR_XY[1] + GR.height / 2
+    P.slide(s.mid, GR, (W + GR.width, cy), (W / 2, cy), t, ENTER, dur=0.8, rot=0.0, lag=4.0, key='gr')
+    box = GR_BOX[list(GR_BOX)[0]]
+    G.highlight(s.mid, GR_XY, box, t, w(cue(9, 'ralentir')) - 0.3)
+    s.zoom_to((GR_XY[0] - 20, GR_XY[1] + box[0][1] - 240, GR_XY[0] + GR.width + 20, GR_XY[1] + box[-1][3] + 60),
+              w(cue(9, 'place')), dur=1.1, fill=0.95)
+    G.typed_quote(s.hud, (W / 2, 950), '« Nous n’avions pas d’autre choix que de ralentir le joueur. »', t,
                   w(cue(9, 'avenues')), size=40, cps=34)
     return s
 
@@ -175,11 +190,16 @@ def sK(t, D):
 def sL(t, D):
     """... et pendant des années, la presse appellera les jeux qui l'imitent des « clones de GTA »."""
     s = Shot(t, D)
-    S.env(s, 'bleed')
-    q0, q1 = 'Volition stakes its flag', 'other GTA clones'
-    G.browse(s, SAINTS, t, [(ENTER - 1.0, SAINTS.top()), (w(cue(9, 'qui')) - 0.4, SAINTS.on(q1, width=1900))],
-             marks=[(q0, w(cue(9, 'presse'))), (q1, w(cue(9, 'clones')))])
-    tag(s.hud, (W / 2, 960), '« CLONES DE GTA »', 60, t, w(cue(9, 'clones')))
+    S.env(s, 'paper')
+    s.camera(1.0, 1.03)
+    xy = (W / 2 - SR.width / 2, 240)
+    cy = xy[1] + SR.height / 2
+    P.slide(s.mid, SR, (W + SR.width, cy), (W / 2, cy), t, ENTER, dur=0.9, rot=0.0, lag=4.0, key='sr')
+    G.highlight(s.mid, xy, SR_BOX[list(SR_BOX)[0]], t, w(cue(9, 'clones')) - 0.2)
+    bx = SR_BOX[list(SR_BOX)[0]][0]
+    s.zoom_to((xy[0] + 10, xy[1] + bx[1] - 190, xy[0] + SR.width - 10, xy[1] + bx[3] + 50), w(cue(9, 'qui')), dur=1.0, fill=0.95)
+    tag(s.hud, (330, 990), 'LA PRESSE', 52, t, w(cue(9, 'presse')))
+    P.stamp_hit(s.top, '« CLONES DE GTA »', W / 2, 900, t, w(cue(9, 'clones')), size=100, ang=-6, shot=s)
     return s
 
 
