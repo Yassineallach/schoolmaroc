@@ -347,18 +347,9 @@ class Page:
         return (cx, (y0 + y1) / 2 + dy, wv)
 
 
-def browse(s, page, t, views, marks=(), dur=1.3):
-    """The page fills the frame like a browser window, and the camera scrolls and zooms between
-    views [(start, (cx, cy, width)), ...] (page pixels). marks: [(phrase, start)] highlighted
-    with the marker, in the page, when the narration reaches them."""
-    k = 0
-    for i, (a, v) in enumerate(views):
-        if t >= a:
-            k = i
-    a, v1 = views[k]
-    v0 = views[k - 1][1] if k > 0 else v1
-    u = P.ease_io((t - a) / dur) if k > 0 else 1.0
-    cx, cy, wv = (v0[j] + (v1[j] - v0[j]) * u for j in range(3))
+def _view(page, v):
+    """Clamp a view (cx, cy, width) to the page and return (crop RGB at W x H, x0, y0, scale)."""
+    cx, cy, wv = v
     hv = wv * H / W
     cx = min(max(cx, wv / 2), page.w - wv / 2) if wv <= page.w else page.w / 2
     cy = max(hv / 2, min(cy, page.h - hv / 2)) if page.h > hv else hv / 2
@@ -371,8 +362,35 @@ def browse(s, page, t, views, marks=(), dur=1.3):
         crop = canvas.crop((0, 0, int(wv), int(hv))).resize((W, H), Image.LANCZOS)
     else:
         crop = page.im.crop((int(x0), int(y0), int(x0 + wv), int(y0 + hv))).resize((W, H), Image.LANCZOS)
+    return crop, x0, y0, W / wv
+
+
+def browse(s, page, t, views, marks=(), dur=1.3, jump=1.2):
+    """The page fills the frame like a browser window, and the camera moves between views
+    [(start, (cx, cy, width)), ...] (page pixels). A short move scrolls and zooms; a move further
+    than `jump` screen heights does not scroll through the page: the view dissolves straight to
+    the passage. marks: [(phrase, start)] highlighted in place when the narration reaches them."""
+    k = 0
+    for i, (a, v) in enumerate(views):
+        if t >= a:
+            k = i
+    a, v1 = views[k]
+    v0 = views[k - 1][1] if k > 0 else v1
+    u = P.ease_io((t - a) / dur) if k > 0 else 1.0
+    far = abs(v1[1] - v0[1]) > jump * max(v0[2], v1[2]) * H / W
+    if far and 0 < u < 1:
+        q = P.ease_io((t - a) / 0.55)                                # a quick cut-through, no scrolling
+        A_, *_ = _view(page, (v0[0], v0[1], v0[2] * (1 - 0.06 * q)))
+        B_, x0, y0, sc = _view(page, (v1[0], v1[1], v1[2] * (1.06 - 0.06 * q)))
+        crop = Image.blend(A_, B_, q)
+        if q >= 1:
+            crop, x0, y0, sc = _view(page, v1)
+    else:
+        if far:
+            u = 1.0 if t >= a else 0.0
+        v = tuple(v0[j] + (v1[j] - v0[j]) * u for j in range(3))
+        crop, x0, y0, sc = _view(page, v)
     s.mid.paste(crop.convert('RGBA'), (0, 0))
-    sc = W / wv
     for phrase, start in marks:
         boxes = [((b[0] - x0) * sc, (b[1] - y0) * sc, (b[2] - x0) * sc, (b[3] - y0) * sc) for b in page.lines(phrase)]
         dark = np.asarray(crop.crop(tuple(int(c) for c in boxes[0])).convert('L')).mean() < 100 if boxes else False

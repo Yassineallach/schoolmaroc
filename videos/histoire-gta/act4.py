@@ -23,7 +23,7 @@ COPCAR = P.print_card(Image.open(asset('game/wikipedia/s03_gta3_copcar.jpg')), 1
 IGN = G.Page('ign')                       # IGN, 19 Sept 2001
 RQ = G.Page('rockstar')                   # Rockstar Newswire, GTA III Q&A part two, 2012
 GR = G.Page('gr')                         # GamesRadar+, 26 April 2024
-CLONES = G.Page('clones')                 # Game Rant, The Best GTA Clones Ever Made
+SAINTS = G.Page('ign_sr')                 # IGN, Saints Row review, 2006: 'better than most ... of the other GTA clones'
 
 
 def sA(t, D):
@@ -176,9 +176,10 @@ def sL(t, D):
     """... et pendant des années, la presse appellera les jeux qui l'imitent des « clones de GTA »."""
     s = Shot(t, D)
     S.env(s, 'bleed')
-    G.browse(s, CLONES, t, [(ENTER - 1.0, CLONES.top())])
-    tag(s.hud, (W / 2, 130), 'LA PRESSE', 52, t, w(cue(9, 'presse')))
-    P.stamp_hit(s.hud, '« CLONES DE GTA »', W / 2, 860, t, w(cue(9, 'clones')), size=100, ang=-6, shot=s)
+    q0, q1 = 'Volition stakes its flag', 'other GTA clones'
+    G.browse(s, SAINTS, t, [(ENTER - 1.0, SAINTS.top()), (w(cue(9, 'qui')) - 0.4, SAINTS.on(q1, width=1900))],
+             marks=[(q0, w(cue(9, 'presse'))), (q1, w(cue(9, 'clones')))])
+    tag(s.hud, (W / 2, 960), '« CLONES DE GTA »', 60, t, w(cue(9, 'clones')))
     return s
 
 
