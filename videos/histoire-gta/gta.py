@@ -255,3 +255,25 @@ def handset():
     d.rounded_rectangle((5, 0, 85, 60), radius=20, fill=(25, 25, 25, 255))
     d.rounded_rectangle((5, 240, 85, 300), radius=20, fill=(25, 25, 25, 255))
     return im
+
+
+# ------------------------------------------------------------------ typed quotes
+_TYPED = {}
+
+
+def typed_quote(layer, xy, text, t, start, size=40, width=1500, cps=24, paper=True, colour=None):
+    """A quotation typed letter by letter (typewriter, with key sounds) on a strip of paper,
+    centred on xy. Used for every quote and every translated quote in the film."""
+    import typo as TY
+    key = (text, size, width)
+    if key not in _TYPED:
+        _TYPED[key] = TY.Text(text, 'caption', size=size, colour=colour or INK, max_w=width, align='m')
+    T = _TYPED[key]
+    if t < start - 0.25:
+        return
+    x, y = xy
+    if paper:
+        k = P.clamp01((t - start + 0.25) / 0.25)
+        strip = P.paper_card(int(T.w + 70), int(T.h + 40), seed=91, colour=CREAM)
+        P.put(layer, P.fade_img(strip, k), x, y + T.h / 2, sh_op=0.25)
+    T.draw(layer, (x, y), t, start, anim='type', anchor='m', stagger=1.0 / cps)

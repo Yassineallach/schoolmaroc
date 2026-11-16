@@ -22,6 +22,7 @@ LOGO_CARD = P.paper_card(MOCKUP.width, MOCKUP.height, seed=12, colour=CREAM)
 LOGO_CARD.alpha_composite(LOGO, ((LOGO_CARD.width - LOGO.width) // 2, (LOGO_CARD.height - LOGO.height) // 2))
 PENN, PENN_BOX = G.article('A01_penn_head.png', 'A01_penn_quote.png', 'Game Developer (Gamasutra)', '31 JANVIER 2011', width=1380)
 GD, GD_BOX = G.article('A02_gd_head.png', 'A02_gd_475.png', 'Game Developer', '7 AOÛT 2026', width=1080, seed=23)
+GTA1_SHOT = P.print_card(Image.open(asset('game/wikipedia/s01_gta1.png')), 520, seed=13)   # GTA (1997), in-game (Wikipedia)
 FOLDER = document(560, 660, ['---', '---', '---', '---', '---', '---'], seed=8, title='PROJET', typed=True)
 
 DUNDEE_PHOTO = Image.open(asset('P01_dundee.jpg'))                                # Colin Smith, CC BY-SA 2.0 (Geograph / Commons)
@@ -160,8 +161,8 @@ def sF(t, D):
     G.highlight(s.mid, PENN_XY, PENN_BOX[ph1], t, w(cue(2, 'racontera')))
     G.highlight(s.mid, PENN_XY, PENN_BOX[ph2], t, w(cue(2, 'premiere')))
     TY.name_card(s.top, (PENN_XY[0] + 10, 120), 'Gary Penn', 'CONCEPTEUR, DMA DESIGN', t, w(cue(2, 'Gary')))
-    tag(s.hud, (W / 2, 965), '« LA POLICE EST FOLLE : ELLE ESSAIE DE ME SORTIR DE LA ROUTE »', 38, t, w(cue(2, 'premiere')) + 0.3,
-        bg=CREAM, fg=INK)
+    G.typed_quote(s.hud, (W / 2, 940), '« La police est devenue folle : elle essaie de me sortir de la route. »', t,
+                  w(cue(2, 'premiere')) + 0.3, size=40)
     return s
 
 
@@ -172,9 +173,9 @@ def sG(t, D):
     s.camera(1.0, 1.04, (W / 2, H / 2), (1300, 540))
     words(s.top, (560, 460), 'CE BUG', 150, t, [ENTER + 0.1, w(cue(2, 'bug'))])
     A.underline(s.top, A.grow(A.text_box((560, 460), 'CE BUG', 150), -10, 0), t, w(cue(2, 'relancer')))
-    P.drop(s.mid, FOLDER, 1330, 560, t, w(cue(2, 'projet')) - 0.15, rot=3, spin=10, key='folder')
-    P.stamp_hit(s.mid, 'ABANDONNÉ', 1330, 600, t, w(cue(2, 'risquait')), size=86, ang=-12, shot=s)
-    A.strike(s.mid, (1110, 550, 1560, 650), t, w(cue(2, 'abandonne')) + 0.35, scribble=True)
+    P.drop(s.mid, FOLDER, 1420, 560, t, w(cue(2, 'projet')) - 0.15, rot=3, spin=10, key='folder')
+    P.stamp_hit(s.mid, 'ABANDONNÉ', 1420, 600, t, w(cue(2, 'risquait')), size=74, ang=-12, shot=s)
+    A.strike(s.mid, (1210, 550, 1630, 650), t, w(cue(2, 'abandonne')) + 0.35, scribble=True)
     return s
 
 
@@ -197,6 +198,7 @@ def sI(t, D):
     s = Shot(t, D)
     S.env(s, 'paper')
     P.flip(s.mid, MOCKUP, LOGO_CARD, 440, 400, t, w(cue(3, 'Grand')) - 0.2)
+    P.drop(s.mid, GTA1_SHOT, 440, 830, t, w(cue(3, 'Auto')), rot=-3, spin=10, key='g1s')
     gx, gy = 1330 - GD.width / 2, 330
     P.slide(s.mid, GD, (W + GD.width, gy + GD.height / 2), (gx + GD.width / 2, gy + GD.height / 2), t,
             w(cue(3, 'Take')) - 0.3, rot=0.0, lag=5.0, key='gd')

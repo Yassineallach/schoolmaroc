@@ -73,19 +73,20 @@ def sC(t, D):
     S.env(s, 'cream')
     s.camera(1.0, 1.0)
     P.drop(s.mid, BMG, 1320, 190, t, w(cue(6, 'BMG')) - 0.1, rot=0, spin=8, height=0.7, key='bmg')
-    P.drop(s.mid, CLIFFORD, 420, 500, t, w(cue(6, 'Max')) - 0.25, rot=-3, spin=10, key='cliff')
-    TY.name_card(s.top, (230, 830), 'Max Clifford', 'PUBLICITAIRE', t, w(cue(6, 'Max')))
+    P.drop(s.mid, CLIFFORD, 420, 500, t, ENTER, rot=-3, spin=10, key='cliff')
+    TY.name_card(s.top, (230, 830), 'Max Clifford', 'PUBLICITAIRE', t, w(cue(6, 'Max')) - 0.6, until=w(cue(6, 'Clifford')) + 0.15)
     cy = GI_XY[1] + GI.height / 2
-    P.slide(s.mid, GI, (W + GI.width, cy), (GI_XY[0] + GI.width / 2, cy), t, w(cue(6, 'engage')) - 0.2, dur=0.9, rot=0.0, lag=4.0, key='gi')
+    P.slide(s.mid, GI, (W + GI.width, cy), (GI_XY[0] + GI.width / 2, cy), t, ENTER + 0.2, dur=0.9, rot=0.0, lag=4.0, key='gi')
     box = GI_BOX[list(GI_BOX)[0]]
     G.highlight(s.mid, GI_XY, box, t, w(cue(6, "'entretenir")))
     s.zoom_to((GI_XY[0] - 20, GI_XY[1] + box[0][1] - 260, GI_XY[0] + GI.width + 20, GI_XY[1] + box[-1][3] + 80),
               w(cue(6, 'Clifford')) + 0.2, dur=1.0, fill=0.95)
-    tag(s.hud, (W / 2, 990), '« IL A ORCHESTRÉ TOUT LE SCANDALE »', 40, t, w(cue(6, "'entretenir")) + 0.4, bg=CREAM, fg=INK)
+    G.typed_quote(s.hud, (W / 2, 950), '« Il a orchestré tout le scandale, pour que les députés s’en mêlent. »', t,
+                  w(cue(6, "'entretenir")) + 0.3, size=40)
     return s
 
 
-MEL_XY = (90, 200)
+MEL_Y = 200
 
 
 def sD(t, D):
@@ -93,14 +94,20 @@ def sD(t, D):
     s = Shot(t, D)
     S.env(s, 'paper')
     s.camera(1.0, 1.02)
-    cy = MEL_XY[1] + MEL.height / 2
-    P.slide(s.mid, MEL, (-MEL.width, cy), (MEL_XY[0] + MEL.width / 2, cy), t, ENTER, dur=0.9, rot=0.0, lag=4.0, key='mel')
-    G.highlight(s.mid, MEL_XY, MEL_BOX[list(MEL_BOX)[0]], t, w(cue(6, 'moins')))
-    P.stamp_hit(s.mid, '18', MEL_XY[0] + MEL.width - 60, MEL_XY[1] + MEL.height - 40, t, w(cue(6, 'moins')) + 0.2, size=130, ang=-8, shot=s)
-    P.drop(s.mid, BRAZIL, 1460, 440, t, w(cue(6, 'interdit', 2)) - 0.1, rot=3, spin=10, key='br')
-    P.stamp_hit(s.mid, 'INTERDIT', 1460, 450, t, w(cue(6, 'Bresil')), size=100, ang=-12, shot=s)
-    tag(s.hud, (MEL_XY[0] + MEL.width / 2, 120), 'ROYAUME-UNI : INTERDIT AUX MOINS DE 18 ANS', 40, t, w(cue(6, 'Royaume')))
-    tag(s.hud, (1460, 820), 'BRÉSIL', 52, t, w(cue(6, 'Bresil')))
+    move = w(cue(6, 'interdit', 2)) - 0.2
+    k = P.ease_io((t - move) / 0.8)
+    x0 = W / 2 - MEL.width / 2 + (90 - (W / 2 - MEL.width / 2)) * k        # centred, then aside for Brazil
+    cy = MEL_Y + MEL.height / 2
+    if t < ENTER + 0.9:
+        P.slide(s.mid, MEL, (-MEL.width, cy), (x0 + MEL.width / 2, cy), t, ENTER, dur=0.9, rot=0.0, lag=4.0, key='mel')
+    else:
+        P.put(s.mid, MEL, x0 + MEL.width / 2, cy)
+    G.highlight(s.mid, (x0, MEL_Y), MEL_BOX[list(MEL_BOX)[0]], t, w(cue(6, 'moins')))
+    P.stamp_hit(s.mid, '18', x0 + MEL.width - 60, MEL_Y + MEL.height - 40, t, w(cue(6, 'moins')) + 0.2, size=130, ang=-8, shot=s)
+    tag(s.hud, (W / 2 + (90 + MEL.width / 2 - W / 2) * k, 120), 'ROYAUME-UNI : INTERDIT AUX MOINS DE 18 ANS', 40, t, w(cue(6, 'Royaume')))
+    P.drop(s.mid, BRAZIL, 1500, 460, t, move + 0.3, rot=3, spin=10, key='br')
+    P.stamp_hit(s.mid, 'INTERDIT', 1500, 470, t, w(cue(6, 'Bresil')), size=100, ang=-12, shot=s)
+    tag(s.hud, (1500, 840), 'BRÉSIL', 52, t, w(cue(6, 'Bresil')))
     return s
 
 
@@ -110,10 +117,9 @@ def sE(t, D):
     s = Shot(t, D)
     S.env(s, 'cream')
     s.camera(1.0, 1.03)
-    TY.name_card(s.top, (260, 300), 'Keith Hamilton', 'PROGRAMMEUR PRINCIPAL, DMA DESIGN', t, w(cue(6, 'Keith')))
-    phr = ('On', "n", 'jamais', 'cru', 'que', 'ca', 'poserait', 'autant', 'de problemes', 'problemes')
-    S.type_page(s, "« On n'aurait jamais cru que ça poserait autant de problèmes. »", t, w(cue(6, 'On')),
-                role='quote', size=78, xy=(W / 2, 640), cues=[w(cue(6, x)) for x in phr])
+    TY.name_card(s.top, (260, 300), 'Keith Hamilton', 'PROGRAMMEUR PRINCIPAL, DMA DESIGN', t, ENTER)
+    G.typed_quote(s.top, (W / 2, 580), "« On n'aurait jamais cru que ça poserait autant de problèmes. »", t,
+                  w(cue(6, 'Keith')) + 0.5, size=64, width=1500, cps=19)
     return s
 
 
@@ -124,7 +130,7 @@ def sF(t, D):
     s.camera(1.0, 1.05, (W / 2, 560))
     for i in range(7):                                             # copies pile up on the shop counter
         box = P.print_card(GTA_BOX, 300, seed=60 + i)
-        P.drop(s.mid, box, 380 + i * 195, 560 + (i % 2) * 40, t, w(cue(6, 'environ')) - 0.6 + 0.22 * i,
+        P.drop(s.mid, box, 380 + i * 195, 560 + (i % 2) * 40, t, ENTER + 0.22 * i,
                rot=(-6, 4, -3, 5, -4, 3, -2)[i], spin=10, key=f'cp{i}')
     tag(s.hud, (W / 2, 160), 'NOËL 1997', 56, t, w(cue(6, 'Noel')))
     tag(s.hud, (W / 2, 960), 'GRANDE-BRETAGNE', 52, t, w(cue(6, 'Grande')), bg=CREAM, fg=INK)
@@ -137,7 +143,7 @@ def sG(t, D):
     S.env(s, 'grid')
     s.camera(1.0, 1.02)
     TY.big_number(s.top, (W / 2, 190), '1998', t, w(cue(7, '1998')), role='date')
-    P.drop(s.mid, TAKE2, 520, 600, t, w(cue(7, 'Take')) - 0.1, rot=0, spin=8, height=0.7, key='t2')
+    P.drop(s.mid, TAKE2, 520, 600, t, ENTER, rot=0, spin=8, height=0.7, key='t2')
     k = P.ease_io((t - w(cue(7, 'rachete'))) / 0.9)               # BMG slides into Take-Two
     if t > w(cue(7, 'BMG')) - 0.3:
         bx = 1380 + (720 - 1380) * k
@@ -196,9 +202,9 @@ def sJ(t, D):
     tag(s.hud, (W / 2, 140), 'LE RESPECT', 60, t, w(cue(7, 'respect')))
     up = P.ease_out((t - w(cue(7, 'monter'))) / 1.0)
     down = P.ease_out((t - w(cue(7, 'colere'))) / 1.0)
-    meter(s.mid, 1000, 360, 'TA BANDE', 0.35 + 0.55 * up, (40, 150, 70), t, w(cue(7, 'gangs')))
-    meter(s.mid, 1000, 560, 'SES ENNEMIS', 0.55 - 0.5 * down, PAL.accent, t, w(cue(7, 'rivaux')))
-    meter(s.mid, 1000, 760, 'SES ENNEMIS', 0.5 - 0.45 * down, PAL.accent, t, w(cue(7, 'rivaux')) + 0.2)
+    meter(s.mid, 1000, 360, 'TA BANDE', 0.35 + 0.55 * up, (40, 150, 70), t, ENTER)
+    meter(s.mid, 1000, 560, 'SES ENNEMIS', 0.55 - 0.5 * down, PAL.accent, t, ENTER)
+    meter(s.mid, 1000, 760, 'SES ENNEMIS', 0.5 - 0.45 * down, PAL.accent, t, ENTER)
     return s
 
 

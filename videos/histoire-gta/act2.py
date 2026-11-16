@@ -21,6 +21,7 @@ JONES = P.print_card(Image.open(asset('P03_jones.jpg')), 520, seed=22)          
 LEMMINGS = P.print_card(Image.open(asset('B01_lemmings_box.jpg')), 480, seed=23)       # Lemmings box, Psygnosis 1991 (Wikipedia)
 MOCKUP = P.print_card(Image.open(asset('R01_racenchase.jpg')), 420, seed=11)
 GTA_BOX = P.print_card(Image.open(asset('B02_gta_box.jpg')), 520, seed=24)             # GTA 1997 box (Wikipedia)
+GTA1_SHOT = P.print_card(Image.open(asset('game/wikipedia/s01_gta1.png')), 600, seed=26)   # GTA (1997), in-game (Wikipedia)
 CITIES = [P.print_card(Image.open(asset(f)), 520, seed=30 + i)
           for i, f in enumerate(('C01_newyork.jpg', 'C02_miami.jpg', 'C03_sanfrancisco.jpg'))]
 COP_Q, COP_BOX = G.article('A01_penn_head.png', 'A03_penn_cop.png', 'Game Developer (Gamasutra)', '31 JANVIER 2011', width=1380, seed=25)
@@ -59,7 +60,7 @@ def sC(t, D):
     S.env(s, 'paper')
     s.camera(1.0, 1.03)
     TY.big_number(s.top, (480, 330), '1991', t, w(cue(4, 'ami')), role='date', label='LE SUCCÈS')
-    P.drop(s.mid, LEMMINGS, 1300, 400, t, w(cue(4, 'Lemmings')) - 0.2, rot=3, spin=12, key='lem')
+    P.drop(s.mid, LEMMINGS, 1300, 400, t, ENTER, rot=3, spin=12, key='lem')
     go = w(cue(4, 'creature'))
     if t >= go - 0.6:
         G.exit_door(s.mid, EXIT_X, FLOOR, scale=1.8)
@@ -134,8 +135,8 @@ def sG(t, D):
     cx, cy = W / 2, COP_XY[1] + COP_Q.height / 2
     P.slide(s.mid, COP_Q, (-COP_Q.width, cy), (cx, cy), t, ENTER, dur=1.0, rot=0.0, lag=5.0, key='copq')
     G.highlight(s.mid, COP_XY, COP_BOX[list(COP_BOX)[0]], t, w(cue(4, 'abandonne')))
-    tag(s.hud, (W / 2, 900), "« PERSONNE NE VEUT ÊTRE LE FLIC, C'EST PLUS DRÔLE D'ÊTRE MÉCHANT »", 38, t,
-        w(cue(4, 'abandonne')) + 0.4, bg=CREAM, fg=INK)
+    G.typed_quote(s.hud, (W / 2, 870), "« Personne ne veut être le flic, c'est plus drôle d'être méchant. »", t,
+                  w(cue(4, 'abandonne')) + 0.4, size=40)
     tag(s.hud, (W / 2, 990), 'CETTE LIBERTÉ', 54, t, w(cue(4, 'liberte')))
     return s
 
@@ -175,7 +176,7 @@ def sJ(t, D):
           [w(cue(5, x)) for x in ('trois', 'villes', 'vues', 'du', 'ciel')])
     for i, (card, name, ph) in enumerate(zip(CITIES, ('NEW YORK', 'MIAMI', 'SAN FRANCISCO'), ('New', 'Miami', 'San'))):
         x = 380 + i * 580
-        P.drop(s.mid, card, x, 560, t, w(cue(5, ph)) - 0.25, rot=(-3, 2, -2)[i], spin=10, key=f'city{i}')
+        P.drop(s.mid, card, x, 560, t, ENTER + 0.25 * i, rot=(-3, 2, -2)[i], spin=10, key=f'city{i}')
         tag(s.hud, (x, 930), name, 48, t, w(cue(5, ph)))
     return s
 
@@ -188,9 +189,7 @@ def sK(t, D):
     s.camera(1.0, 1.02)
     a, b, c = w(cue(5, 'vole')), w(cue(5, 'change')), w(cue(5, 'decrochant'))
     # 1. any car: the thief's car swerves in and stops
-    k = P.ease_out((t - a + 0.2) / 0.9)
-    if t > a - 0.2:
-        G.car(s.mid, 'thief', -200 + (360 + 200) * k, 500, 0, t, scale=2.2)
+    P.drop(s.mid, GTA1_SHOT, 360, 500, t, ENTER, rot=-3, spin=10, key='g1k')
     tag(s.hud, (360, 760), "N'IMPORTE QUELLE VOITURE", 40, t, a + 0.3)
     # 2. the radio: dropped, then the needle sweeps across the stations
     P.drop(s.mid, G.radio_card(), 960, 500, t, b - 0.25, rot=0, spin=8, height=0.6, key='radio')
