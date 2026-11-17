@@ -83,8 +83,6 @@ def sB(t, D):
     s.mid.alpha_composite(G.city())
     T = t + SCENE0['sB']
     (x, y), cops = chase(s, T, t, ram=False)
-    tag(s.hud, (330, 120), 'LE VOLEUR', 44, t, w(cue(1, 'voleur')), bg=G.THIEF, fg=INK)
-    tag(s.hud, (1590, 120), 'LA POLICE', 44, t, w(cue(1, 'police')))
     kicker(s.hud, t, 1, 'Le bug', start=1.0)
     return s
 
@@ -100,7 +98,6 @@ def sC(t, D):
     s.mid.alpha_composite(G.city())
     chase(s, T, t)
     sfx('stamp', w(RAM) + 0.55, x, gain=0.6)
-    tag(s.hud, (W / 2, 960), 'ILS FONCENT DROIT SUR LE JOUEUR', 54, t, w(cue(1, 'droit')))
     return s
 
 
@@ -111,7 +108,7 @@ def sD(t, D):
     s.camera(1.03, 1.0)
     words(s.top, (W / 2, 470), 'LEUR PROGRAMME', 110, t, [ENTER, w(cue(2, 'program'))], fill=S.ink(s))
     words(s.top, (W / 2, 600), 'DE DÉPLACEMENT', 110, t, [w(cue(2, 'de deplacement')), w(cue(2, 'deplacement'))], fill=S.ink(s))
-    P.stamp_hit(s.top, 'CASSÉ', 1440, 760, t, w(cue(2, 'casse')), size=120, ang=-9, shot=s)
+    A.emphasis(s.top, (1440, 760), 'CASSÉ', 130, t, w(cue(2, 'casse')), base=S.ink(s), colour=S.accent(s))
     return s
 
 
@@ -139,10 +136,6 @@ def sE(t, D):
         cx, cy = tx + r * math.cos(a), ty + r * math.sin(a)
         hd = math.degrees(a) + 90 if t >= ring else G.look((cx, cy), (tx, ty))
         G.car(s.mid, 'cop', cx, cy, hd, t)
-    for word, ph, x in (('PERCUTENT', 'percutent', 470), ('POUSSENT', 'poussent', 960), ('ENCERCLENT', 'encerclent', 1450)):
-        tag(s.hud, (x, 120), word, 46, t, w(cue(2, ph)))
-    words(s.hud, (W / 2, 975), 'une lutte pour survivre', 50, t,
-          [w(cue(2, p)) for p in ('une lutte', 'lutte', 'pour', 'survivre')], font=F_TYPE, fill=CREAM)
     return s
 
 
@@ -174,8 +167,8 @@ def sG(t, D):
     words(s.top, (560, 460), 'CE BUG', 150, t, [ENTER + 0.1, w(cue(2, 'bug'))])
     A.underline(s.top, A.grow(A.text_box((560, 460), 'CE BUG', 150), -10, 0), t, w(cue(2, 'relancer')))
     P.drop(s.mid, FOLDER, 1420, 560, t, w(cue(2, 'projet')) - 0.15, rot=3, spin=10, key='folder')
-    P.stamp_hit(s.mid, 'ABANDONNÉ', 1420, 600, t, w(cue(2, 'risquait')), size=74, ang=-12, shot=s)
-    A.strike(s.mid, (1210, 550, 1630, 650), t, w(cue(2, 'abandonne')) + 0.35, scribble=True)
+    tag(s.mid, (1420, 600), 'ABANDONNÉ', 60, t, w(cue(2, 'abandonne')))
+    A.strike(s.mid, (1230, 560, 1610, 640), t, w(cue(2, 'abandonne')) + 0.5, scribble=True)
     return s
 
 
@@ -196,7 +189,7 @@ def sI(t, D):
     """Il deviendra Grand Theft Auto, une série dont l'éditeur Take-Two revendique aujourd'hui près
     de 475 millions d'exemplaires vendus."""
     s = Shot(t, D)
-    S.env(s, 'paper')
+    S.env(s, 'cream')
     P.flip(s.mid, MOCKUP, LOGO_CARD, 440, 400, t, w(cue(3, 'Grand')) - 0.2)
     P.drop(s.mid, GTA1_SHOT, 440, 830, t, w(cue(3, 'Auto')), rot=-3, spin=10, key='g1s')
     gx, gy = 1330 - GD.width / 2, 330
@@ -225,9 +218,8 @@ def sJ(t, D):
         wob = 26 * math.sin(T * (3.1 + i) + i)
         G.car(s.mid, 'thief' if i == 0 else 'cop', x + wob * math.sin(math.radians(h)), y - wob * math.cos(math.radians(h)), h + wob * 0.9, t)
     shade = Image.new('RGBA', (W, H), PAL.dark + (int(150 * P.clamp01((t - w(cue(3, 'une course')) + 0.3) / 0.5)),))
-    s.hud.alpha_composite(shade)
-    words(s.hud, (W / 2, 470), 'UNE COURSE-POURSUITE', 92, t, [w(cue(3, 'une course')), w(cue(3, 'course'))], fill=CREAM)
-    A.emphasis(s.hud, (W / 2, 600), 'DÉRÉGLÉE', 120, t, w(cue(3, 'dereglee')), base=CREAM, colour=G.THIEF)
+    s.mid.alpha_composite(shade)
+    A.emphasis(s.hud, (W / 2, 540), 'DÉRÉGLÉE', 120, t, w(cue(3, 'dereglee')), base=CREAM, colour=G.THIEF)
     return s
 
 
@@ -237,7 +229,7 @@ SHOTS = [
     (cue(1, 'Ce jour') - LEAD, sC, 'cut'),
     (cue(2, 'Le program') - LEAD, sD, 'lr'),
     (cue(2, 'Le voiture') - LEAD, sE, 'rl'),
-    (cue(2, 'Le concepteur') - LEAD, sF, 'pageturn'),
+    (cue(2, 'Le concepteur') - LEAD, sF, 'lr'),
     (cue(2, 'Ce bug') - LEAD, sG, 'up'),
     (cue(3, 'Ce projet') - LEAD, sH, ('circle', {'at': MOCK_XY})),
     (cue(3, 'Il deviendra') - LEAD, sI, 'cut'),

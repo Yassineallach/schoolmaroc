@@ -40,6 +40,7 @@ def sA(t, D):
     words(s.top, (W / 2, 470), 'LE SCANDALE', 140, t, [ENTER, w(cue(6, 'scandale'))], fill=S.accent(s))
     words(s.top, (W / 2, 620), 'ARRIVE AVANT LE JEU', 92, t,
           [w(cue(6, x)) for x in ('arrive', 'avant', 'le jeu', 'jeu')], fill=S.ink(s))
+    tag(s.hud, (W / 2, 820), 'MAI 1997', 56, t, w(cue(6, 'mai')))
     kicker(s.hud, t, 3, 'Le scandale')
     return s
 
@@ -58,8 +59,6 @@ def sB(t, D):
     G.highlight(s.mid, HANS_XY, HANS_BOX[keys[0]], t, w(cue(6, 'Lord')))
     G.highlight(s.mid, HANS_XY, HANS_BOX[keys[1]], t, w(cue(6, 'denonce')))
     s.push(w(cue(6, 'denonce')) - 0.3, 0.22, focus=(W / 2, cy + 40), dur=1.6)
-    tag(s.hud, (W / 2, 140), 'MAI 1997', 52, t, w(cue(6, 'mai')))
-    tag(s.hud, (W / 2, 960), 'LA CHAMBRE DES LORDS', 52, t, w(cue(6, 'Chambre')), bg=CREAM, fg=INK)
     return s
 
 
@@ -103,9 +102,7 @@ def sD(t, D):
         P.put(s.mid, MEL, x0 + MEL.width / 2, cy)
     G.highlight(s.mid, (x0, MEL_Y), MEL_BOX[list(MEL_BOX)[0]], t, w(cue(6, 'moins')))
     P.stamp_hit(s.mid, '18', x0 + MEL.width - 60, MEL_Y + MEL.height - 40, t, w(cue(6, 'moins')) + 0.2, size=130, ang=-8, shot=s)
-    tag(s.hud, (W / 2 + (90 + MEL.width / 2 - W / 2) * k, 120), 'ROYAUME-UNI : INTERDIT AUX MOINS DE 18 ANS', 40, t, w(cue(6, 'Royaume')))
     P.drop(s.mid, BRAZIL, 1500, 460, t, move + 0.3, rot=3, spin=10, key='br')
-    P.stamp_hit(s.mid, 'INTERDIT', 1500, 470, t, w(cue(6, 'Bresil')), size=100, ang=-12, shot=s)
     tag(s.hud, (1500, 840), 'BRÉSIL', 52, t, w(cue(6, 'Bresil')))
     return s
 
@@ -132,7 +129,6 @@ def sF(t, D):
         P.drop(s.mid, box, 380 + i * 195, 560 + (i % 2) * 40, t, ENTER + 0.22 * i,
                rot=(-6, 4, -3, 5, -4, 3, -2)[i], spin=10, key=f'cp{i}')
     tag(s.hud, (W / 2, 160), 'NOËL 1997', 56, t, w(cue(6, 'Noel')))
-    tag(s.hud, (W / 2, 960), 'GRANDE-BRETAGNE', 52, t, w(cue(6, 'Grande')), bg=CREAM, fg=INK)
     return s
 
 
@@ -149,7 +145,6 @@ def sG(t, D):
         P.put(s.mid, P.rot_scale(BMG, 0, 1.0 - 0.45 * k, None), bx, 600, lift=0.1 * (1 - k), op=1.0 - 0.6 * k)
     P.drop(s.mid, P.print_card(GTA_LOGO.convert('RGBA'), 440, border=20, seed=71), 1400, 640, t, w(cue(7, 'licence')) - 0.2,
            rot=3, spin=10, key='lic')
-    tag(s.hud, (1400, 900), 'LA LICENCE', 48, t, w(cue(7, 'licence')))
     return s
 
 
@@ -198,7 +193,6 @@ def sJ(t, D):
     S.env(s, 'paper')
     s.camera(1.0, 1.02)
     P.put(s.mid, P.print_card(GTA2_SHOT, 600, seed=73), 430, 560)
-    tag(s.hud, (W / 2, 140), 'LE RESPECT', 60, t, w(cue(7, 'respect')))
     up = P.ease_out((t - w(cue(7, 'monter'))) / 1.0)
     down = P.ease_out((t - w(cue(7, 'colere'))) / 1.0)
     meter(s.mid, 1000, 360, 'TA BANDE', 0.35 + 0.55 * up, (40, 150, 70), t, ENTER)
@@ -219,19 +213,17 @@ def sK(t, D):
     P.flip(s.mid, front, back, W / 2, 500, t, w(cue(7, 'arrive', 1)) - 0.2)
     tag(s.hud, (330, 500), 'EN 2D', 60, t, w(cue(7, '2D')))
     tag(s.hud, (1590, 500), 'LA 3D', 60, t, w(cue(7, 'consoles')), bg=G.THIEF, fg=INK)
-    words(s.hud, (W / 2, 960), "l'idée restera au cœur de la série", 50, t,
-          [w(cue(7, x)) for x in ("l", "'idee", 'restera', 'au', 'cœur', 'de la', 'serie')], font=F_TYPE)
     return s
 
 
 SHOTS = [
     (0.0, sA),
-    (cue(6, 'En mai') - LEAD, sB, 'up'),
+    (cue(6, 'Lord') - LEAD, sB, 'up'),
     (cue(6, 'Plutot') - LEAD, sC, 'lr'),
     (cue(6, 'Le jeu est') - LEAD, sD, 'rl'),
     (cue(6, 'Le programmeur') - LEAD, sE, 'up'),
     (cue(6, 'Ce Noel') - LEAD, sF, 'shape'),
-    (cue(7, 'En 1998') - LEAD, sG, 'pageturn'),
+    (cue(7, 'En 1998') - LEAD, sG, 'up'),
     (cue(7, 'La meme') - LEAD, sH, 'rl'),
     (cue(7, 'GTA 2') - LEAD, sI, 'up'),
     (cue(7, 'Le jeu ajoute') - LEAD, sJ, 'lr'),

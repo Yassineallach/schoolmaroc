@@ -31,7 +31,7 @@ def sA(t, D):
     s = Shot(t, D)
     S.env(s, 'bleed')
     S.fullbleed(s, NEON, t, -1.0, ken=(1.0, 1.10), focus=(0.5, 0.45), darken=0.3, fade=0.01)
-    P.drop(s.hud, GTA3_LOGO, W / 2, 540, t, w(cue(8, 'III')) - 0.1, rot=0, spin=6, height=0.8, key='g3')
+    P.drop(s.mid, GTA3_LOGO, W / 2, 540, t, w(cue(8, 'III')) - 0.1, rot=0, spin=6, height=0.8, key='g3')
     kicker(s.hud, t, 4, 'Liberty City')
     return s
 
@@ -41,8 +41,6 @@ def sB(t, D):
     s = Shot(t, D)
     S.env(s, 'charcoal', mood='grief')
     s.camera(1.03, 1.0)
-    words(s.top, (W / 2, 330), 'QUELQUES SEMAINES AVANT SA SORTIE', 54, t,
-          [w(cue(8, x)) for x in ('Quelques', 'semaines', 'avant', 'sa', 'sortie')], fill=S.ink(s))
     words(s.top, (W / 2, 540), '11 SEPTEMBRE 2001', 130, t, [w(cue(8, '11')), w(cue(8, 'septembre')), w(cue(8, '2001'))], fill=S.ink(s))
     words(s.top, (W / 2, 740), 'NEW YORK', 72, t, [w(cue(8, 'New')), w(cue(8, 'York'))], fill=S.accent(s))
     return s
@@ -59,7 +57,6 @@ def sC(t, D):
     cy = IGN_XY[1] + IGN.height / 2
     P.slide(s.mid, IGN, (W + IGN.width, cy), (W / 2, cy), t, ENTER, dur=0.8, rot=0.0, lag=4.0, key='ign')
     G.highlight(s.mid, IGN_XY, IGN_BOX[list(IGN_BOX)[0]], t, w(cue(8, 'repousse')))
-    tag(s.hud, (W / 2, 150), 'REPOUSSÉ', 60, t, w(cue(8, 'repousse')) + 0.2)
     return s
 
 
@@ -69,9 +66,8 @@ def sD(t, D):
     S.env(s, 'cream')
     s.camera(1.0, 1.04)
     P.drop(s.mid, COPCAR, W / 2, 500, t, ENTER, rot=-1, spin=6, key='cop')
-    tag(s.mid, (W / 2 - 560, 330), 'AVANT', 44, t, w(cue(8, 'repeint')) + 0.3, anchor='r')
-    tag(s.mid, (W / 2 - 560, 680), 'APRÈS', 44, t, w(cue(8, 'police')), bg=G.THIEF, fg=INK, anchor='r')
-    tag(s.hud, (W / 2, 960), 'TROP PROCHES DES VOITURES DU NYPD', 46, t, w(cue(8, 'trop')))
+    tag(s.mid, (W / 2 - 560, 330), 'AVANT', 44, t, ENTER + 0.4, anchor='r')
+    tag(s.mid, (W / 2 - 560, 680), 'APRÈS', 44, t, w(cue(8, 'celles')), bg=G.THIEF, fg=INK, anchor='r')
     return s
 
 
@@ -115,12 +111,6 @@ def sG(t, D):
     if k > 0 and seq[k - 1][1] is img:                            # same picture: keep it, don't re-fade
         a = seq[k - 1][0]
     S.fullbleed(s, img, t, a, ken=(1.0, 1.08), focus=f, darken=0.35, fade=0.25 if k else 0.01)
-    tag(s.hud, (W / 2, 150), 'LIBERTY CITY EN TROIS DIMENSIONS', 52, t, w(cue(8, 'Liberty')))
-    if t < w(cue(8, 'volant')) - 0.2:
-        tag(s.hud, (W / 2, 960), 'À PIED', 50, t, w(cue(8, 'pied')))
-    elif t < w(cue(8, 'chaque')) - 0.2:
-        tag(s.hud, (W / 2, 960), 'AU VOLANT', 50, t, w(cue(8, 'volant')))
-    tag(s.hud, (W / 2, 960), "CHAQUE MISSION, PLUSIEURS FAÇONS", 50, t, w(cue(8, 'plusieurs')), bg=G.THIEF, fg=INK)
     return s
 
 
@@ -153,7 +143,6 @@ def sI(t, D):
     dark.paste(city, (0, 0), mask)
     s.mid.alpha_composite(dark)
     G.car(s.mid, 'thief', x, y, 0, t)
-    tag(s.hud, (W / 2, 150), 'EN MÉMOIRE : QUELQUES PÂTÉS DE MAISONS À LA FOIS', 46, t, w(cue(9, 'memoire')))
     return s
 
 
@@ -198,18 +187,17 @@ def sL(t, D):
     G.highlight(s.mid, xy, SR_BOX[list(SR_BOX)[0]], t, w(cue(9, 'clones')) - 0.2)
     bx = SR_BOX[list(SR_BOX)[0]][0]
     s.zoom_to((xy[0] + 10, xy[1] + bx[1] - 190, xy[0] + SR.width - 10, xy[1] + bx[3] + 50), w(cue(9, 'qui')), dur=1.0, fill=0.95)
-    tag(s.hud, (330, 990), 'LA PRESSE', 52, t, w(cue(9, 'presse')))
-    P.stamp_hit(s.top, '« CLONES DE GTA »', W / 2, 900, t, w(cue(9, 'clones')), size=100, ang=-6, shot=s)
+    tag(s.hud, (W / 2, 960), '« CLONES DE GTA »', 64, t, w(cue(9, 'clones')))
     return s
 
 
 SHOTS = [
     (0.0, sA),
-    (cue(8, 'Quelques') - LEAD, sB, 'cut'),
+    (cue(8, '11') - LEAD, sB, 'cut'),
     (cue(8, 'Rockstar') - LEAD, sC, 'up'),
-    (cue(8, 'repeint') - LEAD, sD, 'lr'),
-    (cue(8, 'et retire') - LEAD, sE, 'rl'),
-    (cue(8, 'GTA III', 2) - LEAD, sF, 'pageturn'),
+    (cue(8, 'trop') - LEAD, sD, 'lr'),
+    (cue(8, 'une mission') - LEAD, sE, 'rl'),
+    (cue(8, 'GTA III', 2) - LEAD, sF, 'rl'),
     (cue(8, 'Pour la') - LEAD, sG, ('circle', {'at': (W / 2, H / 2)})),
     (cue(9, 'Cette') - LEAD, sH, 'cut'),
     (cue(9, 'La console') - LEAD, sI, 'lr'),

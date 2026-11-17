@@ -40,9 +40,8 @@ def sA(t, D):
     s = Shot(t, D)
     S.env(s, 'bleed')
     S.fullbleed(s, G4(2), t, -1.0, ken=(1.0, 1.08), focus=(0.5, 0.5), darken=0.4, fade=0.01)
-    P.drop(s.hud, GTA4_LOGO, W / 2, 400, t, ENTER, rot=0, spin=6, height=0.8, key='g4l')
+    P.drop(s.mid, GTA4_LOGO, W / 2, 400, t, ENTER, rot=0, spin=6, height=0.8, key='g4l')
     tag(s.hud, (W / 2, 720), '2008', 60, t, w(cue(13, 'deux')))
-    words(s.hud, (W / 2, 900), 'UN TON PLUS SOMBRE', 76, t, [w(cue(13, x)) for x in ('un', 'ton', 'plus', 'sombre')], fill=CREAM)
     kicker(s.hud, t, 6, 'Les records')
     return s
 
@@ -55,8 +54,6 @@ def sB(t, D):
     s.camera(1.0, 1.04, (640, 520))
     P.drop(s.mid, NIKO, 600, 500, t, ENTER, rot=-2, spin=10, key='niko')
     TY.name_card(s.top, (1150, 300), 'Niko Bellic', 'LE HÉROS DE GTA IV', t, w(cue(13, 'Niko')))
-    words(s.hud, (1480, 560), "un ancien soldat", 50, t, [w(cue(13, x)) for x in ('un', 'ancien', 'soldat')], font=F_TYPE)
-    words(s.hud, (1480, 630), "venu d'Europe de l'Est", 50, t, [w(cue(13, x)) for x in ('venu', 'venu', "'Europe", 'de l', "'Est,")], font=F_TYPE)
     tag(s.hud, (1480, 820), 'LIBERTY CITY', 54, t, w(cue(13, 'Liberty')))
     return s
 
@@ -67,8 +64,6 @@ def sC(t, D):
     S.env(s, 'cream')
     s.camera(1.0, 1.03, (W / 2, 540))
     P.drop(s.mid, TUMBLE, 560, 520, t, ENTER, rot=-3, spin=10, key='tum')
-    words(s.top, (1380, 330), "UN NOUVEAU SYSTÈME", 60, t, [w(cue(13, x)) for x in ('Un', 'nouveau', 'systeme')])
-    words(s.top, (1380, 410), "D'ANIMATION", 60, t, w(cue(13, "'animation")))
     for i, (txt, at, ang) in enumerate((('TRÉBUCHER', w(cue(13, 'trebucher')), 0), ('TOMBER', w(cue(13, 'ton', 2)), 0))):
         card = P.paper_card(440, 130, seed=70 + i, text=txt, size=62)
         if t >= at:                                                      # the card stumbles, then falls over
@@ -104,8 +99,7 @@ def sE(t, D):
     s = Shot(t, D)
     S.env(s, 'bleed')
     S.fullbleed(s, G5(65), t, -1.0, ken=(1.0, 1.1), focus=(0.5, 0.5), darken=0.35, fade=0.01)
-    words(s.hud, (W / 2, 470), 'GTA V VA PLUS LOIN', 110, t, [w(cue(14, x)) for x in ('GTA', 'V', 'va', 'plus', 'loin')], fill=CREAM)
-    kicker(s.hud, t, 6, 'Les records')
+    tag(s.hud, (W / 2, 940), 'SEPTEMBRE 2013', 60, t, w(cue(14, 'septembre')))
     return s
 
 
@@ -115,10 +109,7 @@ def sF(t, D):
     S.env(s, 'cream')
     s.camera(1.0, 1.03)
     P.drop(s.mid, GTA5_BOX, 420, 540, t, ENTER, rot=-3, spin=10, key='g5b')
-    tag(s.hud, (1250, 260), 'SEPTEMBRE 2013', 56, t, w(cue(14, 'septembre')))
-    words(s.top, (1250, 520), "PASSER D'UN HÉROS", 84, t, [w(cue(14, x)) for x in ('passer', 'heros', 'heros')])
-    words(s.top, (1250, 640), "À L'AUTRE", 84, t, [w(cue(14, x)) for x in ('a', "'autre")])
-    A.emphasis(s.top, (1250, 800), 'PARMI TROIS', 96, t, w(cue(14, 'trois')))
+    A.emphasis(s.top, (1250, 540), 'PARMI TROIS', 120, t, w(cue(14, 'trois')))
     return s
 
 
@@ -129,7 +120,7 @@ def sG(t, D):
     s.camera(1.0, 1.02)
     for i, (card, name, ph) in enumerate(HEROES):
         x = 340 + i * 620
-        P.drop(s.mid, card, x, 460, t, w(cue(14, ph)) - 0.25 if i else ENTER, rot=(-3, 2, -2)[i], spin=10, key=f'hero{i}')
+        P.drop(s.mid, card, x + (-30, 10, 40)[i], 460 + (0, 30, -20)[i], t, ENTER + (0.0, 0.25, 0.7)[i], rot=(-3.5, 1.5, -2)[i], spin=10, key=f'hero{i}')
         tag(s.hud, (x, 820), name, 60, t, w(cue(14, ph)))
     return s
 
@@ -139,7 +130,7 @@ def sH(t, D):
     s = Shot(t, D)
     S.env(s, 'bleed')
     S.fullbleed(s, G5(57), t, -1.0, ken=(1.0, 1.08), focus=(0.5, 0.5), darken=0.3, fade=0.01)
-    tag(s.hud, (W / 2, 420), 'LOS SANTOS', 80, t, ENTER)
+    tag(s.hud, (W / 2, 420), 'LOS SANTOS', 80, t, ENTER + 0.1)
     words(s.hud, (W / 2, 600), 'UNE VERSION DE LOS ANGELES', 60, t,
           [w(cue(14, x)) for x in ('une', 'version', 'de', 'Los', 'Angeles')], fill=CREAM)
     return s
@@ -168,11 +159,7 @@ def sJ(t, D):
     s = Shot(t, D)
     S.env(s, 'bleed')
     S.fullbleed(s, G5(1), t, -1.0, ken=(1.0, 1.08), focus=(0.45, 0.5), darken=0.4, fade=0.01)
-    tag(s.hud, (W / 2, 140), 'DEUX SEMAINES PLUS TARD', 50, t, w(cue(14, 'Deux')))
-    P.drop(s.hud, ONLINE_LOGO, W / 2, 450, t, w(cue(14, 'Online')) - 0.2, rot=0, spin=6, height=0.8, key='onl')
-    words(s.hud, (W / 2, 780), 'UN MONDE PARTAGÉ', 70, t, [w(cue(14, x)) for x in ('un', 'monde', 'partage')], fill=CREAM)
-    words(s.hud, (W / 2, 930), 'MIS À JOUR PENDANT PLUS DE DIX ANS', 54, t,
-          [w(cue(14, x)) for x in ('mises', 'a', 'jour', 'pendant', 'plus', 'de', 'dix', 'ans')], fill=G.THIEF)
+    P.drop(s.mid, ONLINE_LOGO, W / 2, 450, t, w(cue(14, 'Online')) - 0.2, rot=0, spin=6, height=0.8, key='onl')
     return s
 
 
@@ -197,9 +184,9 @@ SHOTS = [
     (cue(13, 'Un nouveau') - LEAD, sC, 'up'),
     (cue(13, 'En une') - LEAD, sD, 'rl'),
     (cue(14, 'GTA') - LEAD, sE, 'pageturn'),
-    (cue(14, 'Sorti') - LEAD, sF, 'cut'),
+    (cue(14, 'il permet') - LEAD, sF, 'cut'),
     (cue(14, 'Michael') - LEAD, sG, 'lr'),
-    (cue(14, 'une', 1) - LEAD, sH, ('circle', {'at': (W / 2, H / 2)})),
+    (cue(14, 'Los') - LEAD, sH, 'cut'),
     (cue(14, 'Il rapporte') - LEAD, sI, 'cut'),
     (cue(14, 'Deux') - LEAD, sJ, 'rl'),
     (cue(14, 'GTA', 3) - LEAD, sK, 'shape'),

@@ -41,8 +41,6 @@ def sA(t, D):
     s = Shot(t, D)
     S.env(s, 'bleed')
     S.fullbleed(s, VC(3), t, -1.0, ken=(1.0, 1.08), focus=(0.5, 0.5), darken=0.3, fade=0.01)
-    words(s.hud, (W / 2, 470), 'UN PHÉNOMÈNE CULTUREL', 96, t,
-          [ENTER + 0.1, w(cue(10, 'transforme')), w(cue(10, 'phenomene'))], fill=CREAM)
     kicker(s.hud, t, 5, 'Le phénomène')
     return s
 
@@ -52,7 +50,7 @@ def sB(t, D):
     s = Shot(t, D)
     S.env(s, 'bleed')
     S.fullbleed(s, VC(9), t, -1.0, ken=(1.02, 1.12), focus=(0.5, 0.5), darken=0.35, fade=0.01)
-    P.drop(s.hud, VC_LOGO, W / 2, 420, t, ENTER, rot=0, spin=6, height=0.8, key='vcl')
+    P.drop(s.mid, VC_LOGO, W / 2, 420, t, ENTER, rot=0, spin=6, height=0.8, key='vcl')
     tag(s.hud, (W / 2 - 230, 900), '2002', 60, t, w(cue(10, 'en', 1)))
     tag(s.hud, (W / 2 + 170, 900), 'MIAMI, 1986', 60, t, w(cue(10, 'Miami')), bg=G.THIEF, fg=INK)
     return s
@@ -93,8 +91,7 @@ def sE(t, D):
     S.fullbleed(s, VC(8), t, -1.0, ken=(1.0, 1.06), focus=(0.5, 0.5), darken=0.45, fade=0.01)
     for i, (txt, ph) in enumerate((('SCARFACE', 'Scarface'), ('MIAMI VICE', 'Vice'))):
         card = P.paper_card(620, 170, seed=60 + i, text=txt, size=80)
-        P.drop(s.hud, card, 560 + i * 800, 540, t, w(cue(10, ph, 1 if i == 0 else 2)) - 0.15, rot=(-4, 3)[i], spin=10, key=f'film{i}')
-    tag(s.hud, (W / 2, 160), "L'HISTOIRE EMPRUNTE OUVERTEMENT À…", 46, t, w(cue(10, 'ouvertement')) - 0.4)
+        P.drop(s.mid, card, 560 + i * 800, 540, t, w(cue(10, ph, 1 if i == 0 else 2)) - 0.15, rot=(-4, 3)[i], spin=10, key=f'film{i}')
     return s
 
 
@@ -104,7 +101,7 @@ def sF(t, D):
     s = Shot(t, D)
     S.env(s, 'bleed')
     S.fullbleed(s, SA(9), t, -1.0, ken=(1.0, 1.08), focus=(0.5, 0.45), darken=0.35, fade=0.01)
-    P.drop(s.hud, SA_LOGO, W / 2, 330, t, w(cue(10, 'San')) - 0.1, rot=0, spin=6, height=0.8, key='sal')
+    P.drop(s.mid, SA_LOGO, W / 2, 330, t, w(cue(10, 'San')) - 0.1, rot=0, spin=6, height=0.8, key='sal')
     tag(s.hud, (W / 2, 640), 'CARL JOHNSON, DIT CJ', 54, t, w(cue(10, 'Carl')))
     tag(s.hud, (W / 2, 900), 'GROVE STREET, 1992', 60, t, w(cue(10, 'Grove')), bg=G.THIEF, fg=INK)
     return s
@@ -119,7 +116,6 @@ def sG(t, D):
     for i, (txt, ph) in enumerate((('NOURRITURE', 'nourriture'), ('ENTRAÎNEMENT', 'entrainement'), ('VÊTEMENTS', 'vetements'))):
         card = P.paper_card(560, 140, seed=70 + i, text=txt, size=64)
         P.drop(s.mid, card, 1400, 300 + i * 220, t, w(cue(10, ph)) - 0.15, rot=(-3, 2, -2)[i], spin=8, key=f'rpg{i}')
-    tag(s.hud, (W / 2, 990), 'COMME DANS UN JEU DE RÔLE', 52, t, w(cue(10, 'How')))
     return s
 
 
@@ -136,7 +132,6 @@ def sH(t, D):
     k = (b - a) / (n1 + n2 - 1)
     words(s.top, (1250, 400), line1, 72, t, [a + k * i for i in range(n1)])
     words(s.top, (1250, 520), line2, 54, t, [a + k * (n1 + i) for i in range(n2)])
-    P.stamp_hit(s.mid, 'N° 1', 1250, 760, t, w(cue(10, 'le jeu')) + 0.2, size=150, ang=-8, shot=s)
     return s
 
 
@@ -165,7 +160,6 @@ def sJ(t, D):
     G.highlight(s.mid, JT_XY, JT_BOX[list(JT_BOX)[0]], t, w(cue(11, 'radiation')))
     into(s, JT_XY, JT, JT_BOX[list(JT_BOX)[0]], w(cue(11, 'jusqu')))
     tag(s.hud, (W / 2, 990), 'JACK THOMPSON, AVOCAT', 46, t, w(cue(11, 'Jack')))
-    P.stamp_hit(s.mid, 'RADIÉ · 2008', JT_XY[0] + JT.width - 260, JT_XY[1] + JT.height + 10, t, w(cue(11, '2008')), size=80, ang=-7, shot=s)
     return s
 
 
@@ -188,11 +182,7 @@ def sL(t, D):
     s.camera(1.0, 1.04, (W / 2, 540))
     P.drop(s.mid, SA_BOX, 520, 540, t, ENTER, rot=3, spin=10, key='sab2')
     tag(s.hud, (1330, 260), 'JUILLET 2005', 56, t, w(cue(11, 'juillet')))
-    words(s.hud, (1330, 450), 'une scène cachée sur le disque', 46, t,
-          [w(cue(11, x)) for x in ('decouvrent', 'sur', 'disque', 'disque', 'disque', 'disque')], font=F_TYPE)
-    words(s.hud, (1330, 520), 'débloquée par un mod amateur', 46, t,
-          [w(cue(11, x)) for x in ('debloquable', 'par', 'une', 'modification', 'amateur')], font=F_TYPE)
-    P.stamp_hit(s.top, '« HOT COFFEE »', 1330, 760, t, w(cue(11, 'Hot')), size=110, ang=-6, shot=s)
+    words(s.top, (1330, 560), '« HOT COFFEE »', 110, t, [w(cue(11, 'Hot'))] * 2, fill=S.accent(s))
     return s
 
 
@@ -255,12 +245,11 @@ def sO(t, D):
 def sP(t, D):
     """Entre-temps, chaque scandale avait fait connaître GTA bien au-delà des joueurs."""
     s = Shot(t, D)
-    S.env(s, 'paper')
+    S.env(s, 'cream')
     s.camera(1.05, 1.0)
     for i, (card, x, y, r) in enumerate(((JT, 420, 330, -6), (ES, 1300, 300, 4), (APA, 700, 700, -2), (VCQ, 1450, 760, 5))):
         small = card.resize((int(card.width * 0.55), int(card.height * 0.55)), Image.LANCZOS)
         P.drop(s.mid, small, x, y, t, ENTER + 0.25 * i, rot=r, spin=10, key=f'col{i}')
-    tag(s.hud, (W / 2, 540), 'BIEN AU-DELÀ DES JOUEURS', 64, t, w(cue(12, 'dela')) - 0.3)
     return s
 
 
@@ -269,8 +258,8 @@ SHOTS = [
     (cue(10, 'Vice') - LEAD, sB, 'cut'),
     (cue(10, 'Son') - LEAD, sC, 'lr'),
     (cue(10, 'avec la') - LEAD, sD, 'up'),
-    (cue(10, 'et l') - LEAD, sE, 'rl'),
-    (cue(10, 'Deux') - LEAD, sF, ('circle', {'at': (W / 2, H / 2)})),
+    (cue(10, 'ouvertement') - LEAD, sE, 'rl'),
+    (cue(10, 'Deux') - LEAD, sF, 'lr'),
     (cue(10, 'Le joueur', 2) - LEAD, sG, 'lr'),
     (cue(10, 'San', 2) - LEAD, sH, 'up'),
     (cue(11, 'Le succes') - LEAD, sI, 'pageturn'),
@@ -278,7 +267,7 @@ SHOTS = [
     (cue(11, 'Mais') - LEAD, sK, 'cut'),
     (cue(11, 'En juillet') - LEAD, sL, 'lr'),
     (cue(11, "L 'organisme") - LEAD, sM, 'up'),
-    (cue(12, 'Ces') - LEAD, sN, 'pageturn'),
+    (cue(12, 'debat') - LEAD, sN, 'pageturn'),
     (cue(12, 'En 2020') - LEAD, sO, 'rl'),
     (cue(12, 'Entre') - LEAD, sP, 'shape'),
 ]
