@@ -207,3 +207,12 @@ I'll capture each **bold** article above from the live page and highlight the se
 | A12_jt_* | Capture, Game Developer, "Anti-Game Lawyer Jack Thompson Permanently Disbarred" (25 Sept 2008) |
 | A14_esrb_* | Capture, ESRB press release, 20 July 2005: "will immediately advise retailers to cease all sales of the game" — https://www.esrb.org/blog/esrb-concludes-investigation-into-grand-theft-auto-san-andreas-revokes-m-mature-rating/ |
 | A15_apa_* | Capture, APA press release, 3 March 2020 — https://www.apa.org/news/press/releases/2020/03/violent-video-games-behavior |
+
+### Act 6 material
+| File | Source |
+|---|---|
+| game/steam/gta4_*.jpg | Official GTA IV screenshots, Steam store page (app 12210) |
+| game/steam/gta5_*.jpg | Official GTA V / GTA Online screenshots, Steam store page (app 271590) |
+| A16_ex_* | Capture, Exophase, "GTA IV First Week Sales Total Half A Billion" (7 May 2008) — https://www.exophase.com/4841/gta-iv-first-week-sales-total-half-a-billion/ |
+| A17_gw_* | Capture, Guinness World Records, "Fastest entertainment property to gross $1 billion" — https://www.guinnessworldrecords.com/world-records/105330-fastest-entertainment-property-to-gross-1-billion |
+| A18_gd230_q | Capture, Game Developer, "GTA V surpasses 230 million sales…" (7 Aug 2026) |
