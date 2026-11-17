@@ -93,7 +93,7 @@ Status: ✅ the article states it · ⚠️ close, see note · ❓ no source fou
 | Vice City, Leonida, Lucia and Jason | ✅ | Rockstar's trailer page / Newswire; also the Guinness article above. |
 | 2025 → May 2026 | ✅ | **The Independent (6 May 2025)**, and VGC https://www.videogameschronicle.com/news/rockstar-employees-didnt-believe-2025-grand-theft-auto-6-release-date/ |
 | → 19 November 2026 | ✅ | **Variety, "'GTA 6' release delayed to November 2026"** https://variety.com/2025/gaming/news/gta-6-release-delayed-november-2026-1236571679/ · Rockstar's post on X https://x.com/RockstarGames/status/1986540361011880167 |
-| Take-Two confirmed the date in early November | ✅ | **Take-Two Q2 FY2027 earnings release (SEC 8-K, Nov 2026)** https://www.sec.gov/Archives/edgar/data/0000946581/000162828026072175/ttwo2q27earningsrelease.htm · Insider Gaming, "Take-Two reaffirms GTA 6 will launch November 19, 2026" https://insider-gaming.com/gta-6-release-date-earnings-call/ |
+| Take-Two confirmed the date in early November | ✅ | **GamesBeat, "All the takeaways about GTA VI from the Take-Two earnings call" (9 Nov 2026)**: « the GTA VI launch is on track and Rockstar has finished the game » https://gamesbeat.com/all-the-takeaways-on-gta-from-the-take-two-earnings-call-strauss-zelnick/ · Game Developer (10 Nov 2026) https://www.gamedeveloper.com/business/take-two-financials-are-steady-while-the-ceo-claims-that-grand-theft-auto-vi-pre-orders-are-exceeding-expectations · **Take-Two Q2 FY2027 earnings release (SEC 8-K, Nov 2026)** https://www.sec.gov/Archives/edgar/data/0000946581/000162828026072175/ttwo2q27earningsrelease.htm · Insider Gaming, "Take-Two reaffirms GTA 6 will launch November 19, 2026" https://insider-gaming.com/gta-6-release-date-earnings-call/ |
 
 ---
 
@@ -216,3 +216,20 @@ I'll capture each **bold** article above from the live page and highlight the se
 | A16_ex_* | Capture, Exophase, "GTA IV First Week Sales Total Half A Billion" (7 May 2008) — https://www.exophase.com/4841/gta-iv-first-week-sales-total-half-a-billion/ |
 | A17_gw_* | Capture, Guinness World Records, "Fastest entertainment property to gross $1 billion" — https://www.guinnessworldrecords.com/world-records/105330-fastest-entertainment-property-to-gross-1-billion |
 | A18_gd230_q | Capture, Game Developer, "GTA V surpasses 230 million sales…" (7 Aug 2026) |
+
+### Act 7 material
+
+| Shot | Material |
+|---|---|
+| Opening | Official GTA VI screenshot, Jason and Lucia on the beach (rockstargames.com/VI) · GTA VI logo |
+| 90 million views | Official Trailer 1 poster art (rockstargames.com/VI) |
+| Record | Guinness World Records clipping (A19), « 90,421,491 views » and « most viewed YouTube video in 24 hours (non-music) » highlighted |
+| Vice City / Leonida | Official Vice City skyline at dusk (rockstargames.com/VI) |
+| Lucia and Jason | Official key art, the two heroes over the city (rockstargames.com/VI) |
+| Dates | Paper date cards (2025, May 2026 struck out; 19 November 2026) |
+| Confirmation | GamesBeat clipping (A20) + Take-Two logo |
+| The bug | The paper city from act 1 + DMA's original offices (Murray Barnes, CC BY-SA 4.0) |
+| Three decades | Series logos, 1997 → GTA VI (English Wikipedia, non-free) |
+| The question | GTA III and GTA VI covers (English Wikipedia, non-free) + Rockstar logo |
+
+Rockstar's images are in assets/game/rockstar/ (non-free, the publisher's own promotional art and screenshots).
