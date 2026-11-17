@@ -236,7 +236,7 @@ SHOTS = [
     (cue(3, 'Reste') - LEAD, sJ, 'shape'),
 ]
 SCENE0 = {f.__name__: t0 for t0, f, *_ in SHOTS}
-END = cue.total
+END = cue.total + 1.2          # silence before the next act
 
 
 G.sync(globals())

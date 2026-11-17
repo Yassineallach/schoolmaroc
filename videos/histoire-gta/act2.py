@@ -190,7 +190,7 @@ SHOTS = [
     (cue(5, 'il offre') - LEAD, sJ, 'shape'),
     (cue(5, 'Le joueur') - LEAD, sK, 'lr'),
 ]
-END = cue.total
+END = cue.total + 1.2          # silence before the next act
 
 
 G.sync(globals())
