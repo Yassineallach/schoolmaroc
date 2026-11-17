@@ -3,21 +3,86 @@
     <string name="app_name">Nearshelf</string>
     <string name="tagline">Your next book, on a shelf near you.</string>
 
-    <!-- Debug screen (milestone 1 spike) -->
-    <string name="debug_title">Provider debug · OverDrive</string>
-    <string name="debug_library_label">Find a library</string>
-    <string name="debug_library_hint">e.g. New York Public</string>
-    <string name="debug_book_label">Title, author or ISBN</string>
-    <string name="debug_search">Search</string>
-    <string name="debug_change_library">Change</string>
-    <string name="debug_open_libby">Open in Libby</string>
-    <string name="debug_available_now">Available now · %1$d of %2$d</string>
-    <string name="debug_waitlist">%1$d holds on %2$d copies · ~%3$d days</string>
-    <string name="debug_waitlist_no_estimate">%1$d holds on %2$d copies</string>
-    <string name="debug_no_results">Nothing found.</string>
-    <string name="debug_error">%1$s failed: %2$s</string>
+    <!-- Navigation -->
+    <string name="nav_search">Search</string>
+    <string name="nav_libraries">Libraries</string>
+
+    <!-- Home -->
+    <string name="search_label">Find a book</string>
+    <string name="search_hint">Title, author or ISBN</string>
+    <string name="search_supporting">Tip: “Project Hail Mary by Andy Weir” narrows it down.</string>
+    <string name="search_action">Check my libraries</string>
+    <string name="home_your_libraries">Your libraries</string>
+    <string name="home_manage">Manage</string>
+    <string name="home_no_libraries_title">Add a library first</string>
+    <string name="home_no_libraries_body">Add the libraries you have a card for, and Nearshelf will check all of them at once.</string>
+
+    <!-- Libraries -->
+    <string name="libraries_title">Your libraries</string>
+    <string name="libraries_add">Add library</string>
+    <string name="libraries_order_hint">Results appear in this order.</string>
+    <string name="libraries_empty_title">No libraries yet</string>
+    <string name="libraries_empty_body">Search by library name or city to add the ones you use.</string>
+    <string name="libraries_removed">Removed %1$s</string>
+    <string name="add_library_title">Add a library</string>
+    <string name="add_library_field">Library name or city</string>
+    <string name="add_library_hint">e.g. Toronto Public Library</string>
+    <string name="add_library_idle">Type at least two letters. Nearshelf searches every catalog it supports.</string>
+    <string name="add_library_none">No libraries found for “%1$s”. Try the city, or the library system’s full name.</string>
+    <string name="add_library_partial">Couldn’t reach %1$s just now; results may be incomplete.</string>
+    <string name="services_digital">Digital: %1$s</string>
+    <string name="services_physical">Physical catalog: %1$s</string>
+    <string name="state_added">Added</string>
+    <string name="state_not_added">Not added</string>
+
+    <!-- Results -->
+    <string name="results_title">Availability</string>
+    <plurals name="results_checking">
+        <item quantity="one">Checking %1$d of %2$d catalog…</item>
+        <item quantity="other">Checking %1$d of %2$d catalogs…</item>
+    </plurals>
+    <plurals name="results_checked">
+        <item quantity="one">Checked %1$d catalog</item>
+        <item quantity="other">Checked %1$d catalogs</item>
+    </plurals>
+    <string name="results_not_found">Not in this library’s %1$s collection.</string>
+    <string name="results_failed">Couldn’t reach %1$s.</string>
+    <string name="results_rate_limited">%1$s is busy. Try again in a minute.</string>
+    <string name="badge_available">Available</string>
+    <string name="badge_waitlist">Waitlist</string>
+    <string name="detail_available">%1$d on the shelf · %2$s</string>
+    <string name="detail_waitlist">%1$s · %2$s</string>
+    <plurals name="copies">
+        <item quantity="one">%1$d copy</item>
+        <item quantity="other">%1$d copies</item>
+    </plurals>
+    <plurals name="holds">
+        <item quantity="one">%1$d hold</item>
+        <item quantity="other">%1$d holds</item>
+    </plurals>
+    <plurals name="caption_days_wait">
+        <item quantity="one">day wait</item>
+        <item quantity="other">days wait</item>
+    </plurals>
+    <plurals name="caption_available">
+        <item quantity="one">available</item>
+        <item quantity="other">available</item>
+    </plurals>
+    <string name="action_borrow_in">Borrow in %1$s</string>
+    <string name="action_hold_in">Place hold in %1$s</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_undo">Undo</string>
     <string name="format_ebook">eBook</string>
     <string name="format_audiobook">Audiobook</string>
     <string name="format_physical">Print</string>
     <string name="format_other">Other</string>
+    <string name="error_no_app_for_link">No app on this phone can open that link.</string>
+
+    <!-- Accessibility -->
+    <string name="cd_back">Back</string>
+    <string name="cd_clear">Clear</string>
+    <string name="cd_cover">Cover of %1$s</string>
+    <string name="cd_move_up">Move %1$s up</string>
+    <string name="cd_move_down">Move %1$s down</string>
+    <string name="cd_remove_library">Remove %1$s</string>
 </resources>

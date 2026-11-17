@@ -13,6 +13,13 @@ Not affiliated with OverDrive, Hoopla, or any library or catalog vendor.
 | `core/` | Pure Kotlin/JVM: domain model, `CatalogProvider` and each provider's HTTP + parsing. No Android types, so every parser is unit-tested on the JVM against recorded responses in `core/src/test/resources/fixtures/`. |
 | `app/` | Android app: Compose UI, Hilt wiring, later Room/WorkManager/Glance. Never calls an endpoint directly. |
 
+## Design sources
+
+- Design system from [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill): "book brown + page amber" palette on paper, Cormorant Garamond display type (OFL, bundled), its Jetpack Compose guidelines (stateless composables, `collectAsStateWithLifecycle`, keyed lazy lists, typed routes).
+- Components ported from [Lightswind UI](https://github.com/codewithMUHILAN/Lightswind-UI-Library) (MIT) to Compose: `Skeleton`, `CountUp`, `Badge`, `TopLoader` in `app/.../ui/components/lightswind/`.
+- Icons: [Phosphor](https://phosphoricons.com) (MIT), converted with `tools/phosphor_to_vector.py`.
+- Licence texts ship in `app/src/main/assets/licenses/` for the in-app licences screen (milestone 10).
+
 ## Build
 
 Needs JDK 17+ and an Android SDK with platform 37 (`sdk.dir` in `local.properties`).
@@ -34,7 +41,7 @@ Needs JDK 17+ and an Android SDK with platform 37 (`sdk.dir` in `local.propertie
 ## Milestones
 
 1. [x] Spike: skeleton, `CatalogProvider`, OverDrive provider, fixtures, parser tests, debug screen
-2. [ ] Core: library management, search, `BookMatcher`, streaming Results, Libby deep links
+2. [x] Core: library management, search, `BookMatcher`, streaming Results, Libby deep links
 3. [ ] Share sheet, barcode scanner, Open Library ISBN expansion
 4. [ ] Hoopla
 5. [ ] Library registry, URL auto-detection, registry build script, home branch

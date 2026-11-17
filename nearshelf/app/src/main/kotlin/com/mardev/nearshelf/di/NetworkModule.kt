@@ -1,9 +1,12 @@
 package com.mardev.nearshelf.di
 
 import com.mardev.nearshelf.BuildConfig
+import com.mardev.nearshelf.core.match.BookMatcher
 import com.mardev.nearshelf.core.net.NearshelfHttp
 import com.mardev.nearshelf.core.provider.CatalogProvider
 import com.mardev.nearshelf.core.provider.overdrive.OverDriveProvider
+import com.mardev.nearshelf.core.search.LibrarySearchService
+import com.mardev.nearshelf.core.search.SearchCoordinator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,4 +30,14 @@ object NetworkModule {
     @Provides
     @IntoSet
     fun overDriveAsProvider(p: OverDriveProvider): CatalogProvider = p
+
+    @Provides
+    @Singleton
+    fun librarySearch(providers: Set<@JvmSuppressWildcards CatalogProvider>) =
+        LibrarySearchService(providers.sortedBy { it.id.ordinal })
+
+    @Provides
+    @Singleton
+    fun searchCoordinator(providers: Set<@JvmSuppressWildcards CatalogProvider>) =
+        SearchCoordinator(providers, BookMatcher())
 }

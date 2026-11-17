@@ -46,8 +46,10 @@ class OverDriveProvider(
 
     override suspend fun search(library: LibraryRef, query: BookQuery): List<Holding> {
         require(library.provider == ProviderId.OVERDRIVE) { "Not an OverDrive library: $library" }
-        // An ISBN query is exact and cheap; fall back to text when we have none.
-        val text = query.isbn ?: query.searchText()
+        // Prefer text when a title is known: an ISBN search only returns that one
+        // edition, while text also finds the audiobook and other editions, which
+        // BookMatcher then filters. With only an ISBN, search by ISBN.
+        val text = if (!query.title.isNullOrBlank()) query.searchText() else query.isbn ?: query.searchText()
         val body = call { api.media(library.key, text) }
         return parse { OverDriveParser.parseMedia(body) }
     }

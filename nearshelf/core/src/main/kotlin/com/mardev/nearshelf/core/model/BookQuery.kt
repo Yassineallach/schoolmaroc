@@ -12,6 +12,8 @@ data class BookQuery(
     val author: String? = null,
     val isbn: String? = null,
     val isbns: Set<String> = emptySet(),
+    /** ISO 639-1 language of the book searched for, when known (Open Library). */
+    val language: String? = null,
 ) {
     init {
         require(!title.isNullOrBlank() || !isbn.isNullOrBlank() || isbns.isNotEmpty()) {

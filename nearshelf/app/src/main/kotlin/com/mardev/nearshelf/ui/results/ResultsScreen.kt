@@ -1,0 +1,332 @@
+package com.mardev.nearshelf.ui.results
+
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.SubcomposeAsyncImage
+import com.mardev.nearshelf.R
+import com.mardev.nearshelf.core.match.MatchedHolding
+import com.mardev.nearshelf.core.model.Format
+import com.mardev.nearshelf.core.model.LibraryRef
+import com.mardev.nearshelf.core.provider.ProviderException
+import com.mardev.nearshelf.core.search.ServiceState
+import com.mardev.nearshelf.ui.components.EmptyState
+import com.mardev.nearshelf.ui.components.lightswind.Badge
+import com.mardev.nearshelf.ui.components.lightswind.BadgeSize
+import com.mardev.nearshelf.ui.components.lightswind.BadgeVariant
+import com.mardev.nearshelf.ui.components.lightswind.CountUp
+import com.mardev.nearshelf.ui.components.lightswind.Skeleton
+import com.mardev.nearshelf.ui.components.lightswind.SkeletonLines
+import com.mardev.nearshelf.ui.components.lightswind.TopLoader
+import com.mardev.nearshelf.ui.components.openExternal
+import com.mardev.nearshelf.ui.libraries.locationLine
+import java.util.Locale
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ResultsScreen(onBack: () -> Unit, onAddLibrary: () -> Unit, vm: ResultsViewModel = hiltViewModel()) {
+    val state by vm.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    Scaffold(
+        topBar = {
+            Column {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.results_title)) },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(painterResource(R.drawable.ic_arrow_left), stringResource(R.string.cd_back))
+                        }
+                    },
+                )
+                TopLoader(progress = if (state.libraries == null) 0f else state.progress)
+            }
+        },
+    ) { padding ->
+        val libraries = state.libraries ?: return@Scaffold
+        if (libraries.isEmpty()) {
+            EmptyState(
+                icon = R.drawable.ic_library,
+                title = stringResource(R.string.home_no_libraries_title),
+                body = stringResource(R.string.home_no_libraries_body),
+                action = stringResource(R.string.libraries_add),
+                onAction = onAddLibrary,
+                modifier = Modifier.padding(padding),
+            )
+            return@Scaffold
+        }
+        LazyColumn(
+            Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            item(key = "header") { BookHeaderView(state) }
+            items(libraries, key = { it.library.id }) { lr ->
+                LibraryCard(
+                    result = lr,
+                    onBorrow = { ref, m -> context.openExternal(vm.borrowLink(ref, m)) },
+                    onRetry = { ref -> vm.retry(lr.library.id, ref) },
+                    modifier = Modifier.animateItem(),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BookHeaderView(state: ResultsUiState) {
+    val header = state.header
+    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        val coverModifier = Modifier.width(84.dp).heightIn(min = 120.dp).clip(RoundedCornerShape(8.dp))
+        if (header.coverUrl != null) {
+            SubcomposeAsyncImage(
+                model = header.coverUrl,
+                contentDescription = stringResource(R.string.cd_cover, header.title),
+                contentScale = ContentScale.Crop,
+                loading = { Skeleton(Modifier.fillMaxSize()) },
+                modifier = coverModifier.size(84.dp, 126.dp),
+            )
+        } else if (state.finished < state.total) {
+            Skeleton(coverModifier.size(84.dp, 126.dp))
+        }
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(header.title, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
+            if (header.authors.isNotEmpty()) {
+                Text(header.authors.joinToString(), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            val status = if (state.finished < state.total) {
+                pluralStringResource(R.plurals.results_checking, state.total, state.finished, state.total)
+            } else {
+                pluralStringResource(R.plurals.results_checked, state.total, state.total)
+            }
+            Text(
+                status,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = 4.dp).semantics { liveRegion = LiveRegionMode.Polite },
+            )
+        }
+    }
+}
+
+@Composable
+private fun LibraryCard(
+    result: LibraryResult,
+    onBorrow: (LibraryRef, MatchedHolding) -> Unit,
+    onRetry: (LibraryRef) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ElevatedCard(modifier.fillMaxWidth()) {
+        Column(Modifier.padding(vertical = 16.dp)) {
+            Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(painterResource(R.drawable.ic_library), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
+                Spacer(Modifier.width(10.dp))
+                Column {
+                    Text(result.library.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+                    result.library.locationLine().takeIf { it.isNotEmpty() }?.let {
+                        Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+            result.services.forEach { svc ->
+                HorizontalDivider(Modifier.padding(top = 12.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                Text(
+                    svc.ref.provider.displayName,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
+                )
+                AnimatedContent(
+                    targetState = svc.state,
+                    contentKey = { it::class },
+                    transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(120)) },
+                    label = "service",
+                ) { st ->
+                    when (st) {
+                        ServiceState.Loading -> SkeletonLines(3, Modifier.fillMaxWidth().padding(16.dp, 8.dp))
+                        is ServiceState.Failed -> FailedRow(svc.ref, st, onRetry)
+                        is ServiceState.Done -> Column {
+                            if (st.matches.isEmpty()) {
+                                Text(
+                                    stringResource(R.string.results_not_found, svc.ref.provider.displayName),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                                )
+                            }
+                            st.matches.forEachIndexed { i, m ->
+                                if (i > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                                HoldingRow(svc.ref, m, onBorrow)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FailedRow(ref: LibraryRef, failure: ServiceState.Failed, onRetry: (LibraryRef) -> Unit) {
+    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(painterResource(R.drawable.ic_warning), null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(
+            stringResource(
+                if (failure.kind == ProviderException.Kind.RATE_LIMITED) R.string.results_rate_limited else R.string.results_failed,
+                ref.provider.displayName,
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f),
+        )
+        TextButton(onClick = { onRetry(ref) }) {
+            Icon(painterResource(R.drawable.ic_retry), null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+            Text(stringResource(R.string.action_retry))
+        }
+    }
+}
+
+@Composable
+private fun HoldingRow(ref: LibraryRef, m: MatchedHolding, onBorrow: (LibraryRef, MatchedHolding) -> Unit) {
+    val h = m.holding
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.Top) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(painterResource(formatIcon(h.format)), null, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(formatLabel(h.format), style = MaterialTheme.typography.titleMedium)
+                    }
+                    if (h.isAvailableNow) {
+                        Badge(stringResource(R.string.badge_available), variant = BadgeVariant.Success, size = BadgeSize.Sm)
+                    } else {
+                        Badge(stringResource(R.string.badge_waitlist), variant = BadgeVariant.Warning, size = BadgeSize.Sm)
+                    }
+                    if (m.otherLanguage && h.language != null) {
+                        Badge(languageName(h.language!!), variant = BadgeVariant.Outline, size = BadgeSize.Sm)
+                    }
+                }
+                if (m.otherLanguage) {
+                    Text(h.title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Text(detailLine(m), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Spacer(Modifier.width(12.dp))
+            HeadlineNumber(m)
+        }
+        val label = stringResource(
+            if (h.isAvailableNow) R.string.action_borrow_in else R.string.action_hold_in,
+            ref.provider.displayName,
+        )
+        val buttonModifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+        val content: @Composable () -> Unit = {
+            Text(label)
+            Spacer(Modifier.width(8.dp))
+            Icon(painterResource(R.drawable.ic_open_external), null, modifier = Modifier.size(ButtonDefaults.IconSize))
+        }
+        if (m.otherLanguage) {
+            OutlinedButton(onClick = { onBorrow(ref, m) }, modifier = buttonModifier) { content() }
+        } else {
+            FilledTonalButton(onClick = { onBorrow(ref, m) }, modifier = buttonModifier) { content() }
+        }
+    }
+}
+
+/** The one number that matters: copies on the shelf now, or days to wait. */
+@Composable
+private fun HeadlineNumber(m: MatchedHolding) {
+    val h = m.holding
+    val (value, caption) = when {
+        h.isAvailableNow -> (h.available ?: 1) to pluralStringResource(R.plurals.caption_available, h.available ?: 1)
+        h.waitDays != null -> h.waitDays!! to pluralStringResource(R.plurals.caption_days_wait, h.waitDays!!)
+        else -> return
+    }
+    Column(horizontalAlignment = Alignment.End) {
+        CountUp(value, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary)
+        Text(caption, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.End)
+    }
+}
+
+@Composable
+private fun detailLine(m: MatchedHolding): String {
+    val h = m.holding
+    val owned = h.owned ?: 0
+    val copies = pluralStringResource(R.plurals.copies, owned, owned)
+    return when {
+        h.isAvailableNow -> stringResource(R.string.detail_available, h.available ?: 0, copies)
+        else -> {
+            val holds = h.holds ?: 0
+            stringResource(R.string.detail_waitlist, pluralStringResource(R.plurals.holds, holds, holds), copies)
+        }
+    }
+}
+
+private fun formatIcon(f: Format) = when (f) {
+    Format.EBOOK -> R.drawable.ic_ebook
+    Format.AUDIOBOOK -> R.drawable.ic_audiobook
+    Format.PHYSICAL, Format.OTHER -> R.drawable.ic_books
+}
+
+@Composable
+private fun formatLabel(f: Format) = stringResource(
+    when (f) {
+        Format.EBOOK -> R.string.format_ebook
+        Format.AUDIOBOOK -> R.string.format_audiobook
+        Format.PHYSICAL -> R.string.format_physical
+        Format.OTHER -> R.string.format_other
+    },
+)
+
+private fun languageName(code: String): String =
+    Locale.forLanguageTag(code).getDisplayLanguage(Locale.getDefault()).replaceFirstChar { it.titlecase(Locale.getDefault()) }
