@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Nearshelf</string>
+    <string name="tagline">Your next book, on a shelf near you.</string>
+
+    <!-- Debug screen (milestone 1 spike) -->
+    <string name="debug_title">Provider debug · OverDrive</string>
+    <string name="debug_library_label">Find a library</string>
+    <string name="debug_library_hint">e.g. New York Public</string>
+    <string name="debug_book_label">Title, author or ISBN</string>
+    <string name="debug_search">Search</string>
+    <string name="debug_change_library">Change</string>
+    <string name="debug_open_libby">Open in Libby</string>
+    <string name="debug_available_now">Available now · %1$d of %2$d</string>
+    <string name="debug_waitlist">%1$d holds on %2$d copies · ~%3$d days</string>
+    <string name="debug_waitlist_no_estimate">%1$d holds on %2$d copies</string>
+    <string name="debug_no_results">Nothing found.</string>
+    <string name="debug_error">%1$s failed: %2$s</string>
+    <string name="format_ebook">eBook</string>
+    <string name="format_audiobook">Audiobook</string>
+    <string name="format_physical">Print</string>
+    <string name="format_other">Other</string>
+</resources>

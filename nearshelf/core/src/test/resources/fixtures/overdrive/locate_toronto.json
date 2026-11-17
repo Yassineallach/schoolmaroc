@@ -1,0 +1,5829 @@
+{
+  "branches": [
+    {
+      "id": 56850,
+      "name": "Toronto Reference Library (Toronto Public Library)",
+      "address": "789 Yonge St",
+      "city": "Toronto",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M4W 2G8",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.671792,
+      "longitude": -79.386813,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 8.587301,
+      "legacyKanopy": false
+    },
+    {
+      "id": 56849,
+      "name": "Toronto Public Library",
+      "address": "789 Yonge Street",
+      "city": "Toronto",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M4W2G8",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.671792,
+      "longitude": -79.386813,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 8.098774,
+      "legacyKanopy": false
+    },
+    {
+      "id": 55639,
+      "name": "New Toronto (Toronto Public Library)",
+      "address": "110 11th St",
+      "city": "Etobicoke",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M8V 3G5",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.599043,
+      "longitude": -79.50987,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 8.0400715,
+      "legacyKanopy": false
+    },
+    {
+      "id": 52977,
+      "name": "Alderwood (Toronto Public Library)",
+      "address": "2 Orianna Drive",
+      "city": "Toronto",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M8W 4Y1",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.60172,
+      "longitude": -79.547856,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 53024,
+      "name": "Annette (Toronto Public Library)",
+      "address": "145 Annette St.",
+      "city": "Toronto",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M6P 1P3",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.663313,
+      "longitude": -79.466444,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 53147,
+      "name": "Ethennonnhawahstihnen'  (Toronto Public Library)",
+      "address": "100 Ethennonnhawahstihnen' Lane",
+      "city": "North York",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M2K 3C9",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.76882,
+      "longitude": -79.385788,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 53227,
+      "name": "Beaches (Toronto Public Library)",
+      "address": "2161 Queen St E",
+      "city": "Toronto",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M4L 1J1",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.670092,
+      "longitude": -79.298497,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 53257,
+      "name": "Bendale (Toronto Public Library)",
+      "address": "1515 Danforth Rd.",
+      "city": "Toronto",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M1J 1H5",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.751071,
+      "longitude": -79.244023,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 53426,
+      "name": "Brentwood (Toronto Public Library)",
+      "address": "36 Brentwood Rd N",
+      "city": "Etobicoke",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M8X 2B5",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.647397,
+      "longitude": -79.514279,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 53440,
+      "name": "Bridlewood (Toronto Public Library)",
+      "address": "2900 Warden Ave #157a",
+      "city": "Scarborough",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M1W 2S8",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.798519,
+      "longitude": -79.318471,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 53456,
+      "name": "Brookbanks (Toronto Public Library)",
+      "address": "210 Brookbanks Dr.",
+      "city": "North York",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M3A 2T8",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.759528,
+      "longitude": -79.325915,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 53607,
+      "name": "Cedarbrae (Toronto Public Library)",
+      "address": "545 Markham Rd",
+      "city": "Scarborough",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M1H 2A1",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.757525,
+      "longitude": -79.223985,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 53609,
+      "name": "Centennial (Toronto Public Library)",
+      "address": "578 Finch Ave W",
+      "city": "North York",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M2R 1N7",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.773001,
+      "longitude": -79.44959,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 53715,
+      "name": "Cliffcrest (Toronto Public Library)",
+      "address": "3017 Kingston Rd.",
+      "city": "Scarborough",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M1M 1P1",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.725585,
+      "longitude": -79.230348,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 53888,
+      "name": "Davenport (Toronto Public Library)",
+      "address": "1246 Shaw St.",
+      "city": "Toronto",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M6G 3P1",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.674554,
+      "longitude": -79.428445,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 53959,
+      "name": "Downsview (Toronto Public Library)",
+      "address": "2793 Keele St",
+      "city": "North York",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M3M 2G3",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.728755,
+      "longitude": -79.482449,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 54044,
+      "name": "Eatonville (Toronto Public Library)",
+      "address": "430 Burnhamthorpe Rd",
+      "city": "Etobicoke",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M9B 2B1",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.646266,
+      "longitude": -79.559752,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 54143,
+      "name": "Fairview (Toronto Public Library)",
+      "address": "35 Fairview Mall Drive",
+      "city": "North York",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M2J 4S4",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.779483,
+      "longitude": -79.346938,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 54422,
+      "name": "Guildwood (Toronto Public Library)",
+      "address": "Guildwood Village Shopping Centre",
+      "address2": "123 Guildwood Pkwy",
+      "city": "Scarborough",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M1E 4V2",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.746946,
+      "longitude": -79.199731,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 54558,
+      "name": "Hillcrest (Toronto Public Library)",
+      "address": "5801 Leslie St",
+      "city": "North York",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M2H 1J8",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.797047,
+      "longitude": -79.369038,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 54632,
+      "name": "Humberwood (Toronto Public Library)",
+      "address": "850 Humberwood Boulevard",
+      "city": "Etobicoke",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M9W 7A6",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.72889,
+      "longitude": -79.619184,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 54782,
+      "name": "Jones (Toronto Public Library)",
+      "address": "118 Jones Avenue",
+      "city": "Toronto",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M4M 2Z9",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.665955,
+      "longitude": -79.334547,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 54954,
+      "name": "Leaside (Toronto Public Library)",
+      "address": "165 McRae Dr",
+      "city": "East York",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M4G 1S8",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.706298,
+      "longitude": -79.367782,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 55114,
+      "name": "Locke (Toronto Public Library)",
+      "address": "3083 Yonge St",
+      "city": "Toronto",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M4N 2K7",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.724793,
+      "longitude": -79.401871,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 55212,
+      "name": "Malvern (Toronto Public Library)",
+      "address": "30 Sewells Rd",
+      "city": "Toronto",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M1B 3G5",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.8079,
+      "longitude": -79.216092,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 55275,
+      "name": "Maryvale (Toronto Public Library)",
+      "address": "85 Ellesmere Rd",
+      "city": "Scarborough",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M1R 4B9",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.757441,
+      "longitude": -79.312549,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 55548,
+      "name": "Morningside (Toronto Public Library)",
+      "address": "4279 Lawrence Ave. E.",
+      "city": "Scarborough",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M1E 2S8",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.769846,
+      "longitude": -79.177466,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 55909,
+      "name": "Palmerston (Toronto Public Library)",
+      "address": "560 Palmerston Ave.",
+      "city": "Toronto",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M6G 2P7",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.665102,
+      "longitude": -79.414188,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 55946,
+      "name": "Parkdale (Toronto Public Library)",
+      "address": "1303 Queen St W",
+      "city": "Toronto",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M6K 1L6",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.641197,
+      "longitude": -79.432561,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    },
+    {
+      "id": 55951,
+      "name": "Parliament (Toronto Public Library)",
+      "address": "269 Gerrard St E",
+      "city": "Toronto",
+      "regionCode": "ON",
+      "region": "Ontario",
+      "postalCode": "M5A 2G3",
+      "countryCode": "CA",
+      "country": "Canada",
+      "latitude": 43.66183,
+      "longitude": -79.367982,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1357
+      ],
+      "systems": [
+        {
+          "id": 1357,
+          "websiteId": 243,
+          "type": "Public Library",
+          "name": "Toronto Public Library",
+          "fulfillmentId": "toronto",
+          "branchIds": [
+            52977,
+            53007,
+            53024,
+            53042,
+            53127,
+            53147,
+            53227,
+            53257,
+            53326,
+            53338,
+            53426,
+            53440,
+            53456,
+            53492,
+            53607,
+            53609,
+            53689,
+            53715,
+            53788,
+            53876,
+            53888,
+            53894,
+            53900,
+            53939,
+            53959,
+            53971,
+            54044,
+            54059,
+            54080,
+            54118,
+            54143,
+            54171,
+            54188,
+            54315,
+            54344,
+            54422,
+            54534,
+            54540,
+            54558,
+            54630,
+            54631,
+            54632,
+            54752,
+            54753,
+            54782,
+            54809,
+            54954,
+            55007,
+            55114,
+            55126,
+            55205,
+            55212,
+            55253,
+            55275,
+            55303,
+            55466,
+            55548,
+            55559,
+            55562,
+            55639,
+            55725,
+            55731,
+            55732,
+            55768,
+            55909,
+            55940,
+            55946,
+            55951,
+            56010,
+            56060,
+            56082,
+            56127,
+            56199,
+            56215,
+            56222,
+            56267,
+            56278,
+            56317,
+            56585,
+            56618,
+            56624,
+            56628,
+            56665,
+            56727,
+            56753,
+            56818,
+            56837,
+            56849,
+            56850,
+            56982,
+            57162,
+            57297,
+            57302,
+            57312,
+            57324,
+            57325,
+            81529,
+            81530,
+            81531,
+            81532,
+            81581,
+            98739,
+            183129
+          ],
+          "links": [
+            {
+              "name": "Twitter",
+              "url": "https://twitter.com/torontolibrary"
+            },
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "http://www.torontopubliclibrary.ca/using-the-library/your-library-card/"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "toronto.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.torontopubliclibrary.ca/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=Toronto%20Public%20Library&CRID=1357"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/1357?1702054398"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#001c71",
+              "rgb": {
+                "blue": 113,
+                "green": 28,
+                "red": 0
+              }
+            },
+            "secondaryColor": {
+              "hex": "#0077c8",
+              "rgb": {
+                "blue": 200,
+                "green": 119,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "CA"
+          ],
+          "regionCode": [
+            "ON"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 6.449773,
+      "legacyKanopy": false
+    }
+  ],
+  "total": 117,
+  "count": 30,
+  "offSet": 0,
+  "sortDirection": "relevance"
+}

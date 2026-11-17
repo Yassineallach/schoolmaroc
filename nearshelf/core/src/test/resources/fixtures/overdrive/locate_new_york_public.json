@@ -1,0 +1,5353 @@
+{
+  "branches": [
+    {
+      "id": 49092,
+      "name": "New York Public Library",
+      "address": "455 Fifth Avenue",
+      "city": "New York",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10016-0122",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.751943,
+      "longitude": -73.981721,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 14.270009,
+      "legacyKanopy": false
+    },
+    {
+      "id": 60257,
+      "name": "New York Mills Public Library",
+      "address": "30 North Main",
+      "phoneNumber": "218-385-2436",
+      "city": "New York Mills",
+      "regionCode": "MN",
+      "region": "Minnesota",
+      "postalCode": "56567",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 46.518485,
+      "longitude": -95.376037,
+      "links": [
+        {
+          "name": "BranchDonationUrl",
+          "url": "https://www.givemn.org/story/L2nt4f"
+        },
+        {
+          "name": "BranchLibraryUrl",
+          "url": "https://www.nympubliclibrary.org/client/en_US/nym/"
+        },
+        {
+          "name": "BranchSupportEmail",
+          "url": "emailnym@nympubliclibrary.org"
+        },
+        {
+          "name": "Facebook",
+          "url": "https://www.facebook.com/New-York-Mills-Public-Library-155123142450/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        2471
+      ],
+      "systems": [
+        {
+          "id": 2471,
+          "websiteId": 630,
+          "type": "Public Library",
+          "name": "Viking Library System",
+          "fulfillmentId": "vikinglibrarymn",
+          "branchIds": [
+            60248,
+            60249,
+            60250,
+            60251,
+            60252,
+            60253,
+            60254,
+            60255,
+            60256,
+            60257,
+            60258,
+            60259,
+            60260
+          ],
+          "links": [
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "vikingdigitallibrary.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://www.nympubliclibrary.org"
+            },
+            {
+              "name": "LibrarySupportEmail",
+              "url": "info@vikinglibrarysystem.org"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logo-resized/2471?1721753888"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#a9b089",
+              "rgb": {
+                "blue": 137,
+                "green": 176,
+                "red": 169
+              }
+            },
+            "secondaryColor": {
+              "hex": "#662046",
+              "rgb": {
+                "blue": 70,
+                "green": 32,
+                "red": 102
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "MN"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 11.089882,
+      "legacyKanopy": false
+    },
+    {
+      "id": 49091,
+      "name": "New York Mills Public Library",
+      "address": "399 Main St",
+      "city": "New York Mills",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "13417-1231",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 43.103261,
+      "longitude": -75.292792,
+      "links": [
+
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        1309
+      ],
+      "systems": [
+        {
+          "id": 1309,
+          "websiteId": 213,
+          "type": "Public Library",
+          "name": "Mid-York Library System",
+          "fulfillmentId": "midyork",
+          "branchIds": [
+            43234,
+            43618,
+            43730,
+            43735,
+            43980,
+            44009,
+            44158,
+            44397,
+            44467,
+            44527,
+            44929,
+            45000,
+            45047,
+            45200,
+            45871,
+            46409,
+            46578,
+            46693,
+            46858,
+            47149,
+            47947,
+            48617,
+            48741,
+            48863,
+            48958,
+            49089,
+            49091,
+            49123,
+            49536,
+            49564,
+            49609,
+            49610,
+            50100,
+            50228,
+            50441,
+            50633,
+            50779,
+            51085,
+            52111,
+            52323,
+            52527,
+            52554,
+            52579,
+            52655,
+            52830,
+            80217,
+            142268,
+            142270,
+            142272,
+            238943
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://myls.ent.sirsi.net/client/en_US/default/search/registration/$N/SYMWS/true"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "midyork.lib.overdrive.com"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "http://myls.ent.sirsi.net/client/default"
+            },
+            {
+              "name": "LibrarySupportEmail",
+              "url": "mylibrary2go@midyork.org"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/1309.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#9a3e53",
+              "rgb": {
+                "blue": 83,
+                "green": 62,
+                "red": 154
+              }
+            },
+            "secondaryColor": {
+              "hex": "#095587",
+              "rgb": {
+                "blue": 135,
+                "green": 85,
+                "red": 9
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": true,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 11.089882,
+      "legacyKanopy": false
+    },
+    {
+      "id": 49093,
+      "name": "New York Public Library for the Performing Arts",
+      "address": "40 Lincoln Center Plz",
+      "city": "New York",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10023-7486",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.77263,
+      "longitude": -73.984096,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 10.60655,
+      "legacyKanopy": false
+    },
+    {
+      "id": 92424,
+      "name": "Battery Park City Library",
+      "address": "175 North End Ave",
+      "city": "New York",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10282",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.714875,
+      "longitude": -74.016117,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 50130,
+      "name": "Port Richmond Branch",
+      "address": "75 Bennett St",
+      "city": "Staten Island",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10302-1405",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.637604,
+      "longitude": -74.131696,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 50495,
+      "name": "Richmondtown Branch",
+      "address": "200 Clarke Ave",
+      "city": "Staten Island",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10306-1114",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.566673,
+      "longitude": -74.138504,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 50529,
+      "name": "Riverdale Branch",
+      "address": "5540 Mosholu Ave",
+      "city": "Bronx",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10471-2423",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.903702,
+      "longitude": -73.902626,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 50534,
+      "name": "Riverside Branch",
+      "address": "127 Amsterdam Ave",
+      "city": "New York",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10023-6447",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.774293,
+      "longitude": -73.984717,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 50642,
+      "name": "Roosevelt Island Branch",
+      "address": "524 Main Street",
+      "city": "New York",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10044-0001",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.761331,
+      "longitude": -73.950178,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 50923,
+      "name": "Schomburg Center for Research in Black Culture",
+      "address": "514 Malcolm X Blvd",
+      "city": "New York",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10037-1812",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.814505,
+      "longitude": -73.940396,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 50931,
+      "name": "Science, Industry, and Business Library",
+      "address": "188 Madison Ave 34th St",
+      "city": "New York",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10016-4314",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.745835,
+      "longitude": -73.978442,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 50977,
+      "name": "Sedgwick Branch",
+      "address": "1701 Martin Luther King, Jr. Blvd.",
+      "city": "Bronx",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10453",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.849366,
+      "longitude": -73.917288,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 51012,
+      "name": "Seward Park Branch",
+      "address": "192 E Broadway",
+      "city": "New York",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10002-5597",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.714451,
+      "longitude": -73.988541,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 51212,
+      "name": "Soundview Branch",
+      "address": "660 Soundview Ave",
+      "city": "Bronx",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10473-2995",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.818135,
+      "longitude": -73.862621,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 51216,
+      "name": "South Beach Branch",
+      "address": "25 Robin Rd",
+      "city": "Staten Island",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10305-4715",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.595856,
+      "longitude": -74.063072,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 51436,
+      "name": "Spuyten Duyvil Branch",
+      "address": "650 W 235th St",
+      "city": "Bronx",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10463-1339",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.886253,
+      "longitude": -73.914665,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 51471,
+      "name": "St. George Library Center",
+      "address": "5 Central Ave",
+      "city": "Staten Island",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10301-2501",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.641731,
+      "longitude": -74.076924,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 51525,
+      "name": "Stapleton Branch",
+      "address": "132 Canal St",
+      "city": "Staten Island",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10304-2060",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.62643,
+      "longitude": -74.077863,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 51554,
+      "name": "Stephen A. Schwarzman",
+      "address": "Fifth Avenue at 42nd St",
+      "city": "New York",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10018",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.755268,
+      "longitude": -73.996689,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 51763,
+      "name": "Terence Cardinal Cooke-Cathedral Branch",
+      "address": "560 Lexington Ave",
+      "city": "New York",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10022-6828",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.756855,
+      "longitude": -73.972633,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 51827,
+      "name": "Throg's Neck Branch",
+      "address": "3025 Cross Bronx Expy",
+      "city": "Bronx",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10465-2598",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.822685,
+      "longitude": -73.818928,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 51855,
+      "name": "Todt Hill-Westerleigh Branch",
+      "address": "2550 Victory Boulevard",
+      "city": "Staten Island",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10314",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.609596,
+      "longitude": -74.148224,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 51872,
+      "name": "Tompkins Square Branch",
+      "address": "331 E 10th St",
+      "city": "New York",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10009-5099",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.727303,
+      "longitude": -73.980415,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 51891,
+      "name": "Tottenville Branch",
+      "address": "7430 Amboy Rd",
+      "city": "Staten Island",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10307-1497",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.509858,
+      "longitude": -74.244081,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 51927,
+      "name": "Tremont Branch",
+      "address": "1866 Washington Ave",
+      "city": "Bronx",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10457-6289",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.846043,
+      "longitude": -73.898338,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 52085,
+      "name": "Van Cortlandt Branch",
+      "address": "3874 Sedgwick Ave",
+      "city": "Bronx",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10463-4499",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.882687,
+      "longitude": -73.893967,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 52088,
+      "name": "Van Nest Branch",
+      "address": "2147 Barnes Ave",
+      "city": "Bronx",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10462-1999",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.854839,
+      "longitude": -73.864174,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 52184,
+      "name": "Wakefield Branch",
+      "address": "4100 Lowerre Pl",
+      "city": "Bronx",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10466-3819",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.891083,
+      "longitude": -73.859489,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    },
+    {
+      "id": 52289,
+      "name": "Washington Heights Branch",
+      "address": "1000 Saint Nicholas Ave",
+      "city": "New York",
+      "regionCode": "NY",
+      "region": "New York",
+      "postalCode": "10032-5202",
+      "countryCode": "US",
+      "country": "United States",
+      "latitude": 40.834518,
+      "longitude": -73.939651,
+      "links": [
+        {
+          "name": "BranchLibraryUrl",
+          "url": "http://www.nypl.org/"
+        }
+      ],
+      "isMemberInstantAccessSystem": false,
+      "videoAccountIdByWebsiteId": {
+      },
+      "systemIds": [
+        837
+      ],
+      "systems": [
+        {
+          "id": 837,
+          "websiteId": 37,
+          "type": "Public Library",
+          "name": "New York Public Library",
+          "fulfillmentId": "nypl",
+          "branchIds": [
+            42710,
+            42711,
+            42713,
+            42714,
+            42716,
+            42774,
+            42863,
+            42948,
+            43289,
+            43382,
+            43548,
+            43780,
+            44138,
+            44297,
+            44420,
+            44456,
+            44625,
+            44742,
+            45055,
+            45287,
+            45321,
+            45513,
+            45833,
+            45861,
+            46041,
+            46197,
+            46198,
+            46252,
+            46401,
+            46402,
+            46452,
+            46613,
+            46788,
+            46799,
+            46825,
+            46922,
+            47062,
+            47089,
+            47342,
+            47363,
+            48128,
+            48503,
+            48624,
+            48850,
+            48856,
+            48857,
+            48875,
+            48878,
+            48937,
+            48944,
+            49041,
+            49056,
+            49092,
+            49093,
+            49660,
+            49762,
+            49855,
+            50130,
+            50495,
+            50529,
+            50534,
+            50642,
+            50923,
+            50931,
+            50977,
+            51012,
+            51212,
+            51216,
+            51436,
+            51471,
+            51525,
+            51554,
+            51763,
+            51827,
+            51855,
+            51872,
+            51891,
+            51927,
+            52085,
+            52088,
+            52184,
+            52289,
+            52370,
+            52457,
+            52490,
+            52541,
+            52839,
+            52857,
+            52905,
+            85677,
+            92424,
+            113524
+          ],
+          "links": [
+            {
+              "name": "LibraryCardAquisitionUrl",
+              "url": "https://www.nypl.org/library-card"
+            },
+            {
+              "name": "DigitalLibraryUrl",
+              "url": "ebooks.nypl.org"
+            },
+            {
+              "name": "MainLibraryUrl",
+              "url": "https://www.nypl.org/"
+            },
+            {
+              "name": "LibrarySupportUrl",
+              "url": "https://frontline.overdrive.com/?Lib=New%20York%20Public%20Library"
+            }
+          ],
+          "styling": {
+            "logos": [
+              {
+                "size": "140x60",
+                "sourceUrl": "https://thunder.cdn.overdrive.com/logos/crushed/837.png?1"
+              }
+            ],
+            "primaryColor": {
+              "hex": "#665f55",
+              "rgb": {
+                "blue": 85,
+                "green": 95,
+                "red": 102
+              }
+            },
+            "secondaryColor": {
+              "hex": "#009cd4",
+              "rgb": {
+                "blue": 212,
+                "green": 156,
+                "red": 0
+              }
+            }
+          },
+          "relevance": 1,
+          "countryCode": [
+            "US"
+          ],
+          "regionCode": [
+            "NY"
+          ],
+          "isConsortium": false,
+          "isInstantAccessEnabled": false,
+          "isCanarySite": false
+        }
+      ],
+      "relevance": 7.7139907,
+      "legacyKanopy": false
+    }
+  ],
+  "total": 94,
+  "count": 30,
+  "offSet": 0,
+  "sortDirection": "relevance"
+}
