@@ -58,45 +58,14 @@ def sB(t, D):
     return s
 
 
-FLOOR6 = 900
-TRIP_CARD = P.paper_card(560, 150, seed=90, text='TRÉBUCHER', size=74)
-FALL_CARD = P.paper_card(420, 150, seed=91, text='TOMBER', size=74, colour=G.THIEF)
-
-
-def _pivot(layer, card, px, py, ang):
-    """A standing card rotated by ang degrees (clockwise) about its bottom-right corner (px, py)."""
-    a = math.radians(ang)
-    ox, oy = -card.width / 2, -card.height / 2
-    cx = px + ox * math.cos(a) - oy * math.sin(a)
-    cy = py + ox * math.sin(a) + oy * math.cos(a)
-    P.put(layer, P.rot_scale(card, -ang, 1.0), cx, cy, sh_op=0.22)
-
-
 def sC(t, D):
     """Un nouveau système d'animation fait trébucher et tomber les personnages de façon crédible."""
     s = Shot(t, D)
     S.env(s, 'cream')
     s.camera(1.0, 1.03, (W / 2, 540))
     P.drop(s.mid, TUMBLE, 520, 500, t, ENTER, rot=-3, spin=10, key='tum')
-    a, b = w(cue(13, 'trebucher')), w(cue(13, 'ton', 2))
-    x = 1450
-    if t >= a:                                    # TRÉBUCHER: one stumble forward, then it steadies
-        u = max(0.0, t - a - 0.15)
-        k = math.exp(-u * 4.5) * math.sin(u * 11) if u > 0 else 0.0
-        P.put(s.mid, P.rot_scale(TRIP_CARD, -10 * k, 1.0), x + 30 * k, 400 + 8 * abs(k), sh_op=0.22)
-    if t >= b:                                    # TOMBER: falls to the floor and lands crooked
-        ImageDraw.Draw(s.mid).line((1150, FLOOR6, 1750, FLOOR6), fill=S.ink(s) + (255,), width=4)
-        u = max(0.0, t - b - 0.2)
-        T = 0.45
-        if u < T:
-            y = 600 + (FLOOR6 - 102 - 600) * (u / T) ** 2
-            ang = 7 * (u / T)
-        else:
-            v = u - T
-            y = FLOOR6 - 102 - 22 * math.exp(-v * 7) * abs(math.sin(v * 12))
-            ang = 7
-        P.put(s.mid, P.rot_scale(FALL_CARD, -ang, 1.0), x, y, sh_op=0.22)
-        sfx('drop', b + 0.2 + T, x, gain=0.5)
+    tag(s.hud, (1420, 420), 'TRÉBUCHER', 72, t, w(cue(13, 'trebucher')))
+    tag(s.hud, (1420, 640), 'TOMBER', 72, t, w(cue(13, 'ton', 2)), bg=G.THIEF, fg=INK)
     return s
 
 
