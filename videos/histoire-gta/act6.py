@@ -21,7 +21,7 @@ GTA4_LOGO = P.load(asset('G06_gta4.png'), width=560)
 ONLINE_LOGO = P.load(asset('G08_online.png'), width=420)
 GTA5_BOX = P.print_card(Image.open(asset('game/wikipedia/b07_gta5_box.png')).convert('RGB'), 440, seed=61)
 NIKO = P.print_card(G4(4), 820, seed=62)
-TUMBLE = P.print_card(G4(1), 760, seed=63)
+TUMBLE = P.print_card(G4(1), 700, seed=63)
 HEROES = [(P.print_card(G5(67), 560, seed=64), 'MICHAEL', 'Michael'),
           (P.print_card(G5(61), 560, seed=65), 'FRANKLIN', 'Franklin'),
           (P.print_card(G5(56), 560, seed=66), 'TREVOR', 'Trevor')]
@@ -58,24 +58,64 @@ def sB(t, D):
     return s
 
 
+FLOOR6 = 880
+TRIP = [(c, P.paper_card(86, 116, seed=90 + k, text=c, size=78)) for k, c in enumerate('TRÉBUCHER')]
+FALL = [(c, P.paper_card(96, 128, seed=100 + k, text=c, size=86, colour=G.THIEF)) for k, c in enumerate('TOMBER')]
+
+
+def _pivot(layer, card, px, py, ang, lift=0.0):
+    """Draw a standing card rotated by ang degrees (clockwise, falling to the right) about its
+    bottom-right corner at (px, py), the way a real object tips over its edge."""
+    a = math.radians(ang)
+    ox, oy = -card.width / 2, -card.height / 2                   # centre, seen from the pivot
+    cx = px + ox * math.cos(a) - oy * math.sin(a)
+    cy = py + ox * math.sin(a) + oy * math.cos(a)
+    P.put(layer, P.rot_scale(card, -ang, 1.0), cx, cy, lift=lift, sh_op=0.22)
+
+
 def sC(t, D):
     """Un nouveau système d'animation fait trébucher et tomber les personnages de façon crédible."""
     s = Shot(t, D)
     S.env(s, 'cream')
     s.camera(1.0, 1.03, (W / 2, 540))
-    P.drop(s.mid, TUMBLE, 560, 520, t, ENTER, rot=-3, spin=10, key='tum')
-    for i, (txt, at, ang) in enumerate((('TRÉBUCHER', w(cue(13, 'trebucher')), 0), ('TOMBER', w(cue(13, 'ton', 2)), 0))):
-        card = P.paper_card(440, 130, seed=70 + i, text=txt, size=62)
-        if t >= at:                                                      # the card stumbles, then falls over
-            u = t - at
-            if i == 0:
-                r = 9 * math.sin(u * 9) * math.exp(-u * 2.5)
-                P.put(s.mid, P.rot_scale(card, r, 1.0, None), 1380, 600)
+    P.drop(s.mid, TUMBLE, 520, 500, t, ENTER, rot=-3, spin=10, key='tum')
+    said_tr, said_tb = w(cue(13, 'trebucher')), w(cue(13, 'ton', 2))
+    tr, tb = said_tr + 0.3, said_tb + 0.25                       # the words land as they are said, then the physics
+    # TRÉBUCHER: the letters walk on a line; on the word, each one catches its toe in turn,
+    # pitches forward and stumbles back upright (a damped wobble about its front corner)
+    if t >= said_tr:
+        k_in = P.ease_out((t - said_tr) / 0.3)
+        ImageDraw.Draw(s.mid).line((990, 470, 990 + 900 * k_in, 470), fill=S.ink(s) + (255,), width=4)
+        for i, (c, card) in enumerate(TRIP):
+            px = 1000 + 96 * i + card.width
+            u = t - tr - 0.06 * i
+            ang, hop = 0.0, 0.0
+            if u > 0:
+                ang = 32 * math.sin(min(u, 0.16) / 0.16 * math.pi / 2) if u < 0.16 else 32 * math.exp(-(u - 0.16) * 5.5) * math.cos((u - 0.16) * 16)
+                hop = 10 * math.sin(min(1.0, u / 0.25) * math.pi)
+                if i % 3 == 0:
+                    sfx('tick', tr + 0.06 * i + 0.16, px, gain=0.3)
+            if t >= said_tr + 0.02 * i:
+                _pivot(s.mid, card, px, 470 - hop, max(-8.0, ang), lift=0.05)
+    # TOMBER: dominoes; each letter tips over its front edge, gravity speeds it up, it slams flat
+    # on the floor, bounces a little and settles
+    if t >= said_tb:
+        k_in = P.ease_out((t - said_tb) / 0.3)
+        ImageDraw.Draw(s.mid).line((870, FLOOR6, 870 + 980 * k_in, FLOOR6), fill=S.ink(s) + (255,), width=4)
+        for i, (c, card) in enumerate(FALL):
+            px = 880 + 142 * i + card.width
+            if t < said_tb + 0.02 * i:
+                continue
+            u = t - tb - 0.11 * i
+            if u <= 0:
+                ang = 0.0
+            elif u < 0.42:
+                ang = 90 * (u / 0.42) ** 2
             else:
-                k = P.ease_out(min(1.0, u / 0.6))
-                P.put(s.mid, P.rot_scale(card, -78 * k, 1.0, None), 1380 + 40 * k, 780 + 60 * k, lift=0.2 * (1 - k))
-                if 0.55 < u < 0.6:
-                    sfx('drop', at + 0.58, 1420, gain=0.6)
+                v = u - 0.42
+                ang = 90 - 9 * math.exp(-v * 7) * abs(math.sin(v * 15))
+                sfx('drop', tb + 0.11 * i + 0.42, px, gain=0.35)
+            _pivot(s.mid, card, px, FLOOR6, ang)
     return s
 
 
