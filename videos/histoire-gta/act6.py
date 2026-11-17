@@ -58,19 +58,18 @@ def sB(t, D):
     return s
 
 
-FLOOR6 = 880
-TRIP = [(c, P.paper_card(86, 116, seed=90 + k, text=c, size=78)) for k, c in enumerate('TRÉBUCHER')]
-FALL = [(c, P.paper_card(96, 128, seed=100 + k, text=c, size=86, colour=G.THIEF)) for k, c in enumerate('TOMBER')]
+FLOOR6 = 900
+TRIP_CARD = P.paper_card(560, 150, seed=90, text='TRÉBUCHER', size=74)
+FALL_CARD = P.paper_card(420, 150, seed=91, text='TOMBER', size=74, colour=G.THIEF)
 
 
-def _pivot(layer, card, px, py, ang, lift=0.0):
-    """Draw a standing card rotated by ang degrees (clockwise, falling to the right) about its
-    bottom-right corner at (px, py), the way a real object tips over its edge."""
+def _pivot(layer, card, px, py, ang):
+    """A standing card rotated by ang degrees (clockwise) about its bottom-right corner (px, py)."""
     a = math.radians(ang)
-    ox, oy = -card.width / 2, -card.height / 2                   # centre, seen from the pivot
+    ox, oy = -card.width / 2, -card.height / 2
     cx = px + ox * math.cos(a) - oy * math.sin(a)
     cy = py + ox * math.sin(a) + oy * math.cos(a)
-    P.put(layer, P.rot_scale(card, -ang, 1.0), cx, cy, lift=lift, sh_op=0.22)
+    P.put(layer, P.rot_scale(card, -ang, 1.0), cx, cy, sh_op=0.22)
 
 
 def sC(t, D):
@@ -79,43 +78,25 @@ def sC(t, D):
     S.env(s, 'cream')
     s.camera(1.0, 1.03, (W / 2, 540))
     P.drop(s.mid, TUMBLE, 520, 500, t, ENTER, rot=-3, spin=10, key='tum')
-    said_tr, said_tb = w(cue(13, 'trebucher')), w(cue(13, 'ton', 2))
-    tr, tb = said_tr + 0.3, said_tb + 0.25                       # the words land as they are said, then the physics
-    # TRÉBUCHER: the letters walk on a line; on the word, each one catches its toe in turn,
-    # pitches forward and stumbles back upright (a damped wobble about its front corner)
-    if t >= said_tr:
-        k_in = P.ease_out((t - said_tr) / 0.3)
-        ImageDraw.Draw(s.mid).line((990, 470, 990 + 900 * k_in, 470), fill=S.ink(s) + (255,), width=4)
-        for i, (c, card) in enumerate(TRIP):
-            px = 1000 + 96 * i + card.width
-            u = t - tr - 0.06 * i
-            ang, hop = 0.0, 0.0
-            if u > 0:
-                ang = 32 * math.sin(min(u, 0.16) / 0.16 * math.pi / 2) if u < 0.16 else 32 * math.exp(-(u - 0.16) * 5.5) * math.cos((u - 0.16) * 16)
-                hop = 10 * math.sin(min(1.0, u / 0.25) * math.pi)
-                if i % 3 == 0:
-                    sfx('tick', tr + 0.06 * i + 0.16, px, gain=0.3)
-            if t >= said_tr + 0.02 * i:
-                _pivot(s.mid, card, px, 470 - hop, max(-8.0, ang), lift=0.05)
-    # TOMBER: dominoes; each letter tips over its front edge, gravity speeds it up, it slams flat
-    # on the floor, bounces a little and settles
-    if t >= said_tb:
-        k_in = P.ease_out((t - said_tb) / 0.3)
-        ImageDraw.Draw(s.mid).line((870, FLOOR6, 870 + 980 * k_in, FLOOR6), fill=S.ink(s) + (255,), width=4)
-        for i, (c, card) in enumerate(FALL):
-            px = 880 + 142 * i + card.width
-            if t < said_tb + 0.02 * i:
-                continue
-            u = t - tb - 0.11 * i
-            if u <= 0:
-                ang = 0.0
-            elif u < 0.42:
-                ang = 90 * (u / 0.42) ** 2
-            else:
-                v = u - 0.42
-                ang = 90 - 9 * math.exp(-v * 7) * abs(math.sin(v * 15))
-                sfx('drop', tb + 0.11 * i + 0.42, px, gain=0.35)
-            _pivot(s.mid, card, px, FLOOR6, ang)
+    a, b = w(cue(13, 'trebucher')), w(cue(13, 'ton', 2))
+    x = 1450
+    if t >= a:                                    # TRÉBUCHER: one stumble forward, then it steadies
+        u = max(0.0, t - a - 0.15)
+        k = math.exp(-u * 4.5) * math.sin(u * 11) if u > 0 else 0.0
+        P.put(s.mid, P.rot_scale(TRIP_CARD, -10 * k, 1.0), x + 30 * k, 400 + 8 * abs(k), sh_op=0.22)
+    if t >= b:                                    # TOMBER: falls to the floor and lands crooked
+        ImageDraw.Draw(s.mid).line((1150, FLOOR6, 1750, FLOOR6), fill=S.ink(s) + (255,), width=4)
+        u = max(0.0, t - b - 0.2)
+        T = 0.45
+        if u < T:
+            y = 600 + (FLOOR6 - 102 - 600) * (u / T) ** 2
+            ang = 7 * (u / T)
+        else:
+            v = u - T
+            y = FLOOR6 - 102 - 22 * math.exp(-v * 7) * abs(math.sin(v * 12))
+            ang = 7
+        P.put(s.mid, P.rot_scale(FALL_CARD, -ang, 1.0), x, y, sh_op=0.22)
+        sfx('drop', b + 0.2 + T, x, gain=0.5)
     return s
 
 
