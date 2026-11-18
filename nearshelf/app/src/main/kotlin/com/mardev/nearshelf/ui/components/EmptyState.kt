@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.ui.components
 
+import com.mardev.nearshelf.ui.theme.ButtonShape
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -43,6 +44,6 @@ fun EmptyState(
             textAlign = TextAlign.Center,
             modifier = Modifier.widthIn(max = 360.dp),
         )
-        if (action != null) Button(onClick = onAction, modifier = Modifier.padding(top = 8.dp)) { Text(action) }
+        if (action != null) Button(shape = ButtonShape, onClick = onAction, modifier = Modifier.padding(top = 8.dp)) { Text(action) }
     }
 }

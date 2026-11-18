@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">Nearshelf</string>
     <string name="tagline">Your next book, on a shelf near you.</string>
+    <!-- Home headline: the tagline, broken where it reads best. -->
+    <string name="home_headline">Your next book,\non a shelf near you.</string>
 
     <!-- Navigation -->
     <string name="nav_search">Search</string>

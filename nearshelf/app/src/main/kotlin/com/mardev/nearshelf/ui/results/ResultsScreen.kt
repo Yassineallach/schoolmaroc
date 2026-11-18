@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.ui.results
 
+import com.mardev.nearshelf.ui.theme.ButtonShape
 import com.mardev.nearshelf.ui.components.readableWidth
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -234,7 +235,7 @@ internal fun ResultsContent(
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                             )
-                            androidx.compose.material3.Button(onClick = { services.forEach { (id, svc) -> onRetry(id, svc.ref) } }) {
+                            androidx.compose.material3.Button(shape = ButtonShape, onClick = { services.forEach { (id, svc) -> onRetry(id, svc.ref) } }) {
                                 Text(stringResource(R.string.action_retry_all))
                             }
                         }
@@ -321,13 +322,13 @@ private fun BookHeaderView(state: ResultsUiState, watched: Boolean, onWatch: () 
             )
             val watchLabel = stringResource(if (watched) R.string.action_watching else R.string.action_watch)
             if (watched) {
-                FilledTonalButton(onClick = onWatch, modifier = Modifier.padding(top = 4.dp).heightIn(min = 48.dp)) {
+                FilledTonalButton(shape = ButtonShape, onClick = onWatch, modifier = Modifier.padding(top = 4.dp).heightIn(min = 48.dp)) {
                     Icon(painterResource(R.drawable.ic_watchlist_fill), null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
                     Text(watchLabel)
                 }
             } else {
-                OutlinedButton(onClick = onWatch, modifier = Modifier.padding(top = 4.dp).heightIn(min = 48.dp)) {
+                OutlinedButton(shape = ButtonShape, onClick = onWatch, modifier = Modifier.padding(top = 4.dp).heightIn(min = 48.dp)) {
                     Icon(painterResource(R.drawable.ic_watchlist), null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
                     Text(watchLabel)
@@ -450,7 +451,7 @@ private fun FailedRow(
         // get past one; the user searches it in their browser instead.
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.results_blocked), style = MaterialTheme.typography.bodyMedium)
-            OutlinedButton(onClick = { onOpenCatalog(ref) }, modifier = Modifier.heightIn(min = 48.dp)) {
+            OutlinedButton(shape = ButtonShape, onClick = { onOpenCatalog(ref) }, modifier = Modifier.heightIn(min = 48.dp)) {
                 Text(stringResource(R.string.action_search_catalog))
                 Spacer(Modifier.width(8.dp))
                 Icon(painterResource(R.drawable.ic_open_external), null, modifier = Modifier.size(ButtonDefaults.IconSize))
@@ -548,9 +549,9 @@ private fun HoldingRow(ref: LibraryRef, row: HoldingRowUi, onBorrow: (LibraryRef
             Icon(painterResource(R.drawable.ic_open_external), null, modifier = Modifier.size(ButtonDefaults.IconSize))
         }
         if (m.otherLanguage) {
-            OutlinedButton(onClick = { onBorrow(ref, m) }, modifier = buttonModifier) { content() }
+            OutlinedButton(shape = ButtonShape, onClick = { onBorrow(ref, m) }, modifier = buttonModifier) { content() }
         } else {
-            FilledTonalButton(onClick = { onBorrow(ref, m) }, modifier = buttonModifier) { content() }
+            FilledTonalButton(shape = ButtonShape, onClick = { onBorrow(ref, m) }, modifier = buttonModifier) { content() }
         }
     }
 }
@@ -623,7 +624,7 @@ private fun PhysicalRow(
                 Text(pluralStringResource(R.plurals.show_all_branches, branches.size, branches.size))
             }
         }
-        OutlinedButton(onClick = { onBorrow(ref, m) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+        OutlinedButton(shape = ButtonShape, onClick = { onBorrow(ref, m) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
             Text(stringResource(if (anyShelf) R.string.action_view_catalog else R.string.action_hold_catalog))
             Spacer(Modifier.width(8.dp))
             Icon(painterResource(R.drawable.ic_open_external), null, modifier = Modifier.size(ButtonDefaults.IconSize))
@@ -713,7 +714,7 @@ private fun LocationCard(onAllow: () -> Unit, onDismiss: () -> Unit) {
             }
             Text(stringResource(R.string.location_card_body), style = MaterialTheme.typography.bodyMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                androidx.compose.material3.Button(onClick = onAllow) { Text(stringResource(R.string.location_card_allow)) }
+                androidx.compose.material3.Button(shape = ButtonShape, onClick = onAllow) { Text(stringResource(R.string.location_card_allow)) }
                 TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_not_now)) }
             }
         }

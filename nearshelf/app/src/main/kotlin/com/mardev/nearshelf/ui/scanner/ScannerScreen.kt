@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.ui.scanner
 
+import com.mardev.nearshelf.ui.theme.ButtonShape
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -102,7 +103,7 @@ fun ScannerScreen(onBack: () -> Unit, onIsbn: (String) -> Unit, onTypeInstead: (
                         )
                     },
                 )
-                OutlinedButton(onClick = onTypeInstead, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                OutlinedButton(shape = ButtonShape, onClick = onTypeInstead, modifier = Modifier.align(Alignment.CenterHorizontally)) {
                     Text(stringResource(R.string.scanner_type_instead))
                 }
             }
@@ -165,7 +166,7 @@ private fun CameraScanner(onIsbn: (String) -> Unit, onTypeInstead: () -> Unit, m
     if (noCamera) {
         Column(modifier) {
             EmptyState(R.drawable.ic_camera, stringResource(R.string.scanner_no_camera_title), stringResource(R.string.scanner_no_camera_body))
-            OutlinedButton(onClick = onTypeInstead, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+            OutlinedButton(shape = ButtonShape, onClick = onTypeInstead, modifier = Modifier.align(Alignment.CenterHorizontally)) {
                 Text(stringResource(R.string.scanner_type_instead))
             }
         }
@@ -192,7 +193,7 @@ private fun CameraScanner(onIsbn: (String) -> Unit, onTypeInstead: () -> Unit, m
                 )
             }
             if (camera?.cameraInfo?.hasFlashUnit() == true) {
-                Button(onClick = {
+                Button(shape = ButtonShape, onClick = {
                     torchOn = !torchOn
                     camera?.cameraControl?.enableTorch(torchOn)
                 }) {
@@ -200,7 +201,7 @@ private fun CameraScanner(onIsbn: (String) -> Unit, onTypeInstead: () -> Unit, m
                     Text(stringResource(if (torchOn) R.string.scanner_torch_off else R.string.scanner_torch_on), Modifier.padding(start = 8.dp))
                 }
             }
-            OutlinedButton(onClick = onTypeInstead, colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(contentColor = Color.White)) {
+            OutlinedButton(shape = ButtonShape, onClick = onTypeInstead, colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(contentColor = Color.White)) {
                 Text(stringResource(R.string.scanner_type_instead))
             }
         }

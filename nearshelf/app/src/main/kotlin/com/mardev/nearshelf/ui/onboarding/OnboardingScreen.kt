@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.ui.onboarding
 
+import com.mardev.nearshelf.ui.theme.ButtonShape
 import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -72,16 +73,16 @@ fun OnboardingScreen(onAddLibrary: () -> Unit, onDone: () -> Unit) {
                 when (page) {
                     0 -> Page(R.drawable.ic_books, stringResource(R.string.onboarding_1_title), stringResource(R.string.onboarding_1_body))
                     1 -> Page(R.drawable.ic_library, stringResource(R.string.onboarding_2_title), stringResource(R.string.onboarding_2_body)) {
-                        Button(onClick = onAddLibrary, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.libraries_add)) }
+                        Button(shape = ButtonShape, onClick = onAddLibrary, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.libraries_add)) }
                     }
                     else -> Page(R.drawable.ic_map_pin, stringResource(R.string.onboarding_3_title), stringResource(R.string.onboarding_3_body)) {
-                        OutlinedButton(
+                        OutlinedButton(shape = ButtonShape, 
                             onClick = { location.launch(Manifest.permission.ACCESS_COARSE_LOCATION) },
                             enabled = !locationAsked,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                         ) { Text(stringResource(R.string.onboarding_allow_location)) }
                         if (Build.VERSION.SDK_INT >= 33) {
-                            OutlinedButton(
+                            OutlinedButton(shape = ButtonShape, 
                                 onClick = { notifications.launch(Manifest.permission.POST_NOTIFICATIONS) },
                                 enabled = !notificationsAsked,
                                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
@@ -104,11 +105,11 @@ fun OnboardingScreen(onAddLibrary: () -> Unit, onDone: () -> Unit) {
                     }
                 }
                 if (pager.currentPage < 2) {
-                    Button(onClick = { scope.launch { pager.animateScrollToPage(pager.currentPage + 1) } }, modifier = Modifier.heightIn(min = 48.dp)) {
+                    Button(shape = ButtonShape, onClick = { scope.launch { pager.animateScrollToPage(pager.currentPage + 1) } }, modifier = Modifier.heightIn(min = 48.dp)) {
                         Text(stringResource(R.string.onboarding_next))
                     }
                 } else {
-                    Button(onClick = onDone, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.onboarding_done)) }
+                    Button(shape = ButtonShape, onClick = onDone, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.onboarding_done)) }
                 }
             }
         }

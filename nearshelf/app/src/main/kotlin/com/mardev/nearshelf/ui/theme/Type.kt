@@ -27,12 +27,26 @@ private val base = Typography()
 private fun TextStyle.serif(weight: Int, size: Int, line: Int) =
     copy(fontFamily = Serif, fontWeight = FontWeight(weight), fontSize = size.sp, lineHeight = line.sp, letterSpacing = 0.sp)
 
+/**
+ * Two voices, each with one job:
+ * - Serif (Cormorant Garamond): editorial moments only: the wordmark, headlines, book
+ *   titles and headline numbers.
+ * - Sans (the system's Roboto): everything you read or tap: section titles, rows,
+ *   metadata, buttons. Tracking is tightened from Material's defaults so text sets
+ *   like print rather than spread out.
+ */
 val NearshelfTypography = base.copy(
     displayLarge = base.displayLarge.serif(600, 57, 64),
     displayMedium = base.displayMedium.serif(600, 45, 52),
-    displaySmall = base.displaySmall.serif(600, 38, 44),
+    displaySmall = base.displaySmall.serif(600, 36, 44),
     headlineLarge = base.headlineLarge.serif(600, 34, 40),
     headlineMedium = base.headlineMedium.serif(600, 30, 36),
-    headlineSmall = base.headlineSmall.serif(700, 26, 32),
-    titleLarge = base.titleLarge.serif(700, 24, 30),
+    headlineSmall = base.headlineSmall.serif(600, 26, 32),
+    titleLarge = base.titleLarge.serif(600, 23, 28),
+    titleMedium = base.titleMedium.copy(fontWeight = FontWeight.SemiBold, letterSpacing = 0.sp),
+    titleSmall = base.titleSmall.copy(fontWeight = FontWeight.SemiBold, letterSpacing = 0.1.sp),
+    bodyLarge = base.bodyLarge.copy(letterSpacing = 0.15.sp),
+    bodyMedium = base.bodyMedium.copy(letterSpacing = 0.1.sp),
+    bodySmall = base.bodySmall.copy(letterSpacing = 0.2.sp),
+    labelLarge = base.labelLarge.copy(fontWeight = FontWeight.SemiBold, letterSpacing = 0.1.sp),
 )

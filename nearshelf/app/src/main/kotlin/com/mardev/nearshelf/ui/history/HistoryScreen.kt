@@ -2,7 +2,10 @@ package com.mardev.nearshelf.ui.history
 
 import com.mardev.nearshelf.ui.components.readableWidth
 import android.text.format.DateUtils
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.offset
+import com.mardev.nearshelf.ui.components.CoverThumb
+import com.mardev.nearshelf.ui.components.ListRow
+import com.mardev.nearshelf.ui.components.RowDivider
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -73,7 +76,7 @@ fun HistoryScreen(onBack: () -> Unit, onOpen: (HistoryItem) -> Unit, vm: History
         LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(vertical = 8.dp)) {
             itemsIndexed(list, key = { _, it -> it.key }) { index, item ->
                 HistoryRow(item, onOpen = { onOpen(item) }, onRemove = { vm.remove(item.key) })
-                HorizontalDivider(Modifier.padding(start = 16.dp))
+                RowDivider()
                 // Native ad in the middle of the list: after the 3rd entry (or the last, if fewer).
                 if (index == minOf(2, list.lastIndex)) NativeAdCard(Modifier.padding(16.dp))
             }
@@ -83,22 +86,25 @@ fun HistoryScreen(onBack: () -> Unit, onOpen: (HistoryItem) -> Unit, vm: History
 
 @Composable
 fun HistoryRow(item: HistoryItem, onOpen: () -> Unit, onRemove: (() -> Unit)? = null) {
-    Row(
-        Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onOpen).padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(painterResource(R.drawable.ic_history), null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
-        Column(Modifier.weight(1f).padding(start = 12.dp)) {
-            Text(item.title, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                listOfNotNull(item.author, DateUtils.getRelativeTimeSpanString(item.searchedAt, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString())
-                    .joinToString(" · "),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        if (onRemove != null) {
-            IconButton(onClick = onRemove) { Icon(painterResource(R.drawable.ic_x), stringResource(R.string.cd_remove_history, item.title)) }
-        }
-    }
+    ListRow(
+        title = item.title,
+        meta = listOfNotNull(
+            item.author,
+            DateUtils.getRelativeTimeSpanString(item.searchedAt, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString(),
+        ).joinToString(" · "),
+        onClick = onOpen,
+        leading = { CoverThumb(item.coverUrl) },
+        trailing = {
+            if (onRemove != null) {
+                IconButton(onClick = onRemove, modifier = Modifier.padding(start = 4.dp).offset(x = 12.dp)) {
+                    Icon(
+                        painterResource(R.drawable.ic_x),
+                        stringResource(R.string.cd_remove_history, item.title),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+        },
+    )
 }

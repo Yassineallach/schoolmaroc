@@ -28,6 +28,12 @@ import com.mardev.nearshelf.core.prefs.ReadingPrefs
 import com.mardev.nearshelf.core.provider.ProviderException
 import com.mardev.nearshelf.core.search.ServiceState
 import com.mardev.nearshelf.ui.onboarding.OnboardingScreen
+import com.mardev.nearshelf.R
+import com.mardev.nearshelf.data.HistoryItem
+import com.mardev.nearshelf.ui.home.HomeContent
+import com.mardev.nearshelf.ui.components.NavDestinationItem
+import com.mardev.nearshelf.ui.components.NearshelfNavBar
+import androidx.compose.foundation.layout.padding
 import com.mardev.nearshelf.ui.results.LibraryResult
 import com.mardev.nearshelf.ui.results.Phase
 import com.mardev.nearshelf.ui.results.ResultsContent
@@ -86,6 +92,56 @@ class ScreenshotTest(private val device: Device) {
             onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
             onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
             adSlot = { FakeAd(it) },
+        )
+    }
+
+    @Test fun home() = shot("home") { HomeFrame(sampleLibraries(), sampleRecent()) }
+
+    @Test fun homeEmpty() = shot("home_empty") { HomeFrame(emptyList(), emptyList()) }
+
+    @Composable
+    private fun HomeFrame(libraries: List<Library>, recent: List<HistoryItem>) {
+        androidx.compose.material3.Scaffold(
+            bottomBar = {
+                NearshelfNavBar(
+                    listOf(
+                        NavDestinationItem(R.string.nav_search, R.drawable.ic_search, R.drawable.ic_search_fill),
+                        NavDestinationItem(R.string.nav_watchlist, R.drawable.ic_watchlist, R.drawable.ic_watchlist_fill),
+                        NavDestinationItem(R.string.nav_libraries, R.drawable.ic_library, R.drawable.ic_library_fill),
+                    ),
+                    selectedIndex = 0, onSelect = {},
+                )
+            },
+        ) { padding ->
+            Box(Modifier.padding(padding)) {
+                HomeContent(
+                    input = "", onInputChange = {}, libraries = libraries, recent = recent, hasCamera = true,
+                    onSubmit = {}, onScan = {}, onManageLibraries = {}, onAddLibrary = {}, onOpenHistory = {},
+                    onPreferences = {}, onSettings = {},
+                )
+            }
+        }
+    }
+
+    private fun sampleLibraries(): List<Library> {
+        val od = LibraryRef(ProviderId.OVERDRIVE, "chipublib", "Chicago Public Library")
+        val ho = LibraryRef(ProviderId.HOOPLA, "chicago", "Chicago Public Library")
+        val bc = LibraryRef(ProviderId.BIBLIOCOMMONS, "chipublib", "Chicago Public Library")
+        val ev = LibraryRef(ProviderId.POLARIS, "evanston", "Evanston Public Library")
+        val evOd = LibraryRef(ProviderId.OVERDRIVE, "evanston", "Evanston Public Library")
+        val sk = LibraryRef(ProviderId.OVERDRIVE, "skokie", "Skokie Public Library")
+        return listOf(
+            Library("chicago", "Chicago Public Library", "Chicago", "IL", "US", listOf(od, ho, bc)),
+            Library("evanston", "Evanston Public Library", "Evanston", "IL", "US", listOf(evOd, ev)),
+            Library("skokie", "Skokie Public Library", "Skokie", "IL", "US", listOf(sk)),
+        )
+    }
+
+    private fun sampleRecent(): List<HistoryItem> {
+        val now = System.currentTimeMillis()
+        return listOf(
+            HistoryItem("a", BookQuery(title = "Piranesi"), "Piranesi", "Susanna Clarke", null, now - 3_600_000),
+            HistoryItem("b", BookQuery(title = "The Overstory"), "The Overstory", "Richard Powers", null, now - 86_400_000),
         )
     }
 

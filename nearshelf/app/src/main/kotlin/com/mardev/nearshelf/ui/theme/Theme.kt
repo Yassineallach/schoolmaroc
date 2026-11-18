@@ -113,6 +113,6 @@ fun NearshelfTheme(
         else -> Light
     }
     CompositionLocalProvider(LocalStatusColors provides if (darkTheme) DarkStatus else LightStatus) {
-        MaterialTheme(colorScheme = colors, typography = NearshelfTypography, content = content)
+        MaterialTheme(colorScheme = colors, typography = NearshelfTypography, shapes = NearshelfShapes, content = content)
     }
 }

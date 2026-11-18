@@ -10,8 +10,8 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
+import com.mardev.nearshelf.ui.components.NavDestinationItem
+import com.mardev.nearshelf.ui.components.NearshelfNavBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -158,23 +158,17 @@ private fun NearshelfRoot(
 
     Scaffold(
         bottomBar = {
-            if (showBar) NavigationBar {
-                topLevel.forEach { t ->
-                    val selected = dest?.hasRoute(t.route::class) == true
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = {
-                            nav.navigate(t.route) {
-                                popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(painterResource(if (selected) t.selectedIcon else t.icon), contentDescription = null) },
-                        label = { Text(stringResource(t.label)) },
-                    )
-                }
-            }
+            if (showBar) NearshelfNavBar(
+                items = topLevel.map { NavDestinationItem(it.label, it.icon, it.selectedIcon) },
+                selectedIndex = topLevel.indexOfFirst { t -> dest?.hasRoute(t.route::class) == true },
+                onSelect = { i ->
+                    nav.navigate(topLevel[i].route) {
+                        popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+            )
         },
     ) { padding ->
         NavHost(
