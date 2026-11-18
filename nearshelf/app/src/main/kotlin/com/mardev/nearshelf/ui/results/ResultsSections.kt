@@ -94,6 +94,7 @@ internal fun FormatSectionView(
     onBorrow: (LibraryRef, MatchedHolding) -> Unit,
     locationPrompt: (@Composable () -> Unit)?,
     modifier: Modifier = Modifier,
+    afterFirst: (@Composable () -> Unit)? = null,
 ) {
     Column(modifier.fillMaxWidth().padding(top = Space.s)) {
         // The tab names the format; above the options goes only its answer, when there's a choice to sum up.
@@ -104,7 +105,11 @@ internal fun FormatSectionView(
         // One card per option, fastest first.
         Column(Modifier.padding(horizontal = Gutter, vertical = Space.s), verticalArrangement = Arrangement.spacedBy(Space.l)) {
             val sameLibraryTwice = section.options.groupBy { it.library.id }.any { it.value.size > 1 }
-            section.options.forEach { OptionCardFor(it, sameLibraryTwice, here, onBorrow) }
+            section.options.forEachIndexed { i, o ->
+                OptionCardFor(o, sameLibraryTwice, here, onBorrow)
+                // The native ad sits right after the first library card, mid-list.
+                if (i == 0) afterFirst?.invoke()
+            }
         }
         if (section.otherLanguages.isNotEmpty()) OtherLanguages(section.otherLanguages, multiLibrary, here, onBorrow, showDivider = section.options.isNotEmpty())
     }

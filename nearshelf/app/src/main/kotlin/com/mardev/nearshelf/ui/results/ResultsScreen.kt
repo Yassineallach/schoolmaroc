@@ -285,15 +285,14 @@ internal fun ResultsContent(
                             locationPrompt = if (tab == Format.PHYSICAL && showLocationCard) {
                                 { LocationCard(onAllow = onAllowLocation, onDismiss = onDismissLocation, modifier = Modifier.padding(start = Gutter, end = Gutter, top = Space.s, bottom = Space.s)) }
                             } else null,
+                            // One native ad, right after the first library card; never offline.
+                            afterFirst = if (offline) null else { { adSlot(Modifier) } },
                         )
                     }
                     organized.loading > 0 -> item(key = "pending-$tab") { SkeletonLines(4, Modifier.fillMaxWidth().padding(Gutter, Space.l)) }
                     else -> item(key = "empty-$tab") { EmptyTab(tab) }
                 }
-                // One native ad, after this tab's options and before the notes; never offline.
-                if (!offline && section != null && section.options.isNotEmpty()) {
-                    item(key = "ad") { adSlot(Modifier.padding(horizontal = Gutter, vertical = Space.l)) }
-                }
+
             }
             if (organized.notes.isNotEmpty() && !allFailed) {
                 item(key = "notes") {
