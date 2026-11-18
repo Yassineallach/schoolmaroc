@@ -109,7 +109,7 @@ fun Monogram(name: String, modifier: Modifier = Modifier) {
     ) {
         Text(
             letter.toString(),
-            style = MaterialTheme.typography.headlineSmall.copy(fontSize = 22.sp, lineHeight = 22.sp),
+            style = com.mardev.nearshelf.ui.theme.MonogramStyle,
             color = MaterialTheme.colorScheme.primary,
         )
     }
@@ -134,7 +134,7 @@ fun CoverThumb(url: String?, modifier: Modifier = Modifier, title: String? = nul
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     title.firstOrNull { it.isLetterOrDigit() }?.uppercase() ?: "",
-                    style = MaterialTheme.typography.headlineLarge,
+                    style = com.mardev.nearshelf.ui.theme.CoverInitial,
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Box(Modifier.padding(top = 6.dp).size(width = 16.dp, height = 1.dp).background(MaterialTheme.colorScheme.secondary))

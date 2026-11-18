@@ -74,3 +74,12 @@ val Wordmark = style(SerifDisplay, 600, 24, 28, (-0.4).sp)
 
 /** Book titles in lists and shelves: the serif at reading size. */
 val BookTitleSmall = style(SerifText, 600, 15, 19)
+
+/** Library monogram initial (40 dp tile). */
+val MonogramStyle = style(SerifDisplay, 500, 22, 22)
+
+/** Initial on a cover placeholder ("cloth binding"). */
+val CoverInitial = style(SerifDisplay, 500, 30, 34)
+
+/** Service tags: label size at medium weight, so a row of tags stays quiet. */
+val TagLabel = style(Sans, 500, 12, 16, 0.2.sp)

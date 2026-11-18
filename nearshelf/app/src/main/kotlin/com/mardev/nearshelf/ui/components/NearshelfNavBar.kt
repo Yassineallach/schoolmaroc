@@ -10,11 +10,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.selection.selectableGroup
@@ -52,17 +50,17 @@ fun NearshelfNavBar(items: List<NavDestinationItem>, selectedIndex: Int, onSelec
     Column(Modifier.fillMaxWidth().background(colors.background)) {
         HorizontalDivider(color = colors.outlineVariant)
         Row(
-            Modifier.fillMaxWidth().navigationBarsPadding().heightIn(min = 64.dp).height(IntrinsicSize.Min).selectableGroup(),
+            Modifier.fillMaxWidth().navigationBarsPadding().selectableGroup(),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             items.forEachIndexed { i, t ->
                 val selected = i == selectedIndex
-                val tint by animateColorAsState(if (selected) colors.primary else colors.onSurfaceVariant, label = "tint")
+                val tint by animateColorAsState(if (selected) colors.primary else colors.onSurfaceVariant, androidx.compose.animation.core.tween(if (reduced) 0 else 200), label = "tint")
                 val rule by animateDpAsState(if (selected) 24.dp else 0.dp, label = "rule", animationSpec = androidx.compose.animation.core.tween(if (reduced) 0 else 200))
                 Box(
                     Modifier
                         .weight(1f)
-                        .fillMaxHeight()
+                        .heightIn(min = 64.dp)
                         .selectable(selected = selected, role = Role.Tab, onClick = { onSelect(i) }),
                     contentAlignment = Alignment.Center,
                 ) {

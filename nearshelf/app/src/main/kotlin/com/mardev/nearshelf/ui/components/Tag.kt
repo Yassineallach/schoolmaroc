@@ -37,6 +37,6 @@ fun Tag(text: String, @DrawableRes icon: Int, modifier: Modifier = Modifier, fil
         horizontalArrangement = Arrangement.spacedBy(5.dp),
     ) {
         Icon(painterResource(icon), contentDescription = null, tint = colors.secondary, modifier = Modifier.size(13.dp))
-        Text(text, style = MaterialTheme.typography.labelMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium), color = colors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(text, style = com.mardev.nearshelf.ui.theme.TagLabel, color = colors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }

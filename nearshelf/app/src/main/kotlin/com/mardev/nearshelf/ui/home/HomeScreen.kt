@@ -1,6 +1,7 @@
 package com.mardev.nearshelf.ui.home
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -74,6 +75,9 @@ import com.mardev.nearshelf.ui.components.RowDivider
 import com.mardev.nearshelf.ui.components.SectionHeader
 import com.mardev.nearshelf.ui.components.Tag
 import com.mardev.nearshelf.ui.components.readableWidth
+import com.mardev.nearshelf.ui.components.lightswind.Skeleton
+import com.mardev.nearshelf.ui.components.lightswind.SkeletonVariant
+import com.mardev.nearshelf.ui.components.lightswind.rememberReducedMotion
 import com.mardev.nearshelf.ui.theme.BookTitleSmall
 import com.mardev.nearshelf.ui.theme.ButtonShape
 import com.mardev.nearshelf.ui.theme.ControlShape
@@ -183,7 +187,8 @@ internal fun HomeContent(
         }
         val list = libraries
         when {
-            list == null -> Unit
+            // Libraries come from the local database; skeleton rows hold their place meanwhile.
+            list == null -> items(2, key = { "skeleton-$it" }) { LibraryRowSkeleton() }
             list.isEmpty() -> item(key = "noLibraries") { NoLibraries(onAddLibrary) }
             else -> itemsIndexed(list, key = { _, l -> l.id }) { index, library ->
                 LibraryRow(library, onClick = onManageLibraries)
@@ -247,7 +252,8 @@ private fun SearchField(value: String, onValueChange: (String) -> Unit, onSearch
     val label = stringResource(R.string.search_label)
     // White paper on the light theme; one step above the page on the dark one (never a hole).
     val fill = if (colors.background.luminance() > 0.5f) colors.surfaceContainerLowest else colors.surfaceContainerHigh
-    val edge by animateColorAsState(if (focused) colors.primary else colors.outlineVariant, label = "edge")
+    val reduced = rememberReducedMotion()
+    val edge by animateColorAsState(if (focused) colors.primary else colors.outlineVariant, tween(if (reduced) 0 else 150), label = "edge")
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
@@ -402,15 +408,17 @@ private fun LibraryRow(library: Library, onClick: () -> Unit) {
                 library.name,
                 style = MaterialTheme.typography.titleMedium,
                 color = colors.onSurface,
-                maxLines = 2,
+                maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
             val place = listOfNotNull(library.city, library.region).joinToString(", ")
             if (place.isNotEmpty()) {
                 Text(place, style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            val digital = library.digitalServices.map { it.provider.displayName }.distinct()
-            val physical = library.physicalServices.map { it.provider.displayName }.distinct()
+            val (digital, physical) = remember(library) {
+                library.digitalServices.map { it.provider.displayName }.distinct() to
+                    library.physicalServices.map { it.provider.displayName }.distinct()
+            }
             if (digital.isNotEmpty() || physical.isNotEmpty()) {
                 FlowRow(
                     Modifier.padding(top = Space.s),
@@ -428,6 +436,20 @@ private fun LibraryRow(library: Library, onClick: () -> Unit) {
             tint = colors.outline,
             modifier = Modifier.padding(start = Space.s, top = 10.dp).size(18.dp),
         )
+    }
+}
+
+/** Placeholder with the same proportions as [LibraryRow]. */
+@Composable
+private fun LibraryRowSkeleton() {
+    Row(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = Space.l)) {
+        Skeleton(Modifier.size(40.dp), variant = SkeletonVariant.Rounded)
+        Spacer(Modifier.width(Space.l))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Space.s)) {
+            Skeleton(Modifier.fillMaxWidth(0.7f).height(16.dp))
+            Skeleton(Modifier.fillMaxWidth(0.4f).height(12.dp))
+            Skeleton(Modifier.fillMaxWidth(0.55f).height(22.dp))
+        }
     }
 }
 

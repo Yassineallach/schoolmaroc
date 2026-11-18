@@ -100,8 +100,10 @@ class ScreenshotTest(private val device: Device) {
 
     @Test fun homeEmpty() = shot("home_empty") { HomeFrame(emptyList(), emptyList()) }
 
+    @Test fun homeLoading() = shot("home_loading") { HomeFrame(null, emptyList()) }
+
     @Composable
-    private fun HomeFrame(libraries: List<Library>, recent: List<HistoryItem>) {
+    private fun HomeFrame(libraries: List<Library>?, recent: List<HistoryItem>) {
         androidx.compose.material3.Scaffold(
             bottomBar = {
                 NearshelfNavBar(
