@@ -31,7 +31,8 @@ data class Library(
 }
 
 internal object TextKey {
-    private val noise = Regex("\\b(the|public|library|libraries|system|district|county|city|of)\\b")
+    // "county" and "city" stay: San Diego County Library and San Diego Public Library are different libraries.
+    private val noise = Regex("\\b(the|public|library|libraries|system|district|of)\\b")
 
     /** Hoopla appends the state: "Seattle Public Library (WA)". */
     private val trailingRegion = Regex("\\s*\\([A-Za-z .]{2,20}\\)\\s*$")

@@ -48,6 +48,19 @@ class LibrarySearchServiceTest {
     }
 
     @Test
+    fun `county and city libraries with the same place name stay separate`() {
+        val merged = LibrarySearchService.merge(
+            listOf(
+                LibraryRef(ProviderId.OVERDRIVE, "sdcl", "San Diego County Library", countryCode = "US"),
+                LibraryRef(ProviderId.HOOPLA, "1", "San Diego Public Library", countryCode = "US"),
+                LibraryRef(ProviderId.HOOPLA, "2", "St. Louis County Library (MO)", countryCode = "US"),
+                LibraryRef(ProviderId.BIBLIOCOMMONS, "x", "St. Louis Public Library", countryCode = "US"),
+            ),
+        )
+        assertEquals(4, merged.size)
+    }
+
+    @Test
     fun `same name in different countries stays separate`() {
         val merged = LibrarySearchService.merge(
             listOf(

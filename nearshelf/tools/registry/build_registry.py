@@ -42,7 +42,9 @@ def norm(s):
     return re.sub(r"[^\w]+", " ", s).strip()
 
 
-NOISE = re.compile(r"\b(the|public|library|libraries|system|district|county|city|of|and|free|metropolitan|regional)\b")
+# Mirrors Library.idFor in Kotlin. "county"/"city" are kept: San Diego County Library and
+# San Diego Public Library are different libraries.
+NOISE = re.compile(r"\b(the|public|library|libraries|system|district|of)\b")
 
 
 def key(name):

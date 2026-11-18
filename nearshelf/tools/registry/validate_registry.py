@@ -21,7 +21,8 @@ def main():
         where = f"#{i} {lib.get('name')!r}"
         if not lib.get("name") or not re.fullmatch(r"[A-Z]{2}", lib.get("country", "")):
             errors.append(f"{where}: name and 2-letter country required")
-        ident = (lib.get("name", "").lower(), lib.get("country"))
+        n = re.sub(r"[^\w]+", " ", lib.get("name", "").lower())
+        ident = (re.sub(r"\s+", " ", re.sub(r"\b(the|public|library|libraries|system|district|of)\b", " ", n)).strip(), lib.get("country"))
         if ident in seen:
             errors.append(f"{where}: duplicate")
         seen.add(ident)
