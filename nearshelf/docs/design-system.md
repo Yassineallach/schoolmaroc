@@ -54,7 +54,7 @@ No text below 12 sp. Text styles come from tokens, never inline sizes.
 - Status: `Badge` Success/Warning are tinted labels (`StatusColors.*Container`), never saturated fills.
 - Native ad card (`res/layout/native_ad_card.xml`): compact, about 144 dp: 120 dp media square on the left (AdMob minimum for video), "Ad" label, icon, headline and action on the right; no body text (optional under AdMob policy). White card, hairline, Instrument Sans.
 
-Results are flat sections, not cards: hairline, monogram + serif library name, service overlines (`ServiceOverline`), rows separated by lighter hairlines.
+Results are organised by format, not by library (`ResultsOrganizer.kt`): one section per format (preferred first), each with a one-line verdict when there is a choice to sum up, then every option from every library ranked fastest first (available now, then hoopla, then shortest wait). Rows: who on the left (service, plus library when there are several), the deciding number on the right, one compact action. Other-language editions collapse under one line. Everything that isn't a result (not found, still checking, failures) goes to an "Also checked" footer. Catalog software names (BiblioCommons, Polaris…) are never shown as such: it's "the library catalog".
 
 ## Rules
 

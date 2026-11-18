@@ -220,6 +220,35 @@
     <string name="filter_formats">Formats</string>
     <string name="filter_label">Filter results</string>
     <string name="results_filtered_out">Nothing here matches your filters.</string>
+    <string name="verdict_available_now">Available now in %1$s</string>
+    <string name="verdict_available_now_at">Available now in %1$s at %2$s</string>
+    <string name="verdict_on_service">On %1$s</string>
+    <plurals name="verdict_shortest_wait">
+        <item quantity="one">Shortest wait: %d day</item>
+        <item quantity="other">Shortest wait: %d days</item>
+    </plurals>
+    <string name="verdict_waitlist">Waitlist only</string>
+    <string name="verdict_on_shelf_at">On the shelf at %1$s</string>
+    <string name="verdict_on_shelf">On the shelf</string>
+    <string name="verdict_all_out">All copies checked out</string>
+    <string name="verdict_unknown">Availability unknown</string>
+    <string name="other_languages">Other languages · %1$s</string>
+    <string name="notes_title">Also checked</string>
+    <string name="note_not_found">Not in %1$s</string>
+    <string name="note_no_print">No print copies</string>
+    <string name="note_no_print_at">No print copies at %1$s</string>
+    <string name="note_hidden_language">%1$s: only in languages you’ve hidden</string>
+    <string name="note_filtered">Some results are hidden by your filters.</string>
+    <string name="still_checking">Still checking %1$s…</string>
+    <string name="results_none_title">Not at your libraries yet</string>
+    <string name="results_none_body">None of your libraries has this book in any format. Tap Watch to hear if that changes.</string>
+    <string name="results_saved_from">Saved %1$s, couldn’t refresh</string>
+    <string name="print_catalog">Library catalog</string>
+    <plurals name="hoopla_limit_short">
+        <item quantity="one">%1$d Hoopla borrow a month at this library</item>
+        <item quantity="other">%1$d Hoopla borrows a month at this library</item>
+    </plurals>
+    <string name="show_fewer_branches">Show fewer</string>
     <string name="prefs_languages_body">Editions in other languages are marked, or hidden if you turn that off below.</string>
     <string name="prefs_show_other">Show editions in other languages</string>
     <string name="prefs_show_other_body">They’re marked with their language.</string>

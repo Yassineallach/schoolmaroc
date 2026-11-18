@@ -259,6 +259,34 @@ class ScreenshotTest(private val device: Device) {
         )
     }
 
+    /** The reader's own case: one library, Libby waits, hoopla audiobooks incl. a German edition. */
+    @Test fun resultsSingle() = shot("results_single") {
+        val od = LibraryRef(ProviderId.OVERDRIVE, "toronto", "Toronto Public Library")
+        val ho = LibraryRef(ProviderId.HOOPLA, "toronto", "Toronto Public Library", borrowLimitPerMonth = 8)
+        val bc = LibraryRef(ProviderId.BIBLIOCOMMONS, "tpl", "Toronto Public Library")
+        val t = "Red Rising"; val a = listOf("Pierce Brown")
+        fun m(h: Holding, other: Boolean = false) = MatchedHolding(h, 1.0, MatchedHolding.Reason.ISBN, otherLanguage = other)
+        val lib = Library("toronto", "Toronto Public Library", "Toronto", "ON", "CA", listOf(od, ho, bc))
+        val state = ResultsUiState(Phase.SEARCHING, query = BookQuery(title = t), libraries = listOf(LibraryResult(lib, listOf(
+            ServiceResult(od, ServiceState.Done(listOf(
+                m(Holding(ProviderId.OVERDRIVE, Format.EBOOK, t, authors = a, providerItemId = "e", owned = 60, holds = 340, waitDays = 80)),
+                m(Holding(ProviderId.OVERDRIVE, Format.AUDIOBOOK, t, authors = a, providerItemId = "a", owned = 2, holds = 3, waitDays = 28)),
+            ))),
+            ServiceResult(ho, ServiceState.Done(listOf(
+                m(Holding(ProviderId.HOOPLA, Format.AUDIOBOOK, t, authors = a, providerItemId = "h1", availabilityKnown = false)),
+                m(Holding(ProviderId.HOOPLA, Format.AUDIOBOOK, t, authors = a, providerItemId = "h2", availabilityKnown = false, language = "de"), other = true),
+            ))),
+            ServiceResult(bc, ServiceState.Done(emptyList())),
+        ))))
+        ResultsContent(
+            state = state, watched = false, here = null, prefs = ReadingPrefs(languages = setOf("en")),
+            offline = false, showLocationCard = false,
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
+            onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
+            adSlot = { FakeAd(it) },
+        )
+    }
+
     @Test fun resultsFilterDialog() = dialogShot("results_filter_dialog") {
         ResultsContent(
             state = sampleState(), watched = false, here = null, prefs = ReadingPrefs(),

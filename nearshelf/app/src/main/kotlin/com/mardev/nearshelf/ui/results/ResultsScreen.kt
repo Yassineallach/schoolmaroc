@@ -271,33 +271,42 @@ internal fun ResultsContent(
                     }
                 }
             }
-            val hasPrint = libraries.any { lr -> lr.services.any { it.ref.provider.kind == ProviderId.Kind.PHYSICAL } }
-            if (hasPrint && showLocationCard) {
-                item(key = "location") {
-                    LocationCard(
-                        onAllow = onAllowLocation,
-                        onDismiss = onDismissLocation,
-                        modifier = Modifier.padding(start = Gutter, end = Gutter, bottom = Space.l),
-                    )
+            // Organised by format, ranked fastest first; see ResultsOrganizer.
+            val organized = organizeResults(libraries, prefs, filter)
+            val multiLibrary = libraries.size > 1
+            if (organized.sections.isEmpty() && organized.loading > 0) {
+                item(key = "pending") { SkeletonLines(4, Modifier.fillMaxWidth().padding(Gutter, Space.l)) }
+            }
+            if (organized.sections.isEmpty() && organized.loading == 0 && !allFailed) {
+                item(key = "none") {
+                    NoneFound(filterActive = organized.filteredOut, onClear = { onFilterChange(ResultFilter()) })
                 }
             }
-            // One native ad, in the middle of the content: right after the first library card
-            // (32 dp from its buttons), never at the bottom of the screen, never offline.
-            itemsIndexed(libraries, key = { _, lr -> lr.library.id }) { index, lr ->
-                LibraryCard(
-                    result = lr,
-                    onBorrow = onBorrow,
-                    onRetry = { ref -> onRetry(lr.library.id, ref) },
-                    onOpenCatalog = onOpenCatalog,
-                    here = here,
-                    prefs = prefs,
-                    filter = filter,
-                    // The filter bar's hairline already separates the first library.
-                    topRule = true,
-                    modifier = Modifier.animateItem(),
-                )
-                if (index == 0 && !offline) {
-                    adSlot(Modifier.padding(horizontal = Gutter, vertical = Space.l))
+            organized.sections.forEachIndexed { si, section ->
+                item(key = "section-${section.format}") {
+                    FormatSectionView(
+                        section = section,
+                        multiLibrary = multiLibrary,
+                        here = here,
+                        onBorrow = onBorrow,
+                        locationPrompt = if (section.format == Format.PHYSICAL && showLocationCard) {
+                            { LocationCard(onAllow = onAllowLocation, onDismiss = onDismissLocation, modifier = Modifier.padding(start = Gutter, end = Gutter, bottom = Space.m)) }
+                        } else null,
+                        modifier = Modifier.animateItem(),
+                    )
+                }
+                // One native ad, in the middle of the content: after the first format, never offline.
+                if (si == 0 && !offline) item(key = "ad") { adSlot(Modifier.padding(horizontal = Gutter, vertical = Space.l)) }
+            }
+            if (organized.notes.isNotEmpty() && !allFailed) {
+                item(key = "notes") {
+                    NotesFooter(
+                        notes = organized.notes,
+                        multiLibrary = multiLibrary,
+                        onRetry = onRetry,
+                        onOpenCatalog = onOpenCatalog,
+                        onClearFilter = { onFilterChange(ResultFilter()) },
+                    )
                 }
             }
         }
@@ -354,8 +363,10 @@ private fun BookHeaderView(
             } else {
                 pluralStringResource(R.plurals.results_checked, state.total, state.total)
             }
+            // With one library, name it once here rather than on every row.
+            val single = state.libraries?.singleOrNull()?.library?.name
             Text(
-                status,
+                if (single != null) "$status · $single" else status,
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(top = 4.dp).semantics { liveRegion = LiveRegionMode.Polite },
@@ -433,308 +444,10 @@ private fun FilterDialog(filter: ResultFilter, formats: List<Format>, onChange: 
     }
 }
 
-@Composable
-private fun LibraryCard(
-    result: LibraryResult,
-    onBorrow: (LibraryRef, MatchedHolding) -> Unit,
-    onRetry: (LibraryRef) -> Unit,
-    onOpenCatalog: (LibraryRef) -> Unit,
-    here: LatLng?,
-    prefs: ReadingPrefs,
-    filter: ResultFilter,
-    topRule: Boolean = true,
-    modifier: Modifier = Modifier,
-) {
-    val reducedMotion = com.mardev.nearshelf.ui.components.lightswind.rememberReducedMotion()
-    // A flat section, not a card: hairline above, the library's monogram and serif name.
-    Column(modifier.fillMaxWidth()) {
-        if (topRule) HorizontalDivider(Modifier.padding(horizontal = Gutter), color = MaterialTheme.colorScheme.outlineVariant)
-        Column(Modifier.padding(top = Space.l, bottom = Space.s)) {
-            Row(Modifier.padding(horizontal = Gutter), verticalAlignment = Alignment.CenterVertically) {
-                Monogram(result.library.name)
-                Spacer(Modifier.width(Space.m))
-                Column {
-                    Text(result.library.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-                    result.library.locationLine().takeIf { it.isNotEmpty() }?.let {
-                        Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            }
-            result.services.forEachIndexed { si, svc ->
-                if (si > 0) HorizontalDivider(Modifier.padding(start = Gutter, end = Gutter, top = Space.s), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
-                Text(
-                    (if (svc.ref.provider.kind == ProviderId.Kind.PHYSICAL) {
-                        stringResource(R.string.section_physical, svc.ref.provider.displayName)
-                    } else {
-                        svc.ref.provider.displayName
-                    }).uppercase(androidx.compose.ui.platform.LocalConfiguration.current.locales[0]),
-                    // Service as a small overline: the section's index, not its headline.
-                    style = ServiceOverline,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = Gutter, end = Gutter, top = Space.l, bottom = Space.xs),
-                )
-                AnimatedContent(
-                    targetState = svc.state,
-                    contentKey = { it::class },
-                    transitionSpec = { fadeIn(tween(if (reducedMotion) 0 else 220)) togetherWith fadeOut(tween(if (reducedMotion) 0 else 120)) },
-                    label = "service",
-                ) { st ->
-                    when (st) {
-                        ServiceState.Loading -> SkeletonLines(3, Modifier.fillMaxWidth().padding(Gutter, Space.s))
-                        is ServiceState.Failed -> FailedRow(svc.ref, st, onRetry, onOpenCatalog)
-                        ServiceState.TemporarilyUnavailable -> Row(
-                            Modifier.fillMaxWidth().padding(start = Gutter, end = Gutter - 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                stringResource(R.string.results_temporarily_unavailable, svc.ref.provider.displayName),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.weight(1f),
-                            )
-                            TextButton(onClick = { onRetry(svc.ref) }) { Text(stringResource(R.string.action_retry)) }
-                        }
-                        is ServiceState.Done -> Column {
-                            if (st.stale) {
-                                Text(
-                                    stringResource(R.string.results_stale, relativeTime(st.fetchedAt)),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.tertiary,
-                                    modifier = Modifier.padding(horizontal = Gutter, vertical = 2.dp),
-                                )
-                            }
-                            if (svc.ref.provider == ProviderId.HOOPLA && st.matches.isNotEmpty()) {
-                                HooplaNote(svc.ref)
-                            }
-                            if (st.matches.isEmpty()) {
-                                Text(
-                                    stringResource(R.string.results_not_found, svc.ref.provider.displayName),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = Gutter, vertical = Space.xs),
-                                )
-                            }
-                            val beforeFilter = ServiceResult(svc.ref, st).rows(prefs)
-                            val rows = if (filter.isActive) ServiceResult(svc.ref, st).rows(prefs, filter) else beforeFilter
-                            if (rows.isEmpty() && st.matches.isNotEmpty()) {
-                                Text(
-                                    stringResource(if (beforeFilter.isNotEmpty()) R.string.results_filtered_out else R.string.results_hidden_by_language),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = Gutter, vertical = Space.xs),
-                                )
-                            }
-                            rows.forEachIndexed { i, row ->
-                                if (i > 0) HorizontalDivider(Modifier.padding(horizontal = Gutter), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
-                                if (row.match.holding.format == Format.PHYSICAL) {
-                                    PhysicalRow(svc.ref, row, result.library.homeBranch?.name, here, onBorrow)
-                                } else {
-                                    HoldingRow(svc.ref, row, onBorrow)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun FailedRow(
-    ref: LibraryRef,
-    failure: ServiceState.Failed,
-    onRetry: (LibraryRef) -> Unit,
-    onOpenCatalog: (LibraryRef) -> Unit,
-) {
-    if (failure.kind == ProviderException.Kind.BLOCKED) {
-        // The catalog answers automated requests with a bot check. Nearshelf never tries to
-        // get past one; the user searches it in their browser instead.
-        Column(Modifier.fillMaxWidth().padding(horizontal = Gutter), verticalArrangement = Arrangement.spacedBy(Space.s)) {
-            Text(stringResource(R.string.results_blocked), style = MaterialTheme.typography.bodyMedium)
-            OutlinedButton(shape = ButtonShape, border = hairline(), colors = quietOutlinedColors(), onClick = { onOpenCatalog(ref) }, modifier = Modifier.heightIn(min = 48.dp)) {
-                Text(stringResource(R.string.action_search_catalog))
-                Spacer(Modifier.width(8.dp))
-                Icon(painterResource(R.drawable.ic_open_external), null, modifier = Modifier.size(ButtonDefaults.IconSize))
-            }
-        }
-        return
-    }
-    Row(Modifier.fillMaxWidth().padding(start = Gutter, end = Gutter - 12.dp), verticalAlignment = Alignment.CenterVertically) {
-        Icon(painterResource(R.drawable.ic_warning), null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
-        Spacer(Modifier.width(8.dp))
-        Text(
-            stringResource(
-                if (failure.kind == ProviderException.Kind.RATE_LIMITED) R.string.results_rate_limited else R.string.results_failed,
-                ref.provider.displayName,
-            ),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.weight(1f),
-        )
-        TextButton(onClick = { onRetry(ref) }) {
-            Icon(painterResource(R.drawable.ic_retry), null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp))
-            Text(stringResource(R.string.action_retry))
-        }
-    }
-}
-
-/** Hoopla can't confirm a library's copy without a login; say so once per card. */
-@Composable
-private fun HooplaNote(ref: LibraryRef) {
-    val limit = ref.borrowLimitPerMonth
-    Text(
-        listOfNotNull(
-            limit?.let { pluralStringResource(R.plurals.hoopla_monthly_limit, it, it) },
-            stringResource(R.string.hoopla_confirm_note),
-        ).joinToString(" "),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = Gutter, vertical = 2.dp),
-    )
-}
-
-@Composable
-private fun HoldingRow(ref: LibraryRef, row: HoldingRowUi, onBorrow: (LibraryRef, MatchedHolding) -> Unit) {
-    val m = row.match
-    val h = m.holding
-    Column(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = Space.m), verticalArrangement = Arrangement.spacedBy(Space.s)) {
-        Row(verticalAlignment = Alignment.Top) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(painterResource(formatIcon(h.format)), null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(20.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text(formatLabel(h.format), style = MaterialTheme.typography.titleMedium)
-                    }
-                    if (!h.availabilityKnown) {
-                        Badge(stringResource(R.string.badge_instant_or_flex), variant = BadgeVariant.Info, size = BadgeSize.Sm)
-                    } else if (h.isAvailableNow) {
-                        Badge(stringResource(R.string.badge_available), variant = BadgeVariant.Success, size = BadgeSize.Sm)
-                    } else {
-                        Badge(stringResource(R.string.badge_waitlist), variant = BadgeVariant.Warning, size = BadgeSize.Sm)
-                    }
-                    if (m.otherLanguage && h.language != null) {
-                        Badge(languageName(h.language!!), variant = BadgeVariant.Outline, size = BadgeSize.Sm)
-                    }
-                }
-                if (m.otherLanguage) {
-                    Text(h.title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                if (h.availabilityKnown) {
-                    Text(detailLine(m), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                if (row.moreEditions > 0) {
-                    Text(
-                        pluralStringResource(R.plurals.more_editions, row.moreEditions, row.moreEditions),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            Spacer(Modifier.width(12.dp))
-            HeadlineNumber(m)
-        }
-        val label = stringResource(
-            when {
-                !h.availabilityKnown -> R.string.action_open_in
-                h.isAvailableNow -> R.string.action_borrow_in
-                else -> R.string.action_hold_in
-            },
-            ref.provider.displayName,
-        )
-        val buttonModifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
-        val content: @Composable () -> Unit = {
-            Text(label)
-            Spacer(Modifier.width(8.dp))
-            Icon(painterResource(R.drawable.ic_open_external), null, modifier = Modifier.size(ButtonDefaults.IconSize))
-        }
-        if (m.otherLanguage) {
-            OutlinedButton(shape = ButtonShape, border = hairline(), colors = quietOutlinedColors(), onClick = { onBorrow(ref, m) }, modifier = buttonModifier) { content() }
-        } else {
-            FilledTonalButton(shape = ButtonShape, colors = accentTonalColors(), onClick = { onBorrow(ref, m) }, modifier = buttonModifier) { content() }
-        }
-    }
-}
-
 private const val MAX_WAIT_SHOWN = 365
-private const val BRANCHES_COLLAPSED = 4
-
-/** A print edition: summary, then branch by branch (home branch first). */
-@Composable
-private fun PhysicalRow(
-    ref: LibraryRef,
-    row: HoldingRowUi,
-    homeBranchName: String?,
-    here: LatLng?,
-    onBorrow: (LibraryRef, MatchedHolding) -> Unit,
-) {
-    val m = row.match
-    val h = m.holding
-    val branches = remember(h.copies, homeBranchName, here) { summarizeBranches(h.copies, homeBranchName, here) }
-    var expanded by rememberSaveable(h.providerItemId) { mutableStateOf(false) }
-    val anyShelf = branches.any { it.onShelf > 0 } || (h.copies.isEmpty() && h.isAvailableNow)
-    Column(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = Space.m), verticalArrangement = Arrangement.spacedBy(Space.s)) {
-        Row(verticalAlignment = Alignment.Top) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(painterResource(R.drawable.ic_books), null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(20.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text(stringResource(R.string.format_physical), style = MaterialTheme.typography.titleMedium)
-                    }
-                    when {
-                        !h.availabilityKnown -> Badge(stringResource(R.string.badge_unknown), variant = BadgeVariant.Secondary, size = BadgeSize.Sm)
-                        anyShelf -> Badge(stringResource(R.string.badge_on_shelf), variant = BadgeVariant.Success, size = BadgeSize.Sm)
-                        else -> Badge(stringResource(R.string.badge_all_out), variant = BadgeVariant.Warning, size = BadgeSize.Sm)
-                    }
-                    h.edition?.let { Badge(it, variant = BadgeVariant.Info, size = BadgeSize.Sm) }
-                    if (m.otherLanguage && h.language != null) Badge(languageName(h.language!!), variant = BadgeVariant.Outline, size = BadgeSize.Sm)
-                }
-                if (m.otherLanguage) Text(h.title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                val owned = h.owned ?: h.copies.size.takeUnless { h.branchLevelOnly } ?: 0
-                if (owned > 0) {
-                    val copies = pluralStringResource(R.plurals.copies, owned, owned)
-                    Text(
-                        h.holds?.takeIf { it > 0 }?.let { stringResource(R.string.detail_waitlist, pluralStringResource(R.plurals.holds, it, it), copies) } ?: copies,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                if (row.moreEditions > 0) {
-                    Text(pluralStringResource(R.plurals.more_editions, row.moreEditions, row.moreEditions), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-            val onShelf = branches.sumOf { it.onShelf }.takeIf { h.copies.isNotEmpty() } ?: h.available
-            if (onShelf != null && h.availabilityKnown) {
-                Spacer(Modifier.width(12.dp))
-                Column(horizontalAlignment = Alignment.End) {
-                    CountUp(onShelf, style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "lnum"), color = MaterialTheme.colorScheme.primary)
-                    Text(
-                        stringResource(if (h.branchLevelOnly) R.string.caption_branches_on_shelf else R.string.caption_on_shelf),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-        val shown = if (expanded) branches else branches.filter { it.isHome || it.onShelf > 0 }.take(BRANCHES_COLLAPSED).ifEmpty { branches.take(1) }
-        shown.forEach { BranchLine(it, h.branchLevelOnly) }
-        if (branches.size > shown.size) {
-            TextButton(onClick = { expanded = true }, modifier = Modifier.offset(x = (-12).dp)) {
-                Text(pluralStringResource(R.plurals.show_all_branches, branches.size, branches.size), style = MaterialTheme.typography.labelLarge)
-            }
-        }
-        OutlinedButton(shape = ButtonShape, border = hairline(), colors = quietOutlinedColors(), onClick = { onBorrow(ref, m) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-            Text(stringResource(if (anyShelf) R.string.action_view_catalog else R.string.action_hold_catalog))
-            Spacer(Modifier.width(8.dp))
-            Icon(painterResource(R.drawable.ic_open_external), null, modifier = Modifier.size(ButtonDefaults.IconSize))
-        }
-    }
-}
 
 @Composable
-private fun BranchLine(b: BranchSummary, branchLevelOnly: Boolean) {
+internal fun BranchLineFor(b: BranchSummary, branchLevelOnly: Boolean) {
     val status = LocalStatusColors.current
     val context = LocalContext.current
     val mapLabel = stringResource(R.string.cd_open_map, b.name)
@@ -777,7 +490,7 @@ private fun BranchLine(b: BranchSummary, branchLevelOnly: Boolean) {
 }
 
 @Composable
-private fun branchStatus(b: BranchSummary): String = when {
+internal fun branchStatus(b: BranchSummary): String = when {
     b.onShelf > 0 -> pluralStringResource(R.plurals.branch_on_shelf, b.onShelf, b.onShelf)
     b.inTransit > 0 -> pluralStringResource(R.plurals.branch_in_transit, b.inTransit, b.inTransit)
     b.libraryUseOnly > 0 -> stringResource(R.string.branch_library_use)
@@ -788,7 +501,7 @@ private fun branchStatus(b: BranchSummary): String = when {
 
 /** Miles where people use them (US, UK, Liberia, Myanmar), kilometres elsewhere. */
 @Composable
-private fun formatDistance(km: Double): String {
+internal fun formatDistance(km: Double): String {
     val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
     return if (locale.country in setOf("US", "GB", "LR", "MM")) {
         val mi = km * 0.621371
@@ -799,11 +512,11 @@ private fun formatDistance(km: Double): String {
 }
 
 @Composable
-private fun relativeTime(epochMillis: Long): String =
+internal fun relativeTimeText(epochMillis: Long): String =
     android.text.format.DateUtils.getRelativeTimeSpanString(epochMillis, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS).toString()
 
 @Composable
-private fun LocationCard(onAllow: () -> Unit, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+internal fun LocationCard(onAllow: () -> Unit, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     androidx.compose.material3.Surface(color = MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.medium, modifier = modifier) {
         Column(Modifier.padding(Space.l), verticalArrangement = Arrangement.spacedBy(Space.s)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -826,7 +539,7 @@ private fun formatDate(iso: String): String = runCatching {
 
 /** The one number that matters: copies on the shelf now, or days to wait. */
 @Composable
-private fun HeadlineNumber(m: MatchedHolding) {
+internal fun HeadlineNumber(m: MatchedHolding) {
     val h = m.holding
     if (!h.availabilityKnown) return
     val (value, caption) = when {
@@ -848,7 +561,7 @@ private fun HeadlineNumber(m: MatchedHolding) {
 }
 
 @Composable
-private fun detailLine(m: MatchedHolding): String {
+internal fun detailLine(m: MatchedHolding): String {
     val h = m.holding
     val owned = h.owned ?: 0
     val copies = pluralStringResource(R.plurals.copies, owned, owned)
@@ -861,14 +574,14 @@ private fun detailLine(m: MatchedHolding): String {
     }
 }
 
-private fun formatIcon(f: Format) = when (f) {
+internal fun formatIcon(f: Format) = when (f) {
     Format.EBOOK -> R.drawable.ic_ebook
     Format.AUDIOBOOK -> R.drawable.ic_audiobook
     Format.PHYSICAL, Format.OTHER -> R.drawable.ic_books
 }
 
 @Composable
-private fun formatLabel(f: Format) = stringResource(
+internal fun formatLabel(f: Format) = stringResource(
     when (f) {
         Format.EBOOK -> R.string.format_ebook
         Format.AUDIOBOOK -> R.string.format_audiobook
@@ -877,5 +590,5 @@ private fun formatLabel(f: Format) = stringResource(
     },
 )
 
-private fun languageName(code: String): String =
+internal fun languageName(code: String): String =
     Locale.forLanguageTag(code).getDisplayLanguage(Locale.getDefault()).replaceFirstChar { it.titlecase(Locale.getDefault()) }

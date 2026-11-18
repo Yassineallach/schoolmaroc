@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import com.mardev.nearshelf.ui.components.NavDestinationItem
@@ -175,7 +176,10 @@ private fun NearshelfRoot(
             navController = nav,
             // A share or a notification goes straight to the book, even before onboarding.
             startDestination = if (onboarded || pendingShare != null || pendingWatch != null) HomeRoute else OnboardingRoute,
-            modifier = Modifier.padding(bottom = padding.calculateBottomPadding()).consumeWindowInsets(padding),
+            // Only the bottom bar's space is used here; the status-bar inset is left for each
+            // screen's own top bar (consuming it all put titles under the status bar).
+            modifier = Modifier.padding(bottom = padding.calculateBottomPadding())
+                .consumeWindowInsets(PaddingValues(bottom = padding.calculateBottomPadding())),
         ) {
             composable<OnboardingRoute> {
                 OnboardingScreen(
