@@ -36,6 +36,14 @@ import com.mardev.nearshelf.nav.ScannerRoute
 import com.mardev.nearshelf.nav.WatchlistRoute
 import com.mardev.nearshelf.nav.HistoryRoute
 import com.mardev.nearshelf.nav.PreferencesRoute
+import com.mardev.nearshelf.nav.SettingsRoute
+import com.mardev.nearshelf.nav.AboutRoute
+import com.mardev.nearshelf.nav.PrivacyRoute
+import com.mardev.nearshelf.nav.LicencesRoute
+import com.mardev.nearshelf.ui.settings.AboutScreen
+import com.mardev.nearshelf.ui.settings.LicencesScreen
+import com.mardev.nearshelf.ui.settings.PrivacyScreen
+import com.mardev.nearshelf.ui.settings.SettingsScreen
 import com.mardev.nearshelf.ui.history.HistoryScreen
 import com.mardev.nearshelf.ui.prefs.PreferencesScreen
 import com.mardev.nearshelf.ui.watchlist.WatchlistScreen
@@ -176,8 +184,27 @@ private fun NearshelfRoot(pendingShare: String?, onShareConsumed: () -> Unit, pe
                         else nav.navigate(ResultsRoute(queryJson = kotlinx.serialization.json.Json.encodeToString(h.query)))
                     },
                     onPreferences = { nav.navigate(PreferencesRoute) },
+                    onSettings = { nav.navigate(SettingsRoute) },
                 )
             }
+            composable<SettingsRoute> {
+                SettingsScreen(
+                    onBack = { nav.popBackStack() },
+                    onLibraries = {
+                        nav.navigate(LibrariesRoute) {
+                            popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                        }
+                    },
+                    onPreferences = { nav.navigate(PreferencesRoute) },
+                    onPrivacy = { nav.navigate(PrivacyRoute) },
+                    onLicences = { nav.navigate(LicencesRoute) },
+                    onAbout = { nav.navigate(AboutRoute) },
+                )
+            }
+            composable<AboutRoute> { AboutScreen(onBack = { nav.popBackStack() }) }
+            composable<PrivacyRoute> { PrivacyScreen(onBack = { nav.popBackStack() }) }
+            composable<LicencesRoute> { LicencesScreen(onBack = { nav.popBackStack() }) }
             composable<HistoryRoute> {
                 HistoryScreen(
                     onBack = { nav.popBackStack() },

@@ -20,6 +20,18 @@ Not affiliated with OverDrive, Hoopla, or any library or catalog vendor.
 - Icons: [Phosphor](https://phosphoricons.com) (MIT), converted with `tools/phosphor_to_vector.py`.
 - Licence texts ship in `app/src/main/assets/licenses/` for the in-app licences screen (milestone 10).
 
+## Ads
+
+Native AdMob ads only, inside content (never banners, never at the bottom, never interstitials,
+never in notifications or the widget): after the first library card on Results, after the 2nd
+book on Watchlist, after the 3rd entry on History. Google UMP consent runs at every launch.
+Test IDs are used unless `local.properties` contains:
+
+```
+admob.appId=ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY
+admob.nativeUnitId=ca-app-pub-XXXXXXXXXXXXXXXX/ZZZZZZZZZZ
+```
+
 ## Build
 
 Needs JDK 17+ and an Android SDK with platform 37 (`sdk.dir` in `local.properties`).
@@ -84,5 +96,5 @@ The app downloads it at most once a week and falls back to the bundled copy.
 7. [x] Evergreen, Polaris, Sierra (WebPAC, Vega); Aspen link-only
 8. [x] Location sorting, watchlist, notifications, caching, rate limiting, provider health
 9. [x] Widget, history, offline, filters
-10. [ ] AdMob + UMP, settings, about, privacy, French/Arabic + RTL
+10. [x] AdMob native ads (in content) + UMP, settings, about, privacy policy, licences (no translations: English only, by decision)
 11. [ ] Release polish

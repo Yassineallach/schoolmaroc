@@ -2,6 +2,7 @@
 <!-- Native ad shown inside content lists, styled like Nearshelf's cards.
      Required by AdMob: visible "Ad" attribution; AdChoices is added by the SDK (top right). -->
 <com.google.android.gms.ads.nativead.NativeAdView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/ad_card_background">
@@ -44,10 +45,12 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
+        <!-- Icon stays a separate view: AdMob registers it as its own asset. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            tools:ignore="UseCompoundDrawables"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 

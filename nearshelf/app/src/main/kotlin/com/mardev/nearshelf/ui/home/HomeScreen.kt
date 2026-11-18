@@ -58,6 +58,7 @@ fun HomeScreen(
     onAddLibrary: () -> Unit,
     onOpenHistory: (HistoryItem?) -> Unit,
     onPreferences: () -> Unit,
+    onSettings: () -> Unit,
     vm: HomeViewModel = hiltViewModel(),
 ) {
     val recent by vm.recent.collectAsStateWithLifecycle()
@@ -88,6 +89,9 @@ fun HomeScreen(
                     Spacer(Modifier.weight(1f))
                     IconButton(onClick = onPreferences) {
                         Icon(painterResource(R.drawable.ic_sliders), stringResource(R.string.cd_reading_preferences))
+                    }
+                    IconButton(onClick = onSettings) {
+                        Icon(painterResource(R.drawable.ic_settings), stringResource(R.string.settings_title))
                     }
                 }
                 Text(

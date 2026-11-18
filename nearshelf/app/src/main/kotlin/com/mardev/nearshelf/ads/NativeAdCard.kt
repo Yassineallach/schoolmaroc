@@ -73,7 +73,7 @@ fun NativeAdCard(modifier: Modifier = Modifier, ads: AdsViewModel = hiltViewMode
     val current = ad ?: return
     AndroidView(
         modifier = modifier.fillMaxWidth(),
-        factory = { ctx -> LayoutInflater.from(ctx).inflate(R.layout.native_ad_card, null) as NativeAdView },
+        factory = { ctx -> LayoutInflater.from(ctx).inflate(R.layout.native_ad_card, android.widget.FrameLayout(ctx), false) as NativeAdView },
         update = { view -> bind(view, current) },
     )
 }

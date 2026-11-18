@@ -9,6 +9,10 @@ import kotlinx.serialization.Serializable
 @Serializable data object WatchlistRoute
 @Serializable data object HistoryRoute
 @Serializable data object PreferencesRoute
+@Serializable data object SettingsRoute
+@Serializable data object AboutRoute
+@Serializable data object PrivacyRoute
+@Serializable data object LicencesRoute
 
 @Serializable
 data class ResultsRoute(
