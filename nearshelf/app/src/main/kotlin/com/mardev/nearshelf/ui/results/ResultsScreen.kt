@@ -311,6 +311,7 @@ private fun LibraryCard(
     prefs: ReadingPrefs,
     modifier: Modifier = Modifier,
 ) {
+    val reducedMotion = com.mardev.nearshelf.ui.components.lightswind.rememberReducedMotion()
     ElevatedCard(modifier.fillMaxWidth()) {
         Column(Modifier.padding(vertical = 16.dp)) {
             Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -338,7 +339,7 @@ private fun LibraryCard(
                 AnimatedContent(
                     targetState = svc.state,
                     contentKey = { it::class },
-                    transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(120)) },
+                    transitionSpec = { fadeIn(tween(if (reducedMotion) 0 else 220)) togetherWith fadeOut(tween(if (reducedMotion) 0 else 120)) },
                     label = "service",
                 ) { st ->
                     when (st) {
@@ -573,7 +574,7 @@ private fun PhysicalRow(
                     CountUp(onShelf, style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "lnum"), color = MaterialTheme.colorScheme.primary)
                     Text(
                         stringResource(if (h.branchLevelOnly) R.string.caption_branches_on_shelf else R.string.caption_on_shelf),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -600,12 +601,12 @@ private fun BranchLine(b: BranchSummary, branchLevelOnly: Boolean) {
     val context = LocalContext.current
     val mapLabel = stringResource(R.string.cd_open_map, b.name)
     val rowModifier = b.location?.let { loc ->
-        Modifier.clickable(onClickLabel = mapLabel) {
+        Modifier.clickable(onClickLabel = mapLabel, role = androidx.compose.ui.semantics.Role.Button) {
             // geo: URI opens the user's maps app at the branch; nothing is sent by Nearshelf.
             context.openExternal("geo:${loc.latitude},${loc.longitude}?q=${loc.latitude},${loc.longitude}(${Uri.encode(b.name)})")
         }
     } ?: Modifier
-    Row(Modifier.fillMaxWidth().then(rowModifier).heightIn(min = 40.dp).semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.Top) {
+    Row(Modifier.fillMaxWidth().then(rowModifier).heightIn(min = 48.dp).semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.Top) {
         Icon(
             painterResource(R.drawable.ic_map_pin),
             null,
@@ -706,7 +707,7 @@ private fun HeadlineNumber(m: MatchedHolding) {
             style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "lnum"),
             color = MaterialTheme.colorScheme.primary,
         )
-        Text(caption, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.End)
+        Text(caption, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.End)
     }
 }
 
