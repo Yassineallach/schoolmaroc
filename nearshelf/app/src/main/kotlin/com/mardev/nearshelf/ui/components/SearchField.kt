@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
@@ -57,12 +58,18 @@ fun PaperSearchField(
     label: String,
     modifier: Modifier = Modifier,
     onSearch: () -> Unit = {},
+    raised: Boolean = false,
 ) {
     val interaction = remember { MutableInteractionSource() }
     val focused by interaction.collectIsFocusedAsState()
     val colors = MaterialTheme.colorScheme
     // White paper on the light theme; one step above the page on the dark one (never a hole).
-    val fill = if (colors.background.luminance() > 0.5f) colors.surfaceContainerLowest else colors.surfaceContainerHigh
+    val light = colors.background.luminance() > 0.5f
+    val fill = when {
+        light -> colors.surfaceContainerLowest
+        raised -> colors.surfaceContainerHighest
+        else -> colors.surfaceContainerHigh
+    }
     val reduced = rememberReducedMotion()
     val edge by animateColorAsState(if (focused) colors.primary else colors.outlineVariant, tween(if (reduced) 0 else 150), label = "edge")
     BasicTextField(
@@ -80,6 +87,8 @@ fun PaperSearchField(
                 Modifier
                     .fillMaxWidth()
                     .height(52.dp)
+                    // Raised: a soft, warm shadow lifts the field off a tinted panel.
+                    .then(if (raised && light) Modifier.shadow(3.dp, ControlShape, ambientColor = colors.primary.copy(alpha = 0.25f), spotColor = colors.primary.copy(alpha = 0.25f)) else Modifier)
                     .clip(ControlShape)
                     .background(fill)
                     .border(if (focused) 1.5.dp else 1.dp, edge, ControlShape)

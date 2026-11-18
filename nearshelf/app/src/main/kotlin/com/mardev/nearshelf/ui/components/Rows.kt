@@ -22,6 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -118,9 +120,12 @@ fun Monogram(name: String, modifier: Modifier = Modifier) {
 
 /** Small book cover for a row; a quiet placeholder spine when there is none. */
 @Composable
-fun CoverThumb(url: String?, modifier: Modifier = Modifier, title: String? = null, width: Dp = 34.dp, height: Dp = 48.dp) {
+fun CoverThumb(url: String?, modifier: Modifier = Modifier, title: String? = null, width: Dp = 34.dp, height: Dp = 48.dp, elevated: Boolean = false) {
     Box(
-        modifier.size(width = width, height = height).clip(MaterialTheme.shapes.extraSmall).background(MaterialTheme.colorScheme.surfaceContainer),
+        modifier.size(width = width, height = height)
+            // Standing books: a soft shadow, as if on a shelf.
+            .then(if (elevated) Modifier.shadow(4.dp, MaterialTheme.shapes.extraSmall, ambientColor = Color(0xFF3A2010), spotColor = Color(0xFF3A2010)) else Modifier)
+            .clip(MaterialTheme.shapes.extraSmall).background(MaterialTheme.colorScheme.surfaceContainer),
         contentAlignment = Alignment.Center,
     ) {
         if (url != null) {

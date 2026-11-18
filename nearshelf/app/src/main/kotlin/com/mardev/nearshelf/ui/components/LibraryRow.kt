@@ -45,6 +45,7 @@ fun LibraryRow(
     onClick: (() -> Unit)? = null,
     onClickLabel: String? = null,
     role: Role = Role.Button,
+    inset: androidx.compose.ui.unit.Dp = Gutter,
     trailing: @Composable RowScope.() -> Unit = {},
     footer: @Composable ColumnScope.() -> Unit = {},
 ) {
@@ -53,7 +54,7 @@ fun LibraryRow(
         modifier
             .fillMaxWidth()
             .then(if (onClick != null) Modifier.clickable(onClickLabel = onClickLabel, role = role, onClick = onClick) else Modifier)
-            .padding(start = Gutter, end = Gutter - Space.xs, top = Space.l, bottom = Space.l),
+            .padding(start = inset, end = inset - Space.xs, top = Space.l, bottom = Space.l),
         verticalAlignment = Alignment.Top,
     ) {
         Monogram(library.name)
@@ -95,8 +96,8 @@ fun RowChevron() = Icon(
 
 /** Placeholder with the same proportions as [LibraryRow]. */
 @Composable
-fun LibraryRowSkeleton() {
-    Row(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = Space.l)) {
+fun LibraryRowSkeleton(inset: androidx.compose.ui.unit.Dp = Gutter) {
+    Row(Modifier.fillMaxWidth().padding(horizontal = inset, vertical = Space.l)) {
         Skeleton(Modifier.size(40.dp), variant = SkeletonVariant.Rounded)
         Spacer(Modifier.width(Space.l))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Space.s)) {

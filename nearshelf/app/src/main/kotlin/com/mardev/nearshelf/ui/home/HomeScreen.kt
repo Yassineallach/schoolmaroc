@@ -34,6 +34,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -76,7 +77,6 @@ import com.mardev.nearshelf.ui.components.RowChevron
 import com.mardev.nearshelf.ui.components.FieldHint
 import com.mardev.nearshelf.ui.components.PaperSearchField
 import com.mardev.nearshelf.ui.components.Monogram
-import com.mardev.nearshelf.ui.components.RowDivider
 import com.mardev.nearshelf.ui.components.SectionHeader
 import com.mardev.nearshelf.ui.components.Tag
 import com.mardev.nearshelf.ui.components.readableWidth
@@ -161,64 +161,99 @@ internal fun HomeContent(
     onSettings: () -> Unit,
 ) {
     val count = libraries?.size ?: 0
+    val colors = MaterialTheme.colorScheme
+    val light = colors.background.luminance() > 0.5f
+    val cardColor = if (light) colors.surfaceContainerLowest else colors.surfaceContainer
     LazyColumn(
-        Modifier.fillMaxSize().statusBarsPadding().readableWidth(),
+        Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = Space.xl),
     ) {
-        item(key = "masthead") { Masthead(onPreferences, onSettings) }
-        item(key = "search") {
-            Column(Modifier.padding(start = Gutter, end = Gutter, top = Space.l)) {
-                PaperSearchField(
-                    value = input,
-                    onValueChange = onInputChange,
-                    placeholder = stringResource(R.string.search_hint),
-                    label = stringResource(R.string.search_label),
-                    onSearch = onSubmit,
-                )
-                FieldHint(stringResource(R.string.search_tip_label), stringResource(R.string.search_tip_body), Modifier.padding(top = Space.s, start = 2.dp))
-                SearchActions(
-                    label = if (count > 0) pluralStringResource(R.plurals.search_action_count, count, count) else stringResource(R.string.search_action),
-                    canSearch = input.isNotBlank() && count > 0,
-                    canScan = count > 0,
-                    hasCamera = hasCamera,
-                    onSubmit = onSubmit,
-                    onScan = onScan,
-                    modifier = Modifier.padding(top = Space.l),
-                )
+        // A warm panel holds the masthead and the search: the first layer, where the page starts.
+        item(key = "top") {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
+                    .background(colors.surfaceContainer),
+                contentAlignment = Alignment.TopCenter,
+            ) {
+                Column(Modifier.statusBarsPadding().readableWidth().padding(bottom = Space.xl)) {
+                    Masthead(onPreferences, onSettings)
+                    Column(Modifier.padding(start = Gutter, end = Gutter, top = Space.l)) {
+                        PaperSearchField(
+                            value = input,
+                            onValueChange = onInputChange,
+                            placeholder = stringResource(R.string.search_hint),
+                            label = stringResource(R.string.search_label),
+                            onSearch = onSubmit,
+                            raised = true,
+                        )
+                        FieldHint(stringResource(R.string.search_tip_label), stringResource(R.string.search_tip_body), Modifier.padding(top = Space.s, start = 2.dp))
+                        SearchActions(
+                            label = if (count > 0) pluralStringResource(R.plurals.search_action_count, count, count) else stringResource(R.string.search_action),
+                            canSearch = input.isNotBlank() && count > 0,
+                            canScan = count > 0,
+                            hasCamera = hasCamera,
+                            onSubmit = onSubmit,
+                            onScan = onScan,
+                            modifier = Modifier.padding(top = Space.l),
+                        )
+                    }
+                }
             }
         }
         item(key = "librariesHeader") {
-            SectionHeader(
-                stringResource(R.string.home_your_libraries),
-                Modifier.padding(top = Space.xxl - Space.s),
-                count = count.takeIf { it > 0 },
-                action = if (count > 0) stringResource(R.string.home_manage) else null,
-                onAction = onManageLibraries,
-            )
-        }
-        val list = libraries
-        when {
-            // Libraries come from the local database; skeleton rows hold their place meanwhile.
-            list == null -> items(2, key = { "skeleton-$it" }) { LibraryRowSkeleton() }
-            list.isEmpty() -> item(key = "noLibraries") { NoLibraries(onAddLibrary) }
-            else -> itemsIndexed(list, key = { _, l -> l.id }) { index, library ->
-                LibraryRow(
-                    library,
-                    onClick = onManageLibraries,
-                    onClickLabel = stringResource(R.string.home_manage),
-                    trailing = { RowChevron() },
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                SectionHeader(
+                    stringResource(R.string.home_your_libraries),
+                    Modifier.readableWidth().padding(top = Space.l),
+                    count = count.takeIf { it > 0 },
+                    action = if (count > 0) stringResource(R.string.home_manage) else null,
+                    onAction = onManageLibraries,
                 )
-                if (index < list.lastIndex) RowDivider()
+            }
+        }
+        // The libraries as one white card, the same surface as the results cards.
+        item(key = "libraries") {
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                val list = libraries
+                if (list != null && list.isEmpty()) {
+                    Box(Modifier.readableWidth()) { NoLibraries(onAddLibrary) }
+                } else {
+                    val shape = MaterialTheme.shapes.large
+                    Column(
+                        Modifier.readableWidth().padding(horizontal = Gutter, vertical = Space.xs)
+                            .clip(shape).background(cardColor).border(1.dp, colors.outlineVariant, shape),
+                    ) {
+                        if (list == null) {
+                            // Libraries come from the local database; skeleton rows hold their place meanwhile.
+                            repeat(2) { LibraryRowSkeleton(inset = Space.l) }
+                        } else list.forEachIndexed { index, library ->
+                            LibraryRow(
+                                library,
+                                onClick = onManageLibraries,
+                                onClickLabel = stringResource(R.string.home_manage),
+                                inset = Space.l,
+                                trailing = { RowChevron() },
+                            )
+                            if (index < list.lastIndex) {
+                                HorizontalDivider(Modifier.padding(start = Space.l + 40.dp + Space.l, end = Space.l), color = colors.outlineVariant)
+                            }
+                        }
+                    }
+                }
             }
         }
         if (recent.isNotEmpty()) {
             item(key = "recentHeader") {
-                SectionHeader(
-                    stringResource(R.string.home_recent),
-                    Modifier.padding(top = Space.xl),
-                    action = stringResource(R.string.home_see_all),
-                    onAction = { onOpenHistory(null) },
-                )
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                    SectionHeader(
+                        stringResource(R.string.home_recent),
+                        Modifier.readableWidth().padding(top = Space.l),
+                        action = stringResource(R.string.home_see_all),
+                        onAction = { onOpenHistory(null) },
+                    )
+                }
             }
             item(key = "recentShelf") { RecentShelf(recent, onOpen = { onOpenHistory(it) }) }
         }
@@ -279,8 +314,9 @@ private fun SearchActions(
             shape = ButtonShape,
             // Disabled keeps the accent as a tint: still the primary, clearly waiting for input.
             colors = ButtonDefaults.buttonColors(
-                disabledContainerColor = lerp(colors.background, colors.primary, 0.10f),
-                disabledContentColor = lerp(colors.background, colors.primary, 0.55f),
+                // Tinted from the panel it sits on, so it stays visible as a waiting button.
+                disabledContainerColor = lerp(colors.surfaceContainer, colors.primary, 0.16f),
+                disabledContentColor = lerp(colors.surfaceContainer, colors.primary, 0.6f),
             ),
             contentPadding = PaddingValues(horizontal = Space.l),
             modifier = m.height(48.dp),
@@ -291,10 +327,11 @@ private fun SearchActions(
             onClick = onScan,
             enabled = canScan,
             shape = ButtonShape,
+            // On the tinted panel the secondary action is a white (or lifted) surface.
             colors = ButtonDefaults.filledTonalButtonColors(
-                containerColor = colors.surfaceContainer,
+                containerColor = if (colors.background.luminance() > 0.5f) colors.surfaceContainerLowest else colors.surfaceContainerHighest,
                 contentColor = colors.onSurface,
-                disabledContainerColor = colors.surfaceContainerLow,
+                disabledContainerColor = colors.surfaceContainerHigh,
                 disabledContentColor = colors.outline,
             ),
             contentPadding = PaddingValues(horizontal = Space.l),
@@ -321,29 +358,18 @@ private fun SearchActions(
 /** Recently checked books, face out, like a shelf. */
 @Composable
 private fun RecentShelf(recent: List<HistoryItem>, onOpen: (HistoryItem) -> Unit) {
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = Gutter - Space.s),
-        horizontalArrangement = Arrangement.spacedBy(Space.xs),
-    ) {
+    val shelf = MaterialTheme.colorScheme.secondary.copy(alpha = 0.45f)
+    LazyRow(contentPadding = PaddingValues(horizontal = Gutter - Space.s)) {
         items(recent, key = { it.key }) { h ->
-            Column(
-                Modifier
-                    .width(104.dp)
-                    .clip(MaterialTheme.shapes.small)
-                    .clickable(role = Role.Button, onClick = { onOpen(h) })
-                    .padding(Space.s),
-            ) {
-                CoverThumb(h.coverUrl, title = h.title, width = 88.dp, height = 128.dp)
-                Text(
-                    h.title,
-                    style = BookTitleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(top = Space.s),
-                )
-                h.author?.let {
-                    Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Column(Modifier.width(112.dp).clip(MaterialTheme.shapes.small).clickable(role = Role.Button, onClick = { onOpen(h) })) {
+                // Covers stand on a thin shelf that runs under the whole row.
+                CoverThumb(h.coverUrl, title = h.title, width = 88.dp, height = 128.dp, elevated = true, modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = Space.s))
+                Box(Modifier.fillMaxWidth().height(3.dp).background(shelf))
+                Column(Modifier.padding(horizontal = 12.dp, vertical = Space.s)) {
+                    Text(h.title, style = BookTitleSmall, color = MaterialTheme.colorScheme.onSurface, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    h.author?.let {
+                        Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
                 }
             }
         }
