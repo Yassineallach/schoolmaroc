@@ -1,6 +1,7 @@
 package com.mardev.nearshelf.core.metadata
 
 import com.mardev.nearshelf.core.match.BookMatcher
+import com.mardev.nearshelf.core.match.TextNormalizer
 import com.mardev.nearshelf.core.match.Isbn
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.Serializable
@@ -45,7 +46,13 @@ internal data class OlDoc(
     val isbn: List<String> = emptyList(),
     val language: List<String> = emptyList(),
     @kotlinx.serialization.SerialName("cover_i") val coverId: Long? = null,
+    @kotlinx.serialization.SerialName("first_publish_year") val firstPublishYear: Int? = null,
+    @kotlinx.serialization.SerialName("edition_count") val editionCount: Int = 0,
 )
+
+/** One book a title could mean, for the reader to pick from. */
+@Serializable
+data class WorkCandidate(val work: WorkInfo, val firstPublished: Int?, val editions: Int)
 
 /**
  * Open Library (free, no key). Two calls for an ISBN: the edition record (its own
@@ -57,7 +64,7 @@ class OpenLibrary(
     private val baseUrl: String = "https://openlibrary.org",
 ) {
     private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
-    private val fields = "key,title,author_name,isbn,language,cover_i"
+    private val fields = "key,title,author_name,isbn,language,cover_i,first_publish_year,edition_count"
 
     suspend fun byIsbn(isbn: String): WorkInfo? {
         val clean = Isbn.normalize(isbn)
@@ -86,6 +93,31 @@ class OpenLibrary(
             ?.firstOrNull { it.title != null && BookMatcher.titlesMatch(title, it.title) }
             ?: return null
         return toWork(doc, language = null)
+    }
+
+    /**
+     * The different books a bare title could mean: works whose title really matches,
+     * one per title-and-author (Open Library sometimes lists a book twice), exact titles
+     * first, then the most published. Empty on any failure.
+     */
+    suspend fun candidates(title: String, max: Int = 6): List<WorkCandidate> {
+        val url = "$baseUrl/search.json".toHttpUrl().newBuilder()
+            .addQueryParameter("title", title)
+            .addQueryParameter("fields", fields)
+            .addQueryParameter("limit", "15")
+            .build()
+        val docs = get(url)?.let { parseSearch(it) }?.docs.orEmpty()
+        return candidatesFrom(title, docs, max)
+    }
+
+    internal fun candidatesFrom(title: String, docs: List<OlDoc>, max: Int): List<WorkCandidate> {
+        val wanted = TextNormalizer.title(title)
+        return docs
+            .filter { it.title != null && it.authorName.isNotEmpty() && BookMatcher.titlesMatch(title, it.title) }
+            .distinctBy { TextNormalizer.title(it.title!!) + "|" + TextNormalizer.surname(it.authorName.first()) }
+            .sortedWith(compareBy<OlDoc>({ TextNormalizer.title(it.title!!) != wanted }, { -it.editionCount }))
+            .take(max)
+            .map { WorkCandidate(toWork(it, language = null), it.firstPublishYear, it.editionCount) }
     }
 
     internal fun parseEdition(body: String): OlEdition? = runCatching { json.decodeFromString<OlEdition>(body) }.getOrNull()

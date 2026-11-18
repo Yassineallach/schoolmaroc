@@ -30,16 +30,34 @@ class QueryExpander(
             !query.title.isNullOrBlank() -> openLibrary.byTitle(query.title, query.author)
             else -> null
         }?.also { cache?.put(key, json.encodeToString(it)) } ?: return@withContext ExpandedQuery(query)
+        withWork(query, work)
+    }
 
-        ExpandedQuery(
-            query = query.copy(
-                title = query.title ?: work.title.takeIf { it.isNotBlank() },
-                author = query.author ?: work.authors.firstOrNull(),
-                isbns = query.isbns + work.isbns,
-                language = query.language ?: work.language,
-            ),
-            coverUrl = work.coverUrl,
-            work = work,
-        )
+    /** The query narrowed to one book: its author, every ISBN of the work, its language. */
+    fun withWork(query: BookQuery, work: WorkInfo) = ExpandedQuery(
+        query = query.copy(
+            title = query.title ?: work.title.takeIf { it.isNotBlank() },
+            author = query.author ?: work.authors.firstOrNull(),
+            isbns = query.isbns + work.isbns,
+            language = query.language ?: work.language,
+        ),
+        coverUrl = work.coverUrl,
+        work = work,
+    )
+
+    /**
+     * When the reader typed only a title, the books it could mean. Asked only when nothing
+     * else pins the book down (no ISBN, no author); empty when offline or on any failure.
+     */
+    suspend fun candidates(query: BookQuery): List<WorkCandidate> = withContext(Dispatchers.IO) {
+        val title = query.title?.trim()
+        if (title.isNullOrEmpty() || !query.isbn.isNullOrBlank() || query.isbns.isNotEmpty() || !query.author.isNullOrBlank()) {
+            return@withContext emptyList()
+        }
+        val key = "olc|" + title.lowercase()
+        cache?.get(key)?.takeIf { clock() - it.second < CacheTtl.OPEN_LIBRARY_MILLIS }
+            ?.let { runCatching { json.decodeFromString<List<WorkCandidate>>(it.first) }.getOrNull() }
+            ?.let { return@withContext it }
+        openLibrary.candidates(title).also { if (it.isNotEmpty()) cache?.put(key, json.encodeToString(it)) }
     }
 }

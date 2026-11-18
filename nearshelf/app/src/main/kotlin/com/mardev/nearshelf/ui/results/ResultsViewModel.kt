@@ -11,6 +11,8 @@ import com.mardev.nearshelf.core.model.Format
 import com.mardev.nearshelf.core.model.Library
 import com.mardev.nearshelf.core.model.LibraryRef
 import com.mardev.nearshelf.core.metadata.QueryExpander
+import com.mardev.nearshelf.core.metadata.ExpandedQuery
+import com.mardev.nearshelf.core.metadata.WorkCandidate
 import android.content.Context
 import com.mardev.nearshelf.core.geo.LatLng
 import com.mardev.nearshelf.core.prefs.ReadingPrefs
@@ -61,7 +63,7 @@ data class HoldingRowUi(val match: MatchedHolding, val moreEditions: Int)
 
 data class LibraryResult(val library: Library, val services: List<ServiceResult>)
 
-enum class Phase { READING_SHARE, LOOKING_UP, SEARCHING, SHARE_NOT_UNDERSTOOD }
+enum class Phase { READING_SHARE, LOOKING_UP, CHOOSING, SEARCHING, SHARE_NOT_UNDERSTOOD }
 
 data class ResultsUiState(
     val phase: Phase,
@@ -72,6 +74,8 @@ data class ResultsUiState(
     /** null while the saved libraries load. */
     val libraries: List<LibraryResult>? = null,
     val sharedText: String? = null,
+    /** Books a bare title could mean; shown for the reader to pick when there are several. */
+    val candidates: List<WorkCandidate> = emptyList(),
 ) {
     private val all get() = libraries.orEmpty().flatMap { it.services }
     val total: Int get() = all.size
@@ -172,7 +176,20 @@ class ResultsViewModel @Inject constructor(
                 return@launch
             }
             _state.update { it.copy(phase = Phase.LOOKING_UP, query = typed) }
-            val expanded = expander.expand(typed)
+            // A bare title can mean several books (King's and Wright's "The Outsider"):
+            // ask which one rather than pick the most popular or mix them.
+            val candidates = expander.candidates(typed)
+            val expanded = when {
+                candidates.size >= 2 -> {
+                    _state.update { it.copy(phase = Phase.CHOOSING, candidates = candidates) }
+                    val picked = choice.await()
+                    _state.update { it.copy(phase = Phase.LOOKING_UP, candidates = emptyList()) }
+                    // null: the reader wants every book with this title.
+                    picked?.let { expander.withWork(typed, it.work) } ?: ExpandedQuery(typed)
+                }
+                candidates.size == 1 -> expander.withWork(typed, candidates.first().work)
+                else -> expander.expand(typed)
+            }
             val q = expanded.query
             query = q
             _state.update { it.copy(phase = Phase.SEARCHING, query = q, metadataCover = expanded.coverUrl) }
@@ -189,6 +206,11 @@ class ResultsViewModel @Inject constructor(
             coordinator.search(libraries, q, offline = _offline.value).collect { u -> apply(u.libraryId, u.service, u.state) }
         }
     }
+
+    private val choice = kotlinx.coroutines.CompletableDeferred<WorkCandidate?>()
+
+    /** The reader picked a book ([c]), or chose to search every book with the title (null). */
+    fun choose(c: WorkCandidate?) { choice.complete(c) }
 
     fun retry(libraryId: String, ref: LibraryRef) {
         val q = query ?: return

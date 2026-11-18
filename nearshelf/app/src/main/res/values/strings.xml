@@ -54,6 +54,13 @@
 
     <!-- Results -->
     <string name="results_title">Availability</string>
+    <string name="choose_title">Which book?</string>
+    <string name="choose_body">Several books are called “%1$s”. Pick yours, and results will show only that book.</string>
+    <plurals name="choose_editions">
+        <item quantity="one">%d edition</item>
+        <item quantity="other">%d editions</item>
+    </plurals>
+    <string name="choose_any">Search every book called “%1$s”</string>
     <plurals name="results_checking">
         <item quantity="one">Checking %1$d of %2$d catalog…</item>
         <item quantity="other">Checking %1$d of %2$d catalogs…</item>

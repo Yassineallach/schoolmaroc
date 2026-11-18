@@ -18,6 +18,8 @@ class OpenLibraryTest {
             u.encodedPath == "/isbn/9788418037016.json" -> 200 to Fixtures.read("openlibrary/isbn_9788418037016_spanish.json")
             u.encodedPath == "/search.json" && u.queryParameter("isbn") != null ->
                 200 to Fixtures.read("openlibrary/search_isbn_9780593135204.json")
+            u.encodedPath == "/search.json" && u.queryParameter("title") == "The Outsider" ->
+                200 to Fixtures.read("openlibrary/search_title_the_outsider.json")
             u.encodedPath == "/search.json" && u.queryParameter("title") != null ->
                 200 to Fixtures.read("openlibrary/search_title_project_hail_mary.json")
             else -> 404 to ""
@@ -49,6 +51,29 @@ class OpenLibraryTest {
     fun `title lookup skips the omnibus that matches loosely`() = runTest {
         val w = ol.byTitle("Project Hail Mary", "Andy Weir")!!
         assertEquals("/works/OL21745884W", w.workKey)
+    }
+
+    @Test
+    fun `a shared title lists each book once, exact titles first`() = runTest {
+        val c = ol.candidates("The Outsider")
+        val authors = c.map { it.work.authors.first() }
+        assertTrue(c.size >= 4, "several books are called The Outsider: $authors")
+        assertEquals("Stephen King", authors.first(), "exact title, most published first")
+        assertTrue("Richard Wright" in authors && "Barbara Delinsky" in authors)
+        assertTrue(c.none { it.work.title.contains("Standing", ignoreCase = true) || it.work.title.contains("Darkness", ignoreCase = true) }, "loose title matches are left out")
+        assertEquals(authors.size, authors.distinct().size, "one entry per book")
+        assertTrue(c.first().firstPublished != null && c.first().editions > 0)
+    }
+
+    @Test
+    fun `candidates are only asked for a bare title`() = runTest {
+        val ex = QueryExpander(ol)
+        assertTrue(ex.candidates(BookQuery(title = "The Outsider", author = "King")).isEmpty())
+        assertTrue(ex.candidates(BookQuery(isbn = "9780593135204")).isEmpty())
+        assertTrue(ex.candidates(BookQuery(title = "The Outsider")).size >= 4)
+        val picked = ex.withWork(BookQuery(title = "The Outsider"), ex.candidates(BookQuery(title = "The Outsider")).first().work)
+        assertEquals("Stephen King", picked.query.author)
+        assertTrue(picked.query.isbns.isNotEmpty())
     }
 
     @Test

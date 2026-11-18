@@ -76,6 +76,9 @@ import com.mardev.nearshelf.R
 import com.mardev.nearshelf.core.match.MatchedHolding
 import com.mardev.nearshelf.core.model.Format
 import com.mardev.nearshelf.core.model.LibraryRef
+import com.mardev.nearshelf.core.metadata.WorkCandidate
+import com.mardev.nearshelf.ui.theme.BookTitle
+import com.mardev.nearshelf.ui.components.CoverThumb
 import com.mardev.nearshelf.core.model.ProviderId
 import com.mardev.nearshelf.core.geo.LatLng
 import com.mardev.nearshelf.core.prefs.ReadingPrefs
@@ -136,6 +139,7 @@ fun ResultsScreen(
 
     ResultsContent(
         state = state, watched = watched, here = here, prefs = prefs, offline = offline,
+        onChoose = vm::choose,
         showLocationCard = here == null && !vm.hasLocationPermission && !askedLocation,
         onBack = onBack, onPreferences = onPreferences, onAddLibrary = onAddLibrary, onSearchManually = onSearchManually,
         onWatch = onWatch,
@@ -172,6 +176,7 @@ internal fun ResultsContent(
     onDismissLocation: () -> Unit,
     adSlot: @Composable (Modifier) -> Unit = { NativeAdCard(it) },
     initialTab: Format? = null,
+    onChoose: (WorkCandidate?) -> Unit = {},
 ) {
     // null until the reader taps a tab: then follow the best format as results arrive.
     var chosenTab by rememberSaveable { mutableStateOf(initialTab) }
@@ -197,6 +202,10 @@ internal fun ResultsContent(
                 onAction = { onSearchManually(state.sharedText.orEmpty()) },
                 modifier = Modifier.padding(padding),
             )
+            return@Scaffold
+        }
+        if (state.phase == Phase.CHOOSING) {
+            ChooseBook(state.query?.title.orEmpty(), state.candidates, onChoose, Modifier.padding(padding))
             return@Scaffold
         }
         if (state.phase == Phase.READING_SHARE || state.phase == Phase.LOOKING_UP) {
@@ -484,3 +493,47 @@ internal fun formatLabel(f: Format) = stringResource(
 
 internal fun languageName(code: String): String =
     Locale.forLanguageTag(code).getDisplayLanguage(Locale.getDefault()).replaceFirstChar { it.titlecase(Locale.getDefault()) }
+
+/**
+ * A bare title matched several books: list them (cover, serif title, author, year and
+ * editions) so the search covers only the reader's book. Last line: search them all.
+ */
+@Composable
+private fun ChooseBook(title: String, candidates: List<WorkCandidate>, onChoose: (WorkCandidate?) -> Unit, modifier: Modifier = Modifier) {
+    val colors = MaterialTheme.colorScheme
+    LazyColumn(modifier.fillMaxSize().readableWidth(), contentPadding = PaddingValues(bottom = Space.xl)) {
+        item(key = "intro") {
+            Column(Modifier.padding(start = Gutter, end = Gutter, top = Space.s, bottom = Space.m), verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+                Text(stringResource(R.string.choose_title), style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
+                Text(stringResource(R.string.choose_body, title), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
+            }
+        }
+        itemsIndexed(candidates, key = { _, c -> c.work.workKey.ifEmpty { c.work.title + c.work.authors } }) { i, c ->
+            Row(
+                Modifier.fillMaxWidth().clickable(role = androidx.compose.ui.semantics.Role.Button) { onChoose(c) }
+                    .padding(start = Gutter, end = Gutter - Space.xs, top = Space.m, bottom = Space.m),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                CoverThumb(c.work.coverUrl, title = c.work.title, width = 48.dp, height = 72.dp)
+                Spacer(Modifier.width(Space.l))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(c.work.title, style = BookTitle, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                    Text(c.work.authors.take(2).joinToString(", "), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                    Text(
+                        listOfNotNull(c.firstPublished?.toString(), c.editions.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.choose_editions, it, it) }).joinToString(" · "),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.onSurfaceVariant,
+                    )
+                }
+                Icon(painterResource(R.drawable.ic_caret_right), null, tint = colors.outline, modifier = Modifier.size(18.dp))
+            }
+            if (i < candidates.lastIndex) HorizontalDivider(Modifier.padding(start = Gutter + 48.dp + Space.l, end = Gutter), color = colors.outlineVariant)
+        }
+        item(key = "any") {
+            HorizontalDivider(Modifier.padding(horizontal = Gutter, vertical = Space.s), color = colors.outlineVariant)
+            TextButton(onClick = { onChoose(null) }, modifier = Modifier.padding(horizontal = Gutter - 12.dp)) {
+                Text(stringResource(R.string.choose_any, title), style = MaterialTheme.typography.labelLarge)
+            }
+        }
+    }
+}

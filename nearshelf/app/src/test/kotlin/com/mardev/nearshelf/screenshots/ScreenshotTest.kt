@@ -248,6 +248,22 @@ class ScreenshotTest(private val device: Device) {
         )
     }
 
+    @Test fun chooseBook() = shot("choose_book") {
+        fun c(t: String, a: String, y: Int, e: Int) = com.mardev.nearshelf.core.metadata.WorkCandidate(
+            com.mardev.nearshelf.core.metadata.WorkInfo("/works/$a", t, listOf(a), emptySet()), y, e,
+        )
+        ResultsContent(
+            state = ResultsUiState(Phase.CHOOSING, query = BookQuery(title = "The Outsider"), candidates = listOf(
+                c("The Outsider", "Stephen King", 2018, 31), c("The Outsider", "Richard Wright", 1953, 20),
+                c("The Outsider", "Colin Wilson", 1956, 11), c("The Outsider", "Barbara Delinsky", 1992, 10),
+                c("The Outsiders", "S. E. Hinton", 1967, 77),
+            )),
+            watched = false, here = null, prefs = ReadingPrefs(), offline = false, showLocationCard = false,
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
+            onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
+        )
+    }
+
     @Test fun resultsSingle() = shot("results_single") { redRising(null) }
 
     @Test fun resultsSingleAudio() = shot("results_single_audio") { redRising(Format.AUDIOBOOK) }
