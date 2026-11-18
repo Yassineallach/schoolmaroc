@@ -27,6 +27,8 @@ data class Holding(
      */
     val availabilityKnown: Boolean = true,
     val providerItemId: String,
+    /** Edition note shown next to the format, e.g. "Large print". */
+    val edition: String? = null,
     val coverUrl: String? = null,
     val copies: List<PhysicalCopy> = emptyList(),
 )
@@ -44,4 +46,15 @@ data class PhysicalCopy(
 )
 
 @Serializable
-enum class CopyStatus { AVAILABLE, CHECKED_OUT, IN_TRANSIT, ON_HOLD_SHELF, IN_PROCESSING, MISSING, UNKNOWN }
+enum class CopyStatus {
+    AVAILABLE,
+    /** On the shelf but can't be borrowed (reference copy). */
+    LIBRARY_USE_ONLY,
+    CHECKED_OUT,
+    IN_TRANSIT,
+    /** Held for another reader. */
+    ON_HOLD_SHELF,
+    IN_PROCESSING,
+    MISSING,
+    UNKNOWN,
+}

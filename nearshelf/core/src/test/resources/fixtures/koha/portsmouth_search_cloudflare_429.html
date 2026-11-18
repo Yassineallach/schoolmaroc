@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Please try again | Library access</title>
+  <link rel="icon" href="data:,">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 40px 16px; background: #f1f5f6; color: #20323f; font: 16px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width: 650px; margin: 0 auto; padding: 36px; background: #fff; border: 1px solid #dde5e8; border-top: 5px solid #087f80; border-radius: 18px; box-shadow: 0 12px 40px #20323f0d; }
+    .eyebrow { margin: 0 0 12px; color: #087276; font-size: 12px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0 0 16px; font-size: clamp(26px, 5vw, 34px); line-height: 1.2; letter-spacing: -.025em; }
+    h2 { margin: 0 0 8px; font-size: 20px; }
+    p { margin: 0 0 16px; }
+    .muted, small { color: #526471; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0 0; }
+    button { min-height: 46px; padding: 11px 20px; border: 1px solid #087276; border-radius: 9px; background: #087276; color: #fff; font: inherit; font-weight: 650; cursor: pointer; }
+    button:hover { background: #075c60; }
+    button.secondary { background: #fff; color: #075f63; }
+    button.secondary:hover { background: #eaf6f5; }
+    button:disabled { opacity: .6; cursor: wait; }
+    :focus-visible { outline: 3px solid #b56800; outline-offset: 3px; }
+    section { margin-top: 28px; padding-top: 24px; border-top: 1px solid #e1e7ea; }
+    .ip { padding: 13px 16px; background: #edf7f6; border: 1px solid #d5e9e6; border-radius: 9px; }
+    .ip strong { display: block; color: #075f63; overflow-wrap: anywhere; font-size: 19px; }
+    label { display: block; margin: 18px 0 7px; font-size: 14px; font-weight: 650; }
+    input, textarea { width: 100%; padding: 11px 12px; border: 1px solid #aabac3; border-radius: 8px; background: #fff; color: #20323f; font: inherit; }
+    input::placeholder { color: #667782; }
+    textarea { margin-top: 10px; font: 13px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; resize: vertical; }
+    details { margin-top: 8px; }
+    summary { cursor: pointer; color: #075f63; font-size: 14px; }
+    #status { margin: 10px 0 0; min-height: 24px; color: #075f63; font-size: 14px; }
+    footer { margin-top: 24px; color: #526471; font-size: 12px; }
+    @media (max-width: 480px) { body { padding: 16px 12px; } main { padding: 24px; } .actions button { width: 100%; } }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Library access</p>
+    <h1>Please try again in a moment.</h1>
+    <p class="muted">The website temporarily limited this request. This can sometimes happen during normal browsing.</p>
+    <p><strong>Please wait a moment, then refresh the page.</strong></p>
+    <div class="actions">
+      <button type="button" id="refresh">Refresh page</button>
+    </div>
+
+    <section aria-labelledby="help-title">
+      <h2 id="help-title">Still having trouble?</h2>
+      <p class="muted">Please let your library know your IP address and what you were trying to access. Use the button below to copy the details for your message.</p>
+      <p class="ip">Your IP address <strong id="ip" aria-live="polite">::CLIENT_IP::</strong></p>
+
+      <label for="activity">What were you trying to access? <small>(optional)</small></label>
+      <input id="activity" type="text" maxlength="500" autocomplete="off" placeholder="For example: searching the catalog">
+
+      <div class="actions">
+        <button type="button" id="copy" class="secondary" disabled>Copy details</button>
+      </div>
+      <p id="status" role="status" aria-live="polite"></p>
+
+      <details id="details-panel">
+        <summary>View details to share</summary>
+        <textarea id="details" rows="8" readonly aria-label="Details to share with your library" spellcheck="false">Error: 429 Too Many Requests
+IP address: ::CLIENT_IP::
+Cloudflare Ray ID: ::RAY_ID::
+Please also include the page address and what you were trying to access.</textarea>
+      </details>
+    </section>
+    <footer>Error 429 &middot; Temporary rate limit</footer>
+    <span id="ray" hidden>::RAY_ID::</span>
+    <noscript><p>Use your browser's refresh button to try again. You can select and copy the details above manually.</p></noscript>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+      const ipElement = document.getElementById("ip");
+      const activity = document.getElementById("activity");
+      const details = document.getElementById("details");
+      const copyButton = document.getElementById("copy");
+      const status = document.getElementById("status");
+      const pageUrl = window.location.href;
+      const time = new Date().toISOString();
+      const ray = document.getElementById("ray").textContent.trim();
+      let ip = ipElement.textContent.trim();
+      let ipSource = "Cloudflare error page";
+
+      function isIP(value) {
+        return value.length <= 45 && /^[0-9a-f:.]+$/i.test(value) && /[.:]/.test(value);
+      }
+
+      function updateDetails() {
+        const lines = [
+          "Library website access issue",
+          "Error: 429 Too Many Requests (rate limit)",
+          "IP address: " + ip,
+          "Page: " + pageUrl,
+          "Time (UTC): " + time
+        ];
+        if (isIP(ip)) lines.push("IP source: " + ipSource);
+        if (/^[0-9a-f]{16,32}(-[a-z0-9]+)?$/i.test(ray)) {
+          lines.push("Cloudflare Ray ID: " + ray);
+        }
+        if (activity.value.trim()) {
+          lines.push("What I was trying to access: " + activity.value.trim());
+        }
+        details.value = lines.join("\n");
+      }
+
+      document.getElementById("refresh").addEventListener("click", function () {
+        window.location.reload();
+      });
+
+      activity.addEventListener("input", function () {
+        updateDetails();
+        status.textContent = "";
+      });
+
+      copyButton.addEventListener("click", async function () {
+        updateDetails();
+        try {
+          if (!navigator.clipboard || !window.isSecureContext) throw new Error("Use fallback");
+          await navigator.clipboard.writeText(details.value);
+          status.textContent = "Copied! Paste these details into your message to your library.";
+        } catch (error) {
+          document.getElementById("details-panel").open = true;
+          details.focus();
+          details.select();
+          details.setSelectionRange(0, details.value.length);
+          let copied = false;
+          try { copied = document.execCommand("copy"); } catch (ignore) {}
+          status.textContent = copied
+            ? "Copied! Paste these details into your message to your library."
+            : "Select and copy the details below, or press Ctrl+C / Command+C.";
+        }
+      });
+
+      async function loadIP() {
+        // Custom Errors can supply the IP directly. Other HTML response boxes
+        // may leave the token unchanged, so try Cloudflare's same-site endpoint.
+        if (isIP(ip)) {
+          updateDetails();
+          copyButton.disabled = false;
+          return;
+        }
+        ip = "Checking...";
+        ipElement.textContent = ip;
+        updateDetails();
+        let timer;
+        try {
+          if (!/^https?:$/.test(window.location.protocol)) throw new Error("Preview");
+          const controller = new AbortController();
+          timer = setTimeout(function () { controller.abort(); }, 4000);
+          const response = await fetch("/cdn-cgi/trace", {
+            cache: "no-store",
+            credentials: "omit",
+            redirect: "error",
+            signal: controller.signal
+          });
+          if (!response.ok) throw new Error("Lookup unavailable");
+          const match = (await response.text()).match(/^ip=([^\r\n]+)$/m);
+          if (!match || !isIP(match[1].trim())) throw new Error("IP unavailable");
+          ip = match[1].trim();
+          ipSource = "Cloudflare connection lookup after the error";
+        } catch (error) {
+          ip = "Unable to detect automatically";
+        } finally {
+          clearTimeout(timer);
+          ipElement.textContent = ip;
+          updateDetails();
+          copyButton.disabled = false;
+        }
+      }
+
+      loadIP();
+    }());
+  </script>
+<script>window.__CF$cv$params={r:'a5c6b83f0c60289e',t:'MTc5NTAwMjIyOQ==',u:'01a1ee78637171569f6692e608186a7e',ut:'P4GsqUC6cx2k4WMt_H3uE9bpxOqZD1O2f93SWA7NHRI-1795002229-1.2.1.1-FZxDmnkr_e2eej2f9cOKxPv4mTxpw8UMLCOqgtSF6zY39a8s7CUO6nwtYuTnEYMd1UxarlpimW3f2o174FfY54zSuw_GqlmSnmS7OdhC2cE',i:60};(function(){if(!document.body)return;var l=window.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/precursor/main.js?ray=a5c6b83f0c60289e',s=document.createElement('script');s.src=o?new URL(u,o).href:u;document.head.appendChild(s);})();</script></body>
+</html>

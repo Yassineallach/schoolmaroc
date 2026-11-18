@@ -19,6 +19,9 @@ interface CatalogProvider {
     suspend fun findLibraries(query: String): List<LibraryRef>
     suspend fun search(library: LibraryRef, query: BookQuery): List<Holding>
     fun borrowLink(library: LibraryRef, holding: Holding): URI
+
+    /** The catalog's own search page for [query], for when automated search is blocked. */
+    fun searchLink(library: LibraryRef, query: BookQuery): URI? = null
 }
 
 class ProviderException(
@@ -27,5 +30,10 @@ class ProviderException(
     message: String,
     cause: Throwable? = null,
 ) : Exception(message, cause) {
-    enum class Kind { NETWORK, HTTP, RATE_LIMITED, NOT_FOUND, PARSE }
+    enum class Kind {
+        NETWORK, HTTP, RATE_LIMITED, NOT_FOUND, PARSE,
+
+        /** The site answers automated requests with a bot check (Cloudflare 429/403, JS challenge). */
+        BLOCKED,
+    }
 }

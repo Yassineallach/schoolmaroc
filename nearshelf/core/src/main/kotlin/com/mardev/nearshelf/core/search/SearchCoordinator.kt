@@ -1,6 +1,8 @@
 package com.mardev.nearshelf.core.search
 
 import com.mardev.nearshelf.core.match.BookMatcher
+import com.mardev.nearshelf.core.match.BranchNames
+import com.mardev.nearshelf.core.model.Holding
 import com.mardev.nearshelf.core.match.MatchedHolding
 import com.mardev.nearshelf.core.model.BookQuery
 import com.mardev.nearshelf.core.model.Library
@@ -44,17 +46,18 @@ class SearchCoordinator(
         jobs.forEach { (lib, ref) -> send(ServiceUpdate(lib.id, ref, ServiceState.Loading)) }
         jobs.forEach { (lib, ref) ->
             launch {
-                val state = gate.withPermit { searchOne(ref, query) }
+                val state = gate.withPermit { searchOne(ref, query, lib) }
                 send(ServiceUpdate(lib.id, ref, state))
             }
         }
     }
 
-    suspend fun searchOne(ref: LibraryRef, query: BookQuery): ServiceState {
+    suspend fun searchOne(ref: LibraryRef, query: BookQuery, library: Library? = null): ServiceState {
         val provider = providers[ref.provider]
             ?: return ServiceState.Failed(ProviderException.Kind.NOT_FOUND, "No provider for ${ref.provider}")
         return try {
-            ServiceState.Done(matcher.match(query, provider.search(ref, query)))
+            val holdings = provider.search(ref, query).map { h -> library?.let { withBranchLocations(h, it) } ?: h }
+            ServiceState.Done(matcher.match(query, holdings))
         } catch (e: CancellationException) {
             throw e
         } catch (e: ProviderException) {
@@ -66,4 +69,16 @@ class SearchCoordinator(
 
     fun borrowLink(ref: LibraryRef, matched: MatchedHolding) =
         providers.getValue(ref.provider).borrowLink(ref, matched.holding)
+
+    fun searchLink(ref: LibraryRef, query: BookQuery) = providers[ref.provider]?.searchLink(ref, query)
+
+    /** Catalog copies name their branch; the registry knows where it is. */
+    private fun withBranchLocations(h: Holding, library: Library): Holding {
+        if (h.copies.isEmpty() || library.branches.isEmpty()) return h
+        return h.copy(copies = h.copies.map { c ->
+            if (c.latitude != null) return@map c
+            val b = library.branches.firstOrNull { BranchNames.same(it.name, c.branchName) } ?: return@map c
+            c.copy(latitude = b.latitude, longitude = b.longitude)
+        })
+    }
 }
