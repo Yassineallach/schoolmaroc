@@ -73,6 +73,7 @@ fun AddLibraryScreen(onBack: () -> Unit, vm: AddLibraryViewModel = hiltViewModel
                     onValueChange = { vm.query.value = it },
                     label = { Text(stringResource(R.string.add_library_field)) },
                     placeholder = { Text(stringResource(R.string.add_library_hint)) },
+                    supportingText = { Text(stringResource(R.string.add_library_url_tip)) },
                     leadingIcon = { Icon(painterResource(R.drawable.ic_search), contentDescription = null) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -89,6 +90,26 @@ fun AddLibraryScreen(onBack: () -> Unit, vm: AddLibraryViewModel = hiltViewModel
                     )
                 }
                 LibrarySearchUi.Loading -> items(4) { LoadingRow() }
+                is LibrarySearchUi.Detected -> item {
+                    val lib = r.library
+                    if (lib == null) {
+                        Text(
+                            stringResource(R.string.add_library_not_recognised),
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                        )
+                    } else {
+                        Text(
+                            stringResource(R.string.add_library_recognised, r.provider?.displayName.orEmpty()),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                        )
+                        val have = saved[lib.id]
+                        val added = have != null && lib.services.all { (it.provider to it.key) in have }
+                        CandidateRow(lib, added) { if (added) vm.remove(lib.id) else vm.add(lib) }
+                    }
+                }
                 is LibrarySearchUi.Results -> {
                     if (r.failed.isNotEmpty()) item {
                         Text(

@@ -5,6 +5,8 @@ import com.mardev.nearshelf.core.match.BookMatcher
 import com.mardev.nearshelf.core.metadata.OpenLibrary
 import com.mardev.nearshelf.core.metadata.QueryExpander
 import com.mardev.nearshelf.core.share.OkHttpPageFetcher
+import com.mardev.nearshelf.core.share.PageFetcher
+import com.mardev.nearshelf.data.RegistryRepository
 import com.mardev.nearshelf.core.share.ShareParser
 import com.mardev.nearshelf.core.net.NearshelfHttp
 import com.mardev.nearshelf.core.provider.CatalogProvider
@@ -46,8 +48,8 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun librarySearch(providers: Set<@JvmSuppressWildcards CatalogProvider>) =
-        LibrarySearchService(providers.sortedBy { it.id.ordinal })
+    fun librarySearch(providers: Set<@JvmSuppressWildcards CatalogProvider>, registry: RegistryRepository) =
+        LibrarySearchService(providers.sortedBy { it.id.ordinal }) { registry.current }
 
     @Provides
     @Singleton
@@ -64,5 +66,9 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun shareParser(client: OkHttpClient) = ShareParser(OkHttpPageFetcher(client))
+    fun pageFetcher(client: OkHttpClient): PageFetcher = OkHttpPageFetcher(client)
+
+    @Provides
+    @Singleton
+    fun shareParser(fetcher: PageFetcher) = ShareParser(fetcher)
 }

@@ -21,6 +21,14 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "0.1.0"
+
+        // Weekly library-registry download (a raw file in your public registry repo).
+        // Empty = bundled copy only. Set nearshelf.registryUrl in gradle.properties.
+        buildConfigField(
+            "String",
+            "REGISTRY_URL",
+            "\"${(project.findProperty("nearshelf.registryUrl") as String?).orEmpty()}\"",
+        )
     }
 
     buildTypes {

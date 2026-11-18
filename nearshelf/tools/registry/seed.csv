@@ -1,0 +1,149 @@
+name,country,region,city,catalog_candidates
+New York Public Library,US,NY,New York,!https://nypl.na2.iiivega.com/|https://nypl.bibliocommons.com/
+Brooklyn Public Library,US,NY,Brooklyn,https://bklynlibrary.bibliocommons.com/|https://borrow.bklynlibrary.org/
+Queens Public Library,US,NY,Queens,https://queenslibrary.bibliocommons.com/
+Los Angeles Public Library,US,CA,Los Angeles,https://lapl.bibliocommons.com/|https://catalog.lapl.org/
+LA County Library,US,CA,Los Angeles,https://lacountylibrary.bibliocommons.com/
+Chicago Public Library,US,IL,Chicago,https://chipublib.bibliocommons.com/
+Houston Public Library,US,TX,Houston,https://houston.bibliocommons.com/
+Harris County Public Library,US,TX,Houston,https://hcpl.bibliocommons.com/
+Free Library of Philadelphia,US,PA,Philadelphia,https://freelibrary.bibliocommons.com/
+Phoenix Public Library,US,AZ,Phoenix,https://phoenix.bibliocommons.com/
+Maricopa County Library District,US,AZ,Phoenix,https://mcldaz.bibliocommons.com/
+San Antonio Public Library,US,TX,San Antonio,https://sanantonio.bibliocommons.com/
+San Diego Public Library,US,CA,San Diego,https://sandiego.bibliocommons.com/
+San Diego County Library,US,CA,San Diego,https://sdcl.bibliocommons.com/
+Dallas Public Library,US,TX,Dallas,https://dallaslibrary.bibliocommons.com/
+San Jose Public Library,US,CA,San Jose,https://sjpl.bibliocommons.com/
+Austin Public Library,US,TX,Austin,https://austin.bibliocommons.com/
+Jacksonville Public Library,US,FL,Jacksonville,https://jaxpl.bibliocommons.com/
+Columbus Metropolitan Library,US,OH,Columbus,https://columbuslibrary.bibliocommons.com/
+Indianapolis Public Library,US,IN,Indianapolis,https://indypl.bibliocommons.com/
+Charlotte Mecklenburg Library,US,NC,Charlotte,https://cmlibrary.bibliocommons.com/
+San Francisco Public Library,US,CA,San Francisco,https://sfpl.bibliocommons.com/
+Seattle Public Library,US,WA,Seattle,https://seattle.bibliocommons.com/
+King County Library System,US,WA,Issaquah,https://kcls.bibliocommons.com/
+Denver Public Library,US,CO,Denver,https://denverlibrary.bibliocommons.com/
+Boston Public Library,US,MA,Boston,https://bpl.bibliocommons.com/
+Detroit Public Library,US,MI,Detroit,https://detroitpubliclibrary.bibliocommons.com/
+Multnomah County Library,US,OR,Portland,https://multcolib.bibliocommons.com/
+Hennepin County Library,US,MN,Minneapolis,https://hclib.bibliocommons.com/
+Saint Paul Public Library,US,MN,Saint Paul,https://sppl.bibliocommons.com/
+Cuyahoga County Public Library,US,OH,Parma,https://cuyahogalibrary.bibliocommons.com/
+Cleveland Public Library,US,OH,Cleveland,https://cpl.bibliocommons.com/
+Public Library of Cincinnati and Hamilton County,US,OH,Cincinnati,https://cincinnatilibrary.bibliocommons.com/|https://classic.cincinnatilibrary.org/
+Las Vegas-Clark County Library District,US,NV,Las Vegas,https://lvccld.bibliocommons.com/
+Miami-Dade Public Library System,US,FL,Miami,https://mdpls.bibliocommons.com/
+Broward County Library,US,FL,Fort Lauderdale,https://broward.bibliocommons.com/
+Palm Beach County Library System,US,FL,West Palm Beach,https://pbclibrary.bibliocommons.com/
+Orange County Library System,US,FL,Orlando,https://ocls.bibliocommons.com/
+Hillsborough County Public Library Cooperative,US,FL,Tampa,https://catalog.hcplc.org/polaris/
+Fairfax County Public Library,US,VA,Fairfax,https://fairfax.bibliocommons.com/
+Montgomery County Public Libraries,US,MD,Rockville,https://mcpl.bibliocommons.com/
+Prince George's County Memorial Library System,US,MD,Largo,https://pgcmls.bibliocommons.com/
+Baltimore County Public Library,US,MD,Towson,https://bcpl.bibliocommons.com/
+Enoch Pratt Free Library,US,MD,Baltimore,https://prattlibrary.bibliocommons.com/
+DC Public Library,US,DC,Washington,https://dcpl.bibliocommons.com/
+Fulton County Library System,US,GA,Atlanta,https://fulcolibrary.bibliocommons.com/|https://gapines.org/eg/opac/home
+Gwinnett County Public Library,US,GA,Lawrenceville,https://gwinnettpl.bibliocommons.com/
+Nashville Public Library,US,TN,Nashville,https://nashville.bibliocommons.com/
+Memphis Public Libraries,US,TN,Memphis,https://memphislibrary.bibliocommons.com/
+Salt Lake County Library,US,UT,Salt Lake City,https://slcolibrary.bibliocommons.com/
+Sacramento Public Library,US,CA,Sacramento,https://saclibrary.bibliocommons.com/
+Fresno County Public Library,US,CA,Fresno,https://fresnolibrary.bibliocommons.com/
+OC Public Libraries,US,CA,Santa Ana,https://ocpl.bibliocommons.com/
+Riverside County Library System,US,CA,Riverside,https://rivlib.bibliocommons.com/
+San Bernardino County Library,US,CA,San Bernardino,https://sbcl.bibliocommons.com/
+Pima County Public Library,US,AZ,Tucson,https://pima.bibliocommons.com/
+Tulsa City-County Library,US,OK,Tulsa,https://tulsalibrary.bibliocommons.com/
+Metropolitan Library System,US,OK,Oklahoma City,https://metrolibrary.bibliocommons.com/
+Kansas City Public Library,US,MO,Kansas City,https://kclibrary.bibliocommons.com/
+Johnson County Library,US,KS,Overland Park,https://jocolibrary.bibliocommons.com/
+St. Louis County Library,US,MO,St. Louis,https://slcl.bibliocommons.com/
+St. Louis Public Library,US,MO,St. Louis,https://slpl.bibliocommons.com/
+Milwaukee Public Library,US,WI,Milwaukee,https://mpl.bibliocommons.com/
+Louisville Free Public Library,US,KY,Louisville,https://lfpl.bibliocommons.com/
+Allen County Public Library,US,IN,Fort Wayne,https://acpl.bibliocommons.com/
+Fort Worth Public Library,US,TX,Fort Worth,https://fortworth.bibliocommons.com/
+El Paso Public Library,US,TX,El Paso,https://elpaso.bibliocommons.com/
+Wake County Public Libraries,US,NC,Raleigh,https://wakegov.bibliocommons.com/
+New Orleans Public Library,US,LA,New Orleans,https://nolalibrary.bibliocommons.com/
+Pierce County Library System,US,WA,Tacoma,https://piercecounty.bibliocommons.com/
+Sno-Isle Libraries,US,WA,Marysville,https://sno-isle.bibliocommons.com/
+Fort Vancouver Regional Library District,US,WA,Vancouver,https://fvrl.bibliocommons.com/
+Dayton Metro Library,US,OH,Dayton,https://daytonmetrolibrary.bibliocommons.com/
+Toledo Lucas County Public Library,US,OH,Toledo,https://toledolibrary.bibliocommons.com/
+Akron-Summit County Public Library,US,OH,Akron,https://catalog.akronlibrary.org/
+Carnegie Library of Pittsburgh,US,PA,Pittsburgh,https://carnegielibrary.bibliocommons.com/
+Buffalo & Erie County Public Library,US,NY,Buffalo,https://buffalolib.bibliocommons.com/
+Albuquerque and Bernalillo County Library,US,NM,Albuquerque,https://abqlibrary.bibliocommons.com/
+Contra Costa County Library,US,CA,Martinez,https://ccclib.bibliocommons.com/
+Alameda County Library,US,CA,Fremont,https://aclibrary.bibliocommons.com/
+Santa Clara County Library District,US,CA,San Jose,https://sccl.bibliocommons.com/
+Oakland Public Library,US,CA,Oakland,https://oaklandlibrary.bibliocommons.com/
+Long Beach Public Library,US,CA,Long Beach,https://lbpl.bibliocommons.com/
+Mid-Continent Public Library,US,MO,Independence,https://mymcpl.bibliocommons.com/
+Arlington Public Library,US,VA,Arlington,https://arlingtonva.bibliocommons.com/
+Loudoun County Public Library,US,VA,Leesburg,https://loudoun.bibliocommons.com/
+Anne Arundel County Public Library,US,MD,Annapolis,https://aacpl.bibliocommons.com/
+Howard County Library System,US,MD,Ellicott City,https://hclibrary.bibliocommons.com/
+Cobb County Public Library,US,GA,Marietta,https://cobbcounty.bibliocommons.com/
+DeKalb County Public Library,US,GA,Decatur,https://dekalb.bibliocommons.com/
+Pikes Peak Library District,US,CO,Colorado Springs,https://ppld.bibliocommons.com/
+Arapahoe Libraries,US,CO,Englewood,https://arapahoelibraries.bibliocommons.com/
+Jefferson County Public Library,US,CO,Lakewood,https://jeffcolibrary.bibliocommons.com/
+Spokane County Library District,US,WA,Spokane,https://scld.bibliocommons.com/
+Timberland Regional Library,US,WA,Tumwater,https://trl.bibliocommons.com/
+Portsmouth Public Library,US,NH,Portsmouth,https://portsmouth.bywatersolutions.com/
+Toronto Public Library,CA,ON,Toronto,https://tpl.bibliocommons.com/
+Vancouver Public Library,CA,BC,Vancouver,https://vpl.bibliocommons.com/
+Calgary Public Library,CA,AB,Calgary,https://calgary.bibliocommons.com/
+Edmonton Public Library,CA,AB,Edmonton,https://epl.bibliocommons.com/
+Ottawa Public Library,CA,ON,Ottawa,https://ottawa.bibliocommons.com/|https://biblioottawalibrary.bibliocommons.com/
+Mississauga Library,CA,ON,Mississauga,https://mississauga.bibliocommons.com/
+Hamilton Public Library,CA,ON,Hamilton,https://hpl.bibliocommons.com/
+Winnipeg Public Library,CA,MB,Winnipeg,https://wpl.bibliocommons.com/
+Halifax Public Libraries,CA,NS,Halifax,https://halifax.bibliocommons.com/
+Surrey Libraries,CA,BC,Surrey,https://surrey.bibliocommons.com/
+Burnaby Public Library,CA,BC,Burnaby,https://burnaby.bibliocommons.com/
+Brampton Library,CA,ON,Brampton,https://brampton.bibliocommons.com/
+London Public Library,CA,ON,London,https://londonpubliclibrary.bibliocommons.com/
+Fraser Valley Regional Library,CA,BC,Abbotsford,https://fvrl.bibliocommons.com/
+Vaughan Public Libraries,CA,ON,Vaughan,https://vaughan.bibliocommons.com/
+Markham Public Library,CA,ON,Markham,https://markham.bibliocommons.com/
+Saskatoon Public Library,CA,SK,Saskatoon,https://saskatoon.bibliocommons.com/
+Regina Public Library,CA,SK,Regina,https://reginalibrary.bibliocommons.com/
+Kitchener Public Library,CA,ON,Kitchener,https://kpl.bibliocommons.com/
+Richmond Public Library,CA,BC,Richmond,https://yourlibrary.bibliocommons.com/
+Okanagan Regional Library,CA,BC,Kelowna,https://orl.bibliocommons.com/
+Greater Victoria Public Library,CA,BC,Victoria,https://gvpl.bibliocommons.com/
+Oakville Public Library,CA,ON,Oakville,https://opl.bibliocommons.com/
+Burlington Public Library,CA,ON,Burlington,https://bpl.bibliocommons.com/
+Library of Birmingham,GB,,Birmingham,
+Leeds Libraries,GB,,Leeds,
+Manchester Libraries,GB,,Manchester,
+Glasgow Libraries,GB,,Glasgow,
+Edinburgh Libraries,GB,,Edinburgh,
+Kent Libraries,GB,,Maidstone,
+Hampshire Libraries,GB,,Winchester,
+Essex Libraries,GB,,Chelmsford,
+Lancashire Libraries,GB,,Preston,
+Norfolk Libraries,GB,,Norwich,
+Hertfordshire Libraries,GB,,Hertford,
+Bristol Libraries,GB,,Bristol,
+Liverpool Libraries,GB,,Liverpool,
+Sheffield Libraries,GB,,Sheffield,
+Cardiff Libraries,GB,,Cardiff,
+Surrey Libraries,GB,,Woking,
+City of Sydney Library,AU,NSW,Sydney,
+Brisbane City Council Libraries,AU,QLD,Brisbane,
+City of Melbourne Libraries,AU,VIC,Melbourne,
+Yarra Plenty Regional Library,AU,VIC,Melbourne,
+Gold Coast Libraries,AU,QLD,Gold Coast,
+Moreton Bay Libraries,AU,QLD,Caboolture,
+Libraries ACT,AU,ACT,Canberra,
+City of Perth Library,AU,WA,Perth,
+Libraries Tasmania,AU,TAS,Hobart,
+Eastern Regional Libraries,AU,VIC,Melbourne,
+City of Adelaide Libraries,AU,SA,Adelaide,
+Brimbank Libraries,AU,VIC,Melbourne,

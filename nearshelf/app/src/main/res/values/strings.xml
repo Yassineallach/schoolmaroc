@@ -30,6 +30,14 @@
     <string name="add_library_idle">Type at least two letters. Nearshelf searches every catalog it supports.</string>
     <string name="add_library_none">No libraries found for “%1$s”. Try the city, or the library system’s full name.</string>
     <string name="add_library_partial">Couldn’t reach %1$s just now; results may be incomplete.</string>
+    <string name="add_library_url_tip">You can also paste your library catalog’s web address.</string>
+    <string name="add_library_recognised">Recognised: %1$s catalog</string>
+    <string name="add_library_not_recognised">Nearshelf doesn’t recognise this catalog yet. It supports BiblioCommons, Koha, Evergreen, Aspen Discovery, Polaris and Sierra (classic, Encore and Vega).</string>
+    <string name="branch_picker_title">Home branch at %1$s</string>
+    <string name="branch_picker_filter">Find a branch</string>
+    <string name="branch_picker_clear">No home branch</string>
+    <string name="home_branch_value">Home branch: %1$s</string>
+    <string name="home_branch_choose">Choose home branch</string>
     <string name="services_digital">Digital: %1$s</string>
     <string name="services_physical">Physical catalog: %1$s</string>
     <string name="state_added">Added</string>

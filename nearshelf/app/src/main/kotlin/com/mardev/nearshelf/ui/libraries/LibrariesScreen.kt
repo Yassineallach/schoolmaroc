@@ -24,6 +24,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -46,6 +48,7 @@ fun LibrariesScreen(onAddLibrary: () -> Unit, vm: LibrariesViewModel = hiltViewM
     val libraries by vm.libraries.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var picking by remember { mutableStateOf<Library?>(null) }
     val removedMsg = stringResource(R.string.libraries_removed)
     val undo = stringResource(R.string.action_undo)
 
@@ -98,10 +101,21 @@ fun LibrariesScreen(onAddLibrary: () -> Unit, vm: LibrariesViewModel = hiltViewM
                             if (r == SnackbarResult.ActionPerformed) vm.restore(lib)
                         }
                     },
+                    onPickBranch = { picking = lib },
                     modifier = Modifier.animateItem(),
                 )
             }
         }
+    }
+    picking?.let { lib ->
+        BranchPickerSheet(
+            library = lib,
+            onPick = { id ->
+                vm.setHomeBranch(lib, id)
+                picking = null
+            },
+            onDismiss = { picking = null },
+        )
     }
 }
 
@@ -113,10 +127,12 @@ private fun SavedLibraryCard(
     onUp: () -> Unit,
     onDown: () -> Unit,
     onRemove: () -> Unit,
+    onPickBranch: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(modifier.fillMaxWidth()) {
-        Row(Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column {
+        Row(Modifier.padding(start = 16.dp, top = 12.dp, bottom = 4.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(library.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
                 library.locationLine().takeIf { it.isNotEmpty() }?.let {
@@ -133,6 +149,8 @@ private fun SavedLibraryCard(
             IconButton(onClick = onRemove) {
                 Icon(painterResource(R.drawable.ic_trash), stringResource(R.string.cd_remove_library, library.name))
             }
+        }
+        Row(Modifier.padding(start = 4.dp, bottom = 4.dp)) { HomeBranchButton(library, onPickBranch) }
         }
     }
 }

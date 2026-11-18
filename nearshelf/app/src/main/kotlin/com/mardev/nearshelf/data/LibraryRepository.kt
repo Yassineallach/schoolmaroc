@@ -31,6 +31,16 @@ class LibraryRepository @Inject constructor(private val dao: SavedLibraryDao) {
 
     suspend fun remove(id: String) = dao.delete(id)
 
+    /** Saves the home branch, plus the branch list it came from if the saved entry had none. */
+    suspend fun setHomeBranch(id: String, branchId: String?, branches: List<com.mardev.nearshelf.core.model.Branch>) {
+        val current = libraries.first()
+        val index = current.indexOfFirst { it.id == id }
+        if (index < 0) return
+        val lib = current[index]
+        val updated = lib.copy(homeBranchId = branchId, branches = lib.branches.ifEmpty { branches })
+        dao.upsert(SavedLibraryEntity(id, index, json.encodeToString(updated)))
+    }
+
     /** Moves a library one place up (-1) or down (+1). */
     suspend fun move(id: String, delta: Int) {
         val ids = libraries.first().map { it.id }.toMutableList()
