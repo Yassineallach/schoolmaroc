@@ -69,5 +69,12 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 
+    implementation(libs.camera.core)
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.compose)
+    // Bundled model: works offline and without Google Play services.
+    implementation(libs.mlkit.barcode)
+
     testImplementation(libs.junit)
 }

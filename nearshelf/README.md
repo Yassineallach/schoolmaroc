@@ -36,13 +36,18 @@ Needs JDK 17+ and an Android SDK with platform 37 (`sdk.dir` in `local.propertie
 |---|---|---|
 | OverDrive library lookup | `GET https://locate.libbyapp.com/autocomplete/{query}` → `branches[].systems[].fulfillmentId` | 2026-11-17 |
 | OverDrive availability | `GET https://thunder.api.overdrive.com/v2/libraries/{key}/media?query=…&perPage=24` (title text or ISBN) | 2026-11-17 |
+| Open Library edition | `GET https://openlibrary.org/isbn/{isbn}.json` (title, `languages`, `works`, `covers`; 404 if unknown) | 2026-11-18 |
+| Open Library work + all ISBNs | `GET https://openlibrary.org/search.json?isbn={isbn}&fields=key,title,author_name,isbn,language,cover_i` (55 ISBNs → 28 unique ISBN-13s for Project Hail Mary, ebook ISBN included) | 2026-11-18 |
+| Goodreads share pages | `goodreads.com/book/show/{id}` serves JSON-LD `Book` with `isbn`, `name`, `author`, `inLanguage` | 2026-11-18 |
+| Amazon product pages | `/dp/{ASIN}`; ISBN-10 ASINs are ISBNs; page `<title>` is `Title: Last, First: ISBN: Amazon.com: Books` | 2026-11-18 |
+| StoryGraph | Pages answer 403 with a Cloudflare challenge; not fetched, share text used instead | 2026-11-18 |
 | Libby title deep link | `https://libbyapp.com/library/{key}/title/{id}` (Libby router's `title-redirect-controller`; libbyapp.com `assetlinks.json` delegates to `com.overdrive.mobile.android.libby`) | 2026-11-17 |
 
 ## Milestones
 
 1. [x] Spike: skeleton, `CatalogProvider`, OverDrive provider, fixtures, parser tests, debug screen
 2. [x] Core: library management, search, `BookMatcher`, streaming Results, Libby deep links
-3. [ ] Share sheet, barcode scanner, Open Library ISBN expansion
+3. [x] Share sheet, barcode scanner, Open Library ISBN expansion
 4. [ ] Hoopla
 5. [ ] Library registry, URL auto-detection, registry build script, home branch
 6. [ ] BiblioCommons, Koha

@@ -73,7 +73,12 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ResultsScreen(onBack: () -> Unit, onAddLibrary: () -> Unit, vm: ResultsViewModel = hiltViewModel()) {
+fun ResultsScreen(
+    onBack: () -> Unit,
+    onAddLibrary: () -> Unit,
+    onSearchManually: (String) -> Unit,
+    vm: ResultsViewModel = hiltViewModel(),
+) {
     val state by vm.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
@@ -88,10 +93,27 @@ fun ResultsScreen(onBack: () -> Unit, onAddLibrary: () -> Unit, vm: ResultsViewM
                         }
                     },
                 )
-                TopLoader(progress = if (state.libraries == null) 0f else state.progress)
+                TopLoader(progress = if (state.libraries == null) 0.1f else state.progress)
             }
         },
     ) { padding ->
+        if (state.phase == Phase.SHARE_NOT_UNDERSTOOD) {
+            EmptyState(
+                icon = R.drawable.ic_warning,
+                title = stringResource(R.string.share_not_understood_title),
+                body = stringResource(R.string.share_not_understood_body),
+                action = stringResource(R.string.share_search_manually),
+                onAction = { onSearchManually(state.sharedText.orEmpty()) },
+                modifier = Modifier.padding(padding),
+            )
+            return@Scaffold
+        }
+        if (state.phase == Phase.READING_SHARE || state.phase == Phase.LOOKING_UP) {
+            Column(Modifier.padding(padding).padding(16.dp)) {
+                PendingHeader(state)
+            }
+            return@Scaffold
+        }
         val libraries = state.libraries ?: return@Scaffold
         if (libraries.isEmpty()) {
             EmptyState(
@@ -118,6 +140,23 @@ fun ResultsScreen(onBack: () -> Unit, onAddLibrary: () -> Unit, vm: ResultsViewM
                     modifier = Modifier.animateItem(),
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun PendingHeader(state: ResultsUiState) {
+    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        Skeleton(Modifier.size(84.dp, 126.dp).clip(RoundedCornerShape(8.dp)))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            state.query?.title?.let { Text(it, style = MaterialTheme.typography.headlineSmall) }
+                ?: SkeletonLines(2, lineHeight = 22.dp)
+            Text(
+                stringResource(if (state.phase == Phase.READING_SHARE) R.string.phase_reading_share else R.string.phase_looking_up),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            )
         }
     }
 }

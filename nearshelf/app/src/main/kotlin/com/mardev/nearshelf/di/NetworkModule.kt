@@ -2,6 +2,10 @@ package com.mardev.nearshelf.di
 
 import com.mardev.nearshelf.BuildConfig
 import com.mardev.nearshelf.core.match.BookMatcher
+import com.mardev.nearshelf.core.metadata.OpenLibrary
+import com.mardev.nearshelf.core.metadata.QueryExpander
+import com.mardev.nearshelf.core.share.OkHttpPageFetcher
+import com.mardev.nearshelf.core.share.ShareParser
 import com.mardev.nearshelf.core.net.NearshelfHttp
 import com.mardev.nearshelf.core.provider.CatalogProvider
 import com.mardev.nearshelf.core.provider.overdrive.OverDriveProvider
@@ -40,4 +44,16 @@ object NetworkModule {
     @Singleton
     fun searchCoordinator(providers: Set<@JvmSuppressWildcards CatalogProvider>) =
         SearchCoordinator(providers, BookMatcher())
+
+    @Provides
+    @Singleton
+    fun openLibrary(client: OkHttpClient) = OpenLibrary(client)
+
+    @Provides
+    @Singleton
+    fun queryExpander(ol: OpenLibrary) = QueryExpander(ol)
+
+    @Provides
+    @Singleton
+    fun shareParser(client: OkHttpClient) = ShareParser(OkHttpPageFetcher(client))
 }

@@ -78,6 +78,13 @@ class BookMatcher(
                 "sparknotes|cliffsnotes|book summary|a summary|key takeaways|conversation starters)\\b",
         )
 
+        /** Same title rule the matcher applies, for callers outside a full match. */
+        fun titlesMatch(a: String, b: String, jw: Double = 0.9, edit: Double = 0.8): Boolean {
+            val x = TextNormalizer.title(a)
+            val y = TextNormalizer.title(b)
+            return x.isNotEmpty() && Similarity.jaroWinkler(x, y) >= jw && Similarity.levenshteinRatio(x, y) >= edit
+        }
+
         fun isStudyAid(text: String): Boolean = studyAid.containsMatchIn(TextNormalizer.basic(text))
     }
 }
@@ -93,6 +100,12 @@ object Isbn {
         val core = "978" + isbn10.take(9)
         val sum = core.mapIndexed { i, c -> (c - '0') * if (i % 2 == 0) 1 else 3 }.sum()
         return core + ((10 - sum % 10) % 10)
+    }
+
+    /** A scanned EAN-13 is a book only with the 978/979 "Bookland" prefix and a valid checksum. */
+    fun fromBarcode(raw: String): String? {
+        val digits = raw.trim()
+        return digits.takeIf { it.length == 13 && it.all(Char::isDigit) && (it.startsWith("978") || it.startsWith("979")) && isValid(it) }
     }
 
     fun isValid(raw: String): Boolean {

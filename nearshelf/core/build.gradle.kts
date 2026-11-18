@@ -20,6 +20,7 @@ dependencies {
     api(libs.okhttp)
     implementation(libs.retrofit)
     implementation(libs.retrofit.kotlinx.serialization)
+    implementation(libs.jsoup)
 
     testImplementation(libs.kotlin.test)
     testImplementation(libs.junit)

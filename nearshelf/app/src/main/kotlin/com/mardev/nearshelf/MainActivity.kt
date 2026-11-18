@@ -1,5 +1,6 @@
 package com.mardev.nearshelf
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,12 +15,15 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -28,20 +32,51 @@ import com.mardev.nearshelf.nav.AddLibraryRoute
 import com.mardev.nearshelf.nav.HomeRoute
 import com.mardev.nearshelf.nav.LibrariesRoute
 import com.mardev.nearshelf.nav.ResultsRoute
+import com.mardev.nearshelf.nav.ScannerRoute
 import com.mardev.nearshelf.ui.home.HomeScreen
 import com.mardev.nearshelf.ui.libraries.AddLibraryScreen
 import com.mardev.nearshelf.ui.libraries.LibrariesScreen
 import com.mardev.nearshelf.ui.results.ResultsScreen
+import com.mardev.nearshelf.ui.scanner.ScannerScreen
 import com.mardev.nearshelf.ui.theme.NearshelfTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    /** Text from the share sheet, consumed once by the nav host. */
+    private val pendingShare = mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        setContent { NearshelfTheme { NearshelfRoot() } }
+        if (savedInstanceState == null) pendingShare.value = intent.sharedText()
+        setContent {
+            NearshelfTheme {
+                NearshelfRoot(pendingShare.value, onShareConsumed = { pendingShare.value = null })
+            }
+        }
     }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        intent.sharedText()?.let { pendingShare.value = it }
+    }
+
+    private fun Intent.sharedText(): String? =
+        if (action == Intent.ACTION_SEND && type == "text/plain") {
+            listOfNotNull(getStringExtra(Intent.EXTRA_SUBJECT), getStringExtra(Intent.EXTRA_TEXT))
+                .distinct().joinToString(" ").trim().takeIf { it.isNotEmpty() }?.take(2_000)
+        } else {
+            null
+        }
+}
+
+private const val PREFILL_KEY = "prefill"
+
+/** Returns to Search with the box pre-filled, e.g. after a share Nearshelf couldn't read. */
+private fun backToHomeWith(nav: NavHostController, text: String) {
+    nav.popBackStack(HomeRoute, inclusive = false)
+    nav.currentBackStackEntry?.savedStateHandle?.set(PREFILL_KEY, text)
 }
 
 private data class TopLevel(val route: Any, @StringRes val label: Int, @DrawableRes val icon: Int, @DrawableRes val selectedIcon: Int)
@@ -52,8 +87,14 @@ private val topLevel = listOf(
 )
 
 @Composable
-private fun NearshelfRoot() {
+private fun NearshelfRoot(pendingShare: String?, onShareConsumed: () -> Unit) {
     val nav = rememberNavController()
+    LaunchedEffect(pendingShare) {
+        if (pendingShare != null) {
+            nav.navigate(ResultsRoute(shared = pendingShare)) { launchSingleTop = false }
+            onShareConsumed()
+        }
+    }
     val entry by nav.currentBackStackEntryAsState()
     val dest = entry?.destination
     val showBar = dest == null || topLevel.any { t -> dest.hasRoute(t.route::class) }
@@ -84,8 +125,12 @@ private fun NearshelfRoot() {
             startDestination = HomeRoute,
             modifier = Modifier.padding(bottom = padding.calculateBottomPadding()).consumeWindowInsets(padding),
         ) {
-            composable<HomeRoute> {
+            composable<HomeRoute> { entry ->
+                val prefill = entry.savedStateHandle.get<String>(PREFILL_KEY)
                 HomeScreen(
+                    prefill = prefill,
+                    onPrefillConsumed = { entry.savedStateHandle.remove<String>(PREFILL_KEY) },
+                    onScan = { nav.navigate(ScannerRoute) },
                     onSearch = { q -> nav.navigate(ResultsRoute(q.title, q.author, q.isbn)) },
                     onManageLibraries = {
                         nav.navigate(LibrariesRoute) {
@@ -99,7 +144,20 @@ private fun NearshelfRoot() {
             composable<LibrariesRoute> { LibrariesScreen(onAddLibrary = { nav.navigate(AddLibraryRoute) }) }
             composable<AddLibraryRoute> { AddLibraryScreen(onBack = { nav.popBackStack() }) }
             composable<ResultsRoute> {
-                ResultsScreen(onBack = { nav.popBackStack() }, onAddLibrary = { nav.navigate(AddLibraryRoute) })
+                ResultsScreen(
+                    onBack = { nav.popBackStack() },
+                    onAddLibrary = { nav.navigate(AddLibraryRoute) },
+                    onSearchManually = { text -> backToHomeWith(nav, text) },
+                )
+            }
+            composable<ScannerRoute> {
+                ScannerScreen(
+                    onBack = { nav.popBackStack() },
+                    onIsbn = { isbn ->
+                        nav.navigate(ResultsRoute(isbn = isbn)) { popUpTo<ScannerRoute> { inclusive = true } }
+                    },
+                    onTypeInstead = { nav.popBackStack() },
+                )
             }
         }
     }

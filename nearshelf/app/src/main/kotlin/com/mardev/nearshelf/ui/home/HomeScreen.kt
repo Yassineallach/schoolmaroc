@@ -22,10 +22,12 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +48,9 @@ import com.mardev.nearshelf.ui.libraries.servicesLine
 
 @Composable
 fun HomeScreen(
+    prefill: String?,
+    onPrefillConsumed: () -> Unit,
+    onScan: () -> Unit,
     onSearch: (BookQuery) -> Unit,
     onManageLibraries: () -> Unit,
     onAddLibrary: () -> Unit,
@@ -54,6 +59,12 @@ fun HomeScreen(
     val input by vm.input.collectAsStateWithLifecycle()
     val libraries by vm.libraries.collectAsStateWithLifecycle()
     val keyboard = LocalSoftwareKeyboardController.current
+    LaunchedEffect(prefill) {
+        if (prefill != null) {
+            vm.input.value = prefill
+            onPrefillConsumed()
+        }
+    }
     val submit = {
         vm.parsedQuery()?.let {
             keyboard?.hide()
@@ -94,6 +105,10 @@ fun HomeScreen(
                         IconButton(onClick = { vm.input.value = "" }) {
                             Icon(painterResource(R.drawable.ic_x), stringResource(R.string.cd_clear))
                         }
+                    } else {
+                        IconButton(onClick = onScan) {
+                            Icon(painterResource(R.drawable.ic_barcode), stringResource(R.string.cd_scan_barcode))
+                        }
                     }
                 },
                 singleLine = true,
@@ -104,12 +119,23 @@ fun HomeScreen(
             )
         }
         item {
-            Button(
-                onClick = { submit() },
-                enabled = input.isNotBlank() && libraries?.isNotEmpty() == true,
-                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
-            ) {
-                Text(stringResource(R.string.search_action))
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(
+                    onClick = { submit() },
+                    enabled = input.isNotBlank() && libraries?.isNotEmpty() == true,
+                    modifier = Modifier.weight(1f).heightIn(min = 52.dp),
+                ) {
+                    Text(stringResource(R.string.search_action))
+                }
+                OutlinedButton(
+                    onClick = onScan,
+                    enabled = libraries?.isNotEmpty() == true,
+                    modifier = Modifier.heightIn(min = 52.dp),
+                ) {
+                    Icon(painterResource(R.drawable.ic_barcode), null, modifier = Modifier.size(20.dp))
+                    Spacer(Modifier.size(8.dp))
+                    Text(stringResource(R.string.action_scan))
+                }
             }
         }
         item {

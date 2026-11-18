@@ -9,7 +9,9 @@ import com.mardev.nearshelf.core.model.BookQuery
 import com.mardev.nearshelf.core.model.Format
 import com.mardev.nearshelf.core.model.Library
 import com.mardev.nearshelf.core.model.LibraryRef
+import com.mardev.nearshelf.core.metadata.QueryExpander
 import com.mardev.nearshelf.core.search.SearchCoordinator
+import com.mardev.nearshelf.core.share.ShareParser
 import com.mardev.nearshelf.core.search.ServiceState
 import com.mardev.nearshelf.data.LibraryRepository
 import com.mardev.nearshelf.nav.ResultsRoute
@@ -28,10 +30,17 @@ data class ServiceResult(val ref: LibraryRef, val state: ServiceState)
 
 data class LibraryResult(val library: Library, val services: List<ServiceResult>)
 
+enum class Phase { READING_SHARE, LOOKING_UP, SEARCHING, SHARE_NOT_UNDERSTOOD }
+
 data class ResultsUiState(
-    val query: BookQuery,
+    val phase: Phase,
+    /** null until a shared link has been read. */
+    val query: BookQuery? = null,
+    /** Open Library cover, used until a catalog supplies one. */
+    val metadataCover: String? = null,
     /** null while the saved libraries load. */
     val libraries: List<LibraryResult>? = null,
+    val sharedText: String? = null,
 ) {
     private val all get() = libraries.orEmpty().flatMap { it.services }
     val total: Int get() = all.size
@@ -47,10 +56,10 @@ data class ResultsUiState(
                 .maxByOrNull { it.score }
                 ?.holding
             return BookHeader(
-                title = best?.title ?: query.title ?: query.isbn.orEmpty(),
-                authors = best?.authors ?: listOfNotNull(query.author),
+                title = best?.title ?: query?.title ?: query?.isbn.orEmpty(),
+                authors = best?.authors ?: listOfNotNull(query?.author),
                 coverUrl = all.flatMap { (it.state as? ServiceState.Done)?.matches.orEmpty() }
-                    .firstNotNullOfOrNull { it.holding.coverUrl },
+                    .firstNotNullOfOrNull { it.holding.coverUrl } ?: metadataCover,
             )
         }
 }
@@ -60,29 +69,49 @@ class ResultsViewModel @Inject constructor(
     savedState: SavedStateHandle,
     private val repo: LibraryRepository,
     private val coordinator: SearchCoordinator,
+    private val shareParser: ShareParser,
+    private val expander: QueryExpander,
 ) : ViewModel() {
 
     private val route = savedState.toRoute<ResultsRoute>()
-    private val query = BookQuery(title = route.title, author = route.author, isbn = route.isbn)
+    private var query: BookQuery? = route.toQueryOrNull()
 
-    private val _state = MutableStateFlow(ResultsUiState(query))
+    private val _state = MutableStateFlow(
+        ResultsUiState(
+            phase = if (route.shared != null) Phase.READING_SHARE else Phase.LOOKING_UP,
+            query = query,
+            sharedText = route.shared,
+        ),
+    )
     val state: StateFlow<ResultsUiState> = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
+            val typed = query ?: route.shared?.let { shareParser.parse(it) }
+            if (typed == null) {
+                _state.update { it.copy(phase = Phase.SHARE_NOT_UNDERSTOOD) }
+                return@launch
+            }
+            _state.update { it.copy(phase = Phase.LOOKING_UP, query = typed) }
+            val expanded = expander.expand(typed)
+            val q = expanded.query
+            query = q
+            _state.update { it.copy(phase = Phase.SEARCHING, query = q, metadataCover = expanded.coverUrl) }
+
             val libraries = repo.libraries.first()
             _state.update { s ->
                 s.copy(libraries = libraries.map { lib ->
                     LibraryResult(lib, lib.services.map { ServiceResult(it, ServiceState.Loading) })
                 })
             }
-            coordinator.search(libraries, query).collect { u -> apply(u.libraryId, u.service, u.state) }
+            coordinator.search(libraries, q).collect { u -> apply(u.libraryId, u.service, u.state) }
         }
     }
 
     fun retry(libraryId: String, ref: LibraryRef) {
+        val q = query ?: return
         apply(libraryId, ref, ServiceState.Loading)
-        viewModelScope.launch { apply(libraryId, ref, coordinator.searchOne(ref, query)) }
+        viewModelScope.launch { apply(libraryId, ref, coordinator.searchOne(ref, q)) }
     }
 
     fun borrowLink(ref: LibraryRef, match: MatchedHolding): String =
@@ -113,3 +142,6 @@ class ResultsViewModel @Inject constructor(
         Format.OTHER -> 3
     }
 }
+
+private fun ResultsRoute.toQueryOrNull(): BookQuery? =
+    if (title.isNullOrBlank() && isbn.isNullOrBlank()) null else BookQuery(title = title, author = author, isbn = isbn)
