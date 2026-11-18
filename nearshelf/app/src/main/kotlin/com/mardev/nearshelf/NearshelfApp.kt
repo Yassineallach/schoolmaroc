@@ -1,6 +1,7 @@
 package com.mardev.nearshelf
 
 import android.app.Application
+import com.mardev.nearshelf.data.LibraryRepository
 import com.mardev.nearshelf.data.RegistryRepository
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -12,6 +13,7 @@ import javax.inject.Inject
 @HiltAndroidApp
 class NearshelfApp : Application() {
     @Inject lateinit var registry: RegistryRepository
+    @Inject lateinit var libraries: LibraryRepository
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -20,6 +22,7 @@ class NearshelfApp : Application() {
         appScope.launch {
             registry.load()
             registry.refreshIfStale()
+            registry.current?.let { libraries.syncWithRegistry(it) }
         }
     }
 }

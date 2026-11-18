@@ -31,6 +31,21 @@ class LibraryRepository @Inject constructor(private val dao: SavedLibraryDao) {
 
     suspend fun remove(id: String) = dao.delete(id)
 
+    /**
+     * Gives saved libraries the services and branches the registry knows for them
+     * (e.g. NYPL saved from a Libby search gains its Vega catalog). Never removes anything.
+     */
+    suspend fun syncWithRegistry(registry: com.mardev.nearshelf.core.registry.LibraryRegistry) {
+        libraries.first().forEachIndexed { index, lib ->
+            val reg = registry.find(lib.id) ?: return@forEachIndexed
+            val services = (lib.services + reg.services).distinctBy { it.provider to it.key }.sortedBy { it.provider.ordinal }
+            val branches = lib.branches.ifEmpty { reg.branches }
+            if (services != lib.services || branches != lib.branches) {
+                dao.upsert(SavedLibraryEntity(lib.id, index, json.encodeToString(lib.copy(services = services, branches = branches))))
+            }
+        }
+    }
+
     /** Saves the home branch, plus the branch list it came from if the saved entry had none. */
     suspend fun setHomeBranch(id: String, branchId: String?, branches: List<com.mardev.nearshelf.core.model.Branch>) {
         val current = libraries.first()
