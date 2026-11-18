@@ -23,6 +23,7 @@ import com.mardev.nearshelf.data.PreferencesRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import com.mardev.nearshelf.core.watch.Watch
+import com.mardev.nearshelf.core.watch.WatchScope
 import com.mardev.nearshelf.data.WatchlistRepository
 import com.mardev.nearshelf.location.LocationRepository
 import com.mardev.nearshelf.work.WatchlistWorker
@@ -131,26 +132,36 @@ class ResultsViewModel @Inject constructor(
 
     fun refreshLocation() = viewModelScope.launch { _here.value = location.current() }
 
-    /** Watch or unwatch; the current results become the baseline for notifications. */
-    fun toggleWatch() = viewModelScope.launch {
+    /** What this book's watch covers; null when it isn't watched. */
+    private val _watchScope = MutableStateFlow<WatchScope?>(null)
+    val watchScope: StateFlow<WatchScope?> = _watchScope.asStateFlow()
+
+    /**
+     * Watch (or re-scope the watch) for [scope]. The current results, limited to that
+     * scope, become the baseline, so the first notification is real news.
+     */
+    fun watch(scope: WatchScope) = viewModelScope.launch {
         val q = query ?: return@launch
-        if (_watched.value) {
-            watchlist.remove(WatchlistRepository.keyOf(q))
-            if (watchlist.all().isEmpty()) WatchlistWorker.cancel(context)
-            _watched.value = false
-            WatchlistWidget.refresh(context)
-        } else {
-            val s = _state.value
-            val header = s.header
-            val snapshot = s.libraries?.let { libs ->
-                if (s.finished < s.total) null
-                else Watch.snapshot(System.currentTimeMillis(), libs.map { lr -> lr.library to lr.services.map { it.ref.provider.displayName to it.state } })
-            }
-            watchlist.add(q, header.title, header.authors.firstOrNull(), header.coverUrl, snapshot)
-            WatchlistWorker.schedule(context)
-            _watched.value = true
-            WatchlistWidget.refresh(context)
+        val s = _state.value
+        val header = s.header
+        val snapshot = s.libraries?.let { libs ->
+            if (s.finished < s.total) null
+            else Watch.snapshot(System.currentTimeMillis(), libs.map { lr -> lr.library to lr.services.map { it.ref.provider.displayName to it.state } }, scope)
         }
+        watchlist.add(q, header.title, header.authors.firstOrNull(), header.coverUrl, snapshot, scope)
+        WatchlistWorker.schedule(context)
+        _watched.value = true
+        _watchScope.value = scope
+        WatchlistWidget.refresh(context)
+    }
+
+    fun unwatch() = viewModelScope.launch {
+        val q = query ?: return@launch
+        watchlist.remove(WatchlistRepository.keyOf(q))
+        if (watchlist.all().isEmpty()) WatchlistWorker.cancel(context)
+        _watched.value = false
+        _watchScope.value = null
+        WatchlistWidget.refresh(context)
     }
 
     private val route = savedState.toRoute<ResultsRoute>()
@@ -193,7 +204,10 @@ class ResultsViewModel @Inject constructor(
             val q = expanded.query
             query = q
             _state.update { it.copy(phase = Phase.SEARCHING, query = q, metadataCover = expanded.coverUrl) }
-            _watched.value = watchlist.isWatched(q)
+            watchlist.get(q).let {
+                _watched.value = it != null
+                _watchScope.value = it?.scope
+            }
             history.record(q, q.title ?: q.isbn.orEmpty(), q.author, expanded.coverUrl)
             _offline.value = !connectivity.isOnline()
 

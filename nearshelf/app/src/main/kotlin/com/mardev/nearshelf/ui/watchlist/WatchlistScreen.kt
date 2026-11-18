@@ -47,6 +47,7 @@ import coil3.compose.AsyncImage
 import com.mardev.nearshelf.R
 import com.mardev.nearshelf.core.watch.Watch
 import com.mardev.nearshelf.data.WatchItem
+import com.mardev.nearshelf.core.model.Format
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
@@ -171,6 +172,19 @@ private fun WatchRow(item: WatchItem, onOpen: () -> Unit, onRemove: () -> Unit) 
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(item.title, style = BookTitle, color = MaterialTheme.colorScheme.onSurface, maxLines = 3, overflow = TextOverflow.Ellipsis)
             item.author?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+            // What this watch covers, when it isn't everything.
+            if (!item.scope.isEverything) {
+                val formats = if (item.scope.formats.isEmpty()) stringResource(R.string.watch_all_formats)
+                else listOf(Format.EBOOK, Format.AUDIOBOOK, Format.PHYSICAL).filter { it in item.scope.formats }.map { formatName(it) }.joinToString(", ")
+                Text(
+                    if (item.scope.libraryIds.isEmpty()) stringResource(R.string.watchlist_scope, formats)
+                    else stringResource(R.string.watchlist_scope_at, formats, item.scope.libraryNames.joinToString(", ")),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
             StatusLine(Watch.status(item.snapshot), Modifier.padding(top = Space.xs))
             Text(
                 item.lastCheckedAt?.let {
@@ -208,3 +222,12 @@ private fun StatusLine(status: Watch.Status?, modifier: Modifier = Modifier) {
         Text(text, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), color = color)
     }
 }
+
+@Composable
+private fun formatName(f: Format) = stringResource(
+    when (f) {
+        Format.EBOOK -> R.string.format_ebook
+        Format.AUDIOBOOK -> R.string.format_audiobook
+        else -> R.string.format_physical
+    },
+)

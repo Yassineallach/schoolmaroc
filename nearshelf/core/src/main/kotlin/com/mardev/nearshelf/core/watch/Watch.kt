@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.core.watch
 
+import com.mardev.nearshelf.core.search.Availability.group
 import com.mardev.nearshelf.core.match.BranchNames
 import com.mardev.nearshelf.core.model.CopyStatus
 import com.mardev.nearshelf.core.model.Format
@@ -20,6 +21,26 @@ data class LibrarySnapshot(
     val homeBranchOnShelf: Boolean = false,
 )
 
+/**
+ * What a watch covers. Empty [formats] or [libraryIds] means all of them, so watches
+ * saved before scopes existed keep watching everything.
+ */
+@Serializable
+data class WatchScope(
+    val formats: Set<Format> = emptySet(),
+    val libraryIds: Set<String> = emptySet(),
+    /** Names of [libraryIds], for display only. */
+    val libraryNames: List<String> = emptyList(),
+) {
+    fun covers(format: Format): Boolean = formats.isEmpty() || format.group() in formats
+    fun covers(libraryId: String): Boolean = libraryIds.isEmpty() || libraryId in libraryIds
+    val isEverything: Boolean get() = formats.isEmpty() && libraryIds.isEmpty()
+
+    companion object {
+        val Everything = WatchScope()
+    }
+}
+
 @Serializable
 data class WatchSnapshot(val checkedAt: Long, val libraries: Map<String, LibrarySnapshot>)
 
@@ -33,13 +54,24 @@ sealed interface WatchEvent {
 
 object Watch {
 
-    fun snapshot(checkedAt: Long, results: List<Pair<Library, List<Pair<String, ServiceState>>>>): WatchSnapshot =
-        WatchSnapshot(checkedAt, results.associate { (lib, services) ->
+    /**
+     * What one check found, limited to the watch's [scope]: libraries outside it are left
+     * out and so are formats it doesn't cover, so notifications, the watchlist status and
+     * the widget only ever report what the reader asked to watch.
+     */
+    fun snapshot(
+        checkedAt: Long,
+        results: List<Pair<Library, List<Pair<String, ServiceState>>>>,
+        scope: WatchScope = WatchScope.Everything,
+    ): WatchSnapshot =
+        WatchSnapshot(checkedAt, results.filter { scope.covers(it.first.id) }.associate { (lib, services) ->
             val matches = services.flatMap { (service, st) ->
-                (st as? ServiceState.Done)?.matches.orEmpty().filter { !it.otherLanguage }.map { service to it.holding }
+                (st as? ServiceState.Done)?.matches.orEmpty()
+                    .filter { !it.otherLanguage && scope.covers(it.holding.format) }
+                    .map { service to it.holding }
             }
             val digital = matches.filter { it.second.format == Format.EBOOK || it.second.format == Format.AUDIOBOOK }
-            val physical = matches.filter { it.second.format == Format.PHYSICAL }.flatMap { it.second.copies }
+            val physical = matches.filter { it.second.format.group() == Format.PHYSICAL }.flatMap { it.second.copies }
             val shelfBranches = physical.filter { it.status == CopyStatus.AVAILABLE }.map { it.branchName }.distinct()
             val home = lib.homeBranch?.name
             val homeOnShelf = home != null && shelfBranches.any { BranchNames.matches(home, it) }

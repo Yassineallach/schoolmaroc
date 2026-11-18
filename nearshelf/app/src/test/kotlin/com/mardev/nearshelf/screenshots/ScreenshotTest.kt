@@ -103,7 +103,7 @@ class ScreenshotTest(private val device: Device) {
         ResultsContent(
             state = sampleState(), watched = false, here = LatLng(41.88, -87.63), prefs = ReadingPrefs(),
             offline = false, showLocationCard = false,
-            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {},
             onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
             adSlot = { FakeAd(it) },
         )
@@ -173,7 +173,8 @@ class ScreenshotTest(private val device: Device) {
                 WatchItem("a", BookQuery(title = "Piranesi"), "Piranesi", "Susanna Clarke", null, now, now - 3_600_000,
                     snap(LibrarySnapshot("Chicago Public Library", availableIn = listOf("Libby")))),
                 WatchItem("b", BookQuery(title = "The Overstory"), "The Overstory", "Richard Powers", null, now, now - 7_200_000,
-                    snap(LibrarySnapshot("Evanston Public Library", shortestWaitDays = 21))),
+                    snap(LibrarySnapshot("Evanston Public Library", shortestWaitDays = 21)),
+                    com.mardev.nearshelf.core.watch.WatchScope(setOf(Format.AUDIOBOOK), setOf("ept"), listOf("Evanston Public Library"))),
                 WatchItem("c", BookQuery(title = "Lessons in Chemistry"), "Lessons in Chemistry: A Novel of Science, Love and Breakfast", "Bonnie Garmus", null, now, null, null),
             ),
             snackbar = androidx.compose.material3.SnackbarHostState(),
@@ -242,7 +243,7 @@ class ScreenshotTest(private val device: Device) {
         ResultsContent(
             state = ResultsUiState(Phase.SEARCHING, query = BookQuery(title = "Piranesi"), libraries = emptyList()),
             watched = false, here = null, prefs = ReadingPrefs(), offline = false, showLocationCard = false,
-            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {},
             onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
             adSlot = { FakeAd(it) },
         )
@@ -259,12 +260,31 @@ class ScreenshotTest(private val device: Device) {
                 c("The Outsiders", "S. E. Hinton", 1967, 77),
             )),
             watched = false, here = null, prefs = ReadingPrefs(), offline = false, showLocationCard = false,
-            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {},
             onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
         )
     }
 
     @Test fun resultsSingle() = shot("results_single") { redRising(null) }
+
+    @Test fun watchDialog() = dialogShot("watch_dialog") {
+        ResultsContent(
+            state = sampleState(), watched = false, here = null, prefs = ReadingPrefs(), offline = false, showLocationCard = false,
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {},
+            onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
+            adSlot = { FakeAd(it) }, initialTab = Format.AUDIOBOOK, initialWatchDialog = true,
+        )
+    }
+
+    @Test fun watchingScoped() = shot("watching_scoped") {
+        ResultsContent(
+            state = sampleState(), watched = true, here = null, prefs = ReadingPrefs(), offline = false, showLocationCard = false,
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {},
+            onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
+            adSlot = { FakeAd(it) }, initialTab = Format.PHYSICAL,
+            watchScope = com.mardev.nearshelf.core.watch.WatchScope(setOf(Format.PHYSICAL), setOf("chicago"), listOf("Chicago Public Library")),
+        )
+    }
 
     @Test fun resultsSingleAudio() = shot("results_single_audio") { redRising(Format.AUDIOBOOK) }
 
@@ -288,7 +308,7 @@ class ScreenshotTest(private val device: Device) {
         ResultsContent(
             state = state, watched = false, here = LatLng(33.57, -7.59), prefs = ReadingPrefs(),
             offline = false, showLocationCard = false,
-            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {},
             onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
             adSlot = { FakeAd(it) }, initialTab = Format.PHYSICAL,
         )
@@ -298,7 +318,7 @@ class ScreenshotTest(private val device: Device) {
     private fun sampleResults(tab: Format?) = ResultsContent(
         state = sampleState(), watched = false, here = LatLng(41.88, -87.63), prefs = ReadingPrefs(),
         offline = false, showLocationCard = false,
-        onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
+        onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {},
         onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
         adSlot = { FakeAd(it) }, initialTab = tab,
     )
@@ -326,7 +346,7 @@ class ScreenshotTest(private val device: Device) {
         ResultsContent(
             state = state, watched = false, here = null, prefs = ReadingPrefs(languages = setOf("en")),
             offline = false, showLocationCard = false,
-            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {},
             onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
             adSlot = { FakeAd(it) }, initialTab = tab,
         )

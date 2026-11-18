@@ -54,6 +54,20 @@
 
     <!-- Results -->
     <string name="results_title">Availability</string>
+    <string name="watch_title">Watch this book</string>
+    <string name="watch_body">Nearshelf checks once a day and tells you when what you pick here becomes available, lands on a shelf, or the wait drops.</string>
+    <string name="watch_formats">Formats</string>
+    <string name="watch_libraries">Libraries</string>
+    <string name="watch_save">Watch</string>
+    <string name="watch_update">Save</string>
+    <string name="watch_stop">Stop watching</string>
+    <string name="watch_cancel">Cancel</string>
+    <string name="watching_scope">Watching · %1$s</string>
+    <string name="watching_scope_at">Watching · %1$s at %2$s</string>
+    <string name="watching_at">Watching · %1$s</string>
+    <string name="watch_all_formats">all formats</string>
+    <string name="watchlist_scope">Watching %1$s</string>
+    <string name="watchlist_scope_at">Watching %1$s at %2$s</string>
     <string name="choose_title">Which book?</string>
     <string name="choose_body">Several books are called “%1$s”. Pick yours, and results will show only that book.</string>
     <plurals name="choose_editions">

@@ -48,14 +48,17 @@ class WatchlistWorker @AssistedInject constructor(
         if (items.isEmpty() || libs.isEmpty()) return Result.success()
         var reachedAny = false
         for (item in items) {
+            // Only the libraries this watch covers are asked (fewer requests, same answer).
+            val scoped = libs.filter { item.scope.covers(it.id) }
+            if (scoped.isEmpty()) continue
             val query = expander.expand(item.query).query
-            val updates = coordinator.search(libs, query, forceRefresh = true).toList()
+            val updates = coordinator.search(scoped, query, forceRefresh = true).toList()
                 .filter { it.state !is ServiceState.Loading }
             if (updates.any { it.state is ServiceState.Done && !(it.state as ServiceState.Done).stale }) reachedAny = true
-            val byLibrary = libs.map { lib ->
+            val byLibrary = scoped.map { lib ->
                 lib to updates.filter { it.libraryId == lib.id }.map { it.service.provider.displayName to it.state }
             }
-            val snapshot = Watch.snapshot(System.currentTimeMillis(), byLibrary)
+            val snapshot = Watch.snapshot(System.currentTimeMillis(), byLibrary, item.scope)
             Watch.events(item.snapshot, snapshot).forEach { notifier.notify(item, it) }
             watchlist.saveCheck(item, snapshot)
         }

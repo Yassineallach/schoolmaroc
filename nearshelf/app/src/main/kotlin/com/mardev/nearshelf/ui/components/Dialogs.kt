@@ -33,11 +33,13 @@ fun NearshelfDialog(
     body: String? = null,
     secondary: String? = null,
     onSecondary: () -> Unit = {},
+    onConfirm: () -> Unit = onDismiss,
+    confirmEnabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text(confirm, style = MaterialTheme.typography.labelLarge) } },
+        confirmButton = { TextButton(onClick = onConfirm, enabled = confirmEnabled) { Text(confirm, style = MaterialTheme.typography.labelLarge) } },
         dismissButton = secondary?.let {
             { TextButton(onClick = onSecondary) { Text(it, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant) } }
         },

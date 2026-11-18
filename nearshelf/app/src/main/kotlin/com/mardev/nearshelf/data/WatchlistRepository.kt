@@ -2,6 +2,7 @@ package com.mardev.nearshelf.data
 
 import com.mardev.nearshelf.core.model.BookQuery
 import com.mardev.nearshelf.core.watch.WatchSnapshot
+import com.mardev.nearshelf.core.watch.WatchScope
 import com.mardev.nearshelf.data.db.WatchDao
 import com.mardev.nearshelf.data.db.WatchItemEntity
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +20,8 @@ data class WatchItem(
     val addedAt: Long,
     val lastCheckedAt: Long?,
     val snapshot: WatchSnapshot?,
+    /** What is watched: formats and libraries (empty = all). */
+    val scope: WatchScope = WatchScope.Everything,
 )
 
 @Singleton
@@ -31,7 +34,10 @@ class WatchlistRepository @Inject constructor(private val dao: WatchDao) {
 
     suspend fun isWatched(query: BookQuery) = dao.get(keyOf(query)) != null
 
-    suspend fun add(query: BookQuery, title: String, author: String?, coverUrl: String?, snapshot: WatchSnapshot?) {
+    /** The watch for this book, or null when it isn't watched. */
+    suspend fun get(query: BookQuery): WatchItem? = dao.get(keyOf(query))?.let(::toItem)
+
+    suspend fun add(query: BookQuery, title: String, author: String?, coverUrl: String?, snapshot: WatchSnapshot?, scope: WatchScope = WatchScope.Everything) {
         val key = keyOf(query)
         dao.upsert(
             WatchItemEntity(
@@ -43,6 +49,7 @@ class WatchlistRepository @Inject constructor(private val dao: WatchDao) {
                 addedAt = dao.get(key)?.addedAt ?: System.currentTimeMillis(),
                 lastCheckedAt = snapshot?.checkedAt,
                 snapshotJson = snapshot?.let { json.encodeToString(it) },
+                scopeJson = if (scope.isEverything) "" else json.encodeToString(scope),
             ),
         )
     }
@@ -57,6 +64,7 @@ class WatchlistRepository @Inject constructor(private val dao: WatchDao) {
         WatchItem(
             e.key, json.decodeFromString<BookQuery>(e.queryJson), e.title, e.author, e.coverUrl, e.addedAt, e.lastCheckedAt,
             e.snapshotJson?.let { json.decodeFromString<WatchSnapshot>(it) },
+            e.scopeJson.takeIf { it.isNotBlank() }?.let { runCatching { json.decodeFromString<WatchScope>(it) }.getOrNull() } ?: WatchScope.Everything,
         )
     }.getOrNull()
 
