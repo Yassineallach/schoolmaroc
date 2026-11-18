@@ -70,6 +70,7 @@ fun ListRow(
     onClickLabel: String? = null,
     leading: @Composable () -> Unit,
     trailing: @Composable RowScope.() -> Unit = {},
+    titleStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
 ) {
     Row(
         modifier
@@ -82,7 +83,7 @@ fun ListRow(
         Box(Modifier.width(RowLeadingWidth), contentAlignment = Alignment.CenterStart) { leading() }
         Spacer(Modifier.width(RowLeadingGap))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(title, style = titleStyle, color = MaterialTheme.colorScheme.onSurface, maxLines = 2, overflow = TextOverflow.Ellipsis)
             if (!meta.isNullOrEmpty()) {
                 Text(meta, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }

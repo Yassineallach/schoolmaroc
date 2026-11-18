@@ -1,5 +1,10 @@
 package com.mardev.nearshelf.ui.libraries
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.offset
+import com.mardev.nearshelf.ui.components.PaperSearchField
+import com.mardev.nearshelf.ui.theme.Gutter
+import com.mardev.nearshelf.ui.theme.Space
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,32 +52,36 @@ fun BranchPickerSheet(library: Library, onPick: (String?) -> Unit, onDismiss: ()
         val f = TextNormalizer.basic(filter)
         library.branches.filter { f.isEmpty() || f in TextNormalizer.basic("${it.name} ${it.address.orEmpty()} ${it.city.orEmpty()}") }
     }
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheet,
+        containerColor = MaterialTheme.colorScheme.background,
+        shape = MaterialTheme.shapes.extraLarge.copy(bottomStart = androidx.compose.foundation.shape.CornerSize(0.dp), bottomEnd = androidx.compose.foundation.shape.CornerSize(0.dp)),
+    ) {
         Column(Modifier.navigationBarsPadding()) {
             Text(
                 stringResource(R.string.branch_picker_title, library.name),
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier.padding(horizontal = Gutter).padding(bottom = Space.m),
             )
             if (library.branches.size > 8) {
-                OutlinedTextField(
+                PaperSearchField(
                     value = filter,
                     onValueChange = { filter = it },
-                    label = { Text(stringResource(R.string.branch_picker_filter)) },
-                    leadingIcon = { Icon(painterResource(R.drawable.ic_search), null) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    placeholder = stringResource(R.string.branch_picker_filter),
+                    label = stringResource(R.string.branch_picker_filter),
+                    modifier = Modifier.padding(start = Gutter, end = Gutter, bottom = Space.s),
                 )
             }
             LazyColumn(Modifier.fillMaxWidth().heightIn(max = 520.dp)) {
                 items(shown, key = { it.id }) { b ->
                     BranchRow(b, selected = b.id == library.homeBranchId) { onPick(b.id) }
-                    HorizontalDivider(Modifier.padding(start = 56.dp))
+                    HorizontalDivider(Modifier.padding(start = Gutter + 40.dp, end = Gutter), color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
             if (library.homeBranchId != null) {
-                TextButton(onClick = { onPick(null) }, modifier = Modifier.padding(8.dp)) {
-                    Text(stringResource(R.string.branch_picker_clear))
+                TextButton(onClick = { onPick(null) }, modifier = Modifier.padding(horizontal = Gutter - 12.dp, vertical = Space.s)) {
+                    Text(stringResource(R.string.branch_picker_clear), style = MaterialTheme.typography.labelLarge)
                 }
             }
         }
@@ -82,14 +91,14 @@ fun BranchPickerSheet(library: Library, onPick: (String?) -> Unit, onDismiss: ()
 @Composable
 private fun BranchRow(branch: Branch, selected: Boolean, onClick: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().heightIn(min = 56.dp)
+        Modifier.fillMaxWidth().heightIn(min = 64.dp)
             .clickable(role = Role.RadioButton, onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 6.dp),
+            .padding(horizontal = Gutter - 12.dp, vertical = Space.s),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RadioButton(selected = selected, onClick = null, modifier = Modifier.padding(horizontal = 8.dp))
+        RadioButton(selected = selected, onClick = null, modifier = Modifier.padding(start = 12.dp, end = Space.l))
         Column {
-            Text(branch.name, style = MaterialTheme.typography.bodyLarge)
+            Text(branch.name, style = MaterialTheme.typography.titleMedium)
             listOfNotNull(branch.address, branch.city).joinToString(", ").takeIf { it.isNotEmpty() }?.let {
                 Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -100,11 +109,15 @@ private fun BranchRow(branch: Branch, selected: Boolean, onClick: () -> Unit) {
 @Composable
 fun HomeBranchButton(library: Library, onClick: () -> Unit) {
     if (library.branches.isEmpty()) return
-    TextButton(onClick = onClick) {
-        Icon(painterResource(R.drawable.ic_map_pin), null, modifier = Modifier.size(18.dp))
+    // Text action that starts on the text column (offset cancels the button's own padding).
+    TextButton(onClick = onClick, contentPadding = PaddingValues(horizontal = 12.dp), modifier = Modifier.padding(top = Space.xs).offset(x = (-12).dp)) {
+        Icon(painterResource(R.drawable.ic_map_pin), null, modifier = Modifier.size(16.dp))
         Text(
             library.homeBranch?.let { stringResource(R.string.home_branch_value, it.name) }
                 ?: stringResource(R.string.home_branch_choose),
+            style = MaterialTheme.typography.labelLarge,
+            maxLines = 2,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             modifier = Modifier.padding(start = 6.dp),
         )
     }

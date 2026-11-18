@@ -1,5 +1,14 @@
 package com.mardev.nearshelf.ui.results
 
+import com.mardev.nearshelf.ui.components.Monogram
+import androidx.compose.foundation.layout.offset
+import com.mardev.nearshelf.ui.components.NearshelfTopBar
+import com.mardev.nearshelf.ui.components.accentTonalColors
+import com.mardev.nearshelf.ui.components.hairline
+import com.mardev.nearshelf.ui.components.quietOutlinedColors
+import com.mardev.nearshelf.ui.theme.Gutter
+import com.mardev.nearshelf.ui.theme.ServiceOverline
+import com.mardev.nearshelf.ui.theme.Space
 import com.mardev.nearshelf.ui.theme.ButtonShape
 import com.mardev.nearshelf.ui.components.readableWidth
 import androidx.compose.animation.AnimatedContent
@@ -160,22 +169,15 @@ internal fun ResultsContent(
     Scaffold(
         topBar = {
             Column {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.results_title)) },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(painterResource(R.drawable.ic_arrow_left), stringResource(R.string.cd_back))
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = onPreferences) {
-                            Icon(painterResource(R.drawable.ic_sliders), stringResource(R.string.cd_reading_preferences))
-                        }
-                    },
-                )
+                NearshelfTopBar(stringResource(R.string.results_title), onBack = onBack) {
+                    IconButton(onClick = onPreferences) {
+                        Icon(painterResource(R.drawable.ic_sliders), stringResource(R.string.cd_reading_preferences), modifier = Modifier.size(22.dp))
+                    }
+                }
                 TopLoader(progress = if (state.libraries == null) 0.1f else state.progress)
             }
         },
+        containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
         if (state.phase == Phase.SHARE_NOT_UNDERSTOOD) {
             EmptyState(
@@ -189,7 +191,7 @@ internal fun ResultsContent(
             return@Scaffold
         }
         if (state.phase == Phase.READING_SHARE || state.phase == Phase.LOOKING_UP) {
-            Column(Modifier.padding(padding).padding(16.dp)) {
+            Column(Modifier.padding(padding).padding(horizontal = Gutter, vertical = Space.s)) {
                 PendingHeader(state)
             }
             return@Scaffold
@@ -208,27 +210,28 @@ internal fun ResultsContent(
         }
         LazyColumn(
             Modifier.fillMaxSize().padding(padding).readableWidth(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(bottom = Space.xl),
         ) {
             if (offline) {
                 item(key = "offline") {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = Gutter, end = Gutter, bottom = Space.s).semantics { liveRegion = LiveRegionMode.Polite }) {
                         Icon(painterResource(R.drawable.ic_offline), null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(R.string.results_offline), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
                     }
                 }
             }
-            item(key = "header") { BookHeaderView(state, watched, onWatch) }
+            item(key = "header") { BookHeaderView(state, watched, onWatch, Modifier.padding(start = Gutter, end = Gutter, top = Space.s, bottom = Space.xl)) }
             val services = libraries.flatMap { lr -> lr.services.map { lr.library.id to it } }
             val allFailed = services.isNotEmpty() && state.finished == state.total && services.none { it.second.state is ServiceState.Done }
             if (allFailed) {
                 item(key = "allFailed") {
-                    androidx.compose.material3.Card(
-                        colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                    androidx.compose.material3.Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier.padding(start = Gutter, end = Gutter, bottom = Space.l),
                     ) {
-                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(Modifier.padding(Space.l), verticalArrangement = Arrangement.spacedBy(Space.s)) {
                             Text(stringResource(R.string.results_all_failed_title), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onErrorContainer)
                             Text(
                                 stringResource(if (offline) R.string.results_all_failed_offline else R.string.results_all_failed_body),
@@ -248,6 +251,7 @@ internal fun ResultsContent(
                     LocationCard(
                         onAllow = onAllowLocation,
                         onDismiss = onDismissLocation,
+                        modifier = Modifier.padding(start = Gutter, end = Gutter, bottom = Space.l),
                     )
                 }
             }
@@ -264,7 +268,7 @@ internal fun ResultsContent(
                     modifier = Modifier.animateItem(),
                 )
                 if (index == 0 && !offline) {
-                    adSlot(Modifier.padding(top = 16.dp))
+                    adSlot(Modifier.padding(horizontal = Gutter, vertical = Space.l))
                 }
             }
         }
@@ -273,8 +277,8 @@ internal fun ResultsContent(
 
 @Composable
 private fun PendingHeader(state: ResultsUiState) {
-    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        Skeleton(Modifier.size(84.dp, 126.dp).clip(RoundedCornerShape(8.dp)))
+    Row(horizontalArrangement = Arrangement.spacedBy(Space.l)) {
+        Skeleton(Modifier.size(84.dp, 126.dp).clip(MaterialTheme.shapes.extraSmall))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             state.query?.title?.let { Text(it, style = MaterialTheme.typography.headlineSmall) }
                 ?: SkeletonLines(2, lineHeight = 22.dp)
@@ -289,10 +293,10 @@ private fun PendingHeader(state: ResultsUiState) {
 }
 
 @Composable
-private fun BookHeaderView(state: ResultsUiState, watched: Boolean, onWatch: () -> Unit) {
+private fun BookHeaderView(state: ResultsUiState, watched: Boolean, onWatch: () -> Unit, modifier: Modifier = Modifier) {
     val header = state.header
-    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        val coverModifier = Modifier.width(84.dp).heightIn(min = 120.dp).clip(RoundedCornerShape(8.dp))
+    Row(modifier, horizontalArrangement = Arrangement.spacedBy(Space.l)) {
+        val coverModifier = Modifier.width(84.dp).heightIn(min = 120.dp).clip(MaterialTheme.shapes.extraSmall)
         if (header.coverUrl != null) {
             SubcomposeAsyncImage(
                 model = header.coverUrl,
@@ -322,13 +326,13 @@ private fun BookHeaderView(state: ResultsUiState, watched: Boolean, onWatch: () 
             )
             val watchLabel = stringResource(if (watched) R.string.action_watching else R.string.action_watch)
             if (watched) {
-                FilledTonalButton(shape = ButtonShape, onClick = onWatch, modifier = Modifier.padding(top = 4.dp).heightIn(min = 48.dp)) {
+                FilledTonalButton(shape = ButtonShape, colors = accentTonalColors(), onClick = onWatch, modifier = Modifier.padding(top = Space.s).heightIn(min = 44.dp)) {
                     Icon(painterResource(R.drawable.ic_watchlist_fill), null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
                     Text(watchLabel)
                 }
             } else {
-                OutlinedButton(shape = ButtonShape, onClick = onWatch, modifier = Modifier.padding(top = 4.dp).heightIn(min = 48.dp)) {
+                OutlinedButton(shape = ButtonShape, border = hairline(), colors = quietOutlinedColors(), onClick = onWatch, modifier = Modifier.padding(top = Space.s).heightIn(min = 44.dp)) {
                     Icon(painterResource(R.drawable.ic_watchlist), null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
                     Text(watchLabel)
@@ -349,11 +353,13 @@ private fun LibraryCard(
     modifier: Modifier = Modifier,
 ) {
     val reducedMotion = com.mardev.nearshelf.ui.components.lightswind.rememberReducedMotion()
-    ElevatedCard(modifier.fillMaxWidth()) {
-        Column(Modifier.padding(vertical = 16.dp)) {
-            Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(painterResource(R.drawable.ic_library), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
-                Spacer(Modifier.width(10.dp))
+    // A flat section, not a card: hairline above, the library's monogram and serif name.
+    Column(modifier.fillMaxWidth()) {
+        HorizontalDivider(Modifier.padding(horizontal = Gutter), color = MaterialTheme.colorScheme.outlineVariant)
+        Column(Modifier.padding(top = Space.l, bottom = Space.s)) {
+            Row(Modifier.padding(horizontal = Gutter), verticalAlignment = Alignment.CenterVertically) {
+                Monogram(result.library.name)
+                Spacer(Modifier.width(Space.m))
                 Column {
                     Text(result.library.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
                     result.library.locationLine().takeIf { it.isNotEmpty() }?.let {
@@ -361,17 +367,18 @@ private fun LibraryCard(
                     }
                 }
             }
-            result.services.forEach { svc ->
-                HorizontalDivider(Modifier.padding(top = 12.dp), color = MaterialTheme.colorScheme.outlineVariant)
+            result.services.forEachIndexed { si, svc ->
+                if (si > 0) HorizontalDivider(Modifier.padding(start = Gutter, end = Gutter, top = Space.s), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
                 Text(
-                    if (svc.ref.provider.kind == ProviderId.Kind.PHYSICAL) {
+                    (if (svc.ref.provider.kind == ProviderId.Kind.PHYSICAL) {
                         stringResource(R.string.section_physical, svc.ref.provider.displayName)
                     } else {
                         svc.ref.provider.displayName
-                    },
-                    style = MaterialTheme.typography.labelLarge,
+                    }).uppercase(java.util.Locale.getDefault()),
+                    // Service as a small overline: the section's index, not its headline.
+                    style = ServiceOverline,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
+                    modifier = Modifier.padding(start = Gutter, end = Gutter, top = Space.l, bottom = Space.xs),
                 )
                 AnimatedContent(
                     targetState = svc.state,
@@ -380,10 +387,10 @@ private fun LibraryCard(
                     label = "service",
                 ) { st ->
                     when (st) {
-                        ServiceState.Loading -> SkeletonLines(3, Modifier.fillMaxWidth().padding(16.dp, 8.dp))
+                        ServiceState.Loading -> SkeletonLines(3, Modifier.fillMaxWidth().padding(Gutter, Space.s))
                         is ServiceState.Failed -> FailedRow(svc.ref, st, onRetry, onOpenCatalog)
                         ServiceState.TemporarilyUnavailable -> Row(
-                            Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp),
+                            Modifier.fillMaxWidth().padding(start = Gutter, end = Gutter - 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
@@ -400,7 +407,7 @@ private fun LibraryCard(
                                     stringResource(R.string.results_stale, relativeTime(st.fetchedAt)),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.tertiary,
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp),
+                                    modifier = Modifier.padding(horizontal = Gutter, vertical = 2.dp),
                                 )
                             }
                             if (svc.ref.provider == ProviderId.HOOPLA && st.matches.isNotEmpty()) {
@@ -411,7 +418,7 @@ private fun LibraryCard(
                                     stringResource(R.string.results_not_found, svc.ref.provider.displayName),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                                    modifier = Modifier.padding(horizontal = Gutter, vertical = Space.xs),
                                 )
                             }
                             val rows = ServiceResult(svc.ref, st).rows(prefs)
@@ -420,11 +427,11 @@ private fun LibraryCard(
                                     stringResource(R.string.results_hidden_by_language),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                                    modifier = Modifier.padding(horizontal = Gutter, vertical = Space.xs),
                                 )
                             }
                             rows.forEachIndexed { i, row ->
-                                if (i > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                                if (i > 0) HorizontalDivider(Modifier.padding(horizontal = Gutter), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
                                 if (row.match.holding.format == Format.PHYSICAL) {
                                     PhysicalRow(svc.ref, row, result.library.homeBranch?.name, here, onBorrow)
                                 } else {
@@ -449,9 +456,9 @@ private fun FailedRow(
     if (failure.kind == ProviderException.Kind.BLOCKED) {
         // The catalog answers automated requests with a bot check. Nearshelf never tries to
         // get past one; the user searches it in their browser instead.
-        Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = Gutter), verticalArrangement = Arrangement.spacedBy(Space.s)) {
             Text(stringResource(R.string.results_blocked), style = MaterialTheme.typography.bodyMedium)
-            OutlinedButton(shape = ButtonShape, onClick = { onOpenCatalog(ref) }, modifier = Modifier.heightIn(min = 48.dp)) {
+            OutlinedButton(shape = ButtonShape, border = hairline(), colors = quietOutlinedColors(), onClick = { onOpenCatalog(ref) }, modifier = Modifier.heightIn(min = 48.dp)) {
                 Text(stringResource(R.string.action_search_catalog))
                 Spacer(Modifier.width(8.dp))
                 Icon(painterResource(R.drawable.ic_open_external), null, modifier = Modifier.size(ButtonDefaults.IconSize))
@@ -459,7 +466,7 @@ private fun FailedRow(
         }
         return
     }
-    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().padding(start = Gutter, end = Gutter - 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(painterResource(R.drawable.ic_warning), null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
         Spacer(Modifier.width(8.dp))
         Text(
@@ -489,7 +496,7 @@ private fun HooplaNote(ref: LibraryRef) {
         ).joinToString(" "),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp),
+        modifier = Modifier.padding(horizontal = Gutter, vertical = 2.dp),
     )
 }
 
@@ -497,12 +504,12 @@ private fun HooplaNote(ref: LibraryRef) {
 private fun HoldingRow(ref: LibraryRef, row: HoldingRowUi, onBorrow: (LibraryRef, MatchedHolding) -> Unit) {
     val m = row.match
     val h = m.holding
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = Space.m), verticalArrangement = Arrangement.spacedBy(Space.s)) {
         Row(verticalAlignment = Alignment.Top) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(painterResource(formatIcon(h.format)), null, modifier = Modifier.size(20.dp))
+                        Icon(painterResource(formatIcon(h.format)), null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(20.dp))
                         Spacer(Modifier.width(6.dp))
                         Text(formatLabel(h.format), style = MaterialTheme.typography.titleMedium)
                     }
@@ -549,9 +556,9 @@ private fun HoldingRow(ref: LibraryRef, row: HoldingRowUi, onBorrow: (LibraryRef
             Icon(painterResource(R.drawable.ic_open_external), null, modifier = Modifier.size(ButtonDefaults.IconSize))
         }
         if (m.otherLanguage) {
-            OutlinedButton(shape = ButtonShape, onClick = { onBorrow(ref, m) }, modifier = buttonModifier) { content() }
+            OutlinedButton(shape = ButtonShape, border = hairline(), colors = quietOutlinedColors(), onClick = { onBorrow(ref, m) }, modifier = buttonModifier) { content() }
         } else {
-            FilledTonalButton(shape = ButtonShape, onClick = { onBorrow(ref, m) }, modifier = buttonModifier) { content() }
+            FilledTonalButton(shape = ButtonShape, colors = accentTonalColors(), onClick = { onBorrow(ref, m) }, modifier = buttonModifier) { content() }
         }
     }
 }
@@ -573,12 +580,12 @@ private fun PhysicalRow(
     val branches = remember(h.copies, homeBranchName, here) { summarizeBranches(h.copies, homeBranchName, here) }
     var expanded by rememberSaveable(h.providerItemId) { mutableStateOf(false) }
     val anyShelf = branches.any { it.onShelf > 0 } || (h.copies.isEmpty() && h.isAvailableNow)
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = Space.m), verticalArrangement = Arrangement.spacedBy(Space.s)) {
         Row(verticalAlignment = Alignment.Top) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(painterResource(R.drawable.ic_books), null, modifier = Modifier.size(20.dp))
+                        Icon(painterResource(R.drawable.ic_books), null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(20.dp))
                         Spacer(Modifier.width(6.dp))
                         Text(stringResource(R.string.format_physical), style = MaterialTheme.typography.titleMedium)
                     }
@@ -620,11 +627,11 @@ private fun PhysicalRow(
         val shown = if (expanded) branches else branches.filter { it.isHome || it.onShelf > 0 }.take(BRANCHES_COLLAPSED).ifEmpty { branches.take(1) }
         shown.forEach { BranchLine(it, h.branchLevelOnly) }
         if (branches.size > shown.size) {
-            TextButton(onClick = { expanded = true }) {
-                Text(pluralStringResource(R.plurals.show_all_branches, branches.size, branches.size))
+            TextButton(onClick = { expanded = true }, modifier = Modifier.offset(x = (-12).dp)) {
+                Text(pluralStringResource(R.plurals.show_all_branches, branches.size, branches.size), style = MaterialTheme.typography.labelLarge)
             }
         }
-        OutlinedButton(shape = ButtonShape, onClick = { onBorrow(ref, m) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+        OutlinedButton(shape = ButtonShape, border = hairline(), colors = quietOutlinedColors(), onClick = { onBorrow(ref, m) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
             Text(stringResource(if (anyShelf) R.string.action_view_catalog else R.string.action_hold_catalog))
             Spacer(Modifier.width(8.dp))
             Icon(painterResource(R.drawable.ic_open_external), null, modifier = Modifier.size(ButtonDefaults.IconSize))
@@ -702,17 +709,15 @@ private fun relativeTime(epochMillis: Long): String =
     android.text.format.DateUtils.getRelativeTimeSpanString(epochMillis, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS).toString()
 
 @Composable
-private fun LocationCard(onAllow: () -> Unit, onDismiss: () -> Unit) {
-    androidx.compose.material3.Card(
-        colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+private fun LocationCard(onAllow: () -> Unit, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+    androidx.compose.material3.Surface(color = MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.medium, modifier = modifier) {
+        Column(Modifier.padding(Space.l), verticalArrangement = Arrangement.spacedBy(Space.s)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(painterResource(R.drawable.ic_map_pin), null, modifier = Modifier.size(20.dp))
+                Icon(painterResource(R.drawable.ic_map_pin), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.location_card_title), style = MaterialTheme.typography.titleMedium)
             }
-            Text(stringResource(R.string.location_card_body), style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.location_card_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 androidx.compose.material3.Button(shape = ButtonShape, onClick = onAllow) { Text(stringResource(R.string.location_card_allow)) }
                 TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_not_now)) }

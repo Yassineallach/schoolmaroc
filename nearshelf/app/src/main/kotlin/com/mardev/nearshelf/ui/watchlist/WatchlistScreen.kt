@@ -203,8 +203,8 @@ private fun StatusLine(status: Watch.Status?, modifier: Modifier = Modifier) {
         Watch.Status.NotYet -> stringResource(R.string.watch_status_not_yet) to MaterialTheme.colorScheme.onSurfaceVariant
         null -> return
     }
-    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(6.dp).clip(CircleShape).background(color))
+    Row(modifier, verticalAlignment = Alignment.Top) {
+        Box(Modifier.padding(top = 7.dp).size(6.dp).clip(CircleShape).background(color))
         Spacer(Modifier.width(Space.s))
         Text(text, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), color = color)
     }

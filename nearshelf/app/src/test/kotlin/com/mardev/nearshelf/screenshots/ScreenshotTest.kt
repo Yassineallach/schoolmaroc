@@ -31,6 +31,14 @@ import com.mardev.nearshelf.ui.onboarding.OnboardingScreen
 import com.mardev.nearshelf.R
 import com.mardev.nearshelf.data.HistoryItem
 import com.mardev.nearshelf.ui.home.HomeContent
+import com.mardev.nearshelf.ui.watchlist.WatchlistContent
+import com.mardev.nearshelf.ui.libraries.LibrariesContent
+import com.mardev.nearshelf.ui.libraries.AddLibraryContent
+import com.mardev.nearshelf.ui.libraries.LibrarySearchUi
+import com.mardev.nearshelf.ui.history.HistoryContent
+import com.mardev.nearshelf.data.WatchItem
+import com.mardev.nearshelf.core.watch.LibrarySnapshot
+import com.mardev.nearshelf.core.watch.WatchSnapshot
 import com.mardev.nearshelf.ui.components.NavDestinationItem
 import com.mardev.nearshelf.ui.components.NearshelfNavBar
 import androidx.compose.foundation.layout.padding
@@ -150,6 +158,44 @@ class ScreenshotTest(private val device: Device) {
             HistoryItem("b", BookQuery(title = "The Overstory"), "The Overstory", "Richard Powers", null, now - 86_400_000),
             HistoryItem("c", BookQuery(title = "The Left Hand of Darkness"), "The Left Hand of Darkness: 50th Anniversary Edition", "Ursula K. Le Guin", null, now - 3 * 86_400_000),
         )
+    }
+
+    @Test fun watchlist() = shot("watchlist") {
+        val now = System.currentTimeMillis()
+        fun snap(l: LibrarySnapshot) = WatchSnapshot(now - 3_600_000, mapOf("x" to l))
+        WatchlistContent(
+            items = listOf(
+                WatchItem("a", BookQuery(title = "Piranesi"), "Piranesi", "Susanna Clarke", null, now, now - 3_600_000,
+                    snap(LibrarySnapshot("Chicago Public Library", availableIn = listOf("Libby")))),
+                WatchItem("b", BookQuery(title = "The Overstory"), "The Overstory", "Richard Powers", null, now, now - 7_200_000,
+                    snap(LibrarySnapshot("Evanston Public Library", shortestWaitDays = 21))),
+                WatchItem("c", BookQuery(title = "Lessons in Chemistry"), "Lessons in Chemistry: A Novel of Science, Love and Breakfast", "Bonnie Garmus", null, now, null, null),
+            ),
+            snackbar = androidx.compose.material3.SnackbarHostState(),
+            onOpen = {}, onSearch = {}, onCheckNow = {}, onRemove = {}, adSlot = { FakeAd(it) },
+        )
+    }
+
+    @Test fun libraries() = shot("libraries") {
+        val libs = sampleLibraries().mapIndexed { i, l ->
+            if (i == 0) l.copy(branches = listOf(Branch("hw", "Harold Washington Library Center")), homeBranchId = "hw")
+            else l.copy(branches = listOf(Branch("m", "Main Library")))
+        }
+        LibrariesContent(libs, androidx.compose.material3.SnackbarHostState(), {}, {}, {}, {}, {})
+    }
+
+    @Test fun addLibrary() = shot("add_library") {
+        val libs = sampleLibraries()
+        AddLibraryContent(
+            query = "chicago", onQueryChange = {},
+            results = LibrarySearchUi.Results("chicago", libs, emptySet()),
+            saved = mapOf(libs[0].id to libs[0].services.map { it.provider to it.key }.toSet()),
+            onToggle = { _, _ -> }, onBack = {}, autoFocus = false,
+        )
+    }
+
+    @Test fun history() = shot("history") {
+        HistoryContent(sampleRecent(), {}, {}, {}, {}, adSlot = { FakeAd(it) })
     }
 
     @Test fun noLibraries() = shot("no_libraries") {

@@ -1,5 +1,22 @@
 package com.mardev.nearshelf.ui.libraries
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import com.mardev.nearshelf.core.model.ProviderId
+import com.mardev.nearshelf.ui.components.FieldHint
+import com.mardev.nearshelf.ui.components.LibraryRow
+import com.mardev.nearshelf.ui.components.LibraryRowSkeleton
+import com.mardev.nearshelf.ui.components.NearshelfTopBar
+import com.mardev.nearshelf.ui.components.PaperSearchField
+import com.mardev.nearshelf.ui.components.RowDivider
+import com.mardev.nearshelf.ui.theme.ControlShape
+import com.mardev.nearshelf.ui.theme.Gutter
+import com.mardev.nearshelf.ui.theme.Space
 import com.mardev.nearshelf.ui.components.readableWidth
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -46,92 +63,85 @@ import com.mardev.nearshelf.ui.components.lightswind.Skeleton
 import com.mardev.nearshelf.ui.components.lightswind.SkeletonLines
 import com.mardev.nearshelf.ui.theme.LocalStatusColors
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddLibraryScreen(onBack: () -> Unit, vm: AddLibraryViewModel = hiltViewModel()) {
     val query by vm.query.collectAsStateWithLifecycle()
     val results by vm.results.collectAsStateWithLifecycle()
     val saved by vm.saved.collectAsStateWithLifecycle()
+    AddLibraryContent(
+        query = query,
+        onQueryChange = { vm.query.value = it },
+        results = results,
+        saved = saved,
+        onToggle = { lib, added -> if (added) vm.remove(lib.id) else vm.add(lib) },
+        onBack = onBack,
+    )
+}
+
+/** Stateless Add-library UI (rendered with sample data in the screenshot tests). */
+@Composable
+internal fun AddLibraryContent(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    results: LibrarySearchUi,
+    saved: Map<String, Set<Pair<ProviderId, String>>>,
+    onToggle: (Library, Boolean) -> Unit,
+    onBack: () -> Unit,
+    autoFocus: Boolean = true,
+) {
     val focus = remember { FocusRequester() }
-    LaunchedEffect(Unit) { focus.requestFocus() }
+    LaunchedEffect(Unit) { if (autoFocus) focus.requestFocus() }
+    fun isAdded(lib: Library): Boolean {
+        val have = saved[lib.id]
+        return have != null && lib.services.all { (it.provider to it.key) in have }
+    }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.add_library_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(painterResource(R.drawable.ic_arrow_left), stringResource(R.string.cd_back))
-                    }
-                },
-            )
-        },
+        topBar = { NearshelfTopBar(stringResource(R.string.add_library_title), onBack = onBack) },
+        containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(bottom = 24.dp)) {
-            item {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { vm.query.value = it },
-                    label = { Text(stringResource(R.string.add_library_field)) },
-                    placeholder = { Text(stringResource(R.string.add_library_hint)) },
-                    supportingText = { Text(stringResource(R.string.add_library_url_tip)) },
-                    leadingIcon = { Icon(painterResource(R.drawable.ic_search), contentDescription = null) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    modifier = Modifier.fillMaxWidth().padding(16.dp).focusRequester(focus),
-                )
-            }
-            when (val r = results) {
-                LibrarySearchUi.Idle -> item {
-                    Text(
-                        stringResource(R.string.add_library_idle),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 16.dp),
+        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(bottom = Space.xl)) {
+            item(key = "field") {
+                Column(Modifier.padding(start = Gutter, end = Gutter, top = Space.s, bottom = Space.l)) {
+                    PaperSearchField(
+                        value = query,
+                        onValueChange = onQueryChange,
+                        placeholder = stringResource(R.string.add_library_hint),
+                        label = stringResource(R.string.add_library_field),
+                        modifier = Modifier.focusRequester(focus),
+                    )
+                    FieldHint(
+                        stringResource(R.string.search_tip_label),
+                        stringResource(R.string.add_library_url_tip_body),
+                        Modifier.padding(top = Space.s, start = 2.dp),
                     )
                 }
-                LibrarySearchUi.Loading -> items(4) { LoadingRow() }
-                is LibrarySearchUi.Detected -> item {
+            }
+            when (val r = results) {
+                LibrarySearchUi.Idle -> item(key = "idle") { Note(stringResource(R.string.add_library_idle)) }
+                LibrarySearchUi.Loading -> items(4, key = { "sk-$it" }) { LibraryRowSkeleton() }
+                is LibrarySearchUi.Detected -> item(key = "detected") {
                     val lib = r.library
                     if (lib == null) {
-                        Text(
-                            stringResource(R.string.add_library_not_recognised),
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                        )
+                        Note(stringResource(R.string.add_library_not_recognised))
                     } else {
                         Text(
                             stringResource(R.string.add_library_recognised, r.provider?.displayName.orEmpty()),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 16.dp),
+                            modifier = Modifier.padding(horizontal = Gutter),
                         )
-                        val have = saved[lib.id]
-                        val added = have != null && lib.services.all { (it.provider to it.key) in have }
-                        CandidateRow(lib, added) { if (added) vm.remove(lib.id) else vm.add(lib) }
+                        CandidateRow(lib, isAdded(lib)) { onToggle(lib, isAdded(lib)) }
                     }
                 }
                 is LibrarySearchUi.Results -> {
-                    if (r.failed.isNotEmpty()) item {
-                        Text(
-                            stringResource(R.string.add_library_partial, r.failed.joinToString { it.displayName }),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                        )
+                    if (r.failed.isNotEmpty()) item(key = "partial") {
+                        Note(stringResource(R.string.add_library_partial, r.failed.joinToString { it.displayName }), color = MaterialTheme.colorScheme.error)
                     }
-                    if (r.libraries.isEmpty()) item {
-                        Text(
-                            stringResource(R.string.add_library_none, r.query),
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                        )
-                    }
-                    items(r.libraries, key = { it.id }) { lib ->
-                        val have = saved[lib.id]
-                        val added = have != null && lib.services.all { (it.provider to it.key) in have }
-                        CandidateRow(lib, added) { if (added) vm.remove(lib.id) else vm.add(lib) }
-                        HorizontalDivider(Modifier.padding(start = 16.dp))
+                    if (r.libraries.isEmpty()) item(key = "none") { Note(stringResource(R.string.add_library_none, r.query)) }
+                    itemsIndexed(r.libraries, key = { _, l -> l.id }) { i, lib ->
+                        CandidateRow(lib, isAdded(lib)) { onToggle(lib, isAdded(lib)) }
+                        if (i < r.libraries.lastIndex) RowDivider()
                     }
                 }
             }
@@ -140,34 +150,41 @@ fun AddLibraryScreen(onBack: () -> Unit, vm: AddLibraryViewModel = hiltViewModel
 }
 
 @Composable
+private fun Note(text: String, color: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurfaceVariant) = Text(
+    text,
+    style = MaterialTheme.typography.bodyMedium,
+    color = color,
+    modifier = Modifier.padding(horizontal = Gutter, vertical = Space.xs),
+)
+
+/** A search result: the shared library row, toggled by tapping anywhere on it. */
+@Composable
 private fun CandidateRow(library: Library, added: Boolean, onToggle: () -> Unit) {
     val stateText = stringResource(if (added) R.string.state_added else R.string.state_not_added)
-    Row(
-        Modifier.fillMaxWidth().heightIn(min = 64.dp)
-            .clickable(role = Role.Checkbox, onClick = onToggle)
-            .semantics { stateDescription = stateText }
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(library.name, style = MaterialTheme.typography.titleMedium)
-            library.locationLine().takeIf { it.isNotEmpty() }?.let {
-                Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    val colors = MaterialTheme.colorScheme
+    LibraryRow(
+        library,
+        modifier = Modifier.semantics { stateDescription = stateText },
+        onClick = onToggle,
+        role = Role.Checkbox,
+        trailing = {
+            // Added: filled brown check; not yet: a hairline square with a plus.
+            Box(
+                Modifier
+                    .padding(start = Space.m)
+                    .size(36.dp)
+                    .clip(ControlShape)
+                    .background(if (added) colors.primary else Color.Transparent)
+                    .border(1.dp, if (added) colors.primary else colors.outlineVariant, ControlShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painterResource(if (added) R.drawable.ic_check else R.drawable.ic_plus),
+                    contentDescription = null,
+                    tint = if (added) colors.onPrimary else colors.primary,
+                    modifier = Modifier.size(18.dp),
+                )
             }
-            Text(library.servicesLine(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-        }
-        if (added) {
-            Icon(painterResource(R.drawable.ic_check_circle), null, tint = LocalStatusColors.current.available, modifier = Modifier.size(28.dp))
-        } else {
-            Icon(painterResource(R.drawable.ic_plus), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
-        }
-    }
-}
-
-@Composable
-private fun LoadingRow() {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-        SkeletonLines(count = 3, modifier = Modifier.weight(1f), lineHeight = 12.dp)
-        Skeleton(Modifier.padding(start = 16.dp).size(24.dp))
-    }
+        },
+    )
 }

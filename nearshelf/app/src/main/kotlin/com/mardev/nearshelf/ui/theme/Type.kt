@@ -86,3 +86,6 @@ val TagLabel = style(Sans, 500, 12, 16, 0.2.sp)
 
 /** Book titles as row headings (watchlist, results header). */
 val BookTitle = style(SerifText, 600, 17, 22)
+
+/** Service name above its results in a library section ("LIBBY"). */
+val ServiceOverline = style(Sans, 600, 12, 16, 0.8.sp)

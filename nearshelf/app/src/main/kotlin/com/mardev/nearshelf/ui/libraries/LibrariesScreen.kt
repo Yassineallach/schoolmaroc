@@ -1,5 +1,22 @@
 package com.mardev.nearshelf.ui.libraries
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.offset
+import com.mardev.nearshelf.ui.components.LibraryRow
+import com.mardev.nearshelf.ui.components.LibraryRowSkeleton
+import com.mardev.nearshelf.ui.components.NearshelfTopBar
+import com.mardev.nearshelf.ui.components.RowDivider
+import com.mardev.nearshelf.ui.theme.ButtonShape
+import com.mardev.nearshelf.ui.theme.Gutter
+import com.mardev.nearshelf.ui.theme.Space
 import com.mardev.nearshelf.ui.components.readableWidth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,7 +60,6 @@ import com.mardev.nearshelf.core.model.Library
 import com.mardev.nearshelf.ui.components.EmptyState
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibrariesScreen(onAddLibrary: () -> Unit, vm: LibrariesViewModel = hiltViewModel()) {
     val libraries by vm.libraries.collectAsStateWithLifecycle()
@@ -53,61 +69,21 @@ fun LibrariesScreen(onAddLibrary: () -> Unit, vm: LibrariesViewModel = hiltViewM
     val removedMsg = stringResource(R.string.libraries_removed)
     val undo = stringResource(R.string.action_undo)
 
-    Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.libraries_title)) }) },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onAddLibrary,
-                icon = { Icon(painterResource(R.drawable.ic_plus), contentDescription = null) },
-                text = { Text(stringResource(R.string.libraries_add)) },
-            )
+    LibrariesContent(
+        libraries = libraries,
+        snackbar = snackbar,
+        onAddLibrary = onAddLibrary,
+        onUp = { vm.moveUp(it.id) },
+        onDown = { vm.moveDown(it.id) },
+        onRemove = { lib ->
+            vm.remove(lib.id)
+            scope.launch {
+                val r = snackbar.showSnackbar(removedMsg.format(lib.name), undo, duration = SnackbarDuration.Long)
+                if (r == SnackbarResult.ActionPerformed) vm.restore(lib)
+            }
         },
-        snackbarHost = { SnackbarHost(snackbar) },
-    ) { padding ->
-        val list = libraries ?: return@Scaffold
-        if (list.isEmpty()) {
-            EmptyState(
-                icon = R.drawable.ic_library,
-                title = stringResource(R.string.libraries_empty_title),
-                body = stringResource(R.string.libraries_empty_body),
-                action = stringResource(R.string.libraries_add),
-                onAction = onAddLibrary,
-                modifier = Modifier.padding(padding),
-            )
-            return@Scaffold
-        }
-        LazyColumn(
-            Modifier.fillMaxSize().padding(padding).readableWidth(),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            item {
-                Text(
-                    stringResource(R.string.libraries_order_hint),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            itemsIndexed(list, key = { _, lib -> lib.id }) { index, lib ->
-                SavedLibraryCard(
-                    library = lib,
-                    canMoveUp = index > 0,
-                    canMoveDown = index < list.lastIndex,
-                    onUp = { vm.moveUp(lib.id) },
-                    onDown = { vm.moveDown(lib.id) },
-                    onRemove = {
-                        vm.remove(lib.id)
-                        scope.launch {
-                            val r = snackbar.showSnackbar(removedMsg.format(lib.name), undo, duration = SnackbarDuration.Long)
-                            if (r == SnackbarResult.ActionPerformed) vm.restore(lib)
-                        }
-                    },
-                    onPickBranch = { picking = lib },
-                    modifier = Modifier.animateItem(),
-                )
-            }
-        }
-    }
+        onPickBranch = { picking = it },
+    )
     picking?.let { lib ->
         BranchPickerSheet(
             library = lib,
@@ -120,8 +96,88 @@ fun LibrariesScreen(onAddLibrary: () -> Unit, vm: LibrariesViewModel = hiltViewM
     }
 }
 
+/** Stateless Libraries UI (rendered with sample data in the screenshot tests). */
 @Composable
-private fun SavedLibraryCard(
+internal fun LibrariesContent(
+    libraries: List<Library>?,
+    snackbar: SnackbarHostState,
+    onAddLibrary: () -> Unit,
+    onUp: (Library) -> Unit,
+    onDown: (Library) -> Unit,
+    onRemove: (Library) -> Unit,
+    onPickBranch: (Library) -> Unit,
+) {
+    Scaffold(
+        topBar = { NearshelfTopBar(stringResource(R.string.libraries_title), large = true) },
+        floatingActionButton = {
+            if (!libraries.isNullOrEmpty()) {
+                // Flat, same radius as every control: a clear action without a heavy shadow.
+                ExtendedFloatingActionButton(
+                    onClick = onAddLibrary,
+                    icon = { Icon(painterResource(R.drawable.ic_plus), contentDescription = null, modifier = Modifier.size(20.dp)) },
+                    text = { Text(stringResource(R.string.libraries_add), style = MaterialTheme.typography.labelLarge) },
+                    shape = ButtonShape,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
+                )
+            }
+        },
+        snackbarHost = { SnackbarHost(snackbar) },
+        containerColor = MaterialTheme.colorScheme.background,
+    ) { padding ->
+        val list = libraries
+        if (list != null && list.isEmpty()) {
+            EmptyState(
+                icon = R.drawable.ic_library,
+                title = stringResource(R.string.libraries_empty_title),
+                body = stringResource(R.string.libraries_empty_body),
+                action = stringResource(R.string.libraries_add),
+                onAction = onAddLibrary,
+                modifier = Modifier.padding(padding),
+            )
+            return@Scaffold
+        }
+        LazyColumn(
+            Modifier.fillMaxSize().padding(padding).readableWidth(),
+            contentPadding = PaddingValues(bottom = 96.dp),
+        ) {
+            item(key = "hint") {
+                Text(
+                    stringResource(R.string.libraries_order_hint),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = Gutter, end = Gutter, bottom = Space.xs),
+                )
+            }
+            if (list == null) {
+                items(3, key = { "skeleton-$it" }) { LibraryRowSkeleton() }
+            } else {
+                itemsIndexed(list, key = { _, lib -> lib.id }) { index, lib ->
+                    Column(Modifier.animateItem()) {
+                        SavedLibraryRow(
+                            library = lib,
+                            canMoveUp = index > 0,
+                            canMoveDown = index < list.lastIndex,
+                            onUp = { onUp(lib) },
+                            onDown = { onDown(lib) },
+                            onRemove = { onRemove(lib) },
+                            onPickBranch = { onPickBranch(lib) },
+                        )
+                        if (index < list.lastIndex) RowDivider()
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * A saved library: the shared [LibraryRow] with its home branch underneath, and an
+ * overflow menu for order and removal, so the branch name gets the full line.
+ */
+@Composable
+private fun SavedLibraryRow(
     library: Library,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
@@ -129,29 +185,42 @@ private fun SavedLibraryCard(
     onDown: () -> Unit,
     onRemove: () -> Unit,
     onPickBranch: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(modifier.fillMaxWidth()) {
-        Column {
-        Row(Modifier.padding(start = 16.dp, top = 12.dp, bottom = 4.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(library.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
-                library.locationLine().takeIf { it.isNotEmpty() }?.let {
-                    Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    var menu by remember { mutableStateOf(false) }
+    LibraryRow(
+        library,
+        trailing = {
+            Box {
+                IconButton(onClick = { menu = true }, modifier = Modifier.offset(y = (-4).dp)) {
+                    Icon(
+                        painterResource(R.drawable.ic_more),
+                        stringResource(R.string.cd_library_options, library.name),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp),
+                    )
                 }
-                Text(library.servicesLine(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                DropdownMenu(
+                    expanded = menu,
+                    onDismissRequest = { menu = false },
+                    shape = MaterialTheme.shapes.medium,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    shadowElevation = 2.dp,
+                ) {
+                    MenuItem(R.drawable.ic_caret_up, stringResource(R.string.action_move_up), enabled = canMoveUp) { menu = false; onUp() }
+                    MenuItem(R.drawable.ic_caret_down, stringResource(R.string.action_move_down), enabled = canMoveDown) { menu = false; onDown() }
+                    MenuItem(R.drawable.ic_trash, stringResource(R.string.action_remove)) { menu = false; onRemove() }
+                }
             }
-            IconButton(onClick = onUp, enabled = canMoveUp) {
-                Icon(painterResource(R.drawable.ic_caret_up), stringResource(R.string.cd_move_up, library.name))
-            }
-            IconButton(onClick = onDown, enabled = canMoveDown) {
-                Icon(painterResource(R.drawable.ic_caret_down), stringResource(R.string.cd_move_down, library.name))
-            }
-            IconButton(onClick = onRemove) {
-                Icon(painterResource(R.drawable.ic_trash), stringResource(R.string.cd_remove_library, library.name))
-            }
-        }
-        Row(Modifier.padding(start = 4.dp, bottom = 4.dp)) { HomeBranchButton(library, onPickBranch) }
-        }
-    }
+        },
+        footer = { HomeBranchButton(library, onPickBranch) },
+    )
 }
+
+@Composable
+private fun MenuItem(icon: Int, text: String, enabled: Boolean = true, onClick: () -> Unit) = DropdownMenuItem(
+    text = { Text(text, style = MaterialTheme.typography.bodyLarge) },
+    leadingIcon = { Icon(painterResource(icon), null, modifier = Modifier.size(20.dp)) },
+    enabled = enabled,
+    onClick = onClick,
+)

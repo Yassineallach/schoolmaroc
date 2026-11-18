@@ -1,5 +1,9 @@
 package com.mardev.nearshelf.ui.history
 
+import com.mardev.nearshelf.ui.components.NearshelfTopBar
+import com.mardev.nearshelf.ui.theme.BookTitle
+import com.mardev.nearshelf.ui.theme.Gutter
+import com.mardev.nearshelf.ui.theme.Space
 import com.mardev.nearshelf.ui.components.readableWidth
 import android.text.format.DateUtils
 import androidx.compose.foundation.layout.offset
@@ -55,30 +59,43 @@ class HistoryViewModel @Inject constructor(private val repo: HistoryRepository) 
     fun clear() = viewModelScope.launch { repo.clear() }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(onBack: () -> Unit, onOpen: (HistoryItem) -> Unit, vm: HistoryViewModel = hiltViewModel()) {
     val items by vm.items.collectAsStateWithLifecycle()
+    HistoryContent(items, onBack, onOpen, onRemove = { vm.remove(it.key) }, onClear = { vm.clear() })
+}
+
+/** Stateless History UI (rendered with sample data in the screenshot tests). */
+@Composable
+internal fun HistoryContent(
+    items: List<HistoryItem>?,
+    onBack: () -> Unit,
+    onOpen: (HistoryItem) -> Unit,
+    onRemove: (HistoryItem) -> Unit,
+    onClear: () -> Unit,
+    adSlot: @Composable (Modifier) -> Unit = { NativeAdCard(it) },
+) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.history_title)) },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(painterResource(R.drawable.ic_arrow_left), stringResource(R.string.cd_back)) } },
-                actions = { if (!items.isNullOrEmpty()) TextButton(onClick = vm::clear) { Text(stringResource(R.string.history_clear)) } },
-            )
+            NearshelfTopBar(stringResource(R.string.history_title), onBack = onBack) {
+                if (!items.isNullOrEmpty()) {
+                    TextButton(onClick = onClear) { Text(stringResource(R.string.history_clear), style = MaterialTheme.typography.labelLarge) }
+                }
+            }
         },
+        containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
         val list = items ?: return@Scaffold
         if (list.isEmpty()) {
             EmptyState(R.drawable.ic_history, stringResource(R.string.history_empty_title), stringResource(R.string.history_empty_body), Modifier.padding(padding))
             return@Scaffold
         }
-        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(vertical = 8.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(bottom = Space.xl)) {
             itemsIndexed(list, key = { _, it -> it.key }) { index, item ->
-                HistoryRow(item, onOpen = { onOpen(item) }, onRemove = { vm.remove(item.key) })
-                RowDivider()
+                HistoryRow(item, onOpen = { onOpen(item) }, onRemove = { onRemove(item) })
+                if (index < list.lastIndex) RowDivider()
                 // Native ad in the middle of the list: after the 3rd entry (or the last, if fewer).
-                if (index == minOf(2, list.lastIndex)) NativeAdCard(Modifier.padding(16.dp))
+                if (index == minOf(2, list.lastIndex)) adSlot(Modifier.padding(horizontal = Gutter, vertical = Space.m))
             }
         }
     }
@@ -94,6 +111,7 @@ fun HistoryRow(item: HistoryItem, onOpen: () -> Unit, onRemove: (() -> Unit)? = 
         ).joinToString(" · "),
         onClick = onOpen,
         leading = { CoverThumb(item.coverUrl) },
+        titleStyle = BookTitle,
         trailing = {
             if (onRemove != null) {
                 IconButton(onClick = onRemove, modifier = Modifier.padding(start = 4.dp).offset(x = 12.dp)) {

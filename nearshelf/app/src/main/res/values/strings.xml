@@ -39,6 +39,7 @@
     <string name="add_library_none">No libraries found for “%1$s”. Try the city, or the library system’s full name.</string>
     <string name="add_library_partial">Couldn’t reach %1$s just now; results may be incomplete.</string>
     <string name="add_library_url_tip">You can also paste your library catalog’s web address.</string>
+    <string name="add_library_url_tip_body">Paste your catalog’s web address to add it directly.</string>
     <string name="add_library_recognised">Recognised: %1$s catalog</string>
     <string name="add_library_not_recognised">Nearshelf doesn’t recognise this catalog yet. It supports BiblioCommons, Koha, Evergreen, Aspen Discovery, Polaris and Sierra (classic, Encore and Vega).</string>
     <string name="branch_picker_title">Home branch at %1$s</string>
@@ -274,6 +275,10 @@
     <string name="cd_clear">Clear</string>
     <string name="cd_cover">Cover of %1$s</string>
     <string name="cd_move_up">Move %1$s up</string>
+    <string name="action_move_up">Move up</string>
+    <string name="action_move_down">Move down</string>
+    <string name="action_remove">Remove</string>
+    <string name="cd_library_options">Options for %1$s</string>
     <string name="cd_move_down">Move %1$s down</string>
     <string name="cd_remove_library">Remove %1$s</string>
 </resources>
