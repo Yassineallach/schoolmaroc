@@ -383,49 +383,6 @@ private fun BookHeaderView(
 private const val MAX_WAIT_SHOWN = 365
 
 @Composable
-internal fun BranchLineFor(b: BranchSummary, branchLevelOnly: Boolean) {
-    val status = LocalStatusColors.current
-    val context = LocalContext.current
-    val mapLabel = stringResource(R.string.cd_open_map, b.name)
-    val rowModifier = b.location?.let { loc ->
-        Modifier.clickable(onClickLabel = mapLabel, role = androidx.compose.ui.semantics.Role.Button) {
-            // geo: URI opens the user's maps app at the branch; nothing is sent by Nearshelf.
-            context.openExternal("geo:${loc.latitude},${loc.longitude}?q=${loc.latitude},${loc.longitude}(${Uri.encode(b.name)})")
-        }
-    } ?: Modifier
-    Row(Modifier.fillMaxWidth().then(rowModifier).heightIn(min = 48.dp).semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.Top) {
-        Icon(
-            painterResource(R.drawable.ic_map_pin),
-            null,
-            tint = if (b.onShelf > 0) status.available else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 2.dp).size(18.dp),
-        )
-        Spacer(Modifier.width(8.dp))
-        Column(Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(b.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f, fill = false))
-                if (b.isHome) {
-                    Spacer(Modifier.width(6.dp))
-                    Badge(stringResource(R.string.badge_home), variant = BadgeVariant.Outline, size = BadgeSize.Sm)
-                }
-                b.distanceKm?.let {
-                    Spacer(Modifier.width(8.dp))
-                    Text(formatDistance(it), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-            Text(
-                listOfNotNull(
-                    if (branchLevelOnly) stringResource(if (b.onShelf > 0) R.string.branch_has_it else R.string.branch_unavailable) else branchStatus(b),
-                    b.callNumber,
-                ).joinToString(" · "),
-                style = MaterialTheme.typography.bodySmall,
-                color = if (b.onShelf > 0) status.available else MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}
-
-@Composable
 internal fun branchStatus(b: BranchSummary): String = when {
     b.onShelf > 0 -> pluralStringResource(R.plurals.branch_on_shelf, b.onShelf, b.onShelf)
     b.inTransit > 0 -> pluralStringResource(R.plurals.branch_in_transit, b.inTransit, b.inTransit)

@@ -254,6 +254,30 @@ class ScreenshotTest(private val device: Device) {
 
     @Test fun resultsPrint() = shot("results_print") { sampleResults(Format.PHYSICAL) }
 
+    /** The mockup's case: two print editions at one library, every copy out, reader far away. */
+    @Test fun resultsPrintTwoEditions() = shot("results_print_two") {
+        val bc = LibraryRef(ProviderId.BIBLIOCOMMONS, "tpl", "Toronto Public Library")
+        val lib = Library("toronto", "Toronto Public Library", "Toronto", "ON", "CA", listOf(bc))
+        fun copies(n: Int, names: List<String>, coll: String) = (0 until n).map { i ->
+            PhysicalCopy(names[i % names.size], callNumber = coll, status = CopyStatus.CHECKED_OUT, latitude = 43.78, longitude = -79.2)
+        }
+        val a = Holding(ProviderId.BIBLIOCOMMONS, Format.PHYSICAL, "Red Rising", providerItemId = "p1", owned = 5, holds = 38,
+            copies = copies(5, listOf("Morningside", "Agincourt", "Malvern", "Cedarbrae", "Woodside Square"), "Fiction collection"))
+        val b = Holding(ProviderId.BIBLIOCOMMONS, Format.PHYSICAL, "Red Rising", providerItemId = "p2", owned = 42, holds = 188, edition = "Large print",
+            copies = copies(42, (1..38).map { "Branch $it" }.toMutableList().also { it[0] = "Port Union" }, "Science Fiction collection"))
+        fun m(h: Holding) = MatchedHolding(h, 1.0, MatchedHolding.Reason.ISBN, otherLanguage = false)
+        val state = ResultsUiState(Phase.SEARCHING, query = BookQuery(title = "Red Rising"), libraries = listOf(LibraryResult(lib, listOf(
+            ServiceResult(bc, ServiceState.Done(listOf(m(a), m(b)))),
+        ))))
+        ResultsContent(
+            state = state, watched = false, here = LatLng(33.57, -7.59), prefs = ReadingPrefs(),
+            offline = false, showLocationCard = false,
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
+            onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
+            adSlot = { FakeAd(it) }, initialTab = Format.PHYSICAL,
+        )
+    }
+
     @Composable
     private fun sampleResults(tab: Format?) = ResultsContent(
         state = sampleState(), watched = false, here = LatLng(41.88, -87.63), prefs = ReadingPrefs(),

@@ -1,5 +1,11 @@
 package com.mardev.nearshelf.ui.results
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.graphics.luminance
+import com.mardev.nearshelf.ui.components.openExternal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -94,7 +100,12 @@ internal fun FormatSectionView(
             VerdictLine(section.verdict, here, Modifier.padding(start = Gutter, end = Gutter, top = Space.m, bottom = Space.xs))
         }
         locationPrompt?.invoke()
-        section.options.forEachIndexed { i, o ->
+        if (section.format == Format.PHYSICAL) {
+            // Print: one card per library edition, with its branches attached underneath.
+            Column(Modifier.padding(horizontal = Gutter, vertical = Space.s), verticalArrangement = Arrangement.spacedBy(Space.l)) {
+                section.options.forEach { PrintCard(it, multiLibrary, section.options.size > 1, here, onBorrow) }
+            }
+        } else section.options.forEachIndexed { i, o ->
             if (i > 0) OptionDivider()
             OptionRow(o, multiLibrary, here, onBorrow)
         }
@@ -121,7 +132,7 @@ private fun VerdictLine(v: Verdict, here: LatLng?, modifier: Modifier = Modifier
             val branch = remember(v, here) {
                 summarizeBranches(v.via.holding.copies, v.via.library.homeBranch?.name, here).firstOrNull { it.onShelf > 0 }
             }
-            (branch?.let { stringResource(R.string.verdict_on_shelf_at, it.name) + (it.distanceKm?.let { d -> " · " + formatDistance(d) } ?: "") }
+            (branch?.let { stringResource(R.string.verdict_on_shelf_at, it.name) + (it.distanceKm?.takeIf { d -> d <= NEARBY_KM }?.let { d -> " · " + formatDistance(d) } ?: "") }
                 ?: stringResource(R.string.verdict_on_shelf)) to status.available
         }
         Verdict.AllCheckedOut -> stringResource(R.string.verdict_all_out) to muted
@@ -136,7 +147,9 @@ private fun VerdictLine(v: Verdict, here: LatLng?, modifier: Modifier = Modifier
 
 @Composable
 private fun OptionRow(o: OptionUi, multiLibrary: Boolean, here: LatLng?, onBorrow: (LibraryRef, MatchedHolding) -> Unit) {
-    if (o.isPrint) PrintOption(o, multiLibrary, here, onBorrow) else DigitalOption(o, multiLibrary, onBorrow)
+    if (o.isPrint) {
+        Box(Modifier.padding(horizontal = Gutter, vertical = Space.s)) { PrintCard(o, multiLibrary, true, here, onBorrow) }
+    } else DigitalOption(o, multiLibrary, onBorrow)
 }
 
 /** Who: the service (and library, when you have several). */
@@ -304,49 +317,200 @@ private fun StatsCluster(stats: List<Stat>, modifier: Modifier = Modifier, fixed
     }
 }
 
-/** Print: copies at this library's catalog, nearest or home branch first, the rest on request. */
+/** Branches further than this are shown without a distance: the number would be true but useless. */
+internal const val NEARBY_KM = 200.0
+
+/**
+ * Print, one card per library edition:
+ *  - header: library tile, name, status label (on shelf / all copies out), edition when
+ *    the library has several, a chevron that opens the branch list;
+ *  - figures: total copies | holds | available, in three equal columns;
+ *  - the home or nearest branch, with its status and shelf location;
+ *  - Place hold / View in catalog;
+ *  - attached underneath: "Show all N branches".
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun PrintOption(o: OptionUi, multiLibrary: Boolean, here: LatLng?, onBorrow: (LibraryRef, MatchedHolding) -> Unit) {
+private fun PrintCard(o: OptionUi, multiLibrary: Boolean, nameEdition: Boolean, here: LatLng?, onBorrow: (LibraryRef, MatchedHolding) -> Unit) {
     val h = o.holding
     val m = o.match
-    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    val colors = MaterialTheme.colorScheme
+    val status = LocalStatusColors.current
     val branches = remember(h.copies, o.library.homeBranch?.name, here) { summarizeBranches(h.copies, o.library.homeBranch?.name, here) }
     var expanded by rememberSaveable(o.library.id, h.providerItemId) { mutableStateOf(false) }
     val onShelfNow = h.isBorrowableNow()
-    val onShelf = branches.sumOf { it.onShelf }.takeIf { h.copies.isNotEmpty() } ?: h.available
-    Column(Modifier.fillMaxWidth().padding(horizontal = TextColumnStart, vertical = Space.m + Space.xs)) {
-        OptionTop(stats = printStats(h, onShelf)) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                WhoLine(if (multiLibrary) o.library.name else stringResource(R.string.print_catalog), null)
-                val tags = buildList<@Composable () -> Unit> {
-                    if (!h.availabilityKnown) add { Badge(stringResource(R.string.badge_unknown), variant = BadgeVariant.Secondary, size = BadgeSize.Sm) }
-                    else if (!onShelfNow) add { Badge(stringResource(R.string.badge_all_out), variant = BadgeVariant.Warning, size = BadgeSize.Sm) }
-                    h.edition?.let { add { Badge(it, variant = BadgeVariant.Info, size = BadgeSize.Sm) } }
-                    if (m.otherLanguage && h.language != null) add { Badge(languageName(h.language!!), variant = BadgeVariant.Outline, size = BadgeSize.Sm) }
+    val onShelf = branches.sumOf { it.onShelf }.takeIf { h.copies.isNotEmpty() } ?: h.available ?: if (onShelfNow) null else 0
+    val cardColor = if (colors.background.luminance() > 0.5f) colors.surfaceContainerLowest else colors.surfaceContainer
+    val shape = MaterialTheme.shapes.large
+
+    Column(verticalArrangement = Arrangement.spacedBy(Space.s)) {
+        Column(
+            Modifier.fillMaxWidth().clip(shape).background(cardColor).border(1.dp, colors.outlineVariant, shape).padding(Space.l),
+        ) {
+            // Header
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(48.dp).clip(MaterialTheme.shapes.medium).background(colors.primaryContainer), contentAlignment = Alignment.Center) {
+                    Icon(painterResource(R.drawable.ic_library), null, tint = colors.primary, modifier = Modifier.size(26.dp))
                 }
-                if (tags.isNotEmpty()) {
-                    FlowRow(Modifier.padding(vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) { tags.forEach { it() } }
-                }
-                if (o.moreEditions > 0) Text(pluralStringResource(R.plurals.more_editions, o.moreEditions, o.moreEditions), style = MaterialTheme.typography.bodySmall, color = muted)
-                o.staleSince?.let { Text(stringResource(R.string.results_saved_from, relativeTimeText(it)), style = MaterialTheme.typography.bodySmall, color = muted) }
-            }
-        }
-        if (branches.isNotEmpty()) {
-            val preferred = branches.filter { it.isHome || it.onShelf > 0 }.take(BRANCHES_SHOWN).ifEmpty { branches.take(1) }
-            val shown = if (expanded) branches else preferred
-            Column(Modifier.padding(top = Space.s)) { shown.forEach { BranchLineFor(it, h.branchLevelOnly) } }
-            if (branches.size > preferred.size) {
-                TextButton(onClick = { expanded = !expanded }, modifier = Modifier.offset(x = (-12).dp)) {
+                Spacer(Modifier.width(Space.m))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Space.xs)) {
                     Text(
-                        if (expanded) stringResource(R.string.show_fewer_branches)
-                        else pluralStringResource(R.plurals.show_all_branches, branches.size, branches.size),
-                        style = MaterialTheme.typography.labelLarge,
+                        o.library.name,
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = MaterialTheme.typography.titleLarge.fontSize, lineHeight = MaterialTheme.typography.titleLarge.lineHeight),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        when {
+                            !h.availabilityKnown -> StatusPill(stringResource(R.string.badge_unknown), colors.surfaceContainer, colors.onSurfaceVariant)
+                            onShelfNow -> StatusPill(stringResource(R.string.badge_on_shelf), status.availableContainer, status.onAvailableContainer)
+                            else -> StatusPill(stringResource(R.string.badge_all_out), status.waitlistContainer, status.onWaitlistContainer)
+                        }
+                        // Several editions at one library look alike; say what differs.
+                        if (nameEdition) h.edition?.let { Badge(it, variant = BadgeVariant.Outline, size = BadgeSize.Sm) }
+                        if (m.otherLanguage && h.language != null) Badge(languageName(h.language!!), variant = BadgeVariant.Outline, size = BadgeSize.Sm)
+                    }
+                }
+                if (branches.size > 1) {
+                    IconButton(onClick = { expanded = !expanded }) {
+                        Icon(
+                            painterResource(if (expanded) R.drawable.ic_caret_up else R.drawable.ic_caret_down),
+                            stringResource(if (expanded) R.string.show_fewer_branches else R.string.cd_show_branches),
+                            tint = colors.onSurface,
+                            modifier = Modifier.size(22.dp),
+                        )
+                    }
+                }
+            }
+            if (o.moreEditions > 0 || o.staleSince != null) {
+                val notes = listOfNotNull(
+                    o.moreEditions.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.more_editions, it, it) },
+                    o.staleSince?.let { stringResource(R.string.results_saved_from, relativeTimeText(it)) },
+                )
+                notes.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant, modifier = Modifier.padding(top = Space.s)) }
+            }
+            // Figures
+            if (h.availabilityKnown) {
+                val copies = h.owned ?: h.copies.size.takeUnless { h.branchLevelOnly || h.copies.isEmpty() }
+                Row(Modifier.fillMaxWidth().padding(top = Space.l).height(androidx.compose.foundation.layout.IntrinsicSize.Min)) {
+                    Figure(copies, stringResource(R.string.stat_total_copies), Modifier.weight(1f))
+                    FigureDivider()
+                    Figure(h.holds, stringResource(R.string.stat_holds_title), Modifier.weight(1f))
+                    FigureDivider()
+                    Figure(
+                        onShelf,
+                        stringResource(if (h.branchLevelOnly) R.string.stat_branches_with else R.string.stat_available),
+                        Modifier.weight(1f),
+                        color = if ((onShelf ?: 0) > 0) status.available else colors.onSurface,
                     )
                 }
             }
+            // Home or nearest branch
+            branches.firstOrNull()?.let { b ->
+                HorizontalDivider(Modifier.padding(top = Space.l), color = colors.outlineVariant)
+                CardBranchLine(b, h.branchLevelOnly, Modifier.padding(top = Space.s))
+            }
+            Button(
+                onClick = { onBorrow(o.ref, m) },
+                shape = ButtonShape,
+                modifier = Modifier.fillMaxWidth().padding(top = Space.m).heightIn(min = 48.dp),
+            ) {
+                Icon(painterResource(R.drawable.ic_open_external), null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(Space.s))
+                Text(stringResource(if (onShelfNow) R.string.action_view_catalog else R.string.action_place_hold), style = MaterialTheme.typography.labelLarge)
+            }
         }
-        OptionAction(stringResource(if (onShelfNow) R.string.action_view_catalog else R.string.action_hold_catalog), strong = false) { onBorrow(o.ref, m) }
+        // Attached branch list
+        if (branches.size > 1) {
+            Column(Modifier.fillMaxWidth().clip(shape).background(cardColor).border(1.dp, colors.outlineVariant, shape)) {
+                Row(
+                    Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable(role = Role.Button) { expanded = !expanded }.padding(horizontal = Space.l),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(painterResource(if (expanded) R.drawable.ic_caret_up else R.drawable.ic_caret_down), null, tint = colors.onSurface, modifier = Modifier.size(20.dp))
+                    Spacer(Modifier.width(Space.m))
+                    Text(
+                        if (expanded) stringResource(R.string.show_fewer_branches)
+                        else pluralStringResource(R.plurals.show_all_branches, branches.size, branches.size),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                }
+                if (expanded) {
+                    branches.drop(1).forEach { b ->
+                        HorizontalDivider(Modifier.padding(horizontal = Space.l), color = colors.outlineVariant)
+                        CardBranchLine(b, h.branchLevelOnly, Modifier.padding(horizontal = Space.l, vertical = Space.xs))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatusPill(text: String, bg: Color, fg: Color) {
+    Row(
+        Modifier.clip(CircleShape).background(bg).padding(horizontal = 10.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(7.dp).clip(CircleShape).background(fg))
+        Spacer(Modifier.width(6.dp))
+        Text(text, style = MaterialTheme.typography.labelLarge, color = fg)
+    }
+}
+
+@Composable
+private fun Figure(value: Int?, label: String, modifier: Modifier = Modifier, color: Color = MaterialTheme.colorScheme.onSurface) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            value?.toString() ?: "–",
+            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = com.mardev.nearshelf.ui.theme.Sans, fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFeatureSettings = "tnum"),
+            color = if (value == null) MaterialTheme.colorScheme.onSurfaceVariant else color,
+        )
+        val labelStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+        // Shrinks a step at large font sizes instead of cutting "Total copies" short.
+        BasicText(label, style = labelStyle, maxLines = 1, autoSize = TextAutoSize.StepBased(minFontSize = 9.sp, maxFontSize = labelStyle.fontSize), modifier = Modifier.padding(horizontal = 2.dp))
+    }
+}
+
+@Composable
+private fun FigureDivider() = Box(Modifier.fillMaxHeight().width(1.dp).background(MaterialTheme.colorScheme.outlineVariant))
+
+/** A branch: pin, name · distance (when near), then its status and shelf location. Taps open maps. */
+@Composable
+private fun CardBranchLine(b: BranchSummary, branchLevelOnly: Boolean, modifier: Modifier = Modifier) {
+    val status = LocalStatusColors.current
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    val mapLabel = stringResource(R.string.cd_open_map, b.name)
+    val tap = b.location?.let { loc ->
+        Modifier.clickable(onClickLabel = mapLabel, role = Role.Button) {
+            // geo: URI opens the user's maps app at the branch; nothing is sent by Nearshelf.
+            context.openExternal("geo:${loc.latitude},${loc.longitude}?q=${loc.latitude},${loc.longitude}(${android.net.Uri.encode(b.name)})")
+        }
+    } ?: Modifier
+    Row(modifier.fillMaxWidth().then(tap).heightIn(min = 52.dp).padding(vertical = Space.s).semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.Top) {
+        Icon(
+            painterResource(R.drawable.ic_map_pin),
+            null,
+            tint = if (b.onShelf > 0) status.available else muted,
+            modifier = Modifier.padding(top = 2.dp).size(22.dp),
+        )
+        Spacer(Modifier.width(Space.m))
+        Column(Modifier.weight(1f)) {
+            FlowRow(verticalArrangement = Arrangement.Center, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(b.name, style = MaterialTheme.typography.titleMedium)
+                if (b.isHome) Badge(stringResource(R.string.badge_home), variant = BadgeVariant.Outline, size = BadgeSize.Sm)
+                b.distanceKm?.takeIf { it <= NEARBY_KM }?.let { Text("·  " + formatDistance(it), style = MaterialTheme.typography.bodyMedium, color = muted) }
+            }
+            Text(
+                listOfNotNull(
+                    if (branchLevelOnly) stringResource(if (b.onShelf > 0) R.string.branch_has_it else R.string.branch_unavailable) else branchStatus(b),
+                    b.callNumber,
+                ).joinToString(" · "),
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (b.onShelf > 0) status.available else muted,
+            )
+        }
     }
 }
 
