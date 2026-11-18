@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.work
 
+import com.mardev.nearshelf.widget.WatchlistWidget
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.BackoffPolicy
@@ -58,6 +59,7 @@ class WatchlistWorker @AssistedInject constructor(
             Watch.events(item.snapshot, snapshot).forEach { notifier.notify(item, it) }
             watchlist.saveCheck(item, snapshot)
         }
+        WatchlistWidget.refresh(applicationContext)
         return if (reachedAny) Result.success() else Result.retry()
     }
 

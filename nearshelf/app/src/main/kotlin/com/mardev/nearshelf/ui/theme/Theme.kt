@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 
 // Palette from the ui-ux-pro-max design system for Nearshelf: "book brown +
 // page amber" on paper, stone neutrals. Text pairs meet WCAG AA (4.5:1).
-private val Light = lightColorScheme(
+internal val Light = lightColorScheme(
     primary = Color(0xFF7C3A10),
     onPrimary = Color.White,
     primaryContainer = Color(0xFFFFDCC2),
@@ -45,7 +45,7 @@ private val Light = lightColorScheme(
     error = Color(0xFFB91C1C),
 )
 
-private val Dark = darkColorScheme(
+internal val Dark = darkColorScheme(
     primary = Color(0xFFFFB68A),
     onPrimary = Color(0xFF4A1F00),
     primaryContainer = Color(0xFF6B2F0B),

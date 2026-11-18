@@ -83,6 +83,6 @@ The app downloads it at most once a week and falls back to the bundled copy.
 6. [x] BiblioCommons, Koha
 7. [x] Evergreen, Polaris, Sierra (WebPAC, Vega); Aspen link-only
 8. [x] Location sorting, watchlist, notifications, caching, rate limiting, provider health
-9. [ ] Widget, history, offline, filters
+9. [x] Widget, history, offline, filters
 10. [ ] AdMob + UMP, settings, about, privacy, French/Arabic + RTL
 11. [ ] Release polish

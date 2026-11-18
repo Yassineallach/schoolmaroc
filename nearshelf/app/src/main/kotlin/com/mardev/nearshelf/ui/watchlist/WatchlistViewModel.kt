@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.ui.watchlist
 
+import com.mardev.nearshelf.widget.WatchlistWidget
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,11 +25,13 @@ class WatchlistViewModel @Inject constructor(
     fun remove(item: WatchItem) = viewModelScope.launch {
         repo.remove(item.key)
         if (repo.all().isEmpty()) WatchlistWorker.cancel(context)
+        WatchlistWidget.refresh(context)
     }
 
     fun restore(item: WatchItem) = viewModelScope.launch {
         repo.add(item.query, item.title, item.author, item.coverUrl, item.snapshot)
         WatchlistWorker.schedule(context)
+        WatchlistWidget.refresh(context)
     }
 
     /** One extra check now (still network-constrained and polite). */

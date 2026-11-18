@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.ui.results
 
+import com.mardev.nearshelf.widget.WatchlistWidget
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -133,6 +134,7 @@ class ResultsViewModel @Inject constructor(
             watchlist.remove(WatchlistRepository.keyOf(q))
             if (watchlist.all().isEmpty()) WatchlistWorker.cancel(context)
             _watched.value = false
+            WatchlistWidget.refresh(context)
         } else {
             val s = _state.value
             val header = s.header
@@ -143,6 +145,7 @@ class ResultsViewModel @Inject constructor(
             watchlist.add(q, header.title, header.authors.firstOrNull(), header.coverUrl, snapshot)
             WatchlistWorker.schedule(context)
             _watched.value = true
+            WatchlistWidget.refresh(context)
         }
     }
 
