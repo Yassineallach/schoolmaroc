@@ -1,15 +1,15 @@
 # Registry build report
 
-Generated 2026-11-18T10:20:41Z from 148 seed rows; 132 libraries kept.
+Generated 2026-11-18T10:30:25Z from 148 seed rows; 130 libraries kept.
 
-- Physical catalog verified: 81
+- Physical catalog verified: 71
 - Libby: 110
-- Hoopla: 72
+- Hoopla: 70
 - With branch list: 110
 
 | Library | Country | Catalog | Libby | Hoopla | Branches |
 |---|---|---|---|---|---|
-| New York Public Library | US | - | nypl | - | 92 |
+| New York Public Library | US | SIERRA_VEGA https://nypl.na2.iiivega.com | nypl | - | 92 |
 | Brooklyn Public Library | US | - | brooklyn | - | 61 |
 | Queens Public Library | US | BIBLIOCOMMONS https://queenslibrary.bibliocommons.com | queens | 3384 | 66 |
 | Los Angeles Public Library | US | - | losangeles | 9 | 75 |
@@ -27,7 +27,7 @@ Generated 2026-11-18T10:20:41Z from 148 seed rows; 132 libraries kept.
 | San Jose Public Library | US | BIBLIOCOMMONS https://sjpl.bibliocommons.com | sanjose | - | 26 |
 | Austin Public Library | US | BIBLIOCOMMONS https://austin.bibliocommons.com | austinpltx | 942 | 23 |
 | Jacksonville Public Library | US | - | jacksonville | 127 | 21 |
-| Columbus Metropolitan Library | US | BIBLIOCOMMONS https://columbuslibrary.bibliocommons.com | - | - | 0 |
+| Columbus Metropolitan Library | US | - | - | - | 0 |
 | Indianapolis Public Library | US | BIBLIOCOMMONS https://indypl.bibliocommons.com | indianapolis | 1040 | 32 |
 | Charlotte Mecklenburg Library | US | BIBLIOCOMMONS https://cmlibrary.bibliocommons.com | charlotte | 8 | 22 |
 | San Francisco Public Library | US | BIBLIOCOMMONS https://sfpl.bibliocommons.com | sanfrancisco | 362 | 28 |
@@ -39,44 +39,44 @@ Generated 2026-11-18T10:20:41Z from 148 seed rows; 132 libraries kept.
 | Multnomah County Library | US | BIBLIOCOMMONS https://multcolib.bibliocommons.com | multnomahctyor | 219 | 20 |
 | Hennepin County Library | US | BIBLIOCOMMONS https://hclib.bibliocommons.com | - | - | 0 |
 | Saint Paul Public Library | US | BIBLIOCOMMONS https://sppl.bibliocommons.com | - | - | 0 |
-| Cuyahoga County Public Library | US | BIBLIOCOMMONS https://cuyahogalibrary.bibliocommons.com | cuyahogacounty | 381 | 29 |
+| Cuyahoga County Public Library | US | - | cuyahogacounty | 381 | 29 |
 | Cleveland Public Library | US | - | - | 819 | 0 |
-| Public Library of Cincinnati and Hamilton County | US | BIBLIOCOMMONS https://cincinnatilibrary.bibliocommons.com | - | - | 0 |
+| Public Library of Cincinnati and Hamilton County | US | - | - | - | 0 |
 | Las Vegas-Clark County Library District | US | BIBLIOCOMMONS https://lvccld.bibliocommons.com | lasvegas | - | 30 |
 | Miami-Dade Public Library System | US | - | miami | 596 | 48 |
-| Broward County Library | US | BIBLIOCOMMONS https://broward.bibliocommons.com | broward | 695 | 37 |
+| Broward County Library | US | - | broward | 695 | 37 |
 | Palm Beach County Library System | US | BIBLIOCOMMONS https://pbclibrary.bibliocommons.com | - | - | 0 |
 | Orange County Library System | US | - | ocls | 10 | 16 |
 | Hillsborough County Public Library Cooperative | US | POLARIS https://catalog.hcplc.org/polaris | hillsboroughfl | - | 36 |
-| Fairfax County Public Library | US | BIBLIOCOMMONS https://fairfax.bibliocommons.com | fairfax | - | 23 |
+| Fairfax County Public Library | US | - | fairfax | - | 23 |
 | Montgomery County Public Libraries | US | - | montgomeryco | 1823 | 22 |
 | Prince George's County Memorial Library System | US | - | princegeorge | 115 | 20 |
 | Baltimore County Public Library | US | - | bcplinfo | 3377 | 20 |
 | Enoch Pratt Free Library | US | - | - | - | 0 |
 | DC Public Library | US | BIBLIOCOMMONS https://dcpl.bibliocommons.com | - | - | 0 |
 | Fulton County Library System | US | BIBLIOCOMMONS https://fulcolibrary.bibliocommons.com | atlantafulton | 644 | 39 |
-| Gwinnett County Public Library | US | BIBLIOCOMMONS https://gwinnettpl.bibliocommons.com | gwinnett | - | 16 |
+| Gwinnett County Public Library | US | - | gwinnett | - | 16 |
 | Nashville Public Library | US | BIBLIOCOMMONS https://nashville.bibliocommons.com | nashville | 51 | 21 |
 | Memphis Public Libraries | US | BIBLIOCOMMONS https://memphislibrary.bibliocommons.com | memphis | - | 17 |
 | Salt Lake County Library | US | - | - | 46 | 0 |
 | Sacramento Public Library | US | - | sacramento | - | 28 |
-| Fresno County Public Library | US | BIBLIOCOMMONS https://fresnolibrary.bibliocommons.com | fresnoca | - | 34 |
+| Fresno County Public Library | US | - | fresnoca | - | 34 |
 | OC Public Libraries | US | BIBLIOCOMMONS https://ocpl.bibliocommons.com | orangecounty | 894 | 30 |
 | Riverside County Library System | US | - | rivlib | - | 37 |
 | San Bernardino County Library | US | - | sanbernardoca | - | 35 |
 | Pima County Public Library | US | BIBLIOCOMMONS https://pima.bibliocommons.com | tucson | 3502 | 44 |
-| Tulsa City-County Library | US | BIBLIOCOMMONS https://tulsalibrary.bibliocommons.com | tulsa | 1379 | 27 |
+| Tulsa City-County Library | US | - | tulsa | 1379 | 27 |
 | Metropolitan Library System | US | - | - | 1811 | 0 |
 | Kansas City Public Library | US | BIBLIOCOMMONS https://kclibrary.bibliocommons.com | kansascity | 205 | 12 |
 | Johnson County Library | US | BIBLIOCOMMONS https://jocolibrary.bibliocommons.com | - | - | 0 |
 | St. Louis County Library | US | - | stlouis | 383 | 22 |
-| St. Louis Public Library | US | BIBLIOCOMMONS https://slpl.bibliocommons.com | stlouis | 651 | 22 |
+| St. Louis Public Library | US | BIBLIOCOMMONS https://slpl.bibliocommons.com | slpl | 651 | 15 |
 | Milwaukee Public Library | US | - | - | - | 0 |
 | Louisville Free Public Library | US | - | louisvillefplky | 3369 | 19 |
 | Allen County Public Library | US | - | allencountyin | 123 | 14 |
 | Fort Worth Public Library | US | BIBLIOCOMMONS https://fortworth.bibliocommons.com | fortworth | - | 20 |
 | El Paso Public Library | US | BIBLIOCOMMONS https://elpaso.bibliocommons.com | elpasotx | 2164 | 15 |
-| Wake County Public Libraries | US | BIBLIOCOMMONS https://wakegov.bibliocommons.com | wakecounty | - | 23 |
+| Wake County Public Libraries | US | - | wakecounty | - | 23 |
 | New Orleans Public Library | US | - | neworleans | 145 | 14 |
 | Pierce County Library System | US | BIBLIOCOMMONS https://piercecounty.bibliocommons.com | pierce | - | 21 |
 | Sno-Isle Libraries | US | BIBLIOCOMMONS https://sno-isle.bibliocommons.com | snoisle | 370 | 24 |
@@ -86,7 +86,7 @@ Generated 2026-11-18T10:20:41Z from 148 seed rows; 132 libraries kept.
 | Akron-Summit County Public Library | US | - | akron | 1011 | 19 |
 | Carnegie Library of Pittsburgh | US | - | pittsburgh | 238 | 79 |
 | Buffalo & Erie County Public Library | US | - | buffalo | - | 38 |
-| Albuquerque and Bernalillo County Library | US | - | albuquerque | 1392 | 19 |
+| Albuquerque and Bernalillo County Library | US | - | albuquerque | - | 19 |
 | Contra Costa County Library | US | BIBLIOCOMMONS https://ccclib.bibliocommons.com | contracosta | 4548 | 26 |
 | Alameda County Library | US | BIBLIOCOMMONS https://aclibrary.bibliocommons.com | alamedacountyca | 2592 | 1 |
 | Santa Clara County Library District | US | BIBLIOCOMMONS https://sccl.bibliocommons.com | santaclara | 4384 | 9 |
@@ -94,11 +94,11 @@ Generated 2026-11-18T10:20:41Z from 148 seed rows; 132 libraries kept.
 | Long Beach Public Library | US | - | longbeach | 4227 | 12 |
 | Mid-Continent Public Library | US | BIBLIOCOMMONS https://mymcpl.bibliocommons.com | midcontinent | - | 35 |
 | Arlington Public Library | US | BIBLIOCOMMONS https://arlingtonva.bibliocommons.com | arlingtontx | - | 10 |
-| Loudoun County Public Library | US | BIBLIOCOMMONS https://loudoun.bibliocommons.com | loudoun | 618 | 10 |
+| Loudoun County Public Library | US | - | loudoun | 618 | 10 |
 | Anne Arundel County Public Library | US | - | - | - | 0 |
 | Howard County Library System | US | - | - | 390 | 0 |
 | Cobb County Public Library | US | BIBLIOCOMMONS https://cobbcounty.bibliocommons.com | cobb | - | 16 |
-| DeKalb County Public Library | US | BIBLIOCOMMONS https://dekalb.bibliocommons.com | dekalb | 2831 | 24 |
+| DeKalb County Public Library | US | - | dekalb | 2831 | 24 |
 | Pikes Peak Library District | US | - | pikespeak | 155 | 15 |
 | Arapahoe Libraries | US | BIBLIOCOMMONS https://arapahoelibraries.bibliocommons.com | arapahoe | - | 9 |
 | Jefferson County Public Library | US | BIBLIOCOMMONS https://jeffcolibrary.bibliocommons.com | jeffersonco | 633 | 11 |
@@ -150,7 +150,7 @@ Generated 2026-11-18T10:20:41Z from 148 seed rows; 132 libraries kept.
 | City of Melbourne Libraries | AU | - | melbournelib | - | 6 |
 | Yarra Plenty Regional Library | AU | - | - | - | 0 |
 | Gold Coast Libraries | AU | - | goldcoastau | - | 12 |
-| Moreton Bay Libraries | AU | - | caboolture | 4165 | 12 |
+| Moreton Bay Libraries | AU | - | caboolture | - | 12 |
 | Libraries ACT | AU | - | act | - | 11 |
 | City of Perth Library | AU | - | - | 3701 | 0 |
 | Libraries Tasmania | AU | - | tasmaniaau | - | 47 |
@@ -160,7 +160,7 @@ Generated 2026-11-18T10:20:41Z from 148 seed rows; 132 libraries kept.
 
 ## Log
 
-- **New York Public Library**: catalog https://nypl.na2.iiivega.com/: SIERRA_VEGA but title 'Vega Discover' doesn't name the library; catalog https://nypl.bibliocommons.com/: unreachable (HTTP Error 403: Forbidden); libby: nypl (92 branches); hoopla: none
+- **New York Public Library**: catalog https://nypl.na2.iiivega.com/: SIERRA_VEGA at https://nypl.na2.iiivega.com; libby: nypl (92 branches); hoopla: none
 - **Brooklyn Public Library**: catalog https://bklynlibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; catalog https://borrow.bklynlibrary.org/: unreachable (HTTP Error 403: Forbidden); libby: brooklyn (61 branches); hoopla: none
 - **Queens Public Library**: catalog https://queenslibrary.bibliocommons.com/: BIBLIOCOMMONS at https://queenslibrary.bibliocommons.com; libby: queens (66 branches); hoopla: 3384
 - **Los Angeles Public Library**: catalog https://lapl.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; catalog https://catalog.lapl.org/: not recognised (title 'CARL•Connect Discovery'); libby: losangeles (75 branches); hoopla: 9
@@ -178,7 +178,7 @@ Generated 2026-11-18T10:20:41Z from 148 seed rows; 132 libraries kept.
 - **San Jose Public Library**: catalog https://sjpl.bibliocommons.com/: BIBLIOCOMMONS at https://sjpl.bibliocommons.com; libby: sanjose (26 branches); hoopla: none
 - **Austin Public Library**: catalog https://austin.bibliocommons.com/: BIBLIOCOMMONS at https://austin.bibliocommons.com; libby: austinpltx (23 branches); hoopla: 942
 - **Jacksonville Public Library**: catalog https://jaxpl.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: jacksonville (21 branches); hoopla: 127
-- **Columbus Metropolitan Library**: catalog https://columbuslibrary.bibliocommons.com/: BIBLIOCOMMONS at https://columbuslibrary.bibliocommons.com; libby: no matching system; hoopla: none
+- **Columbus Metropolitan Library**: catalog https://columbuslibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: no matching system; hoopla: none
 - **Indianapolis Public Library**: catalog https://indypl.bibliocommons.com/: BIBLIOCOMMONS at https://indypl.bibliocommons.com; libby: indianapolis (32 branches); hoopla: 1040
 - **Charlotte Mecklenburg Library**: catalog https://cmlibrary.bibliocommons.com/: BIBLIOCOMMONS at https://cmlibrary.bibliocommons.com; libby: charlotte (22 branches); hoopla: 8
 - **San Francisco Public Library**: catalog https://sfpl.bibliocommons.com/: BIBLIOCOMMONS at https://sfpl.bibliocommons.com; libby: sanfrancisco (28 branches); hoopla: 362
@@ -190,44 +190,44 @@ Generated 2026-11-18T10:20:41Z from 148 seed rows; 132 libraries kept.
 - **Multnomah County Library**: catalog https://multcolib.bibliocommons.com/: BIBLIOCOMMONS at https://multcolib.bibliocommons.com; libby: multnomahctyor (20 branches); hoopla: 219
 - **Hennepin County Library**: catalog https://hclib.bibliocommons.com/: BIBLIOCOMMONS at https://hclib.bibliocommons.com; libby: no matching system; hoopla: none
 - **Saint Paul Public Library**: catalog https://sppl.bibliocommons.com/: BIBLIOCOMMONS at https://sppl.bibliocommons.com; libby: no matching system; hoopla: none
-- **Cuyahoga County Public Library**: catalog https://cuyahogalibrary.bibliocommons.com/: BIBLIOCOMMONS at https://cuyahogalibrary.bibliocommons.com; libby: cuyahogacounty (29 branches); hoopla: 381
+- **Cuyahoga County Public Library**: catalog https://cuyahogalibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: cuyahogacounty (29 branches); hoopla: 381
 - **Cleveland Public Library**: catalog https://cpl.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: no matching system; hoopla: 819
-- **Public Library of Cincinnati and Hamilton County**: catalog https://cincinnatilibrary.bibliocommons.com/: BIBLIOCOMMONS at https://cincinnatilibrary.bibliocommons.com; libby: no matching system; hoopla: none
+- **Public Library of Cincinnati and Hamilton County**: catalog https://cincinnatilibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Recent Activity | Cincinnati & Hamilton County Public Librar' doesn't name the library; catalog https://classic.cincinnatilibrary.org/: SIERRA_ENCORE but title 'The Public Library of Cincinnati & Hamilton County' doesn't name the library; libby: no matching system; hoopla: none
 - **Las Vegas-Clark County Library District**: catalog https://lvccld.bibliocommons.com/: BIBLIOCOMMONS at https://lvccld.bibliocommons.com; libby: lasvegas (30 branches); hoopla: none
 - **Miami-Dade Public Library System**: catalog https://mdpls.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: miami (48 branches); hoopla: 596
-- **Broward County Library**: catalog https://broward.bibliocommons.com/: BIBLIOCOMMONS at https://broward.bibliocommons.com; libby: broward (37 branches); hoopla: 695
+- **Broward County Library**: catalog https://broward.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: broward (37 branches); hoopla: 695
 - **Palm Beach County Library System**: catalog https://pbclibrary.bibliocommons.com/: BIBLIOCOMMONS at https://pbclibrary.bibliocommons.com; libby: no matching system; hoopla: none
 - **Orange County Library System**: catalog https://ocls.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: ocls (16 branches); hoopla: 10
 - **Hillsborough County Public Library Cooperative**: catalog https://catalog.hcplc.org/polaris/: POLARIS at https://catalog.hcplc.org/polaris; libby: hillsboroughfl (36 branches); hoopla: none
-- **Fairfax County Public Library**: catalog https://fairfax.bibliocommons.com/: BIBLIOCOMMONS at https://fairfax.bibliocommons.com; libby: fairfax (23 branches); hoopla: none
+- **Fairfax County Public Library**: catalog https://fairfax.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: fairfax (23 branches); hoopla: none
 - **Montgomery County Public Libraries**: catalog https://mcpl.bibliocommons.com/: BIBLIOCOMMONS but title 'Recent Activity | Montmorency County Public Library | Biblio' doesn't name the library; libby: montgomeryco (22 branches); hoopla: 1823
 - **Prince George's County Memorial Library System**: catalog https://pgcmls.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: princegeorge (20 branches); hoopla: 115
 - **Baltimore County Public Library**: catalog https://bcpl.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: bcplinfo (20 branches); hoopla: 3377
 - **Enoch Pratt Free Library**: catalog https://prattlibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: no matching system; hoopla: none
 - **DC Public Library**: catalog https://dcpl.bibliocommons.com/: BIBLIOCOMMONS at https://dcpl.bibliocommons.com; libby: no matching system; hoopla: none
 - **Fulton County Library System**: catalog https://fulcolibrary.bibliocommons.com/: BIBLIOCOMMONS at https://fulcolibrary.bibliocommons.com; libby: atlantafulton (39 branches); hoopla: 644
-- **Gwinnett County Public Library**: catalog https://gwinnettpl.bibliocommons.com/: BIBLIOCOMMONS at https://gwinnettpl.bibliocommons.com; libby: gwinnett (16 branches); hoopla: none
+- **Gwinnett County Public Library**: catalog https://gwinnettpl.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: gwinnett (16 branches); hoopla: none
 - **Nashville Public Library**: catalog https://nashville.bibliocommons.com/: BIBLIOCOMMONS at https://nashville.bibliocommons.com; libby: nashville (21 branches); hoopla: 51
 - **Memphis Public Libraries**: catalog https://memphislibrary.bibliocommons.com/: BIBLIOCOMMONS at https://memphislibrary.bibliocommons.com; libby: memphis (17 branches); hoopla: none
 - **Salt Lake County Library**: catalog https://slcolibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: no matching system; hoopla: 46
 - **Sacramento Public Library**: catalog https://saclibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: sacramento (28 branches); hoopla: none
-- **Fresno County Public Library**: catalog https://fresnolibrary.bibliocommons.com/: BIBLIOCOMMONS at https://fresnolibrary.bibliocommons.com; libby: fresnoca (34 branches); hoopla: none
+- **Fresno County Public Library**: catalog https://fresnolibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: fresnoca (34 branches); hoopla: none
 - **OC Public Libraries**: catalog https://ocpl.bibliocommons.com/: BIBLIOCOMMONS at https://ocpl.bibliocommons.com; libby: orangecounty (30 branches); hoopla: 894
 - **Riverside County Library System**: catalog https://rivlib.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: rivlib (37 branches); hoopla: none
 - **San Bernardino County Library**: catalog https://sbcl.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: sanbernardoca (35 branches); hoopla: none
 - **Pima County Public Library**: catalog https://pima.bibliocommons.com/: BIBLIOCOMMONS at https://pima.bibliocommons.com; libby: tucson (44 branches); hoopla: 3502
-- **Tulsa City-County Library**: catalog https://tulsalibrary.bibliocommons.com/: BIBLIOCOMMONS at https://tulsalibrary.bibliocommons.com; libby: tulsa (27 branches); hoopla: 1379
+- **Tulsa City-County Library**: catalog https://tulsalibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: tulsa (27 branches); hoopla: 1379
 - **Metropolitan Library System**: catalog https://metrolibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: no matching system; hoopla: 1811
 - **Kansas City Public Library**: catalog https://kclibrary.bibliocommons.com/: BIBLIOCOMMONS at https://kclibrary.bibliocommons.com; libby: kansascity (12 branches); hoopla: 205
 - **Johnson County Library**: catalog https://jocolibrary.bibliocommons.com/: BIBLIOCOMMONS at https://jocolibrary.bibliocommons.com; libby: no matching system; hoopla: none
 - **St. Louis County Library**: catalog https://slcl.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: stlouis (22 branches); hoopla: 383
-- **St. Louis Public Library**: catalog https://slpl.bibliocommons.com/: BIBLIOCOMMONS at https://slpl.bibliocommons.com; libby: stlouis (22 branches); hoopla: 651
+- **St. Louis Public Library**: catalog https://slpl.bibliocommons.com/: BIBLIOCOMMONS at https://slpl.bibliocommons.com; libby: slpl (15 branches); hoopla: 651
 - **Milwaukee Public Library**: catalog https://mpl.bibliocommons.com/: BIBLIOCOMMONS but title 'Recent Activity | Malden Public Library | BiblioCommons' doesn't name the library; libby: no matching system; hoopla: none
 - **Louisville Free Public Library**: catalog https://lfpl.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: louisvillefplky (19 branches); hoopla: 3369
 - **Allen County Public Library**: catalog https://acpl.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: allencountyin (14 branches); hoopla: 123
 - **Fort Worth Public Library**: catalog https://fortworth.bibliocommons.com/: BIBLIOCOMMONS at https://fortworth.bibliocommons.com; libby: fortworth (20 branches); hoopla: none
 - **El Paso Public Library**: catalog https://elpaso.bibliocommons.com/: BIBLIOCOMMONS at https://elpaso.bibliocommons.com; libby: elpasotx (15 branches); hoopla: 2164
-- **Wake County Public Libraries**: catalog https://wakegov.bibliocommons.com/: BIBLIOCOMMONS at https://wakegov.bibliocommons.com; libby: wakecounty (23 branches); hoopla: none
+- **Wake County Public Libraries**: catalog https://wakegov.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: wakecounty (23 branches); hoopla: none
 - **New Orleans Public Library**: catalog https://nolalibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: neworleans (14 branches); hoopla: 145
 - **Pierce County Library System**: catalog https://piercecounty.bibliocommons.com/: BIBLIOCOMMONS at https://piercecounty.bibliocommons.com; libby: pierce (21 branches); hoopla: none
 - **Sno-Isle Libraries**: catalog https://sno-isle.bibliocommons.com/: BIBLIOCOMMONS at https://sno-isle.bibliocommons.com; libby: snoisle (24 branches); hoopla: 370
@@ -237,7 +237,7 @@ Generated 2026-11-18T10:20:41Z from 148 seed rows; 132 libraries kept.
 - **Akron-Summit County Public Library**: catalog https://catalog.akronlibrary.org/: ASPEN but title 'Catalog Home | Main' doesn't name the library; libby: akron (19 branches); hoopla: 1011
 - **Carnegie Library of Pittsburgh**: catalog https://carnegielibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: pittsburgh (79 branches); hoopla: 238
 - **Buffalo & Erie County Public Library**: catalog https://buffalolib.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: buffalo (38 branches); hoopla: none
-- **Albuquerque and Bernalillo County Library**: catalog https://abqlibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: albuquerque (19 branches); hoopla: 1392
+- **Albuquerque and Bernalillo County Library**: catalog https://abqlibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: albuquerque (19 branches); hoopla: none
 - **Contra Costa County Library**: catalog https://ccclib.bibliocommons.com/: BIBLIOCOMMONS at https://ccclib.bibliocommons.com; libby: contracosta (26 branches); hoopla: 4548
 - **Alameda County Library**: catalog https://aclibrary.bibliocommons.com/: BIBLIOCOMMONS at https://aclibrary.bibliocommons.com; libby: alamedacountyca (1 branches); hoopla: 2592
 - **Santa Clara County Library District**: catalog https://sccl.bibliocommons.com/: BIBLIOCOMMONS at https://sccl.bibliocommons.com; libby: santaclara (9 branches); hoopla: 4384
@@ -245,11 +245,11 @@ Generated 2026-11-18T10:20:41Z from 148 seed rows; 132 libraries kept.
 - **Long Beach Public Library**: catalog https://lbpl.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: longbeach (12 branches); hoopla: 4227
 - **Mid-Continent Public Library**: catalog https://mymcpl.bibliocommons.com/: BIBLIOCOMMONS at https://mymcpl.bibliocommons.com; libby: midcontinent (35 branches); hoopla: none
 - **Arlington Public Library**: catalog https://arlingtonva.bibliocommons.com/: BIBLIOCOMMONS at https://arlingtonva.bibliocommons.com; libby: arlingtontx (10 branches); hoopla: none
-- **Loudoun County Public Library**: catalog https://loudoun.bibliocommons.com/: BIBLIOCOMMONS at https://loudoun.bibliocommons.com; libby: loudoun (10 branches); hoopla: 618
+- **Loudoun County Public Library**: catalog https://loudoun.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: loudoun (10 branches); hoopla: 618
 - **Anne Arundel County Public Library**: catalog https://aacpl.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: no matching system; hoopla: none
 - **Howard County Library System**: catalog https://hclibrary.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: no matching system; hoopla: 390
 - **Cobb County Public Library**: catalog https://cobbcounty.bibliocommons.com/: BIBLIOCOMMONS at https://cobbcounty.bibliocommons.com; libby: cobb (16 branches); hoopla: none
-- **DeKalb County Public Library**: catalog https://dekalb.bibliocommons.com/: BIBLIOCOMMONS at https://dekalb.bibliocommons.com; libby: dekalb (24 branches); hoopla: 2831
+- **DeKalb County Public Library**: catalog https://dekalb.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: dekalb (24 branches); hoopla: 2831
 - **Pikes Peak Library District**: catalog https://ppld.bibliocommons.com/: BIBLIOCOMMONS but title 'Bibliocommons Inc.' doesn't name the library; libby: pikespeak (15 branches); hoopla: 155
 - **Arapahoe Libraries**: catalog https://arapahoelibraries.bibliocommons.com/: BIBLIOCOMMONS at https://arapahoelibraries.bibliocommons.com; libby: arapahoe (9 branches); hoopla: none
 - **Jefferson County Public Library**: catalog https://jeffcolibrary.bibliocommons.com/: BIBLIOCOMMONS at https://jeffcolibrary.bibliocommons.com; libby: jeffersonco (11 branches); hoopla: 633
@@ -301,7 +301,7 @@ Generated 2026-11-18T10:20:41Z from 148 seed rows; 132 libraries kept.
 - **City of Melbourne Libraries**: libby: melbournelib (6 branches); hoopla: none
 - **Yarra Plenty Regional Library**: libby: no matching system; hoopla: none
 - **Gold Coast Libraries**: libby: goldcoastau (12 branches); hoopla: none
-- **Moreton Bay Libraries**: libby: caboolture (12 branches); hoopla: 4165
+- **Moreton Bay Libraries**: libby: caboolture (12 branches); hoopla: none
 - **Libraries ACT**: libby: act (11 branches); hoopla: none
 - **City of Perth Library**: libby: no matching system; hoopla: 3701
 - **Libraries Tasmania**: libby: tasmaniaau (47 branches); hoopla: none

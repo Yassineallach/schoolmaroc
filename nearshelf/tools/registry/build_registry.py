@@ -44,7 +44,7 @@ def norm(s):
 
 # Mirrors Library.idFor in Kotlin. "county"/"city" are kept: San Diego County Library and
 # San Diego Public Library are different libraries.
-NOISE = re.compile(r"\b(the|public|library|libraries|system|district|of)\b")
+NOISE = re.compile(r"\b(the|public|library|libraries|system|district|of|and)\b")
 
 
 def key(name):
@@ -127,8 +127,15 @@ def find_catalog(http, row, log):
         if not d:
             log.append(f"catalog {cand}: not recognised (title {t[:60]!r})")
             continue
-        words = [w for w in key(row["name"]).split() if len(w) > 2]
-        if not manual and words and not all(w in norm(t) or w in norm(final) for w in words):
+        # BiblioCommons answers unknown subdomains with a placeholder page.
+        if not manual and norm(t) == "bibliocommons inc":
+            log.append(f"catalog {cand}: BiblioCommons placeholder (no such library)")
+            continue
+        # The page title must name the place. Only the title counts: a guessed address
+        # always contains the name, so checking the URL would accept anything.
+        # "county", "city" and "and" are often written differently ("&") or left out.
+        words = [w for w in key(row["name"]).split() if len(w) > 2 and w not in ("county", "city", "and")]
+        if not manual and words and not all(w in norm(t) for w in words):
             log.append(f"catalog {cand}: {d[0]} but title {t[:60]!r} doesn't name the library")
             continue
         log.append(f"catalog {cand}: {d[0]} at {d[1]}")
@@ -136,11 +143,24 @@ def find_catalog(http, row, log):
     return None
 
 
+def queries(row):
+    """The official name first; OverDrive and Hoopla sometimes only find a library by its city."""
+    return [q for q in (row["name"], row["city"]) if q]
+
+
 def find_overdrive(http, row, log):
-    final, data = http.get("https://locate.libbyapp.com/autocomplete/" + urllib.parse.quote(row["name"]), want_json=True)
-    if final is None or not isinstance(data, dict):
-        log.append("libby: lookup failed")
-        return None, []
+    for q in queries(row):
+        final, data = http.get("https://locate.libbyapp.com/autocomplete/" + urllib.parse.quote(q), want_json=True)
+        if final is None or not isinstance(data, dict):
+            continue
+        found = match_overdrive(http, row, data, log)
+        if found[0]:
+            return found
+    log.append("libby: no matching system")
+    return None, []
+
+
+def match_overdrive(http, row, data, log):
     want = key(row["name"])
     for b in data.get("branches", []):
         if (b.get("countryCode") or "").upper() != row["country"]:
@@ -155,7 +175,6 @@ def find_overdrive(http, row, log):
                         branches = clean_branches(full.get("branches", []), s.get("name", ""))
                 log.append(f"libby: {od['key']} ({len(branches)} branches)")
                 return od, branches
-    log.append("libby: no matching system")
     return None, []
 
 
@@ -179,11 +198,19 @@ def clean_branches(raw, system_name):
 
 
 def find_hoopla(http, row, log):
-    url = "https://patron-api-gateway.hoopladigital.com/core/libraries/autocomplete?query=" + urllib.parse.quote(row["name"])
-    final, data = http.get(url, headers={"app": "WWW", "ws-api": "2.1", "Accept": "application/json"}, want_json=True)
-    if final is None or not isinstance(data, list):
-        log.append("hoopla: lookup failed")
-        return None
+    for q in queries(row):
+        url = "https://patron-api-gateway.hoopladigital.com/core/libraries/autocomplete?query=" + urllib.parse.quote(q)
+        final, data = http.get(url, headers={"app": "WWW", "ws-api": "2.1", "Accept": "application/json"}, want_json=True)
+        if final is None or not isinstance(data, list):
+            continue
+        found = match_hoopla(row, data, log)
+        if found:
+            return found
+    log.append("hoopla: none")
+    return None
+
+
+def match_hoopla(row, data, log):
     want = key(row["name"])
     for lib in data:
         if not lib.get("enabled", True) or lib.get("hideFromChooser"):
@@ -195,7 +222,6 @@ def find_hoopla(http, row, log):
         if key(lib.get("name", "")) == want:
             log.append(f"hoopla: {lib['id']}")
             return {"id": str(lib["id"]), "borrowLimitPerMonth": lib.get("circsPerPatronMonth")}
-    log.append("hoopla: none")
     return None
 
 
