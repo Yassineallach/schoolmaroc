@@ -1,5 +1,10 @@
 package com.mardev.nearshelf.ui.results
 
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.background
+import com.mardev.nearshelf.core.search.ResultFilter
+import com.mardev.nearshelf.ui.components.NearshelfChip
 import com.mardev.nearshelf.ui.components.Monogram
 import androidx.compose.foundation.layout.offset
 import com.mardev.nearshelf.ui.components.NearshelfTopBar
@@ -112,6 +117,7 @@ fun ResultsScreen(
     val watched by vm.watched.collectAsStateWithLifecycle()
     val here by vm.here.collectAsStateWithLifecycle()
     val prefs by vm.prefs.collectAsStateWithLifecycle()
+    val filter by vm.filter.collectAsStateWithLifecycle()
     val offline by vm.offline.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var askedLocation by rememberSaveable { mutableStateOf(false) }
@@ -129,6 +135,7 @@ fun ResultsScreen(
 
     ResultsContent(
         state = state, watched = watched, here = here, prefs = prefs, offline = offline,
+        filter = filter, onFilterChange = vm::setFilter,
         showLocationCard = here == null && !vm.hasLocationPermission && !askedLocation,
         onBack = onBack, onPreferences = onPreferences, onAddLibrary = onAddLibrary, onSearchManually = onSearchManually,
         onWatch = onWatch,
@@ -164,6 +171,8 @@ internal fun ResultsContent(
     onAllowLocation: () -> Unit,
     onDismissLocation: () -> Unit,
     adSlot: @Composable (Modifier) -> Unit = { NativeAdCard(it) },
+    filter: ResultFilter = ResultFilter(),
+    onFilterChange: (ResultFilter) -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -220,7 +229,14 @@ internal fun ResultsContent(
                     }
                 }
             }
-            item(key = "header") { BookHeaderView(state, watched, onWatch, Modifier.padding(start = Gutter, end = Gutter, top = Space.s, bottom = Space.xl)) }
+            item(key = "header") { BookHeaderView(state, watched, onWatch, Modifier.padding(start = Gutter, end = Gutter, top = Space.s, bottom = Space.l)) }
+            // Formats actually found, in the order results list them; the bar appears once there is something to filter.
+            val found = libraries.flatMap { lr -> lr.services.flatMap { (it.state as? ServiceState.Done)?.matches.orEmpty() } }
+            if (found.isNotEmpty()) {
+                val formats = found.map { with(ResultFilter) { it.holding.format.filterKey() } }.distinct()
+                    .sortedBy { listOf(Format.EBOOK, Format.AUDIOBOOK, Format.PHYSICAL).indexOf(it) }
+                stickyHeader(key = "filters") { FilterBar(filter, formats, onFilterChange) }
+            }
             val services = libraries.flatMap { lr -> lr.services.map { lr.library.id to it } }
             val allFailed = services.isNotEmpty() && state.finished == state.total && services.none { it.second.state is ServiceState.Done }
             if (allFailed) {
@@ -264,6 +280,9 @@ internal fun ResultsContent(
                     onOpenCatalog = onOpenCatalog,
                     here = here,
                     prefs = prefs,
+                    filter = filter,
+                    // The filter bar's hairline already separates the first library.
+                    topRule = index > 0 || found.isEmpty(),
                     modifier = Modifier.animateItem(),
                 )
                 if (index == 0 && !offline) {
@@ -349,12 +368,14 @@ private fun LibraryCard(
     onOpenCatalog: (LibraryRef) -> Unit,
     here: LatLng?,
     prefs: ReadingPrefs,
+    filter: ResultFilter,
+    topRule: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val reducedMotion = com.mardev.nearshelf.ui.components.lightswind.rememberReducedMotion()
     // A flat section, not a card: hairline above, the library's monogram and serif name.
     Column(modifier.fillMaxWidth()) {
-        HorizontalDivider(Modifier.padding(horizontal = Gutter), color = MaterialTheme.colorScheme.outlineVariant)
+        if (topRule) HorizontalDivider(Modifier.padding(horizontal = Gutter), color = MaterialTheme.colorScheme.outlineVariant)
         Column(Modifier.padding(top = Space.l, bottom = Space.s)) {
             Row(Modifier.padding(horizontal = Gutter), verticalAlignment = Alignment.CenterVertically) {
                 Monogram(result.library.name)
@@ -420,10 +441,11 @@ private fun LibraryCard(
                                     modifier = Modifier.padding(horizontal = Gutter, vertical = Space.xs),
                                 )
                             }
-                            val rows = ServiceResult(svc.ref, st).rows(prefs)
+                            val beforeFilter = ServiceResult(svc.ref, st).rows(prefs)
+                            val rows = if (filter.isActive) ServiceResult(svc.ref, st).rows(prefs, filter) else beforeFilter
                             if (rows.isEmpty() && st.matches.isNotEmpty()) {
                                 Text(
-                                    stringResource(R.string.results_hidden_by_language),
+                                    stringResource(if (beforeFilter.isNotEmpty()) R.string.results_filtered_out else R.string.results_hidden_by_language),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(horizontal = Gutter, vertical = Space.xs),
@@ -784,3 +806,42 @@ private fun formatLabel(f: Format) = stringResource(
 
 private fun languageName(code: String): String =
     Locale.forLanguageTag(code).getDisplayLanguage(Locale.getDefault()).replaceFirstChar { it.titlecase(Locale.getDefault()) }
+
+/**
+ * Pinned under the book while you scroll: "Available now", then the formats found.
+ * Formats combine with "or", availability with "and"; Clear resets both.
+ */
+@Composable
+private fun FilterBar(filter: ResultFilter, formats: List<Format>, onChange: (ResultFilter) -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    Column(Modifier.fillMaxWidth().background(colors.background)) {
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = Gutter, vertical = Space.s),
+            horizontalArrangement = Arrangement.spacedBy(Space.s),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            NearshelfChip(
+                stringResource(R.string.filter_available_now),
+                selected = filter.availableNow,
+                onClick = { onChange(filter.copy(availableNow = !filter.availableNow)) },
+                icon = R.drawable.ic_check_circle,
+            )
+            if (formats.size > 1) {
+                Box(Modifier.size(width = 1.dp, height = 24.dp).background(colors.outlineVariant))
+                formats.forEach { f ->
+                    NearshelfChip(
+                        formatLabel(f),
+                        selected = f in filter.formats,
+                        onClick = { onChange(filter.toggle(f)) },
+                    )
+                }
+            }
+            if (filter.isActive) {
+                TextButton(onClick = { onChange(ResultFilter()) }) {
+                    Text(stringResource(R.string.filter_clear), style = MaterialTheme.typography.labelLarge)
+                }
+            }
+        }
+        HorizontalDivider(color = colors.outlineVariant)
+    }
+}

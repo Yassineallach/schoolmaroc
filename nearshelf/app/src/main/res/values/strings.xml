@@ -212,6 +212,10 @@
     <string name="prefs_languages_none">Not set: every language counts as yours</string>
     <string name="prefs_format_dialog_body">Shown first in results when a library has it.</string>
     <string name="action_done">Done</string>
+    <string name="filter_available_now">Available now</string>
+    <string name="filter_clear">Clear</string>
+    <string name="filter_label">Filter results</string>
+    <string name="results_filtered_out">Nothing here matches your filters.</string>
     <string name="prefs_languages_body">Editions in other languages are marked, or hidden if you turn that off below.</string>
     <string name="prefs_show_other">Show editions in other languages</string>
     <string name="prefs_show_other_body">They’re marked with their language.</string>

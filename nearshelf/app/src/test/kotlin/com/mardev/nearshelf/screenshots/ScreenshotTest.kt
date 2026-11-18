@@ -248,6 +248,17 @@ class ScreenshotTest(private val device: Device) {
         )
     }
 
+    @Test fun resultsFiltered() = shot("results_filtered") {
+        ResultsContent(
+            state = sampleState(), watched = false, here = LatLng(41.88, -87.63), prefs = ReadingPrefs(),
+            offline = false, showLocationCard = false,
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
+            onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
+            adSlot = { FakeAd(it) },
+            filter = com.mardev.nearshelf.core.search.ResultFilter(availableNow = true),
+        )
+    }
+
     @Test fun onboarding() = shot("onboarding") { OnboardingScreen(onAddLibrary = {}, onDone = {}) }
 
     @Test fun about() = shot("about") { AboutScreen(onBack = {}) }
