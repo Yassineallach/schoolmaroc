@@ -1,6 +1,9 @@
 package com.mardev.nearshelf.core.metadata
 
+import com.mardev.nearshelf.core.cache.CacheTtl
+import com.mardev.nearshelf.core.cache.KeyValueCache
 import com.mardev.nearshelf.core.model.BookQuery
+import kotlinx.serialization.json.Json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -11,14 +14,22 @@ data class ExpandedQuery(val query: BookQuery, val coverUrl: String? = null, val
  * its title, author, language and every ISBN of the work (so other editions and
  * formats match); a title gains the work's ISBN set. Any failure keeps the query as typed.
  */
-class QueryExpander(private val openLibrary: OpenLibrary) {
+class QueryExpander(
+    private val openLibrary: OpenLibrary,
+    private val cache: KeyValueCache? = null,
+    private val clock: () -> Long = System::currentTimeMillis,
+) {
+    private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun expand(query: BookQuery): ExpandedQuery = withContext(Dispatchers.IO) {
-        val work = when {
+        val key = "ol|" + listOf(query.isbn, query.title, query.author).joinToString("|") { it?.trim()?.lowercase().orEmpty() }
+        val cached = cache?.get(key)?.takeIf { clock() - it.second < CacheTtl.OPEN_LIBRARY_MILLIS }
+            ?.let { runCatching { json.decodeFromString<WorkInfo>(it.first) }.getOrNull() }
+        val work = cached ?: when {
             !query.isbn.isNullOrBlank() -> openLibrary.byIsbn(query.isbn)
             !query.title.isNullOrBlank() -> openLibrary.byTitle(query.title, query.author)
             else -> null
-        } ?: return@withContext ExpandedQuery(query)
+        }?.also { cache?.put(key, json.encodeToString(it)) } ?: return@withContext ExpandedQuery(query)
 
         ExpandedQuery(
             query = query.copy(

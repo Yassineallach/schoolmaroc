@@ -5,6 +5,9 @@ import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
 object NearshelfHttp {
+    /** One limiter for the whole app: every client built here shares it. */
+    private val polite = PoliteInterceptor()
+
     const val PROJECT_URL = "https://github.com/yassineallach/nearshelf"
 
     fun userAgent(appVersion: String): String = "Nearshelf/$appVersion (Android; +$PROJECT_URL)"
@@ -19,6 +22,7 @@ object NearshelfHttp {
             .readTimeout(20, TimeUnit.SECONDS)
             .callTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(UserAgentInterceptor(userAgent(appVersion)))
+            .addInterceptor(polite)
             .apply { extra.forEach { addInterceptor(it) } }
             .build()
 }
