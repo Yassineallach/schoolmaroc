@@ -1,10 +1,13 @@
 package com.mardev.nearshelf.ui.results
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.background
 import com.mardev.nearshelf.core.search.ResultFilter
-import com.mardev.nearshelf.ui.components.NearshelfChip
+import com.mardev.nearshelf.ui.components.NearshelfDialog
+import com.mardev.nearshelf.ui.components.ChoiceRow
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.ui.semantics.Role
 import com.mardev.nearshelf.ui.components.Monogram
 import androidx.compose.foundation.layout.offset
 import com.mardev.nearshelf.ui.components.NearshelfTopBar
@@ -173,7 +176,9 @@ internal fun ResultsContent(
     adSlot: @Composable (Modifier) -> Unit = { NativeAdCard(it) },
     filter: ResultFilter = ResultFilter(),
     onFilterChange: (ResultFilter) -> Unit = {},
+    initialFilterDialog: Boolean = false,
 ) {
+    var showFilter by rememberSaveable { mutableStateOf(initialFilterDialog) }
     Scaffold(
         topBar = {
             Column {
@@ -216,6 +221,11 @@ internal fun ResultsContent(
             )
             return@Scaffold
         }
+        // Formats actually found, in the order results list them.
+        val foundFormats = libraries.flatMap { lr -> lr.services.flatMap { (it.state as? ServiceState.Done)?.matches.orEmpty() } }
+            .map { with(ResultFilter) { it.holding.format.filterKey() } }.distinct()
+            .sortedBy { listOf(Format.EBOOK, Format.AUDIOBOOK, Format.PHYSICAL).indexOf(it) }
+        if (showFilter) FilterDialog(filter, foundFormats, onFilterChange, onDismiss = { showFilter = false })
         LazyColumn(
             Modifier.fillMaxSize().padding(padding).readableWidth(),
             contentPadding = PaddingValues(bottom = Space.xl),
@@ -229,13 +239,14 @@ internal fun ResultsContent(
                     }
                 }
             }
-            item(key = "header") { BookHeaderView(state, watched, onWatch, Modifier.padding(start = Gutter, end = Gutter, top = Space.s, bottom = Space.l)) }
-            // Formats actually found, in the order results list them; the bar appears once there is something to filter.
-            val found = libraries.flatMap { lr -> lr.services.flatMap { (it.state as? ServiceState.Done)?.matches.orEmpty() } }
-            if (found.isNotEmpty()) {
-                val formats = found.map { with(ResultFilter) { it.holding.format.filterKey() } }.distinct()
-                    .sortedBy { listOf(Format.EBOOK, Format.AUDIOBOOK, Format.PHYSICAL).indexOf(it) }
-                stickyHeader(key = "filters") { FilterBar(filter, formats, onFilterChange) }
+            item(key = "header") {
+                BookHeaderView(
+                    state, watched, onWatch,
+                    Modifier.padding(start = Gutter, end = Gutter, top = Space.s, bottom = Space.xl),
+                    // The Filter button appears once there is something to filter.
+                    filterCount = if (foundFormats.isEmpty()) null else filter.formats.size + (if (filter.availableNow) 1 else 0),
+                    onFilter = { showFilter = true },
+                )
             }
             val services = libraries.flatMap { lr -> lr.services.map { lr.library.id to it } }
             val allFailed = services.isNotEmpty() && state.finished == state.total && services.none { it.second.state is ServiceState.Done }
@@ -282,7 +293,7 @@ internal fun ResultsContent(
                     prefs = prefs,
                     filter = filter,
                     // The filter bar's hairline already separates the first library.
-                    topRule = index > 0 || found.isEmpty(),
+                    topRule = true,
                     modifier = Modifier.animateItem(),
                 )
                 if (index == 0 && !offline) {
@@ -311,7 +322,14 @@ private fun PendingHeader(state: ResultsUiState) {
 }
 
 @Composable
-private fun BookHeaderView(state: ResultsUiState, watched: Boolean, onWatch: () -> Unit, modifier: Modifier = Modifier) {
+private fun BookHeaderView(
+    state: ResultsUiState,
+    watched: Boolean,
+    onWatch: () -> Unit,
+    modifier: Modifier = Modifier,
+    filterCount: Int? = null,
+    onFilter: () -> Unit = {},
+) {
     val header = state.header
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(Space.l)) {
         val coverModifier = Modifier.width(84.dp).heightIn(min = 120.dp).clip(MaterialTheme.shapes.extraSmall)
@@ -343,17 +361,72 @@ private fun BookHeaderView(state: ResultsUiState, watched: Boolean, onWatch: () 
                 modifier = Modifier.padding(top = 4.dp).semantics { liveRegion = LiveRegionMode.Polite },
             )
             val watchLabel = stringResource(if (watched) R.string.action_watching else R.string.action_watch)
-            if (watched) {
-                FilledTonalButton(shape = ButtonShape, colors = accentTonalColors(), onClick = onWatch, modifier = Modifier.padding(top = Space.s).heightIn(min = 44.dp)) {
-                    Icon(painterResource(R.drawable.ic_watchlist_fill), null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(watchLabel)
+            Row(Modifier.padding(top = Space.s), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+                if (watched) {
+                    FilledTonalButton(shape = ButtonShape, colors = accentTonalColors(), onClick = onWatch, modifier = Modifier.heightIn(min = 44.dp)) {
+                        Icon(painterResource(R.drawable.ic_watchlist_fill), null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(watchLabel)
+                    }
+                } else {
+                    OutlinedButton(shape = ButtonShape, border = hairline(), colors = quietOutlinedColors(), onClick = onWatch, modifier = Modifier.heightIn(min = 44.dp)) {
+                        Icon(painterResource(R.drawable.ic_watchlist), null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(watchLabel)
+                    }
                 }
-            } else {
-                OutlinedButton(shape = ButtonShape, border = hairline(), colors = quietOutlinedColors(), onClick = onWatch, modifier = Modifier.padding(top = Space.s).heightIn(min = 44.dp)) {
-                    Icon(painterResource(R.drawable.ic_watchlist), null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(watchLabel)
+                // Filter: quiet when off; tinted with a count when any filter is on.
+                if (filterCount != null) {
+                    val label = if (filterCount > 0) stringResource(R.string.filter_button_count, filterCount) else stringResource(R.string.filter_button)
+                    if (filterCount > 0) {
+                        FilledTonalButton(shape = ButtonShape, colors = accentTonalColors(), onClick = onFilter, modifier = Modifier.heightIn(min = 44.dp)) {
+                            Icon(painterResource(R.drawable.ic_filter), null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(label)
+                        }
+                    } else {
+                        OutlinedButton(shape = ButtonShape, border = hairline(), colors = quietOutlinedColors(), onClick = onFilter, modifier = Modifier.heightIn(min = 44.dp)) {
+                            Icon(painterResource(R.drawable.ic_filter), null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(label)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Filter pop-up: availability, then the formats found. Changes apply as you tap. */
+@Composable
+private fun FilterDialog(filter: ResultFilter, formats: List<Format>, onChange: (ResultFilter) -> Unit, onDismiss: () -> Unit) {
+    NearshelfDialog(
+        title = stringResource(R.string.filter_label),
+        confirm = stringResource(R.string.action_done),
+        onDismiss = onDismiss,
+        secondary = if (filter.isActive) stringResource(R.string.filter_clear) else null,
+        onSecondary = { onChange(ResultFilter()) },
+    ) {
+        Column {
+            ChoiceRow(
+                stringResource(R.string.filter_available_now),
+                checked = filter.availableNow,
+                role = Role.Checkbox,
+                onClick = { onChange(filter.copy(availableNow = !filter.availableNow)) },
+                supporting = stringResource(R.string.filter_available_now_sub),
+            ) { Checkbox(checked = filter.availableNow, onCheckedChange = null, colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)) }
+            if (formats.size > 1) {
+                HorizontalDivider(Modifier.padding(vertical = Space.s), color = MaterialTheme.colorScheme.outlineVariant)
+                Text(
+                    stringResource(R.string.filter_formats).uppercase(androidx.compose.ui.platform.LocalConfiguration.current.locales[0]),
+                    style = ServiceOverline,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = Space.xs, bottom = Space.xs),
+                )
+                formats.forEach { f ->
+                    ChoiceRow(formatLabel(f), checked = f in filter.formats, role = Role.Checkbox, onClick = { onChange(filter.toggle(f)) }) {
+                        Checkbox(checked = f in filter.formats, onCheckedChange = null, colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary))
+                    }
                 }
             }
         }
@@ -806,42 +879,3 @@ private fun formatLabel(f: Format) = stringResource(
 
 private fun languageName(code: String): String =
     Locale.forLanguageTag(code).getDisplayLanguage(Locale.getDefault()).replaceFirstChar { it.titlecase(Locale.getDefault()) }
-
-/**
- * Pinned under the book while you scroll: "Available now", then the formats found.
- * Formats combine with "or", availability with "and"; Clear resets both.
- */
-@Composable
-private fun FilterBar(filter: ResultFilter, formats: List<Format>, onChange: (ResultFilter) -> Unit) {
-    val colors = MaterialTheme.colorScheme
-    Column(Modifier.fillMaxWidth().background(colors.background)) {
-        Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = Gutter, vertical = Space.s),
-            horizontalArrangement = Arrangement.spacedBy(Space.s),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            NearshelfChip(
-                stringResource(R.string.filter_available_now),
-                selected = filter.availableNow,
-                onClick = { onChange(filter.copy(availableNow = !filter.availableNow)) },
-                icon = R.drawable.ic_check_circle,
-            )
-            if (formats.size > 1) {
-                Box(Modifier.size(width = 1.dp, height = 24.dp).background(colors.outlineVariant))
-                formats.forEach { f ->
-                    NearshelfChip(
-                        formatLabel(f),
-                        selected = f in filter.formats,
-                        onClick = { onChange(filter.toggle(f)) },
-                    )
-                }
-            }
-            if (filter.isActive) {
-                TextButton(onClick = { onChange(ResultFilter()) }) {
-                    Text(stringResource(R.string.filter_clear), style = MaterialTheme.typography.labelLarge)
-                }
-            }
-        }
-        HorizontalDivider(color = colors.outlineVariant)
-    }
-}

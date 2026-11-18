@@ -259,6 +259,18 @@ class ScreenshotTest(private val device: Device) {
         )
     }
 
+    @Test fun resultsFilterDialog() = dialogShot("results_filter_dialog") {
+        ResultsContent(
+            state = sampleState(), watched = false, here = null, prefs = ReadingPrefs(),
+            offline = false, showLocationCard = false,
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
+            onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
+            adSlot = { FakeAd(it) },
+            filter = com.mardev.nearshelf.core.search.ResultFilter(availableNow = true),
+            initialFilterDialog = true,
+        )
+    }
+
     @Test fun onboarding() = shot("onboarding") { OnboardingScreen(onAddLibrary = {}, onDone = {}) }
 
     @Test fun about() = shot("about") { AboutScreen(onBack = {}) }

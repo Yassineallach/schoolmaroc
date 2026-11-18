@@ -21,6 +21,8 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.res.painterResource
 import com.mardev.nearshelf.ui.components.NearshelfTopBar
+import com.mardev.nearshelf.ui.components.NearshelfDialog
+import com.mardev.nearshelf.ui.components.ChoiceRow
 import com.mardev.nearshelf.ui.components.SectionHeader
 import com.mardev.nearshelf.ui.theme.Gutter
 import com.mardev.nearshelf.ui.theme.Space
@@ -218,7 +220,7 @@ private fun PickerRow(@DrawableRes icon: Int, title: String, value: String, onCl
 /** Pick one: tapping a format applies it and closes, as Android's single-choice dialogs do. */
 @Composable
 private fun FormatDialog(selected: Format?, onPick: (Format?) -> Unit, onDismiss: () -> Unit) {
-    PrefsDialogFrame(
+    NearshelfDialog(
         title = stringResource(R.string.prefs_format_heading),
         body = stringResource(R.string.prefs_format_dialog_body),
         confirm = stringResource(R.string.action_close),
@@ -237,9 +239,8 @@ private fun FormatDialog(selected: Format?, onPick: (Format?) -> Unit, onDismiss
 /** Pick several: each tap applies at once; Done closes. */
 @Composable
 private fun LanguagesDialog(selected: Set<String>, onToggle: (String) -> Unit, onDismiss: () -> Unit) {
-    PrefsDialogFrame(
+    NearshelfDialog(
         title = stringResource(R.string.prefs_languages_heading),
-        body = null,
         confirm = stringResource(R.string.action_done),
         onDismiss = onDismiss,
     ) {
@@ -253,42 +254,4 @@ private fun LanguagesDialog(selected: Set<String>, onToggle: (String) -> Unit, o
             }
         }
     }
-}
-
-@Composable
-private fun ChoiceRow(label: String, checked: Boolean, role: Role, onClick: () -> Unit, control: @Composable () -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(MaterialTheme.shapes.small)
-            .then(
-                if (role == Role.RadioButton) Modifier.selectable(selected = checked, role = role, onClick = onClick)
-                else Modifier.toggleable(value = checked, role = role, onValueChange = { onClick() }),
-            )
-            .padding(horizontal = Space.xs),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        control()
-        Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = Space.m))
-    }
-}
-
-/** The app's dialog: page-coloured, 16 dp corners, serif title, one text action. */
-@Composable
-private fun PrefsDialogFrame(title: String, body: String?, confirm: String, onDismiss: () -> Unit, content: @Composable () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text(confirm, style = MaterialTheme.typography.labelLarge) } },
-        title = { Text(title, style = MaterialTheme.typography.titleLarge) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(Space.m)) {
-                body?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                content()
-            }
-        },
-        // Paper on the light theme; one step above the page at night so the pop-up separates.
-        containerColor = MaterialTheme.colorScheme.run { if (background.luminance() > 0.5f) background else surfaceContainerHigh },
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        textContentColor = MaterialTheme.colorScheme.onSurface,
-        shape = MaterialTheme.shapes.large,
-        tonalElevation = 0.dp,
-    )
 }

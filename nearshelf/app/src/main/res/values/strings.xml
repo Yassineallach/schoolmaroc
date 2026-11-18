@@ -214,6 +214,10 @@
     <string name="action_done">Done</string>
     <string name="filter_available_now">Available now</string>
     <string name="filter_clear">Clear</string>
+    <string name="filter_button">Filter</string>
+    <string name="filter_button_count">Filter · %1$d</string>
+    <string name="filter_available_now_sub">Ready to borrow today, or on a shelf</string>
+    <string name="filter_formats">Formats</string>
     <string name="filter_label">Filter results</string>
     <string name="results_filtered_out">Nothing here matches your filters.</string>
     <string name="prefs_languages_body">Editions in other languages are marked, or hidden if you turn that off below.</string>
