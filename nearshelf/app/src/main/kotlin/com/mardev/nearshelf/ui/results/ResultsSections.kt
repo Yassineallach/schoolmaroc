@@ -163,8 +163,8 @@ private fun DigitalOption(o: OptionUi, multiLibrary: Boolean, onBorrow: (Library
     val m = o.match
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     Column(Modifier.fillMaxWidth().padding(horizontal = TextColumnStart, vertical = Space.m + Space.xs)) {
-        Row(verticalAlignment = Alignment.Top) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        OptionTop(stats = digitalStats(h)) {
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 WhoLine(o.ref.provider.displayName, o.library.name.takeIf { multiLibrary })
                 // Status words only where there is no number to say it.
                 val tags = buildList<@Composable () -> Unit> {
@@ -177,7 +177,6 @@ private fun DigitalOption(o: OptionUi, multiLibrary: Boolean, onBorrow: (Library
                     FlowRow(Modifier.padding(vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) { tags.forEach { it() } }
                 }
                 if (m.otherLanguage) Text(h.title, style = MaterialTheme.typography.bodyMedium, color = muted)
-                if (h.availabilityKnown) Text(detailLine(m), style = MaterialTheme.typography.bodyMedium, color = muted)
                 val meta = listOfNotNull(
                     o.ref.borrowLimitPerMonth?.takeIf { !h.availabilityKnown }?.let { pluralStringResource(R.plurals.hoopla_limit_short, it, it) },
                     o.moreEditions.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.more_editions, it, it) },
@@ -185,7 +184,6 @@ private fun DigitalOption(o: OptionUi, multiLibrary: Boolean, onBorrow: (Library
                 )
                 meta.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = muted) }
             }
-            HeadlineNumber(m)
         }
         val label = stringResource(
             when {
@@ -214,6 +212,97 @@ private fun OptionAction(label: String, strong: Boolean, onClick: () -> Unit) {
 }
 
 private const val BRANCHES_SHOWN = 3
+private const val MAX_WAIT = 365
+
+/** One number in an option's figures: value over a small label. The primary one decides. */
+private data class Stat(val value: Int?, val label: String, val primary: Boolean = false, val suffix: String = "")
+
+/** Copies · holds · then what decides it: days to wait, or copies free now. */
+@Composable
+private fun digitalStats(h: com.mardev.nearshelf.core.model.Holding): List<Stat>? {
+    if (!h.availabilityKnown) return null // hoopla gives no numbers
+    val copies = h.owned
+    val holds = h.holds
+    val primary = when {
+        h.isAvailableNow -> (h.available ?: 1).let { Stat(it, pluralStringResource(R.plurals.caption_available, it), primary = true) }
+        h.waitDays != null -> Stat(
+            h.waitDays!!.coerceAtMost(MAX_WAIT),
+            pluralStringResource(R.plurals.caption_days_wait, h.waitDays!!),
+            primary = true,
+            // OverDrive's estimate can run to thousands of days when one copy has hundreds of holds.
+            suffix = if (h.waitDays!! > MAX_WAIT) "+" else "",
+        )
+        else -> Stat(null, pluralStringResource(R.plurals.caption_days_wait, 2), primary = true)
+    }
+    return listOf(
+        Stat(copies, pluralStringResource(R.plurals.stat_copies, copies ?: 2)),
+        Stat(holds, pluralStringResource(R.plurals.stat_holds, holds ?: 2)),
+        primary,
+    )
+}
+
+/** Copies · holds · on the shelf now. */
+@Composable
+private fun printStats(h: com.mardev.nearshelf.core.model.Holding, onShelf: Int?): List<Stat>? {
+    if (!h.availabilityKnown) return null
+    val copies = h.owned ?: h.copies.size.takeUnless { h.branchLevelOnly || h.copies.isEmpty() }
+    return listOf(
+        Stat(copies, pluralStringResource(R.plurals.stat_copies, copies ?: 2)),
+        Stat(h.holds, pluralStringResource(R.plurals.stat_holds, h.holds ?: 2)),
+        Stat(onShelf, stringResource(if (h.branchLevelOnly) R.string.caption_branches_on_shelf else R.string.caption_on_shelf), primary = true),
+    )
+}
+
+/**
+ * Who on the left, the figures on the right in fixed-width columns, so numbers line up
+ * from row to row like a table. At large font sizes the figures go under the name.
+ */
+@Composable
+private fun OptionTop(stats: List<Stat>?, left: @Composable () -> Unit) {
+    val stacked = androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.5f
+    if (stats == null) { left(); return }
+    if (stacked) {
+        Column {
+            left()
+            StatsCluster(stats, Modifier.padding(top = Space.s), fixedColumns = false)
+        }
+    } else {
+        Row(verticalAlignment = Alignment.Top) {
+            Box(Modifier.weight(1f)) { left() }
+            Spacer(Modifier.width(Space.s))
+            StatsCluster(stats)
+        }
+    }
+}
+
+@Composable
+private fun StatsCluster(stats: List<Stat>, modifier: Modifier = Modifier, fixedColumns: Boolean = true) {
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    // Bottom-aligned: every label sits on one line, every number directly above its label.
+    Row(modifier, verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(if (fixedColumns) 0.dp else Space.l)) {
+        stats.forEach { st ->
+            val col = if (fixedColumns) Modifier.width(if (st.primary) 72.dp else 52.dp) else Modifier
+            Column(col, horizontalAlignment = if (fixedColumns) Alignment.End else Alignment.Start) {
+                when {
+                    st.value == null -> Text("–", style = if (st.primary) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.titleMedium, color = muted)
+                    st.primary -> CountUp(
+                        st.value,
+                        suffix = st.suffix,
+                        // Lining figures, so numbers sit on the baseline whatever the font's default.
+                        style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "lnum"),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    else -> Text(
+                        st.value.toString(),
+                        // Tabular figures keep columns aligned; baseline-matched to the big number.
+                        style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
+                    )
+                }
+                Text(st.label, style = MaterialTheme.typography.labelSmall, color = muted, maxLines = 1, softWrap = false)
+            }
+        }
+    }
+}
 
 /** Print: copies at this library's catalog, nearest or home branch first, the rest on request. */
 @OptIn(ExperimentalLayoutApi::class)
@@ -225,9 +314,10 @@ private fun PrintOption(o: OptionUi, multiLibrary: Boolean, here: LatLng?, onBor
     val branches = remember(h.copies, o.library.homeBranch?.name, here) { summarizeBranches(h.copies, o.library.homeBranch?.name, here) }
     var expanded by rememberSaveable(o.library.id, h.providerItemId) { mutableStateOf(false) }
     val onShelfNow = h.isBorrowableNow()
+    val onShelf = branches.sumOf { it.onShelf }.takeIf { h.copies.isNotEmpty() } ?: h.available
     Column(Modifier.fillMaxWidth().padding(horizontal = TextColumnStart, vertical = Space.m + Space.xs)) {
-        Row(verticalAlignment = Alignment.Top) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        OptionTop(stats = printStats(h, onShelf)) {
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 WhoLine(if (multiLibrary) o.library.name else stringResource(R.string.print_catalog), null)
                 val tags = buildList<@Composable () -> Unit> {
                     if (!h.availabilityKnown) add { Badge(stringResource(R.string.badge_unknown), variant = BadgeVariant.Secondary, size = BadgeSize.Sm) }
@@ -238,29 +328,8 @@ private fun PrintOption(o: OptionUi, multiLibrary: Boolean, here: LatLng?, onBor
                 if (tags.isNotEmpty()) {
                     FlowRow(Modifier.padding(vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) { tags.forEach { it() } }
                 }
-                val owned = h.owned ?: h.copies.size.takeUnless { h.branchLevelOnly } ?: 0
-                if (owned > 0) {
-                    val copies = pluralStringResource(R.plurals.copies, owned, owned)
-                    Text(
-                        h.holds?.takeIf { it > 0 }?.let { stringResource(R.string.detail_waitlist, pluralStringResource(R.plurals.holds, it, it), copies) } ?: copies,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = muted,
-                    )
-                }
                 if (o.moreEditions > 0) Text(pluralStringResource(R.plurals.more_editions, o.moreEditions, o.moreEditions), style = MaterialTheme.typography.bodySmall, color = muted)
                 o.staleSince?.let { Text(stringResource(R.string.results_saved_from, relativeTimeText(it)), style = MaterialTheme.typography.bodySmall, color = muted) }
-            }
-            val onShelf = branches.sumOf { it.onShelf }.takeIf { h.copies.isNotEmpty() } ?: h.available
-            if (onShelf != null && h.availabilityKnown) {
-                Spacer(Modifier.width(Space.m))
-                Column(horizontalAlignment = Alignment.End) {
-                    CountUp(onShelf, style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "lnum"), color = MaterialTheme.colorScheme.primary)
-                    Text(
-                        stringResource(if (h.branchLevelOnly) R.string.caption_branches_on_shelf else R.string.caption_on_shelf),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = muted,
-                    )
-                }
             }
         }
         if (branches.isNotEmpty()) {
