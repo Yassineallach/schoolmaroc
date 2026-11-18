@@ -232,6 +232,14 @@
     <string name="about_trademarks">Libby and OverDrive are trademarks of OverDrive, Inc. hoopla is a trademark of Midwest Tape, LLC. Other names belong to their owners and are used only to describe compatibility.</string>
     <string name="action_close">Close</string>
 
+    <!-- Release polish: states -->
+    <string name="results_all_failed_title">Couldn’t reach your libraries</string>
+    <string name="results_all_failed_body">None of the catalogs answered. They may be busy; try again in a moment.</string>
+    <string name="results_all_failed_offline">You’re offline and there are no saved results for this book yet.</string>
+    <string name="action_retry_all">Retry all</string>
+    <string name="scanner_no_camera_title">No camera found</string>
+    <string name="scanner_no_camera_body">This device has no back camera to scan with. You can type the title or ISBN instead.</string>
+
     <!-- Accessibility -->
     <string name="cd_reading_preferences">Reading preferences</string>
     <string name="cd_remove_history">Remove %1$s from history</string>

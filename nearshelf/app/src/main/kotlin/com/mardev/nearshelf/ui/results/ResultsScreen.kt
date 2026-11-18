@@ -181,6 +181,27 @@ fun ResultsScreen(
                 }
             }
             item(key = "header") { BookHeaderView(state, watched, onWatch) }
+            val services = libraries.flatMap { lr -> lr.services.map { lr.library.id to it } }
+            val allFailed = services.isNotEmpty() && state.finished == state.total && services.none { it.second.state is ServiceState.Done }
+            if (allFailed) {
+                item(key = "allFailed") {
+                    androidx.compose.material3.Card(
+                        colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                    ) {
+                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(stringResource(R.string.results_all_failed_title), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onErrorContainer)
+                            Text(
+                                stringResource(if (offline) R.string.results_all_failed_offline else R.string.results_all_failed_body),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                            )
+                            androidx.compose.material3.Button(onClick = { services.forEach { (id, svc) -> vm.retry(id, svc.ref) } }) {
+                                Text(stringResource(R.string.action_retry_all))
+                            }
+                        }
+                    }
+                }
+            }
             val hasPrint = libraries.any { lr -> lr.services.any { it.ref.provider.kind == ProviderId.Kind.PHYSICAL } }
             if (hasPrint && here == null && !vm.hasLocationPermission && !askedLocation) {
                 item(key = "location") {

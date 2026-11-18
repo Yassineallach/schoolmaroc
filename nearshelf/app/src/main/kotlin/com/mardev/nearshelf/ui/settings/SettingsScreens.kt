@@ -103,7 +103,7 @@ fun SettingsScreen(
 @Composable
 private fun SettingRow(@DrawableRes icon: Int, title: String, subtitle: String?, onClick: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 10.dp),
+        Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onClick).padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(painterResource(icon), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
@@ -173,7 +173,7 @@ fun LicencesScreen(onBack: () -> Unit) {
             items(LICENCES) { l ->
                 Column(
                     Modifier.fillMaxWidth().heightIn(min = 56.dp)
-                        .then(if (l.asset != null) Modifier.clickable { open = l.asset } else Modifier)
+                        .then(if (l.asset != null) Modifier.clickable(role = androidx.compose.ui.semantics.Role.Button) { open = l.asset } else Modifier)
                         .padding(horizontal = 20.dp, vertical = 10.dp),
                 ) {
                     Text(l.name, style = MaterialTheme.typography.bodyLarge)

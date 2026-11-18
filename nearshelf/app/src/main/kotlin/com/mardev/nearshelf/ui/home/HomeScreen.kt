@@ -65,6 +65,8 @@ fun HomeScreen(
     val input by vm.input.collectAsStateWithLifecycle()
     val libraries by vm.libraries.collectAsStateWithLifecycle()
     val keyboard = LocalSoftwareKeyboardController.current
+    val hasCamera = androidx.compose.ui.platform.LocalContext.current.packageManager
+        .hasSystemFeature(android.content.pm.PackageManager.FEATURE_CAMERA_ANY)
     LaunchedEffect(prefill) {
         if (prefill != null) {
             vm.input.value = prefill
@@ -120,7 +122,7 @@ fun HomeScreen(
                         IconButton(onClick = { vm.input.value = "" }) {
                             Icon(painterResource(R.drawable.ic_x), stringResource(R.string.cd_clear))
                         }
-                    } else {
+                    } else if (hasCamera) {
                         IconButton(onClick = onScan) {
                             Icon(painterResource(R.drawable.ic_barcode), stringResource(R.string.cd_scan_barcode))
                         }
@@ -142,7 +144,7 @@ fun HomeScreen(
                 ) {
                     Text(stringResource(R.string.search_action))
                 }
-                OutlinedButton(
+                if (hasCamera) OutlinedButton(
                     onClick = onScan,
                     enabled = libraries?.isNotEmpty() == true,
                     modifier = Modifier.heightIn(min = 52.dp),

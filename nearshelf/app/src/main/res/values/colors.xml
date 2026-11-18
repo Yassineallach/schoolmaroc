@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="window_background">#FFFBF7F0</color>
-    <color name="ic_launcher_background">#FF1F4E3D</color>
+    <color name="ic_launcher_background">#FF7C3A10</color>
     <color name="ad_surface">#FFF5F0E8</color>
     <color name="ad_outline">#FFE2DCD3</color>
     <color name="ad_text">#FF1C1917</color>

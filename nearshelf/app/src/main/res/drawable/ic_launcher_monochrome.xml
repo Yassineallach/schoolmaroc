@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed-icon layer (Android 13+): one colour, the pin's hole cut out with evenOdd. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#FF000000" android:pathData="M32.5,43h6a1.5,1.5 0,0 1,1.5 1.5v27.5h-9v-27.5a1.5,1.5 0,0 1,1.5 -1.5z" />
+    <path android:fillColor="#FF000000" android:pathData="M43.5,37h6a1.5,1.5 0,0 1,1.5 1.5v33.5h-9v-33.5a1.5,1.5 0,0 1,1.5 -1.5z" />
+    <path android:fillColor="#FF000000" android:fillType="evenOdd"
+        android:pathData="M64,71.5C60,63 52.5,56.5 52.5,47.5A11.5,11.5 0,0 1,75.5 47.5C75.5,56.5 68,63 64,71.5Z M64,47.5m-4.6,0a4.6,4.6 0,1 0,9.2 0a4.6,4.6 0,1 0,-9.2 0" />
+    <path android:fillColor="#FF000000" android:pathData="M32,72h44a2,2 0,0 1,2 2v0a2,2 0,0 1,-2 2h-44a2,2 0,0 1,-2 -2v0a2,2 0,0 1,2 -2z" />
+</vector>

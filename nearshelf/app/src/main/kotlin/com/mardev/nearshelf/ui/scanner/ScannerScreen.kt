@@ -119,6 +119,7 @@ private fun CameraScanner(onIsbn: (String) -> Unit, onTypeInstead: () -> Unit, m
     var camera by remember { mutableStateOf<Camera?>(null) }
     var torchOn by remember { mutableStateOf(false) }
     var notABookAt by remember { mutableLongStateOf(0L) }
+    var noCamera by remember { mutableStateOf(false) }
 
     val analyzer = remember {
         IsbnAnalyzer(
@@ -136,7 +137,15 @@ private fun CameraScanner(onIsbn: (String) -> Unit, onTypeInstead: () -> Unit, m
             .build()
             .apply { setAnalyzer(executor, analyzer) }
         provider.unbindAll()
-        camera = provider.bindToLifecycle(lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, preview, analysis)
+        camera = try {
+            provider.bindToLifecycle(lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, preview, analysis)
+        } catch (e: IllegalArgumentException) {
+            noCamera = true // no back camera on this device
+            null
+        } catch (e: IllegalStateException) {
+            noCamera = true
+            null
+        }
     }
     DisposableEffect(Unit) {
         onDispose {
@@ -153,6 +162,15 @@ private fun CameraScanner(onIsbn: (String) -> Unit, onTypeInstead: () -> Unit, m
         showNotABook = false
     }
 
+    if (noCamera) {
+        Column(modifier) {
+            EmptyState(R.drawable.ic_camera, stringResource(R.string.scanner_no_camera_title), stringResource(R.string.scanner_no_camera_body))
+            OutlinedButton(onClick = onTypeInstead, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text(stringResource(R.string.scanner_type_instead))
+            }
+        }
+        return
+    }
     Box(modifier.fillMaxSize().background(Color.Black)) {
         surfaceRequest?.let { CameraXViewfinder(surfaceRequest = it, modifier = Modifier.fillMaxSize()) }
         // Aiming frame shaped like a book barcode.
