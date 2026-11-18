@@ -30,6 +30,25 @@ Needs JDK 17+ and an Android SDK with platform 37 (`sdk.dir` in `local.propertie
 ./gradlew :core:test -Pnearshelf.live=true --tests '*LiveTest'   # hits real endpoints
 ```
 
+## Library registry
+
+`app/src/main/assets/libraries.json` maps libraries to their catalog systems, Libby key,
+Hoopla id and branches. Rebuild and check it with:
+
+```
+python3 tools/registry/build_registry.py          # ~15 min, one request per second; writes report.md
+python3 tools/registry/build_registry.py --update "Seattle"   # redo matching rows only
+python3 tools/registry/validate_registry.py
+```
+
+Add libraries in `tools/registry/seed.csv`. A catalog candidate is kept only if its software
+is recognised and its page title names the library; prefix a URL with `!` only after checking
+by hand that it belongs to that library (generic titles like "Vega Discover").
+
+**Weekly updates:** publish `libraries.json` in a public repo and set its raw URL in
+`gradle.properties` as `nearshelf.registryUrl=https://raw.githubusercontent.com/<you>/<repo>/main/libraries.json`.
+The app downloads it at most once a week and falls back to the bundled copy.
+
 ## Verified endpoints
 
 | Provider | Endpoint | Verified |
@@ -44,6 +63,7 @@ Needs JDK 17+ and an Android SDK with platform 37 (`sdk.dir` in `local.propertie
 | Hoopla libraries | `GET https://patron-api-gateway.hoopladigital.com/core/libraries/autocomplete?query=…` (headers `app: WWW`, `ws-api: 2.1`) | 2026-11-18 |
 | Hoopla search | `POST https://patron-api-gateway.hoopladigital.com/graphql` `search(criteria:{q, pagination})`, whole catalog, no login | 2026-11-18 |
 | Hoopla deep link / covers | `https://www.hoopladigital.com/title/{id}` (App Link to `com.hoopladigital.android`); `https://cover.hoopladigital.com/{artKey}_270.jpeg` | 2026-11-18 |
+| Libby branches | `GET https://locate.libbyapp.com/branches/{websiteId}`: every branch with address and coordinates (Toronto: 103) | 2026-11-18 |
 | Libby title deep link | `https://libbyapp.com/library/{key}/title/{id}` (Libby router's `title-redirect-controller`; libbyapp.com `assetlinks.json` delegates to `com.overdrive.mobile.android.libby`) | 2026-11-17 |
 
 ## Milestones
@@ -52,7 +72,7 @@ Needs JDK 17+ and an Android SDK with platform 37 (`sdk.dir` in `local.propertie
 2. [x] Core: library management, search, `BookMatcher`, streaming Results, Libby deep links
 3. [x] Share sheet, barcode scanner, Open Library ISBN expansion
 4. [x] Hoopla (see docs/providers/hoopla.md)
-5. [ ] Library registry, URL auto-detection, registry build script, home branch
+5. [x] Library registry, URL auto-detection, registry build script, home branch
 6. [ ] BiblioCommons, Koha
 7. [ ] Evergreen, Aspen, Polaris, Sierra
 8. [ ] Location sorting, watchlist, notifications, caching, rate limiting, provider health
