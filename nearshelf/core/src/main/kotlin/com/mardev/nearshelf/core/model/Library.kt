@@ -15,7 +15,11 @@ data class Library(
     val countryCode: String? = null,
     val services: List<LibraryRef>,
     val homeBranchId: String? = null,
+    /** Physical branches, from the library registry. Empty when unknown. */
+    val branches: List<Branch> = emptyList(),
 ) {
+    val homeBranch: Branch? get() = branches.firstOrNull { it.id == homeBranchId }
+
     val digitalServices get() = services.filter { it.provider.kind == ProviderId.Kind.DIGITAL }
     val physicalServices get() = services.filter { it.provider.kind == ProviderId.Kind.PHYSICAL }
 

@@ -1,0 +1,17 @@
+{
+ "bibliocommons_seattle": "https://seattle.bibliocommons.com/",
+ "bibliocommons_toronto": "https://tpl.bibliocommons.com/",
+ "bibliocommons_chicago": "https://chipublib.bibliocommons.com/",
+ "evergreen_pines": "https://gapines.org/eg/opac/home",
+ "evergreen_cwmars": "https://bark.cwmars.org/eg/opac/home",
+ "evergreen_pines_eg2": "https://gapines.org/eg2/en-US/catalog",
+ "aspen_owwl": "https://search.owwl.org/",
+ "polaris_hillsborough": "https://catalog.hcplc.org/polaris/",
+ "polaris_brentwood": "https://catalog.brentwoodtn.gov/polaris/",
+ "vega_nypl": "https://nypl.na2.iiivega.com/",
+ "vega_suffolk": "https://livebrarykids-suffc.na.iiivega.com/",
+ "koha_portsmouth": "https://portsmouth.bywatersolutions.com/",
+ "koha_pillsbury": "https://pillsbury.nhais.bywatersolutions.com/",
+ "sierra_webpac_cincinnati": "https://classic.cincinnatilibrary.org/",
+ "sierra_webpac_cincinnati_search": "https://classic.cincinnatilibrary.org/search~S1/?searchtype=t&searcharg=hobbit"
+}
