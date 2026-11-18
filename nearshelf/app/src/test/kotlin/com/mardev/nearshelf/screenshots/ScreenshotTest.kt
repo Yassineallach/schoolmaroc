@@ -52,6 +52,7 @@ import com.mardev.nearshelf.ui.settings.SettingsContent
 import com.mardev.nearshelf.ui.settings.PrivacyContent
 import com.mardev.nearshelf.ui.settings.LicencesScreen
 import com.mardev.nearshelf.ui.prefs.PreferencesContent
+import com.mardev.nearshelf.ui.prefs.PrefsDialog
 import com.mardev.nearshelf.ui.theme.NearshelfTheme
 import org.junit.Rule
 import org.junit.Test
@@ -206,6 +207,24 @@ class ScreenshotTest(private val device: Device) {
 
     @Test fun preferences() = shot("preferences") {
         PreferencesContent(ReadingPrefs(languages = setOf("en", "fr")), {}, {}, {}, {})
+    }
+
+    @Test fun preferencesFormatDialog() = dialogShot("preferences_format") {
+        PreferencesContent(ReadingPrefs(languages = setOf("en", "fr")), {}, {}, {}, {}, initialDialog = PrefsDialog.FORMAT)
+    }
+
+    @Test fun preferencesLanguagesDialog() = dialogShot("preferences_languages") {
+        PreferencesContent(ReadingPrefs(languages = setOf("en", "fr")), {}, {}, {}, {}, initialDialog = PrefsDialog.LANGUAGES)
+    }
+
+    /** Dialogs live in their own window, so capture the whole screen. */
+    @OptIn(com.github.takahirom.roborazzi.ExperimentalRoborazziApi::class)
+    private fun dialogShot(screen: String, content: @Composable () -> Unit) {
+        org.robolectric.RuntimeEnvironment.setQualifiers(device.qualifiers)
+        org.robolectric.RuntimeEnvironment.setFontScale(device.fontScale)
+        compose.setContent { NearshelfTheme(darkTheme = device.dark) { content() } }
+        compose.waitForIdle()
+        com.github.takahirom.roborazzi.captureScreenRoboImage("build/outputs/roborazzi/${screen}_${device.name}.png")
     }
 
     @Test fun privacy() = shot("privacy") {

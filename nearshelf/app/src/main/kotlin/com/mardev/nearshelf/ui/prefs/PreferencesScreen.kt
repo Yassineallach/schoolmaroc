@@ -1,12 +1,24 @@
 package com.mardev.nearshelf.ui.prefs
 
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import com.mardev.nearshelf.ui.components.NearshelfTopBar
 import com.mardev.nearshelf.ui.components.SectionHeader
@@ -15,7 +27,6 @@ import com.mardev.nearshelf.ui.theme.Space
 import com.mardev.nearshelf.ui.components.readableWidth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,7 +38,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -81,8 +91,13 @@ fun PreferencesScreen(onBack: () -> Unit, vm: PreferencesViewModel = hiltViewMod
     PreferencesContent(prefs, onBack, onFormat = vm::setFormat, onToggleLanguage = vm::toggleLanguage, onShowOther = vm::setShowOther)
 }
 
-/** Stateless preferences UI (rendered in the screenshot tests). */
-@OptIn(ExperimentalLayoutApi::class)
+/** Which preferences pop-up is open. */
+internal enum class PrefsDialog { FORMAT, LANGUAGES }
+
+/**
+ * Stateless preferences UI (rendered in the screenshot tests): two summary rows that open
+ * pop-ups (format: pick one; languages: pick several), then the other-languages switch.
+ */
 @Composable
 internal fun PreferencesContent(
     prefs: ReadingPrefs?,
@@ -90,76 +105,37 @@ internal fun PreferencesContent(
     onFormat: (Format?) -> Unit,
     onToggleLanguage: (String) -> Unit,
     onShowOther: (Boolean) -> Unit,
+    initialDialog: PrefsDialog? = null,
 ) {
     val colors = MaterialTheme.colorScheme
+    var dialog by rememberSaveable { mutableStateOf(initialDialog) }
     Scaffold(
         topBar = { NearshelfTopBar(stringResource(R.string.prefs_title), onBack = onBack) },
         containerColor = colors.background,
     ) { padding ->
         val p = prefs ?: return@Scaffold
-        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(bottom = Space.xxl)) {
-            item { SectionHeader(stringResource(R.string.prefs_format_heading)) }
+        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(top = Space.s, bottom = Space.xxl)) {
             item {
-                Column(Modifier.selectableGroup()) {
-                    listOf(null to R.string.prefs_format_any, Format.EBOOK to R.string.format_ebook, Format.AUDIOBOOK to R.string.format_audiobook, Format.PHYSICAL to R.string.format_physical)
-                        .forEach { (f, label) ->
-                            Row(
-                                Modifier.fillMaxWidth().heightIn(min = 52.dp)
-                                    .selectable(selected = p.preferredFormat == f, role = Role.RadioButton) { onFormat(f) }
-                                    .padding(horizontal = Gutter - 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                RadioButton(selected = p.preferredFormat == f, onClick = null, modifier = Modifier.padding(horizontal = 12.dp))
-                                Text(stringResource(label), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = Space.xs))
-                            }
-                        }
-                }
-            }
-            item { SectionHeader(stringResource(R.string.prefs_languages_heading), Modifier.padding(top = Space.l)) }
-            item {
-                Text(
-                    stringResource(R.string.prefs_languages_body),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant,
-                    modifier = Modifier.padding(start = Gutter, end = Gutter, bottom = Space.m),
+                PickerRow(
+                    icon = R.drawable.ic_books,
+                    title = stringResource(R.string.prefs_format_heading),
+                    value = stringResource(formatLabel(p.preferredFormat)),
+                    onClick = { dialog = PrefsDialog.FORMAT },
                 )
             }
             item {
-                FlowRow(
-                    Modifier.padding(horizontal = Gutter),
-                    horizontalArrangement = Arrangement.spacedBy(Space.s),
-                    verticalArrangement = Arrangement.spacedBy(Space.s),
-                ) {
-                    (LANGUAGES + (p.languages - LANGUAGES.toSet())).forEach { code ->
-                        val name = Locale.forLanguageTag(code).let { it.getDisplayLanguage(it) }.replaceFirstChar { it.titlecase() }
-                        val selected = code in p.languages
-                        FilterChip(
-                            selected = selected,
-                            onClick = { onToggleLanguage(code) },
-                            label = { Text(name, style = MaterialTheme.typography.labelLarge) },
-                            leadingIcon = if (selected) {
-                                { Icon(painterResource(R.drawable.ic_check), null, modifier = Modifier.size(16.dp)) }
-                            } else null,
-                            shape = MaterialTheme.shapes.small,
-                            colors = FilterChipDefaults.filterChipColors(
-                                containerColor = Color.Transparent,
-                                labelColor = colors.onSurface,
-                                selectedContainerColor = colors.primaryContainer,
-                                selectedLabelColor = colors.onPrimaryContainer,
-                                selectedLeadingIconColor = colors.onPrimaryContainer,
-                            ),
-                            border = FilterChipDefaults.filterChipBorder(
-                                enabled = true,
-                                selected = selected,
-                                borderColor = colors.outlineVariant,
-                                selectedBorderColor = colors.primaryContainer,
-                            ),
-                        )
-                    }
-                }
+                PickerRow(
+                    icon = R.drawable.ic_language,
+                    title = stringResource(R.string.prefs_languages_heading),
+                    value = p.languages.takeIf { it.isNotEmpty() }
+                        ?.let { codes -> orderedLanguages(codes).filter { it in codes }.joinToString(", ") { languageName(it) } }
+                        ?: stringResource(R.string.prefs_languages_none),
+                    onClick = { dialog = PrefsDialog.LANGUAGES },
+                    divider = false,
+                )
             }
             item {
-                HorizontalDivider(Modifier.padding(horizontal = Gutter, vertical = Space.xl), color = colors.outlineVariant)
+                HorizontalDivider(Modifier.padding(horizontal = Gutter, vertical = Space.l), color = colors.outlineVariant)
             }
             item {
                 Row(
@@ -170,7 +146,7 @@ internal fun PreferencesContent(
                 ) {
                     Column(Modifier.weight(1f).padding(end = Space.l), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(stringResource(R.string.prefs_show_other), style = MaterialTheme.typography.titleMedium)
-                        Text(stringResource(R.string.prefs_show_other_body), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
+                        Text(stringResource(R.string.prefs_languages_body), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
                     }
                     Switch(
                         checked = p.showOtherLanguages,
@@ -185,5 +161,134 @@ internal fun PreferencesContent(
                 }
             }
         }
+        when (dialog) {
+            PrefsDialog.FORMAT -> FormatDialog(
+                selected = p.preferredFormat,
+                onPick = {
+                    onFormat(it)
+                    dialog = null
+                },
+                onDismiss = { dialog = null },
+            )
+            PrefsDialog.LANGUAGES -> LanguagesDialog(
+                selected = p.languages,
+                onToggle = onToggleLanguage,
+                onDismiss = { dialog = null },
+            )
+            null -> Unit
+        }
     }
+}
+
+private val FORMATS = listOf(null, Format.EBOOK, Format.AUDIOBOOK, Format.PHYSICAL)
+
+private fun formatLabel(f: Format?) = when (f) {
+    null -> R.string.prefs_format_any
+    Format.EBOOK -> R.string.format_ebook
+    Format.AUDIOBOOK -> R.string.format_audiobook
+    Format.PHYSICAL, Format.OTHER -> R.string.format_physical
+}
+
+private fun orderedLanguages(selected: Set<String>) = LANGUAGES + (selected - LANGUAGES.toSet())
+
+private fun languageName(code: String) =
+    Locale.forLanguageTag(code).let { it.getDisplayLanguage(it) }.replaceFirstChar { it.titlecase() }
+
+/** Setting title with its current value underneath; opens a pop-up. */
+@Composable
+private fun PickerRow(@DrawableRes icon: Int, title: String, value: String, onClick: () -> Unit, divider: Boolean = true) {
+    Column {
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 64.dp).clickable(role = Role.Button, onClickLabel = title, onClick = onClick)
+                .padding(horizontal = Gutter, vertical = Space.m),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(painterResource(icon), null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(22.dp))
+            Spacer(Modifier.width(Space.l + 2.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(title, style = MaterialTheme.typography.titleMedium)
+                Text(value, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            }
+            Icon(painterResource(R.drawable.ic_caret_right), null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(18.dp))
+        }
+        if (divider) HorizontalDivider(Modifier.padding(start = Gutter + 40.dp, end = Gutter), color = MaterialTheme.colorScheme.outlineVariant)
+    }
+}
+
+/** Pick one: tapping a format applies it and closes, as Android's single-choice dialogs do. */
+@Composable
+private fun FormatDialog(selected: Format?, onPick: (Format?) -> Unit, onDismiss: () -> Unit) {
+    PrefsDialogFrame(
+        title = stringResource(R.string.prefs_format_heading),
+        body = stringResource(R.string.prefs_format_dialog_body),
+        confirm = stringResource(R.string.action_close),
+        onDismiss = onDismiss,
+    ) {
+        Column(Modifier.selectableGroup()) {
+            FORMATS.forEach { f ->
+                ChoiceRow(stringResource(formatLabel(f)), checked = selected == f, role = Role.RadioButton, onClick = { onPick(f) }) {
+                    RadioButton(selected = selected == f, onClick = null)
+                }
+            }
+        }
+    }
+}
+
+/** Pick several: each tap applies at once; Done closes. */
+@Composable
+private fun LanguagesDialog(selected: Set<String>, onToggle: (String) -> Unit, onDismiss: () -> Unit) {
+    PrefsDialogFrame(
+        title = stringResource(R.string.prefs_languages_heading),
+        body = null,
+        confirm = stringResource(R.string.action_done),
+        onDismiss = onDismiss,
+    ) {
+        // Fixed height so the dialog doesn't jump; the list scrolls inside it.
+        LazyColumn(Modifier.heightIn(max = 380.dp)) {
+            items(orderedLanguages(selected), key = { it }) { code ->
+                val on = code in selected
+                ChoiceRow(languageName(code), checked = on, role = Role.Checkbox, onClick = { onToggle(code) }) {
+                    Checkbox(checked = on, onCheckedChange = null, colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChoiceRow(label: String, checked: Boolean, role: Role, onClick: () -> Unit, control: @Composable () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(MaterialTheme.shapes.small)
+            .then(
+                if (role == Role.RadioButton) Modifier.selectable(selected = checked, role = role, onClick = onClick)
+                else Modifier.toggleable(value = checked, role = role, onValueChange = { onClick() }),
+            )
+            .padding(horizontal = Space.xs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        control()
+        Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = Space.m))
+    }
+}
+
+/** The app's dialog: page-coloured, 16 dp corners, serif title, one text action. */
+@Composable
+private fun PrefsDialogFrame(title: String, body: String?, confirm: String, onDismiss: () -> Unit, content: @Composable () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onDismiss) { Text(confirm, style = MaterialTheme.typography.labelLarge) } },
+        title = { Text(title, style = MaterialTheme.typography.titleLarge) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(Space.m)) {
+                body?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                content()
+            }
+        },
+        // Paper on the light theme; one step above the page at night so the pop-up separates.
+        containerColor = MaterialTheme.colorScheme.run { if (background.luminance() > 0.5f) background else surfaceContainerHigh },
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurface,
+        shape = MaterialTheme.shapes.large,
+        tonalElevation = 0.dp,
+    )
 }
