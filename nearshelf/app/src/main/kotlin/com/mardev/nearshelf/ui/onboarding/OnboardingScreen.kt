@@ -27,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -60,52 +61,55 @@ fun OnboardingScreen(onAddLibrary: () -> Unit, onDone: () -> Unit) {
     val notifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { notificationsAsked = true }
     val pageText = stringResource(R.string.onboarding_page, pager.currentPage + 1, 3)
 
-    Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
-        Row(Modifier.fillMaxWidth().padding(8.dp)) {
-            Spacer(Modifier.weight(1f))
-            TextButton(onClick = onDone) { Text(stringResource(R.string.onboarding_skip)) }
-        }
-        HorizontalPager(pager, Modifier.weight(1f)) { page ->
-            when (page) {
-                0 -> Page(R.drawable.ic_books, stringResource(R.string.onboarding_1_title), stringResource(R.string.onboarding_1_body))
-                1 -> Page(R.drawable.ic_library, stringResource(R.string.onboarding_2_title), stringResource(R.string.onboarding_2_body)) {
-                    Button(onClick = onAddLibrary, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.libraries_add)) }
-                }
-                else -> Page(R.drawable.ic_map_pin, stringResource(R.string.onboarding_3_title), stringResource(R.string.onboarding_3_body)) {
-                    OutlinedButton(
-                        onClick = { location.launch(Manifest.permission.ACCESS_COARSE_LOCATION) },
-                        enabled = !locationAsked,
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                    ) { Text(stringResource(R.string.onboarding_allow_location)) }
-                    if (Build.VERSION.SDK_INT >= 33) {
-                        OutlinedButton(
-                            onClick = { notifications.launch(Manifest.permission.POST_NOTIFICATIONS) },
-                            enabled = !notificationsAsked,
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                        ) { Text(stringResource(R.string.onboarding_allow_notifications)) }
+    // Own surface, so text and background follow the theme wherever the screen is hosted.
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
+            Row(Modifier.fillMaxWidth().padding(8.dp)) {
+                Spacer(Modifier.weight(1f))
+                TextButton(onClick = onDone) { Text(stringResource(R.string.onboarding_skip)) }
+            }
+            HorizontalPager(pager, Modifier.weight(1f)) { page ->
+                when (page) {
+                    0 -> Page(R.drawable.ic_books, stringResource(R.string.onboarding_1_title), stringResource(R.string.onboarding_1_body))
+                    1 -> Page(R.drawable.ic_library, stringResource(R.string.onboarding_2_title), stringResource(R.string.onboarding_2_body)) {
+                        Button(onClick = onAddLibrary, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.libraries_add)) }
                     }
-                    Text(stringResource(R.string.onboarding_3_later), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+                    else -> Page(R.drawable.ic_map_pin, stringResource(R.string.onboarding_3_title), stringResource(R.string.onboarding_3_body)) {
+                        OutlinedButton(
+                            onClick = { location.launch(Manifest.permission.ACCESS_COARSE_LOCATION) },
+                            enabled = !locationAsked,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                        ) { Text(stringResource(R.string.onboarding_allow_location)) }
+                        if (Build.VERSION.SDK_INT >= 33) {
+                            OutlinedButton(
+                                onClick = { notifications.launch(Manifest.permission.POST_NOTIFICATIONS) },
+                                enabled = !notificationsAsked,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            ) { Text(stringResource(R.string.onboarding_allow_notifications)) }
+                        }
+                        Text(stringResource(R.string.onboarding_3_later), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+                    }
                 }
             }
-        }
-        Row(
-            Modifier.fillMaxWidth().padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Row(Modifier.weight(1f).semantics(mergeDescendants = true) { contentDescription = pageText }, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                repeat(3) { i ->
-                    Box(
-                        Modifier.size(if (i == pager.currentPage) 10.dp else 8.dp).clip(CircleShape)
-                            .background(if (i == pager.currentPage) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
-                    )
+            Row(
+                Modifier.fillMaxWidth().padding(20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(Modifier.weight(1f).semantics(mergeDescendants = true) { contentDescription = pageText }, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    repeat(3) { i ->
+                        Box(
+                            Modifier.size(if (i == pager.currentPage) 10.dp else 8.dp).clip(CircleShape)
+                                .background(if (i == pager.currentPage) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
+                        )
+                    }
                 }
-            }
-            if (pager.currentPage < 2) {
-                Button(onClick = { scope.launch { pager.animateScrollToPage(pager.currentPage + 1) } }, modifier = Modifier.heightIn(min = 48.dp)) {
-                    Text(stringResource(R.string.onboarding_next))
+                if (pager.currentPage < 2) {
+                    Button(onClick = { scope.launch { pager.animateScrollToPage(pager.currentPage + 1) } }, modifier = Modifier.heightIn(min = 48.dp)) {
+                        Text(stringResource(R.string.onboarding_next))
+                    }
+                } else {
+                    Button(onClick = onDone, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.onboarding_done)) }
                 }
-            } else {
-                Button(onClick = onDone, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.onboarding_done)) }
             }
         }
     }
