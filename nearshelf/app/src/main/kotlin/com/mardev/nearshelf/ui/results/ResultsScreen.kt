@@ -283,17 +283,26 @@ private fun HoldingRow(ref: LibraryRef, m: MatchedHolding, onBorrow: (LibraryRef
     }
 }
 
+private const val MAX_WAIT_SHOWN = 365
+
 /** The one number that matters: copies on the shelf now, or days to wait. */
 @Composable
 private fun HeadlineNumber(m: MatchedHolding) {
     val h = m.holding
     val (value, caption) = when {
         h.isAvailableNow -> (h.available ?: 1) to pluralStringResource(R.plurals.caption_available, h.available ?: 1)
-        h.waitDays != null -> h.waitDays!! to pluralStringResource(R.plurals.caption_days_wait, h.waitDays!!)
+        h.waitDays != null -> h.waitDays!!.coerceAtMost(MAX_WAIT_SHOWN) to pluralStringResource(R.plurals.caption_days_wait, h.waitDays!!)
         else -> return
     }
     Column(horizontalAlignment = Alignment.End) {
-        CountUp(value, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary)
+        CountUp(
+            value,
+            // OverDrive's estimate can run to thousands of days when one copy has hundreds of holds.
+            suffix = if (!h.isAvailableNow && (h.waitDays ?: 0) > MAX_WAIT_SHOWN) "+" else "",
+            // Lining figures: Cormorant's default old-style digits drop below the baseline.
+            style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "lnum"),
+            color = MaterialTheme.colorScheme.primary,
+        )
         Text(caption, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.End)
     }
 }
