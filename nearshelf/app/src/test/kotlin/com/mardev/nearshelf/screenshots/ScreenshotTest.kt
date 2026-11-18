@@ -248,19 +248,24 @@ class ScreenshotTest(private val device: Device) {
         )
     }
 
-    @Test fun resultsFiltered() = shot("results_filtered") {
-        ResultsContent(
-            state = sampleState(), watched = false, here = LatLng(41.88, -87.63), prefs = ReadingPrefs(),
-            offline = false, showLocationCard = false,
-            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
-            onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
-            adSlot = { FakeAd(it) },
-            filter = com.mardev.nearshelf.core.search.ResultFilter(availableNow = true),
-        )
-    }
+    @Test fun resultsSingle() = shot("results_single") { redRising(null) }
+
+    @Test fun resultsSingleAudio() = shot("results_single_audio") { redRising(Format.AUDIOBOOK) }
+
+    @Test fun resultsPrint() = shot("results_print") { sampleResults(Format.PHYSICAL) }
+
+    @Composable
+    private fun sampleResults(tab: Format?) = ResultsContent(
+        state = sampleState(), watched = false, here = LatLng(41.88, -87.63), prefs = ReadingPrefs(),
+        offline = false, showLocationCard = false,
+        onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
+        onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
+        adSlot = { FakeAd(it) }, initialTab = tab,
+    )
 
     /** The reader's own case: one library, Libby waits, hoopla audiobooks incl. a German edition. */
-    @Test fun resultsSingle() = shot("results_single") {
+    @Composable
+    private fun redRising(tab: Format?) {
         val od = LibraryRef(ProviderId.OVERDRIVE, "toronto", "Toronto Public Library")
         val ho = LibraryRef(ProviderId.HOOPLA, "toronto", "Toronto Public Library", borrowLimitPerMonth = 8)
         val bc = LibraryRef(ProviderId.BIBLIOCOMMONS, "tpl", "Toronto Public Library")
@@ -283,19 +288,7 @@ class ScreenshotTest(private val device: Device) {
             offline = false, showLocationCard = false,
             onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
             onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
-            adSlot = { FakeAd(it) },
-        )
-    }
-
-    @Test fun resultsFilterDialog() = dialogShot("results_filter_dialog") {
-        ResultsContent(
-            state = sampleState(), watched = false, here = null, prefs = ReadingPrefs(),
-            offline = false, showLocationCard = false,
-            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {}, onWatch = {},
-            onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
-            adSlot = { FakeAd(it) },
-            filter = com.mardev.nearshelf.core.search.ResultFilter(availableNow = true),
-            initialFilterDialog = true,
+            adSlot = { FakeAd(it) }, initialTab = tab,
         )
     }
 

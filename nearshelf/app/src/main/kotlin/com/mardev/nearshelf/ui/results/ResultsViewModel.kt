@@ -27,7 +27,6 @@ import com.mardev.nearshelf.work.WatchlistWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.mardev.nearshelf.core.share.ShareParser
 import com.mardev.nearshelf.core.search.ServiceState
-import com.mardev.nearshelf.core.search.ResultFilter
 import com.mardev.nearshelf.data.LibraryRepository
 import com.mardev.nearshelf.nav.ResultsRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,8 +45,8 @@ data class ServiceResult(val ref: LibraryRef, val state: ServiceState) {
      * One row per format and language: the best edition (already sorted first) plus how
      * many more editions it stands for. Hoopla often has four editions of one audiobook.
      */
-    fun rows(prefs: ReadingPrefs = ReadingPrefs(), filter: ResultFilter = ResultFilter()): List<HoldingRowUi> =
-        filter.apply(prefs.filter((state as? ServiceState.Done)?.matches.orEmpty()))
+    fun rows(prefs: ReadingPrefs = ReadingPrefs()): List<HoldingRowUi> =
+        prefs.filter((state as? ServiceState.Done)?.matches.orEmpty())
             .sortedWith(
                 compareBy<MatchedHolding> { it.otherLanguage }
                     .thenBy { prefs.formatRank(it.holding.format) }
@@ -161,11 +160,6 @@ class ResultsViewModel @Inject constructor(
         ),
     )
     val state: StateFlow<ResultsUiState> = _state.asStateFlow()
-
-    /** Filters picked on this results page; they last for this search only. */
-    private val _filter = MutableStateFlow(ResultFilter())
-    val filter: StateFlow<ResultFilter> = _filter.asStateFlow()
-    fun setFilter(f: ResultFilter) { _filter.value = f }
 
     init {
         if (location.hasPermission()) refreshLocation()

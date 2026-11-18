@@ -6,16 +6,15 @@ import com.mardev.nearshelf.core.model.Library
 import com.mardev.nearshelf.core.model.LibraryRef
 import com.mardev.nearshelf.core.model.ProviderId
 import com.mardev.nearshelf.core.prefs.ReadingPrefs
-import com.mardev.nearshelf.core.search.ResultFilter
-import com.mardev.nearshelf.core.search.ResultFilter.Companion.filterKey
-import com.mardev.nearshelf.core.search.ResultFilter.Companion.isBorrowableNow
+import com.mardev.nearshelf.core.search.Availability.group
+import com.mardev.nearshelf.core.search.Availability.isBorrowableNow
 import com.mardev.nearshelf.core.search.ServiceState
 
 /*
  * Results are organised around the reader's question, "how do I get this book, in the
  * format I want, soonest?", not around where the data came from. So: one section per
- * format (preferred format first), and inside it every option from every library and
- * service, ranked fastest first. What isn't a result (not found, failures, catalogs
+ * format (shown as tabs), and inside it every option from every library and service,
+ * ranked fastest first. What isn't a result (not found, failures, catalogs
  * still answering) is collected separately for the end of the page.
  */
 
@@ -30,10 +29,10 @@ data class OptionUi(
     val staleSince: Long? = null,
 ) {
     val holding get() = match.holding
-    val isPrint get() = holding.format.filterKey() == Format.PHYSICAL
+    val isPrint get() = holding.format.group() == Format.PHYSICAL
 }
 
-/** The section's answer in a few words, shown under the format name. */
+/** The format's answer in a few words: on its tab, and above its options when there is a choice. */
 sealed interface Verdict {
     /** Can be borrowed now (digital) at [via]. */
     data class AvailableNow(val via: OptionUi) : Verdict
@@ -58,7 +57,7 @@ data class FormatSection(
 
 /** A service that produced no result to show, and why. */
 data class ServiceNote(val library: Library, val ref: LibraryRef, val state: ServiceState, val reason: Reason) {
-    enum class Reason { NOT_FOUND, FAILED, UNAVAILABLE, LOADING, HIDDEN_BY_LANGUAGE, FILTERED_OUT }
+    enum class Reason { NOT_FOUND, FAILED, UNAVAILABLE, LOADING, HIDDEN_BY_LANGUAGE }
 }
 
 data class OrganizedResults(
@@ -66,7 +65,27 @@ data class OrganizedResults(
     val notes: List<ServiceNote>,
 ) {
     val loading get() = notes.count { it.reason == ServiceNote.Reason.LOADING }
-    val filteredOut get() = notes.any { it.reason == ServiceNote.Reason.FILTERED_OUT }
+    fun section(format: Format) = sections.firstOrNull { it.format == format }
+
+    /**
+     * The tab to open on: the preferred format when a library has it, otherwise the format
+     * the reader can get soonest (available now, on a shelf, on hoopla, shortest wait…).
+     */
+    fun bestFormat(prefs: ReadingPrefs): Format? {
+        val withOptions = sections.filter { it.options.isNotEmpty() }
+        withOptions.firstOrNull { it.format == prefs.preferredFormat }?.let { return it.format }
+        return withOptions.minWithOrNull(compareBy({ score(it.verdict) }, { prefs.formatRank(it.format) }))?.format
+    }
+
+    private fun score(v: Verdict): Double = when (v) {
+        is Verdict.AvailableNow -> 0.0
+        is Verdict.OnShelf -> 1.0
+        is Verdict.OnService -> 2.0
+        is Verdict.ShortestWait -> 3.0 + v.days / 100_000.0
+        Verdict.Waitlist -> 4.0
+        Verdict.AllCheckedOut -> 5.0
+        Verdict.Unknown -> 6.0
+    }
 }
 
 /** Ranking within a section: lower sorts first. Library order (the reader's own) breaks ties. */
@@ -86,7 +105,6 @@ internal fun rank(o: OptionUi): Long {
 fun organizeResults(
     libraries: List<LibraryResult>,
     prefs: ReadingPrefs,
-    filter: ResultFilter = ResultFilter(),
 ): OrganizedResults {
     val options = mutableListOf<Pair<Int, OptionUi>>() // library index for stable ties
     val notes = mutableListOf<ServiceNote>()
@@ -97,12 +115,10 @@ fun organizeResults(
                 is ServiceState.Failed -> notes += ServiceNote(lr.library, svc.ref, st, ServiceNote.Reason.FAILED)
                 ServiceState.TemporarilyUnavailable -> notes += ServiceNote(lr.library, svc.ref, st, ServiceNote.Reason.UNAVAILABLE)
                 is ServiceState.Done -> {
-                    val byLanguage = svc.rows(prefs)
-                    val rows = if (filter.isActive) svc.rows(prefs, filter) else byLanguage
+                    val rows = svc.rows(prefs)
                     when {
                         st.matches.isEmpty() -> notes += ServiceNote(lr.library, svc.ref, st, ServiceNote.Reason.NOT_FOUND)
-                        byLanguage.isEmpty() -> notes += ServiceNote(lr.library, svc.ref, st, ServiceNote.Reason.HIDDEN_BY_LANGUAGE)
-                        rows.isEmpty() -> notes += ServiceNote(lr.library, svc.ref, st, ServiceNote.Reason.FILTERED_OUT)
+                        rows.isEmpty() -> notes += ServiceNote(lr.library, svc.ref, st, ServiceNote.Reason.HIDDEN_BY_LANGUAGE)
                     }
                     rows.forEach { row ->
                         options += li to OptionUi(lr.library, svc.ref, row.match, row.moreEditions, st.fetchedAt.takeIf { st.stale })
@@ -112,7 +128,7 @@ fun organizeResults(
         }
     }
     val sections = options
-        .groupBy { it.second.holding.format.filterKey() }
+        .groupBy { it.second.holding.format.group() }
         .map { (format, group) ->
             val sorted = group.sortedWith(compareBy({ rank(it.second) }, { it.first })).map { it.second }
             val (same, other) = sorted.partition { !it.match.otherLanguage }

@@ -10,7 +10,6 @@ import com.mardev.nearshelf.core.model.PhysicalCopy
 import com.mardev.nearshelf.core.model.ProviderId
 import com.mardev.nearshelf.core.prefs.ReadingPrefs
 import com.mardev.nearshelf.core.provider.ProviderException
-import com.mardev.nearshelf.core.search.ResultFilter
 import com.mardev.nearshelf.core.search.ServiceState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -84,9 +83,13 @@ class ResultsOrganizerTest {
         assertEquals(1, r.loading)
     }
 
-    @Test fun `filter removes options and leaves a filtered-out note`() {
-        val r = organizeResults(sample(), ReadingPrefs(), ResultFilter(availableNow = true))
-        assertEquals(listOf(Format.EBOOK, Format.PHYSICAL), r.sections.map { it.format })
-        assertTrue(r.filteredOut)
+    @Test fun `opens on the preferred format, else the one available soonest`() {
+        val libs = listOf(LibraryResult(tpl, listOf(
+            ServiceResult(libby, ServiceState.Done(listOf(h(Format.EBOOK, "e", wait = 80), h(Format.AUDIOBOOK, "a", wait = 28)))),
+            ServiceResult(hoopla, ServiceState.Done(listOf(h(Format.AUDIOBOOK, "h", known = false)))),
+        )))
+        assertEquals(Format.AUDIOBOOK, organizeResults(libs, ReadingPrefs()).bestFormat(ReadingPrefs()))
+        val ebookFirst = ReadingPrefs(preferredFormat = Format.EBOOK)
+        assertEquals(Format.EBOOK, organizeResults(libs, ebookFirst).bestFormat(ebookFirst))
     }
 }

@@ -17,6 +17,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
@@ -51,7 +56,7 @@ import com.mardev.nearshelf.core.match.MatchedHolding
 import com.mardev.nearshelf.core.model.Format
 import com.mardev.nearshelf.core.model.LibraryRef
 import com.mardev.nearshelf.core.provider.ProviderException
-import com.mardev.nearshelf.core.search.ResultFilter.Companion.isBorrowableNow
+import com.mardev.nearshelf.core.search.Availability.isBorrowableNow
 import com.mardev.nearshelf.core.search.ServiceState
 import com.mardev.nearshelf.ui.components.accentTonalColors
 import com.mardev.nearshelf.ui.components.hairline
@@ -83,9 +88,11 @@ internal fun FormatSectionView(
     locationPrompt: (@Composable () -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier.fillMaxWidth()) {
-        HorizontalDivider(Modifier.padding(horizontal = Gutter), color = MaterialTheme.colorScheme.outlineVariant)
-        SectionTitle(section, here)
+    Column(modifier.fillMaxWidth().padding(top = Space.s)) {
+        // The tab names the format; above the options goes only its answer, when there's a choice to sum up.
+        if (section.options.size + section.otherLanguages.size > 1) {
+            VerdictLine(section.verdict, here, Modifier.padding(start = Gutter, end = Gutter, top = Space.m, bottom = Space.xs))
+        }
         locationPrompt?.invoke()
         section.options.forEachIndexed { i, o ->
             if (i > 0) OptionDivider()
@@ -100,23 +107,6 @@ private fun OptionDivider() = HorizontalDivider(
     Modifier.padding(horizontal = Gutter),
     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
 )
-
-/** Format icon and name, and underneath the section's answer in its status colour. */
-@Composable
-private fun SectionTitle(section: FormatSection, here: LatLng?) {
-    Row(
-        Modifier.fillMaxWidth().padding(start = Gutter, end = Gutter, top = Space.l + Space.xs, bottom = Space.xs),
-        verticalAlignment = Alignment.Top,
-    ) {
-        Icon(painterResource(formatIcon(section.format)), null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.padding(top = 3.dp).size(22.dp))
-        Spacer(Modifier.width(Space.m))
-        Column {
-            Text(formatLabel(section.format), style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-            // The answer only earns a line when there is a choice to sum up; one option says it itself.
-            if (section.options.size + section.otherLanguages.size > 1) VerdictLine(section.verdict, here, Modifier.padding(top = 2.dp))
-        }
-    }
-}
 
 @Composable
 private fun VerdictLine(v: Verdict, here: LatLng?, modifier: Modifier = Modifier) {
@@ -322,7 +312,6 @@ internal fun NotesFooter(
     multiLibrary: Boolean,
     onRetry: (String, LibraryRef) -> Unit,
     onOpenCatalog: (LibraryRef) -> Unit,
-    onClearFilter: () -> Unit,
 ) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     val catalog = stringResource(R.string.print_catalog)
@@ -347,11 +336,6 @@ internal fun NotesFooter(
             NoteLine(text, muted)
         }
         notes.filter { it.reason == ServiceNote.Reason.HIDDEN_BY_LANGUAGE }.forEach { NoteLine(stringResource(R.string.note_hidden_language, who(it)), muted) }
-        if (notes.any { it.reason == ServiceNote.Reason.FILTERED_OUT }) {
-            NoteLine(stringResource(R.string.note_filtered), muted) {
-                TextButton(onClick = onClearFilter) { Text(stringResource(R.string.filter_clear), style = MaterialTheme.typography.labelLarge) }
-            }
-        }
         notes.filter { it.reason == ServiceNote.Reason.UNAVAILABLE }.forEach { n ->
             NoteLine(stringResource(R.string.results_temporarily_unavailable, who(n)), muted) {
                 TextButton(onClick = { onRetry(n.library.id, n.ref) }) { Text(stringResource(R.string.action_retry), style = MaterialTheme.typography.labelLarge) }
@@ -387,20 +371,81 @@ private fun NoteLine(text: String, color: Color, action: (@Composable () -> Unit
     }
 }
 
-/** No library has the book (or the filters hide everything). */
+/** This tab's format isn't at any of the reader's libraries. */
 @Composable
-internal fun NoneFound(filterActive: Boolean, onClear: () -> Unit) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = Space.l), verticalArrangement = Arrangement.spacedBy(Space.s)) {
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        Text(
-            if (filterActive) stringResource(R.string.results_filtered_out) else stringResource(R.string.results_none_title),
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(top = Space.l),
-        )
-        if (filterActive) {
-            Button(onClick = onClear, shape = ButtonShape, modifier = Modifier.heightIn(min = 44.dp)) { Text(stringResource(R.string.filter_clear), style = MaterialTheme.typography.labelLarge) }
-        } else {
-            Text(stringResource(R.string.results_none_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+internal fun EmptyTab(format: Format) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = Space.xl), verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+        Text(stringResource(R.string.tab_empty, formatLabel(format)), style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(R.string.tab_empty_hint), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/** Short status under each tab label: where the reader can see availability before tapping. */
+@Composable
+internal fun tabStatus(section: FormatSection?, checking: Boolean): Pair<String, Color> {
+    val status = LocalStatusColors.current
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    val v = section?.takeIf { it.options.isNotEmpty() }?.verdict
+        ?: return (if (checking) stringResource(R.string.tab_checking) else stringResource(R.string.tab_none)) to muted
+    return when (v) {
+        is Verdict.AvailableNow -> stringResource(R.string.tab_now) to status.available
+        is Verdict.OnService -> stringResource(R.string.tab_on_service, v.service) to MaterialTheme.colorScheme.onSurface
+        is Verdict.ShortestWait -> pluralStringResource(R.plurals.tab_days, v.days, v.days) to status.waitlist
+        Verdict.Waitlist -> stringResource(R.string.tab_waitlist) to status.waitlist
+        is Verdict.OnShelf -> stringResource(R.string.tab_on_shelf) to status.available
+        Verdict.AllCheckedOut -> stringResource(R.string.tab_all_out) to muted
+        Verdict.Unknown -> stringResource(R.string.tab_unknown) to muted
+    }
+}
+
+internal val TAB_FORMATS = listOf(Format.EBOOK, Format.AUDIOBOOK, Format.PHYSICAL)
+
+/**
+ * eBook | Audiobook | Print, always in that order. Each tab: icon and name, and under it
+ * the format's status in its colour. Selection: a short accent rule, like the bottom bar.
+ */
+@Composable
+internal fun FormatTabs(organized: OrganizedResults, selected: Format, onSelect: (Format) -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val largeFont = androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.3f
+    Column(Modifier.fillMaxWidth().background(colors.background)) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = Gutter - Space.s).selectableGroup()) {
+            TAB_FORMATS.forEach { f ->
+                val isSelected = f == selected
+                val (statusText, statusColor) = tabStatus(organized.section(f), organized.loading > 0)
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .heightIn(min = 56.dp)
+                        .clip(MaterialTheme.shapes.small)
+                        .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(f) }),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(Modifier.padding(vertical = Space.s), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            // At large font sizes the icon gives its room to the word.
+                            if (!largeFont) {
+                                Icon(painterResource(formatIcon(f)), null, tint = if (isSelected) colors.primary else colors.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(6.dp))
+                            }
+                            val labelStyle = MaterialTheme.typography.titleSmall.copy(color = if (isSelected) colors.onSurface else colors.onSurfaceVariant)
+                            BasicText(
+                                formatLabel(f),
+                                style = labelStyle,
+                                maxLines = 1,
+                                // Shrinks a step or two rather than cutting "Audiobook" short.
+                                autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = labelStyle.fontSize),
+                            )
+                        }
+                        Text(statusText, style = MaterialTheme.typography.labelMedium, color = statusColor, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
+                    }
+                    Box(
+                        Modifier.align(Alignment.BottomCenter).size(width = if (isSelected) 32.dp else 0.dp, height = 2.dp)
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp)).background(colors.primary),
+                    )
+                }
+            }
         }
+        HorizontalDivider(color = colors.outlineVariant)
     }
 }

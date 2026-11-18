@@ -212,14 +212,20 @@
     <string name="prefs_languages_none">Not set: every language counts as yours</string>
     <string name="prefs_format_dialog_body">Shown first in results when a library has it.</string>
     <string name="action_done">Done</string>
-    <string name="filter_available_now">Available now</string>
-    <string name="filter_clear">Clear</string>
-    <string name="filter_button">Filter</string>
-    <string name="filter_button_count">Filter · %1$d</string>
-    <string name="filter_available_now_sub">Ready to borrow today, or on a shelf</string>
-    <string name="filter_formats">Formats</string>
-    <string name="filter_label">Filter results</string>
-    <string name="results_filtered_out">Nothing here matches your filters.</string>
+    <string name="tab_now">Now</string>
+    <string name="tab_on_service">%1$s</string>
+    <plurals name="tab_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <string name="tab_waitlist">Waitlist</string>
+    <string name="tab_on_shelf">On shelf</string>
+    <string name="tab_all_out">All out</string>
+    <string name="tab_unknown">Unknown</string>
+    <string name="tab_checking">Checking…</string>
+    <string name="tab_none">None</string>
+    <string name="tab_empty">No %1$s at your libraries.</string>
+    <string name="tab_empty_hint">The other tabs show what they do have.</string>
     <string name="verdict_available_now">Available now in %1$s</string>
     <string name="verdict_available_now_at">Available now in %1$s at %2$s</string>
     <string name="verdict_on_service">On %1$s</string>
@@ -238,7 +244,6 @@
     <string name="note_no_print">No print copies</string>
     <string name="note_no_print_at">No print copies at %1$s</string>
     <string name="note_hidden_language">%1$s: only in languages you’ve hidden</string>
-    <string name="note_filtered">Some results are hidden by your filters.</string>
     <string name="still_checking">Still checking %1$s…</string>
     <string name="results_none_title">Not at your libraries yet</string>
     <string name="results_none_body">None of your libraries has this book in any format. Tap Watch to hear if that changes.</string>

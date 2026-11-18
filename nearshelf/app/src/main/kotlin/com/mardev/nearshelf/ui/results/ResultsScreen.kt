@@ -2,7 +2,6 @@ package com.mardev.nearshelf.ui.results
 
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.background
-import com.mardev.nearshelf.core.search.ResultFilter
 import com.mardev.nearshelf.ui.components.NearshelfDialog
 import com.mardev.nearshelf.ui.components.ChoiceRow
 import androidx.compose.material3.Checkbox
@@ -120,7 +119,6 @@ fun ResultsScreen(
     val watched by vm.watched.collectAsStateWithLifecycle()
     val here by vm.here.collectAsStateWithLifecycle()
     val prefs by vm.prefs.collectAsStateWithLifecycle()
-    val filter by vm.filter.collectAsStateWithLifecycle()
     val offline by vm.offline.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var askedLocation by rememberSaveable { mutableStateOf(false) }
@@ -138,7 +136,6 @@ fun ResultsScreen(
 
     ResultsContent(
         state = state, watched = watched, here = here, prefs = prefs, offline = offline,
-        filter = filter, onFilterChange = vm::setFilter,
         showLocationCard = here == null && !vm.hasLocationPermission && !askedLocation,
         onBack = onBack, onPreferences = onPreferences, onAddLibrary = onAddLibrary, onSearchManually = onSearchManually,
         onWatch = onWatch,
@@ -174,11 +171,10 @@ internal fun ResultsContent(
     onAllowLocation: () -> Unit,
     onDismissLocation: () -> Unit,
     adSlot: @Composable (Modifier) -> Unit = { NativeAdCard(it) },
-    filter: ResultFilter = ResultFilter(),
-    onFilterChange: (ResultFilter) -> Unit = {},
-    initialFilterDialog: Boolean = false,
+    initialTab: Format? = null,
 ) {
-    var showFilter by rememberSaveable { mutableStateOf(initialFilterDialog) }
+    // null until the reader taps a tab: then follow the best format as results arrive.
+    var chosenTab by rememberSaveable { mutableStateOf(initialTab) }
     Scaffold(
         topBar = {
             Column {
@@ -221,11 +217,11 @@ internal fun ResultsContent(
             )
             return@Scaffold
         }
-        // Formats actually found, in the order results list them.
-        val foundFormats = libraries.flatMap { lr -> lr.services.flatMap { (it.state as? ServiceState.Done)?.matches.orEmpty() } }
-            .map { with(ResultFilter) { it.holding.format.filterKey() } }.distinct()
-            .sortedBy { listOf(Format.EBOOK, Format.AUDIOBOOK, Format.PHYSICAL).indexOf(it) }
-        if (showFilter) FilterDialog(filter, foundFormats, onFilterChange, onDismiss = { showFilter = false })
+        // Organised by format (one tab each), ranked fastest first; see ResultsOrganizer.
+        val organized = organizeResults(libraries, prefs)
+        val multiLibrary = libraries.size > 1
+        // Opens on the preferred format if a library has it, else on the one available soonest.
+        val tab = chosenTab ?: organized.bestFormat(prefs) ?: prefs.preferredFormat?.takeIf { it in TAB_FORMATS } ?: Format.EBOOK
         LazyColumn(
             Modifier.fillMaxSize().padding(padding).readableWidth(),
             contentPadding = PaddingValues(bottom = Space.xl),
@@ -240,13 +236,7 @@ internal fun ResultsContent(
                 }
             }
             item(key = "header") {
-                BookHeaderView(
-                    state, watched, onWatch,
-                    Modifier.padding(start = Gutter, end = Gutter, top = Space.s, bottom = Space.xl),
-                    // The Filter button appears once there is something to filter.
-                    filterCount = if (foundFormats.isEmpty()) null else filter.formats.size + (if (filter.availableNow) 1 else 0),
-                    onFilter = { showFilter = true },
-                )
+                BookHeaderView(state, watched, onWatch, Modifier.padding(start = Gutter, end = Gutter, top = Space.s, bottom = Space.l))
             }
             val services = libraries.flatMap { lr -> lr.services.map { lr.library.id to it } }
             val allFailed = services.isNotEmpty() && state.finished == state.total && services.none { it.second.state is ServiceState.Done }
@@ -271,42 +261,43 @@ internal fun ResultsContent(
                     }
                 }
             }
-            // Organised by format, ranked fastest first; see ResultsOrganizer.
-            val organized = organizeResults(libraries, prefs, filter)
-            val multiLibrary = libraries.size > 1
-            if (organized.sections.isEmpty() && organized.loading > 0) {
-                item(key = "pending") { SkeletonLines(4, Modifier.fillMaxWidth().padding(Gutter, Space.l)) }
-            }
-            if (organized.sections.isEmpty() && organized.loading == 0 && !allFailed) {
+            val nothingAnywhere = organized.sections.isEmpty() && organized.loading == 0
+            if (nothingAnywhere && !allFailed) {
                 item(key = "none") {
-                    NoneFound(filterActive = organized.filteredOut, onClear = { onFilterChange(ResultFilter()) })
+                    Column(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = Space.l), verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+                        HorizontalDivider(Modifier.padding(bottom = Space.l), color = MaterialTheme.colorScheme.outlineVariant)
+                        Text(stringResource(R.string.results_none_title), style = MaterialTheme.typography.titleLarge)
+                        Text(stringResource(R.string.results_none_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
             }
-            organized.sections.forEachIndexed { si, section ->
-                item(key = "section-${section.format}") {
-                    FormatSectionView(
-                        section = section,
-                        multiLibrary = multiLibrary,
-                        here = here,
-                        onBorrow = onBorrow,
-                        locationPrompt = if (section.format == Format.PHYSICAL && showLocationCard) {
-                            { LocationCard(onAllow = onAllowLocation, onDismiss = onDismissLocation, modifier = Modifier.padding(start = Gutter, end = Gutter, bottom = Space.m)) }
-                        } else null,
-                        modifier = Modifier.animateItem(),
-                    )
+            if (!nothingAnywhere && !allFailed) {
+                // Pinned while the options scroll.
+                stickyHeader(key = "tabs") { FormatTabs(organized, tab, onSelect = { chosenTab = it }) }
+                val section = organized.section(tab)
+                when {
+                    section != null && (section.options.isNotEmpty() || section.otherLanguages.isNotEmpty()) -> item(key = "section-$tab") {
+                        FormatSectionView(
+                            section = section,
+                            multiLibrary = multiLibrary,
+                            here = here,
+                            onBorrow = onBorrow,
+                            locationPrompt = if (tab == Format.PHYSICAL && showLocationCard) {
+                                { LocationCard(onAllow = onAllowLocation, onDismiss = onDismissLocation, modifier = Modifier.padding(start = Gutter, end = Gutter, top = Space.s, bottom = Space.s)) }
+                            } else null,
+                        )
+                    }
+                    organized.loading > 0 -> item(key = "pending-$tab") { SkeletonLines(4, Modifier.fillMaxWidth().padding(Gutter, Space.l)) }
+                    else -> item(key = "empty-$tab") { EmptyTab(tab) }
                 }
-                // One native ad, in the middle of the content: after the first format, never offline.
-                if (si == 0 && !offline) item(key = "ad") { adSlot(Modifier.padding(horizontal = Gutter, vertical = Space.l)) }
+                // One native ad, after this tab's options and before the notes; never offline.
+                if (!offline && section != null && section.options.isNotEmpty()) {
+                    item(key = "ad") { adSlot(Modifier.padding(horizontal = Gutter, vertical = Space.l)) }
+                }
             }
             if (organized.notes.isNotEmpty() && !allFailed) {
                 item(key = "notes") {
-                    NotesFooter(
-                        notes = organized.notes,
-                        multiLibrary = multiLibrary,
-                        onRetry = onRetry,
-                        onOpenCatalog = onOpenCatalog,
-                        onClearFilter = { onFilterChange(ResultFilter()) },
-                    )
+                    NotesFooter(notes = organized.notes, multiLibrary = multiLibrary, onRetry = onRetry, onOpenCatalog = onOpenCatalog)
                 }
             }
         }
@@ -336,8 +327,6 @@ private fun BookHeaderView(
     watched: Boolean,
     onWatch: () -> Unit,
     modifier: Modifier = Modifier,
-    filterCount: Int? = null,
-    onFilter: () -> Unit = {},
 ) {
     val header = state.header
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(Space.l)) {
@@ -384,59 +373,6 @@ private fun BookHeaderView(
                         Icon(painterResource(R.drawable.ic_watchlist), null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
                         Text(watchLabel)
-                    }
-                }
-                // Filter: quiet when off; tinted with a count when any filter is on.
-                if (filterCount != null) {
-                    val label = if (filterCount > 0) stringResource(R.string.filter_button_count, filterCount) else stringResource(R.string.filter_button)
-                    if (filterCount > 0) {
-                        FilledTonalButton(shape = ButtonShape, colors = accentTonalColors(), onClick = onFilter, modifier = Modifier.heightIn(min = 44.dp)) {
-                            Icon(painterResource(R.drawable.ic_filter), null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text(label)
-                        }
-                    } else {
-                        OutlinedButton(shape = ButtonShape, border = hairline(), colors = quietOutlinedColors(), onClick = onFilter, modifier = Modifier.heightIn(min = 44.dp)) {
-                            Icon(painterResource(R.drawable.ic_filter), null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text(label)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-/** Filter pop-up: availability, then the formats found. Changes apply as you tap. */
-@Composable
-private fun FilterDialog(filter: ResultFilter, formats: List<Format>, onChange: (ResultFilter) -> Unit, onDismiss: () -> Unit) {
-    NearshelfDialog(
-        title = stringResource(R.string.filter_label),
-        confirm = stringResource(R.string.action_done),
-        onDismiss = onDismiss,
-        secondary = if (filter.isActive) stringResource(R.string.filter_clear) else null,
-        onSecondary = { onChange(ResultFilter()) },
-    ) {
-        Column {
-            ChoiceRow(
-                stringResource(R.string.filter_available_now),
-                checked = filter.availableNow,
-                role = Role.Checkbox,
-                onClick = { onChange(filter.copy(availableNow = !filter.availableNow)) },
-                supporting = stringResource(R.string.filter_available_now_sub),
-            ) { Checkbox(checked = filter.availableNow, onCheckedChange = null, colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)) }
-            if (formats.size > 1) {
-                HorizontalDivider(Modifier.padding(vertical = Space.s), color = MaterialTheme.colorScheme.outlineVariant)
-                Text(
-                    stringResource(R.string.filter_formats).uppercase(androidx.compose.ui.platform.LocalConfiguration.current.locales[0]),
-                    style = ServiceOverline,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = Space.xs, bottom = Space.xs),
-                )
-                formats.forEach { f ->
-                    ChoiceRow(formatLabel(f), checked = f in filter.formats, role = Role.Checkbox, onClick = { onChange(filter.toggle(f)) }) {
-                        Checkbox(checked = f in filter.formats, onCheckedChange = null, colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary))
                     }
                 }
             }
