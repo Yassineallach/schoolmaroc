@@ -70,6 +70,11 @@ import com.mardev.nearshelf.core.model.BookQuery
 import com.mardev.nearshelf.core.model.Library
 import com.mardev.nearshelf.data.HistoryItem
 import com.mardev.nearshelf.ui.components.CoverThumb
+import com.mardev.nearshelf.ui.components.LibraryRow
+import com.mardev.nearshelf.ui.components.LibraryRowSkeleton
+import com.mardev.nearshelf.ui.components.RowChevron
+import com.mardev.nearshelf.ui.components.FieldHint
+import com.mardev.nearshelf.ui.components.PaperSearchField
 import com.mardev.nearshelf.ui.components.Monogram
 import com.mardev.nearshelf.ui.components.RowDivider
 import com.mardev.nearshelf.ui.components.SectionHeader
@@ -163,8 +168,14 @@ internal fun HomeContent(
         item(key = "masthead") { Masthead(onPreferences, onSettings) }
         item(key = "search") {
             Column(Modifier.padding(start = Gutter, end = Gutter, top = Space.l)) {
-                SearchField(value = input, onValueChange = onInputChange, onSearch = onSubmit)
-                SearchTip(Modifier.padding(top = Space.s, start = 2.dp))
+                PaperSearchField(
+                    value = input,
+                    onValueChange = onInputChange,
+                    placeholder = stringResource(R.string.search_hint),
+                    label = stringResource(R.string.search_label),
+                    onSearch = onSubmit,
+                )
+                FieldHint(stringResource(R.string.search_tip_label), stringResource(R.string.search_tip_body), Modifier.padding(top = Space.s, start = 2.dp))
                 SearchActions(
                     label = if (count > 0) pluralStringResource(R.plurals.search_action_count, count, count) else stringResource(R.string.search_action),
                     canSearch = input.isNotBlank() && count > 0,
@@ -191,7 +202,12 @@ internal fun HomeContent(
             list == null -> items(2, key = { "skeleton-$it" }) { LibraryRowSkeleton() }
             list.isEmpty() -> item(key = "noLibraries") { NoLibraries(onAddLibrary) }
             else -> itemsIndexed(list, key = { _, l -> l.id }) { index, library ->
-                LibraryRow(library, onClick = onManageLibraries)
+                LibraryRow(
+                    library,
+                    onClick = onManageLibraries,
+                    onClickLabel = stringResource(R.string.home_manage),
+                    trailing = { RowChevron() },
+                )
                 if (index < list.lastIndex) RowDivider()
             }
         }
@@ -238,90 +254,6 @@ private fun Masthead(onPreferences: () -> Unit, onSettings: () -> Unit) {
             Icon(painterResource(R.drawable.ic_settings), stringResource(R.string.settings_title), tint = tint, modifier = Modifier.size(22.dp))
         }
     }
-}
-
-/**
- * White field on the paper page with a hairline edge. Focus draws a brown edge and
- * colours the search glyph; text gets a Clear action.
- */
-@Composable
-private fun SearchField(value: String, onValueChange: (String) -> Unit, onSearch: () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    val focused by interaction.collectIsFocusedAsState()
-    val colors = MaterialTheme.colorScheme
-    val label = stringResource(R.string.search_label)
-    // White paper on the light theme; one step above the page on the dark one (never a hole).
-    val fill = if (colors.background.luminance() > 0.5f) colors.surfaceContainerLowest else colors.surfaceContainerHigh
-    val reduced = rememberReducedMotion()
-    val edge by animateColorAsState(if (focused) colors.primary else colors.outlineVariant, tween(if (reduced) 0 else 150), label = "edge")
-    BasicTextField(
-        value = value,
-        onValueChange = onValueChange,
-        singleLine = true,
-        textStyle = MaterialTheme.typography.bodyLarge.copy(color = colors.onSurface),
-        cursorBrush = SolidColor(colors.primary),
-        interactionSource = interaction,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = { onSearch() }),
-        modifier = Modifier.fillMaxWidth().semantics { contentDescription = label },
-        decorationBox = { inner ->
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .clip(ControlShape)
-                    .background(fill)
-                    .border(if (focused) 1.5.dp else 1.dp, edge, ControlShape)
-                    .padding(start = Space.l, end = Space.xs),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    painterResource(R.drawable.ic_search),
-                    contentDescription = null,
-                    tint = if (focused) colors.primary else colors.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp),
-                )
-                Spacer(Modifier.width(Space.m))
-                Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-                    if (value.isEmpty()) {
-                        Text(
-                            stringResource(R.string.search_hint),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = colors.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                    inner()
-                }
-                if (value.isNotEmpty()) {
-                    IconButton(onClick = { onValueChange("") }) {
-                        Icon(painterResource(R.drawable.ic_x), stringResource(R.string.cd_clear), tint = colors.onSurfaceVariant, modifier = Modifier.size(18.dp))
-                    }
-                } else {
-                    Spacer(Modifier.width(Space.m))
-                }
-            }
-        },
-    )
-}
-
-/** The example query as a quiet footnote to the field. */
-@Composable
-private fun SearchTip(modifier: Modifier = Modifier) {
-    val colors = MaterialTheme.colorScheme
-    val label = stringResource(R.string.search_tip_label)
-    val body = stringResource(R.string.search_tip_body)
-    Text(
-        buildAnnotatedString {
-            withStyle(SpanStyle(color = colors.primary, fontWeight = FontWeight.SemiBold)) { append(label) }
-            append("  ")
-            append(body)
-        },
-        style = MaterialTheme.typography.bodySmall,
-        color = colors.onSurfaceVariant,
-        modifier = modifier,
-    )
 }
 
 /**
@@ -382,73 +314,6 @@ private fun SearchActions(
         Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.m)) {
             primary(Modifier.weight(1f))
             if (hasCamera) scan(Modifier)
-        }
-    }
-}
-
-/**
- * One library: identity (monogram + name), location, then its services as tags:
- * filled for digital lending, outlined for the physical catalog.
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun LibraryRow(library: Library, onClick: () -> Unit) {
-    val colors = MaterialTheme.colorScheme
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clickable(onClickLabel = stringResource(R.string.home_manage), role = Role.Button, onClick = onClick)
-            .padding(start = Gutter, end = Gutter - Space.xs, top = Space.l, bottom = Space.l),
-        verticalAlignment = Alignment.Top,
-    ) {
-        Monogram(library.name)
-        Spacer(Modifier.width(Space.l))
-        Column(Modifier.weight(1f)) {
-            Text(
-                library.name,
-                style = MaterialTheme.typography.titleMedium,
-                color = colors.onSurface,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
-            val place = listOfNotNull(library.city, library.region).joinToString(", ")
-            if (place.isNotEmpty()) {
-                Text(place, style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-            val (digital, physical) = remember(library) {
-                library.digitalServices.map { it.provider.displayName }.distinct() to
-                    library.physicalServices.map { it.provider.displayName }.distinct()
-            }
-            if (digital.isNotEmpty() || physical.isNotEmpty()) {
-                FlowRow(
-                    Modifier.padding(top = Space.s),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    digital.forEach { Tag(it, R.drawable.ic_ebook) }
-                    physical.forEach { Tag(it, R.drawable.ic_books, filled = false) }
-                }
-            }
-        }
-        Icon(
-            painterResource(R.drawable.ic_caret_right),
-            contentDescription = null,
-            tint = colors.outline,
-            modifier = Modifier.padding(start = Space.s, top = 10.dp).size(18.dp),
-        )
-    }
-}
-
-/** Placeholder with the same proportions as [LibraryRow]. */
-@Composable
-private fun LibraryRowSkeleton() {
-    Row(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = Space.l)) {
-        Skeleton(Modifier.size(40.dp), variant = SkeletonVariant.Rounded)
-        Spacer(Modifier.width(Space.l))
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Space.s)) {
-            Skeleton(Modifier.fillMaxWidth(0.7f).height(16.dp))
-            Skeleton(Modifier.fillMaxWidth(0.4f).height(12.dp))
-            Skeleton(Modifier.fillMaxWidth(0.55f).height(22.dp))
         }
     }
 }

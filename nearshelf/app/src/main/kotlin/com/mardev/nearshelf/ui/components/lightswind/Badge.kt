@@ -28,22 +28,23 @@ fun Badge(
     modifier: Modifier = Modifier,
     variant: BadgeVariant = BadgeVariant.Default,
     size: BadgeSize = BadgeSize.Default,
-    shape: BadgeShape = BadgeShape.Pill,
+    shape: BadgeShape = BadgeShape.Rounded,
     leading: (@Composable () -> Unit)? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
     val status = LocalStatusColors.current
     val (bg, fg) = when (variant) {
         BadgeVariant.Default -> scheme.primary to scheme.onPrimary
-        BadgeVariant.Secondary -> scheme.secondaryContainer to scheme.onSecondaryContainer
+        BadgeVariant.Secondary -> scheme.surfaceContainer to scheme.onSurfaceVariant
         BadgeVariant.Destructive -> scheme.error to scheme.onError
         BadgeVariant.Outline -> Color.Transparent to scheme.onSurface
-        BadgeVariant.Success -> status.available to status.onAvailable
-        BadgeVariant.Warning -> status.waitlist to status.onWaitlist
-        BadgeVariant.Info -> scheme.tertiaryContainer to scheme.onTertiaryContainer
+        // Nearshelf: status reads as a tinted label, not a saturated sticker.
+        BadgeVariant.Success -> status.availableContainer to status.onAvailableContainer
+        BadgeVariant.Warning -> status.waitlistContainer to status.onWaitlistContainer
+        BadgeVariant.Info -> scheme.surfaceContainer to scheme.onSurface
     }
     val padding = when (size) {
-        BadgeSize.Sm -> PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+        BadgeSize.Sm -> PaddingValues(horizontal = 7.dp, vertical = 3.dp)
         BadgeSize.Default -> PaddingValues(horizontal = 10.dp, vertical = 2.dp)
         BadgeSize.Lg -> PaddingValues(horizontal = 12.dp, vertical = 4.dp)
     }
@@ -53,11 +54,11 @@ fun Badge(
         shape = when (shape) {
             BadgeShape.Pill -> CircleShape
             BadgeShape.Square -> RoundedCornerShape(2.dp)
-            BadgeShape.Rounded -> RoundedCornerShape(6.dp)
+            BadgeShape.Rounded -> RoundedCornerShape(4.dp)
         },
         color = bg,
         contentColor = fg,
-        border = if (variant == BadgeVariant.Outline) BorderStroke(1.dp, scheme.outline) else null,
+        border = if (variant == BadgeVariant.Outline) BorderStroke(1.dp, scheme.outlineVariant) else null,
     ) {
         Row(Modifier.padding(padding), verticalAlignment = Alignment.CenterVertically) {
             leading?.invoke()

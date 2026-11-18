@@ -83,3 +83,6 @@ val CoverInitial = style(SerifDisplay, 500, 30, 34)
 
 /** Service tags: label size at medium weight, so a row of tags stays quiet. */
 val TagLabel = style(Sans, 500, 12, 16, 0.2.sp)
+
+/** Book titles as row headings (watchlist, results header). */
+val BookTitle = style(SerifText, 600, 17, 22)

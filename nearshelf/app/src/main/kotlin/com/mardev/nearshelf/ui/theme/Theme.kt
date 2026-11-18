@@ -85,15 +85,24 @@ data class StatusColors(
     val onAvailable: Color,
     val waitlist: Color,
     val onWaitlist: Color,
+    /** Tinted badge backgrounds and their text (≥5:1). */
+    val availableContainer: Color,
+    val onAvailableContainer: Color,
+    val waitlistContainer: Color,
+    val onWaitlistContainer: Color,
 )
 
 private val LightStatus = StatusColors(
-    available = Color(0xFF15803D), onAvailable = Color.White,
-    waitlist = Color(0xFFB45309), onWaitlist = Color.White,
+    available = Color(0xFF1E7A43), onAvailable = Color.White,
+    waitlist = Color(0xFF9A5514), onWaitlist = Color.White,
+    availableContainer = Color(0xFFE4EFE6), onAvailableContainer = Color(0xFF1E6B3A),
+    waitlistContainer = Color(0xFFF6E9DA), onWaitlistContainer = Color(0xFF8A4B12),
 )
 private val DarkStatus = StatusColors(
-    available = Color(0xFF86EFAC), onAvailable = Color(0xFF052E16),
-    waitlist = Color(0xFFFCD34D), onWaitlist = Color(0xFF451A03),
+    available = Color(0xFF9FD8B0), onAvailable = Color(0xFF0B2414),
+    waitlist = Color(0xFFF0C48E), onWaitlist = Color(0xFF2E1B08),
+    availableContainer = Color(0xFF1E2B22), onAvailableContainer = Color(0xFF9FD8B0),
+    waitlistContainer = Color(0xFF33271B), onWaitlistContainer = Color(0xFFF0C48E),
 )
 
 val LocalStatusColors = staticCompositionLocalOf { LightStatus }

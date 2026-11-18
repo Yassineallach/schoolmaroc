@@ -48,11 +48,22 @@ import coil3.compose.AsyncImage
 import com.mardev.nearshelf.R
 import com.mardev.nearshelf.core.watch.Watch
 import com.mardev.nearshelf.data.WatchItem
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import com.mardev.nearshelf.ui.components.CoverThumb
+import com.mardev.nearshelf.ui.components.NearshelfTopBar
+import com.mardev.nearshelf.ui.theme.BookTitle
+import com.mardev.nearshelf.ui.theme.Gutter
+import com.mardev.nearshelf.ui.theme.Space
 import com.mardev.nearshelf.ui.components.EmptyState
 import com.mardev.nearshelf.ui.theme.LocalStatusColors
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WatchlistScreen(onOpen: (WatchItem) -> Unit, onSearch: () -> Unit, vm: WatchlistViewModel = hiltViewModel()) {
     val items by vm.items.collectAsStateWithLifecycle()
@@ -61,22 +72,47 @@ fun WatchlistScreen(onOpen: (WatchItem) -> Unit, onSearch: () -> Unit, vm: Watch
     val removedMsg = stringResource(R.string.watchlist_removed)
     val undo = stringResource(R.string.action_undo)
     val checking = stringResource(R.string.watchlist_checking)
+    WatchlistContent(
+        items = items,
+        snackbar = snackbar,
+        onOpen = onOpen,
+        onSearch = onSearch,
+        onCheckNow = {
+            vm.checkNow()
+            scope.launch { snackbar.showSnackbar(checking) }
+        },
+        onRemove = { item ->
+            vm.remove(item)
+            scope.launch {
+                if (snackbar.showSnackbar(removedMsg.format(item.title), undo, duration = SnackbarDuration.Long) == SnackbarResult.ActionPerformed) {
+                    vm.restore(item)
+                }
+            }
+        },
+    )
+}
 
+/** Stateless Watchlist UI (rendered with sample data in the screenshot tests). */
+@Composable
+internal fun WatchlistContent(
+    items: List<WatchItem>?,
+    snackbar: SnackbarHostState,
+    onOpen: (WatchItem) -> Unit,
+    onSearch: () -> Unit,
+    onCheckNow: () -> Unit,
+    onRemove: (WatchItem) -> Unit,
+    adSlot: @Composable (Modifier) -> Unit = { NativeAdCard(it) },
+) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.watchlist_title)) },
-                actions = {
-                    if (!items.isNullOrEmpty()) {
-                        TextButton(onClick = {
-                            vm.checkNow()
-                            scope.launch { snackbar.showSnackbar(checking) }
-                        }) { Text(stringResource(R.string.watchlist_check_now)) }
-                    }
-                },
-            )
+            NearshelfTopBar(stringResource(R.string.watchlist_title), large = true) {
+                if (!items.isNullOrEmpty()) {
+                    TextButton(onClick = onCheckNow) { Text(stringResource(R.string.watchlist_check_now), style = MaterialTheme.typography.labelLarge) }
+                }
+            }
         },
         snackbarHost = { SnackbarHost(snackbar) },
+        containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
         val list = items ?: return@Scaffold
         if (list.isEmpty()) {
@@ -92,68 +128,73 @@ fun WatchlistScreen(onOpen: (WatchItem) -> Unit, onSearch: () -> Unit, vm: Watch
         }
         LazyColumn(
             Modifier.fillMaxSize().padding(padding).readableWidth(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = Space.xl),
         ) {
-            item {
+            item(key = "explainer") {
                 Text(
                     stringResource(R.string.watchlist_explainer),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = Gutter, end = Gutter, bottom = Space.s),
                 )
             }
             itemsIndexed(list, key = { _, it -> it.key }) { index, item ->
-                WatchRow(item, onOpen = { onOpen(item) }, onRemove = {
-                    vm.remove(item)
-                    scope.launch {
-                        if (snackbar.showSnackbar(removedMsg.format(item.title), undo, duration = SnackbarDuration.Long) == SnackbarResult.ActionPerformed) {
-                            vm.restore(item)
-                        }
-                    }
-                }, modifier = Modifier.animateItem())
-                // Native ad in the middle of the list: after the 2nd book (or the last, if fewer).
-                if (index == minOf(1, list.lastIndex)) NativeAdCard(Modifier.padding(top = 12.dp))
+                Column(Modifier.animateItem()) {
+                    WatchRow(item, onOpen = { onOpen(item) }, onRemove = { onRemove(item) })
+                    if (index < list.lastIndex) BookDivider()
+                    // Native ad in the middle of the list: after the 2nd book (or the last, if fewer).
+                    if (index == minOf(1, list.lastIndex)) adSlot(Modifier.padding(horizontal = Gutter, vertical = Space.m))
+                }
             }
         }
     }
 }
 
+/** Hairline under a book row, starting at the text column (after a 48 dp cover). */
 @Composable
-private fun WatchRow(item: WatchItem, onOpen: () -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
-    ElevatedCard(modifier.fillMaxWidth().clickable(onClickLabel = stringResource(R.string.cd_open_results), onClick = onOpen)) {
-        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (item.coverUrl != null) {
-                AsyncImage(
-                    model = item.coverUrl,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(48.dp, 72.dp).clip(RoundedCornerShape(6.dp)),
-                )
-            } else {
-                Icon(painterResource(R.drawable.ic_books), null, modifier = Modifier.size(48.dp))
-            }
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(item.title, style = MaterialTheme.typography.titleLarge)
-                item.author?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                StatusLine(Watch.status(item.snapshot))
-                Text(
-                    item.lastCheckedAt?.let {
-                        stringResource(R.string.watchlist_checked, DateUtils.getRelativeTimeSpanString(it, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString())
-                    } ?: stringResource(R.string.watchlist_not_checked),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            IconButton(onClick = onRemove) {
-                Icon(painterResource(R.drawable.ic_trash), stringResource(R.string.cd_remove_watch, item.title))
-            }
+private fun BookDivider() = HorizontalDivider(
+    Modifier.padding(start = Gutter + 48.dp + Space.l, end = Gutter),
+    color = MaterialTheme.colorScheme.outlineVariant,
+)
+
+/** One watched book: cover, serif title, author, the latest status, when it was checked. */
+@Composable
+private fun WatchRow(item: WatchItem, onOpen: () -> Unit, onRemove: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClickLabel = stringResource(R.string.cd_open_results), role = Role.Button, onClick = onOpen)
+            .padding(start = Gutter, end = Gutter - Space.m, top = Space.l, bottom = Space.l),
+        verticalAlignment = Alignment.Top,
+    ) {
+        CoverThumb(item.coverUrl, title = item.title, width = 48.dp, height = 72.dp)
+        Spacer(Modifier.width(Space.l))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(item.title, style = BookTitle, color = MaterialTheme.colorScheme.onSurface, maxLines = 3, overflow = TextOverflow.Ellipsis)
+            item.author?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+            StatusLine(Watch.status(item.snapshot), Modifier.padding(top = Space.xs))
+            Text(
+                item.lastCheckedAt?.let {
+                    stringResource(R.string.watchlist_checked, DateUtils.getRelativeTimeSpanString(it, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString())
+                } ?: stringResource(R.string.watchlist_not_checked),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        IconButton(onClick = onRemove) {
+            Icon(
+                painterResource(R.drawable.ic_trash),
+                stringResource(R.string.cd_remove_watch, item.title),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp),
+            )
         }
     }
 }
 
+/** Status in its colour with a small leading dot, so it reads without relying on colour alone. */
 @Composable
-private fun StatusLine(status: Watch.Status?) {
+private fun StatusLine(status: Watch.Status?, modifier: Modifier = Modifier) {
     val colors = LocalStatusColors.current
     val (text, color) = when (status) {
         is Watch.Status.Available -> stringResource(R.string.watch_status_available, status.service, status.library) to colors.available
@@ -162,5 +203,9 @@ private fun StatusLine(status: Watch.Status?) {
         Watch.Status.NotYet -> stringResource(R.string.watch_status_not_yet) to MaterialTheme.colorScheme.onSurfaceVariant
         null -> return
     }
-    Text(text, style = MaterialTheme.typography.bodyMedium, color = color)
+    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(6.dp).clip(CircleShape).background(color))
+        Spacer(Modifier.width(Space.s))
+        Text(text, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), color = color)
+    }
 }

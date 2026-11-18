@@ -129,7 +129,7 @@ fun CoverThumb(url: String?, modifier: Modifier = Modifier, title: String? = nul
                 contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                 modifier = Modifier.matchParentSize(),
             )
-        } else if (title != null && width >= 56.dp) {
+        } else if (title != null && width >= 44.dp) {
             // No cover: a plain cloth binding with the title's initial and a short rule.
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
