@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-18T10:32:01Z",
+ "generatedAt": "2026-11-18T10:43:58Z",
  "libraries": [
   {
    "name": "Brimbank Libraries",
@@ -791,10 +791,6 @@
    "country": "CA",
    "region": "ON",
    "city": "Brampton",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://brampton.bibliocommons.com"
-   },
    "overdrive": {
     "key": "brampton",
     "websiteId": 321
@@ -1877,10 +1873,6 @@
    "country": "CA",
    "region": "ON",
    "city": "London",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://londonpubliclibrary.bibliocommons.com"
-   },
    "overdrive": {
     "key": "london",
     "websiteId": 211
@@ -2687,10 +2679,6 @@
    "country": "CA",
    "region": "SK",
    "city": "Regina",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://reginalibrary.bibliocommons.com"
-   },
    "hoopla": {
     "id": "471",
     "borrowLimitPerMonth": 10
@@ -2729,10 +2717,6 @@
    "country": "CA",
    "region": "SK",
    "city": "Saskatoon",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://saskatoon.bibliocommons.com"
-   },
    "hoopla": {
     "id": "283",
     "borrowLimitPerMonth": 5
@@ -3699,10 +3683,6 @@
    "country": "CA",
    "region": "ON",
    "city": "Vaughan",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://vaughan.bibliocommons.com"
-   },
    "overdrive": {
     "key": "vaughan",
     "websiteId": 135
@@ -5321,6 +5301,25 @@
    ]
   },
   {
+   "name": "Manchester Libraries",
+   "country": "GB",
+   "city": "Manchester",
+   "overdrive": {
+    "key": "manchestergb",
+    "websiteId": 340641
+   },
+   "branches": [
+    {
+     "id": "od:171761",
+     "name": "Manchester Public Library",
+     "address": "Central Library, St Peters Square",
+     "city": "Manchester",
+     "latitude": 53.477962,
+     "longitude": -2.244217
+    }
+   ]
+  },
+  {
    "name": "Sheffield Libraries",
    "country": "GB",
    "city": "Sheffield",
@@ -5835,6 +5834,10 @@
    "country": "US",
    "region": "OH",
    "city": "Akron",
+   "catalog": {
+    "provider": "ASPEN",
+    "baseUrl": "https://catalog.akronlibrary.org"
+   },
    "overdrive": {
     "key": "akron",
     "websiteId": 133
@@ -6335,6 +6338,10 @@
     "key": "arapahoe",
     "websiteId": 257
    },
+   "hoopla": {
+    "id": "207",
+    "borrowLimitPerMonth": 20
+   },
    "branches": [
     {
      "id": "od:53031",
@@ -6415,10 +6422,6 @@
    "country": "US",
    "region": "VA",
    "city": "Arlington",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://arlingtonva.bibliocommons.com"
-   },
    "overdrive": {
     "key": "arlingtontx",
     "websiteId": 271
@@ -9837,10 +9840,6 @@
    "country": "US",
    "region": "GA",
    "city": "Marietta",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://cobbcounty.bibliocommons.com"
-   },
    "overdrive": {
     "key": "cobb",
     "websiteId": 268
@@ -10467,10 +10466,6 @@
    "country": "US",
    "region": "TX",
    "city": "Dallas",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://dallaslibrary.bibliocommons.com"
-   },
    "overdrive": {
     "key": "dallas",
     "websiteId": 441
@@ -10719,10 +10714,6 @@
    "country": "US",
    "region": "OH",
    "city": "Dayton",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://daytonmetrolibrary.bibliocommons.com"
-   },
    "overdrive": {
     "key": "dayton",
     "websiteId": 186
@@ -11079,10 +11070,6 @@
    "country": "US",
    "region": "CO",
    "city": "Denver",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://denverlibrary.bibliocommons.com"
-   },
    "overdrive": {
     "key": "denver",
     "websiteId": 29
@@ -11319,10 +11306,6 @@
    "country": "US",
    "region": "MI",
    "city": "Detroit",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://detroitpubliclibrary.bibliocommons.com"
-   },
    "overdrive": {
     "key": "detroitpublicmi",
     "websiteId": 100174
@@ -11515,10 +11498,6 @@
    "country": "US",
    "region": "TX",
    "city": "El Paso",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://elpaso.bibliocommons.com"
-   },
    "overdrive": {
     "key": "elpasotx",
     "websiteId": 497
@@ -11851,20 +11830,166 @@
    "country": "US",
    "region": "WA",
    "city": "Vancouver",
+   "overdrive": {
+    "key": "fortvancouverwa",
+    "websiteId": 100147
+   },
    "hoopla": {
     "id": "233",
     "borrowLimitPerMonth": 20
-   }
+   },
+   "branches": [
+    {
+     "id": "od:97793",
+     "name": "FVRL",
+     "address": "2018 Grand Blvd",
+     "city": "Vancouver",
+     "latitude": 45.636735,
+     "longitude": -122.642297
+    },
+    {
+     "id": "od:70731",
+     "name": "FVRL - Battle Ground Community Library",
+     "address": "1207 SE 8th Way",
+     "city": "Battle Ground",
+     "latitude": 45.781097,
+     "longitude": -122.537994
+    },
+    {
+     "id": "od:70732",
+     "name": "FVRL - Cascade Park Community Library",
+     "address": "600 NE 136th Avenue",
+     "city": "Vancouver",
+     "latitude": 45.620071,
+     "longitude": -122.521996
+    },
+    {
+     "id": "od:70733",
+     "name": "FVRL - Goldendale Community Library",
+     "address": "131 W Burgen St",
+     "city": "Goldendale",
+     "latitude": 45.820012,
+     "longitude": -120.823326
+    },
+    {
+     "id": "od:86063",
+     "name": "FVRL - Green Mountain Library Express",
+     "address": "13105 NE Grinnell Rd.",
+     "city": "Woodland",
+     "latitude": 45.94786,
+     "longitude": -122.538423
+    },
+    {
+     "id": "od:70734",
+     "name": "FVRL - La Center Community Library",
+     "address": "1411 NE Lockwood Creek Rd.",
+     "city": "La Center",
+     "latitude": 45.862605,
+     "longitude": -122.657752
+    },
+    {
+     "id": "od:70735",
+     "name": "FVRL - North Bonneville Community Library",
+     "address": "214 CBD Mall",
+     "city": "North Bonneville",
+     "latitude": 45.640293,
+     "longitude": -121.971188
+    },
+    {
+     "id": "od:70596",
+     "name": "FVRL - Operations Center",
+     "address": "2018 Grand Boulevard",
+     "city": "Vancouver",
+     "latitude": 45.636735,
+     "longitude": -122.642297
+    },
+    {
+     "id": "od:70736",
+     "name": "FVRL - Ridgefield Community Library",
+     "address": "210 N Main Ave",
+     "city": "Ridgefield",
+     "latitude": 45.816906,
+     "longitude": -122.745827
+    },
+    {
+     "id": "od:70737",
+     "name": "FVRL - Stevenson Community Library",
+     "address": "120 Vancouver Ave",
+     "city": "Stevenson",
+     "latitude": 45.695271,
+     "longitude": -121.881805
+    },
+    {
+     "id": "od:70738",
+     "name": "FVRL - Three Creeks Community Library",
+     "address": "800 NE Tenney Rd",
+     "city": "Vancouver",
+     "latitude": 45.721058,
+     "longitude": -122.664818
+    },
+    {
+     "id": "od:70739",
+     "name": "FVRL - Vancouver Community Library",
+     "address": "901 C St.",
+     "city": "Vancouver",
+     "latitude": 45.629978,
+     "longitude": -122.661171
+    },
+    {
+     "id": "od:70740",
+     "name": "FVRL - Vancouver Mall Library",
+     "address": "8700 NE Vancouver Mall Dr",
+     "city": "Vancouver",
+     "latitude": 45.656373,
+     "longitude": -122.58333
+    },
+    {
+     "id": "od:70741",
+     "name": "FVRL - Washougal Community Library",
+     "address": "1661 C St",
+     "city": "Washougal",
+     "latitude": 45.579388,
+     "longitude": -122.354065
+    },
+    {
+     "id": "od:70742",
+     "name": "FVRL - White Salmon Valley Community Library",
+     "address": "77 NE Wauna Ave",
+     "city": "White Salmon",
+     "latitude": 45.727619,
+     "longitude": -121.486462
+    },
+    {
+     "id": "od:70743",
+     "name": "FVRL - Woodland Community Library",
+     "address": "411 Lakeshore Drive",
+     "city": "Woodland",
+     "latitude": 45.903937,
+     "longitude": -122.742963
+    },
+    {
+     "id": "od:86062",
+     "name": "FVRL - Yacolt Library Express",
+     "address": "105 E Yacolt Road",
+     "city": "Yacolt",
+     "latitude": 45.866519,
+     "longitude": -122.406326
+    },
+    {
+     "id": "od:86061",
+     "name": "FVRL - Yale Valley Community Library",
+     "address": "11700 Lewis River Road",
+     "city": "Ariel",
+     "latitude": 45.99562,
+     "longitude": -122.3827
+    }
+   ]
   },
   {
    "name": "Fort Worth Public Library",
    "country": "US",
    "region": "TX",
    "city": "Fort Worth",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://fortworth.bibliocommons.com"
-   },
    "overdrive": {
     "key": "fortworth",
     "websiteId": 227
@@ -13815,10 +13940,6 @@
    "country": "US",
    "region": "TX",
    "city": "Houston",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://houston.bibliocommons.com"
-   },
    "overdrive": {
     "key": "houstonpl",
     "websiteId": 300085
@@ -14975,10 +15096,6 @@
    "country": "US",
    "region": "CA",
    "city": "Los Angeles",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://lacountylibrary.bibliocommons.com"
-   },
    "overdrive": {
     "key": "countyofla",
     "websiteId": 159
@@ -15738,6 +15855,10 @@
    "overdrive": {
     "key": "lasvegas",
     "websiteId": 33
+   },
+   "hoopla": {
+    "id": "386",
+    "borrowLimitPerMonth": 10
    },
    "branches": [
     {
@@ -16989,10 +17110,6 @@
    "country": "US",
    "region": "TN",
    "city": "Memphis",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://memphislibrary.bibliocommons.com"
-   },
    "overdrive": {
     "key": "memphis",
     "websiteId": 123
@@ -18219,10 +18336,6 @@
    "country": "US",
    "region": "TN",
    "city": "Nashville",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://nashville.bibliocommons.com"
-   },
    "overdrive": {
     "key": "nashville",
     "websiteId": 239
@@ -19287,10 +19400,6 @@
    "country": "US",
    "region": "CA",
    "city": "Santa Ana",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://ocpl.bibliocommons.com"
-   },
    "overdrive": {
     "key": "orangecounty",
     "websiteId": 118
@@ -19850,6 +19959,10 @@
    "catalog": {
     "provider": "BIBLIOCOMMONS",
     "baseUrl": "https://pbclibrary.bibliocommons.com"
+   },
+   "hoopla": {
+    "id": "476",
+    "borrowLimitPerMonth": 10
    }
   },
   {
@@ -19857,10 +19970,6 @@
    "country": "US",
    "region": "AZ",
    "city": "Phoenix",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://phoenix.bibliocommons.com"
-   },
    "hoopla": {
     "id": "217",
     "borrowLimitPerMonth": 7
@@ -19871,10 +19980,6 @@
    "country": "US",
    "region": "WA",
    "city": "Tacoma",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://piercecounty.bibliocommons.com"
-   },
    "overdrive": {
     "key": "pierce",
     "websiteId": 205
@@ -21105,10 +21210,6 @@
    "country": "US",
    "region": "NY",
    "city": "Queens",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://queenslibrary.bibliocommons.com"
-   },
    "overdrive": {
     "key": "queens",
     "websiteId": 62
@@ -22217,10 +22318,6 @@
    "country": "US",
    "region": "TX",
    "city": "San Antonio",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://sanantonio.bibliocommons.com"
-   },
    "overdrive": {
     "key": "sanantonio",
     "websiteId": 228
@@ -23031,16 +23128,6 @@
      "longitude": -117.233191
     }
    ]
-  },
-  {
-   "name": "San Diego Public Library",
-   "country": "US",
-   "region": "CA",
-   "city": "San Diego",
-   "catalog": {
-    "provider": "BIBLIOCOMMONS",
-    "baseUrl": "https://sandiego.bibliocommons.com"
-   }
   },
   {
    "name": "San Francisco Public Library",
@@ -24067,6 +24154,10 @@
     "key": "spokane",
     "websiteId": 208
    },
+   "hoopla": {
+    "id": "218",
+    "borrowLimitPerMonth": 6
+   },
    "branches": [
     {
      "id": "od:42778",
@@ -24758,6 +24849,10 @@
    "overdrive": {
     "key": "toledo",
     "websiteId": 64
+   },
+   "hoopla": {
+    "id": "7",
+    "borrowLimitPerMonth": 8
    },
    "branches": [
     {
