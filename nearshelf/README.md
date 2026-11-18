@@ -97,4 +97,11 @@ The app downloads it at most once a week and falls back to the bundled copy.
 8. [x] Location sorting, watchlist, notifications, caching, rate limiting, provider health
 9. [x] Widget, history, offline, filters
 10. [x] AdMob native ads (in content) + UMP, settings, about, privacy policy, licences (no translations: English only, by decision)
-11. [ ] Release polish
+11. [x] Release polish: onboarding, icon, accessibility, empty/error states, signing, baseline profile module, Play listing and Data Safety (docs/play-store.md)
+
+## Release
+
+1. Add to `local.properties` (never committed): `admob.appId`, `admob.nativeUnitId`, `release.storeFile`, `release.storePassword`, `release.keyAlias`, `release.keyPassword`.
+2. `./gradlew test :app:lintRelease :app:bundleRelease`, which produces `app/build/outputs/bundle/release/app-release.aab`.
+3. Optional, with a phone connected: `./gradlew :app:generateReleaseBaselineProfile` (faster cold start).
+4. Listing text, screenshots plan, Data Safety answers and the pre-release checklist: docs/play-store.md.
