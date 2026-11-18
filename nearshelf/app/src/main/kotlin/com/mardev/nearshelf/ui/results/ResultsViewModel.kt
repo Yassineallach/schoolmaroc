@@ -10,7 +10,14 @@ import com.mardev.nearshelf.core.model.Format
 import com.mardev.nearshelf.core.model.Library
 import com.mardev.nearshelf.core.model.LibraryRef
 import com.mardev.nearshelf.core.metadata.QueryExpander
+import android.content.Context
+import com.mardev.nearshelf.core.geo.LatLng
 import com.mardev.nearshelf.core.search.SearchCoordinator
+import com.mardev.nearshelf.core.watch.Watch
+import com.mardev.nearshelf.data.WatchlistRepository
+import com.mardev.nearshelf.location.LocationRepository
+import com.mardev.nearshelf.work.WatchlistWorker
+import dagger.hilt.android.qualifiers.ApplicationContext
 import com.mardev.nearshelf.core.share.ShareParser
 import com.mardev.nearshelf.core.search.ServiceState
 import com.mardev.nearshelf.data.LibraryRepository
@@ -82,14 +89,48 @@ class ResultsViewModel @Inject constructor(
     private val coordinator: SearchCoordinator,
     private val shareParser: ShareParser,
     private val expander: QueryExpander,
+    private val watchlist: WatchlistRepository,
+    private val location: LocationRepository,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
+
+    private val _watched = MutableStateFlow(false)
+    val watched: StateFlow<Boolean> = _watched.asStateFlow()
+
+    /** Coarse location for branch distances; null without permission. Never leaves the device. */
+    private val _here = MutableStateFlow<LatLng?>(null)
+    val here: StateFlow<LatLng?> = _here.asStateFlow()
+
+    val hasLocationPermission get() = location.hasPermission()
+
+    fun refreshLocation() = viewModelScope.launch { _here.value = location.current() }
+
+    /** Watch or unwatch; the current results become the baseline for notifications. */
+    fun toggleWatch() = viewModelScope.launch {
+        val q = query ?: return@launch
+        if (_watched.value) {
+            watchlist.remove(WatchlistRepository.keyOf(q))
+            if (watchlist.all().isEmpty()) WatchlistWorker.cancel(context)
+            _watched.value = false
+        } else {
+            val s = _state.value
+            val header = s.header
+            val snapshot = s.libraries?.let { libs ->
+                if (s.finished < s.total) null
+                else Watch.snapshot(System.currentTimeMillis(), libs.map { lr -> lr.library to lr.services.map { it.ref.provider.displayName to it.state } })
+            }
+            watchlist.add(q, header.title, header.authors.firstOrNull(), header.coverUrl, snapshot)
+            WatchlistWorker.schedule(context)
+            _watched.value = true
+        }
+    }
 
     private val route = savedState.toRoute<ResultsRoute>()
     private var query: BookQuery? = route.toQueryOrNull()
 
     private val _state = MutableStateFlow(
         ResultsUiState(
-            phase = if (route.shared != null) Phase.READING_SHARE else Phase.LOOKING_UP,
+            phase = if (route.shared != null && route.watchKey == null) Phase.READING_SHARE else Phase.LOOKING_UP,
             query = query,
             sharedText = route.shared,
         ),
@@ -97,8 +138,10 @@ class ResultsViewModel @Inject constructor(
     val state: StateFlow<ResultsUiState> = _state.asStateFlow()
 
     init {
+        if (location.hasPermission()) refreshLocation()
         viewModelScope.launch {
-            val typed = query ?: route.shared?.let { shareParser.parse(it) }
+            val fromWatch = route.watchKey?.let { key -> watchlist.all().firstOrNull { it.key == key }?.query }
+            val typed = fromWatch ?: query ?: route.shared?.let { shareParser.parse(it) }
             if (typed == null) {
                 _state.update { it.copy(phase = Phase.SHARE_NOT_UNDERSTOOD) }
                 return@launch
@@ -108,6 +151,7 @@ class ResultsViewModel @Inject constructor(
             val q = expanded.query
             query = q
             _state.update { it.copy(phase = Phase.SEARCHING, query = q, metadataCover = expanded.coverUrl) }
+            _watched.value = watchlist.isWatched(q)
 
             val libraries = repo.libraries.first()
             _state.update { s ->
@@ -121,8 +165,9 @@ class ResultsViewModel @Inject constructor(
 
     fun retry(libraryId: String, ref: LibraryRef) {
         val q = query ?: return
+        val lib = _state.value.libraries?.firstOrNull { it.library.id == libraryId }?.library
         apply(libraryId, ref, ServiceState.Loading)
-        viewModelScope.launch { apply(libraryId, ref, coordinator.searchOne(ref, q)) }
+        viewModelScope.launch { apply(libraryId, ref, coordinator.searchOne(ref, q, lib, forceRefresh = true)) }
     }
 
     fun borrowLink(ref: LibraryRef, match: MatchedHolding): String =
@@ -156,5 +201,5 @@ class ResultsViewModel @Inject constructor(
     }
 }
 
-private fun ResultsRoute.toQueryOrNull(): BookQuery? =
+private fun ResultsRoute.toQueryOrNull(): BookQuery? = if (watchKey != null) null else
     if (title.isNullOrBlank() && isbn.isNullOrBlank()) null else BookQuery(title = title, author = author, isbn = isbn)

@@ -1,5 +1,7 @@
 package com.mardev.nearshelf.ui.results
 
+import com.mardev.nearshelf.core.geo.Distance
+import com.mardev.nearshelf.core.geo.LatLng
 import com.mardev.nearshelf.core.match.BranchNames
 import com.mardev.nearshelf.core.model.CopyStatus
 import com.mardev.nearshelf.core.model.PhysicalCopy
@@ -16,14 +18,21 @@ data class BranchSummary(
     /** Earliest due date (yyyy-MM-dd) among checked-out copies, when the catalog gives one. */
     val nextDue: String?,
     val callNumber: String?,
+    val location: com.mardev.nearshelf.core.geo.LatLng? = null,
+    /** Kilometres from the user, when both locations are known. */
+    val distanceKm: Double? = null,
 )
 
-/** Home branch first, then branches with copies on the shelf (most first), then the rest by name. */
-fun summarizeBranches(copies: List<PhysicalCopy>, homeBranchName: String?): List<BranchSummary> =
+/**
+ * Home branch first, then branches with copies on the shelf, then the rest. Within each
+ * group: nearest first when [here] is known, otherwise most copies on the shelf, then name.
+ */
+fun summarizeBranches(copies: List<PhysicalCopy>, homeBranchName: String?, here: LatLng? = null): List<BranchSummary> =
     copies.groupBy { it.branchName }.map { (name, cs) ->
+        val loc = cs.firstOrNull { it.latitude != null && it.longitude != null }?.let { LatLng(it.latitude!!, it.longitude!!) }
         BranchSummary(
             name = name,
-            isHome = homeBranchName != null && BranchNames.same(homeBranchName, name),
+            isHome = homeBranchName != null && BranchNames.matches(homeBranchName, name),
             onShelf = cs.count { it.status == CopyStatus.AVAILABLE },
             total = cs.size,
             inTransit = cs.count { it.status == CopyStatus.IN_TRANSIT },
@@ -31,5 +40,9 @@ fun summarizeBranches(copies: List<PhysicalCopy>, homeBranchName: String?): List
             libraryUseOnly = cs.count { it.status == CopyStatus.LIBRARY_USE_ONLY },
             nextDue = cs.mapNotNull { it.dueDate }.minOrNull(),
             callNumber = cs.firstNotNullOfOrNull { it.callNumber },
+            location = loc,
+            distanceKm = if (here != null && loc != null) Distance.km(here, loc) else null,
         )
-    }.sortedWith(compareBy<BranchSummary>({ !it.isHome }, { -it.onShelf }, { it.name }))
+    }.sortedWith(
+        compareBy<BranchSummary>({ !it.isHome }, { it.onShelf == 0 }, { it.distanceKm ?: Double.MAX_VALUE }, { -it.onShelf }, { it.name }),
+    )

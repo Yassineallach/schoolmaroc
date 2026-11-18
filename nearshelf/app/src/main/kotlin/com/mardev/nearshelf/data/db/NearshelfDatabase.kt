@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.data.db
 
+import androidx.room.AutoMigration
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -41,7 +42,61 @@ interface SavedLibraryDao {
     }
 }
 
-@Database(entities = [SavedLibraryEntity::class], version = 1, exportSchema = true)
+/** Search results (6 h) and Open Library data (30 days), as JSON. */
+@Entity(tableName = "cache_entry")
+data class CacheEntryEntity(@PrimaryKey val key: String, val value: String, val savedAt: Long)
+
+@Dao
+interface CacheDao {
+    @Query("SELECT * FROM cache_entry WHERE `key` = :key")
+    suspend fun get(key: String): CacheEntryEntity?
+
+    @Upsert
+    suspend fun put(entry: CacheEntryEntity)
+
+    @Query("DELETE FROM cache_entry WHERE savedAt < :before")
+    suspend fun deleteOlderThan(before: Long)
+}
+
+/** A watched book. [queryJson] is the core BookQuery; [snapshotJson] the last check's WatchSnapshot. */
+@Entity(tableName = "watch_item")
+data class WatchItemEntity(
+    @PrimaryKey val key: String,
+    val queryJson: String,
+    val title: String,
+    val author: String?,
+    val coverUrl: String?,
+    val addedAt: Long,
+    val lastCheckedAt: Long? = null,
+    val snapshotJson: String? = null,
+)
+
+@Dao
+interface WatchDao {
+    @Query("SELECT * FROM watch_item ORDER BY addedAt DESC")
+    fun observe(): Flow<List<WatchItemEntity>>
+
+    @Query("SELECT * FROM watch_item ORDER BY addedAt DESC")
+    suspend fun all(): List<WatchItemEntity>
+
+    @Query("SELECT * FROM watch_item WHERE `key` = :key")
+    suspend fun get(key: String): WatchItemEntity?
+
+    @Upsert
+    suspend fun upsert(item: WatchItemEntity)
+
+    @Query("DELETE FROM watch_item WHERE `key` = :key")
+    suspend fun delete(key: String)
+}
+
+@Database(
+    entities = [SavedLibraryEntity::class, CacheEntryEntity::class, WatchItemEntity::class],
+    version = 2,
+    exportSchema = true,
+    autoMigrations = [AutoMigration(from = 1, to = 2)],
+)
 abstract class NearshelfDatabase : RoomDatabase() {
     abstract fun savedLibraries(): SavedLibraryDao
+    abstract fun cache(): CacheDao
+    abstract fun watch(): WatchDao
 }

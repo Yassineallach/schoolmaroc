@@ -148,7 +148,49 @@
     <string name="scanner_permission_body">Nearshelf only uses the camera to read the barcode on this screen. Nothing is recorded or uploaded.</string>
     <string name="scanner_open_settings">Open settings</string>
 
+    <!-- Watchlist -->
+    <string name="nav_watchlist">Watchlist</string>
+    <string name="watchlist_title">Watchlist</string>
+    <string name="watchlist_explainer">Nearshelf checks these once a day and tells you when one becomes available, lands on a shelf, or the wait drops.</string>
+    <string name="watchlist_empty_title">Nothing watched yet</string>
+    <string name="watchlist_empty_body">Search for a book and tap Watch. You’ll get a notification when it’s available at one of your libraries.</string>
+    <string name="watchlist_check_now">Check now</string>
+    <string name="watchlist_checking">Checking your watchlist…</string>
+    <string name="watchlist_removed">Stopped watching %1$s</string>
+    <string name="watchlist_checked">Checked %1$s</string>
+    <string name="watchlist_not_checked">Not checked yet</string>
+    <string name="watch_status_available">Available now in %1$s at %2$s</string>
+    <string name="watch_status_on_shelf">On the shelf at %1$s</string>
+    <plurals name="watch_status_waiting">
+        <item quantity="one">Shortest wait: %1$d day (%2$s)</item>
+        <item quantity="other">Shortest wait: %1$d days (%2$s)</item>
+    </plurals>
+    <string name="watch_status_not_yet">Not at your libraries yet</string>
+    <string name="action_watch">Watch</string>
+    <string name="action_watching">Watching</string>
+    <string name="notif_channel_name">Watchlist updates</string>
+    <string name="notif_channel_description">When a watched book becomes available, reaches a shelf, or its wait drops.</string>
+    <string name="notif_now_available">Now available at %1$s in %2$s</string>
+    <string name="notif_on_shelf">On the shelf at %1$s (%2$s)</string>
+    <plurals name="notif_wait_dropped">
+        <item quantity="one">Wait dropped to %1$d day at %2$s</item>
+        <item quantity="other">Wait dropped to %1$d days at %2$s</item>
+    </plurals>
+
+    <!-- Results: freshness, distance -->
+    <string name="results_stale">Saved results from %1$s. Couldn’t reach the catalog just now.</string>
+    <string name="results_temporarily_unavailable">%1$s is temporarily unavailable. Nearshelf will try again later.</string>
+    <string name="location_card_title">See which branch is closest</string>
+    <string name="location_card_body">Allow approximate location to sort branches by distance. It stays on your phone and is never sent to libraries or anyone else.</string>
+    <string name="location_card_allow">Allow</string>
+    <string name="action_not_now">Not now</string>
+    <string name="distance_km">%1$s km</string>
+    <string name="distance_mi">%1$s mi</string>
+
     <!-- Accessibility -->
+    <string name="cd_open_map">Open %1$s in maps</string>
+    <string name="cd_open_results">Open availability</string>
+    <string name="cd_remove_watch">Stop watching %1$s</string>
     <string name="cd_scan_barcode">Scan a barcode</string>
     <string name="cd_back">Back</string>
     <string name="cd_clear">Clear</string>

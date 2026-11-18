@@ -81,6 +81,12 @@ dependencies {
     implementation(libs.camera.camera2)
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.compose)
+    implementation(libs.work.runtime)
+    implementation(libs.hilt.work)
+    ksp(libs.hilt.androidx.compiler)
+    implementation(libs.play.location)
+    implementation(libs.kotlinx.coroutines.play.services)
+
     // Bundled model: works offline and without Google Play services.
     implementation(libs.mlkit.barcode)
 

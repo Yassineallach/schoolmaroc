@@ -58,6 +58,15 @@ import com.mardev.nearshelf.core.match.MatchedHolding
 import com.mardev.nearshelf.core.model.Format
 import com.mardev.nearshelf.core.model.LibraryRef
 import com.mardev.nearshelf.core.model.ProviderId
+import com.mardev.nearshelf.core.geo.LatLng
+import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
+import androidx.core.content.ContextCompat
 import com.mardev.nearshelf.ui.theme.LocalStatusColors
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -86,7 +95,21 @@ fun ResultsScreen(
     vm: ResultsViewModel = hiltViewModel(),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
+    val watched by vm.watched.collectAsStateWithLifecycle()
+    val here by vm.here.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var askedLocation by rememberSaveable { mutableStateOf(false) }
+    val locationLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) vm.refreshLocation()
+    }
+    val notifyLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    val onWatch: () -> Unit = {
+        if (!watched && Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) notifyLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        vm.toggleWatch()
+        Unit
+    }
 
     Scaffold(
         topBar = {
@@ -137,13 +160,26 @@ fun ResultsScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            item(key = "header") { BookHeaderView(state) }
+            item(key = "header") { BookHeaderView(state, watched, onWatch) }
+            val hasPrint = libraries.any { lr -> lr.services.any { it.ref.provider.kind == ProviderId.Kind.PHYSICAL } }
+            if (hasPrint && here == null && !vm.hasLocationPermission && !askedLocation) {
+                item(key = "location") {
+                    LocationCard(
+                        onAllow = {
+                            askedLocation = true
+                            locationLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+                        },
+                        onDismiss = { askedLocation = true },
+                    )
+                }
+            }
             items(libraries, key = { it.library.id }) { lr ->
                 LibraryCard(
                     result = lr,
                     onBorrow = { ref, m -> context.openExternal(vm.borrowLink(ref, m)) },
                     onRetry = { ref -> vm.retry(lr.library.id, ref) },
                     onOpenCatalog = { ref -> vm.searchLink(ref)?.let(context::openExternal) },
+                    here = here,
                     modifier = Modifier.animateItem(),
                 )
             }
@@ -169,7 +205,7 @@ private fun PendingHeader(state: ResultsUiState) {
 }
 
 @Composable
-private fun BookHeaderView(state: ResultsUiState) {
+private fun BookHeaderView(state: ResultsUiState, watched: Boolean, onWatch: () -> Unit) {
     val header = state.header
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         val coverModifier = Modifier.width(84.dp).heightIn(min = 120.dp).clip(RoundedCornerShape(8.dp))
@@ -200,6 +236,20 @@ private fun BookHeaderView(state: ResultsUiState) {
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(top = 4.dp).semantics { liveRegion = LiveRegionMode.Polite },
             )
+            val watchLabel = stringResource(if (watched) R.string.action_watching else R.string.action_watch)
+            if (watched) {
+                FilledTonalButton(onClick = onWatch, modifier = Modifier.padding(top = 4.dp).heightIn(min = 48.dp)) {
+                    Icon(painterResource(R.drawable.ic_watchlist_fill), null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(watchLabel)
+                }
+            } else {
+                OutlinedButton(onClick = onWatch, modifier = Modifier.padding(top = 4.dp).heightIn(min = 48.dp)) {
+                    Icon(painterResource(R.drawable.ic_watchlist), null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(watchLabel)
+                }
+            }
         }
     }
 }
@@ -210,6 +260,7 @@ private fun LibraryCard(
     onBorrow: (LibraryRef, MatchedHolding) -> Unit,
     onRetry: (LibraryRef) -> Unit,
     onOpenCatalog: (LibraryRef) -> Unit,
+    here: LatLng?,
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(modifier.fillMaxWidth()) {
@@ -245,7 +296,27 @@ private fun LibraryCard(
                     when (st) {
                         ServiceState.Loading -> SkeletonLines(3, Modifier.fillMaxWidth().padding(16.dp, 8.dp))
                         is ServiceState.Failed -> FailedRow(svc.ref, st, onRetry, onOpenCatalog)
+                        ServiceState.TemporarilyUnavailable -> Row(
+                            Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                stringResource(R.string.results_temporarily_unavailable, svc.ref.provider.displayName),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.weight(1f),
+                            )
+                            TextButton(onClick = { onRetry(svc.ref) }) { Text(stringResource(R.string.action_retry)) }
+                        }
                         is ServiceState.Done -> Column {
+                            if (st.stale) {
+                                Text(
+                                    stringResource(R.string.results_stale, relativeTime(st.fetchedAt)),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp),
+                                )
+                            }
                             if (svc.ref.provider == ProviderId.HOOPLA && st.matches.isNotEmpty()) {
                                 HooplaNote(svc.ref)
                             }
@@ -260,7 +331,7 @@ private fun LibraryCard(
                             ServiceResult(svc.ref, st).rows.forEachIndexed { i, row ->
                                 if (i > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
                                 if (row.match.holding.format == Format.PHYSICAL) {
-                                    PhysicalRow(svc.ref, row, result.library.homeBranch?.name, onBorrow)
+                                    PhysicalRow(svc.ref, row, result.library.homeBranch?.name, here, onBorrow)
                                 } else {
                                     HoldingRow(svc.ref, row, onBorrow)
                                 }
@@ -395,10 +466,16 @@ private const val BRANCHES_COLLAPSED = 4
 
 /** A print edition: summary, then branch by branch (home branch first). */
 @Composable
-private fun PhysicalRow(ref: LibraryRef, row: HoldingRowUi, homeBranchName: String?, onBorrow: (LibraryRef, MatchedHolding) -> Unit) {
+private fun PhysicalRow(
+    ref: LibraryRef,
+    row: HoldingRowUi,
+    homeBranchName: String?,
+    here: LatLng?,
+    onBorrow: (LibraryRef, MatchedHolding) -> Unit,
+) {
     val m = row.match
     val h = m.holding
-    val branches = remember(h.copies, homeBranchName) { summarizeBranches(h.copies, homeBranchName) }
+    val branches = remember(h.copies, homeBranchName, here) { summarizeBranches(h.copies, homeBranchName, here) }
     var expanded by rememberSaveable(h.providerItemId) { mutableStateOf(false) }
     val anyShelf = branches.any { it.onShelf > 0 } || (h.copies.isEmpty() && h.isAvailableNow)
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -463,7 +540,15 @@ private fun PhysicalRow(ref: LibraryRef, row: HoldingRowUi, homeBranchName: Stri
 @Composable
 private fun BranchLine(b: BranchSummary, branchLevelOnly: Boolean) {
     val status = LocalStatusColors.current
-    Row(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.Top) {
+    val context = LocalContext.current
+    val mapLabel = stringResource(R.string.cd_open_map, b.name)
+    val rowModifier = b.location?.let { loc ->
+        Modifier.clickable(onClickLabel = mapLabel) {
+            // geo: URI opens the user's maps app at the branch; nothing is sent by Nearshelf.
+            context.openExternal("geo:${loc.latitude},${loc.longitude}?q=${loc.latitude},${loc.longitude}(${Uri.encode(b.name)})")
+        }
+    } ?: Modifier
+    Row(Modifier.fillMaxWidth().then(rowModifier).heightIn(min = 40.dp).semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.Top) {
         Icon(
             painterResource(R.drawable.ic_map_pin),
             null,
@@ -477,6 +562,10 @@ private fun BranchLine(b: BranchSummary, branchLevelOnly: Boolean) {
                 if (b.isHome) {
                     Spacer(Modifier.width(6.dp))
                     Badge(stringResource(R.string.badge_home), variant = BadgeVariant.Outline, size = BadgeSize.Sm)
+                }
+                b.distanceKm?.let {
+                    Spacer(Modifier.width(8.dp))
+                    Text(formatDistance(it), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             Text(
@@ -499,6 +588,42 @@ private fun branchStatus(b: BranchSummary): String = when {
     b.checkedOut > 0 && b.nextDue != null -> stringResource(R.string.branch_out_due, formatDate(b.nextDue))
     b.checkedOut > 0 -> pluralStringResource(R.plurals.branch_checked_out, b.checkedOut, b.checkedOut)
     else -> stringResource(R.string.branch_unavailable)
+}
+
+/** Miles where people use them (US, UK, Liberia, Myanmar), kilometres elsewhere. */
+@Composable
+private fun formatDistance(km: Double): String {
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+    return if (locale.country in setOf("US", "GB", "LR", "MM")) {
+        val mi = km * 0.621371
+        stringResource(R.string.distance_mi, if (mi < 10) String.format(locale, "%.1f", mi) else mi.toInt().toString())
+    } else {
+        stringResource(R.string.distance_km, if (km < 10) String.format(locale, "%.1f", km) else km.toInt().toString())
+    }
+}
+
+@Composable
+private fun relativeTime(epochMillis: Long): String =
+    android.text.format.DateUtils.getRelativeTimeSpanString(epochMillis, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS).toString()
+
+@Composable
+private fun LocationCard(onAllow: () -> Unit, onDismiss: () -> Unit) {
+    androidx.compose.material3.Card(
+        colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(painterResource(R.drawable.ic_map_pin), null, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.location_card_title), style = MaterialTheme.typography.titleMedium)
+            }
+            Text(stringResource(R.string.location_card_body), style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                androidx.compose.material3.Button(onClick = onAllow) { Text(stringResource(R.string.location_card_allow)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_not_now)) }
+            }
+        }
+    }
 }
 
 private fun formatDate(iso: String): String = runCatching {

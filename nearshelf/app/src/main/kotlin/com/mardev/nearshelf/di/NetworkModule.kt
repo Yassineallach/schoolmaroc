@@ -7,6 +7,7 @@ import com.mardev.nearshelf.core.metadata.QueryExpander
 import com.mardev.nearshelf.core.share.OkHttpPageFetcher
 import com.mardev.nearshelf.core.share.PageFetcher
 import com.mardev.nearshelf.data.RegistryRepository
+import com.mardev.nearshelf.data.RoomCache
 import com.mardev.nearshelf.core.share.ShareParser
 import com.mardev.nearshelf.core.net.NearshelfHttp
 import com.mardev.nearshelf.core.provider.CatalogProvider
@@ -96,8 +97,8 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun searchCoordinator(providers: Set<@JvmSuppressWildcards CatalogProvider>) =
-        SearchCoordinator(providers, BookMatcher())
+    fun searchCoordinator(providers: Set<@JvmSuppressWildcards CatalogProvider>, cache: RoomCache) =
+        SearchCoordinator(providers, BookMatcher(), cache = cache)
 
     @Provides
     @Singleton
@@ -105,7 +106,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun queryExpander(ol: OpenLibrary) = QueryExpander(ol)
+    fun queryExpander(ol: OpenLibrary, cache: RoomCache) = QueryExpander(ol, cache)
 
     @Provides
     @Singleton

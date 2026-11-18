@@ -33,6 +33,8 @@ import com.mardev.nearshelf.nav.HomeRoute
 import com.mardev.nearshelf.nav.LibrariesRoute
 import com.mardev.nearshelf.nav.ResultsRoute
 import com.mardev.nearshelf.nav.ScannerRoute
+import com.mardev.nearshelf.nav.WatchlistRoute
+import com.mardev.nearshelf.ui.watchlist.WatchlistScreen
 import com.mardev.nearshelf.ui.home.HomeScreen
 import com.mardev.nearshelf.ui.libraries.AddLibraryScreen
 import com.mardev.nearshelf.ui.libraries.LibrariesScreen
@@ -46,13 +48,24 @@ class MainActivity : ComponentActivity() {
     /** Text from the share sheet, consumed once by the nav host. */
     private val pendingShare = mutableStateOf<String?>(null)
 
+    /** A watchlist notification's book, consumed once by the nav host. */
+    private val pendingWatch = mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        if (savedInstanceState == null) pendingShare.value = intent.sharedText()
+        if (savedInstanceState == null) {
+            pendingShare.value = intent.sharedText()
+            pendingWatch.value = intent.getStringExtra(EXTRA_WATCH_KEY)
+        }
         setContent {
             NearshelfTheme {
-                NearshelfRoot(pendingShare.value, onShareConsumed = { pendingShare.value = null })
+                NearshelfRoot(
+                    pendingShare = pendingShare.value,
+                    onShareConsumed = { pendingShare.value = null },
+                    pendingWatch = pendingWatch.value,
+                    onWatchConsumed = { pendingWatch.value = null },
+                )
             }
         }
     }
@@ -60,6 +73,11 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         intent.sharedText()?.let { pendingShare.value = it }
+        intent.getStringExtra(EXTRA_WATCH_KEY)?.let { pendingWatch.value = it }
+    }
+
+    companion object {
+        const val EXTRA_WATCH_KEY = "com.mardev.nearshelf.WATCH_KEY"
     }
 
     private fun Intent.sharedText(): String? =
@@ -83,12 +101,19 @@ private data class TopLevel(val route: Any, @StringRes val label: Int, @Drawable
 
 private val topLevel = listOf(
     TopLevel(HomeRoute, R.string.nav_search, R.drawable.ic_search, R.drawable.ic_search_fill),
+    TopLevel(WatchlistRoute, R.string.nav_watchlist, R.drawable.ic_watchlist, R.drawable.ic_watchlist_fill),
     TopLevel(LibrariesRoute, R.string.nav_libraries, R.drawable.ic_library, R.drawable.ic_library_fill),
 )
 
 @Composable
-private fun NearshelfRoot(pendingShare: String?, onShareConsumed: () -> Unit) {
+private fun NearshelfRoot(pendingShare: String?, onShareConsumed: () -> Unit, pendingWatch: String?, onWatchConsumed: () -> Unit) {
     val nav = rememberNavController()
+    LaunchedEffect(pendingWatch) {
+        if (pendingWatch != null) {
+            nav.navigate(ResultsRoute(watchKey = pendingWatch))
+            onWatchConsumed()
+        }
+    }
     LaunchedEffect(pendingShare) {
         if (pendingShare != null) {
             nav.navigate(ResultsRoute(shared = pendingShare)) { launchSingleTop = false }
@@ -139,6 +164,12 @@ private fun NearshelfRoot(pendingShare: String?, onShareConsumed: () -> Unit) {
                         }
                     },
                     onAddLibrary = { nav.navigate(AddLibraryRoute) },
+                )
+            }
+            composable<WatchlistRoute> {
+                WatchlistScreen(
+                    onOpen = { item -> nav.navigate(ResultsRoute(watchKey = item.key)) },
+                    onSearch = { nav.navigate(HomeRoute) { popUpTo(nav.graph.findStartDestination().id); launchSingleTop = true } },
                 )
             }
             composable<LibrariesRoute> { LibrariesScreen(onAddLibrary = { nav.navigate(AddLibraryRoute) }) }
