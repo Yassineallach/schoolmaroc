@@ -9,7 +9,7 @@ object BotWall {
     fun isWall(code: Int, body: String): Boolean {
         val head = body.take(20_000)
         return (code == 429 || code == 403 || code == 503) && ("cloudflare" in head.lowercase() || "Too Many Requests" in head) ||
-            "koha_fast_challenge" in head ||
+            "fast_challenge/" in head || // Koha (Catalyst) and Aspen: /opac-tmpl/lib/koha_fast_challenge/, /files/fast_challenge/
             "<title>Just a moment...</title>" in head ||
             "Attention Required! | Cloudflare" in head ||
             "cf-chl-" in head

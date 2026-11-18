@@ -1,0 +1,1846 @@
+
+<div id="IsVendorAccountPresent">
+</div>
+
+<div id="IsOverdriveVendorAccountPresent">
+</div>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {         
+            $(".c-title-detail-actions__oneclick").on("click", function (e) {
+                var id = $(this).attr('data-recordid');
+
+                $("#oneclick_" + id).addClass('c-title-detail__disable_a_href');
+                var strOK = "OK";
+                PlaceOneClickHoldRequest(id, strOK, e);
+            });
+
+            
+                        
+       });
+    </script>
+
+
+    <script type="text/javascript">
+
+        function processDynamicLinksResponse(booksInfo) 
+        {
+            for (id in booksInfo) 
+            {
+                if (booksInfo[id] && booksInfo[id].preview == 'partial' && booksInfo[id].embeddable == true)
+                {
+                    $('.gbs-preview-div').each(function () 
+                    {
+                        if ($(this).attr('id').indexOf(id) != -1) {
+                            $(this).show();
+                        }
+                    });
+                }
+            }
+        }
+        
+  
+
+    </script>
+
+
+
+
+<div class='c-results-utility c-results-utility--full'>
+  <div class="c-results-utility__container c-results-utility__container--result-count">
+    <div class="c-results-utility-result-count">
+        1
+        -
+        10
+        of
+        57
+    </div>
+    <div class="c-results-utility-per-page form-inline">  
+      <div class="c-results-utility-per-page__select-container select-styled">    
+        <select aria-label="Results per page dropdown" class="c-results-utility-per-page__select" id="dropdownResultsPerPageTop" onchange="javascript:ajaxLoadResultsPage(1, 0, 'Top', 0);">
+           <option value="10" selected>10</option>
+           <option value="20">20</option>
+           <option value="30">30</option>
+           <option value="50">50</option>
+           <option value="100">100</option>
+        </select>
+      </div>
+      <span aria-label="per page"  class="c-results-utility-per-page__label">per page</span>
+    </div>
+  </div>
+
+  
+      <div class="c-results-utility__container c-results-utility__container--sort-narrow c-results-utility__container--affix">
+
+        
+          <div class="c-results-utility-sort">
+            <label for="dropdownSortByTop" class="c-results-utility-sort__label">Sort</label>
+            <div class="c-results-utility-sort__select-container">             
+              
+                      <select style="width:100%; max-width: 150px;" class="c-results-utility-sort__select js-select-width" id="dropdownSortByTop" onchange="javascript:ajaxSortSearchResults('Top');" style="width: auto">
+                  
+                      <option value="RELEVANCE" selected>Relevance</option>
+                  
+                      <option value="MP">Most popular</option>
+                  
+                      <option value="AU">Author</option>
+                  
+                      <option value="TI">Title</option>
+                  
+                      <option value="CALL">Call Number</option>
+                  
+                      <option value="PD">Publication date</option>
+                  
+                      <option value="AU_TI">Author, then Title</option>
+                  
+                      <option value="AU_PD">Author, then Publication date</option>
+                  
+                      <option value="TI_AU">Title, then Author</option>
+                  
+                      <option value="TI_PD">Title, then Publication date</option>
+                  
+                      <option value="TI_TOM">Title, then Format</option>
+                  
+                      <option value="PD_AU">Publication date, then Author</option>
+                  
+                      <option value="PD_TI">Publication date, then Title</option>
+                  
+                      <option value="CALL_AU">Call number, then Author</option>
+                  
+                      <option value="CALL_TI">Call number, then Title</option>
+                  
+                      <option value="CALL_PD">Call number, then Publication Date</option>
+                  
+                      </select>
+                   
+            </div>
+          </div>
+        
+
+        <div class="c-results-utility-narrow" style="display: block;" data-show-at-load="">
+          <div class="c-accordion c-accordion--results-utility" id="narrow-container" role="tablist" aria-multiselectable="true">
+            <div class="c-accordion__panel" id="c-accordion__panel-narrow">
+              <div class="c-accordion__heading" role="tab">
+                <h5 class="c-accordion__title">
+                  <a class="c-results-utility-narrow__link collapsed " role="button" href="javascript:showModalBasic('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxNarrowYourSearch.aspx', 'Narrow your search')">                   
+                    <span class="c-results-utility-narrow__narrow-label">Narrow</span>
+                    <span class="c-results-utility-narrow__narrowed-label">Narrowed</span>
+                  </a>
+                </h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    </div>
+  
+                 
+
+
+  <div class="c-results-utility__container c-results-utility__container--pagination c-results-utility__container--last">
+    <div class="c-results-utility-full-pagination">
+        
+    </div>
+  </div>
+ 
+
+</div>
+
+
+
+
+
+
+
+<div id="searchResultsDIV">
+   
+        <div class="search__position">
+            <a id="__pos-1" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_1" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_1" class='c-title-detail__thumbnail hover__thumbnail' src="https://www.syndetics.com/index.aspx?isbn=9781617530036/SC.GIF&client=brentwoodlibvega&upc=&oclc=679924737" alt="J.R.R. Tolkien&#39;s The hobbit" data-position="1" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxMARC.aspx?pos=1')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.brentwoodtn.gov/polaris/themes/shared/formats/formatid01.gif" alt="Book" title="Book" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2011</div>
+                            
+                            
+                            
+                                <div class="c-title-detail__3rd-party">
+
+                                    
+                                    
+                                        <div class="gbs-preview-div c-title-detail__3rd-party-item--google-preview" id="gbs_ISBN:9781617530036_1" >
+                                            <a class="gbs-preview-link" href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxGooglePreview.aspx?isbn=ISBN:9781617530036','', true)">
+                                                <img src="https://catalog.brentwoodtn.gov/polaris/themes/shared/gbs_preview_button.gif" title="Google Books Preview" alt="Google Books Preview" border="0" />
+                                            </a>
+                                        </div>
+                                    
+                            </div>
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_1"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">1.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&amp;pos=1&amp;cn=155960"><span class="nsm-short-item nsm-e135">J.R.R. <span class="nsm-hit-text">Tolkien&#39;s</span> <span class="nsm-hit-text">The</span> <span class="nsm-hit-text">hobbit</span></span></a>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-short-item nsm-e1">... journeys -- Tom Shippey on sources, origins, and modernizing <span class="nsm-hit-text">the</span> past -- Jaime Albero Poveda on narrative models in <span class="nsm-hit-text">Tolkien&#39;s</span> fiction -- K.S. Whetter and R. Andrew McDonald on sword imagery -- Elizabeth A. Whittingham on <span class="nsm-hit-text">the</span> influence of family on <span class="nsm-hit-text">Tolkien</span> -- Works by J.R.R. <span class="nsm-hit-text">Tolkien</span> -- Annotated bibliography. ...</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">New York : Bloom&#39;s Literary Criticism, c2011.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e103">Description: </span><span class="nsm-short-item nsm-e103">107 p. ; 23 cm.</span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e147">Series: </span><span class="nsm-short-item nsm-e147"><a class="nsm-browse-link" href="../search/browse.aspx?ctx=1.1033.0.0.1&amp;type=Browse&amp;by=SE&amp;term=Bloom%27s+guides.&amp;page=0"><span class="nsm-browse-text">Bloom&#39;s guides.</span></a></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e31">Local Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e32">System Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e104">Call Number: </span><span class="nsm-short-item nsm-e104">823.912 JRR 2011</span>
+	</div></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-" class="c-title-detail-actions__list" data-item-pos="1"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-availability" role="presentation">
+                                <a class="c-title-detail-actions__btn" id="buttonAvailability_1"
+                                    href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxavailability.aspx?fp=1&level=local&morelink=0&pos=1&bibid=155960&displayAeonOnly=0', '', false, false, false, 'Availability')">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        Is it on the shelf?  
+				                </a>
+                            </li>
+				                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&pos=1&cn=155960">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-request" role="presentation">
+                            
+
+                                    <a class="c-title-detail-actions__btn" href="javascript:checkRequestLevel(1, 155960, 1)">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        Place Hold
+                                    </a>                        
+                            
+                            </li>
+                            
+                            
+                            
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_1 ><a class="c-add-to-my-list" href="javascript:AddToList(61, 1, '155960', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	   
+        <div class="search__position">
+            <a id="__pos-2" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_2" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_2" class='c-title-detail__thumbnail hover__thumbnail' src="https://www.syndetics.com/index.aspx?isbn=9780547739465/SC.GIF&client=brentwoodlibvega&upc=&oclc=772100935" alt="Exploring J.R.R. Tolkien&#39;s The hobbit" data-position="2" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxMARC.aspx?pos=2')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.brentwoodtn.gov/polaris/themes/shared/formats/formatid01.gif" alt="Book" title="Book" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2012</div>
+                            
+                            
+                            
+                                <div class="c-title-detail__3rd-party">
+
+                                    
+                                    
+                                        <div class="gbs-preview-div c-title-detail__3rd-party-item--google-preview" id="gbs_ISBN:9780547739465_2" >
+                                            <a class="gbs-preview-link" href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxGooglePreview.aspx?isbn=ISBN:9780547739465','', true)">
+                                                <img src="https://catalog.brentwoodtn.gov/polaris/themes/shared/gbs_preview_button.gif" title="Google Books Preview" alt="Google Books Preview" border="0" />
+                                            </a>
+                                        </div>
+                                    
+                            </div>
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_2"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">2.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&amp;pos=2&amp;cn=146520"><span class="nsm-short-item nsm-e135">Exploring J.R.R. <span class="nsm-hit-text">Tolkien&#39;s</span> <span class="nsm-hit-text">The</span> <span class="nsm-hit-text">hobbit</span></span></a>
+			</div><div class="nsm-brief-primary-author-group">
+				by <span class="nsm-short-item nsm-e118"><a class="nsm-browse-link" href="../search/browse.aspx?ctx=1.1033.0.0.1&amp;type=Browse&amp;by=AU&amp;term=Olsen%2c+Corey.&amp;page=0"><span class="nsm-browse-text">Olsen, Corey.</span></a></span>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-short-item nsm-e1">... to a general audience. Professor Corey Olsen (also known as <span class="nsm-hit-text">the</span> <span class="nsm-hit-text">Tolkien</span> Professor) will take readers on an in-depth journey through <span class="nsm-hit-text">The</span> <span class="nsm-hit-text">Hobbit</span> chapter by chapter, revealing <span class="nsm-hit-text">the</span> stories within <span class="nsm-hit-text">the</span> story: ...</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">Boston : Houghton Mifflin Harcourt, 2012.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e103">Description: </span><span class="nsm-short-item nsm-e103">318 p. ; 23 cm.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e31">Local Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e32">System Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e104">Call Number: </span><span class="nsm-short-item nsm-e104">823.912 OLS 2012</span>
+	</div></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-" class="c-title-detail-actions__list" data-item-pos="2"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-availability" role="presentation">
+                                <a class="c-title-detail-actions__btn" id="buttonAvailability_2"
+                                    href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxavailability.aspx?fp=1&level=local&morelink=0&pos=2&bibid=146520&displayAeonOnly=0', '', false, false, false, 'Availability')">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        Is it on the shelf?  
+				                </a>
+                            </li>
+				                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&pos=2&cn=146520">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-request" role="presentation">
+                            
+
+                                    <a class="c-title-detail-actions__btn" href="javascript:checkRequestLevel(2, 146520, 1)">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        Place Hold
+                                    </a>                        
+                            
+                            </li>
+                            
+                            
+                            
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_2 ><a class="c-add-to-my-list" href="javascript:AddToList(61, 2, '146520', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	   
+        <div class="search__position">
+            <a id="__pos-3" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_3" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_3" class='c-title-detail__thumbnail hover__thumbnail' src="https://images.contentreserve.com/ImageType-200/0427-1/{683DF792-32D3-47B7-829F-143EE1F7942C}Img200.jpg" alt="An A-Z of JRR Tolkien&#39;s the Hobbit" data-position="3" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                        <img class="c-title-detail-formats__img" src="https://catalog.brentwoodtn.gov/polaris/themes/shared/overdrive.jpg" border="0" alt="OverDrive Inc." title="OverDrive Inc." />
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxMARC.aspx?pos=3')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.brentwoodtn.gov/polaris/themes/shared/formats/formatid36.gif" alt="Ebook" title="Ebook" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2013</div>
+                            
+                            
+                            
+                                <div class="c-title-detail__3rd-party">
+
+                                    
+                                    
+                                        <div class="gbs-preview-div c-title-detail__3rd-party-item--google-preview" id="gbs_ISBN:9781782191346_3" >
+                                            <a class="gbs-preview-link" href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxGooglePreview.aspx?isbn=ISBN:9781782191346','', true)">
+                                                <img src="https://catalog.brentwoodtn.gov/polaris/themes/shared/gbs_preview_button.gif" title="Google Books Preview" alt="Google Books Preview" border="0" />
+                                            </a>
+                                        </div>
+                                    
+                                        <div id="econtent-preview-vendor-div-683DF792-32D3-47B7-829F-143EE1F7942C" style="display:none;">
+                                            <a id="econtent-preview-vendor-683DF792-32D3-47B7-829F-143EE1F7942C" target="_blank" class="od-preview-link" href="" >
+                                                <img src="https://catalog.brentwoodtn.gov/polaris/themes/shared/od_preview_button.gif" title="OverDrive Sample" alt="OverDrive Sample" border="0" />
+                                            </a>
+                                        </div>
+                                    
+                            </div>
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_683DF792-32D3-47B7-829F-143EE1F7942C"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">3.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&amp;pos=3&amp;cn=278859"><span class="nsm-short-item nsm-e135">An A-Z of JRR <span class="nsm-hit-text">Tolkien&#39;s</span> <span class="nsm-hit-text">the</span> <span class="nsm-hit-text">Hobbit</span></span></a>
+			</div><div class="nsm-brief-primary-author-group">
+				by <span class="nsm-short-item nsm-e118"><a class="nsm-browse-link" href="../search/browse.aspx?ctx=1.1033.0.0.1&amp;type=Browse&amp;by=AU&amp;term=Oliver%2c+Sarah&amp;page=0"><span class="nsm-browse-text">Oliver, Sarah</span></a></span>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-short-item nsm-e1">... who he loved working with, and who he didn&#39;t, and uncover why <span class="nsm-hit-text">the</span> movie Bilbo is different from Bilbo in <span class="nsm-hit-text">the</span> book. C is for cast. Filming <span class="nsm-hit-text">The</span> <span class="nsm-hit-text">Hobbit</span> threw up all kinds of challenges for <span class="nsm-hit-text">the</span> cast. Find out who ...</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">[S.I.] : John Blake, 2013.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+                                                <div class="nsm-brief-standard-group" id="econtent-status-vendor-action683DF792-32D3-47B7-829F-143EE1F7942C1" >
+                                                </div>
+                                                <div class="nsm-brief-standard-group" id="econtent-status-vendor-action683DF792-32D3-47B7-829F-143EE1F7942C2" >
+                                                </div>
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-683DF792-32D3-47B7-829F-143EE1F7942C" class="c-title-detail-actions__list" data-item-pos="3"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&pos=3&cn=278859">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            
+                            
+                           
+                           <li class="c-title-detail-actions__item button-brief-econtent" role="presentation">
+                               
+                               
+                                       <div class="OverdriveLinksWrapper" id="OverdriveLinksWrapperId-683DF792-32D3-47B7-829F-143EE1F7942C" data-item-id="683DF792-32D3-47B7-829F-143EE1F7942C">
+                                          
+                                              <div class="overdrive-results-title-action-button overdrive-results-title-action-button-primary" id='overdrive-link-vendor-action3"'>
+                                                  <a class="c-title-detail-actions__btn overdrive-link-nofancy 683DF792-32D3-47B7-829F-143EE1F7942C" id="overdrive-anchor-tag-683DF792-32D3-47B7-829F-143EE1F7942C" data-item-pos="3"  data-item-page="0"
+                                                      href="https://catalog.brentwoodtn.gov/polaris/logon.aspx?src=https%3a%2f%2fcatalog.brentwoodtn.gov%2fpolaris%2fSearch%2fdispatch.aspx%3fctx%3d1.1033.0.0.1%26action%3d4%26page%3d0%26pos%3d3" data-link="https://catalog.brentwoodtn.gov/polaris/logon.aspx?src=https%3a%2f%2fcatalog.brentwoodtn.gov%2fpolaris%2fSearch%2fdispatch.aspx%3fctx%3d1.1033.0.0.1%26action%3d4%26page%3d0%26pos%3d3" onclick='javascript:OverdriveLinkClicked("683DF792-32D3-47B7-829F-143EE1F7942C","You must be logged in to your account to access this resource. Click OK to log in, or cancel to continue searching.",event)'>
+                                                      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                                     Check Out
+				                                  </a>
+                                              </div>
+                                          
+                                      </div>               
+                                   
+				           </li>
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_3 ><a class="c-add-to-my-list" href="javascript:AddToList(61, 3, '278859', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	   
+        <div class="search__position">
+            <a id="__pos-4" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_4" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_4" class='c-title-detail__thumbnail hover__thumbnail' src="https://www.syndetics.com/index.aspx?isbn=9780470405147/SC.GIF&client=brentwoodlibvega&upc=&oclc=779740279" alt="The Hobbit and philosophy : for when you&#39;ve lost your dwarves, your wizard, and your way" data-position="4" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxMARC.aspx?pos=4')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.brentwoodtn.gov/polaris/themes/shared/formats/formatid01.gif" alt="Book" title="Book" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2012</div>
+                            
+                            
+                            
+                                <div class="c-title-detail__3rd-party">
+
+                                    
+                                    
+                                        <div class="gbs-preview-div c-title-detail__3rd-party-item--google-preview" id="gbs_ISBN:9780470405147_4" >
+                                            <a class="gbs-preview-link" href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxGooglePreview.aspx?isbn=ISBN:9780470405147','', true)">
+                                                <img src="https://catalog.brentwoodtn.gov/polaris/themes/shared/gbs_preview_button.gif" title="Google Books Preview" alt="Google Books Preview" border="0" />
+                                            </a>
+                                        </div>
+                                    
+                            </div>
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_4"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">4.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&amp;pos=4&amp;cn=146607"><span class="nsm-short-item nsm-e135"><span class="nsm-hit-text">The</span> <span class="nsm-hit-text">Hobbit</span> and philosophy : for when you&#39;ve lost your dwarves, your wizard, and your way</span></a>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-short-item nsm-e1">... / Philip Tallon -- Hobbitus Ludens: why <span class="nsm-hit-text">Hobbits</span> like to play and why we should, too / David L. O&#39;Hara -- &quot; <span class="nsm-hit-text">The</span> lord of magic and machines&quot;: <span class="nsm-hit-text">Tolkien</span> on magic and technology / W. Christopher Stewart -- Inside <span class="nsm-hit-text">The</span> ...</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">Hoboken : Wiley, 2012.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e103">Description: </span><span class="nsm-short-item nsm-e103">x, 262 p.</span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e147">Series: </span><span class="nsm-short-item nsm-e147"><a class="nsm-browse-link" href="../search/browse.aspx?ctx=1.1033.0.0.1&amp;type=Browse&amp;by=SE&amp;term=The+Blackwell+philosophy+and+pop+culture+series&amp;page=0"><span class="nsm-browse-text"><span class="nsm-hit-text">The</span></span><span class="nsm-browse-text"> Blackwell philosophy and pop culture series</span></a></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e31">Local Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e32">System Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e104">Call Number: </span><span class="nsm-short-item nsm-e104">823.912 HOB 2012</span>
+	</div></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-" class="c-title-detail-actions__list" data-item-pos="4"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-availability" role="presentation">
+                                <a class="c-title-detail-actions__btn" id="buttonAvailability_4"
+                                    href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxavailability.aspx?fp=1&level=local&morelink=0&pos=4&bibid=146607&displayAeonOnly=0', '', false, false, false, 'Availability')">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        Is it on the shelf?  
+				                </a>
+                            </li>
+				                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&pos=4&cn=146607">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-request" role="presentation">
+                            
+
+                                    <a class="c-title-detail-actions__btn" href="javascript:checkRequestLevel(4, 146607, 1)">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        Place Hold
+                                    </a>                        
+                            
+                            </li>
+                            
+                            
+                            
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_4 ><a class="c-add-to-my-list" href="javascript:AddToList(61, 4, '146607', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	   
+        <div class="search__position">
+            <a id="__pos-5" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_5" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_5" class='c-title-detail__thumbnail hover__thumbnail' src="https://www.syndetics.com/index.aspx?isbn=9780547928258/SC.GIF&client=brentwoodlibvega&upc=&oclc=788236030" alt="The art of the Hobbit by J. R. R. Tolkien" data-position="5" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxMARC.aspx?pos=5')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.brentwoodtn.gov/polaris/themes/shared/formats/formatid01.gif" alt="Book" title="Book" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2012</div>
+                            
+                            
+                            
+                                <div class="c-title-detail__3rd-party">
+
+                                    
+                                    
+                                        <div class="gbs-preview-div c-title-detail__3rd-party-item--google-preview" id="gbs_ISBN:9780547928258_5" >
+                                            <a class="gbs-preview-link" href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxGooglePreview.aspx?isbn=ISBN:9780547928258','', true)">
+                                                <img src="https://catalog.brentwoodtn.gov/polaris/themes/shared/gbs_preview_button.gif" title="Google Books Preview" alt="Google Books Preview" border="0" />
+                                            </a>
+                                        </div>
+                                    
+                            </div>
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_5"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">5.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&amp;pos=5&amp;cn=145282"><span class="nsm-short-item nsm-e135"><span class="nsm-hit-text">The</span> art of <span class="nsm-hit-text">the</span> <span class="nsm-hit-text">Hobbit</span> by J. R. R. <span class="nsm-hit-text">Tolkien</span></span></a>
+			</div><div class="nsm-brief-primary-author-group">
+				by <span class="nsm-short-item nsm-e118"><a class="nsm-browse-link" href="../search/browse.aspx?ctx=1.1033.0.0.1&amp;type=Browse&amp;by=AU&amp;term=Hammond%2c+Wayne+G.&amp;page=0"><span class="nsm-browse-text">Hammond, Wayne G.</span></a></span>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-short-item nsm-e1">... <span class="nsm-hit-text">The</span> art of <span class="nsm-hit-text">the</span> <span class="nsm-hit-text">Hobbit</span> by J. R. R. <span class="nsm-hit-text">Tolkien</span> / Wayne G. Hammond &amp; Christina Scull. ...</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">Boston : Houghton Mifflin Harcourt, 2012.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e103">Description: </span><span class="nsm-short-item nsm-e103">143 p. : col. ill., col. maps ; 26 x 27 cm.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e31">Local Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e32">System Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e104">Call Number: </span><span class="nsm-short-item nsm-e104">823.912 HAM 2012</span>
+	</div></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-" class="c-title-detail-actions__list" data-item-pos="5"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-availability" role="presentation">
+                                <a class="c-title-detail-actions__btn" id="buttonAvailability_5"
+                                    href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxavailability.aspx?fp=1&level=local&morelink=0&pos=5&bibid=145282&displayAeonOnly=0', '', false, false, false, 'Availability')">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        Is it on the shelf?  
+				                </a>
+                            </li>
+				                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&pos=5&cn=145282">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-request" role="presentation">
+                            
+
+                                    <a class="c-title-detail-actions__btn" href="javascript:checkRequestLevel(5, 145282, 1)">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        Place Hold
+                                    </a>                        
+                            
+                            </li>
+                            
+                            
+                            
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_5 ><a class="c-add-to-my-list" href="javascript:AddToList(61, 5, '145282', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	   
+        <div class="search__position">
+            <a id="__pos-6" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_6" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_6" class='c-title-detail__thumbnail hover__thumbnail' src="https://images.contentreserve.com/ImageType-200/0293-1/{6CB8684A-0FBC-4606-B598-4E3AB789B69E}Img200.jpg" alt="The Hobbit" data-position="6" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                        <img class="c-title-detail-formats__img" src="https://catalog.brentwoodtn.gov/polaris/themes/shared/overdrive.jpg" border="0" alt="OverDrive Inc." title="OverDrive Inc." />
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxMARC.aspx?pos=6')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.brentwoodtn.gov/polaris/themes/shared/formats/formatid36.gif" alt="Ebook" title="Ebook" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2009</div>
+                            
+                            
+                            
+                                <div class="c-title-detail__3rd-party">
+
+                                    
+                                    
+                                        <div class="gbs-preview-div c-title-detail__3rd-party-item--google-preview" id="gbs_ISBN:9780261102217_6" >
+                                            <a class="gbs-preview-link" href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxGooglePreview.aspx?isbn=ISBN:9780261102217','', true)">
+                                                <img src="https://catalog.brentwoodtn.gov/polaris/themes/shared/gbs_preview_button.gif" title="Google Books Preview" alt="Google Books Preview" border="0" />
+                                            </a>
+                                        </div>
+                                    
+                                        <div id="econtent-preview-vendor-div-6CB8684A-0FBC-4606-B598-4E3AB789B69E" style="display:none;">
+                                            <a id="econtent-preview-vendor-6CB8684A-0FBC-4606-B598-4E3AB789B69E" target="_blank" class="od-preview-link" href="" >
+                                                <img src="https://catalog.brentwoodtn.gov/polaris/themes/shared/od_preview_button.gif" title="OverDrive Sample" alt="OverDrive Sample" border="0" />
+                                            </a>
+                                        </div>
+                                    
+                            </div>
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_6CB8684A-0FBC-4606-B598-4E3AB789B69E"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">6.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&amp;pos=6&amp;cn=279731"><span class="nsm-short-item nsm-e135"><span class="nsm-hit-text">The</span> <span class="nsm-hit-text">Hobbit</span></span></a>
+			</div><div class="nsm-brief-primary-author-group">
+				by <span class="nsm-short-item nsm-e118"><a class="nsm-browse-link" href="../search/browse.aspx?ctx=1.1033.0.0.1&amp;type=Browse&amp;by=AU&amp;term=Tolkien%2c+J.+R.+R.&amp;page=0"><span class="nsm-browse-text"><span class="nsm-hit-text">Tolkien</span></span><span class="nsm-browse-text">, J. R. R.</span></a></span>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-short-item nsm-e1">... that befall Bilbo. Bilbo Baggins has taken his place among <span class="nsm-hit-text">the</span> ranks of <span class="nsm-hit-text">the</span> immortals of children’s fiction. Written by Professor <span class="nsm-hit-text">Tolkien</span> for his own children, <span class="nsm-hit-text">The</span> <span class="nsm-hit-text">Hobbit</span> met with instant critical acclaim when published. ...</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">[S.I.] : HarperCollins, 2009.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+                                                <div class="nsm-brief-standard-group" id="econtent-status-vendor-action6CB8684A-0FBC-4606-B598-4E3AB789B69E1" >
+                                                </div>
+                                                <div class="nsm-brief-standard-group" id="econtent-status-vendor-action6CB8684A-0FBC-4606-B598-4E3AB789B69E2" >
+                                                </div>
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-6CB8684A-0FBC-4606-B598-4E3AB789B69E" class="c-title-detail-actions__list" data-item-pos="6"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&pos=6&cn=279731">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            
+                            
+                           
+                           <li class="c-title-detail-actions__item button-brief-econtent" role="presentation">
+                               
+                               
+                                       <div class="OverdriveLinksWrapper" id="OverdriveLinksWrapperId-6CB8684A-0FBC-4606-B598-4E3AB789B69E" data-item-id="6CB8684A-0FBC-4606-B598-4E3AB789B69E">
+                                          
+                                              <div class="overdrive-results-title-action-button overdrive-results-title-action-button-primary" id='overdrive-link-vendor-action6"'>
+                                                  <a class="c-title-detail-actions__btn overdrive-link-nofancy 6CB8684A-0FBC-4606-B598-4E3AB789B69E" id="overdrive-anchor-tag-6CB8684A-0FBC-4606-B598-4E3AB789B69E" data-item-pos="6"  data-item-page="0"
+                                                      href="https://catalog.brentwoodtn.gov/polaris/logon.aspx?src=https%3a%2f%2fcatalog.brentwoodtn.gov%2fpolaris%2fSearch%2fdispatch.aspx%3fctx%3d1.1033.0.0.1%26action%3d4%26page%3d0%26pos%3d6" data-link="https://catalog.brentwoodtn.gov/polaris/logon.aspx?src=https%3a%2f%2fcatalog.brentwoodtn.gov%2fpolaris%2fSearch%2fdispatch.aspx%3fctx%3d1.1033.0.0.1%26action%3d4%26page%3d0%26pos%3d6" onclick='javascript:OverdriveLinkClicked("6CB8684A-0FBC-4606-B598-4E3AB789B69E","You must be logged in to your account to access this resource. Click OK to log in, or cancel to continue searching.",event)'>
+                                                      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                                     Place Hold
+				                                  </a>
+                                              </div>
+                                          
+                                      </div>               
+                                   
+				           </li>
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_6 ><a class="c-add-to-my-list" href="javascript:AddToList(61, 6, '279731', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	   
+        <div class="search__position">
+            <a id="__pos-7" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_7" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_7" class='c-title-detail__thumbnail hover__thumbnail' src="https://www.syndetics.com/index.aspx?isbn=/SC.GIF&client=brentwoodlibvega&upc=883929460762&oclc=905977313" alt="The hobbit : the motion picture trilogy" data-position="7" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxMARC.aspx?pos=7')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.brentwoodtn.gov/polaris/themes/shared/formats/formatid33.gif" alt="DVD" title="DVD" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2015</div>
+                            
+                            
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_7"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">7.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&amp;pos=7&amp;cn=427939"><span class="nsm-short-item nsm-e135"><span class="nsm-hit-text">The</span> <span class="nsm-hit-text">hobbit</span> : <span class="nsm-hit-text">the</span> motion picture trilogy</span></a>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-short-item nsm-e1">... Adapted from <span class="nsm-hit-text">the</span> novel by J.R.R. <span class="nsm-hit-text">Tolkien</span> . ... Motion picture adaptation of (work) <span class="nsm-hit-text">Tolkien</span> , J. R. R. (John Ronald Reuel), 1892-1973. <span class="nsm-hit-text">Hobbit</span> . ... [Disc 1] <span class="nsm-hit-text">Hobbit</span> : an unexpected journey -- [Disc 2] <span class="nsm-hit-text">Hobbit</span> : <span class="nsm-hit-text">the</span> desolation of Smug -- [Disc 3] <span class="nsm-hit-text">Hobbit</span> : <span class="nsm-hit-text">the</span> battle of <span class="nsm-hit-text">the</span> five ...</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">Burbank, CA : Warner Bros. Entertainment, [2015]</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e103">Description: </span><span class="nsm-short-item nsm-e103">3 videodiscs (approximately 474 min.) : sound, color ; 4 3/4 in.</span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e145">Target Audience Note: </span><span class="nsm-short-item nsm-e145">MPAA rating: PG-13; for extended sequences of intense fantasy action violence, and frightening images.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e31">Local Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">3 (of 3)</span></span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e32">System Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">3 (of 3)</span></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e104">Call Number: </span><span class="nsm-short-item nsm-e104">DVD F HOB</span>
+	</div></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-" class="c-title-detail-actions__list" data-item-pos="7"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-availability" role="presentation">
+                                <a class="c-title-detail-actions__btn" id="buttonAvailability_7"
+                                    href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxavailability.aspx?fp=1&level=local&morelink=0&pos=7&bibid=427939&displayAeonOnly=0', '', false, false, false, 'Availability')">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        Is it on the shelf?  
+				                </a>
+                            </li>
+				                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&pos=7&cn=427939">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-request" role="presentation">
+                            
+
+                                    <a class="c-title-detail-actions__btn" href="javascript:checkRequestLevel(7, 427939, 1)">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        Place Hold
+                                    </a>                        
+                            
+                            </li>
+                            
+                            
+                            
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_7 ><a class="c-add-to-my-list" href="javascript:AddToList(61, 7, '427939', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	   
+        <div class="search__position">
+            <a id="__pos-8" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_8" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_8" class='c-title-detail__thumbnail hover__thumbnail' src="https://www.syndetics.com/index.aspx?isbn=/SC.GIF&client=brentwoodlibvega&upc=883929636143&oclc=1195919984" alt="The hobbit : the motion picture trilogy" data-position="8" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxMARC.aspx?pos=8')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.brentwoodtn.gov/polaris/themes/shared/formats/formatid40.gif" alt="Blu-ray Disc" title="Blu-ray Disc" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2018</div>
+                            
+                            
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_8"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">8.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&amp;pos=8&amp;cn=484280"><span class="nsm-short-item nsm-e135"><span class="nsm-hit-text">The</span> <span class="nsm-hit-text">hobbit</span> : <span class="nsm-hit-text">the</span> motion picture trilogy</span></a>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-short-item nsm-e1">... Based on <span class="nsm-hit-text">the</span> novel by J.R.R. <span class="nsm-hit-text">Tolkien</span> . ... Motion picture adaptation of (work) <span class="nsm-hit-text">Tolkien</span> , J. R. R. (John Ronald Reuel), 1892-1973. <span class="nsm-hit-text">Hobbit</span> . ... : <span class="nsm-hit-text">the</span> desolation of Smaug originally released as a motion picture in &#169;2013. <span class="nsm-hit-text">The</span> <span class="nsm-hit-text">hobbit</span> : <span class="nsm-hit-text">the</span> battle of <span class="nsm-hit-text">the</span> five armies originally released as a ...</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">Burbank, California : Warner Home Video, 2018.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e103">Description: </span><span class="nsm-short-item nsm-e103">6 videodiscs (approximately 474 minutes) : sound, color ; 4 3/4 in.</span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e145">Target Audience Note: </span><span class="nsm-short-item nsm-e145">Unexpected Journey: MPAA rating: PG-13; for extended sequences of intense fantasy action violence, frightening images and fleeting nudity.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e31">Local Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e32">System Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e104">Call Number: </span><span class="nsm-short-item nsm-e104">BLU F HOB</span>
+	</div></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-" class="c-title-detail-actions__list" data-item-pos="8"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-availability" role="presentation">
+                                <a class="c-title-detail-actions__btn" id="buttonAvailability_8"
+                                    href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxavailability.aspx?fp=1&level=local&morelink=0&pos=8&bibid=484280&displayAeonOnly=0', '', false, false, false, 'Availability')">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        Is it on the shelf?  
+				                </a>
+                            </li>
+				                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&pos=8&cn=484280">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-request" role="presentation">
+                            
+
+                                    <a class="c-title-detail-actions__btn" href="javascript:checkRequestLevel(8, 484280, 1)">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        Place Hold
+                                    </a>                        
+                            
+                            </li>
+                            
+                            
+                            
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_8 ><a class="c-add-to-my-list" href="javascript:AddToList(61, 8, '484280', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	   
+        <div class="search__position">
+            <a id="__pos-9" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_9" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_9" class='c-title-detail__thumbnail hover__thumbnail' src="https://www.syndetics.com/index.aspx?isbn=9780063388468/SC.GIF&client=brentwoodlibvega&upc=&oclc=1423002275" alt="The hobbit : or There and back again" data-position="9" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxMARC.aspx?pos=9')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.brentwoodtn.gov/polaris/themes/shared/formats/formatid01.gif" alt="Book" title="Book" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2024</div>
+                            
+                            
+                            
+                                <div class="c-title-detail__3rd-party">
+
+                                    
+                                    
+                                        <div class="gbs-preview-div c-title-detail__3rd-party-item--google-preview" id="gbs_ISBN:9780063388468_9" >
+                                            <a class="gbs-preview-link" href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxGooglePreview.aspx?isbn=ISBN:9780063388468','', true)">
+                                                <img src="https://catalog.brentwoodtn.gov/polaris/themes/shared/gbs_preview_button.gif" title="Google Books Preview" alt="Google Books Preview" border="0" />
+                                            </a>
+                                        </div>
+                                    
+                            </div>
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_9"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">9.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&amp;pos=9&amp;cn=531789"><span class="nsm-short-item nsm-e135"><span class="nsm-hit-text">The</span> <span class="nsm-hit-text">hobbit</span> : or There and back again</span></a>
+			</div><div class="nsm-brief-primary-author-group">
+				by <span class="nsm-short-item nsm-e118"><a class="nsm-browse-link" href="../search/browse.aspx?ctx=1.1033.0.0.1&amp;type=Browse&amp;by=AU&amp;term=Dixon%2c+Chuck%2c+1954-&amp;page=0"><span class="nsm-browse-text">Dixon, Chuck, 1954-</span> adaptor.</a></span>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-short-item nsm-e1">... <span class="nsm-hit-text">The</span> <span class="nsm-hit-text">hobbit</span> : or There and back again / illustrated by David Wenzel ; adapted by Charles Dixon with Sean Deming ; [originally] by J.R.R. <span class="nsm-hit-text">Tolkien</span> . ...</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">New York, NY : William Morrow &amp; Company, 2024.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e103">Description: </span><span class="nsm-short-item nsm-e103">133 pages : chiefly color illustrations ; 26 cm</span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e145">Target Audience Note: </span><span class="nsm-short-item nsm-e145">008-017.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e31">Local Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e32">System Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e104">Call Number: </span><span class="nsm-short-item nsm-e104">GNYA DIX</span>
+	</div></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-" class="c-title-detail-actions__list" data-item-pos="9"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-availability" role="presentation">
+                                <a class="c-title-detail-actions__btn" id="buttonAvailability_9"
+                                    href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxavailability.aspx?fp=1&level=local&morelink=0&pos=9&bibid=531789&displayAeonOnly=0', '', false, false, false, 'Availability')">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        Is it on the shelf?  
+				                </a>
+                            </li>
+				                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&pos=9&cn=531789">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-request" role="presentation">
+                            
+
+                                    <a class="c-title-detail-actions__btn" href="javascript:checkRequestLevel(9, 531789, 1)">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        Place Hold
+                                    </a>                        
+                            
+                            </li>
+                            
+                            
+                            
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_9 ><a class="c-add-to-my-list" href="javascript:AddToList(61, 9, '531789', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	   
+        <div class="search__position">
+            <a id="__pos-10" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_10" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_10" class='c-title-detail__thumbnail hover__thumbnail' src="https://www.syndetics.com/index.aspx?isbn=/SC.GIF&client=brentwoodlibvega&upc=794043166310&oclc=827949639" alt="The hobbit an unexpected journey" data-position="10" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxMARC.aspx?pos=10')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.brentwoodtn.gov/polaris/themes/shared/formats/formatid33.gif" alt="DVD" title="DVD" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2013</div>
+                            
+                            
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_10"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">10.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&amp;pos=10&amp;cn=159373"><span class="nsm-short-item nsm-e135"><span class="nsm-hit-text">The</span> <span class="nsm-hit-text">hobbit</span> an unexpected journey</span></a>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-short-item nsm-e1">... &quot;Based on <span class="nsm-hit-text">the</span> enduring masterpiece <span class="nsm-hit-text">The</span> <span class="nsm-hit-text">Hobbit</span> by J.R.R. <span class="nsm-hit-text">Tolkien</span> &quot;--Container. ...</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">Burbank, Calif. : Warner Home Video, c2013.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e103">Description: </span><span class="nsm-short-item nsm-e103">1 videodisc (169 min.) : sd., col. ; 4 3/4 in.</span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e145">Target Audience Note: </span><span class="nsm-short-item nsm-e145">MPAA rating: PG-13; for extended sequences of intense fantasy action violence, and frightening images.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e31">Local Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e32">System Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">1 (of 1)</span></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e104">Call Number: </span><span class="nsm-short-item nsm-e104">DVD F HOB</span>
+	</div></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-" class="c-title-detail-actions__list" data-item-pos="10"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-availability" role="presentation">
+                                <a class="c-title-detail-actions__btn" id="buttonAvailability_10"
+                                    href="javascript:showModalBasicWithIframe('https://catalog.brentwoodtn.gov/polaris/search/components/ajaxavailability.aspx?fp=1&level=local&morelink=0&pos=10&bibid=159373&displayAeonOnly=0', '', false, false, false, 'Availability')">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        Is it on the shelf?  
+				                </a>
+                            </li>
+				                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.brentwoodtn.gov/polaris/search/title.aspx?ctx=1.1033.0.0.1&pos=10&cn=159373">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-request" role="presentation">
+                            
+
+                                    <a class="c-title-detail-actions__btn" href="javascript:checkRequestLevel(10, 159373, 1)">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        Place Hold
+                                    </a>                        
+                            
+                            </li>
+                            
+                            
+                            
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_10 ><a class="c-add-to-my-list" href="javascript:AddToList(61, 10, '159373', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	
+</div>
+
+
+
+    <script>
+
+        $('#pagination-results-bottom').twbsPagination({
+            totalPages: 6,
+            visiblePages: 4,
+            startPage: 1,
+            prev: '<span aria-label="Previous page">&lt;</span>',
+            next: '<span aria-label="Next page">&gt;</span>',
+            first: '<span aria-label="First page">&laquo;</span>',
+            last: '<span aria-label="Last page">&raquo;</span>',
+            pageClass: 'navigation-button',
+            onPageClick: function (event, page) {
+                if (page != 1) {
+                    ajaxLoadResultsPage(page, 1, null, 0);
+                }
+            }
+        });
+
+    </script>
+
+
+<div class='c-results-utility c-results-utility--partial'>
+  <div class="c-results-utility__container c-results-utility__container--result-count">
+    <div class="c-results-utility-result-count">
+        1
+        -
+        10
+        of
+        57
+    </div>
+    <div class="c-results-utility-per-page form-inline">  
+      <div class="c-results-utility-per-page__select-container select-styled">    
+        <select aria-label="Results per page dropdown" class="c-results-utility-per-page__select" id="dropdownResultsPerPageBottom" onchange="javascript:ajaxLoadResultsPage(1, 1, 'Bottom', 0);">
+           <option value="10" selected>10</option>
+           <option value="20">20</option>
+           <option value="30">30</option>
+           <option value="50">50</option>
+           <option value="100">100</option>
+        </select>
+      </div>
+      <span aria-label="per page"  class="c-results-utility-per-page__label">per page</span>
+    </div>
+  </div>
+
+  
+                 
+
+
+  <div class="c-results-utility__container c-results-utility__container--pagination c-results-utility__container--last">
+    <div class="c-results-utility-full-pagination">
+        
+            <ul id="pagination-results-bottom" class="pagination-sm" style="margin: 0px;"></ul>
+        
+    </div>
+  </div>
+ 
+
+</div>
+
+
+
+
+
+    <script src="https://books.google.com/books?jscmd=viewapi&amp;bibkeys=ISBN:9781617530036,ISBN:9780547739465,ISBN:9781782191346,ISBN:9780470405147,ISBN:9780547928258,ISBN:9780261102217,ISBN:9780063388468,&amp;callback=processDynamicLinksResponse"></script>
+
+
+
+
+<div id="complete"></div>
+
+<script type="text/javascript" defer="defer">
+
+    $(document).ready(function ($) {
+        GetCloudLibraryPrivilegesWrapper("", false);
+    });
+
+    $(document).ready(function ($) {
+        GetAxis360PrivilegesWrapper("", false);
+    });
+    $(document).ready(function ($) {
+        GetOverdrivePrivilegesWrapper("", false);
+    });
+
+    $(document).ready(function ($) {
+        GetRBdigitalPrivilegesWrapper("", false);
+
+        var isPresent = document.getElementById('IsRBdigitalLicensedID');
+        if (isPresent == null) {
+            RemoveAvailabiltyForNotLicensed();
+        }
+    });
+
+    $(document).ready(function ($) {
+        GetRestrictedWrapper();
+    });
+   
+    initializeBibliographicHover();
+
+
+
+</script>

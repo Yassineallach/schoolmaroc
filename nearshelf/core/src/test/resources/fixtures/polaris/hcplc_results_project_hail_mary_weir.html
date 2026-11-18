@@ -1,0 +1,1012 @@
+
+
+
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {         
+            $(".c-title-detail-actions__oneclick").on("click", function (e) {
+                var id = $(this).attr('data-recordid');
+
+                $("#oneclick_" + id).addClass('c-title-detail__disable_a_href');
+                var strOK = "OK";
+                PlaceOneClickHoldRequest(id, strOK, e);
+            });
+
+            
+                        
+       });
+    </script>
+
+
+    <script type="text/javascript">
+
+        function processDynamicLinksResponse(booksInfo) 
+        {
+            for (id in booksInfo) 
+            {
+                if (booksInfo[id] && booksInfo[id].preview == 'partial' && booksInfo[id].embeddable == true)
+                {
+                    $('.gbs-preview-div').each(function () 
+                    {
+                        if ($(this).attr('id').indexOf(id) != -1) {
+                            $(this).show();
+                        }
+                    });
+                }
+            }
+        }
+        
+  
+
+    </script>
+
+
+
+
+<div class='c-results-utility c-results-utility--full'>
+  <div class="c-results-utility__container c-results-utility__container--result-count">
+    <div class="c-results-utility-result-count">
+        1
+        -
+        5
+        of
+        5
+    </div>
+    <div class="c-results-utility-per-page form-inline">  
+      <div class="c-results-utility-per-page__select-container select-styled">    
+        <select aria-label="Results per page dropdown" class="c-results-utility-per-page__select" id="dropdownResultsPerPageTop" onchange="javascript:ajaxLoadResultsPage(1, 0, 'Top', 0);">
+           <option value="10" selected>10</option>
+           <option value="20">20</option>
+           <option value="30">30</option>
+           <option value="50">50</option>
+           <option value="100">100</option>
+        </select>
+      </div>
+      <span aria-label="per page"  class="c-results-utility-per-page__label">per page</span>
+    </div>
+  </div>
+
+  
+      <div class="c-results-utility__container c-results-utility__container--sort-narrow c-results-utility__container--affix">
+
+        
+          <div class="c-results-utility-sort">
+            <label for="dropdownSortByTop" class="c-results-utility-sort__label">Sort</label>
+            <div class="c-results-utility-sort__select-container">             
+              
+                      <select style="width:100%; max-width: 150px;" class="c-results-utility-sort__select js-select-width" id="dropdownSortByTop" onchange="javascript:ajaxSortSearchResults('Top');" style="width: auto">
+                  
+                      <option value="RELEVANCE" selected>Relevance</option>
+                  
+                      <option value="MP">Most popular</option>
+                  
+                      <option value="AU">Author</option>
+                  
+                      <option value="TI">Title</option>
+                  
+                      <option value="CALL">Call Number</option>
+                  
+                      <option value="PD">Publication date</option>
+                  
+                      <option value="AU_TI">Author, then Title</option>
+                  
+                      <option value="AU_PD">Author, then Publication date</option>
+                  
+                      <option value="TI_AU">Title, then Author</option>
+                  
+                      <option value="TI_PD">Title, then Publication date</option>
+                  
+                      <option value="TI_TOM">Title, then Format</option>
+                  
+                      <option value="PD_AU">Publication date, then Author</option>
+                  
+                      <option value="PD_TI">Publication date, then Title</option>
+                  
+                      <option value="CALL_AU">Call number, then Author</option>
+                  
+                      <option value="CALL_TI">Call number, then Title</option>
+                  
+                      <option value="CALL_PD">Call number, then Publication Date</option>
+                  
+                      </select>
+                   
+            </div>
+          </div>
+        
+
+        <div class="c-results-utility-narrow" style="display: block;" data-show-at-load="">
+          <div class="c-accordion c-accordion--results-utility" id="narrow-container" role="tablist" aria-multiselectable="true">
+            <div class="c-accordion__panel" id="c-accordion__panel-narrow">
+              <div class="c-accordion__heading" role="tab">
+                <h5 class="c-accordion__title">
+                  <a class="c-results-utility-narrow__link collapsed " role="button" href="javascript:showModalBasic('https://catalog.hcplc.org/polaris/search/components/ajaxNarrowYourSearch.aspx', 'Narrow your search')">                   
+                    <span class="c-results-utility-narrow__narrow-label">Narrow</span>
+                    <span class="c-results-utility-narrow__narrowed-label">Narrowed</span>
+                  </a>
+                </h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    </div>
+  
+                 
+
+
+  <div class="c-results-utility__container c-results-utility__container--pagination c-results-utility__container--last">
+    <div class="c-results-utility-full-pagination">
+        
+    </div>
+  </div>
+ 
+
+</div>
+
+
+
+
+
+
+
+<div id="searchResultsDIV">
+   
+        <div class="search__position">
+            <a id="__pos-1" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_1" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_1" class='c-title-detail__thumbnail hover__thumbnail' src="https://secure.syndetics.com/index.aspx?isbn=9780593135204/SC.GIF&client=tampp&upc=&oclc=" alt="Project Hail Mary : a novel" data-position="1" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.hcplc.org/polaris/search/components/ajaxMARC.aspx?pos=1')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.hcplc.org/polaris/themes/shared/formats/formatid01.gif" alt="Book" title="Book" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2021</div>
+                            
+                            
+                            
+                                <div class="c-title-detail__3rd-party">
+
+                                    
+                                    
+                                        <div class="gbs-preview-div c-title-detail__3rd-party-item--google-preview" id="gbs_ISBN:9780593135204_1" >
+                                            <a class="gbs-preview-link" href="javascript:showModalBasicWithIframe('https://catalog.hcplc.org/polaris/search/components/ajaxGooglePreview.aspx?isbn=ISBN:9780593135204','', true)">
+                                                <img src="https://catalog.hcplc.org/polaris/themes/shared/gbs_preview_button.gif" title="Google Books Preview" alt="Google Books Preview" border="0" />
+                                            </a>
+                                        </div>
+                                    
+                            </div>
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_1"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">1.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.hcplc.org/polaris/search/title.aspx?ctx=1.1033.0.0.6&amp;pos=1&amp;cn=1803265"><span class="nsm-short-item nsm-e135"><span class="nsm-hit-text">Project</span> <span class="nsm-hit-text">Hail</span> <span class="nsm-hit-text">Mary</span> : a novel</span></a>
+			</div><div class="nsm-brief-primary-author-group">
+				by <span class="nsm-short-item nsm-e118"><a class="nsm-browse-link" href="../search/browse.aspx?ctx=1.1033.0.0.6&amp;type=Browse&amp;by=AU&amp;term=Weir%2c+Andy%2c&amp;page=0"><span class="nsm-browse-text"><span class="nsm-hit-text">Weir</span></span><span class="nsm-browse-text">, Andy,</span> author.</a></span>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">New York : Ballantine Books, [2021]</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e8">Current Holds: </span><span class="nsm-short-item nsm-e8">5</span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e32">System Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">13 (of 63)</span></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-" class="c-title-detail-actions__list" data-item-pos="1"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-availability" role="presentation">
+                                <a class="c-title-detail-actions__btn" id="buttonAvailability_1"
+                                    href="javascript:showModalBasicWithIframe('https://catalog.hcplc.org/polaris/search/components/ajaxavailability.aspx?fp=1&level=local&morelink=0&pos=1&bibid=1803265&displayAeonOnly=0', '', false, false, false, 'Availability')">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        Availability  
+				                </a>
+                            </li>
+				                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.hcplc.org/polaris/search/title.aspx?ctx=1.1033.0.0.6&pos=1&cn=1803265">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-request" role="presentation">
+                            
+
+                                    <a class="c-title-detail-actions__btn" href="javascript:checkRequestLevel(1, 1803265, 1)">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        Place Request
+                                    </a>                        
+                            
+                            </li>
+                            
+                            
+                            
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_1 ><a class="c-add-to-my-list" href="javascript:AddToList(81, 1, '1803265', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	   
+        <div class="search__position">
+            <a id="__pos-2" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_2" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_2" class='c-title-detail__thumbnail hover__thumbnail' src="https://secure.syndetics.com/index.aspx?isbn=9780593395561/SC.GIF&client=tampp&upc=&oclc=" alt="Project Hail Mary a novel" data-position="2" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.hcplc.org/polaris/search/components/ajaxMARC.aspx?pos=2')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.hcplc.org/polaris/themes/shared/formats/formatid27.gif" alt="Large Print" title="Large Print" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2021</div>
+                            
+                            
+                            
+                                <div class="c-title-detail__3rd-party">
+
+                                    
+                                    
+                                        <div class="gbs-preview-div c-title-detail__3rd-party-item--google-preview" id="gbs_ISBN:9780593395561_2" >
+                                            <a class="gbs-preview-link" href="javascript:showModalBasicWithIframe('https://catalog.hcplc.org/polaris/search/components/ajaxGooglePreview.aspx?isbn=ISBN:9780593395561','', true)">
+                                                <img src="https://catalog.hcplc.org/polaris/themes/shared/gbs_preview_button.gif" title="Google Books Preview" alt="Google Books Preview" border="0" />
+                                            </a>
+                                        </div>
+                                    
+                            </div>
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_2"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">2.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.hcplc.org/polaris/search/title.aspx?ctx=1.1033.0.0.6&amp;pos=2&amp;cn=1810590"><span class="nsm-short-item nsm-e135"><span class="nsm-hit-text">Project</span> <span class="nsm-hit-text">Hail</span> <span class="nsm-hit-text">Mary</span> a novel</span></a>
+			</div><div class="nsm-brief-primary-author-group">
+				by <span class="nsm-short-item nsm-e118"><a class="nsm-browse-link" href="../search/browse.aspx?ctx=1.1033.0.0.6&amp;type=Browse&amp;by=AU&amp;term=Weir%2c+Andy.&amp;page=0"><span class="nsm-browse-text"><span class="nsm-hit-text">Weir</span></span><span class="nsm-browse-text">, Andy.</span></a></span>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">New York : Random House Large Print, c2021.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e8">Current Holds: </span><span class="nsm-short-item nsm-e8">44</span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e32">System Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">0 (of 13)</span></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-" class="c-title-detail-actions__list" data-item-pos="2"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-availability" role="presentation">
+                                <a class="c-title-detail-actions__btn" id="buttonAvailability_2"
+                                    href="javascript:showModalBasicWithIframe('https://catalog.hcplc.org/polaris/search/components/ajaxavailability.aspx?fp=1&level=local&morelink=0&pos=2&bibid=1810590&displayAeonOnly=0', '', false, false, false, 'Availability')">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        Availability  
+				                </a>
+                            </li>
+				                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.hcplc.org/polaris/search/title.aspx?ctx=1.1033.0.0.6&pos=2&cn=1810590">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-request" role="presentation">
+                            
+
+                                    <a class="c-title-detail-actions__btn" href="javascript:checkRequestLevel(2, 1810590, 1)">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        Place Request
+                                    </a>                        
+                            
+                            </li>
+                            
+                            
+                            
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_2 ><a class="c-add-to-my-list" href="javascript:AddToList(81, 2, '1810590', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	   
+        <div class="search__position">
+            <a id="__pos-3" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_3" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_3" class='c-title-detail__thumbnail hover__thumbnail' src="https://secure.syndetics.com/index.aspx?isbn=9781713639817/SC.GIF&client=tampp&upc=979822884450&oclc=1281710908" alt="Project Hail Mary" data-position="3" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.hcplc.org/polaris/search/components/ajaxMARC.aspx?pos=3')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.hcplc.org/polaris/themes/shared/formats/formatid52.gif" alt="Audio Book on CD" title="Audio Book on CD" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2021</div>
+                            
+                            
+                            
+                                <div class="c-title-detail__3rd-party">
+
+                                    
+                                    
+                                        <div class="gbs-preview-div c-title-detail__3rd-party-item--google-preview" id="gbs_ISBN:9781713639817_3" >
+                                            <a class="gbs-preview-link" href="javascript:showModalBasicWithIframe('https://catalog.hcplc.org/polaris/search/components/ajaxGooglePreview.aspx?isbn=ISBN:9781713639817','', true)">
+                                                <img src="https://catalog.hcplc.org/polaris/themes/shared/gbs_preview_button.gif" title="Google Books Preview" alt="Google Books Preview" border="0" />
+                                            </a>
+                                        </div>
+                                    
+                            </div>
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_3"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">3.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.hcplc.org/polaris/search/title.aspx?ctx=1.1033.0.0.6&amp;pos=3&amp;cn=1831092"><span class="nsm-short-item nsm-e135"><span class="nsm-hit-text">Project</span> <span class="nsm-hit-text">Hail</span> <span class="nsm-hit-text">Mary</span></span></a>
+			</div><div class="nsm-brief-primary-author-group">
+				by <span class="nsm-short-item nsm-e118"><a class="nsm-browse-link" href="../search/browse.aspx?ctx=1.1033.0.0.6&amp;type=Browse&amp;by=AU&amp;term=Weir%2c+Andy%2c&amp;page=0"><span class="nsm-browse-text"><span class="nsm-hit-text">Weir</span></span><span class="nsm-browse-text">, Andy,</span> author.</a></span>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">[Grand Haven, Michigan] : Brilliance: Audible Studios, [2021]</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-iconified-group">
+		<span class="nsm-short-item nsm-e133"><span class="nsm-plain-text"> </span><a href="https://dsxuu8etcj8kw.cloudfront.net/f/5/f596/f596-square-400.jpg" target="_blank" title="Web Link"><span class="glyphicon glyphicon-new-window"></span> - <span class="nsm-plain-text">Cover image</span></a></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e8">Current Holds: </span><span class="nsm-short-item nsm-e8">1</span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e32">System Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">5 (of 10)</span></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-" class="c-title-detail-actions__list" data-item-pos="3"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-availability" role="presentation">
+                                <a class="c-title-detail-actions__btn" id="buttonAvailability_3"
+                                    href="javascript:showModalBasicWithIframe('https://catalog.hcplc.org/polaris/search/components/ajaxavailability.aspx?fp=1&level=local&morelink=0&pos=3&bibid=1831092&displayAeonOnly=0', '', false, false, false, 'Availability')">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        Availability  
+				                </a>
+                            </li>
+				                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.hcplc.org/polaris/search/title.aspx?ctx=1.1033.0.0.6&pos=3&cn=1831092">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-request" role="presentation">
+                            
+
+                                    <a class="c-title-detail-actions__btn" href="javascript:checkRequestLevel(3, 1831092, 1)">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        Place Request
+                                    </a>                        
+                            
+                            </li>
+                            
+                            
+                            
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_3 ><a class="c-add-to-my-list" href="javascript:AddToList(81, 3, '1831092', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	   
+        <div class="search__position">
+            <a id="__pos-4" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_4" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_4" class='c-title-detail__thumbnail hover__thumbnail' src="https://secure.syndetics.com/index.aspx?isbn=9788418037016/SC.GIF&client=tampp&upc=&oclc=" alt="Proyecto hail mary" data-position="4" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.hcplc.org/polaris/search/components/ajaxMARC.aspx?pos=4')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.hcplc.org/polaris/themes/shared/formats/formatid01.gif" alt="Book" title="Book" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2021</div>
+                            
+                            
+                            
+                                <div class="c-title-detail__3rd-party">
+
+                                    
+                                    
+                                        <div class="gbs-preview-div c-title-detail__3rd-party-item--google-preview" id="gbs_ISBN:9788418037016_4" >
+                                            <a class="gbs-preview-link" href="javascript:showModalBasicWithIframe('https://catalog.hcplc.org/polaris/search/components/ajaxGooglePreview.aspx?isbn=ISBN:9788418037016','', true)">
+                                                <img src="https://catalog.hcplc.org/polaris/themes/shared/gbs_preview_button.gif" title="Google Books Preview" alt="Google Books Preview" border="0" />
+                                            </a>
+                                        </div>
+                                    
+                            </div>
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_4"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">4.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.hcplc.org/polaris/search/title.aspx?ctx=1.1033.0.0.6&amp;pos=4&amp;cn=1834022"><span class="nsm-short-item nsm-e135">Proyecto <span class="nsm-hit-text">hail</span> <span class="nsm-hit-text">mary</span></span></a>
+			</div><div class="nsm-brief-primary-author-group">
+				by <span class="nsm-short-item nsm-e118"><a class="nsm-browse-link" href="../search/browse.aspx?ctx=1.1033.0.0.6&amp;type=Browse&amp;by=AU&amp;term=Weir%2c+Andy%2c&amp;page=0"><span class="nsm-browse-text"><span class="nsm-hit-text">Weir</span></span><span class="nsm-browse-text">, Andy,</span> author.</a></span>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">Barcelona : Nova, 2021.</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e8">Current Holds: </span><span class="nsm-short-item nsm-e8">0</span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e32">System Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">3 (of 6)</span></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-" class="c-title-detail-actions__list" data-item-pos="4"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-availability" role="presentation">
+                                <a class="c-title-detail-actions__btn" id="buttonAvailability_4"
+                                    href="javascript:showModalBasicWithIframe('https://catalog.hcplc.org/polaris/search/components/ajaxavailability.aspx?fp=1&level=local&morelink=0&pos=4&bibid=1834022&displayAeonOnly=0', '', false, false, false, 'Availability')">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        Availability  
+				                </a>
+                            </li>
+				                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.hcplc.org/polaris/search/title.aspx?ctx=1.1033.0.0.6&pos=4&cn=1834022">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-request" role="presentation">
+                            
+
+                                    <a class="c-title-detail-actions__btn" href="javascript:checkRequestLevel(4, 1834022, 1)">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        Place Request
+                                    </a>                        
+                            
+                            </li>
+                            
+                            
+                            
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_4 ><a class="c-add-to-my-list" href="javascript:AddToList(81, 4, '1834022', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	   
+        <div class="search__position">
+            <a id="__pos-5" href="#" aria-hidden="true" aria-label="Search Result"></a> 
+        </div>        
+        <div class="content-module content-module--search-result">  
+            <div class="content-container c-title-detail__title-display">
+                <div class="c-title-detail c-title-detail--initial-two-col">
+                    <div class="c-title-detail__container ">
+                        <div class="c-title-detail-media__container c-title-detail-media__container--no-border">
+                            <div class="c-title-detail__image-container">
+                                <div id="srcp_5" class="hover__container" width="1%" align="center" valign="top">
+                                    <img id="hover_image_5" class='c-title-detail__thumbnail hover__thumbnail' src="https://secure.syndetics.com/index.aspx?isbn=/SC.GIF&client=tampp&upc=843501650813&oclc=1596274001" alt="Project Hail Mary" data-position="5" data-isRBdigital="False">
+                                </div>
+                            </div>
+                            <div class="c-title-detail-meta">
+                                <div class="c-title-detail-formats__list">
+                                    
+                                    
+                                    
+                                    
+                                        <a href="javascript:showModalBasic('https://catalog.hcplc.org/polaris/search/components/ajaxMARC.aspx?pos=5')">                 
+                                            <img class="c-title-detail-formats__img" src="https://catalog.hcplc.org/polaris/themes/shared/formats/formatid33.gif" alt="DVD" title="DVD" border="0"/>
+                                        </a>
+                                    
+                                    
+                                                                    
+                                </div>                        
+                            </div>
+
+                            
+                                                       
+                                <div class="c-title-detail__3rd-party c-title-detail__pub-year">2026</div>
+                            
+                            
+                            
+                        </div>
+                        <div class="c-title-detail-info__container">
+                            <div class="c-title-detail-info-main__container">
+                                <div class="c-title-detail-info__result-num">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="c-title-detail-info-secondary__container " id="plres_5"  >
+				                <table cellpadding="0" cellspacing="0" width="100%" border="0">
+					                <tr class="nsm-brief-primary-zone">
+	<td width="100%"><table width="100%" cellpadding="5" cellspacing="0">
+		<tr valign="top">
+			<td width="1%" align="right" style="padding-left: 0; padding-right: 0;">5.</td><td style="align: left; width: 100%; valign: top; margin-top: 5px;"><div class="nsm-brief-primary-title-group">
+				<a class="nsm-brief-action-link" href="https://catalog.hcplc.org/polaris/search/title.aspx?ctx=1.1033.0.0.6&amp;pos=5&amp;cn=2046253"><span class="nsm-short-item nsm-e135"><span class="nsm-hit-text">Project</span> <span class="nsm-hit-text">Hail</span> <span class="nsm-hit-text">Mary</span></span></a>
+			</div></td><td nowrap="" width="1%" style="valign: top; text-align: right;"></td>
+		</tr>
+	</table></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e102">Publisher, Date: </span><span class="nsm-short-item nsm-e102">[United States] : Amazon MGM Studios, [2026]</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e145">Target Audience Note: </span><span class="nsm-short-item nsm-e145">PG13</span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e8">Current Holds: </span><span class="nsm-short-item nsm-e8">2</span>
+	</div><div class="nsm-brief-standard-group">
+		<span class="nsm-brief-label nsm-e32">System Availability: </span><span class="nsm-short-item nsm-e"><span class="nsm-brief-inline-subzone">12 (of 34)</span></span>
+	</div></td>
+</tr><tr class="nsm-brief-secondary-zone">
+	<td></td>
+</tr>
+                                    
+    				                <tr>
+						                <td colspan=2>
+                                            
+                                            
+                                            
+						                </td>
+					                </tr>
+				                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-title-detail-actions__container">
+                        <ul id="c-title-detail__button-list-" class="c-title-detail-actions__list" data-item-pos="5"  data-item-page="0">
+                             
+                            
+                                   
+                           
+                            
+                                   
+
+                            
+                                   
+
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-availability" role="presentation">
+                                <a class="c-title-detail-actions__btn" id="buttonAvailability_5"
+                                    href="javascript:showModalBasicWithIframe('https://catalog.hcplc.org/polaris/search/components/ajaxavailability.aspx?fp=1&level=local&morelink=0&pos=5&bibid=2046253&displayAeonOnly=0', '', false, false, false, 'Availability')">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        Availability  
+				                </a>
+                            </li>
+				                   
+ 
+                            
+                            <li class="c-title-detail-actions__item button-brief-fulldisplay" role="presentation">
+					            <a class="c-title-detail-actions__btn" href="https://catalog.hcplc.org/polaris/search/title.aspx?ctx=1.1033.0.0.6&pos=5&cn=2046253">
+                                    <span class="glyphicon glyphicon-tasks"></span>
+                                    Full Display
+					            </a>
+                            </li>
+            
+                            
+                            
+                            <li class="c-title-detail-actions__item button-brief-request" role="presentation">
+                            
+
+                                    <a class="c-title-detail-actions__btn" href="javascript:checkRequestLevel(5, 2046253, 1)">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        Place Request
+                                    </a>                        
+                            
+                            </li>
+                            
+                            
+                            
+                           
+                       </ul>
+                       <div class="c-title-detail-actions__add-to-my-list dropdown--scroll-into-view">
+                           
+                           <span id=addtolist_5 ><a class="c-add-to-my-list" href="javascript:AddToList(81, 5, '2046253', 0)">Add to My List</a>&nbsp;&nbsp;</span>
+                           
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> 
+	
+</div>
+
+
+
+    <script>
+
+        $('#pagination-results-bottom').twbsPagination({
+            totalPages: 1,
+            visiblePages: 4,
+            startPage: 1,
+            prev: '<span aria-label="Previous page">&lt;</span>',
+            next: '<span aria-label="Next page">&gt;</span>',
+            first: '<span aria-label="First page">&laquo;</span>',
+            last: '<span aria-label="Last page">&raquo;</span>',
+            pageClass: 'navigation-button',
+            onPageClick: function (event, page) {
+                if (page != 1) {
+                    ajaxLoadResultsPage(page, 1, null, 0);
+                }
+            }
+        });
+
+    </script>
+
+
+<div class='c-results-utility c-results-utility--partial'>
+  <div class="c-results-utility__container c-results-utility__container--result-count">
+    <div class="c-results-utility-result-count">
+        1
+        -
+        5
+        of
+        5
+    </div>
+    <div class="c-results-utility-per-page form-inline">  
+      <div class="c-results-utility-per-page__select-container select-styled">    
+        <select aria-label="Results per page dropdown" class="c-results-utility-per-page__select" id="dropdownResultsPerPageBottom" onchange="javascript:ajaxLoadResultsPage(1, 1, 'Bottom', 0);">
+           <option value="10" selected>10</option>
+           <option value="20">20</option>
+           <option value="30">30</option>
+           <option value="50">50</option>
+           <option value="100">100</option>
+        </select>
+      </div>
+      <span aria-label="per page"  class="c-results-utility-per-page__label">per page</span>
+    </div>
+  </div>
+
+  
+                 
+
+
+  <div class="c-results-utility__container c-results-utility__container--pagination c-results-utility__container--last">
+    <div class="c-results-utility-full-pagination">
+        
+            <ul id="pagination-results-bottom" class="pagination-sm" style="margin: 0px;"></ul>
+        
+    </div>
+  </div>
+ 
+
+</div>
+
+
+
+
+
+    <script src="https://books.google.com/books?jscmd=viewapi&amp;bibkeys=ISBN:9780593135204,ISBN:9780593395561,ISBN:9781713639817,ISBN:9788418037016,&amp;callback=processDynamicLinksResponse"></script>
+
+
+
+<script type="text/javascript" defer="defer">
+
+    $(document).ready(function ($) {
+        GetCloudLibraryPrivilegesWrapper("", false);
+    });
+
+    $(document).ready(function ($) {
+        GetAxis360PrivilegesWrapper("", false);
+    });
+    $(document).ready(function ($) {
+        GetOverdrivePrivilegesWrapper("", false);
+    });
+
+    $(document).ready(function ($) {
+        GetRBdigitalPrivilegesWrapper("", false);
+
+        var isPresent = document.getElementById('IsRBdigitalLicensedID');
+        if (isPresent == null) {
+            RemoveAvailabiltyForNotLicensed();
+        }
+    });
+
+    $(document).ready(function ($) {
+        GetRestrictedWrapper();
+    });
+   
+    initializeBibliographicHover();
+
+
+
+</script>

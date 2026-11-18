@@ -99,6 +99,8 @@
     <string name="badge_unknown">Availability unknown</string>
     <string name="badge_home">Home</string>
     <string name="caption_on_shelf">on shelf</string>
+    <string name="caption_branches_on_shelf">branches have it</string>
+    <string name="branch_has_it">On the shelf</string>
     <string name="branch_library_use">In library use only</string>
     <string name="branch_out_due">Checked out · due %1$s</string>
     <string name="branch_unavailable">Not available</string>

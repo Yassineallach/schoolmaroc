@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-18T10:43:58Z",
+ "generatedAt": "2026-11-18T12:31:24Z",
  "libraries": [
   {
    "name": "Brimbank Libraries",
@@ -7186,6 +7186,16 @@
    ]
   },
   {
+   "name": "Brentwood Library",
+   "country": "US",
+   "region": "TN",
+   "city": "Brentwood",
+   "catalog": {
+    "provider": "POLARIS",
+    "baseUrl": "https://catalog.brentwoodtn.gov/polaris"
+   }
+  },
+  {
    "name": "Brooklyn Public Library",
    "country": "US",
    "region": "NY",
@@ -8312,6 +8322,16 @@
      "longitude": -78.713608
     }
    ]
+  },
+  {
+   "name": "C/W MARS",
+   "country": "US",
+   "region": "MA",
+   "city": "Worcester",
+   "catalog": {
+    "provider": "EVERGREEN",
+    "baseUrl": "https://bark.cwmars.org"
+   }
   },
   {
    "name": "Carnegie Library of Pittsburgh",
@@ -13216,6 +13236,16 @@
      "longitude": -84.543187
     }
    ]
+  },
+  {
+   "name": "Georgia PINES",
+   "country": "US",
+   "region": "GA",
+   "city": "Atlanta",
+   "catalog": {
+    "provider": "EVERGREEN",
+    "baseUrl": "https://gapines.org"
+   }
   },
   {
    "name": "Gwinnett County Public Library",

@@ -29,6 +29,26 @@ class PhysicalLiveTest {
         assertTrue(bk.copies.size > 10)
     }
 
+    private suspend fun live(name: String, provider: com.mardev.nearshelf.core.provider.CatalogProvider, key: String, q: BookQuery) {
+        try {
+            val h = provider.search(LibraryRef(provider.id, key, name), q)
+            val m = com.mardev.nearshelf.core.match.BookMatcher().match(q, h)
+            val best = m.firstOrNull { it.holding.copies.isNotEmpty() }?.holding
+            println("LIVE $name: ${h.size} print records, ${m.size} match; best '${best?.title}' copies=${best?.copies?.size} onShelf=${best?.copies?.count { it.status == CopyStatus.AVAILABLE }} branches=${best?.copies?.map { it.branchName }?.distinct()?.size}")
+            assertTrue(m.isNotEmpty())
+        } catch (e: ProviderException) {
+            println("LIVE $name: ${e.kind} (${e.message})")
+            assertTrue(e.kind == ProviderException.Kind.BLOCKED || e.kind == ProviderException.Kind.RATE_LIMITED)
+        }
+    }
+
+    private val phm = BookQuery(title = "Project Hail Mary", author = "Andy Weir")
+
+    @Test fun evergreenPines() = runBlocking { live("PINES", com.mardev.nearshelf.core.provider.evergreen.EvergreenProvider(client), "https://gapines.org", phm) }
+    @Test fun polarisHillsborough() = runBlocking { live("Hillsborough", com.mardev.nearshelf.core.provider.polaris.PolarisProvider(client), "https://catalog.hcplc.org/polaris", phm) }
+    @Test fun vegaNypl() = runBlocking { live("NYPL", com.mardev.nearshelf.core.provider.sierra.VegaProvider(client), "https://nypl.na2.iiivega.com", phm) }
+    @Test fun webPacCincinnati() = runBlocking { live("Cincinnati classic", com.mardev.nearshelf.core.provider.sierra.WebPacProvider(client), "https://classic.cincinnatilibrary.org", phm) }
+
     @Test
     fun kohaPillsbury() = runBlocking {
         val ref = LibraryRef(ProviderId.KOHA, "https://pillsbury.nhais.bywatersolutions.com", "Pillsbury Free Library")

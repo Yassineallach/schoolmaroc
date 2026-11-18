@@ -64,6 +64,13 @@ The app downloads it at most once a week and falls back to the bundled copy.
 | Hoopla search | `POST https://patron-api-gateway.hoopladigital.com/graphql` `search(criteria:{q, pagination})`, whole catalog, no login | 2026-11-18 |
 | Hoopla deep link / covers | `https://www.hoopladigital.com/title/{id}` (App Link to `com.hoopladigital.android`); `https://cover.hoopladigital.com/{artKey}_270.jpeg` | 2026-11-18 |
 | Libby branches | `GET https://locate.libbyapp.com/branches/{websiteId}`: every branch with address and coordinates (Toronto: 103) | 2026-11-18 |
+| BiblioCommons | `gateway.bibliocommons.com/v2/libraries/{code}/bibs/search?query=…&searchType=smart`, `/bibs/{id}/availability` (per copy); record page `{code}.bibliocommons.com/v2/record/{id}` | 2026-11-18 |
+| Koha | `/cgi-bin/koha/opac-search.pl?q=…&format=rss`; `/api/v1/public/biblios/{id}/items`, `/api/v1/public/libraries`. Many hosts put bot checks in front (Cloudflare 429, JS challenge) | 2026-11-18 |
+| Evergreen | `/opac/extras/opensearch/1.1/-/atom-full/keyword/?searchTerms=title:… author:{surname}` (copies inline); record `/eg/opac/record/{id}` | 2026-11-18 |
+| Polaris | session: `search/searchresults.aspx`, then `search/components/ajaxResults.aspx?page=1`, `ajaxavailability.aspx?pos=…&bibid=…`; permalink `view.aspx?cn=` | 2026-11-18 |
+| Vega | `POST https://{region}.iiivega.com/api/search-result/search/format-groups` (header `iii-customer-domain`), `drawer/format-groups/{id}/locations?tab=`; card `search/card?id=…&entityType=FormatGroup` | 2026-11-18 |
+| Sierra WebPAC | `/search~S1/?searchtype=X&searcharg=…`, record `/record={b…}~S1` | 2026-11-18 |
+| Aspen | API IP-restricted; catalogs behind Cloudflare or JS challenge: link to `/Search/Results?lookfor=…` only | 2026-11-18 |
 | Libby title deep link | `https://libbyapp.com/library/{key}/title/{id}` (Libby router's `title-redirect-controller`; libbyapp.com `assetlinks.json` delegates to `com.overdrive.mobile.android.libby`) | 2026-11-17 |
 
 ## Milestones
@@ -73,8 +80,8 @@ The app downloads it at most once a week and falls back to the bundled copy.
 3. [x] Share sheet, barcode scanner, Open Library ISBN expansion
 4. [x] Hoopla (see docs/providers/hoopla.md)
 5. [x] Library registry, URL auto-detection, registry build script, home branch
-6. [ ] BiblioCommons, Koha
-7. [ ] Evergreen, Aspen, Polaris, Sierra
+6. [x] BiblioCommons, Koha
+7. [x] Evergreen, Polaris, Sierra (WebPAC, Vega); Aspen link-only
 8. [ ] Location sorting, watchlist, notifications, caching, rate limiting, provider health
 9. [ ] Widget, history, offline, filters
 10. [ ] AdMob + UMP, settings, about, privacy, French/Arabic + RTL

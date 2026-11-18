@@ -1,0 +1,648 @@
+<?xml version="1.0"?>
+<atom:feed xmlns:atom="http://www.w3.org/2005/Atom" xmlns="http://www.w3.org/2005/Atom">
+  <title>Search results for [title:The Hobbit author:tolkien] at All C/W MARS Libraries</title>
+  <author>
+    <name>bark.cwmars.org</name>
+  </author>
+  <updated>2026-11-18T12:29:47+00:00</updated>
+  <totalResults xmlns="http://a9.com/-/spec/opensearch/1.1/">60</totalResults>
+  <startIndex xmlns="http://a9.com/-/spec/opensearch/1.1/">1</startIndex>
+  <itemsPerPage xmlns="http://a9.com/-/spec/opensearch/1.1/">6</itemsPerPage>
+  <link type="application/opensearch+xml" href="https://bark.cwmars.org/opac/extras/opensearch/1.1/-/atom-full/keyword?searchTerms=title:The Hobbit author:tolkien&amp;searchSort=&amp;searchSortDir=&amp;searchLang=&amp;startIndex=7&amp;count=6" rel="next"/>
+  <link href="https://bark.cwmars.org/opac/extras/opensearch/1.1/-/atom-full/keyword?searchTerms=title:The Hobbit author:tolkien&amp;searchSort=&amp;searchSortDir=&amp;searchLang=" type="application/opensearch+xml" rel="self"/>
+  <link rel="alternate" href="https://bark.cwmars.org/opac/extras/opensearch/1.1/-/rss2-full/keyword?searchTerms=title:The Hobbit author:tolkien&amp;searchSort=&amp;searchSortDir=&amp;searchLang=" type="application/rss+xml"/>
+  <link href="https://bark.cwmars.org/opac/extras/opensearch/1.1/-/atom-full/keyword?searchTerms=title:The Hobbit author:tolkien&amp;searchSort=&amp;searchSortDir=&amp;searchLang=" type="application/atom+xml" rel="self"/>
+  <link rel="html" href="https://bark.cwmars.org/opac/extras/opensearch/1.1/-/html/keyword?searchTerms=title:The Hobbit author:tolkien&amp;searchSort=&amp;searchSortDir=&amp;searchLang=" type="text/html"/>
+  <link href="https://bark.cwmars.org/opac/extras/opensearch/1.1/-/html-full/keyword?searchTerms=title:The Hobbit author:tolkien&amp;searchSort=&amp;searchSortDir=&amp;searchLang=" type="text/html" rel="html-full"/>
+  <link rel="unapi-server" type="application/x-unapi-server+xml" href="https://bark.cwmars.org/opac/extras/unapi"/>
+  <atom:entry xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <id>urn:tcn:5034476</id>
+  <updated>20231023122202.5</updated>
+  <title>The hobbit /</title>
+  <author>
+    <name>Tolkien, J. R. R.(John Ronald Reuel),1892-1973,author,illustrator.http://id.loc.gov/authorities/names/n79005673(CWMARS)225068</name>
+  </author>
+  <author>
+    <name>Tolkien, Christopher,writer of foreword.http://id.loc.gov/authorities/names/n79144796(CWMARS)270476</name>
+  </author>
+  <category term="Fantasy fiction."/>
+  <category term="Fiction."/>
+  <category term="Fantasy fiction."/>
+  <summary>For the first time ever, a special enhanced edition of the enchanting prelude to The Lord of the Rings, illustrated throughout with over 50 sketches, drawings, paintings and maps by J.R.R. Tolkien himself and with the complete text printed in two colors. Bilbo Baggins is a hobbit who enjoys a comfortable, unambitious life, rarely travelling further than the pantry of his hobbit-hole in Bag End. But his contentment is disturbed when the wizard, Gandalf, and a company of thirteen dwarves arrive on his doorstep one day to whisk him away on an unexpected journey &#x2018;there and back again.&#x2019; They have a plot to raid the treasure hoard of Smaug the Magnificent, a large and very dangerous dragon . . .Written for J.R.R. Tolkien&#x2019;s own children, The Hobbit was published on 21 September 1937. With a beautiful cover design, a handful of black &amp; white drawings and two maps by the author himself, the book became an instant success and was reprinted shortly afterwards with five color plates. Tolkien&#x2019;s own selection of finished paintings and drawings have become inseparable from his text, adorning editions of The Hobbit for more than 85 years. But the published art has afforded only a glimpse of Tolkien&#x2019;s creative process, and many additional sketches, colored drawings and maps &#x2013; although exhibited and published elsewhere &#x2013; have never appeared within the pages of The Hobbit. In this unique enhanced edition of Tolkien&#x2019;s enchanting classic tale, the full panoply of his art is reproduced for the first time, presenting more than 50 illustrations to accompany Bilbo Baggins on his adventure &#x2018;there and back again.&#x2019;--Amazon</summary>
+  <category term="Baggins, Bilbo"/>
+  <category term="Hobbits (Fictitious characters)"/>
+  <category term="Dwarfs (Folklore)"/>
+  <category term="Middle Earth (Imaginary place)"/>
+  <category term="Baggins, Bilbo."/>
+  <category term="Dwarfs (Folklore)"/>
+  <category term="Hobbits (Fictitious characters)"/>
+  <category term="Middle Earth (Imaginary place)"/>
+  <dc:identifier>URN:ISBN:9780063347533</dc:identifier>
+  <dc:identifier>URN:ISBN:0063347539</dc:identifier>
+  <dc:identifier>URN:BIBID:5034476</dc:identifier>
+<holdings xmlns="http://open-ils.org/spec/holdings/v1"><counts>
+<count type="public" count="7" available="2" unshadow="7" transcendant="0" org_unit="1" depth="0"/>
+<count type="staff" count="7" available="2" unshadow="7" transcendant="0" org_unit="1" depth="0"/>
+</counts><volumes>
+    <volume id="tag:open-ils.org:asset-call_number/30992979" lib="TOWNSEND" opac_visible="t" deleted="f" label="FIC Tolkien (Classic)">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/23575232" create_date="2026-10-14T12:39:13-0400" edit_date="2026-10-14T12:39:13-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="75.00" barcode="37450001506132" circ_modifier="New Fiction" circ_as_type="a" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="808" opac_visible="t">New Book</location>
+        <circlib ident="121" opac_visible="t">Townsend Public Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/121" shortname="TOWNSEND" name="Townsend Public Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/121" shortname="TOWNSEND" name="Townsend Public Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/29247233" lib="DALTON" opac_visible="t" deleted="f" label="FIC TOL">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/21854684" create_date="2023-10-25T09:22:02-0400" edit_date="2026-10-05T12:17:59-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="75.00" barcode="37456001508366" circ_modifier="Book" circ_as_type="a" opac_visible="t">
+        <status ident="6" opac_visible="t">In transit</status>
+        <location ident="1226" opac_visible="t">Adult Fiction</location>
+        <circlib ident="182" opac_visible="t">Dalton Free Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/182" shortname="DALTON" name="Dalton Free Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/182" shortname="DALTON" name="Dalton Free Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/30179844" lib="NBROOKFLD" opac_visible="t" deleted="f" label="F TOL">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/22782694" create_date="2025-05-22T16:06:44-0400" edit_date="2026-10-03T18:34:50-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="75.00" barcode="37392000602068" circ_modifier="Book" circ_as_type="" opac_visible="t">
+        <status ident="1" opac_visible="t">Checked out</status>
+        <location ident="597" opac_visible="t">Adult</location>
+        <circlib ident="81" opac_visible="t">North Brookfield Haston Free Public Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/81" shortname="NBROOKFLD" name="North Brookfield Haston Free Public Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/81" shortname="NBROOKFLD" name="North Brookfield Haston Free Public Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/29279725" lib="LANCASTER" opac_visible="t" deleted="f" label="F TOLKIEN">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/21886563" create_date="2023-11-13T12:19:46-0500" edit_date="2026-09-29T15:03:41-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="24.00" barcode="38128001584387" circ_modifier="New Fiction" circ_as_type="" opac_visible="t">
+        <status ident="1" opac_visible="t">Checked out</status>
+        <location ident="503" opac_visible="t">Fiction</location>
+        <circlib ident="61" opac_visible="t">Lancaster Thayer Memorial Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/61" shortname="LANCASTER" name="Lancaster Thayer Memorial Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/61" shortname="LANCASTER" name="Lancaster Thayer Memorial Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/30111538" lib="PALMER" opac_visible="t" deleted="f" label="Tolkien">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/22714325" create_date="2025-04-11T14:52:58-0400" edit_date="2026-09-15T14:35:40-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="75.00" barcode="38134001690570" circ_modifier="Book" circ_as_type="" opac_visible="t">
+        <status ident="1" opac_visible="t">Checked out</status>
+        <location ident="1664" opac_visible="t">Fiction</location>
+        <circlib ident="256" opac_visible="t">Palmer Public Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/256" shortname="PALMER" name="Palmer Public Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="2886" id="tag:open-ils.org:asset-call_number_prefix/2886" label_sortkey="sf">SF</prefix>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/256" shortname="PALMER" name="Palmer Public Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/30336300" lib="BUCKLAND" opac_visible="t" deleted="f" label="YA F TOL">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/22937441" create_date="2025-09-05T14:51:55-0400" edit_date="2026-10-28T02:20:40-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="20.00" barcode="37372000295329" circ_modifier="Book" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="2378" opac_visible="t">Young Adult Fiction</location>
+        <circlib ident="166" opac_visible="t">Buckland Public Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/166" shortname="BUCKLAND" name="Buckland Public Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/166" shortname="BUCKLAND" name="Buckland Public Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/29605021" lib="ASHBURNHAM" opac_visible="t" deleted="f" label="YA TOLKIEN">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/22205141" create_date="2024-05-29T13:21:50-0400" edit_date="2026-10-11T04:53:46-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="75.00" barcode="38179000831642" circ_modifier="Book" circ_as_type="" opac_visible="t">
+        <status ident="1" opac_visible="t">Checked out</status>
+        <location ident="2931" opac_visible="t">Young Adult Fiction</location>
+        <circlib ident="407" opac_visible="t">Ashburnham Stevens Memorial Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/407" shortname="ASHBURNHAM" name="Ashburnham Stevens Memorial Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/407" shortname="ASHBURNHAM" name="Ashburnham Stevens Memorial Library"/>
+    </volume>
+</volumes><subscriptions>
+</subscriptions></holdings><id>tag:open-ils.org,2026-11-18:biblio-record_entry/5034476/-</id><link rel="alternate" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/5034476/-&amp;format=opac" type="text/html"/><link type="application/x-opac+xml" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/5034476/-&amp;format=opac" rel="opac"/><link href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/5034476/-" type="application/x-unapi+xml" rel="unapi"/><link rel="unapi-id" href="tag:open-ils.org,2026-11-18:biblio-record_entry/5034476/-" type="application/x-unapi-id+xml"/></atom:entry>
+  <atom:entry xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <id>urn:tcn:2661672</id>
+  <updated>20140618184233.0</updated>
+  <title>The hobbit [electronic resource] /</title>
+  <author>
+    <name>Tolkien, J. R. R.(John Ronald Reuel),1892-1973.(CWMARS)225068</name>
+  </author>
+  <author>
+    <name>BBC Audiobooks America.(CWMARS)1094952</name>
+  </author>
+  <author>
+    <name>Playaway Digital Audio.(CWMARS)1002043</name>
+  </author>
+  <author>
+    <name>Findaway World, LLC.(CWMARS)966778</name>
+  </author>
+  <category term="Fantasy fiction."/>
+  <category term="Audiobooks."/>
+  <rights>&#xA9; [2010], p1988, 1998., Playaway Digital Audio ; [Distributed exclusively by] BBC Audiobooks America : [Manufactured by] Findaway World, LLC,</rights>
+  <published>[2010], p1988, 1998.</published>
+  <summary>Bilbo Baggins, a respectable, well-to-do hobbit, lives comfortably in his hobbit-hole until the day the wandering wizard Gandalf chooses him to take part in an adventure from which he may never return.</summary>
+  <category term="Tolkien, J. R. R. (John Ronald Reuel), 1892-1973."/>
+  <category term="Middle Earth (Imaginary place)"/>
+  <category term="Baggins, Bilbo (Fictitious character)"/>
+  <category term="Fantasy."/>
+  <dc:identifier>URN:ISBN:9780792772859</dc:identifier>
+  <dc:identifier>URN:ISBN:0792772857</dc:identifier>
+  <dc:identifier>URN:BIBID:2661672</dc:identifier>
+<holdings xmlns="http://open-ils.org/spec/holdings/v1"><counts>
+<count type="public" count="1" available="0" unshadow="1" transcendant="0" org_unit="1" depth="0"/>
+<count type="staff" count="2" available="0" unshadow="2" transcendant="0" org_unit="1" depth="0"/>
+</counts><volumes>
+    <volume id="tag:open-ils.org:asset-call_number/10462347" lib="ORANGE-WH" opac_visible="t" deleted="f" label="PLAYAWAY TOL">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/6150895" create_date="2010-08-30T00:00:00-0400" edit_date="2024-02-28T13:22:46-0500" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="64.95" barcode="38129000801996" circ_modifier="Digital Player" circ_as_type="i" opac_visible="t">
+        <status ident="6" opac_visible="t">In transit</status>
+        <location ident="2157" opac_visible="t">General</location>
+        <circlib ident="251" opac_visible="t">Orange North Branch Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/251" shortname="ORANGE-NO" name="Orange North Branch Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/252" shortname="ORANGE-WH" name="Orange Wheeler Memorial Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/17222848" lib="SPFLD-MAIN" opac_visible="t" deleted="f" label="YA PLAYAWAY TOLKIEN">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/15556934" create_date="2014-06-18T14:44:37-0400" edit_date="2026-07-24T16:52:41-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="80.00" barcode="30598000719739" circ_modifier="Digital Player" circ_as_type="" opac_visible="t">
+        <status ident="4" opac_visible="f">Missing</status>
+        <location ident="2491" opac_visible="t">Stacks</location>
+        <circlib ident="280" opac_visible="t">Springfield Main Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/280" shortname="SPFLD-MAIN" name="Springfield Main Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/280" shortname="SPFLD-MAIN" name="Springfield Main Library"/>
+    </volume>
+</volumes><subscriptions>
+</subscriptions></holdings><id>tag:open-ils.org,2026-11-18:biblio-record_entry/2661672/-</id><link rel="alternate" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2661672/-&amp;format=opac" type="text/html"/><link rel="opac" type="application/x-opac+xml" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2661672/-&amp;format=opac"/><link rel="unapi" type="application/x-unapi+xml" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2661672/-"/><link href="tag:open-ils.org,2026-11-18:biblio-record_entry/2661672/-" type="application/x-unapi-id+xml" rel="unapi-id"/></atom:entry>
+  <atom:entry xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <id>urn:tcn:2550273</id>
+  <updated>20151202155612.0</updated>
+  <title>The hobbit [electronic resource] /</title>
+  <author>
+    <name>Tolkien, J. R. R.(John Ronald Reuel),1892-1973.(CWMARS)225068</name>
+  </author>
+  <author>
+    <name>Inglis, Rob.(CWMARS)590163</name>
+  </author>
+  <author>
+    <name>Recorded Books, LLC.(CWMARS)979009</name>
+  </author>
+  <author>
+    <name>Playaway Digital Audio.(CWMARS)1002043</name>
+  </author>
+  <author>
+    <name>Findaway World, LLC.(CWMARS)966778</name>
+  </author>
+  <category term="Audiobooks."/>
+  <rights>&#xA9; [released 2008], c2008., Playaway Digital Audio ; [distributed exclusively by] Recorded Books, LLC : [manufactured by] Findaway World, LLC,</rights>
+  <published>[released 2008], c2008.</published>
+  <summary>Narrated by Rob Inglis.Bilbo Baggins, a respectable, well-to-do hobbit, lives comfortably in his hobbit-hole until the day the wandering wizard Gandalf chooses him to take part in an adventure from which he may never return.11 years and up.</summary>
+  <category term="Middle Earth (Imaginary place)"/>
+  <category term="Fantasy."/>
+  <dc:identifier>URN:ISBN:9781436148894</dc:identifier>
+  <dc:identifier>URN:ISBN:1436148898</dc:identifier>
+  <dc:identifier>URN:BIBID:2550273</dc:identifier>
+<holdings xmlns="http://open-ils.org/spec/holdings/v1"><counts>
+<count type="public" count="4" available="2" unshadow="4" transcendant="0" org_unit="1" depth="0"/>
+<count type="staff" count="5" available="2" unshadow="5" transcendant="0" org_unit="1" depth="0"/>
+</counts><volumes>
+    <volume id="tag:open-ils.org:asset-call_number/30588007" lib="HARDWICK" opac_visible="t" deleted="f" label="823/.912">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/23188109" create_date="2026-02-19T18:30:30-0500" edit_date="2026-10-06T16:46:47-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="0.00" barcode="30566000126239" circ_modifier="Digital Player" circ_as_type="i" opac_visible="t">
+        <status ident="1" opac_visible="t">Checked out</status>
+        <location ident="3315" opac_visible="t">Juvenile Audio</location>
+        <circlib ident="428" opac_visible="t">Hardwick Paige Memorial Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/428" shortname="HARDWICK" name="Hardwick Paige Memorial Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/428" shortname="HARDWICK" name="Hardwick Paige Memorial Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/28381145" lib="HOPKINTON" opac_visible="t" deleted="f" label="PLAYAWAY FIC  TOLKIEN">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/21254469" create_date="2022-11-04T14:20:20-0400" edit_date="2026-10-09T02:15:06-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="78.00" barcode="37384001139554" circ_modifier="Digital Player" circ_as_type="i" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="4059" opac_visible="t">Lower Level</location>
+        <circlib ident="55" opac_visible="t">Hopkinton Public Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/55" shortname="HOPKINTON" name="Hopkinton Public Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/55" shortname="HOPKINTON" name="Hopkinton Public Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/16744162" lib="LONGMEADOW" opac_visible="t" deleted="f" label="TOL">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/6928474" create_date="2010-05-05T00:00:00-0400" edit_date="2026-10-06T12:36:32-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="40.00" barcode="30451000595065" circ_modifier="Audio" circ_as_type="" opac_visible="t">
+        <status ident="1" opac_visible="t">Checked out</status>
+        <location ident="2428" opac_visible="t">Juvenile Audio Visual</location>
+        <circlib ident="231" opac_visible="t">Longmeadow Richard Salter Storrs Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/231" shortname="LONGMEADOW" name="Longmeadow Richard Salter Storrs Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="7710" id="tag:open-ils.org:asset-call_number_prefix/7710" label_sortkey="jplyaud">j plyaud</prefix>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/231" shortname="LONGMEADOW" name="Longmeadow Richard Salter Storrs Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/30412435" lib="SHREWSBURY" opac_visible="t" deleted="f" label="TOLKIEN">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/23014414" create_date="2025-10-24T15:45:41-0400" edit_date="2026-09-22T18:41:54-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="71.00" barcode="38124002240152" circ_modifier="Digital Player" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="702" opac_visible="t">Juvenile</location>
+        <circlib ident="103" opac_visible="t">Shrewsbury Public Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/103" shortname="SHREWSBURY" name="Shrewsbury Public Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="9332" id="tag:open-ils.org:asset-call_number_prefix/9332" label_sortkey="jplayaway">J PLAYAWAY</prefix>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/103" shortname="SHREWSBURY" name="Shrewsbury Public Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/20473315" lib="SPFLD-IO" opac_visible="t" deleted="f" label="YA PLAYAWAY TOLKIEN">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/16682929" create_date="2015-12-02T10:56:38-0500" edit_date="2026-08-17T12:04:25-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="64.99" barcode="30598000796448" circ_modifier="Digital Player" circ_as_type="" opac_visible="t">
+        <status ident="27" opac_visible="f">Repair</status>
+        <location ident="2496" opac_visible="t">YA</location>
+        <circlib ident="285" opac_visible="t">Springfield Indian Orchard Branch</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/285" shortname="SPFLD-IO" name="Springfield Indian Orchard Branch" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/285" shortname="SPFLD-IO" name="Springfield Indian Orchard Branch"/>
+    </volume>
+</volumes><subscriptions>
+</subscriptions></holdings><id>tag:open-ils.org,2026-11-18:biblio-record_entry/2550273/-</id><link type="text/html" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2550273/-&amp;format=opac" rel="alternate"/><link rel="opac" type="application/x-opac+xml" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2550273/-&amp;format=opac"/><link type="application/x-unapi+xml" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2550273/-" rel="unapi"/><link rel="unapi-id" type="application/x-unapi-id+xml" href="tag:open-ils.org,2026-11-18:biblio-record_entry/2550273/-"/></atom:entry>
+  <atom:entry xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <id>urn:tcn:2210613</id>
+  <updated>20040728160352.0</updated>
+  <title>The hobbit [sound recording] /</title>
+  <author>
+    <name>Tolkien, J. R. R.(John Ronald Reuel),1892-1973.(CWMARS)225068</name>
+  </author>
+  <rights>&#xA9; p2001., HighBridge Co.,</rights>
+  <published>p2001.</published>
+  <summary>Fully dramatized.Bilbo Baggins, a respectable, well-to-do hobbit, lives comfortably in his hobbit-hole until the day the wandering wizard Gandalf chooses him to take part in an adventure from which he may never return.</summary>
+  <category term="Middle Earth (Imaginary place)"/>
+  <category term="Fantasy."/>
+  <category term="Audiobooks."/>
+  <dc:identifier>URN:ISBN:1565116720</dc:identifier>
+  <dc:identifier>URN:BIBID:2210613</dc:identifier>
+<holdings xmlns="http://open-ils.org/spec/holdings/v1"><counts>
+<count type="public" count="2" available="2" unshadow="2" transcendant="0" org_unit="1" depth="0"/>
+<count type="staff" count="2" available="2" unshadow="2" transcendant="0" org_unit="1" depth="0"/>
+</counts><volumes>
+    <volume id="tag:open-ils.org:asset-call_number/18224649" lib="DALTON" opac_visible="t" deleted="f" label="JCD FIC Tol">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/15755505" create_date="2014-09-22T13:01:54-0400" edit_date="2026-09-24T12:16:28-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="19.95" barcode="37456001214874" circ_modifier="Audio" circ_as_type="i" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="1231" opac_visible="t">Juvenile</location>
+        <circlib ident="182" opac_visible="t">Dalton Free Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/182" shortname="DALTON" name="Dalton Free Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/182" shortname="DALTON" name="Dalton Free Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/11800793" lib="CHCP-MAIN" opac_visible="t" deleted="f" label="TOLKIEN">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/5279336" create_date="2003-07-29T00:00:00-0400" edit_date="2026-02-11T11:54:33-0500" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="29.00" barcode="38138000132815" circ_modifier="Audio" circ_as_type="i" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="1198" opac_visible="t">Media (Upper Level)</location>
+        <circlib ident="174" opac_visible="t">Chicopee Main Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/174" shortname="CHCP-MAIN" name="Chicopee Main Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="3551" id="tag:open-ils.org:asset-call_number_prefix/3551" label_sortkey="audiocd">AUDIO CD</prefix>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/174" shortname="CHCP-MAIN" name="Chicopee Main Library"/>
+    </volume>
+</volumes><subscriptions>
+</subscriptions></holdings><id>tag:open-ils.org,2026-11-18:biblio-record_entry/2210613/-</id><link rel="alternate" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2210613/-&amp;format=opac" type="text/html"/><link rel="opac" type="application/x-opac+xml" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2210613/-&amp;format=opac"/><link href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2210613/-" type="application/x-unapi+xml" rel="unapi"/><link href="tag:open-ils.org,2026-11-18:biblio-record_entry/2210613/-" type="application/x-unapi-id+xml" rel="unapi-id"/></atom:entry>
+  <atom:entry xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <id>urn:tcn:779101</id>
+  <updated>20051027024821.0</updated>
+  <title>The hobbit [sound recording] /</title>
+  <author>
+    <name>Tolkien, J. R. R.(John Ronald Reuel),1892-1973.(CWMARS)225068</name>
+  </author>
+  <author>
+    <name>BBC Radio.(CWMARS)858497</name>
+  </author>
+  <category term="Adventure fiction."/>
+  <category term="Fantasy fiction."/>
+  <rights>&#xA9; cp1998., BBC Audiobooks America,</rights>
+  <published>cp1998.</published>
+  <summary/>
+  <category term="Baggins, Frodo (Fictitious character)"/>
+  <category term="Middle Earth (Imaginary place)"/>
+  <category term="Audiobooks."/>
+  <dc:identifier>URN:ISBN:0563530472</dc:identifier>
+  <dc:identifier>URN:BIBID:779101</dc:identifier>
+<holdings xmlns="http://open-ils.org/spec/holdings/v1"><counts>
+<count type="public" count="2" available="1" unshadow="2" transcendant="0" org_unit="1" depth="0"/>
+<count type="staff" count="3" available="1" unshadow="3" transcendant="0" org_unit="1" depth="0"/>
+</counts><volumes>
+    <volume id="tag:open-ils.org:asset-call_number/1421660" lib="SHREWSBURY" opac_visible="t" deleted="f" label="TOLKIEN">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/2647007" create_date="2009-09-17T00:00:00-0400" edit_date="2026-06-26T12:11:54-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="30.00" barcode="38124000921720" circ_modifier="Audio" circ_as_type="" opac_visible="t">
+        <status ident="6" opac_visible="t">In transit</status>
+        <location ident="692" opac_visible="t">Audio</location>
+        <circlib ident="103" opac_visible="t">Shrewsbury Public Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/103" shortname="SHREWSBURY" name="Shrewsbury Public Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="1462" id="tag:open-ils.org:asset-call_number_prefix/1462" label_sortkey="cdbk">CDBK</prefix>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/103" shortname="SHREWSBURY" name="Shrewsbury Public Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/9001590" lib="LENOX" opac_visible="t" deleted="f" label="Tolkien">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/5334135" create_date="2005-10-28T00:00:00-0400" edit_date="2018-01-25T01:15:16-0500" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="0.00" barcode="37381001040378" circ_modifier="Audio" circ_as_type="" opac_visible="t">
+        <status ident="17" opac_visible="f">Lost and Paid</status>
+        <location ident="1441" opac_visible="t">Adult</location>
+        <circlib ident="227" opac_visible="t">Lenox Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/227" shortname="LENOX" name="Lenox Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="4190" id="tag:open-ils.org:asset-call_number_prefix/4190" label_sortkey="audio">Audio</prefix>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/227" shortname="LENOX" name="Lenox Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/28411503" lib="CONWAY" opac_visible="t" deleted="f" label="Tolkien">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/21256923" create_date="2022-11-07T14:06:57-0500" edit_date="2026-03-11T14:06:39-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="25.00" barcode="30559000103027" circ_modifier="Audio" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="3390" opac_visible="t">AUDIO - CD Adult Fiction</location>
+        <circlib ident="434" opac_visible="t">Conway Field Memorial Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/434" shortname="CONWAY" name="Conway Field Memorial Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="8836" id="tag:open-ils.org:asset-call_number_prefix/8836" label_sortkey="aud">AUD</prefix>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/434" shortname="CONWAY" name="Conway Field Memorial Library"/>
+    </volume>
+</volumes><subscriptions>
+</subscriptions></holdings><id>tag:open-ils.org,2026-11-18:biblio-record_entry/779101/-</id><link rel="alternate" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/779101/-&amp;format=opac" type="text/html"/><link type="application/x-opac+xml" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/779101/-&amp;format=opac" rel="opac"/><link rel="unapi" type="application/x-unapi+xml" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/779101/-"/><link rel="unapi-id" href="tag:open-ils.org,2026-11-18:biblio-record_entry/779101/-" type="application/x-unapi-id+xml"/></atom:entry>
+  <atom:entry xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <id>urn:tcn:2243690</id>
+  <updated>20040202133052.0</updated>
+  <title>The hobbit [sound recording] /</title>
+  <author>
+    <name>Tolkien, J. R. R.(John Ronald Reuel),1892-1973.(CWMARS)225068</name>
+  </author>
+  <author>
+    <name>BBC Worldwide Ltd.(CWMARS)875304</name>
+  </author>
+  <author>
+    <name>Random House Audio Publishing.(CWMARS)859948</name>
+  </author>
+  <category term="Radio plays."/>
+  <category term="Fantastic fiction."/>
+  <category term="Adventure fiction."/>
+  <rights>&#xA9; c1997., BBC Worldwide : Random House Audio,</rights>
+  <published>c1997.</published>
+  <summary/>
+  <category term="Tolkien, J. R. R. (John Ronald Reuel), 1892-1973"/>
+  <category term="Baggins, Bilbo (Fictitious character)"/>
+  <category term="Middle Earth (Imaginary place)"/>
+  <dc:identifier>URN:BIBID:2243690</dc:identifier>
+<holdings xmlns="http://open-ils.org/spec/holdings/v1"><counts>
+<count type="public" count="1" available="1" unshadow="1" transcendant="0" org_unit="1" depth="0"/>
+<count type="staff" count="1" available="1" unshadow="1" transcendant="0" org_unit="1" depth="0"/>
+</counts><volumes>
+    <volume id="tag:open-ils.org:asset-call_number/10952691" lib="FLORENCE" opac_visible="t" deleted="f" label="JAD TOLKIEN J">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/4565952" create_date="2006-10-07T00:00:00-0400" edit_date="2012-07-19T14:30:58-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="t" deposit_amount="0.00" price="39.90" barcode="37460000666746" circ_modifier="Audio" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="1277" opac_visible="t">Juvenile</location>
+        <circlib ident="194" opac_visible="t">Florence Lilly Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/194" shortname="FLORENCE" name="Florence Lilly Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      <copy id="tag:open-ils.org:asset-copy/14032597" create_date="2012-07-19T14:30:14-0400" edit_date="2026-06-08T15:43:38-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="39.95" barcode="37460000868904" circ_modifier="Audio" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="1277" opac_visible="t">Juvenile</location>
+        <circlib ident="194" opac_visible="t">Florence Lilly Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/194" shortname="FLORENCE" name="Florence Lilly Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/194" shortname="FLORENCE" name="Florence Lilly Library"/>
+    </volume>
+</volumes><subscriptions>
+</subscriptions></holdings><id>tag:open-ils.org,2026-11-18:biblio-record_entry/2243690/-</id><link rel="alternate" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2243690/-&amp;format=opac" type="text/html"/><link type="application/x-opac+xml" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2243690/-&amp;format=opac" rel="opac"/><link rel="unapi" type="application/x-unapi+xml" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2243690/-"/><link type="application/x-unapi-id+xml" href="tag:open-ils.org,2026-11-18:biblio-record_entry/2243690/-" rel="unapi-id"/></atom:entry>
+</atom:feed>
+

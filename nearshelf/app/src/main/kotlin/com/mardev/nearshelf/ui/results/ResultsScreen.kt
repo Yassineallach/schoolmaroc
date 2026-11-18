@@ -419,7 +419,7 @@ private fun PhysicalRow(ref: LibraryRef, row: HoldingRowUi, homeBranchName: Stri
                     if (m.otherLanguage && h.language != null) Badge(languageName(h.language!!), variant = BadgeVariant.Outline, size = BadgeSize.Sm)
                 }
                 if (m.otherLanguage) Text(h.title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                val owned = h.owned ?: h.copies.size
+                val owned = h.owned ?: h.copies.size.takeUnless { h.branchLevelOnly } ?: 0
                 if (owned > 0) {
                     val copies = pluralStringResource(R.plurals.copies, owned, owned)
                     Text(
@@ -437,12 +437,16 @@ private fun PhysicalRow(ref: LibraryRef, row: HoldingRowUi, homeBranchName: Stri
                 Spacer(Modifier.width(12.dp))
                 Column(horizontalAlignment = Alignment.End) {
                     CountUp(onShelf, style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "lnum"), color = MaterialTheme.colorScheme.primary)
-                    Text(stringResource(R.string.caption_on_shelf), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        stringResource(if (h.branchLevelOnly) R.string.caption_branches_on_shelf else R.string.caption_on_shelf),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
         }
         val shown = if (expanded) branches else branches.filter { it.isHome || it.onShelf > 0 }.take(BRANCHES_COLLAPSED).ifEmpty { branches.take(1) }
-        shown.forEach { BranchLine(it) }
+        shown.forEach { BranchLine(it, h.branchLevelOnly) }
         if (branches.size > shown.size) {
             TextButton(onClick = { expanded = true }) {
                 Text(pluralStringResource(R.plurals.show_all_branches, branches.size, branches.size))
@@ -457,7 +461,7 @@ private fun PhysicalRow(ref: LibraryRef, row: HoldingRowUi, homeBranchName: Stri
 }
 
 @Composable
-private fun BranchLine(b: BranchSummary) {
+private fun BranchLine(b: BranchSummary, branchLevelOnly: Boolean) {
     val status = LocalStatusColors.current
     Row(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.Top) {
         Icon(
@@ -476,7 +480,10 @@ private fun BranchLine(b: BranchSummary) {
                 }
             }
             Text(
-                listOfNotNull(branchStatus(b), b.callNumber).joinToString(" · "),
+                listOfNotNull(
+                    if (branchLevelOnly) stringResource(if (b.onShelf > 0) R.string.branch_has_it else R.string.branch_unavailable) else branchStatus(b),
+                    b.callNumber,
+                ).joinToString(" · "),
                 style = MaterialTheme.typography.bodySmall,
                 color = if (b.onShelf > 0) status.available else MaterialTheme.colorScheme.onSurfaceVariant,
             )

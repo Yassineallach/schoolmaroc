@@ -77,7 +77,7 @@ class SearchCoordinator(
         if (h.copies.isEmpty() || library.branches.isEmpty()) return h
         return h.copy(copies = h.copies.map { c ->
             if (c.latitude != null) return@map c
-            val b = library.branches.firstOrNull { BranchNames.same(it.name, c.branchName) } ?: return@map c
+            val b = library.branches.firstOrNull { BranchNames.matches(it.name, c.branchName) } ?: return@map c
             c.copy(latitude = b.latitude, longitude = b.longitude)
         })
     }

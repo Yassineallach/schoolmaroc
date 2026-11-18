@@ -2,6 +2,7 @@ package com.mardev.nearshelf.core.provider.koha
 
 import com.mardev.nearshelf.core.match.BookMatcher
 import com.mardev.nearshelf.core.match.Isbn
+import com.mardev.nearshelf.core.match.MarcNames
 import com.mardev.nearshelf.core.model.BookQuery
 import com.mardev.nearshelf.core.model.CopyStatus
 import com.mardev.nearshelf.core.model.Format
@@ -70,7 +71,7 @@ object KohaParser {
                 provider = ProviderId.KOHA,
                 format = Format.PHYSICAL,
                 title = title.substringBefore(" / ").replace(trailingPunct, ""),
-                authors = listOfNotNull(author?.let(::invertName)),
+                authors = listOfNotNull(author?.let(MarcNames::display)),
                 isbns = isbns,
                 providerItemId = id,
             )

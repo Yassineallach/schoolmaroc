@@ -13,6 +13,11 @@ import com.mardev.nearshelf.core.provider.CatalogProvider
 import com.mardev.nearshelf.core.provider.bibliocommons.BiblioCommonsProvider
 import com.mardev.nearshelf.core.provider.hoopla.HooplaProvider
 import com.mardev.nearshelf.core.provider.koha.KohaProvider
+import com.mardev.nearshelf.core.provider.aspen.AspenProvider
+import com.mardev.nearshelf.core.provider.evergreen.EvergreenProvider
+import com.mardev.nearshelf.core.provider.polaris.PolarisProvider
+import com.mardev.nearshelf.core.provider.sierra.VegaProvider
+import com.mardev.nearshelf.core.provider.sierra.WebPacProvider
 import com.mardev.nearshelf.core.provider.overdrive.OverDriveProvider
 import com.mardev.nearshelf.core.search.LibrarySearchService
 import com.mardev.nearshelf.core.search.SearchCoordinator
@@ -63,6 +68,26 @@ object NetworkModule {
     @Provides
     @IntoSet
     fun kohaAsProvider(p: KohaProvider): CatalogProvider = p
+
+    @Provides
+    @IntoSet
+    fun evergreen(client: OkHttpClient): CatalogProvider = EvergreenProvider(client)
+
+    @Provides
+    @IntoSet
+    fun polaris(client: OkHttpClient): CatalogProvider = PolarisProvider(client)
+
+    @Provides
+    @IntoSet
+    fun vega(client: OkHttpClient): CatalogProvider = VegaProvider(client)
+
+    @Provides
+    @IntoSet
+    fun webPac(client: OkHttpClient): CatalogProvider = WebPacProvider(client)
+
+    @Provides
+    @IntoSet
+    fun aspen(): CatalogProvider = AspenProvider()
 
     @Provides
     @Singleton

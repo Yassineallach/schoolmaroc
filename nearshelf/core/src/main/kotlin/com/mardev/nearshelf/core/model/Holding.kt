@@ -29,6 +29,11 @@ data class Holding(
     val providerItemId: String,
     /** Edition note shown next to the format, e.g. "Large print". */
     val edition: String? = null,
+    /**
+     * True when [copies] holds one entry per branch rather than per copy (Vega reports
+     * which branches have it, not how many copies each has).
+     */
+    val branchLevelOnly: Boolean = false,
     val coverUrl: String? = null,
     val copies: List<PhysicalCopy> = emptyList(),
 )

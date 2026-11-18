@@ -11,4 +11,14 @@ object BranchNames {
         TextNormalizer.basic(name).replace(noise, " ").replace(Regex("\\s+"), " ").trim().ifEmpty { TextNormalizer.basic(name) }
 
     fun same(a: String, b: String): Boolean = key(a) == key(b)
+
+    /**
+     * [branch] names the branch [location] belongs to. Sierra reports shelf locations
+     * like "Anderson Fiction" for the Anderson branch.
+     */
+    fun matches(branch: String, location: String): Boolean {
+        val b = key(branch)
+        val l = key(location)
+        return b == l || (b.isNotEmpty() && l.startsWith("$b "))
+    }
 }

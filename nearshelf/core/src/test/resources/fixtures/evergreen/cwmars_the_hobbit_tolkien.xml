@@ -1,0 +1,431 @@
+<?xml version="1.0"?>
+<atom:feed xmlns:atom="http://www.w3.org/2005/Atom" xmlns="http://www.w3.org/2005/Atom">
+  <title>Search results for [the hobbit tolkien] at All C/W MARS Libraries</title>
+  <author>
+    <name>bark.cwmars.org</name>
+  </author>
+  <updated>2026-11-18T12:15:11+00:00</updated>
+  <totalResults xmlns="http://a9.com/-/spec/opensearch/1.1/">264</totalResults>
+  <startIndex xmlns="http://a9.com/-/spec/opensearch/1.1/">1</startIndex>
+  <itemsPerPage xmlns="http://a9.com/-/spec/opensearch/1.1/">3</itemsPerPage>
+  <link type="application/opensearch+xml" href="https://bark.cwmars.org/opac/extras/opensearch/1.1/-/atom-full/keyword?searchTerms=the hobbit tolkien&amp;searchSort=&amp;searchSortDir=&amp;searchLang=&amp;startIndex=4&amp;count=3" rel="next"/>
+  <link href="https://bark.cwmars.org/opac/extras/opensearch/1.1/-/atom-full/keyword?searchTerms=the hobbit tolkien&amp;searchSort=&amp;searchSortDir=&amp;searchLang=" type="application/opensearch+xml" rel="self"/>
+  <link href="https://bark.cwmars.org/opac/extras/opensearch/1.1/-/rss2-full/keyword?searchTerms=the hobbit tolkien&amp;searchSort=&amp;searchSortDir=&amp;searchLang=" type="application/rss+xml" rel="alternate"/>
+  <link href="https://bark.cwmars.org/opac/extras/opensearch/1.1/-/atom-full/keyword?searchTerms=the hobbit tolkien&amp;searchSort=&amp;searchSortDir=&amp;searchLang=" type="application/atom+xml" rel="self"/>
+  <link type="text/html" href="https://bark.cwmars.org/opac/extras/opensearch/1.1/-/html/keyword?searchTerms=the hobbit tolkien&amp;searchSort=&amp;searchSortDir=&amp;searchLang=" rel="html"/>
+  <link rel="html-full" type="text/html" href="https://bark.cwmars.org/opac/extras/opensearch/1.1/-/html-full/keyword?searchTerms=the hobbit tolkien&amp;searchSort=&amp;searchSortDir=&amp;searchLang="/>
+  <link rel="unapi-server" href="https://bark.cwmars.org/opac/extras/unapi" type="application/x-unapi-server+xml"/>
+  <atom:entry xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <id>urn:tcn:707977</id>
+  <updated>20041013144417.0</updated>
+  <title>Inside Tolkien's The hobbit [videorecording] /</title>
+  <author>
+    <name>Hildebrandt, Greg.(CWMARS)194521</name>
+  </author>
+  <author>
+    <name>Hildebrandt, Tim.(CWMARS)198550</name>
+  </author>
+  <author>
+    <name>Tolkien, J. R. R.(John Ronald Reuel),1892-1973.Hobbit.(CWMARS)252356</name>
+  </author>
+  <author>
+    <name>Kultur International Films.(CWMARS)906986</name>
+  </author>
+  <rights>&#xA9; [2003?], Kultur,</rights>
+  <published>[2003?]</published>
+  <summary>DVD, region 1, full screen presentation; Dolby Digital.Not rated.Using the latest mapping techniques and the brilliant art of the Brothers Hildebrandt, follow the journey of Bilbo Baggins, Gandalf, and the Dwarves to the Misty Mountains and beyond.</summary>
+  <category term="Tolkien, J. R. R. (John Ronald Reuel), 1892-1973."/>
+  <category term="Fantasy films"/>
+  <category term="Middle Earth (Imaginary place)"/>
+  <dc:identifier>URN:ISBN:0769729223</dc:identifier>
+  <dc:identifier>URN:BIBID:707977</dc:identifier>
+<holdings xmlns="http://open-ils.org/spec/holdings/v1"><counts>
+<count type="public" count="1" available="1" unshadow="1" transcendant="0" org_unit="1" depth="0"/>
+<count type="staff" count="1" available="1" unshadow="1" transcendant="0" org_unit="1" depth="0"/>
+</counts><volumes>
+    <volume id="tag:open-ils.org:asset-call_number/1781166" lib="PEPPERELL" opac_visible="t" deleted="f" label="DVD 791.43">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/2567138" create_date="2003-12-19T00:00:00-0500" edit_date="2025-12-10T13:33:22-0500" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="25.00" barcode="35949000883147" circ_modifier="DVD" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="644" opac_visible="t">Adult</location>
+        <circlib ident="91" opac_visible="t">Pepperell Lawrence Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/91" shortname="PEPPERELL" name="Pepperell Lawrence Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/91" shortname="PEPPERELL" name="Pepperell Lawrence Library"/>
+    </volume>
+</volumes><subscriptions>
+</subscriptions></holdings><id>tag:open-ils.org,2026-11-18:biblio-record_entry/707977/-</id><link type="text/html" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/707977/-&amp;format=opac" rel="alternate"/><link href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/707977/-&amp;format=opac" type="application/x-opac+xml" rel="opac"/><link rel="unapi" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/707977/-" type="application/x-unapi+xml"/><link href="tag:open-ils.org,2026-11-18:biblio-record_entry/707977/-" type="application/x-unapi-id+xml" rel="unapi-id"/></atom:entry>
+  <atom:entry xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <id>urn:tcn:2883301</id>
+  <updated>20121031151701.0</updated>
+  <title>The art of the Hobbit by J.R.R. Tolkien /</title>
+  <author>
+    <name>Hammond, Wayne G.(CWMARS)340762</name>
+  </author>
+  <author>
+    <name>Tolkien, J. R. R.(John Ronald Reuel),1892-1973.(CWMARS)225068</name>
+  </author>
+  <author>
+    <name>Scull, Christina.(CWMARS)865900</name>
+  </author>
+  <rights>&#xA9; 2012., Houghton Mifflin Harcourt,</rights>
+  <published>2012.</published>
+  <summary>Bag-End Underhill -- The hill : Hobbiton -- A letter to Bilbo -- The trolls -- Rivendell -- Thror's nap -- The Misty Mountains -- Beorn's hall -- Mirkwood -- The elvenking's gate -- The forest river -- Lake-town -- The front gate -- Conversation with Smaug -- Smaug flies around the mountain -- Death of Smaug -- The lonely mountain and the long lake -- Wilderland -- The hall at Bag-End -- Binding designs -- Dust-jacket art -- Portraits of Bilbo.</summary>
+  <category term="Tolkien, J. R. R. (John Ronald Reuel), 1892-1973."/>
+  <category term="Middle Earth (Imaginary place) in art."/>
+  <category term="Tolkien, J. R. R. (John Ronald Reuel), 1892-1973"/>
+  <dc:identifier>URN:ISBN:9780547928258 :</dc:identifier>
+  <dc:identifier>URN:ISBN:0547928254</dc:identifier>
+  <dc:identifier>URN:BIBID:2883301</dc:identifier>
+<holdings xmlns="http://open-ils.org/spec/holdings/v1"><counts>
+<count type="public" count="9" available="8" unshadow="9" transcendant="0" org_unit="1" depth="0"/>
+<count type="staff" count="9" available="8" unshadow="9" transcendant="0" org_unit="1" depth="0"/>
+</counts><volumes>
+    <volume id="tag:open-ils.org:asset-call_number/14200709" lib="OXFORD" opac_visible="t" deleted="f" label="709.043 T573">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/14172795" create_date="2012-09-22T15:08:05-0400" edit_date="2026-09-29T11:27:22-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="25.00" barcode="37479001229072" circ_modifier="No Circ Modifier Applied" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="623" opac_visible="t">Nonfiction</location>
+        <circlib ident="87" opac_visible="t">Oxford Free Public Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/87" shortname="OXFORD" name="Oxford Free Public Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/87" shortname="OXFORD" name="Oxford Free Public Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/14325774" lib="MONSON" opac_visible="t" deleted="f" label="769.92 HAMMOND">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/14283053" create_date="2012-11-16T10:55:34-0500" edit_date="2018-03-06T12:22:06-0500" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="40.00" barcode="37371000961518" circ_modifier="Book" circ_as_type="a" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="1531" opac_visible="t">Nonfiction</location>
+        <circlib ident="237" opac_visible="t">Monson Free Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/237" shortname="MONSON" name="Monson Free Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/237" shortname="MONSON" name="Monson Free Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/14285680" lib="SPFLD-MAIN" opac_visible="t" deleted="f" label="769.92 HAMMOND">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/14214606" create_date="2012-10-15T08:33:25-0400" edit_date="2026-09-28T10:57:24-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="40.00" barcode="30598003677876" circ_modifier="New Nonfiction" circ_as_type="" opac_visible="t">
+        <status ident="1" opac_visible="t">Checked out</status>
+        <location ident="2489" opac_visible="t">Adult</location>
+        <circlib ident="280" opac_visible="t">Springfield Main Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/280" shortname="SPFLD-MAIN" name="Springfield Main Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/280" shortname="SPFLD-MAIN" name="Springfield Main Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/14343105" lib="AMH-JONES" opac_visible="t" deleted="f" label="769.92 TOLKIEN (Hammond)">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/14133709" create_date="2012-09-05T13:10:04-0400" edit_date="2026-02-18T10:44:57-0500" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="35.00" barcode="38119005179068" circ_modifier="Book" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="4178" opac_visible="t">Offsite Annex - By Request Only </location>
+        <circlib ident="154" opac_visible="t">Amherst Jones Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/154" shortname="AMH-JONES" name="Amherst Jones Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/154" shortname="AMH-JONES" name="Amherst Jones Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/26275599" lib="SHELBURNE" opac_visible="t" deleted="f" label="823 Ham">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/19639869" create_date="2020-02-15T11:01:26-0500" edit_date="2026-06-02T13:48:20-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="25.00" barcode="37385000264566" circ_modifier="Book" circ_as_type="a" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="1743" opac_visible="t">General</location>
+        <circlib ident="268" opac_visible="t">Shelburne Free Public Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/268" shortname="SHELBURNE" name="Shelburne Free Public Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/268" shortname="SHELBURNE" name="Shelburne Free Public Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/14284464" lib="AGAWAM" opac_visible="t" deleted="f" label="823.912 HAM">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/14248229" create_date="2012-10-30T17:32:02-0400" edit_date="2024-11-08T11:02:36-0500" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="40.00" barcode="38120001602038" circ_modifier="Book" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="1019" opac_visible="t">Nonfiction</location>
+        <circlib ident="150" opac_visible="t">Agawam Public Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/150" shortname="AGAWAM" name="Agawam Public Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/150" shortname="AGAWAM" name="Agawam Public Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/14854940" lib="PEPPERELL" opac_visible="t" deleted="f" label="823.912 TOL">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/14494031" create_date="2013-02-28T13:38:16-0500" edit_date="2026-09-24T12:47:18-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="40.00" barcode="35949001444980" circ_modifier="Book" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="644" opac_visible="t">Adult</location>
+        <circlib ident="91" opac_visible="t">Pepperell Lawrence Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/91" shortname="PEPPERELL" name="Pepperell Lawrence Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/91" shortname="PEPPERELL" name="Pepperell Lawrence Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/26465802" lib="ASHBY" opac_visible="t" deleted="f" label="N 769.92 Ham">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/19816540" create_date="2020-06-24T14:54:28-0400" edit_date="2022-11-23T12:58:24-0500" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="40.00" barcode="30459000473720" circ_modifier="Book" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="3460" opac_visible="t">Adult Non-Fiction</location>
+        <circlib ident="6" opac_visible="t">Ashby Free Public Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/6" shortname="ASHBY" name="Ashby Free Public Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/6" shortname="ASHBY" name="Ashby Free Public Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/14396937" lib="NORTHAMPTN" opac_visible="t" deleted="f" label="WAT577.H185a 2012">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/14342381" create_date="2012-12-17T13:41:55-0500" edit_date="2026-09-26T13:42:17-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="40.00" barcode="30596000661588" circ_modifier="Book" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="1601" opac_visible="t">2nd Floor Nonfiction</location>
+        <circlib ident="247" opac_visible="t">Northampton Forbes Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/247" shortname="NORTHAMPTN" name="Northampton Forbes Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/247" shortname="NORTHAMPTN" name="Northampton Forbes Library"/>
+    </volume>
+</volumes><subscriptions>
+</subscriptions></holdings><id>tag:open-ils.org,2026-11-18:biblio-record_entry/2883301/-</id><link type="text/html" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2883301/-&amp;format=opac" rel="alternate"/><link href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2883301/-&amp;format=opac" type="application/x-opac+xml" rel="opac"/><link rel="unapi" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/2883301/-" type="application/x-unapi+xml"/><link href="tag:open-ils.org,2026-11-18:biblio-record_entry/2883301/-" type="application/x-unapi-id+xml" rel="unapi-id"/></atom:entry>
+  <atom:entry xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <id>urn:tcn:331063</id>
+  <updated>19940823164300.0</updated>
+  <title>Tolkien's The lord of the rings and The hobbit : notes ... /</title>
+  <author>
+    <name>Hardy, Gene B.</name>
+  </author>
+  <rights>&#xA9; c1977, Cliff's Notes,</rights>
+  <published>c1977</published>
+  <summary>Bibliography: p. 75.</summary>
+  <category term="Tolkien, J. R. R. (John Ronald Reuel), 1892-1973."/>
+  <category term="Tolkien, J. R. R. (John Ronald Reuel), 1892-1973."/>
+  <dc:identifier>URN:ISBN:0822012863 :</dc:identifier>
+  <dc:identifier>URN:BIBID:331063</dc:identifier>
+<holdings xmlns="http://open-ils.org/spec/holdings/v1"><counts>
+<count type="public" count="6" available="6" unshadow="6" transcendant="0" org_unit="1" depth="0"/>
+<count type="staff" count="6" available="6" unshadow="6" transcendant="0" org_unit="1" depth="0"/>
+</counts><volumes>
+    <volume id="tag:open-ils.org:asset-call_number/2224477" lib="WORP-MAIN" opac_visible="t" deleted="f" label="AUTHORS TOLKIEN">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/2961865" create_date="2012-05-18T00:00:00-0400" edit_date="2012-05-18T11:54:45-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="31.00" barcode="A17807201141" circ_modifier="Pamphlet" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="2622" opac_visible="t">Vertical File (3rd Floor)</location>
+        <circlib ident="143" opac_visible="t">Worcester Main Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/143" shortname="WORP-MAIN" name="Worcester Main Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      <copy id="tag:open-ils.org:asset-copy/3780802" create_date="2012-05-18T00:00:00-0400" edit_date="2012-05-18T11:54:45-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="31.00" barcode="A17807343197" circ_modifier="Pamphlet" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="2622" opac_visible="t">Vertical File (3rd Floor)</location>
+        <circlib ident="143" opac_visible="t">Worcester Main Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/143" shortname="WORP-MAIN" name="Worcester Main Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      <copy id="tag:open-ils.org:asset-copy/1419203" create_date="2012-05-18T00:00:00-0400" edit_date="2012-05-18T11:54:45-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="31.00" barcode="A17806486748" circ_modifier="Pamphlet" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="2622" opac_visible="t">Vertical File (3rd Floor)</location>
+        <circlib ident="143" opac_visible="t">Worcester Main Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/143" shortname="WORP-MAIN" name="Worcester Main Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      <copy id="tag:open-ils.org:asset-copy/2961864" create_date="2012-05-18T00:00:00-0400" edit_date="2020-01-29T12:00:11-0500" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="t" deposit_amount="0.00" price="31.00" barcode="A17805900147" circ_modifier="Pamphlet" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="2622" opac_visible="t">Vertical File (3rd Floor)</location>
+        <circlib ident="143" opac_visible="t">Worcester Main Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/143" shortname="WORP-MAIN" name="Worcester Main Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      <copy id="tag:open-ils.org:asset-copy/3844473" create_date="2012-05-18T00:00:00-0400" edit_date="2025-08-14T11:10:53-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="31.00" barcode="A17805900139" circ_modifier="Pamphlet" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="2622" opac_visible="t">Vertical File (3rd Floor)</location>
+        <circlib ident="143" opac_visible="t">Worcester Main Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/143" shortname="WORP-MAIN" name="Worcester Main Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      <copy id="tag:open-ils.org:asset-copy/161667" create_date="2012-05-18T00:00:00-0400" edit_date="2023-10-10T12:31:51-0400" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="31.00" barcode="A17807343210" circ_modifier="Pamphlet" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="2622" opac_visible="t">Vertical File (3rd Floor)</location>
+        <circlib ident="143" opac_visible="t">Worcester Main Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/143" shortname="WORP-MAIN" name="Worcester Main Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="-1" id="tag:open-ils.org:asset-call_number_prefix/-1" label_sortkey=""/>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/143" shortname="WORP-MAIN" name="Worcester Main Library"/>
+    </volume>
+    <volume id="tag:open-ils.org:asset-call_number/14015921" lib="WORP-MAIN" opac_visible="t" deleted="f" label="TOLKIEN">
+      <copies>
+      <copy id="tag:open-ils.org:asset-copy/14052262" create_date="2012-07-26T14:10:51-0400" edit_date="2023-11-09T09:49:02-0500" copy_number="" circulate="t" deposit="f" ref="f" holdable="t" deleted="f" deposit_amount="0.00" price="4.00" barcode="38139013001609" circ_modifier="Book" circ_as_type="" opac_visible="t">
+        <status ident="0" opac_visible="t">Available</status>
+        <location ident="2622" opac_visible="t">Vertical File (3rd Floor)</location>
+        <circlib ident="143" opac_visible="t">Worcester Main Library</circlib>
+        <circ_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/143" shortname="WORP-MAIN" name="Worcester Main Library" opac_visible="t"/>
+        <monograph_parts>
+        </monograph_parts>
+        <copy_notes>
+        </copy_notes>
+        <copy_tags>
+        </copy_tags>
+        <statcats>
+        </statcats>
+      </copy>
+      </copies>
+      <uris/>
+      <prefix ident="5982" id="tag:open-ils.org:asset-call_number_prefix/5982" label_sortkey="vfauthors">VF AUTHORS</prefix>
+      <suffix ident="-1" id="tag:open-ils.org:asset-call_number_suffix/-1" label_sortkey=""/>
+      <owning_lib xmlns="http://open-ils.org/spec/actors/v1" id="tag:open-ils.org:actor-org_unit/143" shortname="WORP-MAIN" name="Worcester Main Library"/>
+    </volume>
+</volumes><subscriptions>
+</subscriptions></holdings><id>tag:open-ils.org,2026-11-18:biblio-record_entry/331063/-</id><link rel="alternate" type="text/html" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/331063/-&amp;format=opac"/><link rel="opac" type="application/x-opac+xml" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/331063/-&amp;format=opac"/><link type="application/x-unapi+xml" href="https://bark.cwmars.org/opac/extras/unapi?id=tag:open-ils.org,2026-11-18:biblio-record_entry/331063/-" rel="unapi"/><link rel="unapi-id" type="application/x-unapi-id+xml" href="tag:open-ils.org,2026-11-18:biblio-record_entry/331063/-"/></atom:entry>
+</atom:feed>
+
