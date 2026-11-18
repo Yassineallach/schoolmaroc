@@ -89,14 +89,45 @@ interface WatchDao {
     suspend fun delete(key: String)
 }
 
+/** A recent lookup (the expanded query), newest first. */
+@Entity(tableName = "search_history")
+data class HistoryEntity(
+    @PrimaryKey val key: String,
+    val queryJson: String,
+    val title: String,
+    val author: String?,
+    val coverUrl: String?,
+    val searchedAt: Long,
+)
+
+@Dao
+interface HistoryDao {
+    @Query("SELECT * FROM search_history ORDER BY searchedAt DESC LIMIT :limit")
+    fun observe(limit: Int): Flow<List<HistoryEntity>>
+
+    @Upsert
+    suspend fun upsert(e: HistoryEntity)
+
+    @Query("DELETE FROM search_history WHERE `key` = :key")
+    suspend fun delete(key: String)
+
+    @Query("DELETE FROM search_history")
+    suspend fun clear()
+
+    /** Keeps the newest [keep] entries. */
+    @Query("DELETE FROM search_history WHERE `key` NOT IN (SELECT `key` FROM search_history ORDER BY searchedAt DESC LIMIT :keep)")
+    suspend fun trim(keep: Int)
+}
+
 @Database(
-    entities = [SavedLibraryEntity::class, CacheEntryEntity::class, WatchItemEntity::class],
-    version = 2,
+    entities = [SavedLibraryEntity::class, CacheEntryEntity::class, WatchItemEntity::class, HistoryEntity::class],
+    version = 3,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 1, to = 2)],
+    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3)],
 )
 abstract class NearshelfDatabase : RoomDatabase() {
     abstract fun savedLibraries(): SavedLibraryDao
     abstract fun cache(): CacheDao
     abstract fun watch(): WatchDao
+    abstract fun history(): HistoryDao
 }

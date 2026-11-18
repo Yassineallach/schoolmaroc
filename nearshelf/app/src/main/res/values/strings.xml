@@ -187,7 +187,26 @@
     <string name="distance_km">%1$s km</string>
     <string name="distance_mi">%1$s mi</string>
 
+    <!-- History, offline, preferences -->
+    <string name="home_recent">Recent</string>
+    <string name="home_see_all">See all</string>
+    <string name="history_title">History</string>
+    <string name="history_clear">Clear all</string>
+    <string name="history_empty_title">No lookups yet</string>
+    <string name="history_empty_body">Books you look up appear here, so you can check them again in one tap. History stays on your phone.</string>
+    <string name="results_offline">You’re offline. Showing saved results.</string>
+    <string name="results_hidden_by_language">Only in languages you’ve chosen to hide.</string>
+    <string name="prefs_title">Reading preferences</string>
+    <string name="prefs_format_heading">Format I prefer</string>
+    <string name="prefs_format_any">No preference</string>
+    <string name="prefs_languages_heading">Languages I read</string>
+    <string name="prefs_languages_body">Editions in other languages are marked, or hidden if you turn that off below.</string>
+    <string name="prefs_show_other">Show editions in other languages</string>
+    <string name="prefs_show_other_body">They’re marked with their language.</string>
+
     <!-- Accessibility -->
+    <string name="cd_reading_preferences">Reading preferences</string>
+    <string name="cd_remove_history">Remove %1$s from history</string>
     <string name="cd_open_map">Open %1$s in maps</string>
     <string name="cd_open_results">Open availability</string>
     <string name="cd_remove_watch">Stop watching %1$s</string>

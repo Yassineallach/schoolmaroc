@@ -56,14 +56,14 @@ class SearchCoordinator(
 
     private val providers: Map<ProviderId, CatalogProvider> = providers.associateBy { it.id }
 
-    fun search(libraries: List<Library>, query: BookQuery, forceRefresh: Boolean = false): Flow<ServiceUpdate> = channelFlow {
+    fun search(libraries: List<Library>, query: BookQuery, forceRefresh: Boolean = false, offline: Boolean = false): Flow<ServiceUpdate> = channelFlow {
         val gate = Semaphore(maxConcurrent)
         val jobs = libraries.flatMap { lib -> lib.services.map { lib to it } }
             .filter { (_, ref) -> ref.provider in providers }
         jobs.forEach { (lib, ref) -> send(ServiceUpdate(lib.id, ref, ServiceState.Loading)) }
         jobs.forEach { (lib, ref) ->
             launch {
-                val state = gate.withPermit { searchOne(ref, query, lib, forceRefresh) }
+                val state = gate.withPermit { searchOne(ref, query, lib, forceRefresh, offline) }
                 send(ServiceUpdate(lib.id, ref, state))
             }
         }
@@ -73,7 +73,13 @@ class SearchCoordinator(
      * One catalog. A cached answer younger than 6 hours is used unless [forceRefresh];
      * if the catalog fails, an older cached answer is shown as stale rather than an error.
      */
-    suspend fun searchOne(ref: LibraryRef, query: BookQuery, library: Library? = null, forceRefresh: Boolean = false): ServiceState {
+    suspend fun searchOne(
+        ref: LibraryRef,
+        query: BookQuery,
+        library: Library? = null,
+        forceRefresh: Boolean = false,
+        offline: Boolean = false,
+    ): ServiceState {
         val provider = providers[ref.provider]
             ?: return ServiceState.Failed(ProviderException.Kind.NOT_FOUND, "No provider for ${ref.provider}")
         val key = cacheKey(ref, query)
@@ -84,6 +90,10 @@ class SearchCoordinator(
             ServiceState.Done(matcher.match(query, holdings.map { h -> library?.let { withBranchLocations(h, it) } ?: h }), at, stale)
 
         if (cached != null && !forceRefresh && clock() - cached.second < CacheTtl.SEARCH_MILLIS) return done(cached.first, cached.second, false)
+        // Offline: answer from what's saved, of any age, without waiting on network timeouts.
+        if (offline) {
+            return cached?.let { done(it.first, it.second, true) } ?: ServiceState.Failed(ProviderException.Kind.NETWORK, "offline")
+        }
         if (forceRefresh) health.reset(ref.provider, ref.key)
         if (health.isDown(ref.provider, ref.key)) {
             return cached?.let { done(it.first, it.second, true) } ?: ServiceState.TemporarilyUnavailable

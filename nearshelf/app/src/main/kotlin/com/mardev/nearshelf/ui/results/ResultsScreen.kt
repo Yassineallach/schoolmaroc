@@ -59,6 +59,7 @@ import com.mardev.nearshelf.core.model.Format
 import com.mardev.nearshelf.core.model.LibraryRef
 import com.mardev.nearshelf.core.model.ProviderId
 import com.mardev.nearshelf.core.geo.LatLng
+import com.mardev.nearshelf.core.prefs.ReadingPrefs
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -92,11 +93,14 @@ fun ResultsScreen(
     onBack: () -> Unit,
     onAddLibrary: () -> Unit,
     onSearchManually: (String) -> Unit,
+    onPreferences: () -> Unit,
     vm: ResultsViewModel = hiltViewModel(),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
     val watched by vm.watched.collectAsStateWithLifecycle()
     val here by vm.here.collectAsStateWithLifecycle()
+    val prefs by vm.prefs.collectAsStateWithLifecycle()
+    val offline by vm.offline.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var askedLocation by rememberSaveable { mutableStateOf(false) }
     val locationLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -119,6 +123,11 @@ fun ResultsScreen(
                     navigationIcon = {
                         IconButton(onClick = onBack) {
                             Icon(painterResource(R.drawable.ic_arrow_left), stringResource(R.string.cd_back))
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = onPreferences) {
+                            Icon(painterResource(R.drawable.ic_sliders), stringResource(R.string.cd_reading_preferences))
                         }
                     },
                 )
@@ -160,6 +169,15 @@ fun ResultsScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            if (offline) {
+                item(key = "offline") {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) {
+                        Icon(painterResource(R.drawable.ic_offline), null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.results_offline), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
+                    }
+                }
+            }
             item(key = "header") { BookHeaderView(state, watched, onWatch) }
             val hasPrint = libraries.any { lr -> lr.services.any { it.ref.provider.kind == ProviderId.Kind.PHYSICAL } }
             if (hasPrint && here == null && !vm.hasLocationPermission && !askedLocation) {
@@ -180,6 +198,7 @@ fun ResultsScreen(
                     onRetry = { ref -> vm.retry(lr.library.id, ref) },
                     onOpenCatalog = { ref -> vm.searchLink(ref)?.let(context::openExternal) },
                     here = here,
+                    prefs = prefs,
                     modifier = Modifier.animateItem(),
                 )
             }
@@ -261,6 +280,7 @@ private fun LibraryCard(
     onRetry: (LibraryRef) -> Unit,
     onOpenCatalog: (LibraryRef) -> Unit,
     here: LatLng?,
+    prefs: ReadingPrefs,
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(modifier.fillMaxWidth()) {
@@ -328,7 +348,16 @@ private fun LibraryCard(
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                                 )
                             }
-                            ServiceResult(svc.ref, st).rows.forEachIndexed { i, row ->
+                            val rows = ServiceResult(svc.ref, st).rows(prefs)
+                            if (rows.isEmpty() && st.matches.isNotEmpty()) {
+                                Text(
+                                    stringResource(R.string.results_hidden_by_language),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                                )
+                            }
+                            rows.forEachIndexed { i, row ->
                                 if (i > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
                                 if (row.match.holding.format == Format.PHYSICAL) {
                                     PhysicalRow(svc.ref, row, result.library.homeBranch?.name, here, onBorrow)

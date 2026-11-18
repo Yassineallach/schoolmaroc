@@ -43,6 +43,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mardev.nearshelf.R
 import com.mardev.nearshelf.core.model.BookQuery
 import com.mardev.nearshelf.core.model.Library
+import com.mardev.nearshelf.data.HistoryItem
+import com.mardev.nearshelf.ui.history.HistoryRow
 import com.mardev.nearshelf.ui.libraries.locationLine
 import com.mardev.nearshelf.ui.libraries.servicesLine
 
@@ -54,8 +56,11 @@ fun HomeScreen(
     onSearch: (BookQuery) -> Unit,
     onManageLibraries: () -> Unit,
     onAddLibrary: () -> Unit,
+    onOpenHistory: (HistoryItem?) -> Unit,
+    onPreferences: () -> Unit,
     vm: HomeViewModel = hiltViewModel(),
 ) {
+    val recent by vm.recent.collectAsStateWithLifecycle()
     val input by vm.input.collectAsStateWithLifecycle()
     val libraries by vm.libraries.collectAsStateWithLifecycle()
     val keyboard = LocalSoftwareKeyboardController.current
@@ -79,6 +84,12 @@ fun HomeScreen(
     ) {
         item {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Spacer(Modifier.weight(1f))
+                    IconButton(onClick = onPreferences) {
+                        Icon(painterResource(R.drawable.ic_sliders), stringResource(R.string.cd_reading_preferences))
+                    }
+                }
                 Text(
                     stringResource(R.string.app_name),
                     style = MaterialTheme.typography.displaySmall,
@@ -137,6 +148,19 @@ fun HomeScreen(
                     Text(stringResource(R.string.action_scan))
                 }
             }
+        }
+        if (recent.isNotEmpty()) {
+            item {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
+                    Text(
+                        stringResource(R.string.home_recent),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.weight(1f).semantics { heading() },
+                    )
+                    TextButton(onClick = { onOpenHistory(null) }) { Text(stringResource(R.string.home_see_all)) }
+                }
+            }
+            items(recent, key = { "h-" + it.key }) { h -> HistoryRow(h, onOpen = { onOpenHistory(h) }) }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {

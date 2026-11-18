@@ -34,6 +34,10 @@ import com.mardev.nearshelf.nav.LibrariesRoute
 import com.mardev.nearshelf.nav.ResultsRoute
 import com.mardev.nearshelf.nav.ScannerRoute
 import com.mardev.nearshelf.nav.WatchlistRoute
+import com.mardev.nearshelf.nav.HistoryRoute
+import com.mardev.nearshelf.nav.PreferencesRoute
+import com.mardev.nearshelf.ui.history.HistoryScreen
+import com.mardev.nearshelf.ui.prefs.PreferencesScreen
 import com.mardev.nearshelf.ui.watchlist.WatchlistScreen
 import com.mardev.nearshelf.ui.home.HomeScreen
 import com.mardev.nearshelf.ui.libraries.AddLibraryScreen
@@ -164,8 +168,20 @@ private fun NearshelfRoot(pendingShare: String?, onShareConsumed: () -> Unit, pe
                         }
                     },
                     onAddLibrary = { nav.navigate(AddLibraryRoute) },
+                    onOpenHistory = { h ->
+                        if (h == null) nav.navigate(HistoryRoute)
+                        else nav.navigate(ResultsRoute(queryJson = kotlinx.serialization.json.Json.encodeToString(h.query)))
+                    },
+                    onPreferences = { nav.navigate(PreferencesRoute) },
                 )
             }
+            composable<HistoryRoute> {
+                HistoryScreen(
+                    onBack = { nav.popBackStack() },
+                    onOpen = { h -> nav.navigate(ResultsRoute(queryJson = kotlinx.serialization.json.Json.encodeToString(h.query))) },
+                )
+            }
+            composable<PreferencesRoute> { PreferencesScreen(onBack = { nav.popBackStack() }) }
             composable<WatchlistRoute> {
                 WatchlistScreen(
                     onOpen = { item -> nav.navigate(ResultsRoute(watchKey = item.key)) },
@@ -179,6 +195,7 @@ private fun NearshelfRoot(pendingShare: String?, onShareConsumed: () -> Unit, pe
                     onBack = { nav.popBackStack() },
                     onAddLibrary = { nav.navigate(AddLibraryRoute) },
                     onSearchManually = { text -> backToHomeWith(nav, text) },
+                    onPreferences = { nav.navigate(PreferencesRoute) },
                 )
             }
             composable<ScannerRoute> {

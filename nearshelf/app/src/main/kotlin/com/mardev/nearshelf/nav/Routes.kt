@@ -7,6 +7,8 @@ import kotlinx.serialization.Serializable
 @Serializable data object AddLibraryRoute
 @Serializable data object ScannerRoute
 @Serializable data object WatchlistRoute
+@Serializable data object HistoryRoute
+@Serializable data object PreferencesRoute
 
 @Serializable
 data class ResultsRoute(
@@ -17,4 +19,6 @@ data class ResultsRoute(
     val shared: String? = null,
     /** Opened from the watchlist or a notification. */
     val watchKey: String? = null,
+    /** Opened from history: the stored, already-expanded query as JSON. */
+    val queryJson: String? = null,
 )

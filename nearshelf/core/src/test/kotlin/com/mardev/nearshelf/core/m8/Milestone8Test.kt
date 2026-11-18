@@ -145,3 +145,52 @@ class Milestone8Test {
         assertEquals(Watch.Status.NotYet, Watch.status(snap()))
     }
 }
+
+class Milestone9CoreTest {
+    private val ref = LibraryRef(ProviderId.OVERDRIVE, "lib", "Lib")
+    private val q = BookQuery(title = "Dune")
+
+    private class CountingProvider : CatalogProvider {
+        override val id = ProviderId.OVERDRIVE
+        var calls = 0
+        override suspend fun findLibraries(query: String) = emptyList<LibraryRef>()
+        override suspend fun search(library: LibraryRef, query: BookQuery): List<Holding> {
+            calls++
+            return listOf(Holding(ProviderId.OVERDRIVE, Format.EBOOK, "Dune", providerItemId = "1"))
+        }
+        override fun borrowLink(library: LibraryRef, holding: Holding) = URI("https://x")
+    }
+
+    @Test
+    fun `offline answers from saved results of any age, never from the network`() = runTest {
+        var now = 0L
+        val p = CountingProvider()
+        val c = SearchCoordinator(listOf(p), cache = MemoryCache { now }, clock = { now })
+        assertIs<ServiceState.Failed>(c.searchOne(ref, q, offline = true))
+        assertEquals(0, p.calls)
+        c.searchOne(ref, q)
+        now += 3L * 24 * 60 * 60 * 1000
+        val st = c.searchOne(ref, q, offline = true)
+        assertIs<ServiceState.Done>(st)
+        assertTrue(st.stale)
+        assertEquals(1, p.calls)
+    }
+
+    private fun m(lang: String?, other: Boolean, f: Format = Format.EBOOK) = com.mardev.nearshelf.core.match.MatchedHolding(
+        Holding(ProviderId.OVERDRIVE, f, "T", language = lang, providerItemId = "$lang$f"), 1.0, com.mardev.nearshelf.core.match.MatchedHolding.Reason.TITLE, other,
+    )
+
+    @Test
+    fun `language filter hides only other-language editions the reader doesn't read`() {
+        val all = listOf(m("en", false), m("es", true), m("fr", true), m(null, true))
+        val prefs = com.mardev.nearshelf.core.prefs.ReadingPrefs(languages = setOf("en", "fr"), showOtherLanguages = false)
+        assertEquals(listOf("en", "fr", null), prefs.filter(all).map { it.holding.language })
+        assertEquals(4, prefs.copy(showOtherLanguages = true).filter(all).size)
+    }
+
+    @Test
+    fun `preferred format sorts first`() {
+        val p = com.mardev.nearshelf.core.prefs.ReadingPrefs(preferredFormat = Format.PHYSICAL)
+        assertEquals(listOf(Format.PHYSICAL, Format.EBOOK, Format.AUDIOBOOK), listOf(Format.EBOOK, Format.AUDIOBOOK, Format.PHYSICAL).sortedBy(p::formatRank))
+    }
+}

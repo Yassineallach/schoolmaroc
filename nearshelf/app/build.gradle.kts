@@ -85,6 +85,9 @@ dependencies {
     implementation(libs.hilt.work)
     ksp(libs.hilt.androidx.compiler)
     implementation(libs.play.location)
+    implementation(libs.datastore.preferences)
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
     implementation(libs.kotlinx.coroutines.play.services)
 
     // Bundled model: works offline and without Google Play services.

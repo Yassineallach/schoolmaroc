@@ -12,7 +12,13 @@ import com.mardev.nearshelf.core.model.LibraryRef
 import com.mardev.nearshelf.core.metadata.QueryExpander
 import android.content.Context
 import com.mardev.nearshelf.core.geo.LatLng
+import com.mardev.nearshelf.core.prefs.ReadingPrefs
 import com.mardev.nearshelf.core.search.SearchCoordinator
+import com.mardev.nearshelf.data.Connectivity
+import com.mardev.nearshelf.data.HistoryRepository
+import com.mardev.nearshelf.data.PreferencesRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import com.mardev.nearshelf.core.watch.Watch
 import com.mardev.nearshelf.data.WatchlistRepository
 import com.mardev.nearshelf.location.LocationRepository
@@ -38,8 +44,14 @@ data class ServiceResult(val ref: LibraryRef, val state: ServiceState) {
      * One row per format and language: the best edition (already sorted first) plus how
      * many more editions it stands for. Hoopla often has four editions of one audiobook.
      */
-    val rows: List<HoldingRowUi>
-        get() = (state as? ServiceState.Done)?.matches.orEmpty()
+    fun rows(prefs: ReadingPrefs = ReadingPrefs()): List<HoldingRowUi> =
+        prefs.filter((state as? ServiceState.Done)?.matches.orEmpty())
+            .sortedWith(
+                compareBy<MatchedHolding> { it.otherLanguage }
+                    .thenBy { prefs.formatRank(it.holding.format) }
+                    .thenBy { !it.holding.isAvailableNow }
+                    .thenBy { it.holding.waitDays ?: Int.MAX_VALUE },
+            )
             .groupBy { listOf(it.holding.format, it.holding.language, it.otherLanguage, it.holding.edition) }
             .values.map { HoldingRowUi(it.first(), it.size - 1) }
 }
@@ -91,8 +103,17 @@ class ResultsViewModel @Inject constructor(
     private val expander: QueryExpander,
     private val watchlist: WatchlistRepository,
     private val location: LocationRepository,
+    private val history: HistoryRepository,
+    preferences: PreferencesRepository,
+    private val connectivity: Connectivity,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
+
+    val prefs: StateFlow<ReadingPrefs> = preferences.prefs.stateIn(viewModelScope, SharingStarted.Eagerly, ReadingPrefs())
+
+    /** No connection when the search started: results come from what's saved on the phone. */
+    private val _offline = MutableStateFlow(false)
+    val offline: StateFlow<Boolean> = _offline.asStateFlow()
 
     private val _watched = MutableStateFlow(false)
     val watched: StateFlow<Boolean> = _watched.asStateFlow()
@@ -130,7 +151,7 @@ class ResultsViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(
         ResultsUiState(
-            phase = if (route.shared != null && route.watchKey == null) Phase.READING_SHARE else Phase.LOOKING_UP,
+            phase = if (route.shared != null && route.watchKey == null && route.queryJson == null) Phase.READING_SHARE else Phase.LOOKING_UP,
             query = query,
             sharedText = route.shared,
         ),
@@ -141,6 +162,7 @@ class ResultsViewModel @Inject constructor(
         if (location.hasPermission()) refreshLocation()
         viewModelScope.launch {
             val fromWatch = route.watchKey?.let { key -> watchlist.all().firstOrNull { it.key == key }?.query }
+                ?: route.queryJson?.let { runCatching { kotlinx.serialization.json.Json.decodeFromString<BookQuery>(it) }.getOrNull() }
             val typed = fromWatch ?: query ?: route.shared?.let { shareParser.parse(it) }
             if (typed == null) {
                 _state.update { it.copy(phase = Phase.SHARE_NOT_UNDERSTOOD) }
@@ -152,6 +174,8 @@ class ResultsViewModel @Inject constructor(
             query = q
             _state.update { it.copy(phase = Phase.SEARCHING, query = q, metadataCover = expanded.coverUrl) }
             _watched.value = watchlist.isWatched(q)
+            history.record(q, q.title ?: q.isbn.orEmpty(), q.author, expanded.coverUrl)
+            _offline.value = !connectivity.isOnline()
 
             val libraries = repo.libraries.first()
             _state.update { s ->
@@ -159,7 +183,7 @@ class ResultsViewModel @Inject constructor(
                     LibraryResult(lib, lib.services.map { ServiceResult(it, ServiceState.Loading) })
                 })
             }
-            coordinator.search(libraries, q).collect { u -> apply(u.libraryId, u.service, u.state) }
+            coordinator.search(libraries, q, offline = _offline.value).collect { u -> apply(u.libraryId, u.service, u.state) }
         }
     }
 
@@ -201,5 +225,5 @@ class ResultsViewModel @Inject constructor(
     }
 }
 
-private fun ResultsRoute.toQueryOrNull(): BookQuery? = if (watchKey != null) null else
+private fun ResultsRoute.toQueryOrNull(): BookQuery? = if (watchKey != null || queryJson != null) null else
     if (title.isNullOrBlank() && isbn.isNullOrBlank()) null else BookQuery(title = title, author = author, isbn = isbn)

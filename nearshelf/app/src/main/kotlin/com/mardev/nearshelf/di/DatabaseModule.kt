@@ -29,4 +29,7 @@ object DatabaseModule {
 
     @Provides
     fun watchDao(db: NearshelfDatabase): WatchDao = db.watch()
+
+    @Provides
+    fun historyDao(db: NearshelfDatabase): com.mardev.nearshelf.data.db.HistoryDao = db.history()
 }
