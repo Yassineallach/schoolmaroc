@@ -21,6 +21,11 @@ data class Holding(
     val holds: Int? = null,
     val waitDays: Int? = null,
     val isAvailableNow: Boolean = false,
+    /**
+     * False when the provider can't say whether this library can lend the title right now
+     * (Hoopla without a login): show it as "on the service" rather than available or waitlisted.
+     */
+    val availabilityKnown: Boolean = true,
     val providerItemId: String,
     val coverUrl: String? = null,
     val copies: List<PhysicalCopy> = emptyList(),

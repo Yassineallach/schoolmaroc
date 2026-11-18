@@ -18,10 +18,15 @@ class LibraryRepository @Inject constructor(private val dao: SavedLibraryDao) {
         rows.mapNotNull { runCatching { json.decodeFromString<Library>(it.json) }.getOrNull() }
     }
 
+    /** Adds a library, or merges newly found services (e.g. Hoopla) into one already saved. */
     suspend fun add(library: Library) {
-        val existing = libraries.first().indexOfFirst { it.id == library.id }
-        val position = if (existing >= 0) existing else dao.maxPosition() + 1
-        dao.upsert(SavedLibraryEntity(library.id, position, json.encodeToString(library)))
+        val current = libraries.first()
+        val index = current.indexOfFirst { it.id == library.id }
+        val merged = if (index < 0) library else current[index].let { old ->
+            old.copy(services = (old.services + library.services).distinctBy { it.provider to it.key }.sortedBy { it.provider.ordinal })
+        }
+        val position = if (index >= 0) index else dao.maxPosition() + 1
+        dao.upsert(SavedLibraryEntity(library.id, position, json.encodeToString(merged)))
     }
 
     suspend fun remove(id: String) = dao.delete(id)

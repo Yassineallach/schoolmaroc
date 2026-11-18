@@ -18,4 +18,6 @@ data class LibraryRef(
     val latitude: Double? = null,
     val longitude: Double? = null,
     val logoUrl: String? = null,
+    /** Hoopla: borrows each patron gets per month at this library. */
+    val borrowLimitPerMonth: Int? = null,
 )

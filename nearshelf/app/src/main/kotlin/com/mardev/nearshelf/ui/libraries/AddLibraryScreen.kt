@@ -50,7 +50,7 @@ import com.mardev.nearshelf.ui.theme.LocalStatusColors
 fun AddLibraryScreen(onBack: () -> Unit, vm: AddLibraryViewModel = hiltViewModel()) {
     val query by vm.query.collectAsStateWithLifecycle()
     val results by vm.results.collectAsStateWithLifecycle()
-    val saved by vm.savedIds.collectAsStateWithLifecycle()
+    val saved by vm.saved.collectAsStateWithLifecycle()
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { focus.requestFocus() }
 
@@ -106,7 +106,8 @@ fun AddLibraryScreen(onBack: () -> Unit, vm: AddLibraryViewModel = hiltViewModel
                         )
                     }
                     items(r.libraries, key = { it.id }) { lib ->
-                        val added = lib.id in saved
+                        val have = saved[lib.id]
+                        val added = have != null && lib.services.all { (it.provider to it.key) in have }
                         CandidateRow(lib, added) { if (added) vm.remove(lib.id) else vm.add(lib) }
                         HorizontalDivider(Modifier.padding(start = 16.dp))
                     }

@@ -41,6 +41,9 @@ Needs JDK 17+ and an Android SDK with platform 37 (`sdk.dir` in `local.propertie
 | Goodreads share pages | `goodreads.com/book/show/{id}` serves JSON-LD `Book` with `isbn`, `name`, `author`, `inLanguage` | 2026-11-18 |
 | Amazon product pages | `/dp/{ASIN}`; ISBN-10 ASINs are ISBNs; page `<title>` is `Title: Last, First: ISBN: Amazon.com: Books` | 2026-11-18 |
 | StoryGraph | Pages answer 403 with a Cloudflare challenge; not fetched, share text used instead | 2026-11-18 |
+| Hoopla libraries | `GET https://patron-api-gateway.hoopladigital.com/core/libraries/autocomplete?query=…` (headers `app: WWW`, `ws-api: 2.1`) | 2026-11-18 |
+| Hoopla search | `POST https://patron-api-gateway.hoopladigital.com/graphql` `search(criteria:{q, pagination})`, whole catalog, no login | 2026-11-18 |
+| Hoopla deep link / covers | `https://www.hoopladigital.com/title/{id}` (App Link to `com.hoopladigital.android`); `https://cover.hoopladigital.com/{artKey}_270.jpeg` | 2026-11-18 |
 | Libby title deep link | `https://libbyapp.com/library/{key}/title/{id}` (Libby router's `title-redirect-controller`; libbyapp.com `assetlinks.json` delegates to `com.overdrive.mobile.android.libby`) | 2026-11-17 |
 
 ## Milestones
@@ -48,7 +51,7 @@ Needs JDK 17+ and an Android SDK with platform 37 (`sdk.dir` in `local.propertie
 1. [x] Spike: skeleton, `CatalogProvider`, OverDrive provider, fixtures, parser tests, debug screen
 2. [x] Core: library management, search, `BookMatcher`, streaming Results, Libby deep links
 3. [x] Share sheet, barcode scanner, Open Library ISBN expansion
-4. [ ] Hoopla
+4. [x] Hoopla (see docs/providers/hoopla.md)
 5. [ ] Library registry, URL auto-detection, registry build script, home branch
 6. [ ] BiblioCommons, Koha
 7. [ ] Evergreen, Aspen, Polaris, Sierra

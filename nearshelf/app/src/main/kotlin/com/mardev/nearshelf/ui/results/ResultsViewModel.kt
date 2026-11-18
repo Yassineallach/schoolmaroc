@@ -26,7 +26,18 @@ import javax.inject.Inject
 
 data class BookHeader(val title: String, val authors: List<String>, val coverUrl: String?)
 
-data class ServiceResult(val ref: LibraryRef, val state: ServiceState)
+data class ServiceResult(val ref: LibraryRef, val state: ServiceState) {
+    /**
+     * One row per format and language: the best edition (already sorted first) plus how
+     * many more editions it stands for. Hoopla often has four editions of one audiobook.
+     */
+    val rows: List<HoldingRowUi>
+        get() = (state as? ServiceState.Done)?.matches.orEmpty()
+            .groupBy { Triple(it.holding.format, it.holding.language, it.otherLanguage) }
+            .values.map { HoldingRowUi(it.first(), it.size - 1) }
+}
+
+data class HoldingRowUi(val match: MatchedHolding, val moreEditions: Int)
 
 data class LibraryResult(val library: Library, val services: List<ServiceResult>)
 

@@ -56,9 +56,10 @@ class AddLibraryViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LibrarySearchUi.Idle)
 
-    val savedIds: StateFlow<Set<String>> = repo.libraries
-        .map { libs -> libs.map { it.id }.toSet() }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+    /** Saved services per library id, so a search that finds a new service offers to add it. */
+    val saved: StateFlow<Map<String, Set<Pair<ProviderId, String>>>> = repo.libraries
+        .map { libs -> libs.associate { lib -> lib.id to lib.services.map { it.provider to it.key }.toSet() } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
 
     fun add(library: Library) = viewModelScope.launch { repo.add(library) }
     fun remove(id: String) = viewModelScope.launch { repo.remove(id) }

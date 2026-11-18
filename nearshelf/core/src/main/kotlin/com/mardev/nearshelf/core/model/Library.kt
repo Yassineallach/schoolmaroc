@@ -29,8 +29,11 @@ data class Library(
 internal object TextKey {
     private val noise = Regex("\\b(the|public|library|libraries|system|district|county|city|of)\\b")
 
+    /** Hoopla appends the state: "Seattle Public Library (WA)". */
+    private val trailingRegion = Regex("\\s*\\([A-Za-z .]{2,20}\\)\\s*$")
+
     fun libraryKey(name: String): String =
-        com.mardev.nearshelf.core.match.TextNormalizer.basic(name)
+        com.mardev.nearshelf.core.match.TextNormalizer.basic(name.replace(trailingRegion, ""))
             .replace(noise, " ")
             .replace(Regex("\\s+"), " ")
             .trim()

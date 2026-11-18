@@ -57,6 +57,7 @@ import com.mardev.nearshelf.R
 import com.mardev.nearshelf.core.match.MatchedHolding
 import com.mardev.nearshelf.core.model.Format
 import com.mardev.nearshelf.core.model.LibraryRef
+import com.mardev.nearshelf.core.model.ProviderId
 import com.mardev.nearshelf.core.provider.ProviderException
 import com.mardev.nearshelf.core.search.ServiceState
 import com.mardev.nearshelf.ui.components.EmptyState
@@ -234,6 +235,9 @@ private fun LibraryCard(
                         ServiceState.Loading -> SkeletonLines(3, Modifier.fillMaxWidth().padding(16.dp, 8.dp))
                         is ServiceState.Failed -> FailedRow(svc.ref, st, onRetry)
                         is ServiceState.Done -> Column {
+                            if (svc.ref.provider == ProviderId.HOOPLA && st.matches.isNotEmpty()) {
+                                HooplaNote(svc.ref)
+                            }
                             if (st.matches.isEmpty()) {
                                 Text(
                                     stringResource(R.string.results_not_found, svc.ref.provider.displayName),
@@ -242,9 +246,9 @@ private fun LibraryCard(
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                                 )
                             }
-                            st.matches.forEachIndexed { i, m ->
+                            ServiceResult(svc.ref, st).rows.forEachIndexed { i, row ->
                                 if (i > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
-                                HoldingRow(svc.ref, m, onBorrow)
+                                HoldingRow(svc.ref, row, onBorrow)
                             }
                         }
                     }
@@ -275,8 +279,24 @@ private fun FailedRow(ref: LibraryRef, failure: ServiceState.Failed, onRetry: (L
     }
 }
 
+/** Hoopla can't confirm a library's copy without a login; say so once per card. */
 @Composable
-private fun HoldingRow(ref: LibraryRef, m: MatchedHolding, onBorrow: (LibraryRef, MatchedHolding) -> Unit) {
+private fun HooplaNote(ref: LibraryRef) {
+    val limit = ref.borrowLimitPerMonth
+    Text(
+        listOfNotNull(
+            limit?.let { pluralStringResource(R.plurals.hoopla_monthly_limit, it, it) },
+            stringResource(R.string.hoopla_confirm_note),
+        ).joinToString(" "),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp),
+    )
+}
+
+@Composable
+private fun HoldingRow(ref: LibraryRef, row: HoldingRowUi, onBorrow: (LibraryRef, MatchedHolding) -> Unit) {
+    val m = row.match
     val h = m.holding
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.Top) {
@@ -287,7 +307,9 @@ private fun HoldingRow(ref: LibraryRef, m: MatchedHolding, onBorrow: (LibraryRef
                         Spacer(Modifier.width(6.dp))
                         Text(formatLabel(h.format), style = MaterialTheme.typography.titleMedium)
                     }
-                    if (h.isAvailableNow) {
+                    if (!h.availabilityKnown) {
+                        Badge(stringResource(R.string.badge_instant_or_flex), variant = BadgeVariant.Info, size = BadgeSize.Sm)
+                    } else if (h.isAvailableNow) {
                         Badge(stringResource(R.string.badge_available), variant = BadgeVariant.Success, size = BadgeSize.Sm)
                     } else {
                         Badge(stringResource(R.string.badge_waitlist), variant = BadgeVariant.Warning, size = BadgeSize.Sm)
@@ -299,13 +321,26 @@ private fun HoldingRow(ref: LibraryRef, m: MatchedHolding, onBorrow: (LibraryRef
                 if (m.otherLanguage) {
                     Text(h.title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Text(detailLine(m), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (h.availabilityKnown) {
+                    Text(detailLine(m), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                if (row.moreEditions > 0) {
+                    Text(
+                        pluralStringResource(R.plurals.more_editions, row.moreEditions, row.moreEditions),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
             Spacer(Modifier.width(12.dp))
             HeadlineNumber(m)
         }
         val label = stringResource(
-            if (h.isAvailableNow) R.string.action_borrow_in else R.string.action_hold_in,
+            when {
+                !h.availabilityKnown -> R.string.action_open_in
+                h.isAvailableNow -> R.string.action_borrow_in
+                else -> R.string.action_hold_in
+            },
             ref.provider.displayName,
         )
         val buttonModifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
@@ -328,6 +363,7 @@ private const val MAX_WAIT_SHOWN = 365
 @Composable
 private fun HeadlineNumber(m: MatchedHolding) {
     val h = m.holding
+    if (!h.availabilityKnown) return
     val (value, caption) = when {
         h.isAvailableNow -> (h.available ?: 1) to pluralStringResource(R.plurals.caption_available, h.available ?: 1)
         h.waitDays != null -> h.waitDays!!.coerceAtMost(MAX_WAIT_SHOWN) to pluralStringResource(R.plurals.caption_days_wait, h.waitDays!!)

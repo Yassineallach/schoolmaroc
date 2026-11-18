@@ -70,6 +70,17 @@
     </plurals>
     <string name="action_borrow_in">Borrow in %1$s</string>
     <string name="action_hold_in">Place hold in %1$s</string>
+    <string name="action_open_in">Open in %1$s</string>
+    <string name="badge_instant_or_flex">Instant or Flex</string>
+    <plurals name="hoopla_monthly_limit">
+        <item quantity="one">This library allows %1$d Hoopla borrow a month.</item>
+        <item quantity="other">This library allows %1$d Hoopla borrows a month.</item>
+    </plurals>
+    <string name="hoopla_confirm_note">Hoopla confirms your library carries a title when you open it.</string>
+    <plurals name="more_editions">
+        <item quantity="one">+%1$d more edition</item>
+        <item quantity="other">+%1$d more editions</item>
+    </plurals>
     <string name="action_retry">Retry</string>
     <string name="action_undo">Undo</string>
     <string name="format_ebook">eBook</string>
