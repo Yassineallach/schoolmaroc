@@ -27,6 +27,15 @@ class PreferencesRepository @Inject constructor(@ApplicationContext private val 
         p[key]?.let { runCatching { json.decodeFromString<ReadingPrefs>(it) }.getOrNull() } ?: defaults()
     }
 
+    private val onboardedKey = androidx.datastore.preferences.core.booleanPreferencesKey("onboarded")
+
+    /** null while loading, so the first screen doesn't flash. */
+    val onboarded: Flow<Boolean> = context.dataStore.data.map { it[onboardedKey] ?: false }
+
+    suspend fun setOnboarded() {
+        context.dataStore.edit { it[onboardedKey] = true }
+    }
+
     suspend fun update(transform: (ReadingPrefs) -> ReadingPrefs) {
         context.dataStore.edit { p ->
             val current = p[key]?.let { runCatching { json.decodeFromString<ReadingPrefs>(it) }.getOrNull() } ?: defaults()

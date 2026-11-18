@@ -240,6 +240,21 @@
     <string name="scanner_no_camera_title">No camera found</string>
     <string name="scanner_no_camera_body">This device has no back camera to scan with. You can type the title or ISBN instead.</string>
 
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_done">Get started</string>
+    <string name="onboarding_page">Page %1$d of %2$d</string>
+    <string name="onboarding_1_title">Every library you belong to, at once</string>
+    <string name="onboarding_1_body">Type a title, scan a barcode, or share a book from Goodreads or Amazon. Nearshelf checks ebooks, audiobooks and copies on the shelf, and opens Libby, hoopla or your library’s catalog to borrow.</string>
+    <string name="onboarding_2_title">Add your libraries</string>
+    <string name="onboarding_2_body">Search by library name or city. No library card or PIN is needed: you sign in only in the library’s own app.</string>
+    <string name="onboarding_3_title">Optional: nearby and notified</string>
+    <string name="onboarding_3_body">Approximate location sorts branches by distance and never leaves your phone. Notifications tell you when a watched book becomes available.</string>
+    <string name="onboarding_allow_location">Allow approximate location</string>
+    <string name="onboarding_allow_notifications">Allow notifications</string>
+    <string name="onboarding_3_later">You can change these any time in Settings.</string>
+
     <!-- Accessibility -->
     <string name="cd_reading_preferences">Reading preferences</string>
     <string name="cd_remove_history">Remove %1$s from history</string>

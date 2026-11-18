@@ -3,6 +3,7 @@ package com.mardev.nearshelf.nav
 import kotlinx.serialization.Serializable
 
 @Serializable data object HomeRoute
+@Serializable data object OnboardingRoute
 @Serializable data object LibrariesRoute
 @Serializable data object AddLibraryRoute
 @Serializable data object ScannerRoute

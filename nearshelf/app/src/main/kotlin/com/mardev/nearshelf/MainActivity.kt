@@ -30,6 +30,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mardev.nearshelf.nav.AddLibraryRoute
 import com.mardev.nearshelf.nav.HomeRoute
+import com.mardev.nearshelf.nav.OnboardingRoute
+import com.mardev.nearshelf.ui.onboarding.OnboardingScreen
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import com.mardev.nearshelf.nav.LibrariesRoute
 import com.mardev.nearshelf.nav.ResultsRoute
 import com.mardev.nearshelf.nav.ScannerRoute
@@ -58,6 +63,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @javax.inject.Inject lateinit var consent: com.mardev.nearshelf.ads.ConsentManager
+    @javax.inject.Inject lateinit var preferences: com.mardev.nearshelf.data.PreferencesRepository
 
     /** Text from the share sheet, consumed once by the nav host. */
     private val pendingShare = mutableStateOf<String?>(null)
@@ -75,7 +81,11 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             NearshelfTheme {
+                val onboarded by preferences.onboarded.collectAsState(initial = null)
+                val done = onboarded ?: return@NearshelfTheme
                 NearshelfRoot(
+                    onboarded = done,
+                    onOnboardingDone = { lifecycleScope.launch { preferences.setOnboarded() } },
                     pendingShare = pendingShare.value,
                     onShareConsumed = { pendingShare.value = null },
                     pendingWatch = pendingWatch.value,
@@ -121,7 +131,14 @@ private val topLevel = listOf(
 )
 
 @Composable
-private fun NearshelfRoot(pendingShare: String?, onShareConsumed: () -> Unit, pendingWatch: String?, onWatchConsumed: () -> Unit) {
+private fun NearshelfRoot(
+    onboarded: Boolean,
+    onOnboardingDone: () -> Unit,
+    pendingShare: String?,
+    onShareConsumed: () -> Unit,
+    pendingWatch: String?,
+    onWatchConsumed: () -> Unit,
+) {
     val nav = rememberNavController()
     LaunchedEffect(pendingWatch) {
         if (pendingWatch != null) {
@@ -137,7 +154,7 @@ private fun NearshelfRoot(pendingShare: String?, onShareConsumed: () -> Unit, pe
     }
     val entry by nav.currentBackStackEntryAsState()
     val dest = entry?.destination
-    val showBar = dest == null || topLevel.any { t -> dest.hasRoute(t.route::class) }
+    val showBar = dest != null && topLevel.any { t -> dest.hasRoute(t.route::class) }
 
     Scaffold(
         bottomBar = {
@@ -162,9 +179,19 @@ private fun NearshelfRoot(pendingShare: String?, onShareConsumed: () -> Unit, pe
     ) { padding ->
         NavHost(
             navController = nav,
-            startDestination = HomeRoute,
+            // A share or a notification goes straight to the book, even before onboarding.
+            startDestination = if (onboarded || pendingShare != null || pendingWatch != null) HomeRoute else OnboardingRoute,
             modifier = Modifier.padding(bottom = padding.calculateBottomPadding()).consumeWindowInsets(padding),
         ) {
+            composable<OnboardingRoute> {
+                OnboardingScreen(
+                    onAddLibrary = { nav.navigate(AddLibraryRoute) },
+                    onDone = {
+                        onOnboardingDone()
+                        nav.navigate(HomeRoute) { popUpTo<OnboardingRoute> { inclusive = true } }
+                    },
+                )
+            }
             composable<HomeRoute> { entry ->
                 val prefill = entry.savedStateHandle.get<String>(PREFILL_KEY)
                 HomeScreen(

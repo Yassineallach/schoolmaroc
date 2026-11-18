@@ -14,4 +14,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Nearshelf"
-include(":app", ":core")
+include(":app", ":core", ":baselineprofile")

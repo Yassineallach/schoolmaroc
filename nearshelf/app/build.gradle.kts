@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.room)
+    alias(libs.plugins.baselineprofile)
 }
 
 room {
@@ -35,7 +36,7 @@ android {
         minSdk = 26
         targetSdk = 37
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = "1.0.0"
 
         // Weekly library-registry download (a raw file in your public registry repo).
         // Empty = bundled copy only. Set nearshelf.registryUrl in gradle.properties.
@@ -48,8 +49,26 @@ android {
         )
     }
 
+    // Upload key from local.properties (never committed):
+    //   release.storeFile=/path/to/upload-keystore.jks
+    //   release.storePassword=…  release.keyAlias=upload  release.keyPassword=…
+    // Without it, release builds are unsigned (fine for checks, not for Play).
+    val hasUploadKey = listOf("release.storeFile", "release.storePassword", "release.keyAlias", "release.keyPassword")
+        .all { !localProps.getProperty(it).isNullOrBlank() }
+    signingConfigs {
+        if (hasUploadKey) {
+            create("upload") {
+                storeFile = file(localProps.getProperty("release.storeFile"))
+                storePassword = localProps.getProperty("release.storePassword")
+                keyAlias = localProps.getProperty("release.keyAlias")
+                keyPassword = localProps.getProperty("release.keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (hasUploadKey) signingConfig = signingConfigs.getByName("upload")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -69,6 +88,8 @@ android {
 
 dependencies {
     implementation(project(":core"))
+    implementation(libs.profileinstaller)
+    baselineProfile(project(":baselineprofile"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
