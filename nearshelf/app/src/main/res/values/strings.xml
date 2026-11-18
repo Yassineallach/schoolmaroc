@@ -253,6 +253,7 @@
     <string name="stat_total_copies">Total copies</string>
     <string name="stat_holds_title">Holds</string>
     <string name="stat_available">Available</string>
+    <string name="stat_days_wait">Days wait</string>
     <string name="stat_branches_with">Branches with it</string>
     <string name="action_place_hold">Place hold</string>
     <plurals name="stat_copies">
