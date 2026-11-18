@@ -52,7 +52,7 @@ No text below 12 sp. Text styles come from tokens, never inline sizes.
 - `NearshelfNavBar`: 64 dp, page-coloured, hairline above, short accent rule over the selected tab.
 - Buttons (`Buttons.kt`): filled primary (one per screen); `accentTonalColors` for borrow/watching; outlined with `hairline()` + `quietOutlinedColors` for secondary; all `ButtonShape`.
 - Status: `Badge` Success/Warning are tinted labels (`StatusColors.*Container`), never saturated fills.
-- Native ad card (`res/layout/native_ad_card.xml`): white card, hairline, 4 dp "Ad" label, 10 dp action, Instrument Sans.
+- Native ad card (`res/layout/native_ad_card.xml`): compact, about 144 dp: 120 dp media square on the left (AdMob minimum for video), "Ad" label, icon, headline and action on the right; no body text (optional under AdMob policy). White card, hairline, Instrument Sans.
 
 Results are flat sections, not cards: hairline, monogram + serif library name, service overlines (`ServiceOverline`), rows separated by lighter hairlines.
 

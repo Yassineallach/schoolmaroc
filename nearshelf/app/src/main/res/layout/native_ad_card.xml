@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Native ad shown inside content lists, in Nearshelf's palette and type (white paper card, hairline edge).
-     Required by AdMob: visible "Ad" attribution; AdChoices is added by the SDK (top right). -->
+<!-- Compact native ad (about 144 dp tall), in Nearshelf's palette and type: white card,
+     hairline edge. Media on the left at 120 dp, AdMob's minimum for video ads; required
+     assets on the right: "Ad" label, icon (when provided), headline, call to action.
+     Body text is optional under AdMob policy and left out to keep the card small.
+     AdChoices is added by the SDK in the top-right corner; the first row leaves room for it. -->
 <com.google.android.gms.ads.nativead.NativeAdView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,105 +13,115 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/ad_attribution"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/ad_badge_background"
-                android:paddingStart="8dp"
-                android:paddingTop="2dp"
-                android:paddingEnd="8dp"
-                android:paddingBottom="2dp"
-                android:text="@string/ad_label"
-                android:textColor="@color/ad_badge_text"
-                android:fontFamily="@font/instrument_sans"
-                android:textFontWeight="600"
-                android:textSize="12sp"
-                tools:targetApi="28" />
-
-            <TextView
-                android:id="@+id/ad_advertiser"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:fontFamily="@font/instrument_sans"
-                android:textColor="@color/ad_text_secondary"
-                android:textSize="13sp" />
-        </LinearLayout>
-
-        <!-- Icon stays a separate view: AdMob registers it as its own asset. -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            tools:ignore="UseCompoundDrawables"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/ad_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
-                android:adjustViewBounds="true"
-                android:importantForAccessibility="no" />
-
-            <TextView
-                android:id="@+id/ad_headline"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="2"
-                android:fontFamily="@font/instrument_sans"
-                android:textColor="@color/ad_text"
-                android:textFontWeight="600"
-                android:textSize="16sp"
-                tools:targetApi="28" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/ad_body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:ellipsize="end"
-            android:maxLines="3"
-            android:fontFamily="@font/instrument_sans"
-            android:textColor="@color/ad_text_secondary"
-            android:textSize="14sp" />
+        android:orientation="horizontal"
+        android:padding="12dp">
 
         <com.google.android.gms.ads.nativead.MediaView
             android:id="@+id/ad_media"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:minHeight="120dp" />
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/ad_media_background" />
 
-        <Button
-            android:id="@+id/ad_call_to_action"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/ad_cta_background"
-            android:minHeight="48dp"
-            android:fontFamily="@font/instrument_sans"
-            android:textAllCaps="false"
-            android:textColor="@color/ad_cta_text"
-            android:textFontWeight="600"
-            android:textSize="14sp"
-            tools:targetApi="28" />
+            android:layout_weight="1"
+            android:minHeight="120dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingEnd="20dp"
+                tools:ignore="RtlSymmetry">
+
+                <TextView
+                    android:id="@+id/ad_attribution"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ad_badge_background"
+                    android:fontFamily="@font/instrument_sans"
+                    android:paddingStart="6dp"
+                    android:paddingTop="1dp"
+                    android:paddingEnd="6dp"
+                    android:paddingBottom="1dp"
+                    android:text="@string/ad_label"
+                    android:textColor="@color/ad_badge_text"
+                    android:textFontWeight="600"
+                    android:textSize="11sp"
+                    tools:targetApi="28" />
+
+                <TextView
+                    android:id="@+id/ad_advertiser"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/instrument_sans"
+                    android:maxLines="1"
+                    android:textColor="@color/ad_text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Icon stays a separate view: AdMob registers it as its own asset. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="top"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:id="@+id/ad_icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginTop="1dp"
+                    android:layout_marginEnd="8dp"
+                    android:adjustViewBounds="true"
+                    android:importantForAccessibility="no" />
+
+                <TextView
+                    android:id="@+id/ad_headline"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/instrument_sans"
+                    android:maxLines="4"
+                    android:textColor="@color/ad_text"
+                    android:textFontWeight="600"
+                    android:textSize="15sp"
+                    tools:targetApi="28" />
+            </LinearLayout>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:minHeight="8dp" />
+
+            <Button
+                android:id="@+id/ad_call_to_action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ad_cta_background"
+                android:fontFamily="@font/instrument_sans"
+                android:maxLines="1"
+                android:minWidth="88dp"
+                android:minHeight="40dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:stateListAnimator="@null"
+                android:textAllCaps="false"
+                android:textColor="@color/ad_cta_text"
+                android:textFontWeight="600"
+                android:textSize="14sp"
+                tools:targetApi="28" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.gms.ads.nativead.NativeAdView>

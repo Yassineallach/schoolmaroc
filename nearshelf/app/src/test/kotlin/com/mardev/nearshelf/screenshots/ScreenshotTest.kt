@@ -252,12 +252,19 @@ class ScreenshotTest(private val device: Device) {
 
     @Test fun about() = shot("about") { AboutScreen(onBack = {}) }
 
+    /** The real native ad layout, filled with sample text (no ad SDK in unit tests). */
     @Composable
-    private fun FakeAd(modifier: Modifier) = Surface(
-        modifier.fillMaxWidth().height(260.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        shape = MaterialTheme.shapes.medium,
-    ) { Box(contentAlignment = Alignment.Center) { Text("Native ad slot") } }
+    private fun FakeAd(modifier: Modifier) = androidx.compose.ui.viewinterop.AndroidView(
+        modifier = modifier.fillMaxWidth(),
+        factory = { ctx ->
+            val v = android.view.LayoutInflater.from(ctx).inflate(R.layout.native_ad_card, android.widget.FrameLayout(ctx), false)
+            v.findViewById<android.widget.TextView>(R.id.ad_advertiser).text = "Paper & Pages Co."
+            v.findViewById<android.widget.TextView>(R.id.ad_headline).text = "Handmade bookmarks, shipped free on orders over \$20"
+            v.findViewById<android.widget.Button>(R.id.ad_call_to_action).text = "Shop now"
+            v.findViewById<android.widget.ImageView>(R.id.ad_icon).setImageResource(R.drawable.ic_books)
+            v
+        },
+    )
 
     private fun sampleState(): ResultsUiState {
         val overdrive = LibraryRef(ProviderId.OVERDRIVE, "chipublib", "Chicago Public Library")

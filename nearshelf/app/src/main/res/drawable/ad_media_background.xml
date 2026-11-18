@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Quiet backing for letterboxed creatives inside the 120 dp media square. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/ad_badge" />
+    <corners android:radius="8dp" />
+</shape>

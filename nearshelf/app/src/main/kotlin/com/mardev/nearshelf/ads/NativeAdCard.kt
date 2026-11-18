@@ -37,7 +37,7 @@ class AdsViewModel @Inject constructor(consent: ConsentManager) : ViewModel() {
 }
 
 /**
- * One native ad, laid out inside the content like Nearshelf's own cards. Renders
+ * One compact native ad (media square + headline + action), laid out inside the content. Renders
  * nothing until an ad has loaded, and nothing at all without consent or on failure,
  * so it never leaves an empty gap. The SDK handles clicks; no custom click handlers.
  */
@@ -58,7 +58,7 @@ fun NativeAdCard(modifier: Modifier = Modifier, ads: AdsViewModel = hiltViewMode
             .withNativeAdOptions(
                 NativeAdOptions.Builder()
                     .setAdChoicesPlacement(NativeAdOptions.ADCHOICES_TOP_RIGHT)
-                    .setMediaAspectRatio(NativeAdOptions.NATIVE_MEDIA_ASPECT_RATIO_LANDSCAPE)
+                    .setMediaAspectRatio(NativeAdOptions.NATIVE_MEDIA_ASPECT_RATIO_SQUARE)
                     .build(),
             )
             .build()
@@ -80,7 +80,6 @@ fun NativeAdCard(modifier: Modifier = Modifier, ads: AdsViewModel = hiltViewMode
 
 private fun bind(view: NativeAdView, ad: NativeAd) {
     val headline = view.findViewById<TextView>(R.id.ad_headline)
-    val body = view.findViewById<TextView>(R.id.ad_body)
     val icon = view.findViewById<ImageView>(R.id.ad_icon)
     val advertiser = view.findViewById<TextView>(R.id.ad_advertiser)
     val cta = view.findViewById<Button>(R.id.ad_call_to_action)
@@ -90,11 +89,9 @@ private fun bind(view: NativeAdView, ad: NativeAd) {
     view.headlineView = headline
     view.mediaView = media // set before setNativeAd, per Google's guide
     ad.mediaContent?.let { media.mediaContent = it }
+    // Fit, never crop: AdMob allows trimming at most 10% of the width and none of the height.
+    media.setImageScaleType(ImageView.ScaleType.FIT_CENTER)
     media.visibility = if (ad.mediaContent != null) View.VISIBLE else View.GONE
-
-    body.text = ad.body
-    body.visibility = if (ad.body.isNullOrBlank()) View.GONE else View.VISIBLE
-    view.bodyView = body
 
     ad.icon?.drawable?.let { icon.setImageDrawable(it) }
     icon.visibility = if (ad.icon == null) View.GONE else View.VISIBLE
