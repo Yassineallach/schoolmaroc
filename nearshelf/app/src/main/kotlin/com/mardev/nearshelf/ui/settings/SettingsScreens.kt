@@ -1,11 +1,14 @@
 package com.mardev.nearshelf.ui.settings
 
+import com.mardev.nearshelf.ui.components.readableWidth
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -70,7 +73,7 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     Scaffold(topBar = { BackBar(stringResource(R.string.settings_title), onBack) }) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(vertical = 8.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(vertical = 8.dp)) {
             item { SettingRow(R.drawable.ic_library, stringResource(R.string.settings_libraries), stringResource(R.string.settings_libraries_sub), onLibraries) }
             item { SettingRow(R.drawable.ic_sliders, stringResource(R.string.prefs_title), stringResource(R.string.settings_prefs_sub), onPreferences) }
             item {
@@ -118,7 +121,7 @@ private fun SettingRow(@DrawableRes icon: Int, title: String, subtitle: String?,
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
     Scaffold(topBar = { BackBar(stringResource(R.string.settings_about), onBack) }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).readableWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(stringResource(R.string.app_name), style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.primary)
             Text(stringResource(R.string.tagline), style = MaterialTheme.typography.bodyLarge)
             Text(stringResource(R.string.settings_version, BuildConfig.VERSION_NAME), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -135,7 +138,7 @@ fun PrivacyScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val lines = remember { context.assets.open("privacy.md").bufferedReader().readLines() }
     Scaffold(topBar = { BackBar(stringResource(R.string.settings_privacy_policy), onBack) }) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(lines.filter { it.isNotBlank() }) { line ->
                 when {
                     line.startsWith("# ") -> Text(line.removePrefix("# "), style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
@@ -169,7 +172,7 @@ fun LicencesScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var open by rememberSaveable { mutableStateOf<String?>(null) }
     Scaffold(topBar = { BackBar(stringResource(R.string.settings_licences), onBack) }) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(vertical = 8.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(vertical = 8.dp)) {
             items(LICENCES) { l ->
                 Column(
                     Modifier.fillMaxWidth().heightIn(min = 56.dp)

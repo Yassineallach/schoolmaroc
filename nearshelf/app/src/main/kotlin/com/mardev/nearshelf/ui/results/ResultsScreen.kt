@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.ui.results
 
+import com.mardev.nearshelf.ui.components.readableWidth
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -117,6 +118,44 @@ fun ResultsScreen(
         Unit
     }
 
+    ResultsContent(
+        state = state, watched = watched, here = here, prefs = prefs, offline = offline,
+        showLocationCard = here == null && !vm.hasLocationPermission && !askedLocation,
+        onBack = onBack, onPreferences = onPreferences, onAddLibrary = onAddLibrary, onSearchManually = onSearchManually,
+        onWatch = onWatch,
+        onRetry = { id, ref -> vm.retry(id, ref) },
+        onBorrow = { ref, m -> context.openExternal(vm.borrowLink(ref, m)) },
+        onOpenCatalog = { ref -> vm.searchLink(ref)?.let(context::openExternal) },
+        onAllowLocation = {
+            askedLocation = true
+            locationLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+        },
+        onDismissLocation = { askedLocation = true },
+    )
+}
+
+/** Stateless Results UI, so it can be rendered with sample data in screenshot tests. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun ResultsContent(
+    state: ResultsUiState,
+    watched: Boolean,
+    here: LatLng?,
+    prefs: ReadingPrefs,
+    offline: Boolean,
+    showLocationCard: Boolean,
+    onBack: () -> Unit,
+    onPreferences: () -> Unit,
+    onAddLibrary: () -> Unit,
+    onSearchManually: (String) -> Unit,
+    onWatch: () -> Unit,
+    onRetry: (String, LibraryRef) -> Unit,
+    onBorrow: (LibraryRef, MatchedHolding) -> Unit,
+    onOpenCatalog: (LibraryRef) -> Unit,
+    onAllowLocation: () -> Unit,
+    onDismissLocation: () -> Unit,
+    adSlot: @Composable (Modifier) -> Unit = { NativeAdCard(it) },
+) {
     Scaffold(
         topBar = {
             Column {
@@ -167,7 +206,7 @@ fun ResultsScreen(
             return@Scaffold
         }
         LazyColumn(
-            Modifier.fillMaxSize().padding(padding),
+            Modifier.fillMaxSize().padding(padding).readableWidth(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
@@ -195,7 +234,7 @@ fun ResultsScreen(
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                             )
-                            androidx.compose.material3.Button(onClick = { services.forEach { (id, svc) -> vm.retry(id, svc.ref) } }) {
+                            androidx.compose.material3.Button(onClick = { services.forEach { (id, svc) -> onRetry(id, svc.ref) } }) {
                                 Text(stringResource(R.string.action_retry_all))
                             }
                         }
@@ -203,14 +242,11 @@ fun ResultsScreen(
                 }
             }
             val hasPrint = libraries.any { lr -> lr.services.any { it.ref.provider.kind == ProviderId.Kind.PHYSICAL } }
-            if (hasPrint && here == null && !vm.hasLocationPermission && !askedLocation) {
+            if (hasPrint && showLocationCard) {
                 item(key = "location") {
                     LocationCard(
-                        onAllow = {
-                            askedLocation = true
-                            locationLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-                        },
-                        onDismiss = { askedLocation = true },
+                        onAllow = onAllowLocation,
+                        onDismiss = onDismissLocation,
                     )
                 }
             }
@@ -219,15 +255,15 @@ fun ResultsScreen(
             itemsIndexed(libraries, key = { _, lr -> lr.library.id }) { index, lr ->
                 LibraryCard(
                     result = lr,
-                    onBorrow = { ref, m -> context.openExternal(vm.borrowLink(ref, m)) },
-                    onRetry = { ref -> vm.retry(lr.library.id, ref) },
-                    onOpenCatalog = { ref -> vm.searchLink(ref)?.let(context::openExternal) },
+                    onBorrow = onBorrow,
+                    onRetry = { ref -> onRetry(lr.library.id, ref) },
+                    onOpenCatalog = onOpenCatalog,
                     here = here,
                     prefs = prefs,
                     modifier = Modifier.animateItem(),
                 )
                 if (index == 0 && !offline) {
-                    NativeAdCard(Modifier.padding(top = 16.dp))
+                    adSlot(Modifier.padding(top = 16.dp))
                 }
             }
         }

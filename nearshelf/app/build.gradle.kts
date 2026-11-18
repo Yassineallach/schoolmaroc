@@ -29,6 +29,7 @@ if (admobAppId.startsWith("ca-app-pub-3940256099942544")) {
 
 android {
     namespace = "com.mardev.nearshelf"
+    testOptions.unitTests.isIncludeAndroidResources = true
     compileSdk = 37
 
     defaultConfig {
@@ -134,4 +135,18 @@ dependencies {
     implementation(libs.mlkit.barcode)
 
     testImplementation(libs.junit)
+    // Screenshot tests (Robolectric renders the screens on the JVM, no device needed).
+    // Record: ./gradlew :app:testDebugUnitTest -Pnearshelf.screenshots=true (PNGs in app/build/outputs/roborazzi)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.robolectric)
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
+}
+
+tasks.withType<Test>().configureEach {
+    if (providers.gradleProperty("nearshelf.screenshots").orNull == "true") {
+        systemProperty("roborazzi.test.record", "true")
+    }
 }

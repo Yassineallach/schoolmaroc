@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.ui.home
 
+import com.mardev.nearshelf.ui.components.readableWidth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -81,7 +82,7 @@ fun HomeScreen(
     }
 
     LazyColumn(
-        Modifier.fillMaxSize().statusBarsPadding(),
+        Modifier.fillMaxSize().statusBarsPadding().readableWidth(),
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 32.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {

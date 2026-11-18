@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.ui.libraries
 
+import com.mardev.nearshelf.ui.components.readableWidth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -76,7 +77,7 @@ fun LibrariesScreen(onAddLibrary: () -> Unit, vm: LibrariesViewModel = hiltViewM
             return@Scaffold
         }
         LazyColumn(
-            Modifier.fillMaxSize().padding(padding),
+            Modifier.fillMaxSize().padding(padding).readableWidth(),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {

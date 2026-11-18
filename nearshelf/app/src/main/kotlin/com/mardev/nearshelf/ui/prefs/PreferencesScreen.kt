@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.ui.prefs
 
+import com.mardev.nearshelf.ui.components.readableWidth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -75,7 +76,7 @@ fun PreferencesScreen(onBack: () -> Unit, vm: PreferencesViewModel = hiltViewMod
         },
     ) { padding ->
         val p = prefs ?: return@Scaffold
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item { Heading(stringResource(R.string.prefs_format_heading)) }
             item {
                 Column(Modifier.selectableGroup()) {

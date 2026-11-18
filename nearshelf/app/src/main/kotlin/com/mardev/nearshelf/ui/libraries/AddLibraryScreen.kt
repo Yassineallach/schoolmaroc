@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.ui.libraries
 
+import com.mardev.nearshelf.ui.components.readableWidth
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -66,7 +67,7 @@ fun AddLibraryScreen(onBack: () -> Unit, vm: AddLibraryViewModel = hiltViewModel
             )
         },
     ) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(bottom = 24.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(bottom = 24.dp)) {
             item {
                 OutlinedTextField(
                     value = query,

@@ -1,6 +1,8 @@
 package com.mardev.nearshelf.ui.components
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,7 +30,7 @@ fun EmptyState(
     onAction: () -> Unit = {},
 ) {
     Column(
-        modifier.fillMaxWidth().padding(horizontal = 32.dp, vertical = 48.dp),
+        modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 32.dp, vertical = 48.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {

@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.ui.watchlist
 
+import com.mardev.nearshelf.ui.components.readableWidth
 import android.text.format.DateUtils
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -90,7 +91,7 @@ fun WatchlistScreen(onOpen: (WatchItem) -> Unit, onSearch: () -> Unit, vm: Watch
             return@Scaffold
         }
         LazyColumn(
-            Modifier.fillMaxSize().padding(padding),
+            Modifier.fillMaxSize().padding(padding).readableWidth(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {

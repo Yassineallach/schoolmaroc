@@ -1,5 +1,6 @@
 package com.mardev.nearshelf.ui.history
 
+import com.mardev.nearshelf.ui.components.readableWidth
 import android.text.format.DateUtils
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -69,7 +70,7 @@ fun HistoryScreen(onBack: () -> Unit, onOpen: (HistoryItem) -> Unit, vm: History
             EmptyState(R.drawable.ic_history, stringResource(R.string.history_empty_title), stringResource(R.string.history_empty_body), Modifier.padding(padding))
             return@Scaffold
         }
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(vertical = 8.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(vertical = 8.dp)) {
             itemsIndexed(list, key = { _, it -> it.key }) { index, item ->
                 HistoryRow(item, onOpen = { onOpen(item) }, onRemove = { vm.remove(item.key) })
                 HorizontalDivider(Modifier.padding(start = 16.dp))
