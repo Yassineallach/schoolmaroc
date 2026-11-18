@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import com.mardev.nearshelf.ads.NativeAdCard
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedCard
@@ -191,7 +193,9 @@ fun ResultsScreen(
                     )
                 }
             }
-            items(libraries, key = { it.library.id }) { lr ->
+            // One native ad, in the middle of the content: right after the first library card
+            // (32 dp from its buttons), never at the bottom of the screen, never offline.
+            itemsIndexed(libraries, key = { _, lr -> lr.library.id }) { index, lr ->
                 LibraryCard(
                     result = lr,
                     onBorrow = { ref, m -> context.openExternal(vm.borrowLink(ref, m)) },
@@ -201,6 +205,9 @@ fun ResultsScreen(
                     prefs = prefs,
                     modifier = Modifier.animateItem(),
                 )
+                if (index == 0 && !offline) {
+                    NativeAdCard(Modifier.padding(top = 16.dp))
+                }
             }
         }
     }

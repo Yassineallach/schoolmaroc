@@ -49,6 +49,8 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @javax.inject.Inject lateinit var consent: com.mardev.nearshelf.ads.ConsentManager
+
     /** Text from the share sheet, consumed once by the nav host. */
     private val pendingShare = mutableStateOf<String?>(null)
 
@@ -58,6 +60,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        consent.gather(this) // Google UMP: consent form where required, then ads may load
         if (savedInstanceState == null) {
             pendingShare.value = intent.sharedText()
             pendingWatch.value = intent.getStringExtra(EXTRA_WATCH_KEY)

@@ -13,7 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import com.mardev.nearshelf.ads.NativeAdCard
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -100,7 +101,7 @@ fun WatchlistScreen(onOpen: (WatchItem) -> Unit, onSearch: () -> Unit, vm: Watch
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            items(list, key = { it.key }) { item ->
+            itemsIndexed(list, key = { _, it -> it.key }) { index, item ->
                 WatchRow(item, onOpen = { onOpen(item) }, onRemove = {
                     vm.remove(item)
                     scope.launch {
@@ -109,6 +110,8 @@ fun WatchlistScreen(onOpen: (WatchItem) -> Unit, onSearch: () -> Unit, vm: Watch
                         }
                     }
                 }, modifier = Modifier.animateItem())
+                // Native ad in the middle of the list: after the 2nd book (or the last, if fewer).
+                if (index == minOf(1, list.lastIndex)) NativeAdCard(Modifier.padding(top = 12.dp))
             }
         }
     }

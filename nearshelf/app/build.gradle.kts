@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -9,6 +11,19 @@ plugins {
 
 room {
     schemaDirectory("$projectDir/schemas")
+}
+
+// Real AdMob IDs live in local.properties (never committed):
+//   admob.appId=ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY
+//   admob.nativeUnitId=ca-app-pub-XXXXXXXXXXXXXXXX/ZZZZZZZZZZ
+// Without them, Google's published test IDs are used (safe to click, no revenue).
+val localProps = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+val admobAppId = localProps.getProperty("admob.appId") ?: "ca-app-pub-3940256099942544~3347511713"
+val admobNativeUnit = localProps.getProperty("admob.nativeUnitId") ?: "ca-app-pub-3940256099942544/2247696110"
+if (admobAppId.startsWith("ca-app-pub-3940256099942544")) {
+    logger.lifecycle("Nearshelf: using AdMob TEST ids (set admob.appId / admob.nativeUnitId in local.properties for release)")
 }
 
 android {
@@ -24,6 +39,8 @@ android {
 
         // Weekly library-registry download (a raw file in your public registry repo).
         // Empty = bundled copy only. Set nearshelf.registryUrl in gradle.properties.
+        manifestPlaceholders["admobAppId"] = admobAppId
+        buildConfigField("String", "ADMOB_NATIVE_UNIT", "\"$admobNativeUnit\"")
         buildConfigField(
             "String",
             "REGISTRY_URL",
@@ -88,6 +105,8 @@ dependencies {
     implementation(libs.datastore.preferences)
     implementation(libs.glance.appwidget)
     implementation(libs.glance.material3)
+    implementation(libs.play.ads)
+    implementation(libs.ump)
     implementation(libs.kotlinx.coroutines.play.services)
 
     // Bundled model: works offline and without Google Play services.

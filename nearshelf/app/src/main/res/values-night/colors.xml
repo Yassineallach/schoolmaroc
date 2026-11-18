@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="window_background">#FF15130F</color>
+    <color name="ad_surface">#FF211D1A</color>
+    <color name="ad_outline">#FF433C37</color>
+    <color name="ad_text">#FFEDE7E3</color>
+    <color name="ad_text_secondary">#FFC9C1BA</color>
+    <color name="ad_badge">#FF78350F</color>
+    <color name="ad_badge_text">#FFFEF3C7</color>
+    <color name="ad_cta">#FF36302C</color>
+    <color name="ad_cta_text">#FFEDE7E3</color>
 </resources>
