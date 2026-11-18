@@ -14,6 +14,12 @@
     <string name="search_hint">Title, author or ISBN</string>
     <string name="search_supporting">Tip: “Project Hail Mary by Andy Weir” narrows it down.</string>
     <string name="search_action">Check my libraries</string>
+    <plurals name="search_action_count">
+        <item quantity="one">Check %d library</item>
+        <item quantity="other">Check %d libraries</item>
+    </plurals>
+    <string name="search_tip_label">Tip</string>
+    <string name="search_tip_body">Add the author: “Project Hail Mary by Andy Weir”</string>
     <string name="home_your_libraries">Your libraries</string>
     <string name="home_manage">Manage</string>
     <string name="home_no_libraries_title">Add a library first</string>

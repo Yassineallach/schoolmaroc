@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mardev.nearshelf.ui.theme.Gutter
 
 /**
@@ -40,14 +41,14 @@ fun SectionHeader(title: String, modifier: Modifier = Modifier, count: Int? = nu
         modifier.fillMaxWidth().heightIn(min = 48.dp).padding(start = Gutter, end = Gutter - 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
+        Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
         if (count != null) {
             Spacer(Modifier.width(8.dp))
-            Text(count.toString(), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.outline)
+            Text(count.toString(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Spacer(Modifier.weight(1f))
         if (action != null) {
-            TextButton(onClick = onAction, contentPadding = PaddingValues(horizontal = 12.dp)) { Text(action) }
+            TextButton(onClick = onAction, contentPadding = PaddingValues(horizontal = 12.dp)) { Text(action, style = MaterialTheme.typography.labelLarge) }
         }
     }
 }
@@ -103,18 +104,22 @@ fun Monogram(name: String, modifier: Modifier = Modifier) {
     val letter = name.split(' ').firstOrNull { it.isNotBlank() && !it.equals("The", ignoreCase = true) }
         ?.firstOrNull { it.isLetterOrDigit() }?.uppercaseChar() ?: '·'
     Box(
-        modifier.size(RowLeadingWidth).clip(MaterialTheme.shapes.small).background(MaterialTheme.colorScheme.surfaceContainerHigh),
+        modifier.size(RowLeadingWidth).clip(MaterialTheme.shapes.small).background(MaterialTheme.colorScheme.surfaceContainer),
         contentAlignment = Alignment.Center,
     ) {
-        Text(letter.toString(), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
+        Text(
+            letter.toString(),
+            style = MaterialTheme.typography.headlineSmall.copy(fontSize = 22.sp, lineHeight = 22.sp),
+            color = MaterialTheme.colorScheme.primary,
+        )
     }
 }
 
 /** Small book cover for a row; a quiet placeholder spine when there is none. */
 @Composable
-fun CoverThumb(url: String?, modifier: Modifier = Modifier) {
+fun CoverThumb(url: String?, modifier: Modifier = Modifier, title: String? = null, width: Dp = 34.dp, height: Dp = 48.dp) {
     Box(
-        modifier.size(width = 34.dp, height = 48.dp).clip(MaterialTheme.shapes.extraSmall).background(MaterialTheme.colorScheme.surfaceContainerHigh),
+        modifier.size(width = width, height = height).clip(MaterialTheme.shapes.extraSmall).background(MaterialTheme.colorScheme.surfaceContainer),
         contentAlignment = Alignment.Center,
     ) {
         if (url != null) {
@@ -124,11 +129,21 @@ fun CoverThumb(url: String?, modifier: Modifier = Modifier) {
                 contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                 modifier = Modifier.matchParentSize(),
             )
+        } else if (title != null && width >= 56.dp) {
+            // No cover: a plain cloth binding with the title's initial and a short rule.
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    title.firstOrNull { it.isLetterOrDigit() }?.uppercase() ?: "",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Box(Modifier.padding(top = 6.dp).size(width = 16.dp, height = 1.dp).background(MaterialTheme.colorScheme.secondary))
+            }
         } else {
             androidx.compose.material3.Icon(
                 androidx.compose.ui.res.painterResource(com.mardev.nearshelf.R.drawable.ic_books),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.outline,
+                tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(18.dp),
             )
         }

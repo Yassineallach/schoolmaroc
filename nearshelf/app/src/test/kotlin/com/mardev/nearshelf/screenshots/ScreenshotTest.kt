@@ -72,6 +72,7 @@ class ScreenshotTest(private val device: Device) {
             Device("landscape", "w891dp-h411dp-land-xxhdpi"),
             Device("font2x", "w411dp-h891dp-xxhdpi", fontScale = 2f),
             Device("dark", "w411dp-h891dp-night-xxhdpi", dark = true),
+            Device("tall", "w411dp-h1500dp-xxhdpi"),
         ).map { arrayOf<Any>(it) }
     }
 
@@ -130,9 +131,12 @@ class ScreenshotTest(private val device: Device) {
         val ev = LibraryRef(ProviderId.POLARIS, "evanston", "Evanston Public Library")
         val evOd = LibraryRef(ProviderId.OVERDRIVE, "evanston", "Evanston Public Library")
         val sk = LibraryRef(ProviderId.OVERDRIVE, "skokie", "Skokie Public Library")
+        val ar = LibraryRef(ProviderId.SIERRA_VEGA, "arlington", "Arlington Heights Memorial Library")
+        val arHo = LibraryRef(ProviderId.HOOPLA, "arlington", "Arlington Heights Memorial Library")
         return listOf(
             Library("chicago", "Chicago Public Library", "Chicago", "IL", "US", listOf(od, ho, bc)),
             Library("evanston", "Evanston Public Library", "Evanston", "IL", "US", listOf(evOd, ev)),
+            Library("arlington", "Arlington Heights Memorial Library and Reading Room of the Northwest Suburbs", "Arlington Heights", "IL", "US", listOf(sk, arHo, ar, ev)),
             Library("skokie", "Skokie Public Library", "Skokie", "IL", "US", listOf(sk)),
         )
     }
@@ -142,6 +146,7 @@ class ScreenshotTest(private val device: Device) {
         return listOf(
             HistoryItem("a", BookQuery(title = "Piranesi"), "Piranesi", "Susanna Clarke", null, now - 3_600_000),
             HistoryItem("b", BookQuery(title = "The Overstory"), "The Overstory", "Richard Powers", null, now - 86_400_000),
+            HistoryItem("c", BookQuery(title = "The Left Hand of Darkness"), "The Left Hand of Darkness: 50th Anniversary Edition", "Ursula K. Le Guin", null, now - 3 * 86_400_000),
         )
     }
 

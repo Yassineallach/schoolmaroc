@@ -5,8 +5,8 @@ import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
 /**
- * One corner scale for the whole app: 4 for thumbnails, 8 for small tiles, 12 for
- * fields, buttons and cards. Nothing is a full pill except chips and badges.
+ * One corner scale: 4 for covers and tags, 8 for tiles, 10 for controls (fields and
+ * buttons), 12 for cards. Nothing is a full pill.
  */
 val NearshelfShapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),
@@ -16,8 +16,20 @@ val NearshelfShapes = Shapes(
     extraLarge = RoundedCornerShape(24.dp),
 )
 
-/** Buttons share the field radius instead of Material's default pill. */
-val ButtonShape = RoundedCornerShape(12.dp)
+/** Fields and buttons. */
+val ControlShape = RoundedCornerShape(10.dp)
 
-/** Standard horizontal gutter for screen content. */
+/** Buttons share the field radius instead of Material's default pill. */
+val ButtonShape = ControlShape
+
+/** Spacing scale (4 dp grid) and the screen gutter. */
+object Space {
+    val xs = 4.dp
+    val s = 8.dp
+    val m = 12.dp
+    val l = 16.dp
+    val xl = 24.dp
+    val xxl = 32.dp
+}
+
 val Gutter = 20.dp

@@ -740,7 +740,7 @@ private fun HeadlineNumber(m: MatchedHolding) {
             value,
             // OverDrive's estimate can run to thousands of days when one copy has hundreds of holds.
             suffix = if (!h.isAvailableNow && (h.waitDays ?: 0) > MAX_WAIT_SHOWN) "+" else "",
-            // Lining figures: Cormorant's default old-style digits drop below the baseline.
+            // Lining figures, so numbers sit on the baseline whatever the font's default.
             style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "lnum"),
             color = MaterialTheme.colorScheme.primary,
         )

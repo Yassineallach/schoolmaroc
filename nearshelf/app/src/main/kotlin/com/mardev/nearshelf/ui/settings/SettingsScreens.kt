@@ -154,7 +154,8 @@ fun PrivacyScreen(onBack: () -> Unit) {
 private data class Licence(val name: String, val licence: String, val asset: String? = null)
 
 private val LICENCES = listOf(
-    Licence("Cormorant Garamond font", "SIL Open Font License 1.1", "licenses/cormorant_garamond_OFL.txt"),
+    Licence("Newsreader font", "SIL Open Font License 1.1", "licenses/newsreader_OFL.txt"),
+    Licence("Instrument Sans font", "SIL Open Font License 1.1", "licenses/instrument_sans_OFL.txt"),
     Licence("Phosphor Icons", "MIT", "licenses/phosphor_MIT.txt"),
     Licence("Lightswind UI (Skeleton, CountUp, Badge, TopLoader designs)", "MIT", "licenses/lightswind_MIT.txt"),
     Licence("Android Jetpack (Compose, Room, WorkManager, Glance, DataStore, Navigation, CameraX)", "Apache License 2.0"),

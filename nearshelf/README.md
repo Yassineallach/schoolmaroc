@@ -15,7 +15,7 @@ Not affiliated with OverDrive, Hoopla, or any library or catalog vendor.
 
 ## Design sources
 
-- Design system from [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill): "book brown + page amber" palette on paper, Cormorant Garamond display type (OFL, bundled), its Jetpack Compose guidelines (stateless composables, `collectAsStateWithLifecycle`, keyed lazy lists, typed routes).
+- Design system: warm paper palette with one leather-brown accent; Newsreader (editorial serif) and Instrument Sans (UI sans), both OFL and bundled; 4 dp spacing grid and one corner scale (`ui/theme`). Started from [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill), its Jetpack Compose guidelines (stateless composables, `collectAsStateWithLifecycle`, keyed lazy lists, typed routes).
 - Components ported from [Lightswind UI](https://github.com/codewithMUHILAN/Lightswind-UI-Library) (MIT) to Compose: `Skeleton`, `CountUp`, `Badge`, `TopLoader` in `app/.../ui/components/lightswind/`.
 - Icons: [Phosphor](https://phosphoricons.com) (MIT), converted with `tools/phosphor_to_vector.py`.
 - Licence texts ship in `app/src/main/assets/licenses/` for the in-app licences screen (milestone 10).
