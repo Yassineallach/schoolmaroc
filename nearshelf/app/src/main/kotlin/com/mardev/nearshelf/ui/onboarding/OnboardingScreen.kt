@@ -1,5 +1,12 @@
 package com.mardev.nearshelf.ui.onboarding
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.height
+import com.mardev.nearshelf.ui.components.hairline
+import com.mardev.nearshelf.ui.components.quietOutlinedColors
+import com.mardev.nearshelf.ui.theme.Gutter
+import com.mardev.nearshelf.ui.theme.Space
+import com.mardev.nearshelf.ui.theme.Wordmark
 import com.mardev.nearshelf.ui.theme.ButtonShape
 import android.Manifest
 import android.os.Build
@@ -65,24 +72,28 @@ fun OnboardingScreen(onAddLibrary: () -> Unit, onDone: () -> Unit) {
     // Own surface, so text and background follow the theme wherever the screen is hosted.
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
-            Row(Modifier.fillMaxWidth().padding(8.dp)) {
-                Spacer(Modifier.weight(1f))
-                TextButton(onClick = onDone) { Text(stringResource(R.string.onboarding_skip)) }
+            Row(Modifier.fillMaxWidth().padding(start = Gutter, end = Gutter - 12.dp, top = Space.s), verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.app_name), style = Wordmark, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
+                TextButton(onClick = onDone) {
+                    Text(stringResource(R.string.onboarding_skip), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
             HorizontalPager(pager, Modifier.weight(1f)) { page ->
                 when (page) {
                     0 -> Page(R.drawable.ic_books, stringResource(R.string.onboarding_1_title), stringResource(R.string.onboarding_1_body))
                     1 -> Page(R.drawable.ic_library, stringResource(R.string.onboarding_2_title), stringResource(R.string.onboarding_2_body)) {
-                        Button(shape = ButtonShape, onClick = onAddLibrary, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.libraries_add)) }
+                        Button(shape = ButtonShape, onClick = onAddLibrary, contentPadding = PaddingValues(horizontal = Space.xl), modifier = Modifier.height(48.dp)) {
+                            Text(stringResource(R.string.libraries_add), style = MaterialTheme.typography.labelLarge)
+                        }
                     }
                     else -> Page(R.drawable.ic_map_pin, stringResource(R.string.onboarding_3_title), stringResource(R.string.onboarding_3_body)) {
-                        OutlinedButton(shape = ButtonShape, 
+                        OutlinedButton(shape = ButtonShape, border = hairline(), colors = quietOutlinedColors(),
                             onClick = { location.launch(Manifest.permission.ACCESS_COARSE_LOCATION) },
                             enabled = !locationAsked,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                         ) { Text(stringResource(R.string.onboarding_allow_location)) }
                         if (Build.VERSION.SDK_INT >= 33) {
-                            OutlinedButton(shape = ButtonShape, 
+                            OutlinedButton(shape = ButtonShape, border = hairline(), colors = quietOutlinedColors(),
                                 onClick = { notifications.launch(Manifest.permission.POST_NOTIFICATIONS) },
                                 enabled = !notificationsAsked,
                                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
@@ -93,23 +104,31 @@ fun OnboardingScreen(onAddLibrary: () -> Unit, onDone: () -> Unit) {
                 }
             }
             Row(
-                Modifier.fillMaxWidth().padding(20.dp),
+                Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = Space.l),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(Modifier.weight(1f).semantics(mergeDescendants = true) { contentDescription = pageText }, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    Modifier.weight(1f).semantics(mergeDescendants = true) { contentDescription = pageText },
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    // Page marker: a short accent bar for the current page, dots for the rest.
                     repeat(3) { i ->
+                        val current = i == pager.currentPage
                         Box(
-                            Modifier.size(if (i == pager.currentPage) 10.dp else 8.dp).clip(CircleShape)
-                                .background(if (i == pager.currentPage) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
+                            Modifier.size(width = if (current) 20.dp else 6.dp, height = 6.dp).clip(CircleShape)
+                                .background(if (current) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
                         )
                     }
                 }
                 if (pager.currentPage < 2) {
-                    Button(shape = ButtonShape, onClick = { scope.launch { pager.animateScrollToPage(pager.currentPage + 1) } }, modifier = Modifier.heightIn(min = 48.dp)) {
-                        Text(stringResource(R.string.onboarding_next))
+                    Button(shape = ButtonShape, onClick = { scope.launch { pager.animateScrollToPage(pager.currentPage + 1) } }, contentPadding = PaddingValues(horizontal = Space.xl), modifier = Modifier.height(48.dp)) {
+                        Text(stringResource(R.string.onboarding_next), style = MaterialTheme.typography.labelLarge)
                     }
                 } else {
-                    Button(shape = ButtonShape, onClick = onDone, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.onboarding_done)) }
+                    Button(shape = ButtonShape, onClick = onDone, contentPadding = PaddingValues(horizontal = Space.xl), modifier = Modifier.height(48.dp)) {
+                        Text(stringResource(R.string.onboarding_done), style = MaterialTheme.typography.labelLarge)
+                    }
                 }
             }
         }
@@ -119,13 +138,18 @@ fun OnboardingScreen(onAddLibrary: () -> Unit, onDone: () -> Unit) {
 @Composable
 private fun Page(@DrawableRes icon: Int, title: String, body: String, actions: @Composable () -> Unit = {}) {
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 28.dp),
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = Gutter + Space.s),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(Space.l, Alignment.CenterVertically),
     ) {
-        Icon(painterResource(icon), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(64.dp))
-        Text(title, style = MaterialTheme.typography.displaySmall, textAlign = TextAlign.Center, modifier = Modifier.semantics { heading() })
-        Text(body, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, modifier = Modifier.widthIn(max = 420.dp))
-        Column(Modifier.widthIn(max = 360.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) { actions() }
+        Box(
+            Modifier.size(72.dp).clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surfaceContainer),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(painterResource(icon), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
+        }
+        Text(title, style = MaterialTheme.typography.headlineLarge, textAlign = TextAlign.Center, modifier = Modifier.padding(top = Space.s).semantics { heading() })
+        Text(body, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, modifier = Modifier.widthIn(max = 400.dp))
+        Column(Modifier.widthIn(max = 340.dp).padding(top = Space.s), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Space.m)) { actions() }
     }
 }

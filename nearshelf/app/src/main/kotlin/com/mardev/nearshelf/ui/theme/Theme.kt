@@ -78,6 +78,9 @@ internal val Dark = darkColorScheme(
     error = Color(0xFFF2B8B5),
 )
 
+/** Ink on a white control over the camera preview, where the theme's onSurface may be light. */
+val InkOnWhite = Color(0xFF292722)
+
 /** Availability colours, outside Material's roles. */
 @Immutable
 data class StatusColors(

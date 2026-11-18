@@ -1,5 +1,9 @@
 package com.mardev.nearshelf.ui.scanner
 
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.TextButton
+import com.mardev.nearshelf.ui.components.NearshelfTopBar
+import com.mardev.nearshelf.ui.theme.ControlShape
 import com.mardev.nearshelf.ui.theme.ButtonShape
 import android.Manifest
 import android.content.Intent
@@ -79,34 +83,27 @@ fun ScannerScreen(onBack: () -> Unit, onIsbn: (String) -> Unit, onTypeInstead: (
     LaunchedEffect(Unit) { if (!granted) launcher.launch(Manifest.permission.CAMERA) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.scanner_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) { Icon(painterResource(R.drawable.ic_arrow_left), stringResource(R.string.cd_back)) }
-                },
-            )
-        },
+        topBar = { NearshelfTopBar(stringResource(R.string.scanner_title), onBack = onBack) },
+        containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
         if (granted) {
             CameraScanner(onIsbn, onTypeInstead, Modifier.padding(padding))
         } else if (askedOnce) {
-            Column(Modifier.padding(padding)) {
-                EmptyState(
-                    icon = R.drawable.ic_camera,
-                    title = stringResource(R.string.scanner_permission_title),
-                    body = stringResource(R.string.scanner_permission_body),
-                    action = stringResource(R.string.scanner_open_settings),
-                    onAction = {
-                        context.startActivity(
-                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
-                        )
-                    },
-                )
-                OutlinedButton(shape = ButtonShape, onClick = onTypeInstead, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                    Text(stringResource(R.string.scanner_type_instead))
-                }
-            }
+            EmptyState(
+                icon = R.drawable.ic_camera,
+                title = stringResource(R.string.scanner_permission_title),
+                body = stringResource(R.string.scanner_permission_body),
+                action = stringResource(R.string.scanner_open_settings),
+                onAction = {
+                    context.startActivity(
+                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
+                    )
+                },
+                modifier = Modifier.padding(padding),
+                secondary = {
+                    TextButton(onClick = onTypeInstead) { Text(stringResource(R.string.scanner_type_instead), style = MaterialTheme.typography.labelLarge) }
+                },
+            )
         }
     }
 }
@@ -164,12 +161,14 @@ private fun CameraScanner(onIsbn: (String) -> Unit, onTypeInstead: () -> Unit, m
     }
 
     if (noCamera) {
-        Column(modifier) {
-            EmptyState(R.drawable.ic_camera, stringResource(R.string.scanner_no_camera_title), stringResource(R.string.scanner_no_camera_body))
-            OutlinedButton(shape = ButtonShape, onClick = onTypeInstead, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Text(stringResource(R.string.scanner_type_instead))
-            }
-        }
+        EmptyState(
+            R.drawable.ic_camera,
+            stringResource(R.string.scanner_no_camera_title),
+            stringResource(R.string.scanner_no_camera_body),
+            modifier,
+            action = stringResource(R.string.scanner_type_instead),
+            onAction = onTypeInstead,
+        )
         return
     }
     Box(modifier.fillMaxSize().background(Color.Black)) {
@@ -177,31 +176,32 @@ private fun CameraScanner(onIsbn: (String) -> Unit, onTypeInstead: () -> Unit, m
         // Aiming frame shaped like a book barcode.
         Box(
             Modifier.align(Alignment.Center).fillMaxWidth(0.78f).aspectRatio(1.9f)
-                .border(BorderStroke(3.dp, Color.White.copy(alpha = 0.9f)), RoundedCornerShape(16.dp)),
+                .border(BorderStroke(2.dp, Color.White.copy(alpha = 0.9f)), RoundedCornerShape(12.dp)),
         )
         Column(
             Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Surface(shape = RoundedCornerShape(12.dp), color = Color.Black.copy(alpha = 0.6f), contentColor = Color.White) {
+            Surface(shape = ControlShape, color = Color.Black.copy(alpha = 0.66f), contentColor = Color.White) {
                 Text(
                     stringResource(if (showNotABook) R.string.scanner_not_a_book else R.string.scanner_hint),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp).semantics { liveRegion = LiveRegionMode.Polite },
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp).semantics { liveRegion = LiveRegionMode.Polite },
                 )
             }
             if (camera?.cameraInfo?.hasFlashUnit() == true) {
-                Button(shape = ButtonShape, onClick = {
+                // Paper-white on the camera, the one solid control over the preview.
+                Button(shape = ButtonShape, colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = com.mardev.nearshelf.ui.theme.InkOnWhite), onClick = {
                     torchOn = !torchOn
                     camera?.cameraControl?.enableTorch(torchOn)
-                }) {
+                }, modifier = Modifier.height(48.dp)) {
                     Icon(painterResource(if (torchOn) R.drawable.ic_torch_off else R.drawable.ic_torch), null)
                     Text(stringResource(if (torchOn) R.string.scanner_torch_off else R.string.scanner_torch_on), Modifier.padding(start = 8.dp))
                 }
             }
-            OutlinedButton(shape = ButtonShape, onClick = onTypeInstead, colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(contentColor = Color.White)) {
+            OutlinedButton(shape = ButtonShape, onClick = onTypeInstead, border = BorderStroke(1.dp, Color.White.copy(alpha = 0.6f)), colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(contentColor = Color.White), modifier = Modifier.height(48.dp)) {
                 Text(stringResource(R.string.scanner_type_instead))
             }
         }

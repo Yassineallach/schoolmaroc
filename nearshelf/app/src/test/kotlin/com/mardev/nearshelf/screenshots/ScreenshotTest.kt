@@ -48,6 +48,10 @@ import com.mardev.nearshelf.ui.results.ResultsContent
 import com.mardev.nearshelf.ui.results.ResultsUiState
 import com.mardev.nearshelf.ui.results.ServiceResult
 import com.mardev.nearshelf.ui.settings.AboutScreen
+import com.mardev.nearshelf.ui.settings.SettingsContent
+import com.mardev.nearshelf.ui.settings.PrivacyContent
+import com.mardev.nearshelf.ui.settings.LicencesScreen
+import com.mardev.nearshelf.ui.prefs.PreferencesContent
 import com.mardev.nearshelf.ui.theme.NearshelfTheme
 import org.junit.Rule
 import org.junit.Test
@@ -196,6 +200,23 @@ class ScreenshotTest(private val device: Device) {
 
     @Test fun history() = shot("history") {
         HistoryContent(sampleRecent(), {}, {}, {}, {}, adSlot = { FakeAd(it) })
+    }
+
+    @Test fun settings() = shot("settings") { SettingsContent(true, {}, {}, {}, {}, {}, {}, {}, {}, {}) }
+
+    @Test fun preferences() = shot("preferences") {
+        PreferencesContent(ReadingPrefs(languages = setOf("en", "fr")), {}, {}, {}, {})
+    }
+
+    @Test fun privacy() = shot("privacy") {
+        val lines = java.io.File("src/main/assets/privacy.md").readLines()
+        PrivacyContent(lines) {}
+    }
+
+    @Test fun licences() = shot("licences") { LicencesScreen {} }
+
+    @Test fun watchlistEmpty() = shot("watchlist_empty") {
+        WatchlistContent(emptyList(), androidx.compose.material3.SnackbarHostState(), {}, {}, {}, {})
     }
 
     @Test fun noLibraries() = shot("no_libraries") {

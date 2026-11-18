@@ -223,6 +223,8 @@
 
     <!-- Settings, About -->
     <string name="settings_title">Settings</string>
+    <string name="settings_group_setup">Your setup</string>
+    <string name="settings_group_about">Privacy and about</string>
     <string name="settings_libraries">Libraries and home branches</string>
     <string name="settings_libraries_sub">Add, remove, reorder; choose home branches</string>
     <string name="settings_prefs_sub">Preferred format, languages you read</string>

@@ -35,7 +35,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import com.mardev.nearshelf.ads.NativeAdCard
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
@@ -374,7 +373,7 @@ private fun LibraryCard(
                         stringResource(R.string.section_physical, svc.ref.provider.displayName)
                     } else {
                         svc.ref.provider.displayName
-                    }).uppercase(java.util.Locale.getDefault()),
+                    }).uppercase(androidx.compose.ui.platform.LocalConfiguration.current.locales[0]),
                     // Service as a small overline: the section's index, not its headline.
                     style = ServiceOverline,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -43,11 +43,18 @@ No text below 12 sp. Text styles come from tokens, never inline sizes.
 
 ## Components (`ui/components`)
 
+- `NearshelfTopBar`: every screen's app bar, on the page colour. `large` for top-level tabs (serif 24), back arrow and serif 20 for detail screens.
+- `PaperSearchField` + `FieldHint`: the white search field (hairline edge, brown edge on focus) and its "Tip" footnote. Home, Add library, branch picker.
+- `LibraryRow`: monogram, name, location, service tags (filled = digital, outlined = physical catalog), with `trailing` and `footer` slots. Home, Libraries, Add library. `LibraryRowSkeleton` while loading.
 - `SectionHeader`: serif title, optional count, one text action aligned to the gutter.
-- `ListRow`, `RowDivider` (inset to the text column), `Monogram`, `CoverThumb`.
-- `Tag`: filled = digital service, outlined = physical catalog.
+- `ListRow`, `RowDivider` (inset to the text column), `Monogram`, `CoverThumb` (cloth-binding placeholder), `Tag`.
+- `EmptyState`: icon tile, serif title, one line of help, at most one action.
 - `NearshelfNavBar`: 64 dp, page-coloured, hairline above, short accent rule over the selected tab.
-- Buttons: filled primary (one per screen), tonal secondary on `surfaceContainer`; both `ButtonShape`.
+- Buttons (`Buttons.kt`): filled primary (one per screen); `accentTonalColors` for borrow/watching; outlined with `hairline()` + `quietOutlinedColors` for secondary; all `ButtonShape`.
+- Status: `Badge` Success/Warning are tinted labels (`StatusColors.*Container`), never saturated fills.
+- Native ad card (`res/layout/native_ad_card.xml`): white card, hairline, 4 dp "Ad" label, 10 dp action, Instrument Sans.
+
+Results are flat sections, not cards: hairline, monogram + serif library name, service overlines (`ServiceOverline`), rows separated by lighter hairlines.
 
 ## Rules
 

@@ -1,5 +1,17 @@
 package com.mardev.nearshelf.ui.prefs
 
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import com.mardev.nearshelf.ui.components.NearshelfTopBar
+import com.mardev.nearshelf.ui.components.SectionHeader
+import com.mardev.nearshelf.ui.theme.Gutter
+import com.mardev.nearshelf.ui.theme.Space
 import com.mardev.nearshelf.ui.components.readableWidth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -63,65 +75,115 @@ class PreferencesViewModel @Inject constructor(private val repo: PreferencesRepo
 /** Languages most catalogs in Nearshelf's markets carry, shown in their own names. */
 private val LANGUAGES = listOf("en", "fr", "ar", "es", "de", "it", "pt", "nl", "zh", "ja", "ko", "ru", "tr", "hi", "pl", "vi", "tl", "fa")
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PreferencesScreen(onBack: () -> Unit, vm: PreferencesViewModel = hiltViewModel()) {
     val prefs by vm.prefs.collectAsStateWithLifecycle()
+    PreferencesContent(prefs, onBack, onFormat = vm::setFormat, onToggleLanguage = vm::toggleLanguage, onShowOther = vm::setShowOther)
+}
+
+/** Stateless preferences UI (rendered in the screenshot tests). */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun PreferencesContent(
+    prefs: ReadingPrefs?,
+    onBack: () -> Unit,
+    onFormat: (Format?) -> Unit,
+    onToggleLanguage: (String) -> Unit,
+    onShowOther: (Boolean) -> Unit,
+) {
+    val colors = MaterialTheme.colorScheme
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.prefs_title)) },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(painterResource(R.drawable.ic_arrow_left), stringResource(R.string.cd_back)) } },
-            )
-        },
+        topBar = { NearshelfTopBar(stringResource(R.string.prefs_title), onBack = onBack) },
+        containerColor = colors.background,
     ) { padding ->
         val p = prefs ?: return@Scaffold
-        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            item { Heading(stringResource(R.string.prefs_format_heading)) }
+        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(bottom = Space.xxl)) {
+            item { SectionHeader(stringResource(R.string.prefs_format_heading)) }
             item {
                 Column(Modifier.selectableGroup()) {
                     listOf(null to R.string.prefs_format_any, Format.EBOOK to R.string.format_ebook, Format.AUDIOBOOK to R.string.format_audiobook, Format.PHYSICAL to R.string.format_physical)
                         .forEach { (f, label) ->
                             Row(
-                                Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                                    .selectable(selected = p.preferredFormat == f, role = Role.RadioButton) { vm.setFormat(f) },
+                                Modifier.fillMaxWidth().heightIn(min = 52.dp)
+                                    .selectable(selected = p.preferredFormat == f, role = Role.RadioButton) { onFormat(f) }
+                                    .padding(horizontal = Gutter - 12.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                RadioButton(selected = p.preferredFormat == f, onClick = null)
-                                Text(stringResource(label), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 12.dp))
+                                RadioButton(selected = p.preferredFormat == f, onClick = null, modifier = Modifier.padding(horizontal = 12.dp))
+                                Text(stringResource(label), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = Space.xs))
                             }
                         }
                 }
             }
-            item { Heading(stringResource(R.string.prefs_languages_heading)) }
+            item { SectionHeader(stringResource(R.string.prefs_languages_heading), Modifier.padding(top = Space.l)) }
             item {
-                Text(stringResource(R.string.prefs_languages_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    stringResource(R.string.prefs_languages_body),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.onSurfaceVariant,
+                    modifier = Modifier.padding(start = Gutter, end = Gutter, bottom = Space.m),
+                )
             }
             item {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(
+                    Modifier.padding(horizontal = Gutter),
+                    horizontalArrangement = Arrangement.spacedBy(Space.s),
+                    verticalArrangement = Arrangement.spacedBy(Space.s),
+                ) {
                     (LANGUAGES + (p.languages - LANGUAGES.toSet())).forEach { code ->
                         val name = Locale.forLanguageTag(code).let { it.getDisplayLanguage(it) }.replaceFirstChar { it.titlecase() }
-                        FilterChip(selected = code in p.languages, onClick = { vm.toggleLanguage(code) }, label = { Text(name) })
+                        val selected = code in p.languages
+                        FilterChip(
+                            selected = selected,
+                            onClick = { onToggleLanguage(code) },
+                            label = { Text(name, style = MaterialTheme.typography.labelLarge) },
+                            leadingIcon = if (selected) {
+                                { Icon(painterResource(R.drawable.ic_check), null, modifier = Modifier.size(16.dp)) }
+                            } else null,
+                            shape = MaterialTheme.shapes.small,
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = Color.Transparent,
+                                labelColor = colors.onSurface,
+                                selectedContainerColor = colors.primaryContainer,
+                                selectedLabelColor = colors.onPrimaryContainer,
+                                selectedLeadingIconColor = colors.onPrimaryContainer,
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = selected,
+                                borderColor = colors.outlineVariant,
+                                selectedBorderColor = colors.primaryContainer,
+                            ),
+                        )
                     }
                 }
             }
             item {
+                HorizontalDivider(Modifier.padding(horizontal = Gutter, vertical = Space.xl), color = colors.outlineVariant)
+            }
+            item {
                 Row(
-                    Modifier.fillMaxWidth().heightIn(min = 56.dp)
-                        .toggleable(value = p.showOtherLanguages, role = Role.Switch, onValueChange = vm::setShowOther),
+                    Modifier.fillMaxWidth().heightIn(min = 64.dp)
+                        .toggleable(value = p.showOtherLanguages, role = Role.Switch, onValueChange = onShowOther)
+                        .padding(horizontal = Gutter),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(stringResource(R.string.prefs_show_other), style = MaterialTheme.typography.bodyLarge)
-                        Text(stringResource(R.string.prefs_show_other_body), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Column(Modifier.weight(1f).padding(end = Space.l), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(stringResource(R.string.prefs_show_other), style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.prefs_show_other_body), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
                     }
-                    Switch(checked = p.showOtherLanguages, onCheckedChange = null)
+                    Switch(
+                        checked = p.showOtherLanguages,
+                        onCheckedChange = null,
+                        colors = SwitchDefaults.colors(
+                            checkedTrackColor = colors.primary,
+                            uncheckedTrackColor = colors.surfaceContainerHigh,
+                            uncheckedBorderColor = colors.outlineVariant,
+                            uncheckedThumbColor = colors.outline,
+                        ),
+                    )
                 }
             }
         }
     }
 }
-
-@Composable
-private fun Heading(text: String) =
-    Text(text, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 8.dp).semantics { heading() })
