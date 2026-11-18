@@ -58,6 +58,11 @@ import com.mardev.nearshelf.core.match.MatchedHolding
 import com.mardev.nearshelf.core.model.Format
 import com.mardev.nearshelf.core.model.LibraryRef
 import com.mardev.nearshelf.core.model.ProviderId
+import com.mardev.nearshelf.ui.theme.LocalStatusColors
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import com.mardev.nearshelf.core.provider.ProviderException
 import com.mardev.nearshelf.core.search.ServiceState
 import com.mardev.nearshelf.ui.components.EmptyState
@@ -138,6 +143,7 @@ fun ResultsScreen(
                     result = lr,
                     onBorrow = { ref, m -> context.openExternal(vm.borrowLink(ref, m)) },
                     onRetry = { ref -> vm.retry(lr.library.id, ref) },
+                    onOpenCatalog = { ref -> vm.searchLink(ref)?.let(context::openExternal) },
                     modifier = Modifier.animateItem(),
                 )
             }
@@ -203,6 +209,7 @@ private fun LibraryCard(
     result: LibraryResult,
     onBorrow: (LibraryRef, MatchedHolding) -> Unit,
     onRetry: (LibraryRef) -> Unit,
+    onOpenCatalog: (LibraryRef) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(modifier.fillMaxWidth()) {
@@ -220,7 +227,11 @@ private fun LibraryCard(
             result.services.forEach { svc ->
                 HorizontalDivider(Modifier.padding(top = 12.dp), color = MaterialTheme.colorScheme.outlineVariant)
                 Text(
-                    svc.ref.provider.displayName,
+                    if (svc.ref.provider.kind == ProviderId.Kind.PHYSICAL) {
+                        stringResource(R.string.section_physical, svc.ref.provider.displayName)
+                    } else {
+                        svc.ref.provider.displayName
+                    },
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
@@ -233,7 +244,7 @@ private fun LibraryCard(
                 ) { st ->
                     when (st) {
                         ServiceState.Loading -> SkeletonLines(3, Modifier.fillMaxWidth().padding(16.dp, 8.dp))
-                        is ServiceState.Failed -> FailedRow(svc.ref, st, onRetry)
+                        is ServiceState.Failed -> FailedRow(svc.ref, st, onRetry, onOpenCatalog)
                         is ServiceState.Done -> Column {
                             if (svc.ref.provider == ProviderId.HOOPLA && st.matches.isNotEmpty()) {
                                 HooplaNote(svc.ref)
@@ -248,7 +259,11 @@ private fun LibraryCard(
                             }
                             ServiceResult(svc.ref, st).rows.forEachIndexed { i, row ->
                                 if (i > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
-                                HoldingRow(svc.ref, row, onBorrow)
+                                if (row.match.holding.format == Format.PHYSICAL) {
+                                    PhysicalRow(svc.ref, row, result.library.homeBranch?.name, onBorrow)
+                                } else {
+                                    HoldingRow(svc.ref, row, onBorrow)
+                                }
                             }
                         }
                     }
@@ -259,7 +274,25 @@ private fun LibraryCard(
 }
 
 @Composable
-private fun FailedRow(ref: LibraryRef, failure: ServiceState.Failed, onRetry: (LibraryRef) -> Unit) {
+private fun FailedRow(
+    ref: LibraryRef,
+    failure: ServiceState.Failed,
+    onRetry: (LibraryRef) -> Unit,
+    onOpenCatalog: (LibraryRef) -> Unit,
+) {
+    if (failure.kind == ProviderException.Kind.BLOCKED) {
+        // The catalog answers automated requests with a bot check. Nearshelf never tries to
+        // get past one; the user searches it in their browser instead.
+        Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.results_blocked), style = MaterialTheme.typography.bodyMedium)
+            OutlinedButton(onClick = { onOpenCatalog(ref) }, modifier = Modifier.heightIn(min = 48.dp)) {
+                Text(stringResource(R.string.action_search_catalog))
+                Spacer(Modifier.width(8.dp))
+                Icon(painterResource(R.drawable.ic_open_external), null, modifier = Modifier.size(ButtonDefaults.IconSize))
+            }
+        }
+        return
+    }
     Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(painterResource(R.drawable.ic_warning), null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
         Spacer(Modifier.width(8.dp))
@@ -358,6 +391,112 @@ private fun HoldingRow(ref: LibraryRef, row: HoldingRowUi, onBorrow: (LibraryRef
 }
 
 private const val MAX_WAIT_SHOWN = 365
+private const val BRANCHES_COLLAPSED = 4
+
+/** A print edition: summary, then branch by branch (home branch first). */
+@Composable
+private fun PhysicalRow(ref: LibraryRef, row: HoldingRowUi, homeBranchName: String?, onBorrow: (LibraryRef, MatchedHolding) -> Unit) {
+    val m = row.match
+    val h = m.holding
+    val branches = remember(h.copies, homeBranchName) { summarizeBranches(h.copies, homeBranchName) }
+    var expanded by rememberSaveable(h.providerItemId) { mutableStateOf(false) }
+    val anyShelf = branches.any { it.onShelf > 0 } || (h.copies.isEmpty() && h.isAvailableNow)
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.Top) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(painterResource(R.drawable.ic_books), null, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(stringResource(R.string.format_physical), style = MaterialTheme.typography.titleMedium)
+                    }
+                    when {
+                        !h.availabilityKnown -> Badge(stringResource(R.string.badge_unknown), variant = BadgeVariant.Secondary, size = BadgeSize.Sm)
+                        anyShelf -> Badge(stringResource(R.string.badge_on_shelf), variant = BadgeVariant.Success, size = BadgeSize.Sm)
+                        else -> Badge(stringResource(R.string.badge_all_out), variant = BadgeVariant.Warning, size = BadgeSize.Sm)
+                    }
+                    h.edition?.let { Badge(it, variant = BadgeVariant.Info, size = BadgeSize.Sm) }
+                    if (m.otherLanguage && h.language != null) Badge(languageName(h.language!!), variant = BadgeVariant.Outline, size = BadgeSize.Sm)
+                }
+                if (m.otherLanguage) Text(h.title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                val owned = h.owned ?: h.copies.size
+                if (owned > 0) {
+                    val copies = pluralStringResource(R.plurals.copies, owned, owned)
+                    Text(
+                        h.holds?.takeIf { it > 0 }?.let { stringResource(R.string.detail_waitlist, pluralStringResource(R.plurals.holds, it, it), copies) } ?: copies,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                if (row.moreEditions > 0) {
+                    Text(pluralStringResource(R.plurals.more_editions, row.moreEditions, row.moreEditions), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            val onShelf = branches.sumOf { it.onShelf }.takeIf { h.copies.isNotEmpty() } ?: h.available
+            if (onShelf != null && h.availabilityKnown) {
+                Spacer(Modifier.width(12.dp))
+                Column(horizontalAlignment = Alignment.End) {
+                    CountUp(onShelf, style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "lnum"), color = MaterialTheme.colorScheme.primary)
+                    Text(stringResource(R.string.caption_on_shelf), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+        val shown = if (expanded) branches else branches.filter { it.isHome || it.onShelf > 0 }.take(BRANCHES_COLLAPSED).ifEmpty { branches.take(1) }
+        shown.forEach { BranchLine(it) }
+        if (branches.size > shown.size) {
+            TextButton(onClick = { expanded = true }) {
+                Text(pluralStringResource(R.plurals.show_all_branches, branches.size, branches.size))
+            }
+        }
+        OutlinedButton(onClick = { onBorrow(ref, m) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+            Text(stringResource(if (anyShelf) R.string.action_view_catalog else R.string.action_hold_catalog))
+            Spacer(Modifier.width(8.dp))
+            Icon(painterResource(R.drawable.ic_open_external), null, modifier = Modifier.size(ButtonDefaults.IconSize))
+        }
+    }
+}
+
+@Composable
+private fun BranchLine(b: BranchSummary) {
+    val status = LocalStatusColors.current
+    Row(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.Top) {
+        Icon(
+            painterResource(R.drawable.ic_map_pin),
+            null,
+            tint = if (b.onShelf > 0) status.available else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 2.dp).size(18.dp),
+        )
+        Spacer(Modifier.width(8.dp))
+        Column(Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(b.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f, fill = false))
+                if (b.isHome) {
+                    Spacer(Modifier.width(6.dp))
+                    Badge(stringResource(R.string.badge_home), variant = BadgeVariant.Outline, size = BadgeSize.Sm)
+                }
+            }
+            Text(
+                listOfNotNull(branchStatus(b), b.callNumber).joinToString(" · "),
+                style = MaterialTheme.typography.bodySmall,
+                color = if (b.onShelf > 0) status.available else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun branchStatus(b: BranchSummary): String = when {
+    b.onShelf > 0 -> pluralStringResource(R.plurals.branch_on_shelf, b.onShelf, b.onShelf)
+    b.inTransit > 0 -> pluralStringResource(R.plurals.branch_in_transit, b.inTransit, b.inTransit)
+    b.libraryUseOnly > 0 -> stringResource(R.string.branch_library_use)
+    b.checkedOut > 0 && b.nextDue != null -> stringResource(R.string.branch_out_due, formatDate(b.nextDue))
+    b.checkedOut > 0 -> pluralStringResource(R.plurals.branch_checked_out, b.checkedOut, b.checkedOut)
+    else -> stringResource(R.string.branch_unavailable)
+}
+
+private fun formatDate(iso: String): String = runCatching {
+    java.time.LocalDate.parse(iso).format(java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM))
+}.getOrDefault(iso)
 
 /** The one number that matters: copies on the shelf now, or days to wait. */
 @Composable

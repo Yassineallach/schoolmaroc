@@ -89,6 +89,35 @@
         <item quantity="one">+%1$d more edition</item>
         <item quantity="other">+%1$d more editions</item>
     </plurals>
+    <string name="section_physical">Library catalog · %1$s</string>
+    <string name="results_blocked">This catalog only answers searches made in a browser.</string>
+    <string name="action_search_catalog">Search the catalog</string>
+    <string name="action_view_catalog">View in catalog</string>
+    <string name="action_hold_catalog">Place hold in catalog</string>
+    <string name="badge_on_shelf">On shelf</string>
+    <string name="badge_all_out">All copies out</string>
+    <string name="badge_unknown">Availability unknown</string>
+    <string name="badge_home">Home</string>
+    <string name="caption_on_shelf">on shelf</string>
+    <string name="branch_library_use">In library use only</string>
+    <string name="branch_out_due">Checked out · due %1$s</string>
+    <string name="branch_unavailable">Not available</string>
+    <plurals name="branch_on_shelf">
+        <item quantity="one">%1$d on the shelf</item>
+        <item quantity="other">%1$d on the shelf</item>
+    </plurals>
+    <plurals name="branch_in_transit">
+        <item quantity="one">%1$d in transit</item>
+        <item quantity="other">%1$d in transit</item>
+    </plurals>
+    <plurals name="branch_checked_out">
+        <item quantity="one">Checked out</item>
+        <item quantity="other">All %1$d checked out</item>
+    </plurals>
+    <plurals name="show_all_branches">
+        <item quantity="one">Show %1$d branch</item>
+        <item quantity="other">Show all %1$d branches</item>
+    </plurals>
     <string name="action_retry">Retry</string>
     <string name="action_undo">Undo</string>
     <string name="format_ebook">eBook</string>

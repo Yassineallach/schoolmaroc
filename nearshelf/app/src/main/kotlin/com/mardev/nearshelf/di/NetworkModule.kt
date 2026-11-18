@@ -10,7 +10,9 @@ import com.mardev.nearshelf.data.RegistryRepository
 import com.mardev.nearshelf.core.share.ShareParser
 import com.mardev.nearshelf.core.net.NearshelfHttp
 import com.mardev.nearshelf.core.provider.CatalogProvider
+import com.mardev.nearshelf.core.provider.bibliocommons.BiblioCommonsProvider
 import com.mardev.nearshelf.core.provider.hoopla.HooplaProvider
+import com.mardev.nearshelf.core.provider.koha.KohaProvider
 import com.mardev.nearshelf.core.provider.overdrive.OverDriveProvider
 import com.mardev.nearshelf.core.search.LibrarySearchService
 import com.mardev.nearshelf.core.search.SearchCoordinator
@@ -45,6 +47,22 @@ object NetworkModule {
     @Provides
     @IntoSet
     fun hooplaAsProvider(p: HooplaProvider): CatalogProvider = p
+
+    @Provides
+    @Singleton
+    fun biblioCommons(client: OkHttpClient) = BiblioCommonsProvider(client)
+
+    @Provides
+    @IntoSet
+    fun biblioCommonsAsProvider(p: BiblioCommonsProvider): CatalogProvider = p
+
+    @Provides
+    @Singleton
+    fun koha(client: OkHttpClient) = KohaProvider(client)
+
+    @Provides
+    @IntoSet
+    fun kohaAsProvider(p: KohaProvider): CatalogProvider = p
 
     @Provides
     @Singleton

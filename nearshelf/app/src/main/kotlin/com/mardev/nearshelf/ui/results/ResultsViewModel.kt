@@ -33,7 +33,7 @@ data class ServiceResult(val ref: LibraryRef, val state: ServiceState) {
      */
     val rows: List<HoldingRowUi>
         get() = (state as? ServiceState.Done)?.matches.orEmpty()
-            .groupBy { Triple(it.holding.format, it.holding.language, it.otherLanguage) }
+            .groupBy { listOf(it.holding.format, it.holding.language, it.otherLanguage, it.holding.edition) }
             .values.map { HoldingRowUi(it.first(), it.size - 1) }
 }
 
@@ -127,6 +127,8 @@ class ResultsViewModel @Inject constructor(
 
     fun borrowLink(ref: LibraryRef, match: MatchedHolding): String =
         coordinator.borrowLink(ref, match).toString()
+
+    fun searchLink(ref: LibraryRef): String? = query?.let { coordinator.searchLink(ref, it)?.toString() }
 
     private fun apply(libraryId: String, ref: LibraryRef, state: ServiceState) = _state.update { s ->
         s.copy(libraries = s.libraries?.map { lr ->
