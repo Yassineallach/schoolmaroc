@@ -66,6 +66,7 @@ import com.mardev.nearshelf.core.provider.ProviderException
 import com.mardev.nearshelf.core.search.Availability.isBorrowableNow
 import com.mardev.nearshelf.core.search.ServiceState
 import com.mardev.nearshelf.ui.components.accentTonalColors
+import com.mardev.nearshelf.ui.components.StatusPill
 import com.mardev.nearshelf.ui.components.hairline
 import com.mardev.nearshelf.ui.components.lightswind.Badge
 import com.mardev.nearshelf.ui.components.lightswind.BadgeSize
@@ -337,18 +338,6 @@ private fun PrintCard(o: OptionUi, nameEdition: Boolean, here: LatLng?, onBorrow
 @Composable
 private fun OptionCardFor(o: OptionUi, nameEdition: Boolean, here: LatLng?, onBorrow: (LibraryRef, MatchedHolding) -> Unit) =
     if (o.isPrint) PrintCard(o, nameEdition, here, onBorrow) else DigitalCard(o, onBorrow)
-
-@Composable
-private fun StatusPill(text: String, bg: Color, fg: Color) {
-    Row(
-        Modifier.clip(CircleShape).background(bg).padding(horizontal = 10.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(Modifier.size(7.dp).clip(CircleShape).background(fg))
-        Spacer(Modifier.width(6.dp))
-        Text(text, style = MaterialTheme.typography.labelLarge, color = fg)
-    }
-}
 
 @Composable
 private fun Figure(value: Int?, label: String, modifier: Modifier = Modifier, color: Color = MaterialTheme.colorScheme.onSurface, suffix: String = "") {

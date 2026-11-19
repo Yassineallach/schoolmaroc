@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+
 package com.mardev.nearshelf.ui.watchlist
 
 import com.mardev.nearshelf.ui.components.readableWidth
@@ -47,6 +49,10 @@ import coil3.compose.AsyncImage
 import com.mardev.nearshelf.R
 import com.mardev.nearshelf.core.watch.Watch
 import com.mardev.nearshelf.data.WatchItem
+import androidx.compose.foundation.layout.FlowRow
+import com.mardev.nearshelf.ui.components.nearshelfCard
+import com.mardev.nearshelf.ui.components.StatusPill
+import androidx.compose.foundation.layout.offset
 import com.mardev.nearshelf.core.model.Format
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -139,87 +145,89 @@ internal fun WatchlistContent(
                 )
             }
             itemsIndexed(list, key = { _, it -> it.key }) { index, item ->
-                Column(Modifier.animateItem()) {
-                    WatchRow(item, onOpen = { onOpen(item) }, onRemove = { onRemove(item) })
-                    if (index < list.lastIndex) BookDivider()
+                Column(Modifier.animateItem().padding(horizontal = Gutter, vertical = Space.s)) {
+                    WatchCard(item, onOpen = { onOpen(item) }, onRemove = { onRemove(item) })
                     // Native ad in the middle of the list: after the 2nd book (or the last, if fewer).
-                    if (index == minOf(1, list.lastIndex)) adSlot(Modifier.padding(horizontal = Gutter, vertical = Space.m))
+                    if (index == minOf(1, list.lastIndex)) adSlot(Modifier.padding(top = Space.l))
                 }
             }
         }
     }
 }
 
-/** Hairline under a book row, starting at the text column (after a 48 dp cover). */
+/**
+ * One watched book as a card: cover, serif title, author, what is watched; then the latest
+ * status as a label with its detail, and when it was checked. Tapping opens the results.
+ */
 @Composable
-private fun BookDivider() = HorizontalDivider(
-    Modifier.padding(start = Gutter + 48.dp + Space.l, end = Gutter),
-    color = MaterialTheme.colorScheme.outlineVariant,
-)
-
-/** One watched book: cover, serif title, author, the latest status, when it was checked. */
-@Composable
-private fun WatchRow(item: WatchItem, onOpen: () -> Unit, onRemove: () -> Unit) {
-    Row(
+private fun WatchCard(item: WatchItem, onOpen: () -> Unit, onRemove: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val status = LocalStatusColors.current
+    Column(
         Modifier
             .fillMaxWidth()
+            .nearshelfCard()
             .clickable(onClickLabel = stringResource(R.string.cd_open_results), role = Role.Button, onClick = onOpen)
-            .padding(start = Gutter, end = Gutter - Space.m, top = Space.l, bottom = Space.l),
-        verticalAlignment = Alignment.Top,
+            .padding(Space.l),
     ) {
-        CoverThumb(item.coverUrl, title = item.title, width = 48.dp, height = 72.dp)
-        Spacer(Modifier.width(Space.l))
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(item.title, style = BookTitle, color = MaterialTheme.colorScheme.onSurface, maxLines = 3, overflow = TextOverflow.Ellipsis)
-            item.author?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-            // What this watch covers, when it isn't everything.
-            if (!item.scope.isEverything) {
-                val formats = if (item.scope.formats.isEmpty()) stringResource(R.string.watch_all_formats)
-                else listOf(Format.EBOOK, Format.AUDIOBOOK, Format.PHYSICAL).filter { it in item.scope.formats }.map { formatName(it) }.joinToString(", ")
-                Text(
-                    if (item.scope.libraryIds.isEmpty()) stringResource(R.string.watchlist_scope, formats)
-                    else stringResource(R.string.watchlist_scope_at, formats, item.scope.libraryNames.joinToString(", ")),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
+        Row(verticalAlignment = Alignment.Top) {
+            CoverThumb(item.coverUrl, title = item.title, width = 56.dp, height = 84.dp, elevated = true)
+            Spacer(Modifier.width(Space.l))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(item.title, style = BookTitle, color = colors.onSurface, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                item.author?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                // What this watch covers, when it isn't everything.
+                if (!item.scope.isEverything) {
+                    val formats = if (item.scope.formats.isEmpty()) stringResource(R.string.watch_all_formats)
+                    else listOf(Format.EBOOK, Format.AUDIOBOOK, Format.PHYSICAL).filter { it in item.scope.formats }.map { formatName(it) }.joinToString(", ")
+                    Text(
+                        if (item.scope.libraryIds.isEmpty()) stringResource(R.string.watchlist_scope, formats)
+                        else stringResource(R.string.watchlist_scope_at, formats, item.scope.libraryNames.joinToString(", ")),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.primary,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = Space.xs),
+                    )
+                }
             }
-            StatusLine(Watch.status(item.snapshot), Modifier.padding(top = Space.xs))
+            IconButton(onClick = onRemove, modifier = Modifier.offset(x = 12.dp, y = (-12).dp)) {
+                Icon(painterResource(R.drawable.ic_trash), stringResource(R.string.cd_remove_watch, item.title), tint = colors.onSurfaceVariant, modifier = Modifier.size(20.dp))
+            }
+        }
+        HorizontalDivider(Modifier.padding(top = Space.l), color = colors.outlineVariant)
+        val s = Watch.status(item.snapshot)
+        // Label and detail flow: the detail drops under the label rather than being cut short.
+        FlowRow(
+            Modifier.padding(top = Space.m),
+            horizontalArrangement = Arrangement.spacedBy(Space.s),
+            verticalArrangement = Arrangement.spacedBy(Space.xs),
+            itemVerticalAlignment = Alignment.CenterVertically,
+        ) {
+            when (s) {
+                is Watch.Status.Available -> StatusPill(stringResource(R.string.badge_available), status.availableContainer, status.onAvailableContainer)
+                is Watch.Status.OnShelf -> StatusPill(stringResource(R.string.badge_on_shelf), status.availableContainer, status.onAvailableContainer)
+                is Watch.Status.Waiting -> StatusPill(stringResource(R.string.badge_waitlist), status.waitlistContainer, status.onWaitlistContainer)
+                Watch.Status.NotYet -> StatusPill(stringResource(R.string.watch_pill_not_yet), colors.surfaceContainer, colors.onSurfaceVariant)
+                null -> StatusPill(stringResource(R.string.watch_pill_unchecked), colors.surfaceContainer, colors.onSurfaceVariant)
+            }
+            val detail = when (s) {
+                is Watch.Status.Available -> stringResource(R.string.watch_detail_service, s.service, s.library)
+                is Watch.Status.OnShelf -> stringResource(R.string.watch_detail_service, s.branch, s.library)
+                is Watch.Status.Waiting -> pluralStringResource(R.plurals.watch_detail_wait, s.days, s.days, s.library)
+                else -> null
+            }
+            if (detail != null) Text(detail, style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
+        }
+        // Never checked: the label already says so.
+        item.lastCheckedAt?.let {
             Text(
-                item.lastCheckedAt?.let {
-                    stringResource(R.string.watchlist_checked, DateUtils.getRelativeTimeSpanString(it, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString())
-                } ?: stringResource(R.string.watchlist_not_checked),
+                stringResource(R.string.watchlist_checked, DateUtils.getRelativeTimeSpanString(it, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString()),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = colors.onSurfaceVariant,
+                modifier = Modifier.padding(top = Space.s),
             )
         }
-        IconButton(onClick = onRemove) {
-            Icon(
-                painterResource(R.drawable.ic_trash),
-                stringResource(R.string.cd_remove_watch, item.title),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp),
-            )
-        }
-    }
-}
-
-/** Status in its colour with a small leading dot, so it reads without relying on colour alone. */
-@Composable
-private fun StatusLine(status: Watch.Status?, modifier: Modifier = Modifier) {
-    val colors = LocalStatusColors.current
-    val (text, color) = when (status) {
-        is Watch.Status.Available -> stringResource(R.string.watch_status_available, status.service, status.library) to colors.available
-        is Watch.Status.OnShelf -> stringResource(R.string.watch_status_on_shelf, status.branch) to colors.available
-        is Watch.Status.Waiting -> pluralStringResource(R.plurals.watch_status_waiting, status.days, status.days, status.library) to MaterialTheme.colorScheme.onSurface
-        Watch.Status.NotYet -> stringResource(R.string.watch_status_not_yet) to MaterialTheme.colorScheme.onSurfaceVariant
-        null -> return
-    }
-    Row(modifier, verticalAlignment = Alignment.Top) {
-        Box(Modifier.padding(top = 7.dp).size(6.dp).clip(CircleShape).background(color))
-        Spacer(Modifier.width(Space.s))
-        Text(text, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), color = color)
     }
 }
 

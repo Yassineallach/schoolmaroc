@@ -182,6 +182,13 @@
         <item quantity="other">Shortest wait: %1$d days (%2$s)</item>
     </plurals>
     <string name="watch_status_not_yet">Not at your libraries yet</string>
+    <string name="watch_pill_not_yet">Not yet</string>
+    <string name="watch_pill_unchecked">Not checked yet</string>
+    <string name="watch_detail_service">%1$s · %2$s</string>
+    <plurals name="watch_detail_wait">
+        <item quantity="one">%1$d day at %2$s</item>
+        <item quantity="other">%1$d days at %2$s</item>
+    </plurals>
     <string name="action_watch">Watch</string>
     <string name="action_watching">Watching</string>
     <string name="notif_channel_name">Watchlist updates</string>

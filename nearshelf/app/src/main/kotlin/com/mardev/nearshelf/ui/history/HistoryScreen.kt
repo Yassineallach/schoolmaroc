@@ -1,6 +1,8 @@
 package com.mardev.nearshelf.ui.history
 
 import com.mardev.nearshelf.ui.components.NearshelfTopBar
+import com.mardev.nearshelf.ui.components.RowLeadingWidth
+import com.mardev.nearshelf.ui.components.nearshelfCard
 import com.mardev.nearshelf.ui.theme.BookTitle
 import com.mardev.nearshelf.ui.theme.Gutter
 import com.mardev.nearshelf.ui.theme.Space
@@ -90,19 +92,31 @@ internal fun HistoryContent(
             EmptyState(R.drawable.ic_history, stringResource(R.string.history_empty_title), stringResource(R.string.history_empty_body), Modifier.padding(padding))
             return@Scaffold
         }
-        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(bottom = Space.xl)) {
-            itemsIndexed(list, key = { _, it -> it.key }) { index, item ->
-                HistoryRow(item, onOpen = { onOpen(item) }, onRemove = { onRemove(item) })
-                if (index < list.lastIndex) RowDivider()
-                // Native ad in the middle of the list: after the 3rd entry (or the last, if fewer).
-                if (index == minOf(2, list.lastIndex)) adSlot(Modifier.padding(horizontal = Gutter, vertical = Space.m))
+        // Entries grouped in white cards; the native ad splits them after the 3rd (or the last).
+        val split = minOf(3, list.size)
+        LazyColumn(Modifier.fillMaxSize().padding(padding).readableWidth(), contentPadding = PaddingValues(top = Space.s, bottom = Space.xl)) {
+            item(key = "first") { HistoryGroup(list.take(split), onOpen, onRemove) }
+            item(key = "ad") { adSlot(Modifier.padding(horizontal = Gutter, vertical = Space.l)) }
+            if (list.size > split) item(key = "rest") { HistoryGroup(list.drop(split), onOpen, onRemove) }
+        }
+    }
+}
+
+/** A run of history entries in one card, hairlines between them. */
+@Composable
+private fun HistoryGroup(items: List<HistoryItem>, onOpen: (HistoryItem) -> Unit, onRemove: (HistoryItem) -> Unit) {
+    Column(Modifier.padding(horizontal = Gutter).fillMaxWidth().nearshelfCard()) {
+        items.forEachIndexed { i, item ->
+            HistoryRow(item, onOpen = { onOpen(item) }, onRemove = { onRemove(item) }, inset = Space.l)
+            if (i < items.lastIndex) {
+                HorizontalDivider(Modifier.padding(start = Space.l + RowLeadingWidth + Space.l, end = Space.l), color = MaterialTheme.colorScheme.outlineVariant)
             }
         }
     }
 }
 
 @Composable
-fun HistoryRow(item: HistoryItem, onOpen: () -> Unit, onRemove: (() -> Unit)? = null) {
+fun HistoryRow(item: HistoryItem, onOpen: () -> Unit, onRemove: (() -> Unit)? = null, inset: androidx.compose.ui.unit.Dp = Gutter) {
     ListRow(
         title = item.title,
         meta = listOfNotNull(
@@ -112,6 +126,7 @@ fun HistoryRow(item: HistoryItem, onOpen: () -> Unit, onRemove: (() -> Unit)? = 
         onClick = onOpen,
         leading = { CoverThumb(item.coverUrl) },
         titleStyle = BookTitle,
+        inset = inset,
         trailing = {
             if (onRemove != null) {
                 IconButton(onClick = onRemove, modifier = Modifier.padding(start = 4.dp).offset(x = 12.dp)) {

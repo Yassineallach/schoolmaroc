@@ -73,13 +73,14 @@ fun ListRow(
     leading: @Composable () -> Unit,
     trailing: @Composable RowScope.() -> Unit = {},
     titleStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
+    inset: Dp = Gutter,
 ) {
     Row(
         modifier
             .fillMaxWidth()
             .then(if (onClick != null) Modifier.clickable(onClickLabel = onClickLabel, role = Role.Button, onClick = onClick) else Modifier)
             .heightIn(min = 72.dp)
-            .padding(start = Gutter, end = Gutter, top = 12.dp, bottom = 12.dp),
+            .padding(start = inset, end = inset, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.width(RowLeadingWidth), contentAlignment = Alignment.CenterStart) { leading() }
