@@ -8,7 +8,7 @@ object NearshelfHttp {
     /** One limiter for the whole app: every client built here shares it. */
     private val polite = PoliteInterceptor()
 
-    const val PROJECT_URL = "https://yassineallach.github.io/schoolmaroc/privacy/"
+    const val PROJECT_URL = "https://mar-devl.github.io/Nearshelf-legal/"
 
     fun userAgent(appVersion: String): String = "Nearshelf/$appVersion (Android; +$PROJECT_URL)"
 
