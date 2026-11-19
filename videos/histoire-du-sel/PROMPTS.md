@@ -1,24 +1,25 @@
-# Image prompts — L’histoire du sel (ChatGPT, one unified flat-vector style)
+# Image prompts — L’histoire du sel (ChatGPT, one unified cartoon style)
 
-The whole film is drawn in one hand: the flat vector illustration style of the user's reference
-(Freepik "travel" hikers). In the video every illustration is shown the same way: full frame,
-the same slow camera push, the same cut between shots. No photos.
+The whole film is drawn in one hand: the cartoon vector style of the user's reference (a set of
+historical warriors). In the video every illustration is shown the same way: full frame, the same
+slow camera push, the same cut between shots. No photos.
 
-**Reference:** attach `style_reference_flat.png` (three hikers, cropped from the user's file) to
+**Reference:** attach `style_reference_cartoon.png` (two figures cropped from the user's set) to
 **G01**. Once G01 is approved, attach **G01** instead to every later prompt, so every scene shares
 one palette and one hand.
 
 Rules:
 1. Generate **G01 first, alone**.
 2. Fix with short follow-ups, one change per message (« Same image, fewer goats »).
-3. No outlines, no gradients, no 3D, no anime, no text, letters, logos or watermark in the image.
-4. Real people (Gandhi, in act 4) are never generated: see the note at the end.
-5. Name each file by its code (`G01.png`, `G02.png`…) and upload them here.
+3. No photorealism, no 3D, no anime, no text, letters, logos or watermark in the image.
+4. Violence is never shown: no weapons raised, no fighting (the reference is warriors; we keep only the drawing style).
+5. Real people (Gandhi, in act 4) are never generated: see the note at the end.
+6. Name each file by its code (`G01.png`, `G02.png`…) and upload them here.
 
 The style block that starts every prompt:
 ```
-Use ONLY the illustration style of the attached image: flat vector illustration, solid colour shapes with no outlines, one darker shade of the same colour for folds and shadows, simplified faces with almost no features, rounded simple shapes. Palette: orange #ED622B, pink #F759A8, warm yellow #FFB833, plum #513A47, dark brown #42221F, light and mid greys, plus soft pale tones for skies.
-Ignore the people and objects in the attached image and its white background; do not copy them.
+Use ONLY the illustration style of the attached image: cartoon vector illustration, flat colours with one soft darker shade for shadows and folds, clean shapes with no black outlines, expressive cartoon faces with bold brows and big noses, slightly exaggerated proportions. Warm historical palette: ochre, cream, terracotta, deep red, steel grey, olive, warm browns.
+Ignore the warriors, weapons and white background of the attached image; do not copy them.
 ```
 
 ---
@@ -28,10 +29,10 @@ Ignore the people and objects in the attached image and its white background; do
 **G01 — Mountain goats on the ridge (generate this first)**
 « En 2018, le parc national Olympic, aux États-Unis, avait un problème de chèvres. »
 ```
-Use ONLY the illustration style of the attached image: flat vector illustration, solid colour shapes with no outlines, one darker shade of the same colour for folds and shadows, simplified faces with almost no features, rounded simple shapes. Palette: orange #ED622B, pink #F759A8, warm yellow #FFB833, plum #513A47, dark brown #42221F, light and mid greys, plus soft pale tones for skies.
-Ignore the people and objects in the attached image and its white background; do not copy them.
+Use ONLY the illustration style of the attached image: cartoon vector illustration, flat colours with one soft darker shade for shadows and folds, clean shapes with no black outlines, expressive cartoon faces with bold brows and big noses, slightly exaggerated proportions. Warm historical palette: ochre, cream, terracotta, deep red, steel grey, olive, warm browns.
+Ignore the warriors, weapons and white background of the attached image; do not copy them.
 
-Draw: three shaggy white mountain goats (white coats, short black horns, small beards) standing on a rocky mountain ridge, with flat layered mountains, a few pointed fir trees and snowy peaks behind them under a pale sky. The nearest goat looks toward the viewer.
+Draw: three shaggy white mountain goats (white coats, short black horns, small beards) standing on a rocky mountain ridge, with layered mountains, a few pointed fir trees and snowy peaks behind them under a pale sky. The nearest goat looks toward the viewer.
 Fill the whole 16:9 frame edge to edge with the scene, no white background, no border. No text.
 ```
 
@@ -40,7 +41,7 @@ Fill the whole 16:9 frame edge to edge with the scene, no white background, no b
 ```
 [style block]
 
-Draw: a mountain trail through a meadow of small flowers. A white mountain goat with short black horns trots toward two startled hikers with backpacks and walking poles, who step back off the path. A second goat stands in the flowers beside the trail, trampling them. Layered mountains behind.
+Draw: a mountain trail through a meadow of small flowers. A white mountain goat with short black horns trots toward two startled hikers with backpacks and walking poles, who step back off the path. A second goat stands in the flowers beside the trail, trampling them. Layered mountains behind. The hikers look surprised, a little comic.
 Fill the whole 16:9 frame edge to edge with the scene, no white background, no border. No text.
 ```
 
@@ -76,7 +77,7 @@ Fill the whole 16:9 frame edge to edge with the scene, no white background, no b
 ```
 [style block]
 
-Draw: a close-up of a small heap of cubic salt crystals, white and pale grey cubes with flat facets, on a plum background, a few single cubes scattered around. Simple and graphic.
+Draw: a close-up of a small heap of cubic salt crystals, white and pale grey cubes with flat facets, on a dark warm brown background, a few single cubes scattered around. Simple and graphic.
 Fill the whole 16:9 frame edge to edge, no white background, no border. No text, no labels.
 ```
 
@@ -85,7 +86,7 @@ Fill the whole 16:9 frame edge to edge, no white background, no border. No text,
 ```
 [style block]
 
-Draw: two nerve cells (neurons) as simple flat shapes: round cell bodies with branching dendrites and one long fibre each, touching end to end, with a small yellow spark travelling along the fibre. On a plum background.
+Draw: two nerve cells (neurons) as simple flat shapes: round cell bodies with branching dendrites and one long fibre each, touching end to end, with a small yellow spark travelling along the fibre. On a dark warm brown background.
 Fill the whole 16:9 frame edge to edge, no white background, no border. No text, no letters, no labels.
 ```
 
@@ -94,7 +95,7 @@ Fill the whole 16:9 frame edge to edge, no white background, no border. No text,
 ```
 [style block]
 
-Draw: a simple flat illustration of a human stomach (pink and orange shapes) with the food pipe entering at the top and the start of the intestine at the bottom; inside it, a few small pieces of food being digested in a pale yellow liquid. On a soft pale background.
+Draw: a simple flat illustration of a human stomach (terracotta and deep red shapes) with the food pipe entering at the top and the start of the intestine at the bottom; inside it, a few small pieces of food being digested in a pale yellow liquid. On a soft pale background.
 Fill the whole 16:9 frame edge to edge, no white background, no border. No text, no letters, no labels.
 ```
 
