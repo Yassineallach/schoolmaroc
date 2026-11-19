@@ -133,17 +133,24 @@ def _text_ink(text, size):
     rgba = np.zeros(a.shape + (4,), np.uint8)
     rgba[..., :3] = S.PAL.ink
     rgba[..., 3] = a
-    T, spans = PL._order(a, None, step=1)
+    T, spans = PL._order(a, None, step=1, write=True)
     return Image.fromarray(rgba, 'RGBA'), T, spans
 
 
-def write(text, size, dx, dy, at, dur=1.1):
-    """An extra for an Entry: the pen writes `text` at (dx, dy) from the drawing's centre, starting
-    at act time `at` (the spoken word)."""
+def write(text, size, dx, dy, at, dur=None, frac=False, anchor='m'):
+    """An extra for an Entry: the pen writes `text` at (dx, dy) from the drawing's centre (or, with
+    frac=True, at fractions of the drawing's box), starting at act time `at`. The writing speed is
+    the same for every word (about 9 letters a second) unless dur is given."""
+    dur = dur or max(0.5, 0.11 * len(text.replace(' ', '')))
     def fn(c, lt, e):
         lines, T, spans = _text_ink(text, size)
-        x0 = int(W / 2 + dx - lines.width / 2)
-        y0 = int(H / 2 + dy - lines.height / 2)
+        if frac:
+            bx, by, bw, bh = e.d.box
+            px, py = bx + dx * bw, by + dy * bh
+        else:
+            px, py = W / 2 + dx, H / 2 + dy
+        x0 = int(px - (0 if anchor == 'l' else lines.width / 2))
+        y0 = int(py - lines.height / 2)
         PL.draw_layers(c, lines, None, T, lt, at - e.start, dur, x0, y0)
     fn.sound = (at, dur, lambda: _text_ink(text, size)[2])
     return fn
@@ -238,12 +245,11 @@ class Board:
             frame.alpha_composite(c, (int(round(sx - c.width / 2)), int(round(sy - c.height / 2))))
         s.mid.alpha_composite(frame)
         for e in self.entries:                 # the pen's scratch, for drawings and for words
-            sfx('draw', max(0.0, e.start), W / 2, dur=PL.draw_time(e),
-                spans=tuple(tuple(round(v, 4) for v in sp) for sp in getattr(e.d, 'spans', ((0, 1),))[:400]))
+            sfx('draw', max(0.0, e.start), W / 2, dur=PL.draw_time(e), gate=PL.gate(e.d.spans, PL.draw_time(e)))
             for fn in e.extras:
                 if hasattr(fn, 'sound'):
                     at, dur, sp = fn.sound
-                    sfx('draw', at, W / 2, dur=dur, spans=tuple(tuple(round(v, 4) for v in x) for x in sp()[:200]))
+                    sfx('draw', at, W / 2, dur=dur, gate=PL.gate(sp(), dur))
         return s
 
     def _prev_cell(self):

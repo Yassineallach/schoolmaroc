@@ -74,11 +74,13 @@ class Drawing:
         return lines, fill, T
 
 
-def _order(alpha, key, step=2):
+def _order(alpha, key, step=2, write=False):
     """Draw-on time (0..1) for every pixel, and the pen-down spans, for ONE pen: the ink is thinned
     to its centre lines, the pen follows them one line at a time (depth-first along each line,
     lifting at branch ends), and goes on to the nearest unfinished line, so only one place is ever
-    being drawn. Every ink pixel takes the time of the nearest centre-line point."""
+    being drawn. Every ink pixel takes the time of the nearest centre-line point.
+    write=True (words): the pen goes left to right like a hand writing, letter after letter, each
+    stroke starting at its top-left."""
     from skimage.morphology import skeletonize
     cache = os.path.join(asset('..'), 'out', '_drawon', f'{key}.npz') if key else None
     if cache and os.path.exists(cache):
@@ -105,8 +107,13 @@ def _order(alpha, key, step=2):
     left = N
     while left:
         cand = np.nonzero(~seen)[0]
-        d2 = (ys[cand] - pen[0]) ** 2 + (xs[cand] - pen[1]) ** 2 - 4000.0 * (deg[cand] <= 1)   # prefer line ends
-        s0 = int(cand[np.argmin(d2)])
+        if write:                                            # handwriting: the leftmost stroke next, from its top
+            xm = xs[cand].min()
+            near = cand[xs[cand] <= xm + max(3, sk.shape[0] // 12)]
+            s0 = int(near[np.argmin(ys[near] - 6 * (deg[near] <= 1))])
+        else:
+            d2 = (ys[cand] - pen[0]) ** 2 + (xs[cand] - pen[1]) ** 2 - 4000.0 * (deg[cand] <= 1)   # prefer line ends
+            s0 = int(cand[np.argmin(d2)])
         clock += 6 + 0.15 * np.hypot(ys[s0] - pen[0], xs[s0] - pen[1])   # the pen lifts and travels
         stack, prev = [s0], None
         while stack:
@@ -168,6 +175,16 @@ def plate(s, d, t, start=ENTER, focus_to=(0.5, 0.5), scale=1.0, cx=W / 2, cy=H /
     draw_on(s, d, t, start, scale, cx, cy)
 
 
+def gate(spans, dur, rate=100):
+    """The pen's up/down pattern as 0/1 per 10 ms over `dur` seconds (for the scratch sound)."""
+    n = max(1, int(dur * rate))
+    g = [0] * n
+    for a, b in spans:
+        for i in range(int(a * n), min(n, max(int(a * n) + 1, int(b * n)))):
+            g[i] = 1
+    return tuple(g)
+
+
 def draw_time(e):
     """How long the pen takes on one drawing (an Entry may set its own .dur)."""
     return getattr(e, 'dur', None) or DRAW
@@ -198,7 +215,7 @@ def draw_on(s, d, t, start, scale, cx, cy):
     dur = min(DRAW, max(1.2, 0.55 * s.D))
     if t < start:
         return
-    sfx('draw', max(0.0, start), cx, dur=dur, spans=tuple(tuple(round(v, 4) for v in sp) for sp in d.spans[:400]))
+    sfx('draw', max(0.0, start), cx, dur=dur, gate=gate(d.spans, dur))
     x0, y0 = int(cx - lines.width / 2), int(cy - lines.height / 2)
     draw_layers(s.mid, lines, fill, order, t, start, dur, x0, y0)
 
@@ -227,9 +244,15 @@ def _s_draw(r, p):
     L = p.get('dur', 3.0)
     n = _sfx._sec(L)
     t = np.arange(n) / _sfx.SR
-    gate = np.zeros(n)
-    for a, b in p.get('spans', ((0, 1),)):
-        gate[int(a * n):int(b * n)] = 1.0
+    if 'gate' in p:                                            # pen down / up, 10 ms steps, exactly as drawn
+        g = np.asarray(p['gate'], np.float64)
+        gate = np.repeat(g, int(np.ceil(n / len(g))))[:n]
+        if len(gate) < n:
+            gate = np.pad(gate, (0, n - len(gate)))
+    else:
+        gate = np.zeros(n)
+        for a, b in p.get('spans', ((0, 1),)):
+            gate[int(a * n):int(b * n)] = 1.0
     k = int(0.012 * _sfx.SR)                                   # soft pen landings and lifts
     gate = np.convolve(gate, np.ones(k) / k, mode='same')
     wob = 0.75 + 0.25 * np.sin(2 * np.pi * (7 + 3 * r.random()) * t + r.random() * 6)   # the hand's rhythm

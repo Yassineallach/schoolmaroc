@@ -41,9 +41,9 @@ def us_map(path, pin=(-123.6, 47.8), label='Parc national Olympic'):
     d.ellipse((px - 22, py - 70, px + 22, py - 26), outline='black', width=6)
     d.ellipse((px - 6, py - 54, px + 6, py - 42), fill='black')
     d.line((px, py - 26, px, py), fill='black', width=6)
-    f = ImageFont.truetype(FONT, 64)
-    d.text((px + 70, py + 20), label, font=f, fill='black')
+    # the label is not drawn here: the pen writes it on the board, left to right (board.write)
     im.save(path)
+    json.dump({'pin': [px / Wd, py / Hd]}, open(path[:-4] + '.json', 'w'))
     print(path)
 
 
