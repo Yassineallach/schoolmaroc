@@ -3,14 +3,14 @@
 One continuous shot on the big board (board.py): every drawing has its place on one long parchment,
 the pen draws it as the camera arrives, then the camera travels on to the next one. No cuts.
 Pictures: ChatGPT drawings in one black ink-sketch style (PROMPTS.md).
-Text: as few kinetic moments as possible; the only animated type in this act is « NaCl ».
+Text: as few moments as possible; the only word on screen in this act is « NaCl », written by the pen.
+No fill: lines only, on the parchment.
 """
 import sys
 from vox import *  # noqa: F401,F403
 import style as st
 import annotate as A
 import board as BD
-from style import words, caption
 
 CLIPS = (1, 2, 3)
 cue = make_cue(CLIPS)
@@ -19,12 +19,6 @@ LAND = 0.35                    # the camera lands this long after the sentence's
 
 def arrive(clip, phrase):
     return cue(clip, phrase) + LAND
-
-
-def nacl(c, lt, e):
-    """« NaCl » beside the crystals, on « chlorure »."""
-    x0, y0, w_, h_ = e.d.box
-    words(c, (x0 + w_ + 260, H / 2), 'NaCl', 190, lt, cue(3, 'chlorure') - e.start, fill=INK, font=F_SERIF)
 
 
 def message(c, lt, e):
@@ -41,20 +35,14 @@ BOARD = BD.Board([
     E('G03', 'chèvre léchant le sol', arrive(1, 'Elles'), focus=(0.3, 0.6)),
     E('G04', 'randonneurs sur le sentier', arrive(2, 'En transpirant'), focus=(0.5, 0.3)),
     E('G05', 'chèvre évacuée par hélicoptère', arrive(2, 'La situation'), focus=(0.4, 0.45)),
-    E('G06', 'cristaux de sel', arrive(3, 'Le comportement'), scale=0.75, offset=(260, 0), extras=[nacl]),
-    E('G07', 'cellules nerveuses', arrive(3, 'Un afflux'), focus=(0.5, 0.72), backed=False, extras=[message]),
+    E('G06', 'cristaux de sel', arrive(3, 'Le comportement'), scale=0.75, offset=(-150, 0),
+      extras=[BD.write('NaCl', 170, 560, 0, cue(3, 'chlorure'))]),     # written by the pen on « chlorure »
+    E('G07', 'cellules nerveuses', arrive(3, 'Un afflux'), focus=(0.5, 0.72), extras=[message]),
     E('G08', 'l’estomac', arrive(3, 'Le chlore'), focus=(0.62, 0.62)),
 ], end=cue.total + 1.2)
 
 
-def scene(t, D):
-    s = BOARD.scene(t, D)
-    if BOARD.entries[1].arrive <= t < BOARD.entries[2].arrive:
-        caption(s.hud, 'Illustrations', t, BOARD.entries[1].arrive + 0.6, corner='bl')
-    return s
-
-
-SHOTS = [(0.0, scene)]
+SHOTS = [(0.0, BOARD.scene)]
 END = cue.total + 1.2          # silence before the next act
 
 
