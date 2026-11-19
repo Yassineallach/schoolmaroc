@@ -49,6 +49,7 @@ No text below 12 sp. Text styles come from tokens, never inline sizes.
 - `SectionHeader`: serif title, optional count, one text action aligned to the gutter.
 - `ListRow`, `RowDivider` (inset to the text column), `Monogram`, `CoverThumb` (cloth-binding placeholder), `Tag`.
 - `nearshelfCard()`, `cardColor()`, `StatusPill` (Cards.kt): the shared card surface and status label. Watchlist: one card per book (cover, title, what is watched, status label + detail, last checked). History: entries grouped in cards, split by the ad.
+- Loading on Results: no bar under the title. A small ring beside "Checking 2 of 4 catalogs" fills as catalogs answer (spins while looking up the book; still under reduced motion), and tabs still waiting show placeholder cards in the real cards' shape (`OptionCardSkeleton`).
 - `EmptyState`: icon tile, serif title, one line of help, at most one action.
 - `NearshelfNavBar`: 64 dp, page-coloured, hairline above, short accent rule over the selected tab.
 - Buttons (`Buttons.kt`): filled primary (one per screen); `accentTonalColors` for borrow/watching; outlined with `hairline()` + `quietOutlinedColors` for secondary; all `ButtonShape`.

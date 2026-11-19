@@ -265,6 +265,28 @@ class ScreenshotTest(private val device: Device) {
         )
     }
 
+    /** Two of four catalogs still answering: ring at half, placeholder cards in the empty tab. */
+    @Test fun resultsLoading() = shot("results_loading") {
+        val base = sampleState()
+        val libs = base.libraries!!.mapIndexed { i, lr ->
+            lr.copy(services = lr.services.mapIndexed { j, svc -> if (i == 1 || j == 0) ServiceResult(svc.ref, ServiceState.Loading) else svc })
+        }
+        ResultsContent(
+            state = base.copy(libraries = libs), watched = false, here = null, prefs = ReadingPrefs(), offline = false, showLocationCard = false,
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {},
+            onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
+            adSlot = { FakeAd(it) }, initialTab = Format.EBOOK,
+        )
+    }
+
+    @Test fun resultsLookingUp() = shot("results_looking_up") {
+        ResultsContent(
+            state = ResultsUiState(Phase.LOOKING_UP, query = BookQuery(title = "Red Rising")), watched = false, here = null, prefs = ReadingPrefs(), offline = false, showLocationCard = false,
+            onBack = {}, onPreferences = {}, onAddLibrary = {}, onSearchManually = {},
+            onRetry = { _, _ -> }, onBorrow = { _, _ -> }, onOpenCatalog = {}, onAllowLocation = {}, onDismissLocation = {},
+        )
+    }
+
     @Test fun resultsSingle() = shot("results_single") { redRising(null) }
 
     @Test fun watchDialog() = dialogShot("watch_dialog") {

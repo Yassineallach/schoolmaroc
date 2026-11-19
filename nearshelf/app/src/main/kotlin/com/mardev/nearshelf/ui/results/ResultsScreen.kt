@@ -106,7 +106,6 @@ import com.mardev.nearshelf.ui.components.lightswind.BadgeVariant
 import com.mardev.nearshelf.ui.components.lightswind.CountUp
 import com.mardev.nearshelf.ui.components.lightswind.Skeleton
 import com.mardev.nearshelf.ui.components.lightswind.SkeletonLines
-import com.mardev.nearshelf.ui.components.lightswind.TopLoader
 import com.mardev.nearshelf.ui.components.openExternal
 import com.mardev.nearshelf.ui.libraries.locationLine
 import java.util.Locale
@@ -197,8 +196,6 @@ internal fun ResultsContent(
                         Icon(painterResource(R.drawable.ic_sliders), stringResource(R.string.cd_reading_preferences), modifier = Modifier.size(22.dp))
                     }
                 }
-                // No bar while the reader picks a book: nothing is loading then.
-                if (state.phase != Phase.CHOOSING) TopLoader(progress = if (state.libraries == null) 0.1f else state.progress)
             }
         },
         containerColor = MaterialTheme.colorScheme.background,
@@ -322,7 +319,12 @@ internal fun ResultsContent(
                             afterFirst = if (offline) null else { { adSlot(Modifier) } },
                         )
                     }
-                    organized.loading > 0 -> item(key = "pending-$tab") { SkeletonLines(4, Modifier.fillMaxWidth().padding(Gutter, Space.l)) }
+                    // Placeholder cards in the real cards' shape, so nothing jumps when results land.
+                    organized.loading > 0 -> item(key = "pending-$tab") {
+                        Column(Modifier.padding(horizontal = Gutter, vertical = Space.s), verticalArrangement = Arrangement.spacedBy(Space.l)) {
+                            repeat(2) { OptionCardSkeleton() }
+                        }
+                    }
                     else -> item(key = "empty-$tab") { EmptyTab(tab) }
                 }
 
@@ -343,11 +345,9 @@ private fun PendingHeader(state: ResultsUiState) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             state.query?.title?.let { Text(it, style = MaterialTheme.typography.headlineSmall) }
                 ?: SkeletonLines(2, lineHeight = 22.dp)
-            Text(
+            ProgressStatus(
                 stringResource(if (state.phase == Phase.READING_SHARE) R.string.phase_reading_share else R.string.phase_looking_up),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                progress = null,
             )
         }
     }
@@ -387,11 +387,12 @@ private fun BookHeaderView(
             }
             // With one library, name it once here rather than on every row.
             val single = state.libraries?.singleOrNull()?.library?.name
-            Text(
+            // Progress lives in the words: a small ring fills as each catalog answers.
+            ProgressStatus(
                 if (single != null) "$status · $single" else status,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(top = 4.dp).semantics { liveRegion = LiveRegionMode.Polite },
+                progress = if (state.finished < state.total) state.progress else null,
+                done = state.finished >= state.total,
+                modifier = Modifier.padding(top = 4.dp),
             )
             val buttonLabel = watchLabel ?: stringResource(if (watched) R.string.action_watching else R.string.action_watch)
             Row(Modifier.padding(top = Space.s), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
@@ -605,5 +606,40 @@ private fun WatchDialog(
                 }
             }
         }
+    }
+}
+
+/**
+ * Status text with its progress beside it: a small ring that fills as catalogs answer
+ * ([progress] 0..1), spins while the amount is unknown ([progress] null and not [done]),
+ * and disappears once everything has answered. Read out politely as it changes.
+ */
+@Composable
+private fun ProgressStatus(text: String, progress: Float?, modifier: Modifier = Modifier, done: Boolean = false) {
+    val colors = MaterialTheme.colorScheme
+    val reduced = com.mardev.nearshelf.ui.components.lightswind.rememberReducedMotion()
+    Row(modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }, verticalAlignment = Alignment.CenterVertically) {
+        if (!done) {
+            val ring = Modifier.size(14.dp)
+            if (progress != null) {
+                val shown by androidx.compose.animation.core.animateFloatAsState(
+                    progress.coerceIn(0f, 1f),
+                    animationSpec = androidx.compose.animation.core.tween(if (reduced) 0 else 300),
+                    label = "progress",
+                )
+                androidx.compose.material3.CircularProgressIndicator(
+                    progress = { shown },
+                    modifier = ring,
+                    color = colors.primary,
+                    trackColor = colors.outlineVariant,
+                    strokeWidth = 2.dp,
+                    gapSize = 0.dp,
+                )
+            } else if (!reduced) {
+                androidx.compose.material3.CircularProgressIndicator(modifier = ring, color = colors.primary, trackColor = colors.outlineVariant, strokeWidth = 2.dp)
+            }
+            Spacer(Modifier.width(Space.s))
+        }
+        Text(text, style = MaterialTheme.typography.labelLarge, color = colors.primary)
     }
 }

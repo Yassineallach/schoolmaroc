@@ -222,7 +222,7 @@ private val LICENCES = listOf(
     Licence("Newsreader font", "SIL Open Font License 1.1", "licenses/newsreader_OFL.txt"),
     Licence("Instrument Sans font", "SIL Open Font License 1.1", "licenses/instrument_sans_OFL.txt"),
     Licence("Phosphor Icons", "MIT", "licenses/phosphor_MIT.txt"),
-    Licence("Lightswind UI (Skeleton, CountUp, Badge, TopLoader designs)", "MIT", "licenses/lightswind_MIT.txt"),
+    Licence("Lightswind UI (Skeleton, CountUp, Badge designs)", "MIT", "licenses/lightswind_MIT.txt"),
     Licence("Android Jetpack (Compose, Room, WorkManager, Glance, DataStore, Navigation, CameraX)", "Apache License 2.0"),
     Licence("Kotlin, kotlinx.coroutines, kotlinx.serialization", "Apache License 2.0"),
     Licence("Dagger / Hilt", "Apache License 2.0"),

@@ -67,6 +67,8 @@ import com.mardev.nearshelf.core.search.Availability.isBorrowableNow
 import com.mardev.nearshelf.core.search.ServiceState
 import com.mardev.nearshelf.ui.components.accentTonalColors
 import com.mardev.nearshelf.ui.components.StatusPill
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import com.mardev.nearshelf.ui.components.nearshelfCard
 import com.mardev.nearshelf.ui.components.hairline
 import com.mardev.nearshelf.ui.components.lightswind.Badge
 import com.mardev.nearshelf.ui.components.lightswind.BadgeSize
@@ -560,5 +562,24 @@ internal fun FormatTabs(organized: OrganizedResults, selected: Format, onSelect:
             }
         }
         HorizontalDivider(color = colors.outlineVariant)
+    }
+}
+
+/** A results card while its catalog is still answering: the same tile, lines, figures and button. */
+@Composable
+internal fun OptionCardSkeleton() {
+    Column(Modifier.fillMaxWidth().nearshelfCard().padding(Space.l).clearAndSetSemantics { }) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            com.mardev.nearshelf.ui.components.lightswind.Skeleton(Modifier.size(48.dp), variant = com.mardev.nearshelf.ui.components.lightswind.SkeletonVariant.Rounded)
+            Spacer(Modifier.width(Space.m))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Space.s)) {
+                com.mardev.nearshelf.ui.components.lightswind.Skeleton(Modifier.fillMaxWidth(0.7f).height(18.dp))
+                com.mardev.nearshelf.ui.components.lightswind.Skeleton(Modifier.fillMaxWidth(0.35f).height(20.dp))
+            }
+        }
+        Row(Modifier.fillMaxWidth().padding(top = Space.l), horizontalArrangement = Arrangement.spacedBy(Space.l)) {
+            repeat(3) { com.mardev.nearshelf.ui.components.lightswind.Skeleton(Modifier.weight(1f).height(40.dp)) }
+        }
+        com.mardev.nearshelf.ui.components.lightswind.Skeleton(Modifier.fillMaxWidth().padding(top = Space.l).height(48.dp))
     }
 }
