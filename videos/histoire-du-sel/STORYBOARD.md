@@ -59,3 +59,10 @@ That is two typed moments in the whole film (plus one drawn line). Everything el
 | 13 | salières et poivrières … inséparable … tables | salt and pepper shakers on a table; final hold 3 s. Last image answers the first: a lick of salt, now on every table. |
 
 Images: real Commons images first (search running), credits in the description, not on screen.
+
+## Ending (the user's note): the whole board
+
+The last scene wraps everything up: after the last drawing, the camera zooms out slowly until the
+whole board is in view, every drawing and handwritten word made during the film, laid out on the
+one parchment, and holds there for the end. (To build in act 5 with board.py: a final camera stop
+that frames the bounding box of every placed drawing.)
