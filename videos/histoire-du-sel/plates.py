@@ -225,7 +225,7 @@ def _s_draw(r, p):
     grain = _sfx._crackle(r, n, 2600, 1500, 7000)
     hiss = _sfx._band(r.normal(0, 1, n), 2200, 6500) * 0.55
     body = _sfx._band(r.normal(0, 1, n), 400, 1400) * 0.25    # the nib dragging on the fibres
-    return 0.0, _sfx._norm((grain + hiss + body) * gate * wob, 0.6)
+    return 0.0, _sfx._norm((grain + hiss + body) * gate * wob, 0.22)
 
 
 _sfx.DESIGNS['draw'] = _s_draw
