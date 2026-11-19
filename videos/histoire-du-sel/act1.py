@@ -9,6 +9,7 @@ import sys
 from vox import *  # noqa: F401,F403
 import style as st
 import plates as PL
+import annotate as A
 from style import Shot, words, caption
 
 CLIPS = (1, 2, 3)
@@ -33,6 +34,9 @@ def sB(t, D):
     piétinaient des plantes rares."""
     s = Shot(t, D)
     PL.plate(s, G['G02'], t, focus_to=(0.45, 0.55))
+    # pen marks: the charge, then the trampled flowers
+    A.arrow(s.mid, PL.at(G['G02'], 0.30, 0.12), PL.at(G['G02'], 0.56, 0.12), t, w(cue(1, 'chargeaient')), bend=0.25)
+    A.ring(s.mid, PL.rect(G['G02'], 0.08, 0.62, 0.48, 0.86), t, w(cue(1, 'pietinaient')))
     caption(s.hud, 'Illustrations', t, 1.0, corner='bl')
     return s
 
@@ -40,7 +44,8 @@ def sB(t, D):
 def sC(t, D):
     """Elles ne cherchaient qu'une chose : du sel."""
     s = Shot(t, D)
-    PL.plate(s, G['G03'], t, focus_to=(0.5, 0.6))
+    PL.plate(s, G['G03'], t, focus_to=(0.3, 0.6))
+    A.ring(s.mid, PL.rect(G['G03'], 0.16, 0.58, 0.37, 0.77), t, w(cue(1, 'du sel')))
     return s
 
 
@@ -48,7 +53,9 @@ def sD(t, D):
     """En transpirant ou en se soulageant le long des sentiers, les randonneurs laissaient derrière eux
     une tentation irrésistible pour ces animaux affamés de sel."""
     s = Shot(t, D)
-    PL.plate(s, G['G04'], t, focus_to=(0.6, 0.35))
+    PL.plate(s, G['G04'], t, focus_to=(0.5, 0.3))
+    A.ring(s.mid, PL.rect(G['G04'], 0.49, 0.09, 0.69, 0.28), t, w(cue(2, 'transpirant')), until=w(cue(2, 'tentation')))
+    A.arrow(s.mid, PL.at(G['G04'], 0.50, 0.30), PL.at(G['G04'], 0.38, 0.14), t, w(cue(2, 'tentation')), bend=-0.3)
     return s
 
 
@@ -56,7 +63,8 @@ def sE(t, D):
     """La situation est devenue si dangereuse que des équipes ont dû capturer des centaines de chèvres
     et les évacuer du parc par hélicoptère."""
     s = Shot(t, D)
-    PL.plate(s, G['G05'], t, focus_to=(0.5, 0.5))
+    PL.plate(s, G['G05'], t, focus_to=(0.4, 0.45))
+    A.arrow(s.mid, PL.at(G['G05'], 0.17, 0.46), PL.at(G['G05'], -0.06, 0.40), t, w(cue(2, 'evacuer')), bend=0.2)
     return s
 
 
@@ -75,6 +83,9 @@ def sG(t, D):
     transmettre des messages."""
     s = Shot(t, D)
     PL.plate(s, G['G07'], t, focus_to=(0.5, 0.72))
+    # the message travels down the fibre to the next cell
+    A.connect(s.mid, [PL.at(G['G07'], x - 0.05, y) for x, y in ((0.29, 0.33), (0.31, 0.43), (0.37, 0.50), (0.42, 0.57), (0.45, 0.64))],
+              t, w(cue(3, 'transmettre')), dur=1.0, dashed=True, dots=False, width=6)
     return s
 
 
@@ -82,6 +93,7 @@ def sH(t, D):
     """Le chlore, lui, est un composant clé de l'acide gastrique, qui aide à digérer les aliments."""
     s = Shot(t, D)
     PL.plate(s, G['G08'], t, focus_to=(0.62, 0.62))
+    A.ring(s.mid, PL.rect(G['G08'], 0.36, 0.42, 0.86, 0.80), t, w(cue(3, "'acide")))
     return s
 
 

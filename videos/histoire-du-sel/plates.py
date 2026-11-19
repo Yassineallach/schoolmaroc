@@ -57,6 +57,7 @@ def plate(s, d, t, start=ENTER, focus_to=(0.5, 0.5), scale=1.0, cx=W / 2, cy=H /
     im = d.ink(scale)
     fx = cx - im.width / 2 + focus_to[0] * im.width
     fy = cy - im.height / 2 + focus_to[1] * im.height
+    d.box = (cx - im.width / 2, cy - im.height / 2, im.width, im.height)   # where it sits, for marks
     s.camera(PUSH[0], PUSH[1], (W / 2, H / 2), (fx, fy))
     P.mask_reveal(s.mid, im, cx, cy, t, start, dur=REVEAL, lip=False, origin=(0.5, 0.55))
 
@@ -64,3 +65,14 @@ def plate(s, d, t, start=ENTER, focus_to=(0.5, 0.5), scale=1.0, cx=W / 2, cy=H /
 def cuts(shots):
     """Same torn wipe on every cut, alternating direction."""
     return [sh if i == 0 else (sh[0], sh[1], 'lr' if i % 2 else 'rl') for i, sh in enumerate(shots)]
+
+
+def at(d, fx, fy):
+    """Screen point of a spot in the drawing, given as fractions of its width and height."""
+    x0, y0, w, h = d.box
+    return (x0 + fx * w, y0 + fy * h)
+
+
+def rect(d, f0x, f0y, f1x, f1y):
+    a, b = at(d, f0x, f0y), at(d, f1x, f1y)
+    return (a[0], a[1], b[0], b[1])
