@@ -2,14 +2,13 @@
 
     python music_score.py out/music.wav [seconds] [--from S]
 
-A journey across the world, 72 BPM. Plucked strings (oud-like), a low drone, a soft frame drum.
+A background bed, not a tune (the user's note on the first version: « like music, not background »).
+No melody, no beat: a warm drone pad changing chord every two bars, a breath of air under it,
+one soft low note now and then, everything filtered dark so it never competes with the voice.
 
-  A  acts 1-3   need, harvest, trade: A Dorian, a plucked figure over an A drone. The frame drum
-                enters with the harvest (act 2) and walks under the caravans (act 3).
-  B  act 4      power and revolt (the one change of mood): D minor, a heavier drum on beats 1 and 3,
-                a low bowed line, the pluck plays fewer notes.
-  C  act 5      abundance: the drum stops, the figure returns in A major and slows,
-                ending on an open A chord held after the last word.
+  A  acts 1-3   A modal chords.
+  B  act 4      power and revolt (the one change of mood): D minor chords.
+  C  act 5      abundance: A major chords, ending on an open A held after the last word.
 Times are narration time (music.py starts the bed after the intro). ACTS is updated from the
 rendered acts so the changes land on the act cuts.
 """
@@ -109,8 +108,27 @@ FIG_C = [[57, 64, 69, 73, 76], [54, 61, 66, 69, 73], [50, 57, 62, 66, 69], [52, 
 DRONE_C = [[33, 45, 52], [30, 42, 49], [26, 38, 45], [28, 40, 47]]
 
 
+def air(dur):
+    """Soft air texture: filtered noise that breathes, like wind over salt flats."""
+    n = int(dur * SR)
+    x = rng.normal(0, 1, n)
+    k = np.exp(-2 * np.pi * 700 / SR)
+    x = lfilter([1 - k], [1, -k], lfilter([1 - k], [1, -k], x))
+    t = np.arange(n) / SR
+    return x * (0.6 + 0.4 * np.sin(2 * np.pi * t / 11.0)) * 0.6
+
+
+# slow chord beds, one every two bars (6.7 s): A modal, then D minor at the turn, A major to close
+BED_A = [[45, 52, 57, 64], [45, 52, 57, 62], [43, 50, 55, 62], [45, 52, 59, 64]]
+BED_B = [[38, 45, 50, 57], [34, 46, 50, 53], [36, 43, 48, 55], [33, 45, 52, 57]]
+BED_C = [[45, 52, 57, 61], [42, 49, 54, 57], [38, 45, 50, 57], [40, 47, 52, 56]]
+BELL = {'A': [69, 64, 71, 67], 'B': [62, 65, 60, 64], 'C': [69, 66, 62, 64]}
+
+
 def render(total, t_from=0.0):
-    n = int((total + 8) * SR)
+    """Ambient bed: no melody and no beat. A slow drone pad that changes chord every two bars,
+    a breath of air underneath, and one soft low-plucked note now and then."""
+    n = int((total + 10) * SR)
     L, R = np.zeros(n), np.zeros(n)
 
     def add(sig, at, pan=0.0, g=1.0):
@@ -121,63 +139,40 @@ def render(total, t_from=0.0):
         L[s:e] += sig[:e - s] * g * np.sqrt(0.5 - pan / 2)
         R[s:e] += sig[:e - s] * g * np.sqrt(0.5 + pan / 2)
 
+    a = air(total + 10)
+    add(a, 0, -0.3, 0.05); add(air(total + 10), 0, 0.3, 0.05)
+    step = 2 * BAR
     t, i, last = 0.0, 0, None
     while t < min(total, END) - 2:
         sec = 'A' if t < TURN else ('B' if t < CLOSE else 'C')
         if sec != last:
             i, last = 0, sec
-        j = i % 4
-        if sec == 'A':
-            add(drone(DRONE_A[j], BAR + 0.5), t, 0, 0.55)
-            notes = FIG_A[j] if i >= 2 else FIG_A[j][:2 + 2 * i]      # the figure fills in at the start
-            step = BAR / 8
-            for k, nt in enumerate(notes):
-                swing = 0.06 * BEAT if k % 2 else 0.0
-                add(pluck(nt, (0.30 if k == 0 else 0.20) * rng.uniform(0.85, 1.1)),
-                    t + k * step + swing + abs(rng.normal(0, 0.01)), rng.uniform(-0.4, 0.4))
-            if t >= HARVEST:                                          # the walking frame drum
-                add(drum(0.34), t, -0.1)
-                add(drum(0.14, low=False), t + 1.5 * BEAT, 0.25)
-                add(drum(0.24), t + 2 * BEAT, -0.1)
-                add(drum(0.12, low=False), t + 3.5 * BEAT, 0.25)
-        elif sec == 'B':
-            add(drone(DRONE_B[j], BAR + 0.5), t, 0, 0.6)
-            add(bowed(BASS_B[j] + 12, BAR, 0.18), t, 0.0)
-            step = BAR / 6
-            for k, nt in enumerate(FIG_B[j]):
-                if k in (1, 4) and j % 2:
-                    continue
-                add(pluck(nt, 0.24 * rng.uniform(0.85, 1.1), 1.4), t + k * step, rng.uniform(-0.3, 0.3))
-            add(drum(0.42), t, 0)
-            add(drum(0.34), t + 2 * BEAT, 0)
-        else:
-            add(drone(DRONE_C[j], BAR + 0.5), t, 0, 0.5)
-            step = BAR / 5
-            for k, nt in enumerate(FIG_C[j]):
-                add(pluck(nt, (0.26 if k == 0 else 0.17) * rng.uniform(0.9, 1.05), 1.6),
-                    t + k * step, rng.uniform(-0.35, 0.35))
-        t += BAR
+        bed = {'A': BED_A, 'B': BED_B, 'C': BED_C}[sec][i % 4]
+        add(drone(bed, step + 1.5), t, 0, 0.55)
+        if i % 2 == 1:                                     # one soft note every other chord
+            nt = BELL[sec][(i // 2) % 4]
+            add(pluck(nt, 0.10, 2.2), t + BAR * rng.uniform(0.6, 1.4), rng.uniform(-0.4, 0.4))
+        t += step
         i += 1
-    # the end: an open A chord, plucked slowly upward, then held by the drone
     if total >= END - 2:
-        add(drone([33, 45, 52, 57], 9.0), t, 0, 0.55)
-        for k, nt in enumerate([45, 52, 57, 61, 64, 69]):
-            add(pluck(nt, 0.24, 2.4), t + k * 0.45, -0.3 + k * 0.12)
+        add(drone([45, 52, 57, 61], 10.0), t, 0, 0.55)
+        add(pluck(69, 0.10, 2.6), t + 1.0, 0.2)
 
-    # room: a short synthetic hall
-    m = int(2.4 * SR)
+    m = int(3.0 * SR)
     tt = np.arange(m) / SR
     irs = []
     for d in (0.011, 0.016):
-        ir = rng.normal(0, 1, m) * np.exp(-tt / 0.75)
+        ir = rng.normal(0, 1, m) * np.exp(-tt / 1.0)
         ir[:int(d * SR)] = 0
         irs.append(ir / np.sqrt((ir ** 2).sum()))
-    L, R = 0.74 * L + 0.40 * fftconvolve(L, irs[0])[:n], 0.74 * R + 0.40 * fftconvolve(R, irs[1])[:n]
-    k = np.exp(-2 * np.pi * 5600 / SR)
+    L, R = 0.7 * L + 0.5 * fftconvolve(L, irs[0])[:n], 0.7 * R + 0.5 * fftconvolve(R, irs[1])[:n]
+    k = np.exp(-2 * np.pi * 2600 / SR)                       # dark and soft: nothing bright under the voice
     L, R = lfilter([1 - k], [1, -k], L), lfilter([1 - k], [1, -k], R)
     out = np.stack([L, R], 1)
     out = out[int(t_from * SR):]
-    fade = int(5 * SR)
+    fin = int(4 * SR)
+    out[:fin] *= np.linspace(0, 1, fin)[:, None]
+    fade = int(6 * SR)
     out[-fade:] *= np.linspace(1, 0, fade)[:, None]
     out /= np.abs(out).max() / 0.7
     return out
