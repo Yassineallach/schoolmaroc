@@ -10,7 +10,7 @@ drawing while the pen draws it (lines only, no fill), then travels over the boar
 at a constant height, like a camera on a rostrum, and the pen starts as it lands. Words are written
 by the same pen (`write`), stroke by stroke.
 
-    B = Board(entries, prev=<last drawing of the previous act>, end=...)
+    B = Board(entries, before=<previous acts' Entry lists, finished>, end=...)
     SHOTS = [(0.0, B.scene)]
 """
 import math
@@ -30,7 +30,8 @@ PUSH = 0.14                   # the camera moves in on the drawing's detail whil
 DIP = 1 / 5200                # on a travel the camera pulls back with the distance (an infinite canvas)
 PAN = 1.5                     # seconds the camera takes to travel to the next drawing
 START_EARLY = 0.45            # the pen starts this long before the camera has fully landed
-ORDER = ['M01'] + ['G%02d' % i for i in range(1, 32)]     # M = pen-drawn maps (tools/make_maps.py)
+ORDER = (['M01'] + ['G%02d' % i for i in range(1, 13)] + ['M02', 'G13', 'M03']
+         + ['G%02d' % i for i in range(14, 32)])     # M = pen-drawn maps (tools/make_maps.py)
 
 
 @lru_cache(maxsize=1)
@@ -158,16 +159,18 @@ def write(text, size, dx, dy, at, dur=None, frac=False, anchor='m'):
 
 # ------------------------------------------------------------------ the board and its camera
 class Board:
-    def __init__(self, entries, prev=None, end=None):
-        """entries: this act's drawings in order. prev: the code of the drawing the act starts from
-        (the previous act's last one, already drawn)."""
+    def __init__(self, entries, before=(), end=None):
+        """entries: this act's drawings in order. before: the earlier acts' entries (with their
+        words), shown finished on the board; the act opens travelling from the last of them."""
         self.entries = entries
         for i, e in enumerate(entries):
             e.d.layers(e.scale)
             e.start = max(0.0, e.arrive - START_EARLY) if e.arrive > 0 else 0.0
             nxt = entries[i + 1].arrive - PAN if i + 1 < len(entries) else (end or e.arrive + 6)
             e.dur = min(PL.DRAW, max(1.2, 0.6 * (nxt - e.arrive)))
-        self.prev, self.end = prev, end
+        self.before = list(before)
+        self.prev = self.before[-1].code if self.before else None
+        self.end = end
         self._done = {}
 
     def spot(self, e):
@@ -194,8 +197,8 @@ class Board:
             k = _ease((t - rest_from) / max(0.5, nxt - rest_from))
             return x1 + fx1 * k, y1 + fy1 * k, ZOOM * (1 + PUSH * k)
         if i == 0:                                           # travelling in from the previous act
-            px, py = world(self.prev)
-            x0, y0, z0 = px, py, ZOOM
+            px, py, pfx, pfy = self.spot(self.before[-1])
+            x0, y0, z0 = px + pfx, py + pfy, ZOOM * (1 + PUSH)
         else:
             px, py, pfx, pfy = self.spot(stops[i - 1][1])
             x0, y0, z0 = px + pfx, py + pfy, ZOOM * (1 + PUSH)
@@ -226,16 +229,16 @@ class Board:
         S.env(s, 'bleed')
         cx, cy, z = self.camera(t)
         frame = ground(cx, cy, z)
-        items = ([(None, self.prev)] if self.prev else []) + [(e, e.code) for e in self.entries]
-        for e, code in items:
-            wx, wy = world(code)
-            if e is not None:
-                wx, wy = wx + e.offset[0], wy + e.offset[1]
+        items = [(None, b_) for b_ in self.before] + [(e, e.code) for e in self.entries]
+        for e, b_ in items:
+            src = e if e is not None else b_
+            wx, wy = world(src.code)
+            wx, wy = wx + src.offset[0], wy + src.offset[1]
             sx, sy = (wx - cx) * z + W / 2, (wy - cy) * z + H / 2
             if sx + W * z / 2 < 0 or sx - W * z / 2 > W or sy + H * z / 2 < 0 or sy - H * z / 2 > H:
                 continue
             if e is None:
-                c = self._prev_cell()
+                c = self._before_cell(b_)
             else:
                 if t < e.start - 0.01:
                     continue
@@ -252,10 +255,9 @@ class Board:
                     sfx('draw', at, W / 2, dur=dur, gate=PL.gate(sp(), dur))
         return s
 
-    def _prev_cell(self):
-        if '_prev' not in self._done:
-            e = Entry(self.prev, '', -100.0)
-            e.d.layers(e.scale)
-            e.start, e.dur = -100.0, PL.DRAW
-            self._done['_prev'] = self.cell(e, 0.0)
-        return self._done['_prev']
+    def _before_cell(self, b_):
+        """An earlier act's drawing, finished, with its words."""
+        key = '_b_' + b_.code
+        if key not in self._done:
+            self._done[key] = self.cell(b_, 1e6)
+        return self._done[key]
