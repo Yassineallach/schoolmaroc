@@ -168,28 +168,39 @@ def plate(s, d, t, start=ENTER, focus_to=(0.5, 0.5), scale=1.0, cx=W / 2, cy=H /
     draw_on(s, d, t, start, scale, cx, cy)
 
 
-def draw_on(s, d, t, start, scale, cx, cy):
-    """The pen draws the lines (DRAW s), then the white fill settles in under them (0.5 s)."""
-    lines, fill, order = d.layers(scale)
-    dur = min(DRAW, max(1.2, 0.55 * s.D))
+def draw_time(e):
+    """How long the pen takes on one drawing (an Entry may set its own .dur)."""
+    return getattr(e, 'dur', None) or DRAW
+
+
+def draw_layers(layer, lines, fill, order, t, start, dur, x0, y0):
+    """Composite a drawing as drawn by time t: lines up to the pen, then the fill settles in."""
     if t < start:
         return
-    # the pen's scratch, following its strokes (silent while it lifts between lines)
-    sfx('draw', max(0.0, start), cx, dur=dur, spans=tuple(tuple(round(v, 4) for v in sp) for sp in d.spans[:400]))
     p = (t - start) / dur
-    x0, y0 = int(cx - lines.width / 2), int(cy - lines.height / 2)
     if fill is not None and p > 0.85:
         k = min(1.0, (p - 0.85) / (0.5 / dur + 0.15))
         fa = np.asarray(fill).copy()
         fa[..., 3] = (fa[..., 3] * k).astype(np.uint8)
-        s.mid.alpha_composite(Image.fromarray(fa, 'RGBA'), (x0, y0))
+        layer.alpha_composite(Image.fromarray(fa, 'RGBA'), (x0, y0))
     if p >= 1.0:
-        s.mid.alpha_composite(lines, (x0, y0))
+        layer.alpha_composite(lines, (x0, y0))
         return
     la = np.asarray(lines).copy()
     edge = np.clip((p - order) / 0.004, 0, 1)                      # a crisp pen tip on the growing line
     la[..., 3] = (la[..., 3] * edge).astype(np.uint8)
-    s.mid.alpha_composite(Image.fromarray(la, 'RGBA'), (x0, y0))
+    layer.alpha_composite(Image.fromarray(la, 'RGBA'), (x0, y0))
+
+
+def draw_on(s, d, t, start, scale, cx, cy):
+    """The pen draws the lines, then the white fill settles in under them (0.5 s)."""
+    lines, fill, order = d.layers(scale)
+    dur = min(DRAW, max(1.2, 0.55 * s.D))
+    if t < start:
+        return
+    sfx('draw', max(0.0, start), cx, dur=dur, spans=tuple(tuple(round(v, 4) for v in sp) for sp in d.spans[:400]))
+    x0, y0 = int(cx - lines.width / 2), int(cy - lines.height / 2)
+    draw_layers(s.mid, lines, fill, order, t, start, dur, x0, y0)
 
 
 def cuts(shots):
