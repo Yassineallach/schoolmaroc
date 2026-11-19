@@ -112,6 +112,9 @@ The app downloads it at most once a week and falls back to the bundled copy.
 
 ## Release
 
+On Windows: see BUILD-WINDOWS.md (PowerShell scripts in tools/windows: create-keystore.ps1, build-release.ps1).
+
+
 1. Add to `local.properties` (never committed): `admob.appId`, `admob.nativeUnitId`, `release.storeFile`, `release.storePassword`, `release.keyAlias`, `release.keyPassword`.
 2. `./gradlew test :app:lintRelease :app:bundleRelease`, which produces `app/build/outputs/bundle/release/app-release.aab`.
 3. Optional, with a phone connected: `./gradlew :app:generateReleaseBaselineProfile` (faster cold start).
