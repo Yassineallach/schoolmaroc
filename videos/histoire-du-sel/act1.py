@@ -24,7 +24,7 @@ G = {k: PL.drawing(k, label) for k, label in (
 def sA(t, D):
     """En 2018, le parc national Olympic, aux États-Unis, avait un problème de chèvres. (Hook)"""
     s = Shot(t, D)
-    PL.plate(s, G['G01'], t, start=0.0, focus_to=(0.55, 0.45))
+    PL.plate(s, G['G01'], t, focus_to=(0.55, 0.45))
     return s
 
 
@@ -64,9 +64,9 @@ def sF(t, D):
     """Le comportement de ces chèvres peut sembler exceptionnel, mais tous les animaux dépendent du sel,
     ou chlorure de sodium, pour de nombreuses fonctions biologiques essentielles."""
     s = Shot(t, D)
-    PL.plate(s, G['G06'], t, focus_to=(0.5, 0.5), width=1240, cx=W * 0.38)
-    # the act's one typed term: the formula is the picture of the word
-    words(s.top, (1580, H / 2), 'NaCl', 190, t, w(cue(3, 'chlorure')), fill=INK, font=F_SERIF)
+    PL.plate(s, G['G06'], t, focus_to=(0.4, 0.5))
+    # the act's one typed term: the formula is the picture of the word (cream on the plum ground)
+    words(s.top, (1540, H / 2), 'NaCl', 190, t, w(cue(3, 'chlorure')), fill=CREAM, font=F_HEAD)
     return s
 
 
