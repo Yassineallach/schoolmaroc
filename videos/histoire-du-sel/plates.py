@@ -1,28 +1,30 @@
-"""The film's one picture system (the user's notes: « the artwork animation must be consistent »,
-then the flat vector style of their Freepik reference).
+"""The film's one picture system (the user's notes: « the artwork animation must be consistent », then
+the ink-sketch style of their goat reference).
 
-Every picture is a ChatGPT illustration in one flat-vector style (PROMPTS.md), shown the same way:
-full frame, colours untouched (no sepia, no paper), the same slow push towards the subject, and the
-same cut between every shot, alternating direction.
+Every picture is a ChatGPT drawing in one black ink-sketch style, a single subject on white
+(PROMPTS.md). Each is shown the same way: cut out with its white kept as light paper and its lines in
+the film's ink (cutout.ink_image, backed), laid on the same parchment (the astrolabe theme), revealed
+through the same torn opening, under the same slow camera push, and every cut is the same torn wipe.
 """
 import os
 from functools import lru_cache
 from PIL import Image, ImageDraw
 from vox import W, H, F_HEAD, asset
-from style import ease_io
+import presets as P
 import scenes as S
+import cutout
+from style import ENTER
 
-PUSH = (1.0, 1.05)        # the same slow push on every shot
-MARGIN = 1.06             # cached cover size, a little larger than the largest zoom
+BOX = (1500, 880)         # every drawing fits the same box
+REVEAL = 1.2              # same reveal everywhere
+PUSH = (1.0, 1.05)        # same slow push on every shot
 
 
 def _placeholder(label):
-    im = Image.new('RGB', (1672, 941), (246, 238, 228))
+    im = Image.new('RGB', (1500, 880), (255, 255, 255))
     d = ImageDraw.Draw(im)
-    d.polygon([(0, 941), (520, 380), (900, 941)], fill=(81, 58, 71))
-    d.polygon([(600, 941), (1150, 300), (1672, 941)], fill=(237, 98, 43))
-    d.polygon([(1000, 941), (1400, 520), (1672, 760), (1672, 941)], fill=(255, 184, 51))
-    d.text((836, 160), label, font=F_HEAD(56), fill=(66, 34, 31), anchor='mm')
+    d.rounded_rectangle((20, 20, 1480, 860), radius=30, outline=(0, 0, 0), width=8)
+    d.text((750, 440), label, font=F_HEAD(56), fill=(0, 0, 0), anchor='mm')
     return im
 
 
@@ -32,34 +34,32 @@ class Drawing:
         self.path = next((asset(code + e) for e in ('.png', '.jpg') if os.path.exists(asset(code + e))), None)
 
     @lru_cache(maxsize=2)
-    def cover(self):
-        src = Image.open(self.path).convert('RGB') if self.path else _placeholder(f'{self.code} · {self.label}')
-        bw, bh = int(W * MARGIN), int(H * MARGIN)
-        s = max(bw / src.width, bh / src.height)
-        im = src.resize((int(src.width * s + 1), int(src.height * s + 1)), Image.LANCZOS)
-        x0, y0 = (im.width - bw) // 2, (im.height - bh) // 2
-        return im.crop((x0, y0, x0 + bw, y0 + bh))
+    def ink(self, scale=1.0):
+        if self.path:
+            src = Image.open(self.path)
+            if src.mode == 'RGBA':                      # transparent PNG: put it on white first
+                bg = Image.new('RGB', src.size, (255, 255, 255)); bg.paste(src, (0, 0), src); src = bg
+            src = src.convert('RGB')
+        else:
+            src = _placeholder(f'{self.code} · {self.label}')
+        k = min(BOX[0] * scale / src.width, BOX[1] * scale / src.height)
+        return cutout.ink_image(src, int(src.width * k), backed=True)
 
 
 def drawing(code, label):
     return Drawing(code, label)
 
 
-def plate(s, d, t, focus_to=(0.5, 0.5), **_):
-    """The illustration full frame, pushing slowly from the whole picture towards focus_to."""
-    S.env(s, 'bleed')
-    base = d.cover()
-    k = ease_io(min(1.0, max(0.0, t / max(s.D, 0.1))))
-    z = PUSH[0] + (PUSH[1] - PUSH[0]) * k
-    fx, fy = 0.5 + (focus_to[0] - 0.5) * k, 0.5 + (focus_to[1] - 0.5) * k
-    ww, wh = base.width / (MARGIN * z), base.height / (MARGIN * z)    # the frame's view at zoom z
-    cx = base.width / 2 + (fx - 0.5) * (base.width - ww)
-    cy = base.height / 2 + (fy - 0.5) * (base.height - wh)
-    box = (cx - ww / 2, cy - wh / 2, cx + ww / 2, cy + wh / 2)
-    frame = base.resize((W, H), Image.BILINEAR, box=box).convert('RGBA')
-    s.mid.alpha_composite(frame)
+def plate(s, d, t, start=ENTER, focus_to=(0.5, 0.5), scale=1.0, cx=W / 2, cy=H / 2 + 10):
+    """The drawing on the parchment, revealed and pushed the same way in every shot."""
+    S.env(s, 'theme')
+    im = d.ink(scale)
+    fx = cx - im.width / 2 + focus_to[0] * im.width
+    fy = cy - im.height / 2 + focus_to[1] * im.height
+    s.camera(PUSH[0], PUSH[1], (W / 2, H / 2), (fx, fy))
+    P.mask_reveal(s.mid, im, cx, cy, t, start, dur=REVEAL, lip=False, origin=(0.5, 0.55))
 
 
 def cuts(shots):
-    """Same cut on every shot, alternating direction."""
+    """Same torn wipe on every cut, alternating direction."""
     return [sh if i == 0 else (sh[0], sh[1], 'lr' if i % 2 else 'rl') for i, sh in enumerate(shots)]
