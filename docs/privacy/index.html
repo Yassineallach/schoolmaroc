@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nearshelf Privacy Policy</title>
+<meta name="description" content="Privacy policy for Nearshelf, the Android app by MAR Dev that finds books at your libraries. No accounts, no server: what stays on your phone and what leaves it.">
+<meta name="color-scheme" content="light dark">
+<style>
+  /* Nearshelf palette: warm paper, ink, one leather-brown accent. No external fonts or scripts. */
+  :root {
+    --page: #FAF9F6; --ink: #292722; --ink-2: #6F6B64; --accent: #75452D;
+    --subtle: #F1EEE8; --hairline: #E6E1D9; --card: #FFFFFF;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #161412; --ink: #EDE8E1; --ink-2: #A9A39B; --accent: #D9A784;
+      --subtle: #211E1B; --hairline: #35312C; --card: #1B1917;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #161412; --ink: #EDE8E1; --ink-2: #A9A39B; --accent: #D9A784;
+    --subtle: #211E1B; --hairline: #35312C; --card: #1B1917;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  .serif { font-family: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif; }
+  main { max-width: 680px; margin: 0 auto; padding: 32px 20px 64px; }
+  header { padding-bottom: 24px; border-bottom: 1px solid var(--hairline); margin-bottom: 8px; }
+  .brand { color: var(--accent); font-size: 26px; font-weight: 600; letter-spacing: -0.4px; margin: 0; }
+  h1 { font-size: 34px; line-height: 1.15; font-weight: 500; letter-spacing: -0.3px; margin: 12px 0 8px; }
+  .meta { color: var(--ink-2); font-size: 15px; margin: 0; }
+  .lede { font-size: 18px; margin: 20px 0 0; }
+  nav { background: var(--subtle); border-radius: 12px; padding: 16px 20px; margin: 24px 0 8px; }
+  nav p { margin: 0 0 6px; font-size: 13px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--ink-2); }
+  nav ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; font-size: 15px; }
+  nav li { break-inside: avoid; padding: 2px 0; margin: 0; }
+  @media (max-width: 480px) { nav ol { columns: 1; } h1 { font-size: 30px; } }
+  h2 { font-size: 24px; font-weight: 600; margin: 40px 0 10px; letter-spacing: -0.1px; scroll-margin-top: 16px; }
+  p, li { max-width: 64ch; }
+  ul { padding-left: 22px; margin: 8px 0; }
+  li { margin: 6px 0; }
+  li::marker { color: var(--accent); }
+  strong { font-weight: 600; }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; overflow-wrap: anywhere; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+  .note { background: var(--card); border: 1px solid var(--hairline); border-radius: 16px; padding: 16px 20px; margin: 16px 0; }
+  .contact { background: var(--card); border: 1px solid var(--hairline); border-radius: 16px; padding: 20px; margin-top: 12px; }
+  .contact p { margin: 4px 0; }
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--hairline); color: var(--ink-2); font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="brand serif">Nearshelf</p>
+    <h1 class="serif">Privacy Policy</h1>
+    <p class="meta">Last updated: 19 November 2026 · Developer: MAR Dev</p>
+    <p class="lede">Nearshelf is an Android app made by MAR Dev. It helps you find books at the libraries you belong to. It has no accounts and no server of its own, and MAR Dev does not collect, receive or store any of your personal information. This page explains, in plain language, what leaves your phone and what stays on it.</p>
+  </header>
+
+  <nav aria-label="On this page">
+    <p>On this page</p>
+    <ol>
+      <li><a href="#stays">What stays on your phone</a></li>
+      <li><a href="#leaves">What leaves your phone</a></li>
+      <li><a href="#security">Security</a></li>
+      <li><a href="#retention">How long data is kept</a></li>
+      <li><a href="#notifications">Notifications</a></li>
+      <li><a href="#backups">Backups</a></li>
+      <li><a href="#children">Children</a></li>
+      <li><a href="#choices">Your choices</a></li>
+      <li><a href="#changes">Changes to this policy</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ol>
+  </nav>
+
+  <section aria-labelledby="stays">
+    <h2 id="stays" class="serif">What stays on your phone</h2>
+    <ul>
+      <li>The libraries you add, their home branches, and your reading preferences.</li>
+      <li>Your history of looked-up books, and your watchlist with the formats and libraries you chose to watch.</li>
+      <li>Saved search results (kept up to 30 days so the app works offline).</li>
+      <li>Your location, if you allow it. It is used only to sort library branches by distance and is never sent anywhere.</li>
+      <li>Camera images when you scan a barcode. The barcode is read on your phone; images are not saved or uploaded.</li>
+    </ul>
+    <p class="note">Nearshelf never asks for, stores or sends library card numbers or PINs. Borrowing and holds happen in the official app or website of the service (for example Libby, hoopla or your library's catalog).</p>
+  </section>
+
+  <section aria-labelledby="leaves">
+    <h2 id="leaves" class="serif">What leaves your phone</h2>
+    <ul>
+      <li><strong>Book searches.</strong> The title, author or ISBN you look up is sent to the services of the libraries you added: OverDrive/Libby, hoopla, and your libraries' catalogs. Each service receives only what it needs to answer the search.</li>
+      <li><strong>Book details.</strong> Nearshelf asks Open Library (openlibrary.org) for a book's other editions and cover. When you search by title alone, it also sends that title to Open Library to find which books share it, so you can pick yours.</li>
+      <li><strong>Shared links.</strong> When you share a link to Nearshelf (for example from Goodreads or Amazon), the app opens that page to read the book's title and ISBN.</li>
+      <li><strong>Library list.</strong> Once a week the app downloads an updated public list of libraries. This request contains no personal information.</li>
+      <li><strong>Advertising.</strong> Nearshelf shows ads from Google AdMob. AdMob may collect your device's advertising ID, IP address and general device information to show and measure ads. In the European Economic Area, the UK and Switzerland, you are asked for consent first and can change your choice at any time in Settings › Privacy options. Google's policy: <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a></li>
+    </ul>
+    <p>Requests to these services include a technical identifier for the app ("Nearshelf" and its version), not information about you. Each service handles what it receives under its own privacy policy.</p>
+  </section>
+
+  <section aria-labelledby="security">
+    <h2 id="security" class="serif">Security</h2>
+    <p>Every connection Nearshelf makes uses HTTPS. What the app keeps stays in its private storage on your phone, which other apps cannot read.</p>
+  </section>
+
+  <section aria-labelledby="retention">
+    <h2 id="retention" class="serif">How long data is kept</h2>
+    <p>Saved search results are kept up to 30 days, and your history keeps the 50 most recent books. Everything else stays until you remove it. Uninstalling the app deletes everything it stored.</p>
+  </section>
+
+  <section aria-labelledby="notifications">
+    <h2 id="notifications" class="serif">Notifications</h2>
+    <p>Watchlist notifications are created on your phone after a daily check. They contain no ads.</p>
+  </section>
+
+  <section aria-labelledby="backups">
+    <h2 id="backups" class="serif">Backups</h2>
+    <p>If Android backup is turned on, Android may include Nearshelf's data (your libraries, watchlist, search history and preferences) in your device backup to your Google account.</p>
+  </section>
+
+  <section aria-labelledby="children">
+    <h2 id="children" class="serif">Children</h2>
+    <p>Nearshelf is not directed at children under 13, and MAR Dev does not knowingly collect information from children.</p>
+  </section>
+
+  <section aria-labelledby="choices">
+    <h2 id="choices" class="serif">Your choices</h2>
+    <ul>
+      <li>Remove libraries, history and watched books in the app at any time. Uninstalling the app deletes everything it stored.</li>
+      <li>Turn location, camera and notifications on or off in Android's settings.</li>
+      <li>Change your advertising consent in Settings › Privacy options (where available), and reset or delete your advertising ID in Android's settings.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="changes">
+    <h2 id="changes" class="serif">Changes to this policy</h2>
+    <p>If this policy changes, the new version will be published on this page with a new date, and the app will show the updated text.</p>
+  </section>
+
+  <section aria-labelledby="contact">
+    <h2 id="contact" class="serif">Contact</h2>
+    <div class="contact">
+      <p>Nearshelf is developed by <strong>MAR Dev</strong>.</p>
+      <p>Questions about this policy: <a href="mailto:mardevlopm@gmail.com">mardevlopm@gmail.com</a></p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Nearshelf is not affiliated with OverDrive, hoopla, or any library or catalog vendor.</p>
+    <p>© 2026 MAR Dev</p>
+  </footer>
+</main>
+</body>
+</html>

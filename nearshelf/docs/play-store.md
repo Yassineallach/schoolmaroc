@@ -27,7 +27,8 @@ When you find a copy, Nearshelf opens the library's own app or website so you ca
 Nearshelf is not affiliated with OverDrive, hoopla, or any library or catalog vendor. Libby, OverDrive and hoopla are trademarks of their owners.
 
 **Category:** Books & Reference. **Tags:** library, ebooks, audiobooks.
-**Contact email / privacy policy URL:** required before submission (see "Before release").
+**Contact email:** mardevlopm@gmail.com · **Developer:** MAR Dev
+**Privacy policy URL:** https://yassineallach.github.io/schoolmaroc/privacy/ (publish docs/privacy/index.html with GitHub Pages first)
 
 ## Screenshots (phone, 1080×2400, 4–8)
 
@@ -75,8 +76,8 @@ Ads declaration: "Contains ads" = Yes. Advertising ID permission (`AD_ID`) is pr
 
 ## Before release (checklist)
 
-- [ ] Contact email in PRIVACY.md and `app/src/main/assets/privacy.md` (the test keeps them identical)
-- [ ] Host the privacy policy (e.g. GitHub Pages) and put the URL in Play Console
+- [x] Contact email in PRIVACY.md and `app/src/main/assets/privacy.md` (the test keeps them identical)
+- [ ] Publish `docs/privacy/index.html` with GitHub Pages (Settings › Pages › Deploy from a branch › `/docs`) and put the URL in Play Console
 - [ ] AdMob app + native ad unit; put `admob.appId` and `admob.nativeUnitId` in `local.properties`, and add `app-ads.txt` on your developer website
 - [ ] Upload keystore; `release.storeFile/storePassword/keyAlias/keyPassword` in `local.properties`; enrol in Play App Signing
 - [ ] Optional: `nearshelf.registryUrl` pointing to the hosted `libraries.json` for weekly updates
