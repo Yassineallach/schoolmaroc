@@ -69,58 +69,87 @@ class Drawing:
             fa = np.asarray(full).astype(np.float32)
             fa[..., 3] = np.clip(fa[..., 3] - la, 0, 255)
             fill = Image.fromarray(fa.astype(np.uint8), 'RGBA')
-        return lines, fill, _order(la, f'{self.code}_{lines.width}' if self.path else None)
+        T, spans = _order(la, f'{self.code}_{lines.width}' if self.path else None)
+        self.spans = spans
+        return lines, fill, T
 
 
 def _order(alpha, key, step=2):
-    """Draw-on time (0..1) for every pixel: strokes in a sweep, each growing along its own line."""
-    cache = os.path.join(asset('..'), 'out', '_drawon', f'{key}.npy') if key else None
+    """Draw-on time (0..1) for every pixel, and the pen-down spans, for ONE pen: the ink is thinned
+    to its centre lines, the pen follows them one line at a time (depth-first along each line,
+    lifting at branch ends), and goes on to the nearest unfinished line, so only one place is ever
+    being drawn. Every ink pixel takes the time of the nearest centre-line point."""
+    from skimage.morphology import skeletonize
+    cache = os.path.join(asset('..'), 'out', '_drawon', f'{key}.npz') if key else None
     if cache and os.path.exists(cache):
-        return np.load(cache)
+        z = np.load(cache)
+        return z['T'], [tuple(x) for x in z['spans']]
     h, w = alpha.shape
     ink = alpha[::step, ::step] > 40
-    ink = ndimage.binary_dilation(ink, iterations=1)                 # close hairline gaps in a stroke
-    lab, n = ndimage.label(ink, structure=np.ones((3, 3)))
-    if n == 0:
-        return np.zeros((h, w), np.float32)
-    ys, xs = np.nonzero(lab)
-    ids = lab[ys, xs]
-    # each stroke starts at its upper-left-most point (smallest x + y)
-    key_ = xs + ys
-    start = np.full(n + 1, np.iinfo(np.int64).max); np.minimum.at(start, ids, key_)
-    seed = np.zeros_like(ink)
-    seed[ys[key_ == start[ids]], xs[key_ == start[ids]]] = True
-    # geodesic distance from the seed, inside the ink (iterative dilation)
-    dist = np.full(ink.shape, -1, np.int32); dist[seed] = 0
-    front, d, st = seed.copy(), 0, np.ones((3, 3), bool)
-    while front.any() and d < 6000:
-        d += 1
-        nxt = ndimage.binary_dilation(front, structure=st) & ink & (dist < 0)
-        dist[nxt] = d
-        front = nxt
-    dist[dist < 0] = 0
-    dmax = np.zeros(n + 1); np.maximum.at(dmax, ids, dist[ys, xs])
-    size = np.bincount(ids, minlength=n + 1).astype(float)
-    # strokes in a sweep: by the stroke's centre, left to right with a little top-to-bottom
-    cx = np.bincount(ids, weights=xs, minlength=n + 1) / np.maximum(size, 1)
-    cy = np.bincount(ids, weights=ys, minlength=n + 1) / np.maximum(size, 1)
-    sweep = (cx / ink.shape[1]) * 0.75 + (cy / ink.shape[0]) * 0.25
-    # contours first, then shading: long strokes (outlines) are drawn in the first 70 % of the
-    # time, each growing along its own length; short strokes (hatching, fur) fill in after them
-    big = dmax >= max(25, 0.12 * dmax.max())
-    rel = np.clip(dmax / max(dmax.max(), 1), 0, 1)
-    t0 = np.where(big, sweep * 0.30, 0.55 + sweep * 0.38)
-    dur = np.where(big, 0.25 + 0.40 * rel, 0.07)
-    local = dist[ys, xs] / np.maximum(dmax[ids], 1)
-    T = np.ones(ink.shape, np.float32)
-    T[ys, xs] = t0[ids] + dur[ids] * local
-    T = T / max(T[ys, xs].max(), 1e-6)
+    sk = skeletonize(ink)
+    ys, xs = np.nonzero(sk)
+    N = len(ys)
+    if N == 0:
+        return np.zeros((h, w), np.float32), [(0.0, 1.0)]
+    idx = -np.ones(sk.shape, np.int64); idx[ys, xs] = np.arange(N)
+    nb = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+    deg = np.zeros(N, np.int32)
+    for dy, dx in nb:
+        yy, xx = ys + dy, xs + dx
+        ok = (yy >= 0) & (yy < sk.shape[0]) & (xx >= 0) & (xx < sk.shape[1])
+        deg[ok] += (idx[yy[ok], xx[ok]] >= 0)
+    seen = np.zeros(N, bool)
+    tim = np.zeros(N, np.float64)
+    clock, pen = 0.0, (0.0, 0.0)
+    spans, down = [], None
+    left = N
+    while left:
+        cand = np.nonzero(~seen)[0]
+        d2 = (ys[cand] - pen[0]) ** 2 + (xs[cand] - pen[1]) ** 2 - 4000.0 * (deg[cand] <= 1)   # prefer line ends
+        s0 = int(cand[np.argmin(d2)])
+        clock += 6 + 0.15 * np.hypot(ys[s0] - pen[0], xs[s0] - pen[1])   # the pen lifts and travels
+        stack, prev = [s0], None
+        while stack:
+            i = stack.pop()
+            if seen[i]:
+                continue
+            if prev is not None and max(abs(ys[i] - ys[prev]), abs(xs[i] - xs[prev])) > 1:
+                if down is not None:
+                    spans.append((down, clock)); down = None
+                clock += 4                                     # back to the branch point
+            if down is None:
+                down = clock
+            seen[i] = True; left -= 1
+            clock += 1
+            tim[i] = clock
+            prev = i
+            for dy, dx in nb:
+                yy, xx = ys[i] + dy, xs[i] + dx
+                if 0 <= yy < sk.shape[0] and 0 <= xx < sk.shape[1]:
+                    j = idx[yy, xx]
+                    if j >= 0 and not seen[j]:
+                        stack.append(j)
+        if down is not None:
+            spans.append((down, clock)); down = None
+        pen = (ys[prev], xs[prev])
+    tim /= clock
+    spans = [(a / clock, b / clock) for a, b in spans]
+    grid = np.ones(sk.shape, np.float64)
+    grid[ys, xs] = tim
+    _, (iy, ix) = ndimage.distance_transform_edt(~sk, return_indices=True)
+    T = grid[iy, ix].astype(np.float32)
     T = np.kron(T, np.ones((step, step), np.float32))[:h, :w]
-    T = ndimage.grey_erosion(T, size=(3, 3))                       # cover the antialiased line edges
+    # merge tiny spans so the sound follows strokes, not single pixels
+    merged = []
+    for s_, e_ in spans:
+        if merged and s_ - merged[-1][1] < 0.004:
+            merged[-1] = (merged[-1][0], e_)
+        else:
+            merged.append((s_, e_))
     if cache:
         os.makedirs(os.path.dirname(cache), exist_ok=True)
-        np.save(cache, T.astype(np.float32))
-    return T.astype(np.float32)
+        np.savez(cache, T=T, spans=np.array(merged))
+    return T, merged
 
 
 def drawing(code, label, backed=True):
@@ -145,8 +174,8 @@ def draw_on(s, d, t, start, scale, cx, cy):
     dur = min(DRAW, max(1.2, 0.55 * s.D))
     if t < start:
         return
-    if not getattr(s, '_pencil', False):
-        sfx('pencil', max(0.0, start), cx, dur=dur)
+    # the pen's scratch, following its strokes (silent while it lifts between lines)
+    sfx('draw', max(0.0, start), cx, dur=dur, spans=tuple(tuple(round(v, 4) for v in sp) for sp in d.spans[:400]))
     p = (t - start) / dur
     x0, y0 = int(cx - lines.width / 2), int(cy - lines.height / 2)
     if fill is not None and p > 0.85:
@@ -158,7 +187,7 @@ def draw_on(s, d, t, start, scale, cx, cy):
         s.mid.alpha_composite(lines, (x0, y0))
         return
     la = np.asarray(lines).copy()
-    edge = np.clip((p - order) / 0.015, 0, 1)                      # a soft pen tip on the growing line
+    edge = np.clip((p - order) / 0.004, 0, 1)                      # a crisp pen tip on the growing line
     la[..., 3] = (la[..., 3] * edge).astype(np.uint8)
     s.mid.alpha_composite(Image.fromarray(la, 'RGBA'), (x0, y0))
 
@@ -177,3 +206,26 @@ def at(d, fx, fy):
 def rect(d, f0x, f0y, f1x, f1y):
     a, b = at(d, f0x, f0y), at(d, f1x, f1y)
     return (a[0], a[1], b[0], b[1])
+
+
+# ---- the drawing sound: a pen scratching on paper, only while the pen is down
+import sfx as _sfx
+
+
+def _s_draw(r, p):
+    L = p.get('dur', 3.0)
+    n = _sfx._sec(L)
+    t = np.arange(n) / _sfx.SR
+    gate = np.zeros(n)
+    for a, b in p.get('spans', ((0, 1),)):
+        gate[int(a * n):int(b * n)] = 1.0
+    k = int(0.012 * _sfx.SR)                                   # soft pen landings and lifts
+    gate = np.convolve(gate, np.ones(k) / k, mode='same')
+    wob = 0.75 + 0.25 * np.sin(2 * np.pi * (7 + 3 * r.random()) * t + r.random() * 6)   # the hand's rhythm
+    grain = _sfx._crackle(r, n, 2600, 1500, 7000)
+    hiss = _sfx._band(r.normal(0, 1, n), 2200, 6500) * 0.55
+    body = _sfx._band(r.normal(0, 1, n), 400, 1400) * 0.25    # the nib dragging on the fibres
+    return 0.0, _sfx._norm((grain + hiss + body) * gate * wob, 1.8)
+
+
+_sfx.DESIGNS['draw'] = _s_draw
