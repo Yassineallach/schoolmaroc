@@ -176,6 +176,12 @@ class ResultsViewModel @Inject constructor(
     )
     val state: StateFlow<ResultsUiState> = _state.asStateFlow()
 
+    /** The reader's answer to "Which book?"; declared before init, which waits on it. */
+    private val choice = kotlinx.coroutines.CompletableDeferred<WorkCandidate?>()
+
+    /** The reader picked a book ([c]), or chose to search every book with the title (null). */
+    fun choose(c: WorkCandidate?) { choice.complete(c) }
+
     init {
         if (location.hasPermission()) refreshLocation()
         viewModelScope.launch {
@@ -220,11 +226,6 @@ class ResultsViewModel @Inject constructor(
             coordinator.search(libraries, q, offline = _offline.value).collect { u -> apply(u.libraryId, u.service, u.state) }
         }
     }
-
-    private val choice = kotlinx.coroutines.CompletableDeferred<WorkCandidate?>()
-
-    /** The reader picked a book ([c]), or chose to search every book with the title (null). */
-    fun choose(c: WorkCandidate?) { choice.complete(c) }
 
     fun retry(libraryId: String, ref: LibraryRef) {
         val q = query ?: return

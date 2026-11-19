@@ -1,6 +1,6 @@
 # Nearshelf privacy policy
 
-Last updated: 18 November 2026
+Last updated: 19 November 2026
 
 Nearshelf helps you find books at the libraries you belong to. It has no accounts and no server of its own. This page explains, in plain language, what leaves your phone and what stays on it.
 
@@ -17,7 +17,7 @@ Nearshelf never asks for, stores or sends library card numbers or PINs. Borrowin
 ## What leaves your phone
 
 - **Book searches.** The title, author or ISBN you look up is sent to the services of the libraries you added: OverDrive/Libby, hoopla, and your libraries' catalogs. Each service receives only what it needs to answer the search.
-- **Book details.** Nearshelf asks Open Library (openlibrary.org) for a book's other editions and cover.
+- **Book details.** Nearshelf asks Open Library (openlibrary.org) for a book's other editions and cover. When you search by title alone, it also sends that title to Open Library to find which books share it, so you can pick yours.
 - **Shared links.** When you share a link to Nearshelf (for example from Goodreads or Amazon), the app opens that page to read the book's title and ISBN.
 - **Library list.** Once a week the app downloads an updated public list of libraries. This request contains no personal information.
 - **Advertising.** Nearshelf shows ads from Google AdMob. AdMob may collect your device's advertising ID, IP address and general device information to show and measure ads. In the European Economic Area, the UK and Switzerland, you are asked for consent first and can change your choice at any time in Settings › Privacy options. Google's policy: https://policies.google.com/technologies/partner-sites
@@ -30,7 +30,7 @@ Watchlist notifications are created on your phone after a daily check. They cont
 
 ## Backups
 
-If Android backup is turned on, Android may include Nearshelf's data (your libraries, watchlist and preferences) in your device backup to your Google account.
+If Android backup is turned on, Android may include Nearshelf's data (your libraries, watchlist, search history and preferences) in your device backup to your Google account.
 
 ## Children
 

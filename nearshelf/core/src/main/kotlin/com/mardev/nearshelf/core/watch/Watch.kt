@@ -14,6 +14,8 @@ data class LibrarySnapshot(
     val libraryName: String,
     /** Digital services with a copy to borrow now, e.g. ["Libby"]. */
     val availableIn: List<String> = emptyList(),
+    /** Formats of those copies, in the same order (so a notification can say which). */
+    val availableFormats: List<Format> = emptyList(),
     /** Shortest digital wait in days, when nothing is available now. */
     val shortestWaitDays: Int? = null,
     /** Branches with a print copy on the shelf (home branch first). */
@@ -47,7 +49,7 @@ data class WatchSnapshot(val checkedAt: Long, val libraries: Map<String, Library
 sealed interface WatchEvent {
     val libraryName: String
 
-    data class NowAvailable(override val libraryName: String, val service: String) : WatchEvent
+    data class NowAvailable(override val libraryName: String, val service: String, val format: Format? = null) : WatchEvent
     data class OnShelf(override val libraryName: String, val branch: String) : WatchEvent
     data class WaitDropped(override val libraryName: String, val days: Int) : WatchEvent
 }
@@ -78,6 +80,7 @@ object Watch {
             lib.id to LibrarySnapshot(
                 libraryName = lib.name,
                 availableIn = digital.filter { it.second.availabilityKnown && it.second.isAvailableNow }.map { it.first }.distinct(),
+                availableFormats = digital.filter { it.second.availabilityKnown && it.second.isAvailableNow }.map { it.second.format }.distinct(),
                 shortestWaitDays = digital.mapNotNull { it.second.waitDays }.minOrNull(),
                 onShelfAt = shelfBranches.sortedBy { b -> if (home != null && BranchNames.matches(home, b)) 0 else 1 },
                 homeBranchOnShelf = homeOnShelf,
@@ -94,7 +97,7 @@ object Watch {
             val before = old.libraries[id] ?: return@flatMap emptyList()
             buildList {
                 if (before.availableIn.isEmpty() && now.availableIn.isNotEmpty()) {
-                    add(WatchEvent.NowAvailable(now.libraryName, now.availableIn.first()))
+                    add(WatchEvent.NowAvailable(now.libraryName, now.availableIn.first(), now.availableFormats.firstOrNull()))
                 }
                 val shelfNews = when {
                     now.homeBranchOnShelf && !before.homeBranchOnShelf -> now.onShelfAt.first()

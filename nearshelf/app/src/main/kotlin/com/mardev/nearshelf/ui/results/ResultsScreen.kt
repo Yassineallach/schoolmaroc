@@ -197,7 +197,8 @@ internal fun ResultsContent(
                         Icon(painterResource(R.drawable.ic_sliders), stringResource(R.string.cd_reading_preferences), modifier = Modifier.size(22.dp))
                     }
                 }
-                TopLoader(progress = if (state.libraries == null) 0.1f else state.progress)
+                // No bar while the reader picks a book: nothing is loading then.
+                if (state.phase != Phase.CHOOSING) TopLoader(progress = if (state.libraries == null) 0.1f else state.progress)
             }
         },
         containerColor = MaterialTheme.colorScheme.background,
@@ -236,7 +237,7 @@ internal fun ResultsContent(
             return@Scaffold
         }
         // Organised by format (one tab each), ranked fastest first; see ResultsOrganizer.
-        val organized = organizeResults(libraries, prefs)
+        val organized = remember(libraries, prefs) { organizeResults(libraries, prefs) }
         val multiLibrary = libraries.size > 1
         // Opens on the preferred format if a library has it, else on the one available soonest.
         val tab = chosenTab ?: organized.bestFormat(prefs) ?: prefs.preferredFormat?.takeIf { it in TAB_FORMATS } ?: Format.EBOOK
@@ -462,42 +463,7 @@ private fun formatDate(iso: String): String = runCatching {
     java.time.LocalDate.parse(iso).format(java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM))
 }.getOrDefault(iso)
 
-/** The one number that matters: copies on the shelf now, or days to wait. */
-@Composable
-internal fun HeadlineNumber(m: MatchedHolding) {
-    val h = m.holding
-    if (!h.availabilityKnown) return
-    val (value, caption) = when {
-        h.isAvailableNow -> (h.available ?: 1) to pluralStringResource(R.plurals.caption_available, h.available ?: 1)
-        h.waitDays != null -> h.waitDays!!.coerceAtMost(MAX_WAIT_SHOWN) to pluralStringResource(R.plurals.caption_days_wait, h.waitDays!!)
-        else -> return
-    }
-    Column(horizontalAlignment = Alignment.End) {
-        CountUp(
-            value,
-            // OverDrive's estimate can run to thousands of days when one copy has hundreds of holds.
-            suffix = if (!h.isAvailableNow && (h.waitDays ?: 0) > MAX_WAIT_SHOWN) "+" else "",
-            // Lining figures, so numbers sit on the baseline whatever the font's default.
-            style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "lnum"),
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Text(caption, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.End)
-    }
-}
 
-@Composable
-internal fun detailLine(m: MatchedHolding): String {
-    val h = m.holding
-    val owned = h.owned ?: 0
-    val copies = pluralStringResource(R.plurals.copies, owned, owned)
-    return when {
-        h.isAvailableNow -> stringResource(R.string.detail_available, h.available ?: 0, copies)
-        else -> {
-            val holds = h.holds ?: 0
-            stringResource(R.string.detail_waitlist, pluralStringResource(R.plurals.holds, holds, holds), copies)
-        }
-    }
-}
 
 internal fun formatIcon(f: Format) = when (f) {
     Format.EBOOK -> R.drawable.ic_ebook

@@ -99,9 +99,16 @@ The app downloads it at most once a week and falls back to the bundled copy.
 10. [x] AdMob native ads (in content) + UMP, settings, about, privacy policy, licences (no translations: English only, by decision)
 11. [x] Release polish: onboarding, icon, accessibility, empty/error states, signing, baseline profile module, Play listing and Data Safety (docs/play-store.md)
 
+## After 1.0 review
+
+- Design system across every screen (docs/design-system.md): Newsreader + Instrument Sans, warm paper palette, shared components.
+- Results: three format tabs, one card per option ranked fastest first, "Also checked" footer.
+- A bare title that several books share asks "Which book?" (Open Library) before searching.
+- Watch chooses formats and libraries (Room v4); checks, notifications and the widget follow the choice.
+
 ## Screenshot tests
 
-`./gradlew :app:testDebugUnitTest -Pnearshelf.screenshots=true` renders Results, empty state, onboarding and About on a phone, a small phone, landscape, 2× font and dark mode (Roborazzi + Robolectric, no device). PNGs land in `app/build/outputs/roborazzi/`.
+`./gradlew :app:testDebugUnitTest -Pnearshelf.screenshots=true` renders Home, Results (each tab, "Which book?", watch pop-up), Watchlist, Libraries, History, Settings, Preferences, Privacy, Licences, onboarding and About on a phone, a small phone, landscape, 2× font and dark mode (Roborazzi + Robolectric, no device). PNGs land in `app/build/outputs/roborazzi/`.
 
 ## Release
 

@@ -2,8 +2,6 @@
 <resources>
     <string name="app_name">Nearshelf</string>
     <string name="tagline">Your next book, on a shelf near you.</string>
-    <!-- Home headline: the tagline, broken where it reads best. -->
-    <string name="home_headline">Your next book,\non a shelf near you.</string>
 
     <!-- Navigation -->
     <string name="nav_search">Search</string>
@@ -12,7 +10,6 @@
     <!-- Home -->
     <string name="search_label">Find a book</string>
     <string name="search_hint">Title, author or ISBN</string>
-    <string name="search_supporting">Tip: “Project Hail Mary by Andy Weir” narrows it down.</string>
     <string name="search_action">Check my libraries</string>
     <plurals name="search_action_count">
         <item quantity="one">Check %d library</item>
@@ -28,7 +25,7 @@
     <!-- Libraries -->
     <string name="libraries_title">Your libraries</string>
     <string name="libraries_add">Add library</string>
-    <string name="libraries_order_hint">Results appear in this order.</string>
+    <string name="libraries_order_hint">Results list the soonest way to get a book first. When two libraries are as quick, the higher one here comes first.</string>
     <string name="libraries_empty_title">No libraries yet</string>
     <string name="libraries_empty_body">Search by library name or city to add the ones you use.</string>
     <string name="libraries_removed">Removed %1$s</string>
@@ -38,7 +35,6 @@
     <string name="add_library_idle">Type at least two letters. Nearshelf searches every catalog it supports.</string>
     <string name="add_library_none">No libraries found for “%1$s”. Try the city, or the library system’s full name.</string>
     <string name="add_library_partial">Couldn’t reach %1$s just now; results may be incomplete.</string>
-    <string name="add_library_url_tip">You can also paste your library catalog’s web address.</string>
     <string name="add_library_url_tip_body">Paste your catalog’s web address to add it directly.</string>
     <string name="add_library_recognised">Recognised: %1$s catalog</string>
     <string name="add_library_not_recognised">Nearshelf doesn’t recognise this catalog yet. It supports BiblioCommons, Koha, Evergreen, Aspen Discovery, Polaris and Sierra (classic, Encore and Vega).</string>
@@ -64,7 +60,6 @@
     <string name="watch_cancel">Cancel</string>
     <string name="watching_scope">Watching · %1$s</string>
     <string name="watching_scope_at">Watching · %1$s at %2$s</string>
-    <string name="watching_at">Watching · %1$s</string>
     <string name="watch_all_formats">all formats</string>
     <string name="watchlist_scope">Watching %1$s</string>
     <string name="watchlist_scope_at">Watching %1$s at %2$s</string>
@@ -83,7 +78,6 @@
         <item quantity="one">Checked %1$d catalog</item>
         <item quantity="other">Checked %1$d catalogs</item>
     </plurals>
-    <string name="results_not_found">Not in this library’s %1$s collection.</string>
     <string name="results_failed">Couldn’t reach %1$s.</string>
     <string name="results_rate_limited">%1$s is busy. Try again in a minute.</string>
     <string name="badge_available">Available</string>
@@ -110,26 +104,18 @@
     <string name="action_hold_in">Place hold in %1$s</string>
     <string name="action_open_in">Open in %1$s</string>
     <string name="badge_instant_or_flex">Instant or Flex</string>
-    <plurals name="hoopla_monthly_limit">
-        <item quantity="one">This library allows %1$d Hoopla borrow a month.</item>
-        <item quantity="other">This library allows %1$d Hoopla borrows a month.</item>
-    </plurals>
     <string name="hoopla_confirm_note">Hoopla confirms your library carries a title when you open it.</string>
     <plurals name="more_editions">
         <item quantity="one">+%1$d more edition</item>
         <item quantity="other">+%1$d more editions</item>
     </plurals>
-    <string name="section_physical">Library catalog · %1$s</string>
     <string name="results_blocked">This catalog only answers searches made in a browser.</string>
     <string name="action_search_catalog">Search the catalog</string>
     <string name="action_view_catalog">View in catalog</string>
-    <string name="action_hold_catalog">Place hold in catalog</string>
     <string name="badge_on_shelf">On shelf</string>
     <string name="badge_all_out">All copies out</string>
     <string name="badge_unknown">Availability unknown</string>
     <string name="badge_home">Home</string>
-    <string name="caption_on_shelf">on shelf</string>
-    <string name="caption_branches_on_shelf">branches have it</string>
     <string name="branch_has_it">On the shelf</string>
     <string name="branch_library_use">In library use only</string>
     <string name="branch_out_due">Checked out · due %1$s</string>
@@ -201,14 +187,13 @@
     <string name="notif_channel_name">Watchlist updates</string>
     <string name="notif_channel_description">When a watched book becomes available, reaches a shelf, or its wait drops.</string>
     <string name="notif_now_available">Now available at %1$s in %2$s</string>
+    <string name="notif_now_available_format">%3$s now available at %1$s in %2$s</string>
     <string name="notif_on_shelf">On the shelf at %1$s (%2$s)</string>
     <plurals name="notif_wait_dropped">
         <item quantity="one">Wait dropped to %1$d day at %2$s</item>
         <item quantity="other">Wait dropped to %1$d days at %2$s</item>
     </plurals>
 
-    <!-- Results: freshness, distance -->
-    <string name="results_stale">Saved results from %1$s. Couldn’t reach the catalog just now.</string>
     <string name="results_temporarily_unavailable">%1$s is temporarily unavailable. Nearshelf will try again later.</string>
     <string name="location_card_title">See which branch is closest</string>
     <string name="location_card_body">Allow approximate location to sort branches by distance. It stays on your phone and is never sent to libraries or anyone else.</string>
@@ -225,7 +210,6 @@
     <string name="history_empty_title">No lookups yet</string>
     <string name="history_empty_body">Books you look up appear here, so you can check them again in one tap. History stays on your phone.</string>
     <string name="results_offline">You’re offline. Showing saved results.</string>
-    <string name="results_hidden_by_language">Only in languages you’ve chosen to hide.</string>
     <string name="prefs_title">Reading preferences</string>
     <string name="prefs_format_heading">Format I prefer</string>
     <string name="prefs_format_any">No preference</string>
@@ -248,7 +232,6 @@
     <string name="tab_empty">No %1$s at your libraries.</string>
     <string name="tab_empty_hint">The other tabs show what they do have.</string>
     <string name="verdict_available_now">Available now in %1$s</string>
-    <string name="verdict_available_now_at">Available now in %1$s at %2$s</string>
     <string name="verdict_on_service">On %1$s</string>
     <plurals name="verdict_shortest_wait">
         <item quantity="one">Shortest wait: %d day</item>
@@ -270,21 +253,12 @@
     <string name="results_none_body">None of your libraries has this book in any format. Tap Watch to hear if that changes.</string>
     <string name="results_saved_from">Saved %1$s, couldn’t refresh</string>
     <string name="print_catalog">Library catalog</string>
-    <string name="cd_show_branches">Show all branches</string>
     <string name="stat_total_copies">Total copies</string>
     <string name="stat_holds_title">Holds</string>
     <string name="stat_available">Available</string>
     <string name="stat_days_wait">Days wait</string>
     <string name="stat_branches_with">Branches with it</string>
     <string name="action_place_hold">Place hold</string>
-    <plurals name="stat_copies">
-        <item quantity="one">copy</item>
-        <item quantity="other">copies</item>
-    </plurals>
-    <plurals name="stat_holds">
-        <item quantity="one">hold</item>
-        <item quantity="other">holds</item>
-    </plurals>
     <plurals name="hoopla_limit_short">
         <item quantity="one">%1$d Hoopla borrow a month at this library</item>
         <item quantity="other">%1$d Hoopla borrows a month at this library</item>
@@ -292,7 +266,6 @@
     <string name="show_fewer_branches">Show fewer</string>
     <string name="prefs_languages_body">Editions in other languages are marked, or hidden if you turn that off below.</string>
     <string name="prefs_show_other">Show editions in other languages</string>
-    <string name="prefs_show_other_body">They’re marked with their language.</string>
 
     <!-- Widget -->
     <string name="widget_title">Nearshelf watchlist</string>
@@ -353,15 +326,11 @@
     <string name="cd_open_map">Open %1$s in maps</string>
     <string name="cd_open_results">Open availability</string>
     <string name="cd_remove_watch">Stop watching %1$s</string>
-    <string name="cd_scan_barcode">Scan a barcode</string>
     <string name="cd_back">Back</string>
     <string name="cd_clear">Clear</string>
     <string name="cd_cover">Cover of %1$s</string>
-    <string name="cd_move_up">Move %1$s up</string>
     <string name="action_move_up">Move up</string>
     <string name="action_move_down">Move down</string>
     <string name="action_remove">Remove</string>
     <string name="cd_library_options">Options for %1$s</string>
-    <string name="cd_move_down">Move %1$s down</string>
-    <string name="cd_remove_library">Remove %1$s</string>
 </resources>

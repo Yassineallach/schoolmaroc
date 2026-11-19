@@ -123,7 +123,7 @@ class Milestone8Test {
     @Test
     fun `now available, on shelf at home branch, and wait dropped`() {
         val e1 = Watch.events(snap(ebook(false, 30)), snap(ebook(true, null)))
-        assertEquals(listOf<WatchEvent>(WatchEvent.NowAvailable("Seattle Public Library", "Libby")), e1)
+        assertEquals(listOf<WatchEvent>(WatchEvent.NowAvailable("Seattle Public Library", "Libby", Format.EBOOK)), e1)
         val e2 = Watch.events(snap(print("Northgate Branch")), snap(print("Northgate Branch", "Ballard Branch")))
         assertEquals(listOf<WatchEvent>(WatchEvent.OnShelf("Seattle Public Library", "Ballard Branch")), e2)
         val e3 = Watch.events(snap(ebook(false, 40)), snap(ebook(false, 12)))

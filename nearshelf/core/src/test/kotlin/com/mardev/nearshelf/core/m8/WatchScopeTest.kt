@@ -48,7 +48,7 @@ class WatchScopeTest {
     @Test fun `an audiobook watch ignores ebook and print news`() {
         val scope = WatchScope(formats = setOf(Format.AUDIOBOOK))
         val events = Watch.events(Watch.snapshot(1, nothingAvailable(), scope), Watch.snapshot(2, everythingAvailable(), scope))
-        assertEquals(listOf(WatchEvent.NowAvailable("Tacoma Public Library", "Libby")), events)
+        assertEquals(listOf(WatchEvent.NowAvailable("Tacoma Public Library", "Libby", Format.AUDIOBOOK)), events)
     }
 
     @Test fun `a print watch at one library ignores the others`() {

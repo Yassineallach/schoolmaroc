@@ -14,11 +14,12 @@ Your next book, on a shelf near you.
 Nearshelf searches every library you belong to in one go and shows where a book is available: as an ebook, an audiobook, or a print copy on a branch shelf.
 
 • One search, all your libraries: Libby/OverDrive collections, hoopla, and library catalogs (BiblioCommons, Polaris, Evergreen, Koha, Sierra, Vega)
-• Available now or waitlist: see copies, holds and estimated waits side by side
+• eBook, audiobook and print in their own tabs, the quickest way to each first: copies, holds and days to wait at a glance
+• Many books share a title? Pick yours, and results show only that book
 • Nearest branch first: print copies are sorted by distance (your location never leaves your phone)
 • Share from anywhere: share a book from a browser or a reading site and Nearshelf finds it
 • Scan a barcode in a bookshop to check if your library has it
-• Watchlist: get a notification when a book becomes available
+• Watchlist: choose the formats and libraries to watch, and get a notification when the book becomes available, lands on a shelf, or the wait drops
 • Home-screen widget and offline results
 
 When you find a copy, Nearshelf opens the library's own app or website so you can borrow it or place a hold. No account needed. Nearshelf never asks for your library card or PIN.
@@ -30,7 +31,7 @@ Nearshelf is not affiliated with OverDrive, hoopla, or any library or catalog ve
 
 ## Screenshots (phone, 1080×2400, 4–8)
 
-1. Results for a popular title: ebook + audiobook + print availability across 3 libraries (caption: "Every library, one search")
+1. Results for a popular title on the Audiobook tab: cards from 3 libraries, fastest first (caption: "Every library, one search")
 2. Branch list sorted by distance with "On shelf" badges ("Find the nearest copy")
 3. Share sheet from a browser into Nearshelf ("Share a book from anywhere")
 4. Barcode scanner ("Scan in the bookshop")

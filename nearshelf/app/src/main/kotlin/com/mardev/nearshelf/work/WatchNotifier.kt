@@ -35,7 +35,17 @@ class WatchNotifier @Inject constructor(@ApplicationContext private val context:
         ) return
         ensureChannel()
         val text = when (event) {
-            is WatchEvent.NowAvailable -> context.getString(R.string.notif_now_available, event.libraryName, event.service)
+            // Say which format came free: "Audiobook now available at Toronto Public Library in Libby".
+            is WatchEvent.NowAvailable -> event.format?.let { f ->
+                val name = context.getString(
+                    when (f) {
+                        com.mardev.nearshelf.core.model.Format.EBOOK -> R.string.format_ebook
+                        com.mardev.nearshelf.core.model.Format.AUDIOBOOK -> R.string.format_audiobook
+                        else -> R.string.format_physical
+                    },
+                )
+                context.getString(R.string.notif_now_available_format, event.libraryName, event.service, name)
+            } ?: context.getString(R.string.notif_now_available, event.libraryName, event.service)
             is WatchEvent.OnShelf -> context.getString(R.string.notif_on_shelf, event.branch, event.libraryName)
             is WatchEvent.WaitDropped -> context.resources.getQuantityString(R.plurals.notif_wait_dropped, event.days, event.days, event.libraryName)
         }
