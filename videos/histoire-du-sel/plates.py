@@ -29,8 +29,8 @@ def _placeholder(label):
 
 
 class Drawing:
-    def __init__(self, code, label):
-        self.code, self.label = code, label
+    def __init__(self, code, label, backed=True):
+        self.code, self.label, self.backed = code, label, backed
         self.path = next((asset(code + e) for e in ('.png', '.jpg') if os.path.exists(asset(code + e))), None)
 
     @lru_cache(maxsize=2)
@@ -43,11 +43,12 @@ class Drawing:
         else:
             src = _placeholder(f'{self.code} · {self.label}')
         k = min(BOX[0] * scale / src.width, BOX[1] * scale / src.height)
-        return cutout.ink_image(src, int(src.width * k), backed=True)
+        return cutout.ink_image(src, int(src.width * k), backed=self.backed)
 
 
-def drawing(code, label):
-    return Drawing(code, label)
+def drawing(code, label, backed=True):
+    """backed=False for open line drawings (neurons) where filling the silhouette closes gaps."""
+    return Drawing(code, label, backed)
 
 
 def plate(s, d, t, start=ENTER, focus_to=(0.5, 0.5), scale=1.0, cx=W / 2, cy=H / 2 + 10):

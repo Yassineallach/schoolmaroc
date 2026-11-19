@@ -14,7 +14,7 @@ from style import Shot, words, caption
 CLIPS = (1, 2, 3)
 cue = make_cue(CLIPS)
 
-G = {k: PL.drawing(k, label) for k, label in (
+G = {k: PL.drawing(k, label, backed=(k != 'G07')) for k, label in (
     ('G01', 'chèvres sur la crête'), ('G02', 'chèvres chargeant des randonneurs'),
     ('G03', 'chèvre léchant le sol'), ('G04', 'randonneurs sur le sentier'),
     ('G05', 'chèvre évacuée par hélicoptère'), ('G06', 'cristaux de sel'),
@@ -74,14 +74,14 @@ def sG(t, D):
     """Un afflux de sodium, par exemple, déclenche l'activité des cellules nerveuses et leur permet de
     transmettre des messages."""
     s = Shot(t, D)
-    PL.plate(s, G['G07'], t, focus_to=(0.5, 0.7))
+    PL.plate(s, G['G07'], t, focus_to=(0.5, 0.72))
     return s
 
 
 def sH(t, D):
     """Le chlore, lui, est un composant clé de l'acide gastrique, qui aide à digérer les aliments."""
     s = Shot(t, D)
-    PL.plate(s, G['G08'], t, focus_to=(0.5, 0.45))
+    PL.plate(s, G['G08'], t, focus_to=(0.62, 0.62))
     return s
 
 
