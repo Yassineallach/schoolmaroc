@@ -26,10 +26,11 @@ from style import Shot, sfx
 UX, UY = 1300, 900            # board spacing between neighbouring drawings (board pixels): close enough that neighbours show
 SCALE = 0.80                  # drawings are drawn smaller than the frame, so the board shows around them
 ZOOM = 0.80                   # camera framing at rest: wide, so the board and the neighbouring drawings are in view
-PUSH = 0.025                  # slow push while the pen draws
+PUSH = 0.14                   # the camera moves in on the drawing's detail while the pen works
+DIP = 1 / 5200                # on a travel the camera pulls back with the distance (an infinite canvas)
 PAN = 1.5                     # seconds the camera takes to travel to the next drawing
 START_EARLY = 0.45            # the pen starts this long before the camera has fully landed
-ORDER = ['G%02d' % i for i in range(1, 32)]
+ORDER = ['M01'] + ['G%02d' % i for i in range(1, 32)]     # M = pen-drawn maps (tools/make_maps.py)
 
 
 @lru_cache(maxsize=1)
@@ -164,8 +165,8 @@ class Board:
 
     def spot(self, e):
         wx, wy = world(e.code)
-        fx = (e.focus[0] - 0.5) * 1500 * e.scale * 0.2
-        fy = (e.focus[1] - 0.5) * 880 * e.scale * 0.2
+        fx = (e.focus[0] - 0.5) * 1500 * e.scale * 0.45
+        fy = (e.focus[1] - 0.5) * 880 * e.scale * 0.45
         return wx + e.offset[0], wy + e.offset[1], fx, fy
 
     def camera(self, t):
@@ -191,8 +192,11 @@ class Board:
         else:
             px, py, pfx, pfy = self.spot(stops[i - 1][1])
             x0, y0, z0 = px + pfx, py + pfy, ZOOM * (1 + PUSH)
-        k = _ease((t - t0) / PAN)
-        return x0 + (x1 - x0) * k, y0 + (y1 - y0) * k, z0 + (ZOOM - z0) * k
+        u = min(1.0, max(0.0, (t - t0) / PAN))
+        k = _ease(u)
+        pull = min(0.32, math.hypot(x1 - x0, y1 - y0) * DIP)   # longer travels show more of the board
+        z = (z0 + (ZOOM - z0) * k) * (1 - pull * math.sin(math.pi * u))
+        return x0 + (x1 - x0) * k, y0 + (y1 - y0) * k, z
 
     def cell(self, e, t, final=False):
         """One drawing's place (a 1920x1080 cell centred on it), as drawn by time t."""

@@ -25,21 +25,29 @@ def message(c, lt, e):
     """The nerve message travelling down the fibre to the next cell, on « transmettre »."""
     x0, y0, w_, h_ = e.d.box
     pts = [(x0 + (x - 0.05) * w_, y0 + y * h_) for x, y in ((0.29, 0.33), (0.31, 0.43), (0.37, 0.50), (0.42, 0.57), (0.45, 0.64))]
-    A.connect(c, pts, lt, cue(3, 'transmettre') - e.start, dur=1.0, dashed=True, dots=False, width=6, sound=False)
+    A.connect(c, pts, lt, cue(3, 'transmettre') - e.start, dur=1.0, dashed=True, dots=False, width=5, sound=False, colour=INK)
 
 
 E = BD.Entry
-BOARD = BD.Board([
-    E('G01', 'chèvres sur la crête', 0.0, focus=(0.55, 0.45)),
-    E('G02', 'chèvres chargeant des randonneurs', arrive(1, 'Des chevres'), focus=(0.45, 0.55)),
-    E('G03', 'chèvre léchant le sol', arrive(1, 'Elles'), focus=(0.3, 0.6)),
-    E('G04', 'randonneurs sur le sentier', arrive(2, 'En transpirant'), focus=(0.5, 0.3)),
-    E('G05', 'chèvre évacuée par hélicoptère', arrive(2, 'La situation'), focus=(0.4, 0.45)),
-    E('G06', 'cristaux de sel', arrive(3, 'Le comportement'), scale=0.75, offset=(-150, 0),
-      extras=[BD.write('NaCl', 170, 560, 0, cue(3, 'chlorure'))]),     # written by the pen on « chlorure »
-    E('G07', 'cellules nerveuses', arrive(3, 'Un afflux'), focus=(0.5, 0.72), extras=[message]),
+# one pen at a time: a label is written only once its drawing is finished (DONE)
+DONE = lambda code: next(e for e in ENTRIES if e.code == code).start + next(e for e in ENTRIES if e.code == code).dur + 0.15
+ENTRIES = [
+    E('M01', 'carte des États-Unis', 0.0, focus=(0.15, 0.25)),                       # « le parc national Olympic, aux États-Unis »
+    E('G01', 'chèvres sur la crête', arrive(1, 'avait'), focus=(0.55, 0.40)),          # « …avait un problème de chèvres »
+    E('G02', 'chèvres chargeant des randonneurs', arrive(1, 'chargeaient'), focus=(0.40, 0.55)),
+    E('G03', 'chèvre léchant le sol', arrive(1, 'Elles'), focus=(0.28, 0.62)),
+    E('G04', 'randonneurs sur le sentier', arrive(2, 'En transpirant'), focus=(0.55, 0.25)),
+    E('G05', 'chèvre évacuée par hélicoptère', arrive(2, 'La situation'), focus=(0.40, 0.45)),
+    E('G06', 'cristaux de sel', arrive(3, 'Le comportement'), scale=0.75, offset=(-150, 0)),
+    E('G07', 'cellules nerveuses', arrive(3, 'Un afflux'), focus=(0.5, 0.72)),
     E('G08', 'l’estomac', arrive(3, 'Le chlore'), focus=(0.62, 0.62)),
-], end=cue.total + 1.2)
+]
+BOARD = BD.Board(ENTRIES, end=cue.total + 1.2)
+# words, written by the same pen, once their drawing is done
+ENTRIES[6].extras.append(BD.write('NaCl', 170, 560, 0, max(cue(3, 'chlorure'), DONE('G06'))))
+ENTRIES[7].extras.append(BD.write('Na', 120, 520, -300, DONE('G07'), dur=0.7))       # « un afflux de sodium »
+ENTRIES[7].extras.append(message)                                                  # « transmettre des messages »
+ENTRIES[8].extras.append(BD.write('Cl', 120, -560, -300, DONE('G08'), dur=0.7))      # « le chlore »
 
 
 SHOTS = [(0.0, BOARD.scene)]
