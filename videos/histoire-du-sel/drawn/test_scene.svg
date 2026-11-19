@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <!-- sky and layered mountains -->
+  <rect width="1920" height="1080" fill="#FBE9D7"/>
+  <circle cx="1500" cy="260" r="110" fill="#FFB833"/>
+  <path d="M0 640 L330 300 L520 470 L760 220 L1050 560 L1300 330 L1600 600 L1920 380 L1920 1080 L0 1080Z" fill="#B9A7B0"/>
+  <path d="M760 220 L840 315 L800 300 L760 335 L725 300 L690 310Z" fill="#FFFFFF"/>
+  <path d="M330 300 L395 367 L360 360 L330 385 L300 360 L270 362Z" fill="#FFFFFF"/>
+  <path d="M1300 330 L1365 405 L1330 395 L1300 420 L1270 395 L1240 400Z" fill="#FFFFFF"/>
+  <path d="M0 760 L260 560 L470 700 L700 520 L980 760 L1240 600 L1500 760 L1920 560 L1920 1080 L0 1080Z" fill="#513A47"/>
+  <!-- fir trees -->
+  <g fill="#42221F">
+    <path d="M1580 820 L1640 640 L1700 820Z"/><rect x="1632" y="815" width="16" height="30"/>
+    <path d="M1700 840 L1770 610 L1840 840Z"/><rect x="1762" y="835" width="16" height="30"/>
+    <path d="M120 830 L170 680 L220 830Z"/><rect x="163" y="825" width="14" height="26"/>
+  </g>
+  <!-- foreground ridge -->
+  <path d="M0 900 Q420 780 900 830 T1920 820 L1920 1080 L0 1080Z" fill="#ED622B"/>
+  <path d="M0 960 Q500 880 1000 920 T1920 900 L1920 1080 L0 1080Z" fill="#D15626"/>
+  <path d="M560 905 L640 870 L700 905Z M1180 890 L1240 862 L1300 892Z" fill="#B2B2B2"/>
+
+  <!-- goat -->
+  <g transform="translate(560 560)">
+    <!-- far legs -->
+    <path d="M80 210 L70 330 L92 330 L104 215Z" fill="#D9D3CF"/>
+    <path d="M250 200 L262 330 L284 330 L276 200Z" fill="#D9D3CF"/>
+    <rect x="66" y="322" width="28" height="14" rx="4" fill="#42221F"/>
+    <rect x="258" y="322" width="28" height="14" rx="4" fill="#42221F"/>
+    <!-- body: shaggy coat -->
+    <path d="M40 120 Q60 60 150 62 Q260 58 310 90 Q350 120 330 190 L322 236 L300 222 L290 244 L268 226 L250 248 L232 228 L212 250 L196 228 L176 250 L160 226 L140 248 L124 226 L104 246 L90 224 L70 240 L58 214 Q30 170 40 120Z" fill="#FFFFFF"/>
+    <path d="M60 200 Q150 225 320 205 L322 236 L300 222 L290 244 L268 226 L250 248 L232 228 L212 250 L196 228 L176 250 L160 226 L140 248 L124 226 L104 246 L90 224 L70 240 L58 214Z" fill="#E6E0DC"/>
+    <!-- near legs -->
+    <path d="M110 220 L100 330 L124 330 L136 222Z" fill="#FFFFFF"/>
+    <path d="M280 210 L296 330 L320 330 L306 208Z" fill="#FFFFFF"/>
+    <rect x="96" y="322" width="30" height="14" rx="4" fill="#42221F"/>
+    <rect x="292" y="322" width="30" height="14" rx="4" fill="#42221F"/>
+    <!-- hump and neck -->
+    <path d="M280 70 Q330 40 360 70 L392 130 Q360 150 320 140Z" fill="#FFFFFF"/>
+    <!-- head -->
+    <path d="M350 60 Q380 30 410 52 L440 120 Q440 140 420 142 Q400 140 392 128Z" fill="#FFFFFF"/>
+    <path d="M405 120 Q420 142 440 128 Q440 140 420 146 Q404 144 400 132Z" fill="#E6E0DC"/>
+    <!-- beard -->
+    <path d="M396 130 Q402 175 388 196 Q382 165 380 140Z" fill="#FFFFFF"/>
+    <!-- horns -->
+    <path d="M372 46 Q366 10 382 -12 Q378 20 386 44Z" fill="#1E1416"/>
+    <path d="M390 44 Q392 8 410 -10 Q400 22 402 46Z" fill="#1E1416"/>
+    <!-- ear, eye, nose -->
+    <path d="M362 62 L336 54 L360 76Z" fill="#E6E0DC"/>
+    <circle cx="408" cy="78" r="5" fill="#1E1416"/>
+    <path d="M430 126 L440 120 L438 132Z" fill="#1E1416"/>
+  </g>
+
+  <!-- hiker -->
+  <g transform="translate(1180 530)">
+    <!-- pole back -->
+    <path d="M150 170 L196 420" stroke="#828282" stroke-width="6" stroke-linecap="round"/>
+    <!-- back leg -->
+    <path d="M70 230 Q60 300 30 360 L60 372 Q96 312 104 240Z" fill="#513A47"/>
+    <path d="M18 356 L64 366 L70 392 L10 384Z" fill="#42221F"/>
+    <!-- front leg -->
+    <path d="M90 230 Q120 300 150 360 L122 374 Q86 312 66 240Z" fill="#F759A8"/>
+    <path d="M118 366 L160 356 L176 382 L116 390Z" fill="#42221F"/>
+    <!-- backpack -->
+    <path d="M-20 60 Q-24 20 20 12 L56 14 Q72 30 70 80 L68 200 Q40 214 0 206 Q-28 196 -26 160Z" fill="#ED622B"/>
+    <path d="M-26 150 Q-28 196 0 206 Q40 214 68 200 L68 176 Q30 192 -26 150Z" fill="#D15626"/>
+    <rect x="-30" y="96" width="102" height="16" rx="6" fill="#FFB833"/>
+    <!-- torso -->
+    <path d="M40 40 Q80 26 110 44 L120 140 Q120 200 100 236 L56 236 Q40 160 40 40Z" fill="#513A47"/>
+    <path d="M86 50 L100 48 L104 230 L90 232Z" fill="#B2B2B2"/>
+    <!-- strap -->
+    <path d="M52 44 L66 44 L80 180 L66 182Z" fill="#FFB833"/>
+    <!-- arm and pole front -->
+    <path d="M96 70 Q150 120 176 166 L162 178 Q120 140 86 100Z" fill="#513A47"/>
+    <circle cx="174" cy="172" r="12" fill="#F759A8"/>
+    <path d="M176 172 L226 420" stroke="#828282" stroke-width="6" stroke-linecap="round"/>
+    <!-- head -->
+    <path d="M78 -6 Q114 -10 118 26 Q118 50 98 54 Q76 50 72 26Z" fill="#A0603A"/>
+    <path d="M70 6 Q72 -34 110 -30 Q126 -24 124 6Z" fill="#F759A8"/>
+    <path d="M70 0 L126 0 L126 10 L70 10Z" fill="#E54A9F"/>
+    <path d="M114 22 L124 30 L114 32Z" fill="#8A4E2E"/>
+  </g>
+</svg>
