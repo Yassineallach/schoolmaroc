@@ -75,10 +75,8 @@ BOARD = BD.Board(ENTRIES, before=act1.ENTRIES + act2.ENTRIES + act3.ENTRIES, end
                  before_marks=act1.MARKS + act2.MARKS + act3.MARKS)
 G = {e.code: e for e in ENTRIES}
 DONE = {c: e.start + e.dur + 0.15 for c, e in G.items()}
-G['G21'].extras.append(BD.write('Grèce antique', 64, 0.5, 1.07, max(cue(10, 'Grece'), DONE['G21']), frac=True))
 G['G22'].extras.append(BD.write('au-dessus du sel', 50, 0.27, -0.06, max(cue(10, 'au -dessus'), DONE['G22']) + 1.1, frac=True))
 G['G22'].extras.append(BD.write('en dessous', 50, 0.78, -0.06, max(cue(10, 'dessous'), DONE['G22'] + 3.0), frac=True))
-G['M07'].extras.append(BD.write('XVIIIe siècle', 60, 0.5, 1.07, DONE['M07'], frac=True))
 
 # the salt cellar divides the table: a dashed line down through it on « au-dessus du sel »
 G['G22'].extras.append(dashed([(0.525, 0.10), (0.525, 0.97)], max(cue(10, 'au -dessus'), DONE['G22'])))
@@ -90,7 +88,6 @@ MARKS += [BD.Line(list(BD.edge('G37', 'G26', 0.2)), DONE['G26'], dur=0.6, dashed
 # India: « Inde », a ring on Gujarat, then the close-up beside it: the march to the sea, « Dandi »
 # (no connector line: it crossed the whole country; the ring and the close-up side by side are enough)
 t = DONE['M05']
-G['M05'].extras.append(BD.write('Inde', 80, 0.48, 0.58, t, frac=True))
 t += 0.6
 dx, dy = IND['pin']
 G['M05'].extras.append(ring(dx, dy - 0.03, 46, t))

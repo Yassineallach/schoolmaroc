@@ -66,7 +66,6 @@ BOARD = BD.Board(ENTRIES, before=act1.ENTRIES + act2.ENTRIES, end=cue.total + 1.
                  before_marks=act1.MARKS + act2.MARKS)
 DONE = {e.code: e.start + e.dur + 0.15 for e in ENTRIES}
 G = {e.code: e for e in ENTRIES}
-G['G20'].extras.append(BD.write('Rome antique', 64, 0.5, -0.07, DONE['G20'], frac=True))                       # « Dans la Rome antique »
 
 # taste: under the pinch (left spoon) and the heaped spoon (right), each effect written on its word
 pen = DONE['G38']
@@ -84,8 +83,6 @@ for col, word, up, spoken in ((-330, 'amer', False, cue(7, 'ameres')), (-330, 'a
 MARKS += [BD.Note('?', 220, (BD.frame_of(['G17', 'G38'])[0][0], BD.frame_of(['G17', 'G38'])[0][1] - 420), max(cue(7, 'Pourtant'), pen))]          # « Pourtant… reste un mystère »
 G['M04'].extras.append(BD.write('Sahara', 64, PINS[0][0] + 0.05, PINS[0][1] - 0.02, DONE['M04'], frac=True, anchor='l'))
 G['M04'].extras.append(route(DONE['M04'] + 1.0))
-G['M04'].extras.append(BD.write('Afrique de l’Ouest', 54, PINS[1][0] + 0.06, PINS[1][1] + 0.02, DONE['M04'] + 2.2, frac=True, anchor='l'))                                                   # to « …qui en manquaient »
-MARKS += [BD.Note('1er millénaire', 60, (BD.world('G18')[0], BD.world('G18')[1] - 360), DONE['G18'])]                                 # « Dès le premier millénaire de notre ère »
 G['G20'].extras.append(BD.write('salaire', 110, 720, -40, max(cue(9, 'salaire'), DONE['G20'])))
 G['G20'].extras.append(BD.write('sal', 110, 640, 110, cue(9, 'sal')))                               # under the first three letters
 

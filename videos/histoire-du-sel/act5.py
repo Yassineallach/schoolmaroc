@@ -57,11 +57,7 @@ END = CLOSE.arrive + 3.0                       # hold on the goat and the shaker
 BOARD = BD.Board(ENTRIES, before=BEFORE, end=END, marks=MARKS, before_marks=BEFORE_MARKS)
 G = {e.code: e for e in ENTRIES}
 DONE = {c: e.start + e.dur + 0.15 for c, e in G.items()}
-G['G29'].extras.append(BD.write('Morton Salt', 64, 0.5, 1.07, max(cue(13, 'Morton'), DONE['G29']), frac=True))
-G['G36'].extras.append(BD.write('carbonate de magnésium', 56, 0.5, 1.07, max(cue(13, 'carbonate'), DONE['G36']), frac=True))
 _P9 = json.load(open(asset('M09.json')))['pins']
-G['M09'].extras.append(BD.write('Amérique du Nord', 56, 0.25, 1.05, max(cue(13, "'Amerique"), DONE['M09']), frac=True))
-G['M09'].extras.append(BD.write('Europe', 56, 0.82, 1.05, max(cue(13, "'Europe"), DONE['M09']) + 1.6, frac=True))
 
 # the chart: « production » on the rising line, « prix » on the falling one, then the quantity
 cw, ch = BD.Entry('C01', '').d.layers(BD.SCALE)[0].size
@@ -70,7 +66,7 @@ up = (cx0 + (CURVE['up_end'][0] - 0.5) * cw, cy0 + (CURVE['up_end'][1] - 0.5) * 
 down = (cx0 + (CURVE['down_end'][0] - 0.5) * cw, cy0 + (CURVE['down_end'][1] - 0.5) * ch)
 MARKS += [BD.Note('production', 54, (up[0] - 330, up[1] - 50), max(cue(12, 'explose'), DONE['C01'])),
           BD.Note('prix', 54, (down[0] - 120, down[1] - 50), cue(12, "'est effondre")),
-          BD.Note('des millions de tonnes', 58, (BD.world('G27')[0], BD.world('G27')[1] + 420), max(cue(12, 'millions'), DONE['G27']), dur=0.9)]
+]
 G['G29'].extras.append(BD.write('1911', 90, 0.18, 0.12, max(cue(13, '1911'), DONE['G29']), frac=True))
 
 SHOTS = [(0.0, BOARD.scene)]

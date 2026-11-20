@@ -41,7 +41,6 @@ MARKS = []
 BOARD = BD.Board(ENTRIES, before=act1.ENTRIES, end=cue.total + 1.2, marks=MARKS, before_marks=act1.MARKS)
 G = {e.code: e for e in ENTRIES if not e.look}
 DONE = {c: e.start + e.dur + 0.15 for c, e in G.items()}
-G['G32'].extras.append(BD.write('sel gemme', 64, 0.5, 1.06, DONE['G32'], frac=True))                           # the term, under the salt layer
 
 # farming timeline: from the basket to the farmer, a tick at the farmer, « ~11 000 ans »
 t11 = max(cue(4, '11'), DONE['G11'])
