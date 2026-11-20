@@ -44,15 +44,17 @@ ENTRIES = [
     E('M09', 'Amérique du Nord et Europe', arrive(13, 'trone'), focus=(0.5, 0.5)),
     E('G31', 'la chèvre et la salière', T_LAST + 4.2, focus=(0.5, 0.5), max_dur=3.0),     # home: under the first goats
 ]
-END_VIEW = BD.final_view()
-END_VIEW.arrive = None
 MARKS = []
 BEFORE = act1.ENTRIES + act2.ENTRIES + act3.ENTRIES + act4.ENTRIES
 BEFORE_MARKS = act1.MARKS + act2.MARKS + act3.MARKS + act4.MARKS
-ENTRIES.append(END_VIEW)
-# the final view comes after the last goat is drawn and held a moment
-END_VIEW.arrive = ENTRIES[-2].arrive + 3.0 + 1.0 + 4.0
-END = END_VIEW.arrive + 5.0
+# the ending (the user's choice): no pull-back over the board; once the last goat is drawn, the
+# camera moves in on it, the goat and the salt shaker, and holds
+_gx, _gy = BD.world('G31')
+_gw, _gh = 1500 * BD.SIZE.get('G31', 1.0) * BD.SCALE, 880 * BD.SIZE.get('G31', 1.0) * BD.SCALE
+CLOSE = E('CLOSE', 'gros plan sur la chèvre', ENTRIES[-1].arrive + 3.6, look=True,
+          at=(_gx - 0.12 * _gw, _gy + 0.12 * _gh), zoom=1.45)
+ENTRIES.append(CLOSE)
+END = CLOSE.arrive + 3.5
 BOARD = BD.Board(ENTRIES, before=BEFORE, end=END, marks=MARKS, before_marks=BEFORE_MARKS)
 G = {e.code: e for e in ENTRIES}
 DONE = {c: e.start + e.dur + 0.15 for c, e in G.items()}

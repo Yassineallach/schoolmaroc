@@ -95,8 +95,9 @@ G['M08'].arrive = t + BD.START_EARLY
 G['M08'].start = t
 G['M08'].dur = 1.5
 (gx, gy), (ax, ay) = GUJ
-G['M08'].extras.append(dashed([(ax, ay), ((ax + gx) / 2 - 0.02, (ay + gy) / 2), (gx, gy - 0.05)], t + 1.65, dur=0.9))
-G['M08'].extras.append(BD.write('Dandi', 64, gx + 0.04, gy + 0.03, t + 2.65, frac=True, anchor='l'))
+G['M08'].extras.append(ring(ax, ay, 12, t + 1.6, dur=0.3))                                   # the start, inland
+G['M08'].extras.append(dashed([(ax, ay + 0.03), ((ax + gx) / 2 - 0.03, (ay + gy) / 2), (gx, gy - 0.07)], t + 1.95, dur=0.9))
+G['M08'].extras.append(BD.write('Dandi', 64, gx + 0.04, gy + 0.03, t + 2.95, frac=True, anchor='l'))
 
 SHOTS = [(0.0, BOARD.scene)]
 

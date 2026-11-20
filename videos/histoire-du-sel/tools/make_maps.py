@@ -99,7 +99,7 @@ def country_map(path, iso, pin, Wd=1300, Hd=900, pad=60, min_ring=8, extra=(), l
     print(path)
 
 
-def region_map(path, continent, box, pins, Wd=1400, Hd=1000, pad=40, waves=()):
+def region_map(path, continent, box, pins, Wd=1400, Hd=1000, pad=40, waves=(), frame=False):
     """The coastline of a continent inside a lon/lat box (no inner borders: the countries are
     filled together and only the outer edge is kept), with pen pins at `pins`."""
     import numpy as np
@@ -120,8 +120,12 @@ def region_map(path, continent, box, pins, Wd=1400, Hd=1000, pad=40, waves=()):
                 dm.polygon([P(x, y) for x, y in ring], fill=0 if j else 255)
     a = np.asarray(m) > 0
     edge = a ^ ndimage.binary_erosion(a, iterations=3)
-    edge[:pad // 2 + 4, :] = edge[-pad // 2 - 4:, :] = False          # the box's own edge is not a coast
-    edge[:, :pad // 2 + 4] = edge[:, -pad // 2 - 4:] = False
+    if not frame:
+        edge[:pad // 2 + 4, :] = edge[-pad // 2 - 4:, :] = False      # the box's own edge is not a coast
+        edge[:, :pad // 2 + 4] = edge[:, -pad // 2 - 4:] = False
+    else:
+        edge[:pad // 2 + 3, :] = edge[-pad // 2 - 3:, :] = False
+        edge[:, :pad // 2 + 3] = edge[:, -pad // 2 - 3:] = False
     im = Image.fromarray(np.where(edge, 0, 255).astype(np.uint8)).convert('RGB')
     d = ImageDraw.Draw(im)
     out = []
@@ -134,6 +138,9 @@ def region_map(path, continent, box, pins, Wd=1400, Hd=1000, pad=40, waves=()):
         d.ellipse((px - 22, py - 70, px + 22, py - 26), outline='black', width=6)
         d.ellipse((px - 6, py - 54, px + 6, py - 42), fill='black')
         d.line((px, py - 26, px, py), fill='black', width=6)
+    if frame:                                                 # an inset frame closes the cut-off land
+        im_a = np.asarray(im.convert('L')) < 128
+        d.rectangle((pad // 2, pad // 2, Wd - pad // 2, Hd - pad // 2), outline='black', width=6)
     if waves:
         for wx, wy in waves:
             px, py = P(wx, wy)
@@ -155,7 +162,7 @@ if __name__ == '__main__':
     country_map(os.path.join(PROJ, 'assets', 'M07.png'), 'FRA', (2.37, 48.85), Wd=1000, Hd=1000, lon_min=-10)   # Paris
     region_map(os.path.join(PROJ, 'assets', 'M08.png'), 'Asia', (67.5, 75.5, 19.0, 25.5),        # Gujarat, close up
                [(72.80, 20.89), (72.58, 23.06, False)], Wd=1000, Hd=820,
-               waves=[(70.2, 20.4), (71.2, 19.6), (69.0, 21.6)])                         # Dandi, from Ahmedabad
+               waves=[(70.2, 20.4), (71.2, 19.6), (69.0, 21.6)], frame=True)                         # Dandi, from Ahmedabad
     region_map(os.path.join(PROJ, 'assets', 'M09.png'), ('North America', 'Europe'), (-130, 35, 15, 70),
                [(-95, 40), (8, 49)], Wd=1500, Hd=820)                              # North America, Europe
     curves(os.path.join(PROJ, 'assets', 'C01.png'))
