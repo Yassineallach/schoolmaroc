@@ -47,7 +47,7 @@ def us_map(path, pin=(-123.6, 47.8), label='Parc national Olympic'):
     print(path)
 
 
-def country_map(path, iso, pin, Wd=1300, Hd=900, pad=60, min_ring=8):
+def country_map(path, iso, pin, Wd=1300, Hd=900, pad=60, min_ring=8, extra=()):
     """One country's outline (its larger rings only) with a pen pin; the pin's place is saved
     beside the image so the pen can write the label there."""
     rings = [r for poly in country(iso)['polys'] for r in poly if len(r) >= min_ring]
@@ -70,7 +70,8 @@ def country_map(path, iso, pin, Wd=1300, Hd=900, pad=60, min_ring=8):
     d.ellipse((px - 6, py - 54, px + 6, py - 42), fill='black')
     d.line((px, py - 26, px, py), fill='black', width=6)
     im.save(path)
-    json.dump({'pin': [px / Wd, py / Hd]}, open(path[:-4] + '.json', 'w'))
+    json.dump({'pin': [px / Wd, py / Hd], 'extra': [[P(*e)[0] / Wd, P(*e)[1] / Hd] for e in extra]},
+              open(path[:-4] + '.json', 'w'))
     print(path)
 
 
@@ -120,3 +121,5 @@ if __name__ == '__main__':
     country_map(os.path.join(PROJ, 'assets', 'M03.png'), 'AUT', (13.65, 47.56))      # Hallstatt
     region_map(os.path.join(PROJ, 'assets', 'M04.png'), 'Africa', (-18, 52, -35, 38),  # the salt road, on the whole continent
                [(-3.98, 22.68), (-4.2, 13.2, False)], Wd=1000, Hd=1040)               # Taoudenni (Sahara) -> the Niger bend, West Africa
+    country_map(os.path.join(PROJ, 'assets', 'M05.png'), 'IND', (72.80, 20.89),      # Dandi, where the Salt March reached the sea
+                Wd=1000, Hd=1100, extra=[(72.58, 23.06)])                              # from the Sabarmati ashram, Ahmedabad
