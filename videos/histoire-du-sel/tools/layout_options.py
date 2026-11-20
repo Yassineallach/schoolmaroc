@@ -102,8 +102,71 @@ def world_underlay(d, S, z):
                 d.line([S((x * 260, -y * 330)) for x, y in ring], fill=(150, 125, 95), width=1)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__' and len(sys.argv) == 1:
     render(islands(), 'A_islands', 'A · Îlots par chapitre')
     render(trail(), 'B_trail', 'B · Un sentier qui serpente', trail_line=True)
     render(spiral(), 'C_spiral', 'C · Une spirale', trail_line=True)
     render(world_map(), 'D_world', 'D · Sur la carte du monde', underlay=world_underlay)
+
+
+def mindmap():
+    """E: salt at the centre (the NaCl crystals); the five chapters sit around it like a constellation,
+    each a small block read left to right, clockwise from the top left."""
+    pos = {}
+    centres = [(-6200, -3300), (0, -3600), (6200, -3300), (6200, 3300), (-6200, 3300)]
+    for (ox, oy), act in zip(centres, ACTS):
+        cols = 4 if len(act) > 9 else 3
+        rows = (len(act) + cols - 1) // cols
+        for i, c in enumerate(act):
+            pos[c] = (ox + (i % cols - (cols - 1) / 2) * DX, oy + (i // cols - (rows - 1) / 2) * DY)
+    pos['G06'] = (0, 0)
+    return pos
+
+
+def staircase():
+    """F: a staircase going down to the right: every row reads left to right, each new act one step lower."""
+    pos = {}
+    for a_i, act in enumerate(ACTS):
+        for i, c in enumerate(act):
+            pos[c] = (a_i * 2900 + i * DX, a_i * 1500 + (i % 2) * 260)
+    return pos
+
+
+def notebook():
+    """G: like lines in a notebook: each act is one line, always read left to right, the next act starts on the line below."""
+    pos = {}
+    for a_i, act in enumerate(ACTS):
+        for i, c in enumerate(act):
+            pos[c] = (i * DX, a_i * 1300)
+    return pos
+
+
+def river():
+    """H: a river of time across the board: the story flows along it, each act a block growing above or below it."""
+    pos, x = {}, 0
+    for a_i, act in enumerate(ACTS):
+        sgn = -1 if a_i % 2 == 0 else 1
+        cols = 4
+        for i, c in enumerate(act):
+            col, row = i % cols, i // cols
+            pos[c] = (x + col * DX, sgn * (800 + row * DY))
+        x += cols * DX * 0.62
+    return pos
+
+
+def river_underlay(pos):
+    xs = [p[0] for p in pos.values()]
+    def draw(d, S, z):
+        a, b = S((min(xs) - 600, 0)), S((max(xs) + 600, 0))
+        for k in range(0, 3):
+            y = a[1] + (k - 1) * 6
+            d.line([(a[0], y), (b[0], y)], fill=(90, 70, 50), width=2)
+    return draw
+
+
+if __name__ == '__main__' and len(sys.argv) > 1 and sys.argv[1] == 'more':
+    render(mindmap(), 'E_mindmap', 'E · Carte mentale autour du sel', trail_line=True)
+    render(staircase(), 'F_stairs', 'F · Un escalier qui descend', trail_line=True)
+    render(notebook(), 'G_notebook', 'G · Les lignes d’un carnet', trail_line=True)
+    pr = river()
+    render(pr, 'H_river', 'H · Le fleuve du temps', underlay=river_underlay(pr))
