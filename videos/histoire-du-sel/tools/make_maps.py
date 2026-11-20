@@ -74,7 +74,46 @@ def country_map(path, iso, pin, Wd=1300, Hd=900, pad=60, min_ring=8):
     print(path)
 
 
+def region_map(path, continent, box, pins, Wd=1400, Hd=1000, pad=40):
+    """The coastline of a continent inside a lon/lat box (no inner borders: the countries are
+    filled together and only the outer edge is kept), with pen pins at `pins`."""
+    import numpy as np
+    from scipy import ndimage
+    lon0, lon1, lat0_, lat1 = box
+    latm = math.radians((lat0_ + lat1) / 2)
+    k = min((Wd - 2 * pad) / ((lon1 - lon0) * math.cos(latm)), (Hd - 2 * pad) / (lat1 - lat0_))
+
+    def P(lon, lat):
+        return (pad + (lon - lon0) * math.cos(latm) * k, pad + (lat1 - lat) * k)
+    m = Image.new('L', (Wd, Hd), 0)
+    dm = ImageDraw.Draw(m)
+    for c in GEO:
+        if c['continent'] != continent:
+            continue
+        for poly in c['polys']:
+            for j, ring in enumerate(poly):
+                dm.polygon([P(x, y) for x, y in ring], fill=0 if j else 255)
+    a = np.asarray(m) > 0
+    edge = a ^ ndimage.binary_erosion(a, iterations=3)
+    edge[:pad // 2 + 4, :] = edge[-pad // 2 - 4:, :] = False          # the box's own edge is not a coast
+    edge[:, :pad // 2 + 4] = edge[:, -pad // 2 - 4:] = False
+    im = Image.fromarray(np.where(edge, 0, 255).astype(np.uint8)).convert('RGB')
+    d = ImageDraw.Draw(im)
+    out = []
+    for lon, lat in pins:
+        px, py = P(lon, lat)
+        d.ellipse((px - 22, py - 70, px + 22, py - 26), outline='black', width=6)
+        d.ellipse((px - 6, py - 54, px + 6, py - 42), fill='black')
+        d.line((px, py - 26, px, py), fill='black', width=6)
+        out.append([px / Wd, py / Hd])
+    im.save(path)
+    json.dump({'pin': out[0], 'pins': out}, open(path[:-4] + '.json', 'w'))
+    print(path)
+
+
 if __name__ == '__main__':
     us_map(os.path.join(PROJ, 'assets', 'M01.png'))
     country_map(os.path.join(PROJ, 'assets', 'M02.png'), 'CHN', (104.78, 29.35))     # Zigong, Sichuan: the salt river
     country_map(os.path.join(PROJ, 'assets', 'M03.png'), 'AUT', (13.65, 47.56))      # Hallstatt
+    region_map(os.path.join(PROJ, 'assets', 'M04.png'), 'Africa', (-18, 14, 8, 36),   # the salt road (north-west Africa)
+               [(-3.98, 22.68), (-3.0, 16.77)])                                       # Taoudenni (Sahara) -> Tombouctou

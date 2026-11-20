@@ -31,7 +31,7 @@ DIP = 1 / 5200                # on a travel the camera pulls back with the dista
 PAN = 1.5                     # seconds the camera takes to travel to the next drawing
 START_EARLY = 0.45            # the pen starts this long before the camera has fully landed
 ORDER = (['M01'] + ['G%02d' % i for i in range(1, 13)] + ['M02', 'G13', 'M03']
-         + ['G%02d' % i for i in range(14, 32)])     # M = pen-drawn maps (tools/make_maps.py)
+         + ['G%02d' % i for i in range(14, 18)] + ['M04'] + ['G%02d' % i for i in range(18, 32)])     # M = pen-drawn maps (tools/make_maps.py)
 
 
 @lru_cache(maxsize=1)
