@@ -26,20 +26,22 @@ WORLD = json.load(open(asset('M06.json')))['pins']          # [China, Hallstatt]
 E = BD.Entry
 ENTRIES = [
     E('G09', 'chasseurs-cueilleurs', focus=(0.45, 0.45)),                                   # opens on the travel from act 1
-    E('G10', 'panier de plantes', arrive(4, 'Les plantes'), at=BD.frame_of(['G10', 'G33'])[0], zoom=BD.frame_of(['G10', 'G33'])[1]),   # frames the basket and the balance above
-    E('G33', 'viande contre plantes', cue(4, 'mais'), stay=True, max_dur=1.2),              # « …mais beaucoup moins »
-    E('G11', 'premier agriculteur', arrive(4, 'Lorsque'), at=BD.frame_of(['G33', 'G11'])[0], zoom=BD.frame_of(['G33', 'G11'])[1]),
+    BD.cluster(E('G10', 'panier de plantes', arrive(4, 'Les plantes')), 'G33', 'G11'),    # basket, balance, farmer on one frame
+    E('G33', 'viande contre plantes', cue(4, 'mais'), stay=True),                           # « …mais beaucoup moins »
+    E('G11', 'premier agriculteur', cue(4, 'Lorsque'), stay=True),
     E('G12', 'bassins d’eau de mer', arrive(5, 'Les civilisations'), focus=(0.6, 0.55)),
-    E('M06', 'carte : Chine et Autriche', arrive(5, 'Dans'), focus=(0.75, 0.45)),            # « …du centre de la Chine »
-    E('G13', 'saumure bouillie en Chine', arrive(5, 'faisaient'), focus=(0.3, 0.55)),
-    E('M06', 'carte', arrive(5, 'Pendant'), look=True, at=BD.world('M06'), zoom=0.8),         # back to the map: Hallstatt
-    E('G14', 'mineurs de Hallstatt', arrive(5, 'creusaient'), focus=(0.65, 0.5)),
-    E('G32', 'mer ancienne enfouie', arrive(5, 'enfoui'), focus=(0.5, 0.75)),               # the camera drops into the mountain
+    BD.cluster(E('M06', 'carte : Chine et Autriche', arrive(5, 'Dans')), 'G13'),          # « …du centre de la Chine »
+    E('G13', 'saumure bouillie en Chine', cue(5, 'faisaient'), stay=True),
+    E('M06', 'carte', arrive(5, 'Pendant'), look=True, at=BD.frame_of(['M06', 'G14', 'G32'], 1.16)[0],
+      zoom=BD.frame_of(['M06', 'G14', 'G32'], 1.16)[1]),                                    # Hallstatt: map, miners, buried sea together
+    E('G14', 'mineurs de Hallstatt', cue(5, 'creusaient'), stay=True),
+    E('G32', 'mer ancienne enfouie', cue(5, 'gemme'), stay=True),                           # « …sel gemme, enfoui… »
 ]
 MARKS = []
 BOARD = BD.Board(ENTRIES, before=act1.ENTRIES, end=cue.total + 1.2, marks=MARKS, before_marks=act1.MARKS)
 G = {e.code: e for e in ENTRIES if not e.look}
 DONE = {c: e.start + e.dur + 0.15 for c, e in G.items()}
+G['G32'].extras.append(BD.write('sel gemme', 64, 0.5, 1.06, DONE['G32'], frac=True))                           # the term, under the salt layer
 
 # farming timeline: from the basket to the farmer, a tick at the farmer, « ~11 000 ans »
 t11 = max(cue(4, '11'), DONE['G11'])

@@ -60,11 +60,11 @@ E = BD.Entry
 ENTRIES = [
     E('G21', 'salière grecque', focus=(0.5, 0.45)),                                       # « …les salières… Grèce antique »
     E('G22', 'le banquet', arrive(10, 'Selon'), focus=(0.5, 0.45)),
-    E('M07', 'carte de France', arrive(11, 'Au XVIIIe'), at=BD.frame_of(['M07', 'G23'])[0], zoom=BD.frame_of(['M07', 'G23'])[1], max_dur=1.3),   # « Au XVIIIe siècle, en France »
+    BD.cluster(E('M07', 'carte de France', arrive(11, 'Au XVIIIe')), 'G23', 'G24'),     # France, the tax, the Revolution on one frame
     E('G23', 'la gabelle', cue(11, 'un impot'), stay=True),                                # « …un impôt impopulaire »
-    E('G24', 'la Révolution', arrive(11, 'contribue'), focus=(0.6, 0.4)),
-    E('G25', 'la marche du sel', arrive(11, 'En 1930'), focus=(0.7, 0.4)),                  # « En 1930, la marche du sel… »
-    E('G37', 'la loi britannique', arrive(11, 'lois'), at=BD.frame_of(['G37', 'G26'])[0], zoom=BD.frame_of(['G37', 'G26'])[1], max_dur=1.2),
+    E('G24', 'la Révolution', cue(11, 'a contribue'), stay=True),
+    BD.cluster(E('G25', 'la marche du sel', arrive(11, 'En 1930')), 'G37', 'G26'),        # the march, the law, the forbidden harvest
+    E('G37', 'la loi britannique', cue(11, 'lois'), stay=True),
     E('G26', 'récolter le sel', cue(11, 'recolter'), stay=True),
     E('M05', 'carte de l’Inde', arrive(11, 'donne'), at=BD.frame_of(['M05', 'M08'])[0], zoom=BD.frame_of(['M05', 'M08'])[1], max_dur=1.4),   # « …l'indépendance de l'Inde »
     E('M08', 'le Gujarat', None, stay=True),                                                # set below, after « Inde »
@@ -75,6 +75,10 @@ BOARD = BD.Board(ENTRIES, before=act1.ENTRIES + act2.ENTRIES + act3.ENTRIES, end
                  before_marks=act1.MARKS + act2.MARKS + act3.MARKS)
 G = {e.code: e for e in ENTRIES}
 DONE = {c: e.start + e.dur + 0.15 for c, e in G.items()}
+G['G21'].extras.append(BD.write('Grèce antique', 64, 0.5, 1.07, max(cue(10, 'Grece'), DONE['G21']), frac=True))
+G['G22'].extras.append(BD.write('au-dessus du sel', 50, 0.27, -0.06, max(cue(10, 'au -dessus'), DONE['G22']) + 1.1, frac=True))
+G['G22'].extras.append(BD.write('en dessous', 50, 0.78, -0.06, max(cue(10, 'dessous'), DONE['G22'] + 3.0), frac=True))
+G['M07'].extras.append(BD.write('XVIIIe siècle', 60, 0.5, 1.07, DONE['M07'], frac=True))
 
 # the salt cellar divides the table: a dashed line down through it on « au-dessus du sel »
 G['G22'].extras.append(dashed([(0.525, 0.10), (0.525, 0.97)], max(cue(10, 'au -dessus'), DONE['G22'])))

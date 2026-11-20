@@ -28,6 +28,8 @@ ZOOM = 0.80                   # camera framing at rest: wide, so the board and t
 PUSH = 0.14                   # the camera moves in on the drawing's detail while the pen works
 DIP = 1 / 5200                # on a travel the camera pulls back with the distance (an infinite canvas)
 PAN = 1.5                     # seconds for a travel to the neighbouring drawing; longer travels take longer
+GROUP = 3.6                   # sentences closer than this share one frame (no travel)
+CLOSE_PAN = 3.2               # the final move in on the last drawing, slow
 START_EARLY = 0.45            # the pen starts this long before the camera has fully landed
 
 # The board's composition: layout « C », chosen by the user from the compact random boards
@@ -92,6 +94,15 @@ def mid(a, b_, dy=0):
     """The point between two drawings (to frame both)."""
     (x0, y0), (x1, y1) = LAYOUT[a], LAYOUT[b_]
     return ((x0 + x1) / 2, (y0 + y1) / 2 + dy)
+
+
+def cluster(first, *codes, margin=1.10):
+    """Frame several neighbouring drawings at once: `first` (an Entry) becomes the stop that frames
+    them all (no push-in, so none is cropped); the drawings after it are added with stay=True and
+    the pen draws each on its own sentence while the camera holds."""
+    first.at, first.zoom = frame_of([first.code] + list(codes), margin)
+    first.still = True
+    return first
 
 
 def frame_of(codes, margin=1.12):
@@ -234,6 +245,16 @@ class Board:
         self.entries = entries
         self.before = [b_ for b_ in before if not b_.look]
         prev = self.spot(before[-1]) if before else None
+        # quick sentences (the user's note: « some scenes are too fast »): when a drawing's sentence
+        # comes less than GROUP seconds after the previous one, the camera does not travel away; it
+        # eases back to frame both neighbours and the pen draws the new one beside the last
+        for i in range(1, len(entries)):
+            e, p = entries[i], entries[i - 1]
+            if (e.look or e.stay or e.at is not None or p.look or e.arrive is None or p.arrive is None
+                    or e.arrive - p.arrive >= GROUP):
+                continue
+            e.at, e.zoom = frame_of([p.code, e.code], 1.08)
+            e.group = True
         last_z = None
         for i, e in enumerate(entries):
             if not e.look:
@@ -241,16 +262,23 @@ class Board:
             if e.stay and prev is not None:
                 e.at, e.zoom = prev, (last_z or ZOOM * (1 + PUSH))
             x, y, fx, fy = self.spot(e)
-            last_z = e.zoom if (e.look or e.stay) else (e.zoom or ZOOM) * (1 + PUSH)   # the camera's zoom when this stop ends
+            last_z = e.zoom if (e.look or e.stay or getattr(e, 'still', False)) else (e.zoom or ZOOM) * (1 + PUSH)   # the camera's zoom when this stop ends
             dist = math.hypot(x - prev[0], y - prev[1]) if prev else 0.0
-            e.pan = 0.05 if e.stay else PAN + min(2.5, max(0.0, dist - 2000) / 9000)   # long travels take longer
+            if e.stay:
+                e.pan = 0.05
+            elif getattr(e, 'group', False):
+                e.pan = 1.0                                          # a short reframing, not a journey
+            else:
+                e.pan = PAN + min(2.5, max(0.0, dist - 2000) / 9000)   # long travels take longer
+            if e.look and e.code == 'CLOSE':
+                e.pan = CLOSE_PAN
             if e.arrive is None:
                 e.arrive = (e.pan + 0.2) if (prev and i == 0) else (entries[i - 1].arrive + 0.1 if i else 0.0)
             e.start = max(0.0, e.arrive - START_EARLY) if e.arrive > 0 else 0.0
             prev = (x + fx, y + fy)
         for i, e in enumerate(entries):
             nxt = entries[i + 1].arrive - entries[i + 1].pan if i + 1 < len(entries) else (end or e.arrive + 6)
-            e.dur = 0.0 if e.look else min(e.max_dur or PL.DRAW, max(0.7, 0.6 * (nxt - e.arrive)))
+            e.dur = 0.0 if e.look else min(e.max_dur or PL.DRAW, max(1.4, 0.75 * (nxt - e.arrive)))
         self.marks, self.before_marks = (marks if marks is not None else []), before_marks          # kept by reference: acts add marks after building the board
         self.prev = self.before[-1].code if self.before else None
         self.end = end
@@ -281,11 +309,11 @@ class Board:
         if t >= rest_from:
             nxt = stops[i + 1][0] if i + 1 < len(stops) else (self.end or rest_from + 8)
             k = _ease((t - rest_from) / max(0.5, nxt - rest_from))
-            return x1 + fx1 * k, y1 + fy1 * k, zr * (1 + (0.0 if (e.look or e.stay) else PUSH) * k)
+            return x1 + fx1 * k, y1 + fy1 * k, zr * (1 + (0.0 if (e.look or e.stay or getattr(e, 'still', False)) else PUSH) * k)
         pe = self.before[-1] if i == 0 else stops[i - 1][1]
         px, py, pfx, pfy = self.spot(pe)
         x0, y0 = px + pfx, py + pfy
-        z0 = (pe.zoom or ZOOM) * (1 + (0.0 if (pe.look or pe.stay) else PUSH))
+        z0 = (pe.zoom or ZOOM) * (1 + (0.0 if (pe.look or pe.stay or getattr(pe, 'still', False)) else PUSH))
         u = min(1.0, max(0.0, (t - t0) / e.pan))
         k = _ease(u)
         pull = min(0.32, math.hypot(x1 - x0, y1 - y0) * DIP)   # longer travels show more of the board
