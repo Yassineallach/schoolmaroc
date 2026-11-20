@@ -67,7 +67,7 @@ admob.appId=ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX
 admob.nativeUnitId=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 ```
 
-Without them the build shows Google's test ads (fine for testing, not for Play).
+Only **release** builds use these IDs. Debug builds always show Google's test ads, so testing on your own phone never touches your live ads (AdMob can suspend an account whose owner taps its own ads). The build stops with a clear message if an ID is in the wrong place (the app ID has `~`, the unit ID has `/`).
 
 ## 6. Build
 
