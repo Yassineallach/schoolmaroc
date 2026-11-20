@@ -291,3 +291,51 @@ Isolated on a plain white background.
 
 Gandhi is a real person, so his likeness is never generated. G25 shows the Salt March as a line of
 marchers seen from behind, no faces. Tell me if you'd rather use one real 1930 photograph instead.
+
+---
+
+## New drawings from the art-direction pass (attach the approved G01 to each)
+
+The style line that starts every prompt:
+```
+Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
+```
+
+**G32 — The buried ancient sea (act 2, « …sel gemme, enfoui depuis l'évaporation de mers anciennes »)**
+Draw: a cross-section of a mountain, cut open like a geology plate: at the bottom, a thick layer of rock salt (cubic crystal texture); above it, layers of rock and earth; on the surface, the mountain with a few fir trees; a narrow miner's tunnel goes down from the mountainside to the salt layer. In the sky above, small faint waves to recall the sea that was once there. Isolated on a plain white background.
+
+**G33 — Meat and plants on a balance (act 2, « Les plantes en contiennent aussi, mais beaucoup moins »)**
+Draw: an old hanging balance; on the low pan a piece of meat on the bone, on the high pan a small bunch of leafy plants and roots. A conceptual image, no numbers, no labels. Isolated on a plain white background.
+
+**G38 — A pinch and a heaped spoon (act 3, « Une pincée… Une dose plus généreuse… »)**
+Draw: two wooden spoons side by side with space between them: the LEFT spoon holds a tiny pinch of salt grains, the RIGHT spoon is heaped with salt. Nothing else. Isolated on a plain white background.
+
+**G37 — The British law (act 4, « …les lois britanniques interdisant aux Indiens de récolter ou de vendre du sel »)**
+Draw: a royal crown resting on a rolled official decree with a hanging wax seal; across the decree, a heap of salt with a large hand-drawn cross over it (meaning: forbidden). No readable writing on the decree, only wavy lines. Isolated on a plain white background.
+
+## Act 5 — L'abondance (attach the approved G01 to each)
+
+**G27 — Industrial salt works (« Les producteurs ont bientôt récolté des millions de tonnes de sel… »)**
+Draw: a salt works around 1900: tall brick chimneys, huge white mountains of salt, a steam train of wagons being loaded by workers with shovels. Isolated on a plain white background.
+
+**G34 — The modern salt pond (« …aidés d'outils plus sophistiqués » — the sea-water pans of act 2, now industrial)**
+Draw: wide flat industrial salt ponds stretching to the horizon, a bulldozer pushing white salt into a long ridge, a conveyor belt carrying salt up to a tall heap. Isolated on a plain white background.
+
+**G35 — The industrial evaporator (the boiling pans of act 2, now industrial)**
+Draw: an early 20th-century salt factory interior: large closed iron evaporating vessels connected by pipes, steam escaping, a worker in overalls turning a big valve wheel, salt pouring out of a chute into a cart. Isolated on a plain white background.
+
+**G28 — Explosives in the salt mine (« …et d'explosifs » — the miners of act 2, now with dynamite)**
+Draw: miners in 1900s caps inside a big salt mine gallery, one drilling a hole in the wall of rock salt, another placing sticks of dynamite with a long fuse; carbide lamps on their caps. Isolated on a plain white background.
+
+**G29 — Free-flowing salt (« Saupoudrer chaque repas… »)**
+Draw: a round cardboard salt canister from the 1910s, tipped over, salt pouring out in a smooth stream into a kitchen spoon. No brand, no label, no text. Isolated on a plain white background.
+
+**G36 — Salt that no longer clumps (« …carbonate de magnésium pour empêcher le sel de s'agglomérer dans les cuisines humides »)**
+Draw: two panels side by side, separated by a thin vertical line. LEFT: a glass salt shaker in a steamy kitchen, the salt inside stuck in hard lumps, nothing coming out when tipped, little drops of moisture on the glass. RIGHT: the same shaker tipped, salt pouring out freely in a fine stream, each grain drawn with a tiny dotted coating around it. No labels. Isolated on a plain white background.
+
+**G30 — Salt and pepper shakers (« …les salières et poivrières ont suivi »)**
+Draw: a salt shaker and a pepper shaker standing side by side on a set dinner table with plates and a vase. Isolated on a plain white background.
+
+**G31 — The last image (after the last word: the goat finds the shaker)**
+Draw the mountain goats exactly like the attached drawing (shaggy white coats, short black horns, black noses and hooves).
+Draw: a mountain goat on a rocky ledge looking down curiously at a small salt shaker left on the rock beside it. Isolated on a plain white background.
