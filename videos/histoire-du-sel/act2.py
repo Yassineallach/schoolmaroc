@@ -26,15 +26,14 @@ WORLD = json.load(open(asset('M06.json')))['pins']          # [China, Hallstatt]
 E = BD.Entry
 ENTRIES = [
     E('G09', 'chasseurs-cueilleurs', focus=(0.45, 0.45)),                                   # opens on the travel from act 1
-    BD.cluster(E('G10', 'panier de plantes', cue(4, 'Les plantes') + 0.2), 'G33'),           # basket and balance on one view
-    E('G33', 'viande contre plantes', cue(4, 'mais'), stay=True),                           # « …mais beaucoup moins »
+    E('G10', 'panier de plantes', arrive(4, 'Les plantes')),                                 # (the meat-and-plants balance, G33, is left out: too quick)
     E('G11', 'premier agriculteur', arrive(4, 'developpee'), focus=(0.55, 0.45)),          # « Lorsque l'agriculture s'est développée… »
     E('G12', 'bassins d’eau de mer', arrive(5, 'Les civilisations'), focus=(0.6, 0.55)),
     BD.cluster(E('M06', 'carte : Chine et Autriche', arrive(5, 'Dans')), 'G13'),          # « …du centre de la Chine »
     E('G13', 'saumure bouillie en Chine', cue(5, 'faisaient'), stay=True),
     E('M06', 'carte', arrive(5, 'Pendant'), look=True, at=BD.world('M06'), zoom=0.75),      # back to the map: « Hallstatt »
     BD.cluster(E('G14', 'mineurs de Hallstatt', arrive(5, 'creusaient')), 'G32'),           # the miners and the buried sea
-    E('G32', 'mer ancienne enfouie', cue(5, 'gemme'), stay=True),                           # « …sel gemme, enfoui… »
+    E('G32', 'mer ancienne enfouie', cue(5, 'enfoui'), stay=True),                           # « …sel gemme, enfoui… »
 ]
 MARKS = []
 BOARD = BD.Board(ENTRIES, before=act1.ENTRIES, end=cue.total + 1.2, marks=MARKS, before_marks=act1.MARKS)

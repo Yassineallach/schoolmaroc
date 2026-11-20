@@ -34,8 +34,7 @@ T_LAST = cue.total + 0.6                     # after « …d'Europe. »
 ENTRIES = [
     BD.cluster(E('C01', 'production et prix', None), 'G27'),                            # « Au tournant du XXe siècle… la production… »
     E('G27', 'salines industrielles', cue(12, 'Les producteurs'), stay=True),            # « …des millions de tonnes de sel chaque année »
-    BD.cluster(E('G34', 'bassin salant moderne', arrive(12, 'avec les memes')), 'G35'),   # « …les mêmes méthodes, perfectionnées… »
-    E('G35', 'évaporateur industriel', cue(12, 'mais'), stay=True),                      # « …aidés d'outils plus sophistiqués »
+    E('G34', 'bassin salant moderne', arrive(12, 'avec les memes')),                      # « …les mêmes méthodes… » (the evaporator, G35, is left out: too quick)
     BD.cluster(E('G28', 'explosifs dans la mine', arrive(12, "'explosifs")), 'G29'),     # the explosives, then the salt box
     E('G29', 'la boîte de sel', cue(13, 'abondant'), stay=True),
     E('G36', 'le sel qui ne colle plus', arrive(13, 'ajouter'), focus=(0.5, 0.5)),

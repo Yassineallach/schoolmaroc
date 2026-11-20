@@ -60,12 +60,10 @@ E = BD.Entry
 ENTRIES = [
     E('G21', 'salière grecque', focus=(0.5, 0.45)),                                       # « …les salières… Grèce antique »
     E('G22', 'le banquet', arrive(10, 'Selon'), focus=(0.5, 0.45)),
-    BD.cluster(E('M07', 'carte de France', arrive(11, 'Au XVIIIe')), 'G23'),            # France and the tax
-    E('G23', 'la gabelle', cue(11, 'un impot'), stay=True),                                # « …un impôt impopulaire »
+    E('G23', 'la gabelle', arrive(11, 'Au XVIIIe')),                                      # « Au XVIIIe siècle, en France, un impôt… » (France map, M07, left out)
     BD.cluster(E('G24', 'la Révolution', arrive(11, 'a contribue')), 'G25'),             # the Revolution, then 1930
     E('G25', 'la marche du sel', cue(11, 'En 1930'), stay=True),
-    BD.cluster(E('G37', 'la loi britannique', arrive(11, 'lois')), 'G26'),                 # the law and the forbidden harvest
-    E('G26', 'récolter le sel', cue(11, 'recolter'), stay=True),
+    E('G26', 'récolter le sel', arrive(11, 'lois')),                                       # « …les lois britanniques interdisant… » (the decree, G37, left out)
     E('M05', 'carte de l’Inde', arrive(11, 'donne'), at=BD.frame_of(['M05', 'M08'])[0], zoom=BD.frame_of(['M05', 'M08'])[1], max_dur=1.4),   # « …l'indépendance de l'Inde »
     E('M08', 'le Gujarat', None, stay=True),                                                # set below, after « Inde »
 ]
@@ -84,7 +82,7 @@ G['G22'].extras.append(dashed([(0.525, 0.10), (0.525, 0.97)], max(cue(10, 'au -d
 MARKS += [BD.Line(list(BD.edge('G23', 'G24', 0.2)), DONE['G24'], dashed=False, width=6)]          # the tax set off the Revolution
 G['G25'].extras.append(BD.write('1930', 90, -560, -330, max(cue(11, '1930'), DONE['G25'])))
 # British law forbids the Indians their own salt: from the decree to the hands
-MARKS += [BD.Line(list(BD.edge('G37', 'G26', 0.2)), DONE['G26'], dur=0.6, dashed=False, width=6)]   # the law forbids the harvest
+
 # India: « Inde », a ring on Gujarat, then the close-up beside it: the march to the sea, « Dandi »
 # (no connector line: it crossed the whole country; the ring and the close-up side by side are enough)
 t = DONE['M05']

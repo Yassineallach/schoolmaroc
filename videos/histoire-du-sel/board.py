@@ -29,6 +29,7 @@ PUSH = 0.14                   # the camera moves in on the drawing's detail whil
 DIP = 1 / 5200                # on a travel the camera pulls back with the distance (an infinite canvas)
 PAN = 1.5                     # seconds for a travel to the neighbouring drawing; longer travels take longer
 GROUP = 0.0                   # sentences closer than this share one frame (no travel)
+HOP = 1.0                     # a short move to the neighbouring drawing
 CLOSE_PAN = 3.2               # the final move in on the last drawing, slow
 START_EARLY = 0.45            # the pen starts this long before the camera has fully landed
 
@@ -249,6 +250,17 @@ class Board:
         self.entries = entries
         self.before = [b_ for b_ in before if not b_.look]
         prev = self.spot(before[-1]) if before else None
+        # one drawing per view, at full size (the user: two framed together « make the draws look
+        # small »): every drawing gets its own view; a drawing that used to share the previous view
+        # (stay) is reached by a short hop of the camera that sets off on its sentence
+        for e in entries:
+            if e.look:
+                continue
+            e.at, e.zoom, e.still = None, None, False
+            if e.stay:
+                e.stay, e.hop = False, True
+                if e.arrive is not None:
+                    e.arrive += HOP
         # quick sentences (the user's note: « some scenes are too fast »): when a drawing's sentence
         # comes less than GROUP seconds after the previous one, the camera does not travel away; it
         # eases back to frame both neighbours and the pen draws the new one beside the last
@@ -270,6 +282,8 @@ class Board:
             dist = math.hypot(x - prev[0], y - prev[1]) if prev else 0.0
             if e.stay:
                 e.pan = 0.05
+            elif getattr(e, 'hop', False):
+                e.pan = HOP
             elif getattr(e, 'group', False):
                 e.pan = 1.0                                          # a short reframing, not a journey
             else:
