@@ -16,7 +16,7 @@ import act2
 
 CLIPS = (6, 7, 8, 9)
 cue = make_cue(CLIPS)
-LAND = 0.35
+LAND = 1.2                     # the camera sets off on the sentence's first word and lands just after it
 
 
 def arrive(clip, phrase):

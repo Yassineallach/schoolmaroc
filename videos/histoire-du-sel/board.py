@@ -23,19 +23,19 @@ import scenes as S
 import plates as PL
 from style import Shot, sfx
 
-SCALE = 0.80                  # drawings are drawn smaller than the frame, so the board shows around them
+SCALE = 1.00                  # drawings are drawn smaller than the frame, so the board shows around them
 ZOOM = 0.80                   # camera framing at rest: wide, so the board and the neighbouring drawings are in view
 PUSH = 0.14                   # the camera moves in on the drawing's detail while the pen works
 DIP = 1 / 5200                # on a travel the camera pulls back with the distance (an infinite canvas)
 PAN = 1.5                     # seconds for a travel to the neighbouring drawing; longer travels take longer
-GROUP = 3.6                   # sentences closer than this share one frame (no travel)
+GROUP = 0.0                   # sentences closer than this share one frame (no travel)
 CLOSE_PAN = 3.2               # the final move in on the last drawing, slow
 START_EARLY = 0.45            # the pen starts this long before the camera has fully landed
 
 # The board's composition: layout « C », chosen by the user from the compact random boards
 # (tools/layout_options.py organic2(42, cols=9, rows=6, sx=1380, sy=880, jx=70, jy=50)): a dense,
 # hand-placed wall where every next drawing is a neighbour of the last one, in any direction.
-LAYOUT = {
+LAYOUT_COMPACT = {
     'M01': (38, -6),
     'G01': (50, 900),
     'G02': (-57, 1808),
@@ -83,6 +83,10 @@ LAYOUT = {
     'M09': (8251, 1776),
     'G31': (9611, 2660),
 }
+# the user: « the draws are too compact » - the same arrangement (layout C), spread out so every
+# drawing has open parchment around it
+SPREAD = 1.4
+LAYOUT = {c: (round(x * SPREAD), round(y * SPREAD)) for c, (x, y) in LAYOUT_COMPACT.items()}
 SIZE = {'M01': 1.035, 'G01': 0.93, 'G02': 0.946, 'G03': 0.927, 'G04': 1.028, 'G05': 1.014, 'G06': 0.756, 'G07': 0.994, 'G08': 0.988, 'G09': 0.997, 'G10': 0.962, 'G33': 0.725, 'G11': 0.974, 'G12': 0.949, 'M06': 1.007, 'G13': 0.988, 'G14': 0.926, 'G32': 1.039, 'G15': 0.987, 'G16': 0.989, 'G17': 0.903, 'G38': 0.681, 'M04': 1.017, 'G18': 0.912, 'G19': 0.974, 'G20': 1.041, 'G21': 0.789, 'G22': 0.94, 'M07': 0.712, 'G23': 0.978, 'G24': 0.903, 'G25': 1.024, 'G37': 1.034, 'G26': 0.983, 'M05': 0.916, 'M08': 0.942, 'C01': 0.999, 'G27': 1.009, 'G34': 0.916, 'G35': 1.037, 'G28': 0.935, 'G29': 0.787, 'G36': 0.956, 'G30': 0.871, 'M09': 1.021, 'G31': 0.948}
 
 

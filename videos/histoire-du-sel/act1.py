@@ -14,7 +14,7 @@ import board as BD
 
 CLIPS = (1, 2, 3)
 cue = make_cue(CLIPS)
-LAND = 0.35                    # the camera lands this long after the sentence's first word
+LAND = 1.2                     # the camera sets off on the sentence's first word and lands just after it                    # the camera lands this long after the sentence's first word
 
 
 def arrive(clip, phrase):
@@ -33,10 +33,10 @@ E = BD.Entry
 DONE = lambda code: next(e for e in ENTRIES if e.code == code).start + next(e for e in ENTRIES if e.code == code).dur + 0.15
 ENTRIES = [
     E('M01', 'carte des États-Unis', 0.0, focus=(0.15, 0.25)),                       # « le parc national Olympic, aux États-Unis »
-    BD.cluster(E('G01', 'chèvres sur la crête', arrive(1, 'avait')), 'G02', 'G03'),   # the three goat sentences share one frame
+    BD.cluster(E('G01', 'chèvres sur la crête', arrive(1, 'avait')), 'G02'),          # two drawings at most per view
     E('G02', 'chèvres chargeant des randonneurs', cue(1, 'chargeaient'), stay=True),
-    E('G03', 'chèvre léchant le sol', cue(1, 'Elles'), stay=True),
-    E('G04', 'randonneurs sur le sentier', arrive(2, 'En transpirant'), focus=(0.55, 0.25)),
+    BD.cluster(E('G03', 'chèvre léchant le sol', arrive(1, 'Elles')), 'G04'),             # the licking goat and the hikers
+    E('G04', 'randonneurs sur le sentier', cue(2, 'En transpirant'), stay=True),
     E('G05', 'chèvre évacuée par hélicoptère', arrive(2, 'La situation'), focus=(0.40, 0.45)),
     # the NaCl triangle: crystals on top, the two organs below, framed wide enough to see the split
     E('G06', 'cristaux de sel', arrive(3, 'Le comportement')),

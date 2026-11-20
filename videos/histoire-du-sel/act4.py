@@ -16,7 +16,7 @@ import act3
 
 CLIPS = (10, 11)
 cue = make_cue(CLIPS)
-LAND = 0.35
+LAND = 1.2                     # the camera sets off on the sentence's first word and lands just after it
 
 
 def arrive(clip, phrase):
@@ -60,11 +60,11 @@ E = BD.Entry
 ENTRIES = [
     E('G21', 'salière grecque', focus=(0.5, 0.45)),                                       # « …les salières… Grèce antique »
     E('G22', 'le banquet', arrive(10, 'Selon'), focus=(0.5, 0.45)),
-    BD.cluster(E('M07', 'carte de France', arrive(11, 'Au XVIIIe')), 'G23', 'G24'),     # France, the tax, the Revolution on one frame
+    BD.cluster(E('M07', 'carte de France', arrive(11, 'Au XVIIIe')), 'G23'),            # France and the tax
     E('G23', 'la gabelle', cue(11, 'un impot'), stay=True),                                # « …un impôt impopulaire »
-    E('G24', 'la Révolution', cue(11, 'a contribue'), stay=True),
-    BD.cluster(E('G25', 'la marche du sel', arrive(11, 'En 1930')), 'G37', 'G26'),        # the march, the law, the forbidden harvest
-    E('G37', 'la loi britannique', cue(11, 'lois'), stay=True),
+    BD.cluster(E('G24', 'la Révolution', arrive(11, 'a contribue')), 'G25'),             # the Revolution, then 1930
+    E('G25', 'la marche du sel', cue(11, 'En 1930'), stay=True),
+    BD.cluster(E('G37', 'la loi britannique', arrive(11, 'lois')), 'G26'),                 # the law and the forbidden harvest
     E('G26', 'récolter le sel', cue(11, 'recolter'), stay=True),
     E('M05', 'carte de l’Inde', arrive(11, 'donne'), at=BD.frame_of(['M05', 'M08'])[0], zoom=BD.frame_of(['M05', 'M08'])[1], max_dur=1.4),   # « …l'indépendance de l'Inde »
     E('M08', 'le Gujarat', None, stay=True),                                                # set below, after « Inde »

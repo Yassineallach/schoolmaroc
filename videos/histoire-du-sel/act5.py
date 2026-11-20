@@ -21,7 +21,7 @@ import brand
 
 CLIPS = (12, 13)
 cue = make_cue(CLIPS)
-LAND = 0.35
+LAND = 1.2                     # the camera sets off on the sentence's first word and lands just after it
 
 
 def arrive(clip, phrase):
@@ -34,10 +34,10 @@ T_LAST = cue.total + 0.6                     # after « …d'Europe. »
 ENTRIES = [
     BD.cluster(E('C01', 'production et prix', None), 'G27'),                            # « Au tournant du XXe siècle… la production… »
     E('G27', 'salines industrielles', cue(12, 'Les producteurs'), stay=True),            # « …des millions de tonnes de sel chaque année »
-    BD.cluster(E('G34', 'bassin salant moderne', arrive(12, 'avec les memes')), 'G35', 'G28'),   # « …les mêmes méthodes, perfectionnées… »
+    BD.cluster(E('G34', 'bassin salant moderne', arrive(12, 'avec les memes')), 'G35'),   # « …les mêmes méthodes, perfectionnées… »
     E('G35', 'évaporateur industriel', cue(12, 'mais'), stay=True),                      # « …aidés d'outils plus sophistiqués »
-    E('G28', 'explosifs dans la mine', cue(12, "'explosifs"), stay=True),
-    E('G29', 'la boîte de sel', arrive(13, 'abondant'), focus=(0.5, 0.5)),
+    BD.cluster(E('G28', 'explosifs dans la mine', arrive(12, "'explosifs")), 'G29'),     # the explosives, then the salt box
+    E('G29', 'la boîte de sel', cue(13, 'abondant'), stay=True),
     E('G36', 'le sel qui ne colle plus', arrive(13, 'ajouter'), focus=(0.5, 0.5)),
     E('G30', 'salière et poivrière', arrive(13, 'les salieres'), focus=(0.5, 0.5)),
     E('M09', 'Amérique du Nord et Europe', arrive(13, 'trone'), focus=(0.5, 0.5)),
