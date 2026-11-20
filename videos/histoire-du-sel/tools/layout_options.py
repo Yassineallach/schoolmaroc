@@ -170,3 +170,82 @@ if __name__ == '__main__' and len(sys.argv) > 1 and sys.argv[1] == 'more':
     render(notebook(), 'G_notebook', 'G · Les lignes d’un carnet', trail_line=True)
     pr = river()
     render(pr, 'H_river', 'H · Le fleuve du temps', underlay=river_underlay(pr))
+
+
+def organic(seed, spread=1.0, sizes=True):
+    """A random, organic board: each drawing lands near the previous one in a random direction
+    (any angle), at a random distance, never overlapping; acts drift as loose clusters. Returns
+    positions and a per-drawing size, so the board looks hand-placed rather than gridded."""
+    r = np.random.default_rng(seed)
+    pos, size = {}, {}
+    boxes = []
+    heading = r.uniform(0, 2 * math.pi)
+    x, y = 0.0, 0.0
+    for a_i, act in enumerate(ACTS):
+        if a_i:
+            heading += r.uniform(-1.6, 1.6)                     # each act sets off in a new direction
+        for i, c in enumerate(act):
+            s = r.uniform(0.75, 1.2) if sizes else 1.0
+            w, h = 1300 * s, 800 * s
+            for _ in range(400):
+                ang = heading + r.normal(0, 0.9)
+                d = r.uniform(1100, 1700) * spread * (0.5 + s / 2)
+                nx, ny = (x + math.cos(ang) * d, y + math.sin(ang) * d) if pos else (0.0, 0.0)
+                if all(abs(nx - bx) > (w + bw) / 2 + 60 or abs(ny - by) > (h + bh) / 2 + 60 for bx, by, bw, bh in boxes):
+                    break
+                heading += r.uniform(-0.4, 0.4)
+            x, y = nx, ny
+            pos[c], size[c] = (x, y), s
+            boxes.append((x, y, w, h))
+    return pos, size
+
+
+def render_sized(pos, size, name, title):
+    old = dict(BD.SIZE)
+    for c, s in size.items():
+        BD.SIZE[c] = old.get(c, 1.0) * s
+    try:
+        render(pos, name, title, trail_line=True)
+    finally:
+        BD.SIZE.clear(); BD.SIZE.update(old)
+
+
+if __name__ == '__main__' and len(sys.argv) > 1 and sys.argv[1] == 'random':
+    seeds = [int(x) for x in sys.argv[2:]] or [3, 17, 42, 1930]
+    for k, sd in enumerate(seeds):
+        p, s = organic(sd)
+        render_sized(p, s, f'R{k + 1}_{sd}', f'R{k + 1} · Aléatoire (graine {sd})')
+
+
+def organic2(seed, cols=10, rows=6):
+    """Random but compact: the board is a loose field of slots filling a 16:9 page; the pen wanders
+    from slot to a random free neighbouring slot (any direction), jumping to the nearest free slot
+    when cornered. Slots are jittered and drawings vary in size, so it looks hand-placed."""
+    r = np.random.default_rng(seed)
+    sx, sy = 1500, 1080
+    slots = {(i, j): (i * sx + r.uniform(-260, 260), j * sy + r.uniform(-200, 200)) for i in range(cols) for j in range(rows)}
+    free = set(slots)
+    cur = (int(r.integers(0, cols)), int(r.integers(0, rows)))
+    pos, size = {}, {}
+    for c in ORDER:
+        pos[c] = slots[cur]; size[c] = r.uniform(0.8, 1.15)
+        free.discard(cur)
+        if not free:
+            break
+        nb = [(cur[0] + a, cur[1] + b) for a in (-1, 0, 1) for b in (-1, 0, 1) if (a or b) and (cur[0] + a, cur[1] + b) in free]
+        if nb:
+            # prefer neighbours with few free neighbours themselves, so the walk does not strand empty pockets
+            deg = [sum((n[0] + a, n[1] + b) in free for a in (-1, 0, 1) for b in (-1, 0, 1) if a or b) for n in nb]
+            m = min(deg)
+            cand = [n for n, d in zip(nb, deg) if d <= m + 1]
+            cur = cand[int(r.integers(0, len(cand)))]
+        else:
+            cur = min(free, key=lambda n: (n[0] - cur[0]) ** 2 + (n[1] - cur[1]) ** 2)
+    return pos, size
+
+
+if __name__ == '__main__' and len(sys.argv) > 1 and sys.argv[1] == 'random2':
+    seeds = [int(x) for x in sys.argv[2:]] or [3, 17, 42, 1930]
+    for k, sd in enumerate(seeds):
+        p, s = organic2(sd, cols=9, rows=6)
+        render_sized(p, s, f'S{k + 1}_{sd}', f'{"ABCDEF"[k]} · Aléatoire (graine {sd})')
