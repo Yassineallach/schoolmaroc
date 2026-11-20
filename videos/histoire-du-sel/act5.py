@@ -17,6 +17,7 @@ import act1
 import act2
 import act3
 import act4
+import brand
 
 CLIPS = (12, 13)
 cue = make_cue(CLIPS)
@@ -67,6 +68,9 @@ MARKS += [BD.Note('production', 54, (up[0] - 330, up[1] - 50), max(cue(12, 'expl
 G['G29'].extras.append(BD.write('1911', 90, 520, -300, max(cue(13, '1911'), DONE['G29'])))
 
 SHOTS = [(0.0, BOARD.scene)]
+if brand.CFG['outro']['enabled']:                     # the channel outro after the whole-board view
+    SHOTS.append((END, brand.outro_scene, 'up'))
+    END = END + brand.outro_seconds()
 
 
 def frame(t):

@@ -6,6 +6,11 @@
  "brand": {
   "watermark": {
    "hide_env": []
+  },
+  "cta": {
+   "comment": {
+    "question": "Et vous, quel est l’aliment que vous ne mangeriez jamais sans sel ?"
+   }
   }
  }
 }
