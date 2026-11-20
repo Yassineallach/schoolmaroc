@@ -100,12 +100,15 @@ def region_map(path, continent, box, pins, Wd=1400, Hd=1000, pad=40):
     im = Image.fromarray(np.where(edge, 0, 255).astype(np.uint8)).convert('RGB')
     d = ImageDraw.Draw(im)
     out = []
-    for lon, lat in pins:
+    for p in pins:
+        lon, lat = p[0], p[1]
         px, py = P(lon, lat)
+        out.append([px / Wd, py / Hd])
+        if len(p) > 2 and not p[2]:                               # a route end with no pin
+            continue
         d.ellipse((px - 22, py - 70, px + 22, py - 26), outline='black', width=6)
         d.ellipse((px - 6, py - 54, px + 6, py - 42), fill='black')
         d.line((px, py - 26, px, py), fill='black', width=6)
-        out.append([px / Wd, py / Hd])
     im.save(path)
     json.dump({'pin': out[0], 'pins': out}, open(path[:-4] + '.json', 'w'))
     print(path)
@@ -115,5 +118,5 @@ if __name__ == '__main__':
     us_map(os.path.join(PROJ, 'assets', 'M01.png'))
     country_map(os.path.join(PROJ, 'assets', 'M02.png'), 'CHN', (104.78, 29.35))     # Zigong, Sichuan: the salt river
     country_map(os.path.join(PROJ, 'assets', 'M03.png'), 'AUT', (13.65, 47.56))      # Hallstatt
-    region_map(os.path.join(PROJ, 'assets', 'M04.png'), 'Africa', (-18, 14, 8, 36),   # the salt road (north-west Africa)
-               [(-3.98, 22.68), (-3.0, 16.77)])                                       # Taoudenni (Sahara) -> Tombouctou
+    region_map(os.path.join(PROJ, 'assets', 'M04.png'), 'Africa', (-18, 52, -35, 38),  # the salt road, on the whole continent
+               [(-3.98, 22.68), (-4.2, 13.2, False)], Wd=1000, Hd=1040)               # Taoudenni (Sahara) -> the Niger bend, West Africa

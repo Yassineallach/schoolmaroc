@@ -32,8 +32,8 @@ def route(at):
         x0, y0, w_, h_ = e.d.box
         (ax, ay), (bx, by) = PINS
         p0 = (x0 + ax * w_ + 6, y0 + ay * h_ + 8)
-        p1 = (x0 + bx * w_ + 2, y0 + by * h_ - 78)
-        mid = ((p0[0] + p1[0]) / 2 - 40, (p0[1] + p1[1]) / 2)
+        p1 = (x0 + bx * w_, y0 + by * h_)
+        mid = ((p0[0] + p1[0]) / 2 - 18, (p0[1] + p1[1]) / 2)
         A.connect(c, [p0, mid, p1], lt, at - e.start, dur=1.1, dashed=True, dots=False, width=5,
                   sound=False, colour=INK)
     fn.sound = (at, 1.1, lambda: ((0.0, 1.0),))
@@ -45,7 +45,7 @@ ENTRIES = [
     E('G15', 'aliments conservés', BD.PAN + 0.2, focus=(0.5, 0.45)),                   # opens on the travel from the miners
     E('G16', 'bactérie et sel', arrive(6, 'Le sel tue'), focus=(0.7, 0.5)),            # « …en aspirant l'eau de leurs cellules »
     E('G17', 'une pincée de sel', arrive(7, 'Le sel'), focus=(0.45, 0.45), offset=(-140, 0)),
-    E('M04', 'la route du sel', arrive(8, 'Partout'), focus=(0.35, 0.55)),               # « …l'échanger avec les régions qui en manquaient »
+    E('M04', 'la route du sel', arrive(8, 'Partout'), focus=(0.30, 0.30)),               # « …l'échanger avec les régions qui en manquaient »
     E('G18', 'caravane de sel', arrive(8, 'Des'), focus=(0.45, 0.45)),
     E('G19', 'le sel contre l’or', arrive(8, 'La'), focus=(0.5, 0.4)),
     E('G20', 'soldats romains payés en sel', arrive(9, 'Dans'), focus=(0.45, 0.45), offset=(-170, 0)),
