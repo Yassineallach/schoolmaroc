@@ -79,26 +79,24 @@ DONE = {c: e.start + e.dur + 0.15 for c, e in G.items()}
 # the salt cellar divides the table: a dashed line down through it on « au-dessus du sel »
 G['G22'].extras.append(dashed([(0.525, 0.10), (0.525, 0.97)], max(cue(10, 'au -dessus'), DONE['G22'])))
 # the tax set off the Revolution: a pen arrow from the angry peasants to the crowd at the Bastille
-MARKS += [BD.Line(list(BD.edge('G23', 'G24', 0.2)), DONE['G24'])]
+MARKS += [BD.Line(list(BD.edge('G23', 'G24', 0.2)), DONE['G24'], dashed=False, width=6)]          # the tax set off the Revolution
 G['G25'].extras.append(BD.write('1930', 90, -560, -330, max(cue(11, '1930'), DONE['G25'])))
 # British law forbids the Indians their own salt: from the decree to the hands
-MARKS += [BD.Line(list(BD.edge('G37', 'G26', 0.2)), DONE['G26'], dur=0.5)]
-# India: « Inde », a ring on Gujarat, a line out to the close-up, then the march to the sea at Dandi
+MARKS += [BD.Line(list(BD.edge('G37', 'G26', 0.2)), DONE['G26'], dur=0.6, dashed=False, width=6)]   # the law forbids the harvest
+# India: « Inde », a ring on Gujarat, then the close-up beside it: the march to the sea, « Dandi »
+# (no connector line: it crossed the whole country; the ring and the close-up side by side are enough)
 t = DONE['M05']
-G['M05'].extras.append(BD.write('Inde', 80, 0.55, 0.62, t, frac=True))
+G['M05'].extras.append(BD.write('Inde', 80, 0.48, 0.58, t, frac=True))
 t += 0.6
 dx, dy = IND['pin']
 G['M05'].extras.append(ring(dx, dy - 0.03, 46, t))
-t += 0.65
-on_map = box_world('M05', None)(dx, dy - 0.03)
-_e = BD.edge('M05', 'M08', 0.3)[1]
-MARKS += [BD.Line([on_map, _e], t, dur=0.6, arrow=False)]
 t += 0.65
 G['M08'].arrive = t + BD.START_EARLY
 G['M08'].start = t
 G['M08'].dur = 1.5
 (gx, gy), (ax, ay) = GUJ
 G['M08'].extras.append(dashed([(ax, ay), ((ax + gx) / 2 - 0.02, (ay + gy) / 2), (gx, gy - 0.05)], t + 1.65, dur=0.9))
+G['M08'].extras.append(BD.write('Dandi', 64, gx + 0.04, gy + 0.03, t + 2.65, frac=True, anchor='l'))
 
 SHOTS = [(0.0, BOARD.scene)]
 

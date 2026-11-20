@@ -54,10 +54,10 @@ ENTRIES[6].extras.append(BD.write('NaCl', 140, 0, -330, max(cue(3, 'chlorure'), 
 # NaCl splits in two: a pen line from the crystals to the nerve cells (« Na »), then to the stomach (« Cl »)
 _a, _b = BD.edge('G06', 'G07', 0.25)
 _c, _d = BD.edge('G06', 'G08', 0.25)
-MARKS += [BD.Line([_a, _b], DONE('G07')),
-          BD.Note('Na', 110, (_b[0], _b[1] - 90), DONE('G07') + 0.95),
-          BD.Line([_c, _d], DONE('G08')),
-          BD.Note('Cl', 110, (_d[0] + 160, _d[1] - 40), DONE('G08') + 0.95)]
+MARKS += [BD.Line([_a, _b], DONE('G07'), dashed=False, width=6),
+          BD.Note('Na', 110, ((_a[0] + _b[0]) / 2 + (90 if abs(_b[0] - _a[0]) < abs(_b[1] - _a[1]) else 0), (_a[1] + _b[1]) / 2 - (0 if abs(_b[0] - _a[0]) < abs(_b[1] - _a[1]) else 80)), DONE('G07') + 0.95),
+          BD.Line([_c, _d], DONE('G08'), dashed=False, width=6, bend=-0.18),
+          BD.Note('Cl', 110, ((_c[0] + _d[0]) / 2 + (90 if abs(_d[0] - _c[0]) < abs(_d[1] - _c[1]) else 0), (_c[1] + _d[1]) / 2 - (0 if abs(_d[0] - _c[0]) < abs(_d[1] - _c[1]) else 80)), DONE('G08') + 0.95)]
 ENTRIES[7].extras.append(message)                                                  # « transmettre des messages »
 
 

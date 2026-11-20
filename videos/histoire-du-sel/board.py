@@ -366,17 +366,24 @@ def _screen(p, cx, cy, z):
 
 
 class Line:
-    """A pen line across the board (board coordinates): dashed or solid, with an arrowhead."""
-    def __init__(self, pts, at, dur=0.9, dashed=True, arrow=True, width=5):
-        self.pts, self.at, self.dur, self.dashed, self.arrow, self.width = pts, at, dur, dashed, arrow, width
+    """A pen mark across the board (board coordinates). Two kinds, chosen by meaning:
+    a dashed route (a journey, a path on a map) or, with dashed=False and two points, a curved
+    hand-drawn arrow with a tapered stroke (a cause, a consequence, a split)."""
+    def __init__(self, pts, at, dur=0.9, dashed=True, arrow=True, width=5, bend=0.18):
+        self.pts, self.at, self.dur, self.dashed, self.arrow, self.width, self.bend = pts, at, dur, dashed, arrow, width, bend
 
     def draw(self, frame, t, cx, cy, z):
         import annotate as A
         if t < self.at:
             return
-        A.connect(frame, [_screen(p, cx, cy, z) for p in self.pts], t, self.at, dur=self.dur,
-                  dashed=self.dashed, dots=False, width=max(2, self.width * z / ZOOM), sound=False,
-                  colour=S.PAL.ink, arrowhead=self.arrow)
+        pts = [_screen(p, cx, cy, z) for p in self.pts]
+        w = max(2, self.width * z / ZOOM)
+        if not self.dashed and self.arrow and len(pts) == 2:
+            A.arrow(frame, pts[0], pts[1], t, self.at, dur=self.dur, colour=S.PAL.ink, width=w,
+                    bend=self.bend, head=max(16, 34 * z / ZOOM), sound=False)
+            return
+        A.connect(frame, pts, t, self.at, dur=self.dur, dashed=self.dashed, dots=False, width=w,
+                  sound=False, colour=S.PAL.ink, arrowhead=self.arrow)
 
     def sound(self):
         sfx('draw', self.at, W / 2, dur=self.dur, gate=PL.gate(((0.0, 1.0),), self.dur))
