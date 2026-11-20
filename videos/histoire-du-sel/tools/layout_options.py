@@ -217,18 +217,17 @@ if __name__ == '__main__' and len(sys.argv) > 1 and sys.argv[1] == 'random':
         render_sized(p, s, f'R{k + 1}_{sd}', f'R{k + 1} · Aléatoire (graine {sd})')
 
 
-def organic2(seed, cols=10, rows=6):
+def organic2(seed, cols=10, rows=6, sx=1500, sy=1080, jx=260, jy=200, smin=0.8, smax=1.15):
     """Random but compact: the board is a loose field of slots filling a 16:9 page; the pen wanders
     from slot to a random free neighbouring slot (any direction), jumping to the nearest free slot
     when cornered. Slots are jittered and drawings vary in size, so it looks hand-placed."""
     r = np.random.default_rng(seed)
-    sx, sy = 1500, 1080
-    slots = {(i, j): (i * sx + r.uniform(-260, 260), j * sy + r.uniform(-200, 200)) for i in range(cols) for j in range(rows)}
+    slots = {(i, j): (i * sx + r.uniform(-jx, jx), j * sy + r.uniform(-jy, jy)) for i in range(cols) for j in range(rows)}
     free = set(slots)
     cur = (int(r.integers(0, cols)), int(r.integers(0, rows)))
     pos, size = {}, {}
     for c in ORDER:
-        pos[c] = slots[cur]; size[c] = r.uniform(0.8, 1.15)
+        pos[c] = slots[cur]; size[c] = r.uniform(smin, smax)
         free.discard(cur)
         if not free:
             break
@@ -249,3 +248,10 @@ if __name__ == '__main__' and len(sys.argv) > 1 and sys.argv[1] == 'random2':
     for k, sd in enumerate(seeds):
         p, s = organic2(sd, cols=9, rows=6)
         render_sized(p, s, f'S{k + 1}_{sd}', f'{"ABCDEF"[k]} · Aléatoire (graine {sd})')
+
+
+if __name__ == '__main__' and len(sys.argv) > 1 and sys.argv[1] == 'compact':
+    seeds = [int(x) for x in sys.argv[2:]] or [3, 17, 42, 1930]
+    for k, sd in enumerate(seeds):
+        p, s = organic2(sd, cols=9, rows=6, sx=1380, sy=880, jx=70, jy=50, smin=0.9, smax=1.05)
+        render_sized(p, s, f'K{k + 1}_{sd}', f'{"ABCDEF"[k]} · Compact (graine {sd})')
