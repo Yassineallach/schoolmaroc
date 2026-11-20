@@ -31,10 +31,10 @@ CURVE = json.load(open(asset('C01.json')))
 E = BD.Entry
 T_LAST = cue.total + 0.6                     # after « …d'Europe. »
 ENTRIES = [
-    E('C01', 'production et prix', at=BD.mid('C01', 'G27'), zoom=0.62, max_dur=2.0),             # « Au tournant du XXe siècle… la production… »
+    E('C01', 'production et prix', at=BD.frame_of(['C01', 'G27'])[0], zoom=BD.frame_of(['C01', 'G27'])[1], max_dur=2.0),             # « Au tournant du XXe siècle… la production… »
     E('G27', 'salines industrielles', cue(12, 'Les producteurs'), stay=True),            # « …des millions de tonnes de sel chaque année »
-    E('LOOK', 'les mêmes méthodes', arrive(12, 'les memes'), look=True, at=(17900, -800), zoom=0.27),
-    E('G34', 'bassin salant moderne', cue(12, 'mais'), stay=True, max_dur=0.75),          # « …aidés d'outils plus sophistiqués »
+    E('LOOK', 'les mêmes méthodes', arrive(12, 'avec les memes'), look=True, at=BD.frame_of(['G12', 'G13', 'G14'])[0], zoom=BD.frame_of(['G12', 'G13', 'G14'])[1]),
+    E('G34', 'bassin salant moderne', arrive(12, 'mais'), at=BD.frame_of(['G34', 'G35', 'G28'])[0], zoom=BD.frame_of(['G34', 'G35', 'G28'])[1], max_dur=0.75),          # « …aidés d'outils plus sophistiqués »
     E('G35', 'évaporateur industriel', cue(12, 'plus sophistiques'), stay=True, max_dur=1.0),
     E('G28', 'explosifs dans la mine', cue(12, "'explosifs"), stay=True, max_dur=1.4),
     E('G29', 'la boîte de sel', arrive(13, 'abondant'), focus=(0.5, 0.5)),

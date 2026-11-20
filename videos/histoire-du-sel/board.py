@@ -30,32 +30,58 @@ DIP = 1 / 5200                # on a travel the camera pulls back with the dista
 PAN = 1.5                     # seconds for a travel to the neighbouring drawing; longer travels take longer
 START_EARLY = 0.45            # the pen starts this long before the camera has fully landed
 
-# The board's composition (board pixels, centre of each drawing): three rows, so that the closing
-# view of the whole board reads as one picture.
-#   middle row, left to right: act 1 (the goats, then the NaCl triangle) and act 2 (farming, then the
-#     three methods with the world map above and the buried-sea section below the miners);
-#   bottom row, right to left: act 3 then act 4, coming back under the first two acts;
-#   top row: act 5, the industrial age, mirrored above act 2's three methods (pans -> modern pond,
-#     brine pans -> evaporator, miners -> dynamite); the last goat comes home above the first goats.
+# The board's composition: layout « C », chosen by the user from the compact random boards
+# (tools/layout_options.py organic2(42, cols=9, rows=6, sx=1380, sy=880, jx=70, jy=50)): a dense,
+# hand-placed wall where every next drawing is a neighbour of the last one, in any direction.
 LAYOUT = {
-    'M01': (0, 0), 'G01': (1400, 0), 'G02': (2800, 0), 'G03': (4200, 0), 'G04': (5600, 0), 'G05': (7000, 0),
-    'G06': (9200, -500), 'G07': (8550, 560), 'G08': (9950, 560),                       # the NaCl triangle
-    'G09': (11600, 0), 'G33': (13000, -880), 'G10': (13000, 0), 'G11': (14400, 0),     # timeline under this row
-    'G12': (15800, 0), 'M06': (17200, -900), 'G13': (18600, 0), 'G14': (20000, 0), 'G32': (20000, 980),
-    # act 3, right to left
-    'G15': (24300, 2700), 'G16': (22900, 2700), 'G17': (21500, 2700), 'G38': (20100, 2700),
-    'M04': (18600, 2700), 'G18': (17200, 3120), 'G19': (15800, 3120), 'G20': (14300, 2700),
-    # act 4, right to left
-    'G21': (12900, 2700), 'G22': (11500, 2700), 'G23': (10100, 2700), 'M07': (9450, 1820), 'G24': (8800, 2700),
-    'G25': (7300, 2700), 'G37': (7300, 3680), 'G26': (5900, 3680), 'M05': (5900, 2700), 'M08': (4500, 3260),
-    # act 5, above act 2
-    'C01': (11600, -2400), 'G27': (13000, -2400), 'G34': (15800, -2400), 'G35': (18600, -2400), 'G28': (20000, -2400),
-    'G29': (21500, -2400), 'G36': (22900, -2400), 'G30': (24300, -2400), 'M09': (25700, -2400),
-    'G31': (1400, -1250),
+    'M01': (38, -6),
+    'G01': (50, 900),
+    'G02': (-57, 1808),
+    'G03': (1372, 853),
+    'G04': (1400, 32),
+    'G05': (2799, -31),
+    'G06': (4088, -2),
+    'G07': (5546, -36),
+    'G08': (4102, 897),
+    'G09': (2755, 834),
+    'G10': (2712, 1778),
+    'G33': (1388, 1716),
+    'G11': (37, 2669),
+    'G12': (-52, 3515),
+    'M06': (1426, 2653),
+    'G13': (1416, 3505),
+    'G14': (-18, 4443),
+    'G32': (1446, 4439),
+    'G15': (2756, 4369),
+    'G16': (2736, 3507),
+    'G17': (2794, 2687),
+    'G38': (4131, 1793),
+    'M04': (5478, 831),
+    'G18': (6924, -3),
+    'G19': (6909, 906),
+    'G20': (5560, 1776),
+    'G21': (4168, 2621),
+    'G22': (5549, 2668),
+    'M07': (4187, 3550),
+    'G23': (4124, 4379),
+    'G24': (5470, 4361),
+    'G25': (5514, 3527),
+    'G37': (6860, 4391),
+    'G26': (8324, 4367),
+    'M05': (6834, 3514),
+    'M08': (8303, 3511),
+    'C01': (9632, 4413),
+    'G27': (11033, 4377),
+    'G34': (11079, 3542),
+    'G35': (11007, 2687),
+    'G28': (9652, 3508),
+    'G29': (8288, 2668),
+    'G36': (6919, 1765),
+    'G30': (6908, 2620),
+    'M09': (8251, 1776),
+    'G31': (9611, 2660),
 }
-# size hierarchy: maps a little larger, small objects smaller
-SIZE = {'M01': 1.0, 'M04': 1.0, 'M05': 1.0, 'M06': 1.1, 'G21': 0.8, 'G29': 0.8, 'G30': 0.85, 'G06': 0.75,
-        'M07': 0.75, 'M08': 1.0, 'G33': 0.8, 'G38': 0.7}
+SIZE = {'M01': 1.035, 'G01': 0.93, 'G02': 0.946, 'G03': 0.927, 'G04': 1.028, 'G05': 1.014, 'G06': 0.756, 'G07': 0.994, 'G08': 0.988, 'G09': 0.997, 'G10': 0.962, 'G33': 0.725, 'G11': 0.974, 'G12': 0.949, 'M06': 1.007, 'G13': 0.988, 'G14': 0.926, 'G32': 1.039, 'G15': 0.987, 'G16': 0.989, 'G17': 0.903, 'G38': 0.681, 'M04': 1.017, 'G18': 0.912, 'G19': 0.974, 'G20': 1.041, 'G21': 0.789, 'G22': 0.94, 'M07': 0.712, 'G23': 0.978, 'G24': 0.903, 'G25': 1.024, 'G37': 1.034, 'G26': 0.983, 'M05': 0.916, 'M08': 0.942, 'C01': 0.999, 'G27': 1.009, 'G34': 0.916, 'G35': 1.037, 'G28': 0.935, 'G29': 0.787, 'G36': 0.956, 'G30': 0.871, 'M09': 1.021, 'G31': 0.948}
 
 
 def world(code):
@@ -66,6 +92,29 @@ def mid(a, b_, dy=0):
     """The point between two drawings (to frame both)."""
     (x0, y0), (x1, y1) = LAYOUT[a], LAYOUT[b_]
     return ((x0 + x1) / 2, (y0 + y1) / 2 + dy)
+
+
+def frame_of(codes, margin=1.12):
+    """Camera centre and zoom that frame these drawings together (for stops showing a group)."""
+    xs0, ys0, xs1, ys1 = [], [], [], []
+    for c in codes:
+        x, y = LAYOUT[c]
+        w, h = 1500 * SIZE.get(c, 1.0) * SCALE, 880 * SIZE.get(c, 1.0) * SCALE
+        xs0.append(x - w / 2); xs1.append(x + w / 2); ys0.append(y - h / 2); ys1.append(y + h / 2)
+    x0, x1, y0, y1 = min(xs0), max(xs1), min(ys0), max(ys1)
+    z = min(W / ((x1 - x0) * margin), H / ((y1 - y0) * margin), ZOOM)
+    return ((x0 + x1) / 2, (y0 + y1) / 2), max(0.2, z)
+
+
+def edge(a, b_, inset=0.0):
+    """Points on the facing edges of drawings a and b (for a pen line from one to the other)."""
+    (ax, ay), (bx, by) = LAYOUT[a], LAYOUT[b_]
+    def out(x, y, c, tx, ty):
+        w, h = 1500 * SIZE.get(c, 1.0) * SCALE / 2 * (1 - inset), 880 * SIZE.get(c, 1.0) * SCALE / 2 * (1 - inset)
+        dx, dy = tx - x, ty - y
+        k = min(w / abs(dx) if dx else 1e9, h / abs(dy) if dy else 1e9)
+        return (x + dx * k, y + dy * k)
+    return out(ax, ay, a, bx, by), out(bx, by, b_, ax, ay)
 
 
 def extent():

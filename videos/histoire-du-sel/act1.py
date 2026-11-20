@@ -40,8 +40,8 @@ ENTRIES = [
     E('G05', 'chèvre évacuée par hélicoptère', arrive(2, 'La situation'), focus=(0.40, 0.45)),
     # the NaCl triangle: crystals on top, the two organs below, framed wide enough to see the split
     E('G06', 'cristaux de sel', arrive(3, 'Le comportement')),
-    E('G07', 'cellules nerveuses', arrive(3, 'Un afflux'), at=(8750, 220), zoom=0.62),
-    E('G08', 'l’estomac', arrive(3, 'Le chlore'), at=(9750, 220), zoom=0.62),
+    E('G07', 'cellules nerveuses', arrive(3, 'Un afflux'), at=BD.frame_of(['G06', 'G07'])[0], zoom=BD.frame_of(['G06', 'G07'])[1]),
+    E('G08', 'l’estomac', arrive(3, 'Le chlore'), at=BD.frame_of(['G06', 'G07', 'G08'], 1.35)[0], zoom=BD.frame_of(['G06', 'G07', 'G08'], 1.35)[1]),
 ]
 MARKS = []
 BOARD = BD.Board(ENTRIES, end=cue.total + 1.2, marks=MARKS)
@@ -49,12 +49,15 @@ import json as _json
 _pin = _json.load(open(asset('M01.json')))['pin']
 ENTRIES[0].extras.append(BD.write('Parc national Olympic', 52, _pin[0] + 0.05, _pin[1] + 0.08, DONE('M01'), frac=True, anchor='l'))
 # words, written by the same pen, once their drawing is done
-ENTRIES[6].extras.append(BD.write('NaCl', 140, 0, 335, max(cue(3, 'chlorure'), DONE('G06'))))
+ENTRIES[6].extras.append(BD.write('NaCl', 140, 0, -330, max(cue(3, 'chlorure'), DONE('G06'))))
 # NaCl splits in two: a branch to the nerve cells (« Na »), then one to the stomach (« Cl »)
-MARKS += [BD.Line([(9120, -110), (8550, 60), (8070, 320)], DONE('G07')),
-          BD.Note('Na', 110, (7960, 400), DONE('G07') + 0.95),
-          BD.Line([(9300, -110), (9900, 60), (10480, 320)], DONE('G08')),
-          BD.Note('Cl', 110, (10600, 400), DONE('G08') + 0.95)]
+# NaCl splits in two: a pen line from the crystals to the nerve cells (« Na »), then to the stomach (« Cl »)
+_a, _b = BD.edge('G06', 'G07', 0.25)
+_c, _d = BD.edge('G06', 'G08', 0.25)
+MARKS += [BD.Line([_a, _b], DONE('G07')),
+          BD.Note('Na', 110, (_b[0], _b[1] - 90), DONE('G07') + 0.95),
+          BD.Line([_c, _d], DONE('G08')),
+          BD.Note('Cl', 110, (_d[0] + 160, _d[1] - 40), DONE('G08') + 0.95)]
 ENTRIES[7].extras.append(message)                                                  # « transmettre des messages »
 
 

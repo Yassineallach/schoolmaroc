@@ -54,7 +54,7 @@ E = BD.Entry
 ENTRIES = [
     E('G15', 'aliments conservés', focus=(0.5, 0.45)),                                   # opens on the travel from act 2
     E('G16', 'bactérie et sel', arrive(6, 'Le sel tue'), focus=(0.7, 0.5)),            # « …en aspirant l'eau de leurs cellules »
-    E('G17', 'une pincée de sel', arrive(7, 'Le sel'), at=BD.mid('G17', 'G38', 40), zoom=0.62),     # frames the stew and the spoons
+    E('G17', 'une pincée de sel', arrive(7, 'Le sel'), at=BD.frame_of(['G17', 'G38'])[0], zoom=BD.frame_of(['G17', 'G38'])[1]),     # frames the stew and the spoons
     E('G38', 'une pincée, une dose généreuse', cue(7, 'Une pincee'), stay=True, max_dur=1.3),
     E('M04', 'la route du sel', arrive(8, 'Partout'), focus=(0.30, 0.30)),               # « …l'échanger avec les régions qui en manquaient »
     E('G18', 'caravane de sel', arrive(8, 'Des'), focus=(0.45, 0.45)),
@@ -80,10 +80,10 @@ for col, word, up, spoken in ((-330, 'amer', False, cue(7, 'ameres')), (-330, 'a
     G['G38'].extras.append(w_)
     G['G38'].extras.append(tick_arrow(col + 110, y, up, at + w_.sound[1]))
     pen = at + w_.sound[1] + 0.35
-MARKS += [BD.Note('?', 220, BD.mid('G17', 'G38', -560), max(cue(7, 'Pourtant'), pen))]          # « Pourtant… reste un mystère »
+MARKS += [BD.Note('?', 220, (BD.frame_of(['G17', 'G38'])[0][0], BD.frame_of(['G17', 'G38'])[0][1] - 420), max(cue(7, 'Pourtant'), pen))]          # « Pourtant… reste un mystère »
 G['M04'].extras.append(BD.write('Sahara', 64, PINS[0][0] + 0.05, PINS[0][1] - 0.02, DONE['M04'], frac=True, anchor='l'))
 G['M04'].extras.append(route(DONE['M04'] + 1.0))                                                   # to « …qui en manquaient »
-MARKS += [BD.Note('1er millénaire', 60, (BD.world('G18')[0], BD.world('G18')[1] - 420), DONE['G18'])]                                 # « Dès le premier millénaire de notre ère »
+MARKS += [BD.Note('1er millénaire', 60, (BD.world('G18')[0], BD.world('G18')[1] - 360), DONE['G18'])]                                 # « Dès le premier millénaire de notre ère »
 G['G20'].extras.append(BD.write('salaire', 110, 720, -40, max(cue(9, 'salaire'), DONE['G20'])))
 G['G20'].extras.append(BD.write('sal', 110, 640, 110, cue(9, 'sal')))                               # under the first three letters
 

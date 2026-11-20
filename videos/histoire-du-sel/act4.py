@@ -60,13 +60,13 @@ E = BD.Entry
 ENTRIES = [
     E('G21', 'salière grecque', focus=(0.5, 0.45)),                                       # « …les salières… Grèce antique »
     E('G22', 'le banquet', arrive(10, 'Selon'), focus=(0.5, 0.45)),
-    E('M07', 'carte de France', arrive(11, 'Au XVIIIe'), at=BD.mid('G23', 'M07'), zoom=0.62, max_dur=1.3),   # « Au XVIIIe siècle, en France »
+    E('M07', 'carte de France', arrive(11, 'Au XVIIIe'), at=BD.frame_of(['M07', 'G23'])[0], zoom=BD.frame_of(['M07', 'G23'])[1], max_dur=1.3),   # « Au XVIIIe siècle, en France »
     E('G23', 'la gabelle', cue(11, 'un impot'), stay=True),                                # « …un impôt impopulaire »
     E('G24', 'la Révolution', arrive(11, 'contribue'), focus=(0.6, 0.4)),
     E('G25', 'la marche du sel', arrive(11, 'En 1930'), focus=(0.7, 0.4)),                  # « En 1930, la marche du sel… »
-    E('G37', 'la loi britannique', arrive(11, 'lois'), at=BD.mid('G37', 'G26'), zoom=0.62, max_dur=1.2),
+    E('G37', 'la loi britannique', arrive(11, 'lois'), at=BD.frame_of(['G37', 'G26'])[0], zoom=BD.frame_of(['G37', 'G26'])[1], max_dur=1.2),
     E('G26', 'récolter le sel', cue(11, 'recolter'), stay=True),
-    E('M05', 'carte de l’Inde', arrive(11, 'donne'), at=BD.mid('M05', 'M08'), zoom=0.6, max_dur=1.4),   # « …l'indépendance de l'Inde »
+    E('M05', 'carte de l’Inde', arrive(11, 'donne'), at=BD.frame_of(['M05', 'M08'])[0], zoom=BD.frame_of(['M05', 'M08'])[1], max_dur=1.4),   # « …l'indépendance de l'Inde »
     E('M08', 'le Gujarat', None, stay=True),                                                # set below, after « Inde »
 ]
 MARKS = []
@@ -79,13 +79,10 @@ DONE = {c: e.start + e.dur + 0.15 for c, e in G.items()}
 # the salt cellar divides the table: a dashed line down through it on « au-dessus du sel »
 G['G22'].extras.append(dashed([(0.525, 0.10), (0.525, 0.97)], max(cue(10, 'au -dessus'), DONE['G22'])))
 # the tax set off the Revolution: a pen arrow from the angry peasants to the crowd at the Bastille
-X23, Y23 = BD.world('G23')
-X24 = BD.world('G24')[0]
-MARKS += [BD.Line([(X23 - 250, Y23 + 400), (X24 + 650, Y23 + 430), (X24 + 50, Y23 + 400)], DONE['G24'])]
+MARKS += [BD.Line(list(BD.edge('G23', 'G24', 0.2)), DONE['G24'])]
 G['G25'].extras.append(BD.write('1930', 90, -560, -330, max(cue(11, '1930'), DONE['G25'])))
 # British law forbids the Indians their own salt: from the decree to the hands
-X37, Y37 = BD.world('G37')
-MARKS += [BD.Line([(X37 - 610, Y37), (BD.world('G26')[0] + 610, Y37)], DONE['G26'], dur=0.5)]
+MARKS += [BD.Line(list(BD.edge('G37', 'G26', 0.2)), DONE['G26'], dur=0.5)]
 # India: « Inde », a ring on Gujarat, a line out to the close-up, then the march to the sea at Dandi
 t = DONE['M05']
 G['M05'].extras.append(BD.write('Inde', 80, 0.55, 0.62, t, frac=True))
@@ -94,8 +91,8 @@ dx, dy = IND['pin']
 G['M05'].extras.append(ring(dx, dy - 0.03, 46, t))
 t += 0.65
 on_map = box_world('M05', None)(dx, dy - 0.03)
-X8, Y8 = BD.world('M08')
-MARKS += [BD.Line([(on_map[0] - 40, on_map[1] + 30), (X8 + 420, Y8 - 40)], t, dur=0.6, arrow=False)]
+_e = BD.edge('M05', 'M08', 0.3)[1]
+MARKS += [BD.Line([on_map, _e], t, dur=0.6, arrow=False)]
 t += 0.65
 G['M08'].arrive = t + BD.START_EARLY
 G['M08'].start = t
