@@ -71,6 +71,7 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `grands_nombres_act1.py` | the user's engraving-style drawings for a legend with no historical picture (`cutout.ink_image`, labelled placeholder until uploaded), the chessboard motif with grains landing on spoken words, a camera hold on a detail of a drawing |
 | `grands_nombres_act6.py` | the returning motif (Gamow's struck card, the chessboard) closing the film, a 3 s hold, then `brand.outro_scene` appended as the last shot |
 | `grands_nombres_PROMPTS.md`, `grands_nombres_episode.json` | that film's drawing prompts (style reference cropped from its own 1884 engraving) and its `episode.json` with the brand overrides |
+| `sel_board.py`, `sel_plates.py`, `sel_make_maps.py`, `sel_act1.py`, `sel_act5.py`, `sel_PROMPTS.md`, `sel_style_reference.png` | *L'histoire du sel*: the infinite-canvas board (section 19): pen-drawn ChatGPT ink sketches, handwritten words, scratch sound, one drawing per view, code-drawn maps, the slow move in on the last drawing |
 | `brief_history_act6.py` | typed title struck and corrected, a counter, stacked covers, `page_flip` with a bookmark, crowd + unfold, end title held over the last plate |
 
 `demo_presets.py`, `demo_annotate.py`, `demo_toolkit.py`, `demo_typo.py` and `demo_scenes.py` render numbered reels of the presets, the annotations, the storytelling toolkit (maps, timeline, charts, objects, camera, transitions), the typography system and the scene environments on a project's own assets. Show one to the user when they ask what the animations look like. `demo_palettes.py <out_dir>` (or `scripts/identity_board.py --all`) renders the visual identity guide: a page per identity, an overview, and identities derived from sample topics.
@@ -791,6 +792,35 @@ torn-paper cuts (a custom presentation that masks with a jagged edge), paper sha
 with the lift, pen strokes with tremor (SVG paths with a seeded wobble). Worked example:
 `videos/grands-nombres/remotion/src/Act1.tsx` (act 1 of *Les très grands nombres*).
 
+### 19. The infinite canvas: one board drawn by one pen
+
+Built on *L'histoire du sel* (4:51, 5 acts, 13 clips), entirely from the user's notes. Use it when the user asks for a "board", "infinite canvas", "whiteboard" or "drawn" film. The engine is in `examples/sel_board.py` (board, camera, handwriting) and `examples/sel_plates.py` (pen order, scratch sound); copy both into the project.
+
+**The look**
+- **One drawing style for the whole film**, generated in ChatGPT from one reference: a black ink sketch, one subject per image, on plain white (`examples/sel_PROMPTS.md`, reference `sel_style_reference.png`). Approve G01 alone first, then attach G01 to every later prompt. Check each drawing for period errors (fleurs-de-lis on a British crown, hard hats in 1900, a modern bulldozer) and send a one-line fix.
+- **Lines only, no fill.** The white of the drawing becomes transparent; the ink sits on the parchment (`cutout.ink_image(..., backed=False)`). The user rejected a white fill they had not asked for.
+- **Maps are drawn in code** from the bundled Natural Earth data (`sel_make_maps.py`): whole outlines only (a cropped coast reads as "not finished"; a close-up gets a frame, like an atlas inset). Place names are not in the image: the pen writes them.
+
+**The pen**
+- **One pen, one place at a time.** The ink is thinned to centre lines, the pen follows one line to its end, lifts, and goes to the nearest unfinished line (`plates._order`). Drawing several places at once was refused.
+- **Words are handwritten by the same pen, left to right, letter by letter** (`board.write`, `_order(..., write=True)`). Never a typed word appearing.
+- **The scratch sound follows the pen exactly**: a 10 ms on/off gate built from the pen-down spans, silent while the pen lifts. Mix it far under the voice (stem about −37 LUFS; the user said "too loud" twice before that).
+- An intro that borrows act 1's first frame must not keep act 1's sound events (save and restore `style.EVENTS`).
+
+**The camera and the board**
+- **No cuts.** The camera travels across one parchment board with a faint drafting grid that moves with it; each drawing has a fixed place (`LAYOUT`), so earlier drawings stay where they were drawn.
+- **Layout: show the user options as whole-board previews** (`layout_options.py` in the project) and let them choose. On this film: a compact random walk (each next drawing a neighbour, any direction), then spread ×1.4 ("too compact").
+- **One drawing per view, at full size** (about 1,300 px wide). Two or three drawings framed together "look small" and "too many in one scene". When a sentence is too quick for its own view, leave that drawing out rather than squeeze it.
+- **The camera sets off on the sentence's first word and lands about 1.2 s after it**; each drawing then has at least 1.4 s of pen. Measure every view's time on screen before rendering and fix the ones under 2 s.
+- **A gentle push while the pen draws** (5 %), so text beside the drawing stays in frame.
+- **The ending**: once the last drawing is done, a slow move in on it (about 3 s) and a 3 s hold, then the outro. The user dropped the zoom-out over the whole board.
+
+**Marks and words**
+- **Only the most important words**: a place, a date, a term, a formula the narration names (here: Parc national Olympic, NaCl, Na, Cl, il y a ~11 000 ans, Chine, Hallstatt, the taste words, ?, Sahara, salaire, au-dessus du sel / en dessous, 1930, Dandi, production / prix, 1911). Everything else was cut as too much.
+- **Words go around the drawn part, never on it**: position them against the ink's own bounding box, not the image's (`frac='ink'`), and give each drawing a canvas larger than the screen (`CW, CH`) so a word beside a wide drawing is not clipped.
+- **Pen marks only where they explain**: a dashed route for a journey, a dashed divide (the banquet table), a curved tapered arrow for a cause. No circles or highlights for decoration. **Never an arrow from one drawing to another** when each drawing has its own view: it gets cut off.
+- A chart is used only when the narration states a trend (production up, price down), drawn as two hand curves with no numbers.
+
 ## Rules learned from the user (keep them)
 
 1. Base everything on the transcript.
@@ -836,3 +866,4 @@ with the lift, pen strokes with tremor (SVG paths with a seeded wobble). Worked 
 41. **Real material of the subject itself:** real photos of the people, the real logos, real screenshots or official promotional images of the works discussed (official store and publisher pages before Wikipedia), and quotes typed letter by letter (`press.typed_quote`).
 42. **The channel logo is on every scene,** from after the intro to the last frame of the closing hold (`brand.json` watermark `hide_env: []`).
 43. **Keep animation plain unless asked.** When the user rejects an effect, simplify: on *L'histoire de GTA* letter-by-letter ragdoll physics and a stumbling card were both refused for « trébucher / tomber »; the accepted version was two ordinary labels appearing on their words. Show a short preview clip with the voice and wait for approval before re-rendering.
+44. **The board film: one pen, one place, one drawing per view.** Lines only (no fill), words handwritten left to right by the same pen, the scratch synced to the pen and far under the voice, one drawing per view at full size, the camera leaving on the sentence's first word, only the essential words placed beside the drawn part, no arrow that crosses between views, a slow move in on the last drawing. Show layouts and changes as previews and render only the acts that changed (section 19).
