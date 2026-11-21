@@ -44,9 +44,23 @@ def tick_arrow(dx, dy, up, at, dur=0.3):
     """A small up or down pen arrow beside a word in the cell."""
     def fn(c, lt, e):
         y0, y1 = (dy + 26, dy - 26) if up else (dy - 26, dy + 26)
-        A.connect(c, [(W / 2 + dx, H / 2 + y0), (W / 2 + dx, H / 2 + y1)], lt, at - e.start, dur=dur,
+        A.connect(c, [(BD.CW / 2 + dx, BD.CH / 2 + y0), (BD.CW / 2 + dx, BD.CH / 2 + y1)], lt, at - e.start, dur=dur,
                   dashed=False, dots=False, width=5, sound=False, colour=INK, arrowhead=True)
     fn.sound = (at, dur, lambda: ((0.0, 1.0),))
+    return fn
+
+
+def underline_sal(fx, fy, size, at):
+    """A pen line under the first three letters (« sal ») of the handwritten « salaire »."""
+    def fn(c, lt, e):
+        full = BD._text_ink('salaire', size)[0].width - 40
+        part = BD._text_ink('sal', size)[0].width - 40
+        x0, y0, w_, h_ = e.d.inkbox
+        cx, cy = x0 + fx * w_, y0 + fy * h_
+        left = cx + 20
+        A.connect(c, [(left, cy + size * 0.55), (left + part, cy + size * 0.55)], lt, at - e.start, dur=0.5,
+                  dashed=False, dots=False, width=6, sound=False, colour=INK, arrowhead=False)
+    fn.sound = (at, 0.5, lambda: ((0.0, 1.0),))
     return fn
 
 
@@ -69,22 +83,26 @@ G = {e.code: e for e in ENTRIES}
 
 # taste: under the pinch (left spoon) and the heaped spoon (right), each effect written on its word
 pen = DONE['G38']
-for col, word, up, spoken in ((-330, 'amer', False, cue(7, 'ameres')), (-330, 'acide', True, cue(7, 'acides')),
-                              (-330, 'sucré', True, cue(7, 'sucrees')), (-330, 'umami', True, cue(7, 'umami')),
-                              (330, 'sucré', False, cue(7, 'sucre')), (330, 'umami', True, cue(7, "'umami"))):
+for col, word, up, spoken in ((-1, 'amer', False, cue(7, 'ameres')), (-1, 'acide', True, cue(7, 'acides')),
+                              (-1, 'sucré', True, cue(7, 'sucrees')), (-1, 'umami', True, cue(7, 'umami')),
+                              (1, 'sucré', False, cue(7, 'sucre')), (1, 'umami', True, cue(7, "'umami"))):
     row = sum(1 for x in G['G38'].extras if getattr(x, 'col', None) == col)
-    y = 290 + row * 66
+    # beside the drawing, never on it: the pinch's column on the left, the heaped spoon's on the right
+    bw = G['G38'].d.layers(G['G38'].scale)[0].width
+    x = (-bw / 2 - 260) if col < 0 else (bw / 2 + 110)
+    y = -110 + row * 72
     at = max(spoken, pen)
-    w_ = BD.write(word, 54, col - 40, y, at)
+    w_ = BD.write(word, 56, x, y, at)
     w_.col = col
     G['G38'].extras.append(w_)
-    G['G38'].extras.append(tick_arrow(col + 110, y, up, at + w_.sound[1]))
+    G['G38'].extras.append(tick_arrow(x + 120, y, up, at + w_.sound[1]))
     pen = at + w_.sound[1] + 0.35
-MARKS += [BD.Note('?', 220, (BD.frame_of(['G17', 'G38'])[0][0], BD.frame_of(['G17', 'G38'])[0][1] - 420), max(cue(7, 'Pourtant'), pen))]          # « Pourtant… reste un mystère »
+G['G38'].extras.append(BD.write('?', 170, 0.5, -0.12, max(cue(7, 'Pourtant'), pen), frac='ink'))          # « Pourtant… reste un mystère »
 G['M04'].extras.append(BD.write('Sahara', 64, PINS[0][0] + 0.05, PINS[0][1] - 0.02, DONE['M04'], frac=True, anchor='l'))
 G['M04'].extras.append(route(DONE['M04'] + 1.0))
-G['G20'].extras.append(BD.write('salaire', 110, 720, -40, max(cue(9, 'salaire'), DONE['G20'])))
-G['G20'].extras.append(BD.write('sal', 110, 640, 110, cue(9, 'sal')))                               # under the first three letters
+# beside the drawing: « salaire », then the pen underlines its first three letters on « sal »
+G['G20'].extras.append(BD.write('salaire', 96, 1.04, 0.45, max(cue(9, 'salaire'), DONE['G20']), frac='ink', anchor='l'))
+G['G20'].extras.append(underline_sal(1.04, 0.45, 96, cue(9, 'sal')))
 
 SHOTS = [(0.0, BOARD.scene)]
 END = cue.total + 1.2

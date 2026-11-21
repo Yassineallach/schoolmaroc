@@ -66,7 +66,7 @@ down = (cx0 + (CURVE['down_end'][0] - 0.5) * cw, cy0 + (CURVE['down_end'][1] - 0
 MARKS += [BD.Note('production', 54, (up[0] - 330, up[1] - 50), max(cue(12, 'explose'), DONE['C01'])),
           BD.Note('prix', 54, (down[0] - 120, down[1] - 50), cue(12, "'est effondre")),
 ]
-G['G29'].extras.append(BD.write('1911', 90, 0.18, 0.12, max(cue(13, '1911'), DONE['G29']), frac=True))
+G['G29'].extras.append(BD.write('1911', 90, 0.18, 0.12, max(cue(13, '1911'), DONE['G29']), frac='ink'))
 
 SHOTS = [(0.0, BOARD.scene)]
 if brand.CFG['outro']['enabled']:                     # the channel outro after the whole-board view

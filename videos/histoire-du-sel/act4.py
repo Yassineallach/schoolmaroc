@@ -68,19 +68,19 @@ ENTRIES = [
     E('M08', 'le Gujarat', None, stay=True),                                                # set below, after « Inde »
 ]
 MARKS = []
-END = cue.total + 3.5                                       # a longer hold: the close-up of the march finishes
+END = cue.total + 5.0                                       # a longer hold: the close-up of the march finishes
 BOARD = BD.Board(ENTRIES, before=act1.ENTRIES + act2.ENTRIES + act3.ENTRIES, end=END, marks=MARKS,
                  before_marks=act1.MARKS + act2.MARKS + act3.MARKS)
 G = {e.code: e for e in ENTRIES}
 DONE = {c: e.start + e.dur + 0.15 for c, e in G.items()}
-G['G22'].extras.append(BD.write('au-dessus du sel', 50, 0.27, -0.06, max(cue(10, 'au -dessus'), DONE['G22']) + 1.1, frac=True))
-G['G22'].extras.append(BD.write('en dessous', 50, 0.78, -0.06, max(cue(10, 'dessous'), DONE['G22'] + 3.0), frac=True))
+G['G22'].extras.append(BD.write('au-dessus du sel', 50, 0.27, -0.06, max(cue(10, 'au -dessus'), DONE['G22']) + 1.1, frac='ink'))
+G['G22'].extras.append(BD.write('en dessous', 50, 0.78, -0.06, max(cue(10, 'dessous'), DONE['G22'] + 3.0), frac='ink'))
 
 # the salt cellar divides the table: a dashed line down through it on « au-dessus du sel »
 G['G22'].extras.append(dashed([(0.525, 0.10), (0.525, 0.97)], max(cue(10, 'au -dessus'), DONE['G22'])))
 # the tax set off the Revolution: a pen arrow from the angry peasants to the crowd at the Bastille
-MARKS += [BD.Line(list(BD.edge('G23', 'G24', 0.2)), DONE['G24'], dashed=False, width=6)]          # the tax set off the Revolution
-G['G25'].extras.append(BD.write('1930', 90, -560, -330, max(cue(11, '1930'), DONE['G25'])))
+
+G['G25'].extras.append(BD.write('1930', 90, 0.12, -0.09, max(cue(11, '1930'), DONE['G25']), frac='ink'))
 # British law forbids the Indians their own salt: from the decree to the hands
 
 # India: « Inde », a ring on Gujarat, then the close-up beside it: the march to the sea, « Dandi »

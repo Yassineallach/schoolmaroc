@@ -46,8 +46,8 @@ _x11, _y11 = BD.world('G11')
 _y = _y11 + 880 * BD.SIZE.get('G11', 1.0) * BD.SCALE / 2 + 30
 # a date, not a diagram: one handwritten line under the farmer (a one-point « timeline » explained nothing)
 MARKS += [BD.Note('il y a ~11 000 ans', 60, (_x11, _y + 40), t11)]
-G['M06'].extras.append(BD.write('Chine', 64, WORLD[0][0] + 0.03, WORLD[0][1] + 0.07, max(cue(5, 'Chine'), DONE['M06']), frac=True, anchor='l'))
-G['M06'].extras.append(BD.write('Hallstatt', 64, WORLD[1][0] + 0.03, WORLD[1][1] + 0.07, cue(5, 'Hallstatt'), frac=True, anchor='l'))
+G['M06'].extras.append(BD.write('Chine', 64, WORLD[0][0] + 0.10, WORLD[0][1] + 0.02, max(cue(5, 'Chine'), DONE['M06']), frac=True, anchor='l'))
+G['M06'].extras.append(BD.write('Hallstatt', 64, WORLD[1][0] - 0.17, WORLD[1][1] + 0.12, cue(5, 'Hallstatt'), frac=True))
 
 SHOTS = [(0.0, BOARD.scene)]
 END = cue.total + 1.2

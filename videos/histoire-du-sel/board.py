@@ -23,9 +23,10 @@ import scenes as S
 import plates as PL
 from style import Shot, sfx
 
+CW, CH = 2600, 1500            # each drawing's own canvas: room around it for its words
 SCALE = 1.00                  # drawings are drawn smaller than the frame, so the board shows around them
 ZOOM = 0.80                   # camera framing at rest: wide, so the board and the neighbouring drawings are in view
-PUSH = 0.14                   # the camera moves in on the drawing's detail while the pen works
+PUSH = 0.05                   # the camera moves in on the drawing's detail while the pen works
 DIP = 1 / 5200                # on a travel the camera pulls back with the distance (an infinite canvas)
 PAN = 1.5                     # seconds for a travel to the neighbouring drawing; longer travels take longer
 GROUP = 0.0                   # sentences closer than this share one frame (no travel)
@@ -230,10 +231,10 @@ def write(text, size, dx, dy, at, dur=None, frac=False, anchor='m'):
     def fn(c, lt, e):
         lines, T, spans = _text_ink(text, size)
         if frac:
-            bx, by, bw, bh = e.d.box
+            bx, by, bw, bh = e.d.inkbox if frac == 'ink' else e.d.box
             px, py = bx + dx * bw, by + dy * bh
         else:
-            px, py = W / 2 + dx, H / 2 + dy
+            px, py = CW / 2 + dx, CH / 2 + dy
         x0 = int(px - (0 if anchor == 'l' else lines.width / 2))
         y0 = int(py - lines.height / 2)
         PL.draw_layers(c, lines, None, T, lt, at - e.start, dur, x0, y0)
@@ -345,10 +346,12 @@ class Board:
         if final and e.code in self._done:
             return self._done[e.code]
         lt = t - e.start
-        c = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+        c = Image.new('RGBA', (CW, CH), (0, 0, 0, 0))
         lines, _, order = e.d.layers(e.scale)
-        x0, y0 = int(W / 2 - lines.width / 2), int(H / 2 - lines.height / 2)
+        x0, y0 = int(CW / 2 - lines.width / 2), int(CH / 2 - lines.height / 2)
         e.d.box = (x0, y0, lines.width, lines.height)
+        bb = lines.getchannel('A').point(lambda v: 255 if v > 40 else 0).getbbox() or (0, 0, lines.width, lines.height)
+        e.d.inkbox = (x0 + bb[0], y0 + bb[1], bb[2] - bb[0], bb[3] - bb[1])   # the drawn part, without the paper margin
         PL.draw_layers(c, lines, None, order, lt, 0.0, PL.draw_time(e), x0, y0)
         for fn in e.extras:
             fn(c, lt, e)
@@ -367,7 +370,7 @@ class Board:
             wx, wy = world(src.code)
             wx, wy = wx + src.offset[0], wy + src.offset[1]
             sx, sy = (wx - cx) * z + W / 2, (wy - cy) * z + H / 2
-            if sx + W * z / 2 < 0 or sx - W * z / 2 > W or sy + H * z / 2 < 0 or sy - H * z / 2 > H:
+            if sx + CW * z / 2 < 0 or sx - CW * z / 2 > W or sy + CH * z / 2 < 0 or sy - CH * z / 2 > H:
                 continue
             if e is None:
                 c = self._before_cell(b_)
@@ -376,7 +379,7 @@ class Board:
                     continue
                 last = max([e.start + PL.draw_time(e)] + [fn.sound[0] + fn.sound[1] for fn in e.extras if hasattr(fn, 'sound')])
                 c = self.cell(e, t, final=t > last + 0.3)
-            c = c.resize((max(1, int(W * z)), max(1, int(H * z))), Image.BILINEAR)
+            c = c.resize((max(1, int(CW * z)), max(1, int(CH * z))), Image.BILINEAR)
             frame.alpha_composite(c, (int(round(sx - c.width / 2)), int(round(sy - c.height / 2))))
         for m in self.before_marks:
             m.draw(frame, 1e6, cx, cy, z)
