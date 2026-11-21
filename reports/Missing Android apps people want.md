@@ -1,10 +1,10 @@
 # Few true Android gaps survive verification
 
-The app that people ask for most often and in the most places, and that no one has yet brought to market in a satisfying form, is **a crowdsourced "where is it cheapest" grocery price comparer that shows real shelf prices, not flyer deals**. Shoppers have asked for it in the US, Germany and Morocco from 2023 to 2026: at least **9 independent requesters across 4 communities and 3 countries**, with replies such as "I wish! I just want to upload my shopping list and see what store has it cheapest!" ([r/Frugal](https://www.reddit.com/r/Frugal/comments/142ycig/please_tell_me_there_is_an_app_that_takes/)). Morocco is the most promising place to build it: a 2026 r/Morocco thread on souk middlemen called the idea "sorely needed" ([r/Morocco](https://www.reddit.com/r/Morocco/comments/1xx8kg5/)). The clearest technical gap of the "exists only on iOS" kind is an **Android walk/don't-walk pedestrian-signal detector for blind users**. Both leading apps, Oko and WalkAssist, are iPhone-only, and blind users have asked for Android versions in writing ([AppleVis](https://www.applevis.com/comment/145382)). Overall, the research found far fewer strong gaps than hoped. Of roughly 80 ideas examined, only about **7 combine a verified Android gap with more than one independent request**. Another 13 are plausible but thin, and the rest are either weak leads or already-served ideas that should not be built. Most niches on Google Play in 2026 are crowded with small, often AI-assisted apps, so a new app will usually win on local data, polish, privacy or price, not on being first. Live Reddit was blocked during this research, so every request count below is a lower bound.
+The app that people ask for most often and in the most places, and that no one has yet brought to market in a satisfying form, is **a crowdsourced "where is it cheapest" grocery price comparer that shows real shelf prices, not flyer deals**. Shoppers in the US and Germany, and on Hacker News, have asked for it from 2023 to 2026: at least **8 independent requesters across several communities**, with replies such as "I wish! I just want to upload my shopping list and see what store has it cheapest!" ([r/Frugal](https://www.reddit.com/r/Frugal/comments/142ycig/please_tell_me_there_is_an_app_that_takes/)). The demand is the broadest in the study, but the commercial case is weak. Willingness to pay is low, and established deal apps already hold most of the audience. The clearest technical gap of the "exists only on iOS" kind is an **Android walk/don't-walk pedestrian-signal detector for blind users**. Both leading apps, Oko and WalkAssist, are iPhone-only, and blind users have asked for Android versions in writing ([AppleVis](https://www.applevis.com/comment/145382)). Overall, the research found far fewer strong gaps than hoped. Of roughly 80 ideas examined, only about **7 combine a verified Android gap with more than one independent request**. Another 11 are plausible but thin, and the rest are either weak leads or already-served ideas that should not be built. Most niches on Google Play in 2026 are crowded with small, often AI-assisted apps, so a new app will usually win on polish, privacy or price, not on being first. Live Reddit was blocked during this research, so every request count below is a lower bound.
 
 ## Methodology and limits: archives, forums and Play search, not live Reddit
 
-Six research tracks covered accessibility and health; education and hobbies; everyday life and family; finance, shopping and travel (including Morocco and MENA); social, entertainment and work; and tech and AI. **Live reddit.com was unreachable**: JSON endpoints, old.reddit and web search to Reddit were all refused. Reddit evidence therefore comes from the **Arctic Shift Reddit archive API**. It returns real post and comment text with dates, but its scores are captured early and understate live upvotes. Comment full-text searches for phrases like "wish there was an app" timed out, so the sample is biased toward posts with "app" in the title. Non-Reddit evidence came from Hacker News (Algolia API), AppleVis (the largest blind-user forum), the HearingTracker forum, the F-Droid forum's 895-post "missing apps" megathread, the Privacy Guides forum, Lemmy, NFB articles, and direct Google Play and App Store searches. Existence checks on Google Play mostly used **search-result titles, not opened listings**, so some "lacks the function" claims need a feature check before anyone builds. The Alzheimer's Society forum was behind Cloudflare, and its content is known only from search summaries.
+Six research tracks covered accessibility and health; education and hobbies; everyday life and family; finance, shopping and travel; social, entertainment and work; and tech and AI. **Live reddit.com was unreachable**: JSON endpoints, old.reddit and web search to Reddit were all refused. Reddit evidence therefore comes from the **Arctic Shift Reddit archive API**. It returns real post and comment text with dates, but its scores are captured early and understate live upvotes. Comment full-text searches for phrases like "wish there was an app" timed out, so the sample is biased toward posts with "app" in the title. Non-Reddit evidence came from Hacker News (Algolia API), AppleVis (the largest blind-user forum), the HearingTracker forum, the F-Droid forum's 895-post "missing apps" megathread, the Privacy Guides forum, Lemmy, NFB articles, and direct Google Play and App Store searches. Existence checks on Google Play mostly used **search-result titles, not opened listings**, so some "lacks the function" claims need a feature check before anyone builds. The Alzheimer's Society forum was behind Cloudflare, and its content is known only from search summaries. This version of the report deliberately leaves out region-specific ideas and evidence.
 
 Two patterns shaped the results. First, idea subreddits such as r/SomebodyMakeThis and r/AppIdeas are now **dominated by developers fishing for ideas**, and several communities actively push back. r/CaregiverSupport bans market research, and one member wrote "Ugh people that try to make money off us are gross" ([r/CaregiverSupport](https://reddit.com/r/CaregiverSupport/comments/1tyq9zz/are_you_using_an_app_to_organize_your_tasks_how/)). r/AgingParents members wrote "There must be four thousand apps that do this exact thing" ([r/AgingParents](https://reddit.com/r/AgingParents/comments/1vr130f/is_there_any_app_in_particular_you_like_for_yours/)). The real signals came from plain "Is there an app that…?" posts in topic communities, from users of apps that died (App in the Air, TV Time), and from Android users who discover that the app they read about is iOS-only. Second, **many 2023–2024 gaps had closed by 2026**: Android Flighty-style trackers, AI notification summaries, Pixel Screenshots clones and fabric-stash apps.
 
@@ -16,21 +16,22 @@ Each idea below is classified as **doesn't exist**, **similar apps lack the func
 
 ### Strong tier: verified gap and repeated demand (7)
 
-#### 1. Fair-price grocery and souk tracker (Morocco first) — score 6/10 in Morocco/MENA, 3/10 in US/Germany
+#### 1. Crowdsourced shelf-price grocery comparer — 3/10 commercially, but the strongest demand in the study
 
 | Field | Detail |
 |---|---|
-| Concept / what it does | Users photograph receipts or shelf tags. On-device OCR extracts item, price and store into a shared database. The app then shows the cheapest nearby store for each item or a whole shopping list, plus price history. In Morocco it also shows official wholesale reference prices next to crowdsourced retail prices. |
-| Who wants it, and why | Budget shoppers who cannot tell whether a price is fair or where an item is cheapest. Moroccan shoppers frustrated with market middlemen (الشناقة), where prices "change from seller to seller and neighborhood to neighborhood with no clear logic" ([r/Morocco](https://www.reddit.com/r/Morocco/comments/1xx8kg5/)). |
-| Original requests | "Please tell me there is an app that takes crowdsourced/user created data and helps us compare products between stores and allows for sorting by unit price… If it exists, I must know" ([r/Frugal 2023](https://www.reddit.com/r/Frugal/comments/142ycig/please_tell_me_there_is_an_app_that_takes/)). "Is there an app in Germany that actually compares prices across supermarkets (not just deals)?" ([r/germany 2025](https://www.reddit.com/r/germany/comments/1o8y709/is_there_an_app_in_germany_that_actually_compares/)). "is there an app where you can search what costs what at local stores / Supermarkt?" ([r/germany 2024](https://www.reddit.com/r/germany/comments/1hbxnv8/is_there_an_app_where_you_can_search_what_costs/)). |
+| Concept / what it does | Users photograph receipts or shelf tags. On-device OCR extracts item, price and store into a shared database. The app then shows the cheapest nearby store for each item or a whole shopping list, plus price history. |
+| Who wants it, and why | Budget shoppers who cannot tell where an item is cheapest. Existing apps cover weekly deals, not everyday shelf prices, and prices vary from store to store even within one chain. |
+| Original requests | "Please tell me there is an app that takes crowdsourced/user created data and helps us compare products between stores and allows for sorting by unit price… Or if someone wants to take that idea and make an app, go for it. If it exists, I must know" ([r/Frugal 2023](https://www.reddit.com/r/Frugal/comments/142ycig/please_tell_me_there_is_an_app_that_takes/)). "Is there an app in Germany that actually compares prices across supermarkets (not just deals)?… The apps I have so far focus on weekly flyers or promotions, not full real-time prices" ([r/germany 2025](https://www.reddit.com/r/germany/comments/1o8y709/is_there_an_app_in_germany_that_actually_compares/)). "is there an app where you can search what costs what at local stores / Supermarkt?" ([r/germany 2024](https://www.reddit.com/r/germany/comments/1hbxnv8/is_there_an_app_where_you_can_search_what_costs/)). |
 | More links | [r/povertyfinance](https://www.reddit.com/r/povertyfinance/comments/1i7rxhy/), [r/Frugal 2024](https://www.reddit.com/r/Frugal/comments/1aywc87/), [r/Frugal eggs](https://www.reddit.com/r/Frugal/comments/1067lrx/), [r/Frugal USA item](https://www.reddit.com/r/Frugal/comments/1e6m4fi/), [r/Frugal real-time](https://www.reddit.com/r/Frugal/comments/1igr5iu/), [Ask HN mirror](https://hn.svelte.dev/item/43195604) |
-| Independent requests | At least 9, across 4 communities and 3 countries, 2023–2026. This is the most repeated cluster in the whole study. |
-| Positive reactions | The 2023 thread scored 60 with 50 comments. Replies included "I wish!…" (+7) and "This is my dream come true" (+6). On the Morocco thread: "It's sorely needed! I'll download it rn" (+3) and "I love the idea, what can we do to support" (+4). |
-| Existing alternatives | Flipp (US/CA flyers); Trolley (UK); kaufDA, marktguru, smhaggle and KassenCheck (Germany); Open Prices from Open Food Facts, a crowdsourced database with 125,000+ prices as of August 2025 ([GitHub](https://github.com/openfoodfacts/open-prices)); SOUK SCAN, a Moroccan beta on Play. |
-| Why they fall short | **Similar apps lack the function.** German apps show flyer deals, not shelf prices: KaufDA "won't otherwise give you a real-time price for items that aren't on sale" ([r/germany](https://www.reddit.com/r/germany/comments/1hbxnv8/is_there_an_app_where_you_can_search_what_costs/)). Open Prices is a tool for contributing data, not a consumer "where is it cheapest" app. SOUK SCAN is an early competitor whose listing was not verified. |
-| Potential Android features | ML Kit receipt OCR; a list optimizer that picks the cheapest store; a wholesale reference price shown next to retail; a Darija/French/Arabic UI; anti-spam reputation scores for contributors; contributing data back to Open Prices to solve cold start. |
-| Monetization | Ads, retailer promotions, B2B price-intelligence data, and a premium list optimizer. Willingness to pay is weak: one r/Frugal commenter asked "how would one monetize it?" |
+| Independent requests | At least 8, across r/Frugal, r/povertyfinance, r/germany and Ask HN, 2023–2026. This is the most repeated cluster in the whole study. |
+| Positive reactions | The 2023 thread scored 60 with 50 comments. Replies included "I wish! I just want to upload my shopping list and see what store has it cheapest!" (+7) and "This is my dream come true and I've thought many times of doing it myself" (+6). |
+| Existing alternatives | Flipp (US/CA flyers); Trolley (UK); kaufDA, marktguru, smhaggle and KassenCheck (Germany); Open Prices from Open Food Facts, a crowdsourced, ODbL-licensed database with 125,000+ prices as of August 2025 ([GitHub](https://github.com/openfoodfacts/open-prices)); GrocSnap and Price Book, personal price books that are mostly iOS ([GrocSnap](https://apps.apple.com/app/id6760315590), [Price Book](https://apps.apple.com/us/app/-/id6760607131)). |
+| Why they fall short | **Similar apps lack the function.** KaufDA "won't otherwise give you a real-time price for items that aren't on sale", and "I have two Edekas within walking distance and they have different owners and different prices" ([r/germany](https://www.reddit.com/r/germany/comments/1hbxnv8/is_there_an_app_where_you_can_search_what_costs/)). Open Prices is a tool for contributing data, not a consumer "where is it cheapest" app. One German reply was blunt: "It doesn't exist." |
+| Potential Android features | ML Kit receipt OCR; a list optimizer that picks the cheapest store; price-history charts; reputation scores for contributors to filter spam; contributing data back to Open Prices to solve cold start; a home-screen widget showing the price of your basket. |
+| Monetization | Ads, retailer promotions, B2B price-intelligence data, and a premium list optimizer. Willingness to pay is weak: an r/Frugal commenter asked "Since it's an app for frugal people how would one monetize it?", and the answers were "In app ads" and "sell that data". |
 | Complexity | Medium. OCR, a backend and spam filtering are manageable; the cold-start data problem is the hard part. |
+| Why the score is low | Incumbents exist for deals, commenters say store-brand prices barely differ, and frugal users resist paying. The idea ranks high on demand and low on revenue. |
 
 #### 2. Android pedestrian-signal detector for blind users — 6/10
 
@@ -123,24 +124,9 @@ Each idea below is classified as **doesn't exist**, **similar apps lack the func
 | Monetization | Family subscription; licences for care homes. |
 | Complexity | Medium. |
 
-### Plausible tier: real gap, thin or indirect demand (13)
+### Plausible tier: real gap, thin or indirect demand (11)
 
-#### 8. Morocco grand-taxi and petit-taxi fare and route guide — 5/10
-
-| Field | Detail |
-|---|---|
-| Concept / what it does | An offline guide to grand-taxi routes, per-seat fares, station (mahatta) locations, fixed airport fares and petit-taxi meter rules for each city, kept current by users reporting what they paid. It includes a haggling and scam cheat sheet in Darija, French and English. |
-| Who wants it, and why | Tourists and new residents who repeatedly ask what they should pay; locals frustrated with taxi service. Grand taxis "have no schedules or set times, and their station locations can change without notice" ([vagobond](https://www.vagobond.com/?p=175)). |
-| Original requests (implicit) | "can you please advise on how much I should be paying for a cab ride from the airport into my Riad" ([r/Morocco](https://www.reddit.com/r/Morocco/comments/1urre9f/taxi_from_airport_to_marrakech/)). Also [Martil–Fnideq fares](https://www.reddit.com/r/Morocco/comments/1udz76m/), [Tangier–Chefchaouen](https://www.reddit.com/r/Morocco/comments/1ubjpzj/), [Imlil grand taxi](https://www.reddit.com/r/Morocco/comments/1v7tzko/), [Marrakech haggling](https://www.reddit.com/r/Morocco/comments/1uedhla/), ["The Taxi Service in Morocco Sucks"](https://www.reddit.com/r/Morocco/comments/1x6nm95/) |
-| Independent requests | At least 6 repeated fare questions in 2026. None is an explicit "make an app" request. |
-| Positive reactions | "The Taxi Service in Morocco Sucks" scored 14 with 13 comments. A builder's survey post drew "You can spill the name of your app. 🤣" ([r/Morocco](https://www.reddit.com/r/Morocco/comments/1u4lk0q/grand_taxi_users_and_drivers_whats_your_real/)). |
-| Existing alternatives | Blassa covers grand taxis in Casablanca-Settat only ([Blassa](https://bilalenenouisser.github.io/Blassa/)); inDrive, Careem, Daba Taxi and Taxi Jini are ride-hailing apps; the legal status of ride-hailing is unsettled ([Morocco World News](https://www.moroccoworldnews.com/2024/03/21514/minister-responds-to-concerns-over-lack-of-regulations-on-ridesharing-apps/)). |
-| Why they fall short | **Similar apps lack the function.** No nationwide fare and route reference exists. |
-| Potential Android features | Offline city packs; a map of stations; a "what I paid" report form; a fare-check widget; airport fixed-fare cards to show the driver. |
-| Monetization | Freemium city packs; affiliate links for eSIMs, CTM/Supratours tickets and transfers; riad partnerships. |
-| Complexity | Low–medium; keeping the data fresh is the ongoing cost. |
-
-#### 9. Drafts-style "capture first, decide later" text inbox with actions — 6/10 on product fit, demand thin
+#### 8. Drafts-style "capture first, decide later" text inbox with actions — 6/10 on product fit, demand thin
 
 | Field | Detail |
 |---|---|
@@ -155,7 +141,7 @@ Each idea below is classified as **doesn't exist**, **similar apps lack the func
 | Monetization | One-time Pro or a subscription for actions and sync. Drafts Pro users already pay. |
 | Complexity | Medium; no restricted APIs are needed. |
 
-#### 10. Bookshop spine scanner that flags your to-read list — 5/10
+#### 9. Bookshop spine scanner that flags your to-read list — 5/10
 
 | Field | Detail |
 |---|---|
@@ -170,7 +156,7 @@ Each idea below is classified as **doesn't exist**, **similar apps lack the func
 | Monetization | One-time Pro plus affiliate links. |
 | Complexity | Medium; OCR accuracy on spines decides success. |
 
-#### 11. Swipe-to-discover books for Android — 5/10
+#### 10. Swipe-to-discover books for Android — 5/10
 
 | Field | Detail |
 |---|---|
@@ -185,7 +171,7 @@ Each idea below is classified as **doesn't exist**, **similar apps lack the func
 | Monetization | Affiliate links; premium filters. |
 | Complexity | Low–medium. |
 
-#### 12. Android pet bloodwork and lab-value trend tracker — 5/10
+#### 11. Android pet bloodwork and lab-value trend tracker — 5/10
 
 | Field | Detail |
 |---|---|
@@ -200,22 +186,7 @@ Each idea below is classified as **doesn't exist**, **similar apps lack the func
 | Monetization | Freemium plus a subscription; an iOS pet app charges $4.99/month ([GoodDays](https://apps.apple.com/us/app/id6761143846)). |
 | Complexity | Medium. |
 
-#### 13. Privacy-first SMS/notification budget tracker with Moroccan and GCC bank and BNPL parsers — 4/10
-
-| Field | Detail |
-|---|---|
-| Concept / what it does | Reads bank notifications on the device, with no bank login. Ships ready-made templates for CIH, Attijariwafa, Bank of Africa, Barid and GCC banks, and tracks Tabby/Tamara installments. Supports cash and daret entries, and exports to YNAB or CSV. |
-| Who wants it, and why | People whose banks have no aggregator; people who distrust bank-login apps; BNPL users confused by repayment schedules. |
-| Original requests | "Count me in… I've been waiting for such an app from a long time… very skeptical about the ones asking for bank logins" ([r/UAE](https://www.reddit.com/r/UAE/comments/1x98l8q/im_building_a_spending_app_for_the_uae_that/)); "Tabby doesn't show a monthly breakdown of what I owe and it's getting very confusing" ([r/UAE](https://www.reddit.com/r/UAE/comments/1x7lsfz/)); "None of my banks connect to YNAB…" ([r/ynab](https://www.reddit.com/r/ynab/comments/1x5uv03/none_of_my_banks_connect_to_ynab_so_i_taught_my/)) |
-| Independent requests | About 3, plus builder interest in Morocco ([r/Morocco budgeting guide](https://www.reddit.com/r/Morocco/comments/1xnkaxu/)). |
-| Positive reactions | The r/ynab post scored 20; "Count me in" scored +5. |
-| Existing alternatives | NotifSync and QuickCatch (YNAB bridges); PennyWise (free, open source); PayStreak (iPhone only, [App Store](https://apps.apple.com/us/app/-/id6751249424)); Finny. |
-| Why they fall short | **Similar apps lack the function.** No app was found that tracks Tabby and Tamara together, and local Moroccan bank templates appear to be missing (unverified). |
-| Potential Android features | NotificationListenerService rather than READ_SMS (Play restricts READ_SMS); a parser editor; budget categories for Ramadan and Eid. |
-| Monetization | Weak: "Yes I would use it, no I wouldn't pay for it." Ads or a one-time unlock. |
-| Complexity | Medium. |
-
-#### 14. Quilt and EPP layout planner using photos of your own blocks — 4/10
+#### 12. Quilt and EPP layout planner using photos of your own blocks — 4/10
 
 | Field | Detail |
 |---|---|
@@ -230,7 +201,7 @@ Each idea below is classified as **doesn't exist**, **similar apps lack the func
 | Monetization | One-time purchase, $5–15. |
 | Complexity | Medium. |
 
-#### 15. Practise piano from your own PDF or photographed sheet music — 4/10
+#### 13. Practise piano from your own PDF or photographed sheet music — 4/10
 
 | Field | Detail |
 |---|---|
@@ -245,7 +216,7 @@ Each idea below is classified as **doesn't exist**, **similar apps lack the func
 | Monetization | Subscription. |
 | Complexity | High (OMR plus acoustic pitch detection); funded competitors are converging on this. |
 
-#### 16. Remote tamper lock for an elderly parent's Android phone — 4/10
+#### 14. Remote tamper lock for an elderly parent's Android phone — 4/10
 
 | Field | Detail |
 |---|---|
@@ -257,10 +228,10 @@ Each idea below is classified as **doesn't exist**, **similar apps lack the func
 | Existing alternatives | 15+ senior launchers (BIG Launcher, Senior Launcher, Juno and others); Samsung's "Press Volume up to answer calls" setting. |
 | Why they fall short | **Similar apps lack the function**, probably. Remote configuration and brightness locks were not verified in the launchers. |
 | Potential Android features | Device-owner policy enforcement; a remote config dashboard; an auto-answer setting; adware detection. |
-| Monetization | Subscription per managed parent. Caregivers are price-sensitive: "I'd pay $10 month max" ([r/AgingParents](https://reddit.com/r/AgingParents/comments/1ofqnzp/unsure_if_i_should_pay_for_an_app_that_helps_me/)). |
+| Monetization | Subscription per managed parent. Caregivers are price-sensitive: "I'd pay $10 month max. Only if it is excellent" ([r/AgingParents](https://reddit.com/r/AgingParents/comments/1ofqnzp/unsure_if_i_should_pay_for_an_app_that_helps_me/)). |
 | Complexity | Medium–high (differences between phone makers). |
 
-#### 17. Point-at-the-appliance panel reader — 4/10
+#### 15. Point-at-the-appliance panel reader — 4/10
 
 | Field | Detail |
 |---|---|
@@ -275,7 +246,7 @@ Each idea below is classified as **doesn't exist**, **similar apps lack the func
 | Monetization | Freemium. |
 | Complexity | High. |
 
-#### 18. Fully offline system-wide "writing tools" for any phone — 4/10
+#### 16. Fully offline system-wide "writing tools" for any phone — 4/10
 
 | Field | Detail |
 |---|---|
@@ -286,11 +257,11 @@ Each idea below is classified as **doesn't exist**, **similar apps lack the func
 | Positive reactions | n/a |
 | Existing alternatives | Local Writer ([GitHub](https://github.com/aniketsaurav18/local-writer-android)); SwiftSlate ([F-Droid](https://fdroid.gitlab.io/jekyll-fdroid/packages/com.musheer360.swiftslate/)); LLM Hub ([GitHub](https://github.com/timmyy123/LLM-Hub)). |
 | Why they fall short | **Similar apps lack the function**: they are early, hobbyist and hard to set up. The gap is polish, not existence. |
-| Potential Android features | PROCESS_TEXT intent; llama.cpp or LiteRT models of 1–3B parameters; downloadable model packs; French and Arabic support. |
+| Potential Android features | PROCESS_TEXT intent; llama.cpp or LiteRT models of 1–3B parameters; downloadable model packs. |
 | Monetization | One-time Pro. |
 | Complexity | Medium. |
 
-#### 19. Per-app notification sound manager with export/import — 4/10
+#### 17. Per-app notification sound manager with export/import — 4/10
 
 | Field | Detail |
 |---|---|
@@ -305,7 +276,7 @@ Each idea below is classified as **doesn't exist**, **similar apps lack the func
 | Monetization | Small one-time unlock. |
 | Complexity | Low–medium, though the approach is hacky (latency, phone makers killing background apps). |
 
-#### 20. Photo-proof "did I lock it?" reassurance checklist — 4/10
+#### 18. Photo-proof "did I lock it?" reassurance checklist — 4/10
 
 | Field | Detail |
 |---|---|
@@ -320,83 +291,89 @@ Each idea below is classified as **doesn't exist**, **similar apps lack the func
 | Monetization | One-time purchase. |
 | Complexity | Low. Clinicians may consider reassurance tools a way of feeding compulsions (not sourced; check before building). |
 
-### Weak leads: single requests, crowded fields or structural barriers (10)
+### Weak leads: single requests, crowded fields or structural barriers (12)
 
-#### 21. Reader for language learners that opens your own EPUBs — 3/10
+#### 19. Reader for language learners that opens your own EPUBs — 3/10
 **Concept:** open your own EPUB, tap a word to translate it, and send saved words to spaced repetition. **Who/why:** long-time ReadEra users learning a language. **Request:** "Is there an app where I can read books and practice new vocabulary in the same app? … books that I have chosen to read" (17 points, 20 comments, [r/languagelearning](https://www.reddit.com/r/languagelearning/comments/1xe6h36/is_there_an_app_where_i_can_read_books_and/)). **Requests:** 1. **Reactions:** LingQ and Readlang suggestions (+13 each); "bought a lifetime subscription … worth it" (Linga). **Alternatives:** Linga, BookLight, Book Translator, Duoreader on Play; LingQ. **Shortfall:** **similar apps lack the function** only marginally; the function exists. **Android features:** EPUB/PDF rendering, offline dictionaries, AnkiDroid export. **Monetization:** lifetime unlock. **Complexity:** medium.
 
-#### 22. Tenuto-style music theory recall drills for Android — 3/10
+#### 20. Tenuto-style music theory recall drills for Android — 3/10
 **Concept:** flashcard quizzes such as "what are the notes in a Dbmin7 chord". **Requests:** "I'm looking to be quizzed on my memory … Flashcard style at minimum" ([r/musictheory](https://www.reddit.com/r/musictheory/comments/1vl2u7j/quizz_app_for_memorizing_theory/)); "Is it iOS only?" and "I have an android phone" ([r/musictheory](https://www.reddit.com/r/musictheory/comments/1ue40ut/app_for_drilling_chords/)). **Requests:** 2. **Reactions:** "Android version? :)". **Alternatives:** Tenuto is iOS-only ([App Store](https://apps.apple.com/us/app/tenuto/id459313476)); Play has Music Theory Companion, ChordIQ, Complete Ear Trainer. **Shortfall:** **exists but not on Android** for Tenuto itself, but substitutes exist. **Android features:** custom drill sets, MIDI input. **Monetization:** one-time. **Complexity:** low.
 
-#### 23. Cheap knitting PDF pattern companion (line marker plus counters) — 3/10
+#### 21. Cheap knitting PDF pattern companion (line marker plus counters) — 3/10
 **Concept:** a PDF viewer that remembers your exact row and repeat count. **Requests:** [r/SomebodyMakeThis](https://www.reddit.com/r/SomebodyMakeThis/comments/1x0o3dx/a_knitting_pdf_viewer_that_saves_your_exact_row/); "LooseLoop … SO convenient.. but … requires a subscription which is like 30 bucks a year" ([r/knitting](https://www.reddit.com/r/knitting/comments/1vs97ah/an_app_to_use_as_a_pattern_guide/)); [r/crochet, 91 comments](https://www.reddit.com/r/crochet/comments/1u3bjar/do_you_print_out_your_patterns_or_use_an_app/). **Requests:** 2–3. **Alternatives:** knitCompanion, My Row Counter ([App Store](https://apps.apple.com/app/id1342608792)), Rowkeep. **Shortfall:** **only in expensive platform**, in the sense that price is the complaint. **Angle:** bundle with #6 as a one-time, AI-free crafts toolkit. **Complexity:** low.
 
-#### 24. Password helper for elderly parents, managed by their adult children — 3/10
-**Concept:** big "tap to copy" tiles on the parent's phone, managed remotely by the child. **Request:** "An app where adult kids manage their elderly parents' passwords... Every tool I've found assumes the person using it is tech-savvy enough to understand what a 'vault' is" (45 points, 44 comments, [r/SomebodyMakeThis](https://reddit.com/r/SomebodyMakeThis/comments/1vit5w3/an_app_where_adult_kids_manage_their_elderly/)). **Reactions:** "I'm not aware of a specific app designed with this in mind" (+7). **Alternatives:** 1Password, Bitwarden and others with family vaults: "I do this currently with my elderly father… and 1Password. It works great" (+3). **Shortfall:** **similar apps lack the function** on the parent-side interface. **Barrier:** trust and security liability. **Complexity:** high.
+#### 22. Password helper for elderly parents, managed by their adult children — 3/10
+**Concept:** big "tap to copy" tiles on the parent's phone, managed remotely by the child. **Request:** "An app where adult kids manage their elderly parents' passwords... Every tool I've found assumes the person using it is tech-savvy enough to understand what a 'vault' is" (45 points, 44 comments, [r/SomebodyMakeThis](https://reddit.com/r/SomebodyMakeThis/comments/1vit5w3/an_app_where_adult_kids_manage_their_elderly/)). **Reactions:** "I'm not aware of a specific app designed with this in mind" (+7). **Alternatives:** 1Password, Bitwarden and others with family vaults: "I do this currently with my elderly father, my siblings, and 1Password. It works great" (+3). **Shortfall:** **similar apps lack the function** on the parent-side interface. **Barrier:** trust and security liability. **Complexity:** high.
 
-#### 25. TalkBack-first dictionary and RSS reader — 3/10
+#### 23. TalkBack-first dictionary and RSS reader — 3/10
 **Request:** "No third-party commercial dictionary is fully accessible/navigable on Android … and the same is true about RSS read[ers]" ([AppleVis](https://www.applevis.com/forum/android/what-i-miss-most-about-ios-why-i-m-still-not-going-back?page=1)). **Requests:** 1. **Shortfall:** **similar apps lack the function** (accessibility). **Barrier:** licensing dictionary content. **Monetization:** paid app. **Complexity:** low–medium.
 
-#### 26. Colour-plus-pattern clothing identifier for blind users — 3/10
+#### 24. Colour-plus-pattern clothing identifier for blind users — 3/10
 **Request:** an iOS "clothes color" app that also names patterns is "a huge ... game changer"; on Android, "only a few of them are well-maintained" ([AppleVis](https://www.applevis.com/forum/android/what-i-miss-most-about-ios-why-i-m-still-not-going-back?page=1)). **Requests:** 1. **Shortfall:** **similar apps lack the function**. **Android features:** on-device pattern classifier (stripes, checks, florals). **Complexity:** medium.
 
-#### 27. Activity-pay and miles tracker for truck drivers — 3/10
+#### 25. Activity-pay and miles tracker for truck drivers — 3/10
 **Request:** "I want something that will easily track my miles and activity pay." (+3); another driver uses "a spreadhseet. Just not intuitive enough." ([r/Truckers](https://www.reddit.com/r/Truckers/comments/1lj0i7d/trucker_app/)). **Requests:** 2–3, in a thread started by a developer. **Alternatives:** MileIQ, Trucker Path (they track mileage, not pay reconciliation). **Shortfall:** **similar apps lack the function**. **Caveat:** the community is hostile to app pitches ([r/Truckers](https://www.reddit.com/r/Truckers/comments/1uextig/phone_apps/)). **Complexity:** low.
 
-#### 28. Daily resurfacing of your own book notes and quotes — 3/10
+#### 26. Daily resurfacing of your own book notes and quotes — 3/10
 **Request:** "I'm looking for an app that I could put book notes into that would then cycle them back to me daily." (14 upvotes, [r/books](https://www.reddit.com/r/books/comments/1gnbuw4/is_there_an_app_for_this/)). **Alternatives:** Readwise, whose daily review appears to be paid ([AlternativeTo](https://alternativeto.net/software/readwise/)); AnkiDroid as a workaround. **Shortfall:** **only in expensive platform**. **Complexity:** low.
 
-#### 29. Cheap job-photo organizer for solo tradespeople — 3/10
+#### 27. Cheap job-photo organizer for solo tradespeople — 3/10
 **Request:** "my camera rolls is at some 12,000+ photos. Does anyone use an app that say you can make a folder and call it this and that job?" ([r/electricians](https://www.reddit.com/r/electricians/comments/1k4c7m6/do_anyone_of_you_use_a_good_photo_app_for_job_sites/)). **Requests:** 1. **Alternatives:** CompanyCam (expensive, [App Store](https://apps.apple.com/us/app/id960043499)); Timemark, RelayCam, WorkPhotos (vendor comparison pages, [Timemark](https://www.timemark.com/compare/best-companycam-alternative)). **Shortfall:** **only in expensive platform** for the leader, but cheap options exist. **Complexity:** medium (offline-first sync).
 
-#### 30. Matching people by Letterboxd taste — 3/10
+#### 28. Matching people by Letterboxd taste — 3/10
 **Request:** "is there an app or website when you log your letterboxd and it search for ppl with similar taste based on top4?" (12 upvotes, [r/Letterboxd](https://www.reddit.com/r/Letterboxd/comments/1ssfesv/is_there_an_app_or_website_when_you_log_your/)). **Alternatives:** the "Letterboxd besties" web tool (+15) and Criticker; a tester "had to go down to 2/4 matches and still only got four results". **Shortfall:** **similar apps lack the function** (web-only and thin). **Barrier:** Letterboxd has no open public API. **Complexity:** medium.
+
+#### 29. Multi-BNPL installment tracker (Klarna, Affirm, Afterpay, PayPal Pay in 4, Sezzle) — 3/10
+**Concept:** one calendar of every buy-now-pay-later plan, showing due dates and the total owed, so that several payments landing at once are not a surprise. **Evidence:** "For people who use multiple BNPL services (Klarna, Affirm, Afterpay, PayPal Pay in 4, Sezzle, etc.): how do you keep track of everything?" ([r/povertyfinance](https://www.reddit.com/r/povertyfinance/comments/1vc9bna/for_people_who_use_multiple_bnpl_services_klarna/)). This post is builder research, and commenters flag such posts as spam. The pain also shows in "When all of your Klarna payments come out at once." (29 comments, [r/povertyfinance](https://www.reddit.com/r/povertyfinance/comments/1k30uia/)). **Requests:** few direct ones. **Reactions:** the top answer is "I use a free application called GOOGLE SHEETS" (+5). **Alternatives:** PayStreak is iPhone only ([App Store](https://apps.apple.com/us/app/-/id6751249424)); Finny ([guide](https://getfinny.app/blog/track-klarna-afterpay-affirm-payments)); spreadsheets and bill trackers. **Shortfall:** **exists but not on Android** for the one dedicated option. **Android features:** manual plan entry with reminders, a widget showing the next payment, and optional parsing of notifications (Play restricts READ_SMS). **Monetization:** one-time unlock; demand is weak. **Complexity:** low–medium.
+
+#### 30. Hotel booking price-drop monitor — 3/10
+**Concept:** watch a hotel you have already booked and alert you to rebook if the price falls. **Request:** "select chosen hotels – track their prices – receive a notification whenever the price of one drops" ([r/travel](https://www.reddit.com/r/travel/comments/1i00kyf/is_there_an_app_that_would_capture_falling_hotel/)). Related requests: [airfare price drops](https://www.reddit.com/r/travel/comments/1bi2sjz/), [room availability alerts](https://www.reddit.com/r/travel/comments/1814smh/), ["like Pruvo but for cruises"](https://www.reddit.com/r/travel/comments/1bjtx6s/). **Requests:** 3–4, 2023–2025, all with low engagement. **Alternatives:** Pruvo, WakePackGo and watchmybooking.com, all named in the thread (mostly web or email; a native Android app was not verified). **Shortfall:** **similar apps lack the function** on Android, unverified. **Caveat:** an expert reply said hotel "prices Almost always go up up up". **Complexity:** high, because it means scraping booking sites against their terms and anti-bot defences.
 
 ## Top ten ranked for a solo Android developer
 
-The ranking weighs demand strength, the number of independent requests, evidence that people cannot find the app, lack of alternatives, audience size, commercial potential, and whether one developer can build it. It puts **breadth of repeated demand** and **Morocco relevance** ahead of technical neatness, because the user's schoolmaroc project sits in that market.
+The ranking weighs demand strength, the number of independent requests, evidence that people cannot find the app, lack of alternatives, audience size, commercial potential, and whether one developer can build it. Breadth of repeated demand counts most, because that is what the question asks about. This is why the grocery comparer ranks first despite its low commercial score.
 
 | Rank | Idea | Tier | Requests | Gap class | Score | Solo-dev feasibility |
 |---|---|---|---|---|---|---|
-| 1 | Fair-price grocery and souk tracker (Morocco) | Strong | 9+ across 3 countries | Similar apps lack the function | 6 | Medium |
+| 1 | Crowdsourced shelf-price grocery comparer | Strong | 8+ across 4 communities | Similar apps lack the function | 3 (commercial) | Medium |
 | 2 | Pedestrian-signal detector | Strong | 2 | Exists but not on Android | 6 | Hard |
 | 3 | Cross-media tracker | Strong | 4–5 plus TV Time migrants | Exists but not on Android | 6 | Medium |
-| 4 | Morocco taxi fare and route guide | Plausible | 6+ implicit | Similar apps lack the function | 5 | Easy |
-| 5 | Co-parent two-home ledger | Strong | 40+ pain threads | Similar apps lack the function | 5 | Easy |
-| 6 | Live Listen remote mic | Strong | ~5 | Similar apps lack the function | 5 | Hard |
-| 7 | Knitting gauge photo plus pattern math | Strong | 2–3 | Doesn't exist / abandoned | 5 | Medium |
-| 8 | Dementia auto-answer video kiosk | Strong | 2–3 | Exists but not on Android | 5 | Medium |
-| 9 | Drafts-style capture inbox | Plausible | 1–2 | Exists but not on Android | 6 | Medium |
-| 10 | TBR spine scanner | Plausible | 1 plus replies | Exists but not on Android | 5 | Medium |
+| 4 | Co-parent two-home ledger | Strong | 40+ pain threads | Similar apps lack the function | 5 | Easy |
+| 5 | Live Listen remote mic | Strong | ~5 | Similar apps lack the function | 5 | Hard |
+| 6 | Knitting gauge photo plus pattern math | Strong | 2–3 | Doesn't exist / abandoned | 5 | Medium |
+| 7 | Dementia auto-answer video kiosk | Strong | 2–3 | Exists but not on Android | 5 | Medium |
+| 8 | Drafts-style capture inbox | Plausible | 1–2 | Exists but not on Android | 6 | Medium |
+| 9 | TBR spine scanner | Plausible | 1 plus replies | Exists but not on Android | 5 | Medium |
+| 10 | Swipe-to-discover books | Plausible | 1 viral post plus ~6 comments | Exists but not on Android | 5 | Easy–medium |
 
-**1. Fair-price grocery and souk tracker.** Build it because it is the **only request cluster repeated across countries and communities**: US r/Frugal and r/povertyfinance, r/germany, r/Morocco and Ask HN. In every market, users say the current apps show deals rather than shelf prices. Morocco adds a specific, emotional pain point (the شناقة middlemen), an official wholesale reference price to anchor against, and a community already saying "sorely needed" ([r/Morocco](https://www.reddit.com/r/Morocco/comments/1xx8kg5/)). Open Prices gives an open database and licence to bootstrap from ([GitHub](https://github.com/openfoodfacts/open-prices)). The risks are cold start, fake price entries, weak willingness to pay, and SOUK SCAN already being in beta. Revenue will come from ads, retailer promotions or B2B data, not subscriptions.
+**1. Crowdsourced shelf-price grocery comparer.** Build it because it is the **only request cluster repeated across independent communities and countries for four years**: r/Frugal, r/povertyfinance, r/germany and Ask HN. In every case, users say current apps show deals rather than shelf prices. Open Prices gives an open database and licence to bootstrap from ([GitHub](https://github.com/openfoodfacts/open-prices)). Building it as a friendly consumer front end that also feeds data back to Open Prices is the most credible way past cold start. The risks are serious: a cold-start data problem, fake price entries, weak willingness to pay, and commenters who say store-brand prices barely differ. Revenue will come from ads, retailer promotions or B2B data, not subscriptions. A solo developer should start with one city.
 
-**2. Pedestrian-signal detector.** Build it because it is the **cleanest "exists but not on Android" gap** in the study. Two leading iOS apps, a written refusal from the developer ("only iPhones meet these requirements"), and a Play search that returns a toy all point the same way ([AppleVis](https://www.applevis.com/comment/145382)). The value is life-safety, and blindness organisations fund this kind of tool. It ranks second, not first, because the model accuracy and liability burden are heavy for one person.
+**2. Pedestrian-signal detector.** Build it because it is the **cleanest "exists but not on Android" gap** in the study. Two leading iOS apps, a written refusal from the developer ("only iPhones meet these requirements"), and a Play search that returns a toy all point the same way ([AppleVis](https://www.applevis.com/comment/145382)). The value is life-safety, and blindness organisations fund this kind of tool. The model accuracy and liability burden are heavy for one person.
 
-**3. Cross-media tracker.** Build it because the **TV Time shutdown displaced a large audience in July 2026**, and the best all-in-one tracker, Sequel, is iPhone-only ([App Store](https://apps.apple.com/app/sequel/id1630746993)). People are using decade-old spreadsheets instead (+17). The APIs are free, and the category already sells paid tiers. To stand out, build excellent import parsers and Android widgets.
+**3. Cross-media tracker.** Build it because the **TV Time shutdown displaced a large audience in July 2026**, and the best all-in-one tracker, Sequel, is iPhone-only ([App Store](https://apps.apple.com/app/sequel/id1630746993)). People are using decade-old spreadsheets instead (+17). The APIs are free, and the category already sells paid tiers. To stand out, build excellent import parsers and Android widgets. Of all ten, this has the best mix of demand, commercial potential and feasibility.
 
-**4. Morocco taxi fare and route guide.** Build it because it is the **cheapest idea to ship** on this list, mostly static data plus crowd reports, and it serves a steady flow of tourists who keep asking the same fare questions. The only nationwide-adjacent tool, Blassa, covers just Casablanca-Settat ([Blassa](https://bilalenenouisser.github.io/Blassa/)). It can share a "fair price" crowdsourcing engine with #1, so users have two reasons to open the app.
+**4. Co-parent two-home ledger.** Build it because the pain is **large, recurring and has no direct competitor**: 40+ threads, several with 100+ comments, and parents who already keep spreadsheets ([r/coparenting](https://reddit.com/r/coparenting/comments/1ldn4mw/how_to_help_coparent_identify_our_clothes/)). It is easy to build and the co-parenting audience already pays for apps like OurFamilyWizard. Frame it as a packing list, not as evidence against an ex, because the top-voted advice warns against pettiness.
 
-**5. Co-parent two-home ledger.** Build it because the pain is **large, recurring and has no direct competitor**: 40+ threads, several with 100+ comments, and parents who already keep spreadsheets ([r/coparenting](https://reddit.com/r/coparenting/comments/1ldn4mw/how_to_help_coparent_identify_our_clothes/)). It is easy to build and the co-parenting audience already pays for apps like OurFamilyWizard. Frame it as a packing list, not as evidence against an ex, because the top-voted advice warns against pettiness.
+**5. Live Listen remote mic.** Build it because hearing-aid users have **already started their own prototypes** out of frustration, and they compare the cost against proprietary microphones, not against free apps ([HearingTracker](https://forum.hearingtracker.com/t/-/102572/3)). Ship for Pixel and LE Audio phones first.
 
-**6. Live Listen remote mic.** Build it because hearing-aid users have **already started their own prototypes** out of frustration, and they compare the cost against proprietary microphones, not against free apps ([HearingTracker](https://forum.hearingtracker.com/t/-/102572/3)). Ship for Pixel and LE Audio phones first.
+**6. Knitting gauge photo grid plus pattern math.** Build it because it is the **only idea in the study classed as "doesn't exist"**, and an earlier attempt was abandoned. It ties to a tangible failure (a sweater that came out too small), and it fits a one-time, AI-free crafts bundle together with #21 and the hexagon planner (#12).
 
-**7. Knitting gauge photo grid plus pattern math.** Build it because it is the **only idea in the study classed as "doesn't exist"**, and an earlier attempt was abandoned. It ties to a tangible failure (a sweater that came out too small), and it fits a one-time, AI-free crafts bundle together with #23 and the hexagon planner (#14).
+**7. Dementia auto-answer video kiosk.** Build it because the buyer, an adult child, is clear and already pays for hardware such as Echo Show or Komp. The one dedicated app is iOS-only ([CallBuddy](https://apps.apple.com/ca/app/callbuddy/id6744102656)). Licences for care homes offer a business-to-business route.
 
-**8. Dementia auto-answer video kiosk.** Build it because the buyer, an adult child, is clear and already pays for hardware such as Echo Show or Komp. The one dedicated app is iOS-only ([CallBuddy](https://apps.apple.com/ca/app/callbuddy/id6744102656)). Licences for care homes offer a business-to-business route.
+**8. Drafts-style capture inbox.** Build it because the **product is proven** (Drafts users pay for Pro) and Android has nothing with an action system ([App Store](https://apps.apple.com/us/app/drafts/id1236254471)). It needs no restricted APIs. The demand evidence is thin (1–2 requests), so validate it before committing.
 
-**9. Drafts-style capture inbox.** Build it because the **product is proven** (Drafts users pay for Pro) and Android has nothing with an action system ([App Store](https://apps.apple.com/us/app/drafts/id1236254471)). It needs no restricted APIs. The demand evidence is thin (1–2 requests), so validate it before committing.
+**9. TBR spine scanner.** Build it because the to-read matching function is **verified missing on Android** while two iOS apps prove the concept ([Shelf Scan](https://apps.apple.com/us/app/id6754824642)). On-device OCR makes it a project of a few weeks to a month.
 
-**10. TBR spine scanner.** Build it because the to-read matching function is **verified missing on Android** while two iOS apps prove the concept ([Shelf Scan](https://apps.apple.com/us/app/id6754824642)). On-device OCR makes it a feasible weekend-to-month project. Swipe-to-discover books (#11) narrowly missed this spot. Its single request drew a stronger reaction (+107), but its Android gap was not checked on the Play Store itself.
+**10. Swipe-to-discover books.** Build it because a single explicitly Android request drew **the strongest reaction counts of any post in the study** (+107 for "such a good idea", +91 for "recommendation software for books feels way behind"), and at least four iOS apps show the appetite for it ([r/suggestmeabook](https://www.reddit.com/r/suggestmeabook/comments/1el2hu6/is_there_tinder_for_books/)). Check the Play Store directly before building, and confirm whether Fable already offers swipe discovery. The pet bloodwork tracker (#11) narrowly missed this spot: its audience is highly motivated, but it has only 1–2 direct requests.
 
 ## Rejected because they already exist on Android
 
-These ideas showed real demand but are already served, so **do not build them as "missing apps"**. **Android flight tracker or logbook** (Flighty-style): Aviate launched in July 2026 ([9to5Google](https://9to5google.com/2026/07/27/aviate-androids-answer-to-flighty-is-now-available-to-download/)), and Wayflight and byAir exist. **Soundscape-style audio navigation**: an Android open beta launched in August 2025 ([STA](https://scottish-tech-army.github.io/Soundscape-Android/newsletters/19-Aug-2025.html)). **Door and object detection**: Lookout's Find mode ([Play](https://play.google.com/store/apps/details?id=com.google.android.apps.accessibility.reveal)). **AAC for non-speaking users**: Avaz, Otsimo and many others ([Play search](https://play.google.com/store/search?q=AAC%20symbols&c=apps)). **Offline POTS and chronic-illness trackers** ([Lunaire](https://play.google.com/store/apps/details?id=uk.lunaire.pots&hl=en_US)) and **ME/CFS pacing** ([Play search](https://play.google.com/store/search?q=ME%2FCFS%20pacing%20heart%20rate&c=apps)). **Offline voice typing** (FUTO Voice, [Privacy Guides](https://discuss.privacyguides.net/t/transcription-tools-that-run-locally/19271/4)) and **offline translation** ([Privacy Guides](https://discuss.privacyguides.net/t/offline-translator-for-android/36095/1)). **Pixel Screenshots clones** (PixelShot, Shots Studio, [Beebom](https://beebom.com/pixelshot-app-brings-pixel-screenshots-any-android-phone/)) and **AI notification summaries** (NotifAI, [Play](https://play.google.com/store/apps/details?id=com.androidexpert35.notifai&hl=en)). **Voice banking**: Voice Back runs on Android ([Voice Back](https://voicebackapp.com/voice-banking)).
+These ideas showed real demand but are already served, so **do not build them as "missing apps"**. **Android flight tracker or logbook** (Flighty-style): Aviate launched in July 2026 ([9to5Google](https://9to5google.com/2026/07/27/aviate-androids-answer-to-flighty-is-now-available-to-download/)), and Wayflight and byAir exist. **Soundscape-style audio navigation**: an Android open beta launched in August 2025 ([STA](https://scottish-tech-army.github.io/Soundscape-Android/newsletters/19-Aug-2025.html)). **Door and object detection**: Lookout's Find mode ([Play](https://play.google.com/store/apps/details?id=com.google.android.apps.accessibility.reveal)). **AAC for non-speaking users**: Avaz, Otsimo and many others ([Play search](https://play.google.com/store/search?q=AAC%20symbols&c=apps)). **Offline POTS and chronic-illness trackers** ([Lunaire](https://play.google.com/store/apps/details?id=uk.lunaire.pots&hl=en_US)) and **ME/CFS pacing** ([Play search](https://play.google.com/store/search?q=ME%2FCFS%20pacing%20heart%20rate&c=apps)). **Offline voice typing** (FUTO Voice, [Privacy Guides](https://discuss.privacyguides.net/t/transcription-tools-that-run-locally/19271/4)) and **offline translation** ([Privacy Guides](https://discuss.privacyguides.net/t/offline-translator-for-android/36095/1)). **Pixel Screenshots clones** (PixelShot, Shots Studio, [Beebom](https://beebom.com/pixelshot-app-brings-pixel-screenshots-any-android-phone/)) and **AI notification summaries** (NotifAI, [Play](https://play.google.com/store/apps/details?id=com.androidexpert35.notifai&hl=en)). **Voice banking**: Voice Back runs on Android ([Voice Back](https://voicebackapp.com/voice-banking)). **Budgeting from bank notifications**: NotifSync and QuickCatch bridge Android notifications to YNAB ([r/ynab](https://www.reddit.com/r/ynab/comments/1x5uv03/none_of_my_banks_connect_to_ynab_so_i_taught_my/)).
 
-Hobby and household rejects: **fabric and yarn stash inventory**, where Play has 15 results despite Cora being iOS-only ([r/quilting](https://www.reddit.com/r/quilting/comments/1e4dad3/fabric_tracking_app/)); **private bird life lists**; **solo MTG against an AI** (Forge runs on Android, [r/mtg](https://www.reddit.com/r/mtg/comments/1xi4axr/is_there_an_app_where_you_can_play_mtg_on_your/)); the **"where did I put it" item finder** (Gemini in Find Hub, [Android Central](https://www.androidcentral.com/apps-software/no-tracker-tag-gemini-can-now-store-item-locations-right-in-find-hub)); **chronic-lateness "leave now" alerts** (Time to Leave, [AlternativeTo](https://alternativeto.net/software/time-to-leave/about)); **pet end-of-life quality-of-life trackers**; **"who fed the pet" logs** ([DogLog](https://play.google.com/store/apps/details?id=com.mobikode.dog)); **kids' clothing size trackers**; **remote medication reminders** (Medisafe, MyTherapy); **home inventory and warranty logs**. Social and work rejects: **adult friend-finding**, where the problem is social, not technical ("people would still use it as a hookup app", +101, [r/CasualConversation](https://www.reddit.com/r/CasualConversation/comments/1tzszdl/why_is_there_no_perfect_app_for_finding_friends/)); **Discogs companions** ([CrateLog](https://play.google.com/store/apps/details?id=app.cratelog)); **concert alerts** (Bandsintown, Songkick); **start-player pickers** (Chwazi relaunched, [r/boardgames](https://www.reddit.com/r/boardgames/comments/1ts7qge/chwazi_is_back_and_i_owe_you_all_an_open_letter/)); **Letterboxd for books** (StoryGraph, Hardcover); **nurse shift calendars**; **TV episode reaction feeds**, now covered by Bingers ([TechCrunch](https://techcrunch.com/2026/08/04/tv-time-co-founder-launches-bingers-to-revive-the-beloved-tv-tracking-app/)). Finance and Morocco rejects: **daret and tontine managers** (Daret, [App Store](https://apps.apple.com/app/id6751736492)); **Schengen visa-slot bots**, which carry legal and ToS risk now that TLScontact assigns appointments randomly ([Morocco World News](https://www.moroccoworldnews.com/2025/04/195127/tlscontact-expands-automated-france-visa-appointment-system-across-morocco/)); a **Glovo competitor or delivery aggregator**, which needs couriers and private APIs; **unit-price calculators**; **sale-alert apps** (Keepa, Flipp); and **hotel price-drop monitors**, where scraping risk is high and "prices Almost always go up up up" ([r/travel](https://www.reddit.com/r/travel/comments/1i00kyf/is_there_an_app_that_would_capture_falling_hotel/)).
+Hobby and household rejects: **fabric and yarn stash inventory**, where Play has 15 results despite Cora being iOS-only ([r/quilting](https://www.reddit.com/r/quilting/comments/1e4dad3/fabric_tracking_app/)); **private bird life lists**; **solo MTG against an AI** (Forge runs on Android, [r/mtg](https://www.reddit.com/r/mtg/comments/1xi4axr/is_there_an_app_where_you_can_play_mtg_on_your/)); the **"where did I put it" item finder** (Gemini in Find Hub, [Android Central](https://www.androidcentral.com/apps-software/no-tracker-tag-gemini-can-now-store-item-locations-right-in-find-hub)); **chronic-lateness "leave now" alerts** (Time to Leave, [AlternativeTo](https://alternativeto.net/software/time-to-leave/about)); **pet end-of-life quality-of-life trackers**; **"who fed the pet" logs** ([DogLog](https://play.google.com/store/apps/details?id=com.mobikode.dog)); **kids' clothing size trackers**; **remote medication reminders** (Medisafe, MyTherapy); **home inventory and warranty logs**. Social and work rejects: **adult friend-finding**, where the problem is social, not technical ("people would still use it as a hookup app", +101, [r/CasualConversation](https://www.reddit.com/r/CasualConversation/comments/1tzszdl/why_is_there_no_perfect_app_for_finding_friends/)); **Discogs companions** ([CrateLog](https://play.google.com/store/apps/details?id=app.cratelog)); **concert alerts** (Bandsintown, Songkick); **start-player pickers** (Chwazi relaunched, [r/boardgames](https://www.reddit.com/r/boardgames/comments/1ts7qge/chwazi_is_back_and_i_owe_you_all_an_open_letter/)); **Letterboxd for books** (StoryGraph, Hardcover); **nurse shift calendars**; **TV episode reaction feeds**, now covered by Bingers ([TechCrunch](https://techcrunch.com/2026/08/04/tv-time-co-founder-launches-bingers-to-revive-the-beloved-tv-tracking-app/)). Shopping rejects: **cross-unit price calculators** ("'Compare' for iOS", and shelf tags already show unit prices in many countries, [r/Frugal](https://www.reddit.com/r/Frugal/comments/1hqtkol/is_there_an_iphone_app_that_converts_units_of/)) and **sale and price-drop alerts** (Flipp, Keepa, CamelCamelCamel, [r/Frugal](https://www.reddit.com/r/Frugal/comments/1sjr4vw/is_there_an_app_that_tells_you_when_specific/)).
 
 ## Conclusion
 
-The direct answer to "what Android app are people repeatedly asking someone to create, that they would genuinely use, but nobody has successfully brought to market yet?" is **a crowdsourced shelf-price comparison app that tells you which nearby store sells your shopping list cheapest**. Four years of requests across three countries show people want it, and every existing tool stops at flyers, a single chain, or a contributor database. For a developer in Morocco, the winning version is a **Darija/French/Arabic "fair price" app** that combines souk and grocery prices, the official wholesale reference, and grand-taxi fares. Global players have no reason to collect that local data, and one shared crowdsourcing engine serves two daily needs. If the goal is a gap that is technically cleaner and more defensible, the **Android pedestrian-signal detector** is the strongest "exists but not on Android" case, provided the developer can take on the accuracy and liability work.
+The direct answer to "what Android app are people repeatedly asking someone to create, that they would genuinely use, but nobody has successfully brought to market yet?" is **a crowdsourced shelf-price comparison app that tells you which nearby store sells your shopping list cheapest**. Four years of requests across independent communities in the US and Germany, and on Hacker News, show people want it. Every existing tool stops at weekly flyers, a single chain, or a contributor database. Its weakness is money, not demand: frugal users will not pay, so it works only with ads, retailer promotions or B2B data and an open-data cold start. For someone who wants the best overall bet rather than the most-requested idea, the **cross-media tracker for Android** has the best balance of real demand, a proven paying category, and solo-developer feasibility. The **pedestrian-signal detector** is the strongest "exists but not on Android" case, provided the developer can take on the accuracy and liability work.
 
-The broader lesson is that in 2026 "nobody has built it" is almost never true on Google Play. The durable openings are **localisation, ports of proven iOS-only niche apps, and polish for audiences that dislike subscriptions and AI clutter**. Validation should come from reading complaint threads, not posting surveys, because many of these communities ban market research. Because live Reddit was unreachable, the top candidates (especially #2, #9, #10 and #11) should each get one live Reddit search and a feature-by-feature Play listing check before any code is written.
+The broader lesson is that in 2026 "nobody has built it" is almost never true on Google Play. The durable openings are **ports of proven iOS-only niche apps, single missing workflows inside crowded categories, and polish for audiences that dislike subscriptions and AI clutter**. Validation should come from reading complaint threads, not posting surveys, because many of these communities ban market research. Because live Reddit was unreachable, the top candidates (especially #2, #8, #9 and #10) should each get one live Reddit search and a feature-by-feature Play listing check before any code is written.
