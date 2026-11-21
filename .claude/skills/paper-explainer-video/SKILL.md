@@ -1,6 +1,6 @@
 ---
 name: paper-explainer-video
-description: Build a YouTube educational explainer video (book summary, history, science, biography) in a Vox-style editorial paper-collage look from the user's narration clips and transcript. Use when the user wants an explainer or summary video made from voice-over audio. It covers the storyboard, a visual identity art-directed for each topic (colour roles, textures, type, image treatment, mood arc), varied scene environments and compositions, a per-episode animated background theme, reference-image asset prompts, clean cut-outs, physical scrapbook animations (photo drops, page flips, unfolding documents, tear reveals, stamps, camera zooms into images) synced to the spoken word, contact-sheet QC and a full-quality 1080p render done by Claude in the session. Triggers include "make a video like the Red Rising one", "explainer video from my narration", "paper collage / Vox style video", "book summary video".
+description: Build a YouTube educational explainer video (book summary, history, science, biography) from the user's narration clips and transcript, in the style the user picks at the start (it always asks first) - a Vox-style editorial paper collage, or an infinite-canvas board where one pen draws ink sketches and handwritten words. Use when the user wants an explainer or summary video made from voice-over audio. It covers the storyboard, a visual identity art-directed for each topic (colour roles, textures, type, image treatment, mood arc), varied scene environments and compositions, a per-episode animated background theme, reference-image asset prompts, clean cut-outs, physical scrapbook animations (photo drops, page flips, unfolding documents, tear reveals, stamps, camera zooms into images) synced to the spoken word, contact-sheet QC and a full-quality 1080p render done by Claude in the session. Triggers include "make a video like the Red Rising one", "infinite canvas / board / drawn video like L'histoire du sel", "explainer video from my narration", "paper collage / Vox style video", "book summary video".
 ---
 
 # Paper-collage explainer video
@@ -110,6 +110,22 @@ Install: `pip install pillow numpy scipy faster-whisper cairosvg`, plus `ffmpeg`
 | `brand.py` | channel branding: the official SVG logo, watermark, reveal, signature, subscribe / like / comment / share / next-video CTAs, CTA placement from the narration's pauses, the YouTube end screen (config: `brand/brand.json`) |
 
 ## Phases
+
+### 0. First, ask the user which style (every new video)
+
+Before reading the transcripts in detail, before any storyboard, image search or prompt, ask the user which style this video should use (AskUserQuestion when available, otherwise one short message), and wait for the answer. Never pick a style yourself.
+
+Offer these, in this order, each in one line:
+1. **Infinite canvas (board drawn by a pen)** — one parchment board, a single pen draws ChatGPT ink sketches one place at a time, handwritten words, no cuts (section 19, *L'histoire du sel*).
+2. **Paper collage** — real photographs and documents as torn prints, physical paper animations, editorial grounds and cuts (sections 6-12, *Histoire des armes*, *Les très grands nombres*).
+3. **Another style** — the user describes it or sends a reference image; match the reference (rule 13).
+
+Then, in the same question round, ask only what the chosen style needs:
+- **Infinite canvas:** the drawing reference (their image, or `examples/sel_style_reference.png`), and whether they generate the drawings in ChatGPT.
+- **Paper collage:** real images first (Commons) or generated drawings, and a background reference if they have one.
+- **Both:** music (theirs, or an original bed composed in code) and how much text they want on screen.
+
+Write the answers into `episode.json` (`"style": "board" | "collage" | "custom"`, plus any reference path) and follow that style's sections for the whole film. If the user changes style mid-film, ask again before rebuilding.
 
 ### 1. Script → acts
 
@@ -867,3 +883,4 @@ Built on *L'histoire du sel* (4:51, 5 acts, 13 clips), entirely from the user's 
 42. **The channel logo is on every scene,** from after the intro to the last frame of the closing hold (`brand.json` watermark `hide_env: []`).
 43. **Keep animation plain unless asked.** When the user rejects an effect, simplify: on *L'histoire de GTA* letter-by-letter ragdoll physics and a stumbling card were both refused for « trébucher / tomber »; the accepted version was two ordinary labels appearing on their words. Show a short preview clip with the voice and wait for approval before re-rendering.
 44. **The board film: one pen, one place, one drawing per view.** Lines only (no fill), words handwritten left to right by the same pen, the scratch synced to the pen and far under the voice, one drawing per view at full size, the camera leaving on the sentence's first word, only the essential words placed beside the drawn part, no arrow that crosses between views, a slow move in on the last drawing. Show layouts and changes as previews and render only the acts that changed (section 19).
+45. **Ask the style first.** Every new video starts by asking the user which style to use (infinite canvas, paper collage, or their own reference), never by choosing one; the answer goes in `episode.json` (phase 0).
