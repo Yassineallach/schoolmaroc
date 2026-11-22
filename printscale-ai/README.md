@@ -2,7 +2,7 @@
 
 An Android app that turns small AI-generated artwork into print-size files for Etsy and print-on-demand products. You import an image, pick a print size and DPI (or a 2×/4×/8× factor), crop or fit it to the product's ratio, and run a real super-resolution model **on the phone**. Then you check the result at 100% against the original and export a PNG/JPEG/WebP with the DPI embedded.
 
-Kotlin, Jetpack Compose and Material 3. On-device inference uses ONNX Runtime. No account, no network permission, no analytics.
+Kotlin, Jetpack Compose and Material 3. By default inference runs on the device with ONNX Runtime and nothing leaves the phone; an optional Cloud GPU mode runs AuraSR v2 in your own Colab or Kaggle notebook (section 8). No account, no analytics.
 
 ## 1. Architecture decision
 
