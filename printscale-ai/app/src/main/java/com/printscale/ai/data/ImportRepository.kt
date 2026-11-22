@@ -8,6 +8,7 @@ import android.provider.OpenableColumns
 import androidx.exifinterface.media.ExifInterface
 import com.printscale.ai.imaging.Imaging
 import com.printscale.engine.IccExtractor
+import com.printscale.engine.Provenance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -24,11 +25,15 @@ class ImportRepository(private val context: Context) {
      * Copies the picked image into app storage (picker grants are temporary) and records
      * what the editor needs to know about it.
      */
-    suspend fun import(uri: Uri): ImportedImage = withContext(Dispatchers.IO) {
+    suspend fun import(uri: Uri, displayName: String? = null, provenance: Provenance? = null): ImportedImage = withContext(Dispatchers.IO) {
         val resolver = context.contentResolver
-        var name = "Artwork"
-        resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
-            if (c.moveToFirst()) c.getString(0)?.let { name = it }
+        var name = displayName ?: "Artwork"
+        if (displayName == null) {
+            runCatching {
+                resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
+                    if (c.moveToFirst()) c.getString(0)?.let { name = it }
+                }
+            }
         }
         val id = UUID.randomUUID().toString()
         val dir = paths.importDir(id).apply { mkdirs() }
@@ -72,6 +77,7 @@ class ImportRepository(private val context: Context) {
                 width = w, height = h, workW = workW, workH = workH,
                 exifRotated = orientation != ExifInterface.ORIENTATION_NORMAL && orientation != ExifInterface.ORIENTATION_UNDEFINED,
                 hasAlpha = hasAlpha, colorSpaceName = colorSpaceName, hasIcc = paths.importIcc(id).exists(),
+                provenance = provenance,
             )
             paths.importMeta(id).writeText(info.toJson().toString())
             info
@@ -83,6 +89,10 @@ class ImportRepository(private val context: Context) {
             dir.deleteRecursively(); throw ImportException("The image could not be read: ${e.message ?: e.javaClass.simpleName}")
         }
     }
+
+    /** Imports a file the app already has (for example an upscaled result) as new, separate artwork. */
+    suspend fun importFile(file: java.io.File, displayName: String, provenance: Provenance?): ImportedImage =
+        import(Uri.fromFile(file), displayName, provenance)
 
     suspend fun get(id: String): ImportedImage? = withContext(Dispatchers.IO) {
         runCatching { ImportedImage.fromJson(JSONObject(paths.importMeta(id).readText())) }.getOrNull()

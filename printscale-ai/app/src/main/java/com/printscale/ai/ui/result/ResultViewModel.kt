@@ -156,6 +156,23 @@ class ResultViewModel(private val graph: AppGraph, private val jobId: String) : 
         }.getOrNull()
     }
 
+    /** Hands the upscaled master to print prep as new artwork, remembering how it was made. */
+    fun prepareForPrint(onReady: (String) -> Unit) {
+        val item = _ui.value.item ?: return
+        _ui.update { it.copy(busy = "Opening print prep") }
+        viewModelScope.launch {
+            try {
+                val prov = com.printscale.engine.Provenance(item.preparedW, item.preparedH, item.finalW, item.finalH, item.aiUsed)
+                val name = item.displayName.substringBeforeLast('.') + "_upscaled.png"
+                val info = graph.imports.importFile(paths.jobMaster(item.id), name, if (item.finalW > item.preparedW) prov else null)
+                _ui.update { it.copy(busy = null) }
+                onReady(info.id)
+            } catch (e: Exception) {
+                _ui.update { it.copy(busy = null, message = e.message ?: "Could not open print prep.") }
+            }
+        }
+    }
+
     fun clearMessage() = _ui.update { it.copy(message = null) }
 
 }

@@ -63,14 +63,19 @@ class UiFlowTest {
             }
         }
         waitForText("Nothing here yet")
-        rule.onNodeWithText("Upscale artwork").assertIsDisplayed().assertIsEnabled()
+        rule.onNodeWithText("Upscale image").assertIsDisplayed().assertIsEnabled()
         rule.onNodeWithText("Open from Files").assertIsDisplayed()
         Fixtures.screenshot(rule, "01_home_dark")
         rule.onNodeWithContentDescription("History").performClick()
         rule.onNodeWithContentDescription("Settings").performClick()
         assertTrue(history && settings)
         rule.onNodeWithText("Print size presets").performScrollTo()
-        rule.onNodeWithText("24 × 36 in").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithText("24 × 36 in").assertExists() // in a horizontally scrolling row
+        rule.onNodeWithText("A4").assertExists()
+        // the apparel tools sit under the upscaler
+        rule.onNodeWithText("DTF print prep").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithText("DTG print prep").assertExists()
+        rule.onNodeWithText("Print preview").assertExists()
     }
 
     @Test fun homeLightTheme() {

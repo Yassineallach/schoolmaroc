@@ -27,6 +27,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.AddPhotoAlternate
+import androidx.compose.material.icons.outlined.Checkroom
+import androidx.compose.material.icons.outlined.Layers
+import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.History
@@ -70,6 +73,8 @@ import com.printscale.ai.ui.components.cropMarks
 import com.printscale.ai.ui.components.formatBytes
 import com.printscale.ai.ui.theme.Numeric
 import com.printscale.engine.PrintMath
+import com.printscale.engine.PrintMethod
+import com.printscale.ai.ui.prep.PrepTab
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -77,7 +82,7 @@ import java.text.DateFormat
 import java.util.Date
 
 /** What the user picked on Home before choosing an image, carried into the editor. */
-private data class Intent(val preset: String? = null, val factor: Int? = null)
+private data class Intent(val preset: String? = null, val factor: Int? = null, val prep: PrintMethod? = null, val prepTab: PrepTab = PrepTab.PRINT)
 
 @Composable
 fun HomeScreen(
@@ -87,6 +92,7 @@ fun HomeScreen(
     openProcessing: (String) -> Unit,
     openHistory: () -> Unit,
     openSettings: () -> Unit,
+    openPrep: (String, PrintMethod, PrepTab) -> Unit = { _, _, _ -> },
 ) {
     val scope = rememberCoroutineScope()
     var pending by remember { mutableStateOf(Intent()) }
@@ -108,7 +114,8 @@ fun HomeScreen(
         scope.launch {
             try {
                 val info = graph.imports.import(uri)
-                openEditor(info.id, pending.preset, pending.factor)
+                val p = pending
+                if (p.prep != null) openPrep(info.id, p.prep, p.prepTab) else openEditor(info.id, p.preset, p.factor)
             } catch (e: Exception) {
                 error = e.message ?: "The image could not be opened."
             } finally {
@@ -149,16 +156,32 @@ fun HomeScreen(
             Text("Small artwork in.\nPrint-size files out.", style = MaterialTheme.typography.displayLarge)
             Spacer(Modifier.height(14.dp))
             Text(
-                "Upscale with a Real-ESRGAN model that runs on this phone, size the file for a real print, and export it at the DPI your print lab asks for.",
+                "Upscale with a Real-ESRGAN model that runs on this phone, size the file for a real print, and prepare DTF and DTG files for apparel.",
                 style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(24.dp))
-            PrimaryButton("Upscale artwork", onClick = { pick(Intent()) }, enabled = !importing,
+            PrimaryButton("Upscale image", onClick = { pick(Intent()) }, enabled = !importing,
                 icon = Icons.Outlined.AddPhotoAlternate, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(10.dp))
             SecondaryButton("Open from Files", onClick = {
                 pending = Intent(); filePicker.launch(arrayOf("image/png", "image/jpeg", "image/webp", "image/*"))
             }, enabled = !importing, icon = Icons.Outlined.FolderOpen, modifier = Modifier.fillMaxWidth())
+
+            Spacer(Modifier.height(28.dp))
+            SectionLabel("Print prep for apparel")
+            Spacer(Modifier.height(4.dp))
+            Text("Turn artwork into a print-ready transparent PNG at the exact print size, checked for quality.",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(12.dp))
+            ToolRow(Icons.Outlined.Layers, "DTF print prep", "Transfer-size PNG, background removal, solid edges", !importing) {
+                pick(Intent(prep = PrintMethod.DTF))
+            }
+            ToolRow(Icons.Outlined.Checkroom, "DTG print prep", "Print-area sizing and placement for direct-to-garment", !importing) {
+                pick(Intent(prep = PrintMethod.DTG))
+            }
+            ToolRow(Icons.Outlined.Visibility, "Print preview", "Your artwork on a tee or hoodie in different colours", !importing) {
+                pick(Intent(prep = PrintMethod.DTG, prepTab = PrepTab.GARMENT))
+            }
 
             if (active.isNotEmpty()) {
                 Spacer(Modifier.height(16.dp))
@@ -261,6 +284,24 @@ fun HomeScreen(
                 modifier = Modifier.align(Alignment.BottomCenter).safeDrawingPadding().padding(16.dp),
                 action = { TextButton(onClick = { error = null }) { Text("Dismiss") } },
             ) { Text(msg) }
+        }
+    }
+}
+
+@Composable
+private fun ToolRow(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, detail: String, enabled: Boolean, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick, enabled = enabled, shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainer,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+    ) {
+        Row(Modifier.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.titleMedium)
+                Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

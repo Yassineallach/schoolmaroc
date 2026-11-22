@@ -125,6 +125,7 @@ fun SettingsScreen(graph: AppGraph, onBack: () -> Unit) {
             )
             Spacer(Modifier.height(10.dp))
             TextButton(onClick = { license = "Real-ESRGAN (BSD-3-Clause)" to readAsset(graph, "models/LICENSE-Real-ESRGAN.txt") }) { Text("Real-ESRGAN licence") }
+            TextButton(onClick = { license = "U²-Net (Apache-2.0)" to readAsset(graph, "models/LICENSE-U2Net.txt") }) { Text("U²-Net background model licence") }
             TextButton(onClick = { license = "Manrope (OFL)" to readAsset(graph, "OFL-Manrope.txt") }) { Text("Manrope font licence") }
             TextButton(onClick = { license = "Instrument Serif (OFL)" to readAsset(graph, "OFL-InstrumentSerif.txt") }) { Text("Instrument Serif font licence") }
             Spacer(Modifier.height(16.dp))

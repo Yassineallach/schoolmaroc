@@ -151,20 +151,39 @@ Honest limits:
 
 To run the cloud integration tests yourself, start the server notebook (or `printscale_server.py`) and set `PRINTSCALE_TEST_SERVER` to its link before `./gradlew :engine:test :app:testDebugUnitTest`.
 
-## 9. Project layout
+## 9. DTF and DTG print prep
+
+Home lists four tools: **Upscale image** (unchanged), **DTF print prep**, **DTG print prep** and **Print preview**. An upscaled result can go straight to print prep with **Prepare for DTF / DTG**.
+
+Workflow on one screen: import, pick DTF or DTG, choose a print size, place the artwork, check quality, preview on a garment, export.
+
+| Part | What it does |
+|---|---|
+| Print size and calculator | 8 × 10, 10 × 12, 12 × 16 and 12 × 18 in, or a custom size in inches or cm; 300 DPI recommended, also 240, 200 or 150. Shows Pixels = inches × DPI live: your artwork's pixels, the print size, the required pixels for the canvas and for the placed artwork, and a status of Excellent, Good or Low resolution. |
+| Background | Keep; **Plain colour**, which flood-fills a flat background from the edges and un-mixes the anti-aliased edge so no light halo prints on dark shirts, with optional removal inside shapes; **AI cutout**, U²-Net-p (Apache-2.0, 4.5 MB) running in the existing ONNX Runtime, for busy backgrounds. Optional trim of empty space and **Solid edges**, which turns partly transparent pixels fully solid or clear (useful for DTF). |
+| Print canvas | The exported area with a dashed boundary and crop marks. Drag and pinch the artwork; centre horizontally or vertically; fit; reset; view zoom; switch the backdrop between checks, white, black and garment colour. Artwork outside the boundary is shown faded and does not print. Width and height can be typed, with proportions locked or free. |
+| Garment preview | T-shirt and hoodie front views, drawn in inches so the print is at true scale. Nine colours, distance below the collar, and a dashed print area: 12 × 16 in for a tee, 12 × 12 in for a hoodie. Visualisation only. |
+| Quality report | Green, yellow or red, with checks for resolution against print size, enlargement and pixelation, transparency, partly transparent pixels, stretching, clipping, and (DTG) larger than the garment's print area. Upscaled artwork is judged honestly: Lanczos-only enlargement counts as the original resolution, and AI upscaling is never rated Excellent unless the original already had at least half the target DPI. |
+| Export | PNG with transparency at exact print pixels, the DPI written into the file (pHYs), sRGB, and a lossless Standard or Smallest compression; filename; gallery or Files; then open or share. The file is streamed row by row and never contains the mockup. |
+
+Kept separate on screen: **A. Original** (never changed), **B. Print file** (what is exported), **C. Garment** (preview only).
+
+Tested: placement and calculator maths, and streaming composition compared pixel-for-pixel with a direct reference (including clipping at every edge). Plain-background removal, including a no-fringe check on black, and the real AI cutout (IoU 0.99 on a busy background). Every quality rule; exported PNG size, transparency and DPI; and a full UI walk-through of DTF and DTG with garment colours, export, the upscale handoff and centimetre sizes.
+
+## 10. Project layout
 
 ```
-engine/                 pure Kotlin: planner, crop geometry, tiling, Lanczos, PNG writer, ONNX model, formats
+engine/                 pure Kotlin: planner, crop geometry, tiling, Lanczos, PNG writer/reader, ONNX models, print prep, background removal, quality analyser
 app/src/main/java/com/printscale/ai/
   data/                 imports, history (JSON), settings, job spec
   imaging/              decode/orientation, crop rendering, pixel transfer
   processing/           WorkManager worker, controller, model loading
   export/               PNG/JPEG/WebP export, MediaStore, Files, share
-  ui/                   home, editor (crop canvas), processing, result (compare viewer), history, settings
+  ui/                   home, editor (crop canvas), processing, result (compare viewer), print prep (canvas, garment preview), history, settings
 app/src/main/assets/models/   Real-ESRGAN ONNX checkpoints, blend map, licence
 tools/export_realesrgan_onnx.py
 notebooks/                    AuraSR v2 batch notebooks, server notebooks, shared code
 tools/build_notebooks.py
 ```
 
-Licences: Real-ESRGAN weights are BSD-3-Clause (© Xintao Wang); Manrope and Instrument Serif are SIL OFL 1.1. All three are viewable in Settings.
+Licences: Real-ESRGAN weights are BSD-3-Clause (© Xintao Wang); U²-Net-p is Apache-2.0 (Xuebin Qin et al.); Manrope and Instrument Serif are SIL OFL 1.1. All three are viewable in Settings.

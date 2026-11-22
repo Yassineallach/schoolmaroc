@@ -5,6 +5,7 @@ import com.printscale.engine.EnhanceSettings
 import com.printscale.engine.FitMode
 import com.printscale.engine.PrintSize
 import com.printscale.engine.PrintTarget
+import com.printscale.engine.Provenance
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -24,6 +25,8 @@ data class ImportedImage(
     val hasAlpha: Boolean,
     val colorSpaceName: String,
     val hasIcc: Boolean,
+    /** Set when this artwork is an upscaled result, so print checks can tell real detail from added pixels. */
+    val provenance: Provenance? = null,
 ) {
     val downscaledForWork: Boolean get() = workW != width || workH != height
 
@@ -32,12 +35,19 @@ data class ImportedImage(
         .put("fileSize", fileSize).put("width", width).put("height", height).put("workW", workW).put("workH", workH)
         .put("exifRotated", exifRotated).put("hasAlpha", hasAlpha).put("colorSpaceName", colorSpaceName)
         .put("hasIcc", hasIcc)
+        .put("provenance", provenance?.let {
+            JSONObject().put("originalW", it.originalW).put("originalH", it.originalH)
+                .put("upscaledW", it.upscaledW).put("upscaledH", it.upscaledH).put("ai", it.aiUpscaled)
+        } ?: JSONObject.NULL)
 
     companion object {
         fun fromJson(o: JSONObject) = ImportedImage(
             o.getString("id"), o.getString("displayName"), o.getString("mime"), o.getString("formatLabel"),
             o.getLong("fileSize"), o.getInt("width"), o.getInt("height"), o.getInt("workW"), o.getInt("workH"),
             o.getBoolean("exifRotated"), o.getBoolean("hasAlpha"), o.getString("colorSpaceName"), o.getBoolean("hasIcc"),
+            o.optJSONObject("provenance")?.let {
+                Provenance(it.getInt("originalW"), it.getInt("originalH"), it.getInt("upscaledW"), it.getInt("upscaledH"), it.getBoolean("ai"))
+            },
         )
     }
 }

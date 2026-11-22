@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Checkroom
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Refresh
@@ -82,7 +83,8 @@ import com.printscale.engine.PrintMath
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ResultScreen(graph: AppGraph, jobId: String, onClose: () -> Unit, onUpscaleAgain: (String) -> Unit, onExported: () -> Unit) {
+fun ResultScreen(graph: AppGraph, jobId: String, onClose: () -> Unit, onUpscaleAgain: (String) -> Unit, onExported: () -> Unit,
+                 onPrep: (String) -> Unit = {}) {
     val vm: ResultViewModel = viewModel(key = "result-$jobId") { ResultViewModel(graph, jobId) }
     val ui by vm.ui.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -165,6 +167,9 @@ fun ResultScreen(graph: AppGraph, jobId: String, onClose: () -> Unit, onUpscaleA
                             icon = Icons.Outlined.Storefront, modifier = Modifier.fillMaxWidth(), onClick = {
                                 vm.export(ExportOptions(ExportFormat.ETSY, fileName = vm.suggestedName(ExportFormat.ETSY)), null, onExported)
                             })
+                        Spacer(Modifier.height(10.dp))
+                        SecondaryButton("Prepare for DTF / DTG", enabled = ui.busy == null, icon = Icons.Outlined.Checkroom,
+                            modifier = Modifier.fillMaxWidth(), onClick = { vm.prepareForPrint(onPrep) })
                         Spacer(Modifier.height(10.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             SecondaryButton("Share", onClick = { vm.share { context.startActivity(it) } }, enabled = ui.busy == null,

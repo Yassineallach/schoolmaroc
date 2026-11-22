@@ -15,6 +15,9 @@ import com.printscale.ai.ui.processing.ProcessingScreen
 import com.printscale.ai.ui.result.ExportDoneScreen
 import com.printscale.ai.ui.result.ResultScreen
 import com.printscale.ai.ui.settings.SettingsScreen
+import com.printscale.ai.ui.prep.PrepTab
+import com.printscale.ai.ui.prep.PrintPrepScreen
+import com.printscale.engine.PrintMethod
 
 object Routes {
     const val HOME = "home"
@@ -23,6 +26,7 @@ object Routes {
     fun editor(importId: String, preset: String? = null, factor: Int? = null) =
         "editor/$importId?preset=${preset ?: ""}&factor=${factor ?: 0}"
     fun processing(jobId: String) = "processing/$jobId"
+    fun prep(importId: String, method: PrintMethod, tab: PrepTab = PrepTab.PRINT) = "prep/$importId?method=${method.name}&tab=${tab.name}"
     fun result(jobId: String) = "result/$jobId"
     fun exported(jobId: String) = "exported/$jobId"
 }
@@ -36,6 +40,7 @@ fun AppNavHost(graph: AppGraph) {
             HomeScreen(
                 graph = graph,
                 openEditor = { id, preset, factor -> nav.navigate(Routes.editor(id, preset, factor)) },
+                openPrep = { id, method, tab -> nav.navigate(Routes.prep(id, method, tab)) },
                 openResult = { nav.navigate(Routes.result(it)) },
                 openProcessing = { nav.navigate(Routes.processing(it)) },
                 openHistory = { nav.navigate(Routes.HISTORY) },
@@ -60,6 +65,24 @@ fun AppNavHost(graph: AppGraph) {
                 onStarted = { jobId -> nav.navigate(Routes.processing(jobId)) },
             )
         }
+        composable(
+            "prep/{importId}?method={method}&tab={tab}",
+            arguments = listOf(
+                navArgument("importId") { type = NavType.StringType },
+                navArgument("method") { type = NavType.StringType; defaultValue = PrintMethod.DTF.name },
+                navArgument("tab") { type = NavType.StringType; defaultValue = PrepTab.PRINT.name },
+            ),
+        ) { e ->
+            val a = e.arguments!!
+            PrintPrepScreen(
+                graph = graph,
+                importId = a.getString("importId")!!,
+                method = runCatching { PrintMethod.valueOf(a.getString("method")!!) }.getOrDefault(PrintMethod.DTF),
+                tab = runCatching { PrepTab.valueOf(a.getString("tab")!!) }.getOrDefault(PrepTab.PRINT),
+                onBack = { nav.popBackStack() },
+                onUpscale = { id -> nav.navigate(Routes.editor(id, factor = 4)) },
+            )
+        }
         composable("processing/{jobId}") { e ->
             val jobId = e.arguments!!.getString("jobId")!!
             ProcessingScreen(
@@ -80,6 +103,7 @@ fun AppNavHost(graph: AppGraph) {
                     }
                 },
                 onExported = { nav.navigate(Routes.exported(jobId)) },
+                onPrep = { importId -> nav.navigate(Routes.prep(importId, PrintMethod.DTF)) },
             )
         }
         composable("exported/{jobId}") { e ->
