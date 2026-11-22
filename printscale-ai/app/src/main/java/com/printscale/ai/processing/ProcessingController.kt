@@ -20,6 +20,9 @@ enum class JobStage(val label: String) {
     PREPARING("Preparing image"),
     ANALYZING("Analyzing artwork"),
     UPSCALING("Enhancing details and upscaling"),
+    UPLOADING("Uploading to your cloud GPU"),
+    CLOUD("Upscaling with AuraSR on the cloud GPU"),
+    DOWNLOADING("Downloading the result"),
     FINALIZING("Preparing print output"),
 }
 

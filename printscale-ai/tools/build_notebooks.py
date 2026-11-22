@@ -8,6 +8,7 @@ import os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NB_DIR = os.path.join(ROOT, "notebooks")
 CORE = open(os.path.join(NB_DIR, "printscale_aurasr.py")).read()
+SERVER = open(os.path.join(NB_DIR, "printscale_server.py")).read()
 
 
 def md(text):
@@ -291,8 +292,92 @@ Then add your images: Input > Upload > New Dataset. Run the cells in order; sett
     code(DOWNLOAD_KAGGLE),
 ]
 
+# ----------------------------------------------------------------------------- server notebooks
+
+SERVER_INTRO = """
+# PrintScale cloud GPU server (AuraSR v2)
+
+Turns this notebook into a private upscaling server for the **PrintScale Android app**. The app sends its prepared artwork here, AuraSR v2 upscales it 4× on this GPU, and the app downloads the result. Print sizing, DPI, colour profile, history and export all happen in the app.
+
+**How to connect:** run every cell. The last cell shows a link and a QR code. Scan the QR code with your phone's camera and tap **Open in the PrintScale app**, or copy the link into the app (Home > Cloud GPU > paste link).
+
+* The link is new each time the notebook starts and contains a private key; anyone with the full link can use your GPU, so do not share it.
+* Keep this tab open while you work. The server stops when the notebook stops or the session ends.
+* Uploads are kept only while a job runs and are deleted after download (or after one hour).
+* **Free-tier rules:** Colab's free tier may disconnect notebooks that serve outside traffic; Kaggle sessions stop after 12 hours. If the app says it cannot reach the server, restart this notebook and connect with the new link.
+* AuraSR v2 weights are CC BY-SA 4.0 (commercial use allowed with credit: "Upscaled with AuraSR v2 by fal.ai").
+"""
+
+SERVER_INSTALL = """
+#@title 2. Install AuraSR and the QR code helper (about 1 minute)
+%pip install -q aura-sr==0.0.4 einops safetensors qrcode
+"""
+
+SERVER_START = """
+#@title 5. Start the server and show the link (keep this running)
+import time
+import qrcode
+from IPython.display import display, clear_output
+import printscale_server as srv
+importlib.reload(srv)
+
+model, device = ps.load_aurasr()
+server = srv.PrintScaleServer(model, device, port=int(os.environ.get("PRINTSCALE_PORT", 8765))).start()
+if os.environ.get("PRINTSCALE_NO_TUNNEL") == "1":
+    print("Test mode: no tunnel, local link only.")
+else:
+    print("Opening a Cloudflare tunnel...")
+    server.start_tunnel()
+connect_page = server.link.replace("/?key=", "/connect?key=")
+
+def show():
+    clear_output(wait=True)
+    print("PrintScale cloud GPU is running on", (server.gpu or device).upper())
+    print()
+    print("Paste this link in the app (Home > Cloud GPU):")
+    print(server.link)
+    print()
+    print("Or scan with your phone's camera, then tap 'Open in the PrintScale app':")
+    display(qrcode.make(connect_page).resize((280, 280)))
+    print(server.status_line())
+
+show()
+if os.environ.get("PRINTSCALE_NO_TUNNEL") != "1":
+    try:
+        while True:          # keeps the cell busy so the notebook stays alive; stop it to shut the server down
+            time.sleep(30)
+            show()
+    except KeyboardInterrupt:
+        print("Server stopped.")
+"""
+
+SERVER_CELL = "%%writefile printscale_server.py\n" + SERVER
+
+server_colab = [
+    md(SERVER_INTRO + "\n**Steps:** Runtime > Change runtime type > **T4 GPU**, then Runtime > Run all.\n"),
+    code(GPU_CHECK.replace("__GPU_HELP__", COLAB_GPU), form=True),
+    code(SERVER_INSTALL, form=True),
+    md("**3. Server code.** No changes needed: run the next cells."),
+    code(CORE_CELL),
+    code(SERVER_CELL),
+    code(IMPORT_CELL),
+    code(SERVER_START, form=True),
+]
+server_kaggle = [
+    md(SERVER_INTRO + "\n**Before you start (right panel):** Settings > Accelerator > **GPU T4 x2** and Settings > **Internet on**. Then Run All.\n"),
+    code(GPU_CHECK.replace("__GPU_HELP__", KAGGLE_GPU).replace("#@title ", "# ")),
+    code(SERVER_INSTALL.replace("#@title ", "# ")),
+    md("**3. Server code.** No changes needed: run the next cells."),
+    code(CORE_CELL),
+    code(SERVER_CELL),
+    code(IMPORT_CELL),
+    code(SERVER_START.replace("#@title ", "# ")),
+]
+
 for name, cells, colab in (("PrintScale_AuraSR_Colab.ipynb", colab_cells, True),
-                           ("PrintScale_AuraSR_Kaggle.ipynb", kaggle_cells, False)):
+                           ("PrintScale_AuraSR_Kaggle.ipynb", kaggle_cells, False),
+                           ("PrintScale_Server_Colab.ipynb", server_colab, True),
+                           ("PrintScale_Server_Kaggle.ipynb", server_kaggle, False)):
     with open(os.path.join(NB_DIR, name), "w") as f:
         json.dump(notebook(cells, colab), f, indent=1, ensure_ascii=False)
         f.write("\n")

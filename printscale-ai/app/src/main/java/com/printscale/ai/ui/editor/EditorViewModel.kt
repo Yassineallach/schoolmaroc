@@ -74,7 +74,11 @@ data class EditorUi(
     val sharpen: Float = Strength.BALANCED.sharpen,
     val denoise: Float = Strength.BALANCED.denoise,
     val starting: Boolean = false,
+    /** JobSpec.ENGINE_DEVICE or JobSpec.ENGINE_CLOUD. */
+    val engine: String = JobSpec.ENGINE_DEVICE,
 ) {
+    val cloud: Boolean get() = engine == JobSpec.ENGINE_CLOUD
+
     /** The print size in the current orientation, if the output is a print. */
     val printSize: PrintSize?
         get() {
@@ -103,7 +107,7 @@ data class EditorUi(
 }
 
 class EditorViewModel(
-    private val graph: AppGraph,
+    val graph: AppGraph,
     private val importId: String,
     initialPreset: String?,
     initialFactor: Int?,
@@ -132,6 +136,8 @@ class EditorViewModel(
                 var state = EditorUi(
                     loading = false, info = info, preview = preview, edgeColor = averageEdge(preview), landscape = landscape,
                     background = if (info.hasAlpha) Background.TRANSPARENT else Background.WHITE,
+                    // a connected cloud GPU is the user's stated preference for quality
+                    engine = if (graph.settings.cloudLink.value != null) JobSpec.ENGINE_CLOUD else JobSpec.ENGINE_DEVICE,
                 )
                 state = when {
                     initialPreset != null -> state.copy(outputMode = OutputMode.PRINT, presetId = initialPreset)
@@ -185,6 +191,7 @@ class EditorViewModel(
     fun setCustomPrint(p: PrintSize) = _ui.update {
         clampCrop(it.copy(customPrint = p, presetId = null, landscape = p.widthIn > p.heightIn))
     }
+    fun setEngine(e: String) = _ui.update { it.copy(engine = e) }
     fun setDpi(d: Int) = _ui.update { it.copy(dpi = d) }
     fun setFactor(f: Int) = _ui.update { it.copy(factor = f) }
     fun setStrength(s: Strength) = _ui.update { it.copy(strength = s, detail = s.detail, sharpen = s.sharpen, denoise = s.denoise) }
@@ -222,6 +229,7 @@ class EditorViewModel(
                     targetW = plan.targetW, targetH = plan.targetH, useAi = plan.useAi,
                     print = s.printSize?.let { PrintTarget(it, s.dpi) },
                     settings = EnhanceSettings(s.detail, s.sharpen, s.denoise),
+                    engine = if (s.cloud && graph.settings.cloudLink.value != null) JobSpec.ENGINE_CLOUD else JobSpec.ENGINE_DEVICE,
                 )
                 val id = graph.processing.enqueue(spec)
                 onStarted(id)

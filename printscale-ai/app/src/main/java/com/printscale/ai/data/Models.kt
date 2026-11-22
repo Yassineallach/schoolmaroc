@@ -55,8 +55,11 @@ data class JobSpec(
     val useAi: Boolean,
     val print: PrintTarget?,
     val settings: EnhanceSettings,
+    /** ENGINE_DEVICE (Real-ESRGAN on the phone) or ENGINE_CLOUD (AuraSR on the user's notebook server). */
+    val engine: String = ENGINE_DEVICE,
 ) {
     fun toJson(): JSONObject = JSONObject()
+        .put("engine", engine)
         .put("importId", importId)
         .put("quarter", crop.quarterTurns).put("straighten", crop.straightenDeg.toDouble())
         .put("zoom", crop.zoom.toDouble()).put("panX", crop.panX.toDouble()).put("panY", crop.panY.toDouble())
@@ -85,7 +88,11 @@ data class JobSpec(
             settings = EnhanceSettings(
                 o.getDouble("detail").toFloat(), o.getDouble("sharpen").toFloat(), o.getDouble("denoise").toFloat(),
             ),
+            engine = o.optString("engine", ENGINE_DEVICE),
         )
+
+        const val ENGINE_DEVICE = "device"
+        const val ENGINE_CLOUD = "cloud"
     }
 }
 
@@ -128,6 +135,7 @@ data class HistoryItem(
     val masterBytes: Long,
     val durationMs: Long,
     val exports: List<ExportRecord>,
+    val engine: String = JobSpec.ENGINE_DEVICE,
 ) {
     val effectiveScale: Double get() = maxOf(finalW.toDouble() / preparedW, finalH.toDouble() / preparedH)
 
@@ -138,6 +146,7 @@ data class HistoryItem(
         .put("printWIn", printWIn ?: JSONObject.NULL).put("printHIn", printHIn ?: JSONObject.NULL)
         .put("dpi", dpi ?: JSONObject.NULL).put("hasAlpha", hasAlpha).put("masterBytes", masterBytes)
         .put("durationMs", durationMs)
+        .put("engine", engine)
         .put("exports", JSONArray().also { a -> exports.forEach { a.put(it.toJson()) } })
 
     companion object {
@@ -150,6 +159,7 @@ data class HistoryItem(
             if (o.isNull("dpi")) null else o.getInt("dpi"),
             o.getBoolean("hasAlpha"), o.getLong("masterBytes"), o.getLong("durationMs"),
             o.optJSONArray("exports")?.let { a -> (0 until a.length()).map { ExportRecord.fromJson(a.getJSONObject(it)) } } ?: emptyList(),
+            o.optString("engine", JobSpec.ENGINE_DEVICE),
         )
     }
 }

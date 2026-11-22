@@ -24,6 +24,8 @@ dependencies {
 tasks.test {
     maxHeapSize = "3g"
     systemProperty("modelDir", rootProject.file("app/src/main/assets/models").absolutePath)
+    // Set PRINTSCALE_TEST_SERVER to a running notebook server link to run the cloud integration tests.
+    systemProperty("cloudServer", System.getenv("PRINTSCALE_TEST_SERVER") ?: "")
     systemProperty("outDir", layout.buildDirectory.dir("test-output").get().asFile.absolutePath)
     testLogging { events("passed", "failed", "skipped"); showStandardStreams = true }
 }

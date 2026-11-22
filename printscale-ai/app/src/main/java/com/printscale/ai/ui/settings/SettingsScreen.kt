@@ -40,6 +40,7 @@ import com.printscale.ai.AppGraph
 import com.printscale.ai.BuildConfig
 import com.printscale.ai.data.ThemeChoice
 import com.printscale.ai.processing.ModelProvider
+import com.printscale.ai.ui.cloud.CloudGpuSheet
 import com.printscale.ai.ui.components.Panel
 import com.printscale.ai.ui.components.SecondaryButton
 import com.printscale.ai.ui.components.SectionLabel
@@ -55,6 +56,8 @@ fun SettingsScreen(graph: AppGraph, onBack: () -> Unit) {
     val storage by produceState(-1L, refresh) { value = graph.history.storageBytes() }
     var confirmClear by remember { mutableStateOf(false) }
     var license by remember { mutableStateOf<Pair<String, String>?>(null) }
+    var showCloud by remember { mutableStateOf(false) }
+    val cloudLink by graph.settings.cloudLink.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -95,12 +98,21 @@ fun SettingsScreen(graph: AppGraph, onBack: () -> Unit) {
             Spacer(Modifier.height(6.dp))
             Panel {
                 Text(
-                    "The app never uploads your artwork. Upscaling runs on the device with ONNX Runtime; the app has no internet permission, no account and no analytics. " +
-                        "Files stay in the app's private storage until you export, share or delete them. " +
-                        "The optional Studio quality route opens a Colab or Kaggle notebook in your browser; images you upload there are processed on Google's or Kaggle's servers.",
+                    "With the on-device engine your artwork never leaves this phone. There is no account and no analytics. " +
+                        "The app connects to the internet only when you choose Cloud GPU: then the cropped artwork goes to the notebook server you connected " +
+                        "(your own Colab or Kaggle session), and the result comes back. The server deletes both after the job. " +
+                        "Files stay in the app's private storage until you export, share or delete them.",
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
+
+            Spacer(Modifier.height(24.dp))
+            SectionLabel("Cloud GPU")
+            Spacer(Modifier.height(6.dp))
+            Text(if (cloudLink == null) "Not connected." else "Server saved: ${cloudLink!!.substringBefore("/?key=")}",
+                style = MaterialTheme.typography.bodyMedium)
+            Spacer(Modifier.height(10.dp))
+            SecondaryButton(if (cloudLink == null) "Connect a cloud GPU" else "Manage cloud GPU", onClick = { showCloud = true })
 
             Spacer(Modifier.height(24.dp))
             SectionLabel("About the AI model")
@@ -121,6 +133,7 @@ fun SettingsScreen(graph: AppGraph, onBack: () -> Unit) {
         }
     }
 
+    if (showCloud) CloudGpuSheet(graph, onDismiss = { showCloud = false })
     if (confirmClear) {
         AlertDialog(
             onDismissRequest = { confirmClear = false },

@@ -17,7 +17,14 @@ import com.printscale.ai.data.JobSpec
 import com.printscale.ai.data.Paths
 import com.printscale.ai.imaging.Imaging
 import com.printscale.ai.imaging.orientedTo
+import com.printscale.engine.AlphaBleed
+import com.printscale.engine.CloudClient
+import com.printscale.engine.CloudException
+import com.printscale.engine.CloudLink
 import com.printscale.engine.CropGeometry
+import com.printscale.engine.PixelBuffer
+import com.printscale.engine.PngStreamReader
+import com.printscale.engine.StreamingResizer
 import com.printscale.engine.PngStreamWriter
 import com.printscale.engine.PreviewSink
 import com.printscale.engine.ProgressListener
@@ -26,9 +33,11 @@ import com.printscale.engine.TeeSink
 import com.printscale.engine.UpscaleCancelled
 import com.printscale.engine.UpscalePipeline
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.BufferedOutputStream
+import java.io.File
 import java.io.FileOutputStream
 
 class UpscaleWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
@@ -64,36 +73,44 @@ class UpscaleWorker(context: Context, params: WorkerParameters) : CoroutineWorke
                 prepared.recycle()
                 if (isStopped) throw UpscaleCancelled()
 
-                // 2. Model, pipeline, streaming PNG.
-                report(JobStage.ANALYZING, 0, 0, null, force = true)
-                val pipeline = UpscalePipeline(pixels, spec.targetW, spec.targetH, spec.settings, spec.useAi)
-                val model = if (spec.useAi) ModelProvider.create(applicationContext, spec.settings.denoise) else null
                 val preview = PreviewSink(spec.targetW, spec.targetH, PREVIEW_SIDE)
-                try {
-                    BufferedOutputStream(FileOutputStream(master), 1 shl 20).use { out ->
-                        val png = PngStreamWriter(out, spec.targetW, spec.targetH, pipeline.hasAlpha, spec.print?.dpi ?: 300,
-                            if (keepProfile) icc else null)
-                        pipeline.run(model, TeeSink(png, preview), object : ProgressListener {
-                            override fun onStage(stage: Stage) {
-                                when (stage) {
-                                    Stage.ANALYZING -> report(JobStage.ANALYZING, 0, 0, null, force = true)
-                                    Stage.UPSCALING -> report(JobStage.UPSCALING, 0, 1, null, force = true)
-                                    Stage.FINALIZING -> report(JobStage.FINALIZING, 0, 0, null, force = true)
+                val hasAlpha: Boolean
+                if (spec.useAi && spec.engine == JobSpec.ENGINE_CLOUD) {
+                    // 2a. AI on the user's notebook GPU; everything after it happens here.
+                    hasAlpha = pixels.hasTransparency()
+                    runCloud(jobId, pixels, geom.outW, geom.outH, spec, hasAlpha, if (keepProfile) icc else null, preview)
+                } else {
+                    // 2b. On-device model, pipeline, streaming PNG.
+                    report(JobStage.ANALYZING, 0, 0, null, force = true)
+                    val pipeline = UpscalePipeline(pixels, spec.targetW, spec.targetH, spec.settings, spec.useAi)
+                    hasAlpha = pipeline.hasAlpha
+                    val model = if (spec.useAi) ModelProvider.create(applicationContext, spec.settings.denoise) else null
+                    try {
+                        BufferedOutputStream(FileOutputStream(master), 1 shl 20).use { out ->
+                            val png = PngStreamWriter(out, spec.targetW, spec.targetH, pipeline.hasAlpha, spec.print?.dpi ?: 300,
+                                if (keepProfile) icc else null)
+                            pipeline.run(model, TeeSink(png, preview), object : ProgressListener {
+                                override fun onStage(stage: Stage) {
+                                    when (stage) {
+                                        Stage.ANALYZING -> report(JobStage.ANALYZING, 0, 0, null, force = true)
+                                        Stage.UPSCALING -> report(JobStage.UPSCALING, 0, 1, null, force = true)
+                                        Stage.FINALIZING -> report(JobStage.FINALIZING, 0, 0, null, force = true)
+                                    }
                                 }
-                            }
 
-                            override fun onAiProgress(done: Long, total: Long, etaMillis: Long?) {
-                                report(JobStage.UPSCALING, done, total, etaMillis)
-                            }
-                        }, { isStopped })
+                                override fun onAiProgress(done: Long, total: Long, etaMillis: Long?) {
+                                    report(JobStage.UPSCALING, done, total, etaMillis)
+                                }
+                            }, { isStopped })
+                        }
+                    } finally {
+                        model?.close()
                     }
-                } finally {
-                    model?.close()
                 }
                 val pv = Imaging.toBitmap(preview.result, cs)
                 Imaging.savePng(pv, paths.jobPreview(jobId))
                 pv.recycle()
-                Triple(geom.outW, geom.outH, pipeline.hasAlpha)
+                Triple(geom.outW, geom.outH, hasAlpha)
             }
             graph.history.add(
                 HistoryItem(
@@ -103,6 +120,7 @@ class UpscaleWorker(context: Context, params: WorkerParameters) : CoroutineWorke
                     aiUsed = spec.useAi, printWIn = spec.print?.size?.widthIn, printHIn = spec.print?.size?.heightIn,
                     dpi = spec.print?.dpi, hasAlpha = result.third, masterBytes = master.length(),
                     durationMs = System.currentTimeMillis() - startedAt, exports = emptyList(),
+                    engine = if (spec.useAi) spec.engine else JobSpec.ENGINE_DEVICE,
                 ),
             )
             Result.success()
@@ -120,6 +138,79 @@ class UpscaleWorker(context: Context, params: WorkerParameters) : CoroutineWorke
             cleanup(jobId)
             Result.failure(workDataOf(KEY_ERROR to "The AI engine could not start on this device (${e.javaClass.simpleName})."))
         }
+    }
+
+    /**
+     * Uploads the prepared crop, waits for AuraSR on the notebook GPU, downloads the 4x result and
+     * streams it through the same Lanczos resize and PNG writer the on-device path uses.
+     */
+    private suspend fun runCloud(
+        jobId: String, pixels: PixelBuffer, w: Int, h: Int, spec: JobSpec, hasAlpha: Boolean, icc: ByteArray?, preview: PreviewSink,
+    ) {
+        val link = graph.settings.cloudLink.value?.let(CloudLink::parse)
+            ?: throw CloudException("No cloud GPU is connected. Open Cloud GPU on the Home screen and paste the notebook link.")
+        val client = CloudClient(link)
+        val dir = paths.jobDir(jobId)
+        val upload = File(dir, "upload.png")
+        val result = File(dir, "cloud_result.png")
+        if (hasAlpha) AlphaBleed.apply(pixels) // the model only sees colour; keep cut-out edges clean
+        BufferedOutputStream(FileOutputStream(upload), 1 shl 20).use { out ->
+            val png = PngStreamWriter(out, w, h, hasAlpha, null, null, compressionLevel = 6)
+            val row = IntArray(w)
+            for (y in 0 until h) { System.arraycopy(pixels.argb, y * w, row, 0, w); png.writeRow(y, row) }
+            png.finish()
+        }
+        report(JobStage.UPLOADING, 0, upload.length(), null, force = true)
+        val remoteId = client.submit(upload, { s, t -> report(JobStage.UPLOADING, s, t, null) }, { isStopped })
+        upload.delete()
+        try {
+            var failures = 0
+            var firstAt = -1L
+            var firstDone = 0L
+            while (true) {
+                if (isStopped) throw UpscaleCancelled()
+                delay(1500)
+                val job = try {
+                    client.status(remoteId).also { failures = 0 }
+                } catch (e: CloudException) {
+                    // tunnels drop the odd request; give up only after about 45 s of silence
+                    if (!e.retryable || ++failures > 30) throw e
+                    continue
+                }
+                if (job.failed) throw CloudException(job.error?.let { "The cloud GPU failed: $it" } ?: "The job was stopped on the server.")
+                if (job.total > 0) {
+                    val now = System.currentTimeMillis()
+                    if (firstAt < 0 && job.done > 0) { firstAt = now; firstDone = job.done }
+                    val measured = job.done - firstDone
+                    val eta = if (firstAt > 0 && measured > 0 && now - firstAt > 3000) (now - firstAt) * (job.total - job.done) / measured else null
+                    report(JobStage.CLOUD, job.done, job.total, eta)
+                } else {
+                    report(JobStage.CLOUD, 0, 0, null)
+                }
+                if (job.finished) break
+            }
+            report(JobStage.DOWNLOADING, 0, 1, null, force = true)
+            client.download(remoteId, result, { s, t -> report(JobStage.DOWNLOADING, s, t, null) }, { isStopped })
+        } catch (e: Exception) {
+            client.cancel(remoteId)
+            throw e
+        }
+        client.cancel(remoteId) // done: free the server's copy right away
+        report(JobStage.FINALIZING, 0, 0, null, force = true)
+        PngStreamReader(result.inputStream()).use { r ->
+            if (r.width != w * 4 || r.height != h * 4) {
+                throw CloudException("The server returned ${r.width} x ${r.height} px, expected ${w * 4} x ${h * 4}.")
+            }
+            BufferedOutputStream(FileOutputStream(paths.jobMaster(jobId)), 1 shl 20).use { out ->
+                val png = PngStreamWriter(out, spec.targetW, spec.targetH, hasAlpha, spec.print?.dpi ?: 300, icc)
+                val sink = TeeSink(png, preview)
+                StreamingResizer(r.width, r.height, spec.targetW, spec.targetH).run(r::readRow, sink) {
+                    if (isStopped) throw UpscaleCancelled()
+                }
+                sink.finish()
+            }
+        }
+        result.delete()
     }
 
     /** Temporary files of a job that did not finish are removed straight away. */

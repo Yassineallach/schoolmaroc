@@ -7,8 +7,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <!-- Saving to Pictures/PrintScale on Android 10 uses MediaStore and needs no storage permission. -->
-    <!-- Artwork never leaves the phone: remove the network permission a library dependency merges in. -->
-    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+    <!-- Network is used only to reach a cloud GPU server the user connects (their own Colab/Kaggle notebook). -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".PrintScaleApp"
@@ -23,10 +23,18 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- QR code page from the server notebook: printscale://connect?server=...&key=... -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="printscale" android:host="connect" />
             </intent-filter>
             <!-- "Share to PrintScale" from a gallery app -->
             <intent-filter>

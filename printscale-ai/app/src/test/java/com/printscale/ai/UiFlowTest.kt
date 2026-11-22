@@ -47,6 +47,7 @@ class UiFlowTest {
     @Before fun setup() {
         WorkManagerTestInitHelper.initializeTestWorkManager(Fixtures.app)
         Fixtures.realisticDevice()
+        graph.settings.setCloudLink(null)
         org.robolectric.Shadows.shadowOf(Fixtures.app).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS)
         graph.settings.setTheme(ThemeChoice.DARK)
     }
@@ -138,10 +139,11 @@ class UiFlowTest {
 
     @Test fun processingStates() {
         var cancel = false
+        var cloud by androidx.compose.runtime.mutableStateOf(false)
         var status: JobStatus by androidx.compose.runtime.mutableStateOf(
             JobStatus.Running(JobStage.UPSCALING, 42, 100, 95_000, System.currentTimeMillis() - 63_000),
         )
-        rule.setContent { PrintScaleTheme(ThemeChoice.DARK) { ProcessingBody(status, null, System.currentTimeMillis(), { cancel = true }, {}) } }
+        rule.setContent { PrintScaleTheme(ThemeChoice.DARK) { ProcessingBody(status, null, System.currentTimeMillis(), cloud, { cancel = true }, {}) } }
         rule.onAllNodesWithText("Enhancing details and upscaling")[0].assertIsDisplayed()
         rule.onNodeWithText("42% of the artwork through the model").assertIsDisplayed()
         rule.onNodeWithText("about 1 min 35s left").assertIsDisplayed()
@@ -150,6 +152,14 @@ class UiFlowTest {
         assertTrue(cancel)
         status = JobStatus.Running(JobStage.FINALIZING, 0, 0, null, 0)
         rule.onAllNodesWithText("Preparing print output")[0].assertIsDisplayed()
+        cloud = true
+        status = JobStatus.Running(JobStage.UPLOADING, 3_145_728, 12_582_912, null, System.currentTimeMillis() - 5_000)
+        rule.onNodeWithText("3.0 of 12.0 MB sent").assertIsDisplayed()
+        status = JobStatus.Running(JobStage.CLOUD, 30, 40, 20_000, System.currentTimeMillis() - 60_000)
+        rule.onNodeWithText("75% done on the cloud GPU").assertIsDisplayed()
+        rule.onNodeWithText("Downloading the result").assertExists()
+        Fixtures.screenshot(rule, "12_processing_cloud")
+        cloud = false
         status = JobStatus.Failed("The phone ran out of memory. Try a smaller crop or output size.")
         rule.onNodeWithText("Processing stopped").assertIsDisplayed()
         rule.onNodeWithText("Back to editor").assertIsDisplayed()
@@ -241,40 +251,21 @@ class UiFlowTest {
         rule.onNodeWithText("8 × 10 in at 300 DPI").assertExists()
     }
 
-    @Test fun studioQualityOpensNotebooks() {
+    @Test fun cloudSheetOpensServerNotebooks() {
         rule.setContent { PrintScaleTheme(ThemeChoice.DARK) { HomeScreen(graph, { _, _, _ -> }, {}, {}, {}, {}) } }
         waitForText("Nothing here yet")
-        rule.onNodeWithText("Upscale on a cloud GPU").performScrollTo().performClick()
-        rule.onNodeWithText("Studio quality upscaling").assertIsDisplayed()
-        rule.onNodeWithText("uploaded to Google's or Kaggle's servers", substring = true).assertExists()
+        rule.onNodeWithText("Connect a cloud GPU").performScrollTo().performClick()
+        rule.onNodeWithText("uploaded to your notebook", substring = true).assertExists()
         val shadow = org.robolectric.Shadows.shadowOf(rule.activity)
         rule.onNodeWithText("Open in Colab").performScrollTo().performClick()
-        val colab = shadow.nextStartedActivity
-        assertEquals(android.content.Intent.ACTION_VIEW, colab.action)
         assertEquals(
-            "https://colab.research.google.com/github/Yassineallach/schoolmaroc/blob/${BuildConfig.NOTEBOOK_REF}/printscale-ai/notebooks/PrintScale_AuraSR_Colab.ipynb",
-            colab.dataString,
+            "https://colab.research.google.com/github/Yassineallach/schoolmaroc/blob/${BuildConfig.NOTEBOOK_REF}/printscale-ai/notebooks/PrintScale_Server_Colab.ipynb",
+            shadow.nextStartedActivity.dataString,
         )
         rule.onNodeWithText("Open in Kaggle").performScrollTo().performClick()
-        val kaggle = shadow.nextStartedActivity
         assertEquals(
-            "https://www.kaggle.com/kernels/welcome?src=https://github.com/Yassineallach/schoolmaroc/blob/${BuildConfig.NOTEBOOK_REF}/printscale-ai/notebooks/PrintScale_AuraSR_Kaggle.ipynb",
-            kaggle.dataString,
+            "https://www.kaggle.com/kernels/welcome?src=https://github.com/Yassineallach/schoolmaroc/blob/${BuildConfig.NOTEBOOK_REF}/printscale-ai/notebooks/PrintScale_Server_Kaggle.ipynb",
+            shadow.nextStartedActivity.dataString,
         )
-    }
-
-    @Test fun studioQualityFromResultSharesNamedArtwork() {
-        val id = finishedJob()
-        rule.setContent { PrintScaleTheme(ThemeChoice.DARK) { ResultScreen(graph, id, {}, {}, {}) } }
-        waitForText("720 × 900 px")
-        rule.onNodeWithText("More detail with AuraSR on a cloud GPU", substring = true).performScrollTo().performClick()
-        rule.onNodeWithText("Save artwork to Drive or Files").performScrollTo().performClick()
-        val chooser = org.robolectric.Shadows.shadowOf(rule.activity).nextStartedActivity
-        @Suppress("DEPRECATION")
-        val send = chooser.getParcelableExtra<android.content.Intent>(android.content.Intent.EXTRA_INTENT)!!
-        @Suppress("DEPRECATION")
-        val uri = send.getParcelableExtra<android.net.Uri>(android.content.Intent.EXTRA_STREAM)!!
-        assertTrue("shared under its real name: $uri", uri.lastPathSegment!!.endsWith(".png"))
-        assertEquals("image/png", send.type)
     }
 }

@@ -35,6 +35,17 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleShare(intent: Intent?) {
+        if (intent?.action == Intent.ACTION_VIEW && intent.data?.scheme == "printscale") {
+            val graph = (application as PrintScaleApp).graph
+            val link = com.printscale.engine.CloudLink.parse(intent.data.toString())
+            if (link != null) {
+                graph.settings.setCloudLink(link.asText())
+                graph.cloudNotice.value = "Cloud GPU connected. Choose Cloud GPU in the editor."
+            } else {
+                graph.cloudNotice.value = "That server link is not valid. Copy it again from the notebook."
+            }
+            return
+        }
         if (intent?.action != Intent.ACTION_SEND) return
         @Suppress("DEPRECATION")
         val uri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM) ?: return

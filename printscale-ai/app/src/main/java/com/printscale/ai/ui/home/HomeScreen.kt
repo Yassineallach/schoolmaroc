@@ -60,7 +60,7 @@ import com.printscale.ai.AppGraph
 import com.printscale.ai.data.HistoryItem
 import com.printscale.ai.data.HistoryState
 import com.printscale.ai.data.Paths
-import com.printscale.ai.ui.cloud.StudioQualitySheet
+import com.printscale.ai.ui.cloud.CloudGpuSheet
 import com.printscale.ai.ui.components.BrandMark
 import com.printscale.ai.ui.components.EmptyState
 import com.printscale.ai.ui.components.PrimaryButton
@@ -93,6 +93,8 @@ fun HomeScreen(
     var importing by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var showStudio by remember { mutableStateOf(false) }
+    val cloudLink by graph.settings.cloudLink.collectAsStateWithLifecycle()
+    val cloudNotice by graph.cloudNotice.collectAsStateWithLifecycle()
     val history by graph.history.state.collectAsStateWithLifecycle()
     val active by graph.processing.active().collectAsStateWithLifecycle(initialValue = emptyList())
     val shared by graph.sharedImage.collectAsStateWithLifecycle()
@@ -199,13 +201,16 @@ fun HomeScreen(
             }
 
             Spacer(Modifier.height(36.dp))
-            SectionLabel("Studio quality")
+            SectionLabel("Cloud GPU")
             Spacer(Modifier.height(4.dp))
-            Text("For big prints and fine texture: run the much larger AuraSR v2 model on a free cloud GPU in Colab or Kaggle.",
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                if (cloudLink == null) "For big prints and fine texture: connect the much larger AuraSR v2 model running on a free GPU in your own Colab or Kaggle notebook."
+                else "A cloud GPU server is saved. Pick Cloud GPU in the editor to use AuraSR v2.",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Spacer(Modifier.height(12.dp))
-            SecondaryButton("Upscale on a cloud GPU", onClick = { showStudio = true }, icon = Icons.Outlined.Cloud,
-                modifier = Modifier.fillMaxWidth())
+            SecondaryButton(if (cloudLink == null) "Connect a cloud GPU" else "Manage cloud GPU", onClick = { showStudio = true },
+                icon = Icons.Outlined.Cloud, modifier = Modifier.fillMaxWidth())
 
             Spacer(Modifier.height(36.dp))
             SectionLabel("Recent projects") {
@@ -244,7 +249,13 @@ fun HomeScreen(
                 }
             }
         }
-        if (showStudio) StudioQualitySheet(artwork = null, onDismiss = { showStudio = false })
+        if (showStudio) CloudGpuSheet(graph, onDismiss = { showStudio = false })
+        cloudNotice?.let { msg ->
+            Snackbar(
+                modifier = Modifier.align(Alignment.BottomCenter).safeDrawingPadding().padding(16.dp),
+                action = { TextButton(onClick = { graph.cloudNotice.value = null }) { Text("OK") } },
+            ) { Text(msg) }
+        }
         error?.let { msg ->
             Snackbar(
                 modifier = Modifier.align(Alignment.BottomCenter).safeDrawingPadding().padding(16.dp),

@@ -72,6 +72,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.printscale.ai.AppGraph
+import com.printscale.ai.data.JobSpec
+import com.printscale.ai.ui.cloud.CloudGpuSheet
 import com.printscale.ai.ui.components.ChipShape
 import com.printscale.ai.ui.components.EmptyState
 import com.printscale.ai.ui.components.Note
@@ -184,6 +186,8 @@ private fun EditorContent(vm: EditorViewModel, ui: EditorUi, plan: UpscalePlan?,
     var showCustomRatio by remember { mutableStateOf(false) }
     var showCustomSize by remember { mutableStateOf(false) }
     var advanced by rememberSaveable { mutableStateOf(false) }
+    var showCloud by remember { mutableStateOf(false) }
+    val cloudLink by vm.graph.settings.cloudLink.collectAsStateWithLifecycle()
 
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         // Source facts
@@ -303,33 +307,63 @@ private fun EditorContent(vm: EditorViewModel, ui: EditorUi, plan: UpscalePlan?,
             Note("Extending artwork past its edges with AI (outpainting) is not available on device in this version. Fit adds a plain margin instead.")
 
             Spacer(Modifier.height(24.dp))
-            // ---------- Enhancement ----------
-            SectionLabel("Enhancement")
-            Spacer(Modifier.height(10.dp))
-            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                Strength.entries.forEachIndexed { i, s ->
-                    SegmentedButton(ui.strength == s, { vm.setStrength(s) }, SegmentedButtonDefaults.itemShape(i, Strength.entries.size)) { Text(s.label) }
+            // ---------- AI engine ----------
+            SectionLabel("AI engine")
+            Spacer(Modifier.height(8.dp))
+            if (cloudLink == null) {
+                Text("Real-ESRGAN on this phone.", style = MaterialTheme.typography.bodyMedium)
+                TextButton(onClick = { showCloud = true }) { Text("Connect a cloud GPU for AuraSR v2") }
+            } else {
+                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                    SegmentedButton(!ui.cloud, { vm.setEngine(JobSpec.ENGINE_DEVICE) }, SegmentedButtonDefaults.itemShape(0, 2)) { Text("This phone") }
+                    SegmentedButton(ui.cloud, { vm.setEngine(JobSpec.ENGINE_CLOUD) }, SegmentedButtonDefaults.itemShape(1, 2)) { Text("Cloud GPU") }
                 }
-            }
-            TextButton(onClick = { advanced = !advanced }, modifier = Modifier.padding(top = 4.dp)) {
-                Text("Advanced")
-                Icon(if (advanced) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, null)
-            }
-            AnimatedVisibility(advanced) {
-                Column {
-                    LabeledSlider("Detail recovery", ui.detail, vm::setDetail,
-                        "How much of the AI-reconstructed detail to keep. Lower blends towards a smooth enlargement.")
-                    LabeledSlider("Sharpening", ui.sharpen, vm::setSharpen, "Extra edge contrast after upscaling. Leave low for painterly art.")
-                    LabeledSlider("Noise reduction", ui.denoise, vm::setDenoise,
-                        "Real-ESRGAN's denoise strength. Higher removes grain and JPEG blocks; lower keeps fine texture.")
+                Spacer(Modifier.height(6.dp))
+                if (ui.cloud) {
+                    Note("AuraSR v2 runs on your notebook's GPU. Your crop is uploaded there and the 4× result is downloaded; " +
+                        "resizing to print size and the final file are made on this phone.", NoteTone.WARNING)
+                    TextButton(onClick = { showCloud = true }) { Text("Check connection") }
+                } else {
+                    Text("Real-ESRGAN, private and offline.", style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
             Spacer(Modifier.height(24.dp))
-            plan?.let { PlanPanel(ui, it) }
+            if (ui.cloud && cloudLink != null) {
+                SectionLabel("Enhancement")
+                Spacer(Modifier.height(6.dp))
+                Note("AuraSR has no adjustable settings: it decides detail and noise cleanup itself.")
+            } else {
+                // ---------- Enhancement ----------
+                SectionLabel("Enhancement")
+                Spacer(Modifier.height(10.dp))
+                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                    Strength.entries.forEachIndexed { i, s ->
+                        SegmentedButton(ui.strength == s, { vm.setStrength(s) }, SegmentedButtonDefaults.itemShape(i, Strength.entries.size)) { Text(s.label) }
+                    }
+                }
+                TextButton(onClick = { advanced = !advanced }, modifier = Modifier.padding(top = 4.dp)) {
+                    Text("Advanced")
+                    Icon(if (advanced) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, null)
+                }
+                AnimatedVisibility(advanced) {
+                    Column {
+                        LabeledSlider("Detail recovery", ui.detail, vm::setDetail,
+                            "How much of the AI-reconstructed detail to keep. Lower blends towards a smooth enlargement.")
+                        LabeledSlider("Sharpening", ui.sharpen, vm::setSharpen, "Extra edge contrast after upscaling. Leave low for painterly art.")
+                        LabeledSlider("Noise reduction", ui.denoise, vm::setDenoise,
+                            "Real-ESRGAN's denoise strength. Higher removes grain and JPEG blocks; lower keeps fine texture.")
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+            plan?.let { PlanPanel(ui.copy(engine = if (cloudLink == null) JobSpec.ENGINE_DEVICE else ui.engine), it) }
             Spacer(Modifier.height(24.dp))
         }
     }
+    if (showCloud) CloudGpuSheet(vm.graph, onDismiss = { showCloud = false })
 
 }
 
@@ -406,12 +440,19 @@ private fun PlanPanel(ui: EditorUi, plan: UpscalePlan) {
         Spacer(Modifier.height(6.dp))
         StatRow("From your crop", formatPx(plan.sourceW, plan.sourceH))
         StatRow("Needed", PrintMath.formatFactor(plan.effectiveScale))
+        val ai = if (ui.cloud) "AuraSR 4× (cloud GPU)" else "AI 4×"
         StatRow("Method", when {
             !plan.useAi -> "Lanczos resize only"
-            plan.interpolationBeyondAi > 1.02 -> "AI 4× to ${plan.aiW} × ${plan.aiH}, then Lanczos ${PrintMath.formatFactor(plan.interpolationBeyondAi)}"
-            plan.interpolationBeyondAi < 0.98 -> "AI 4× to ${plan.aiW} × ${plan.aiH}, then downsample"
-            else -> "AI 4×"
+            plan.interpolationBeyondAi > 1.02 -> "$ai to ${plan.aiW} × ${plan.aiH}, then Lanczos ${PrintMath.formatFactor(plan.interpolationBeyondAi)}"
+            plan.interpolationBeyondAi < 0.98 -> "$ai to ${plan.aiW} × ${plan.aiH}, then downsample"
+            else -> ai
         })
+        if (ui.cloud && plan.useAi) {
+            val ch = if (ui.outputHasAlpha) 4 else 3
+            val up = plan.sourceW.toLong() * plan.sourceH * ch / 2
+            val down = plan.aiW.toLong() * plan.aiH * ch / 2
+            StatRow("Data transfer", "roughly ${formatBytes(up)} up, ${formatBytes(down)} down (estimate)")
+        }
         plan.aiDetailDpi?.let { StatRow("AI detail reaches", "about ${it.roundToInt()} DPI at this size") }
         StatRow("PNG size", "roughly ${formatBytes(plan.estimatedPngBytes)} (estimate)")
         if (plan.warnings.isNotEmpty() || plan.blockers.isNotEmpty()) Spacer(Modifier.height(8.dp))

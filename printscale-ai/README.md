@@ -122,10 +122,36 @@ Run the cells in order. You get a framing preview before anything is processed, 
 * **Behaviour:** it is a GAN, so it sharpens edges strongly but can add faint texture to smooth gradients and slightly roughen perfectly clean edges. Check the comparison crops for flat or minimal designs.
 * **Tested here:** both notebooks were executed top to bottom on a CPU with the real AuraSR v2 weights, including a full 7200 × 10800 output, transparency and JPEG with DPI and ICC. Processing large images in 64 px-aligned blocks matches whole-image output (99.9% of pixels within 5/255). They have not yet been run on an actual Colab or Kaggle GPU, so GPU speed is unmeasured.
 * **GPU:** the notebooks always run AuraSR on the GPU when one is attached. Colab notebooks open with a T4 preselected; on Kaggle, choose the accelerator once in Settings. They send 16 to 64 tiles per GPU call, sized from GPU memory (AuraSR's own default is 8, which leaves a T4 mostly idle). If the GPU runs out of memory, they retry with smaller batches automatically.
-* **From the app:** Home > *Upscale on a cloud GPU*, or *More detail with AuraSR on a cloud GPU* on any result, opens a sheet with the steps and the upload notice. Buttons open the notebook in Colab or Kaggle and can save the current artwork to Drive or Files first. The links point to the branch in `NOTEBOOK_REF` (`app/build.gradle.kts`); change it to `main` after merging.
+* For using AuraSR from inside the app instead of in the notebook, see section 8. The app's notebook links point to the branch in `NOTEBOOK_REF` (`app/build.gradle.kts`); change it to `main` after merging.
 * `notebooks/printscale_aurasr.py` is the shared code. After editing it, run `python tools/build_notebooks.py` to rebuild both notebooks.
 
-## 8. Project layout
+## 8. Cloud GPU server: AuraSR inside the app
+
+The app can use **your own Colab or Kaggle notebook as its AI engine**. You work entirely in the app; only the AI 4× step runs on the notebook's GPU.
+
+1. In the app: Home > **Connect a cloud GPU** > *Open in Colab* (or Kaggle). This opens `notebooks/PrintScale_Server_Colab.ipynb` (or `_Kaggle`).
+2. Choose a GPU (Colab preselects a T4; on Kaggle choose GPU T4 x2 and turn Internet on) and run all cells.
+3. The last cell prints a link like `https://name.trycloudflare.com/?key=...` and a QR code. Scan the QR code with the phone camera and tap **Open in the PrintScale app**, or paste the link into the app.
+4. In the editor choose **AI engine > Cloud GPU** and upscale as usual.
+
+What happens per job: the app uploads its prepared crop as PNG and polls progress, which shows live in the app and the notification. It then downloads the 4× PNG and streams it through the same Lanczos print resize and PNG writer as the on-device engine. DPI, colour profile, transparency, history, comparison and export all work the same.
+
+| Piece | Where |
+|---|---|
+| Server (stdlib HTTP, single GPU queue, private key, cancel, deletes files after download or 1 h) | `notebooks/printscale_server.py` |
+| Tunnel | Cloudflare quick tunnel (`trycloudflare.com`), no account needed. Jobs are asynchronous because these tunnels drop requests that wait longer than about 100 s. |
+| App client, streaming PNG reader | `engine/.../CloudClient.kt`, `PngStreamReader.kt` |
+| App flow | `UpscaleWorker.runCloud`, the Cloud GPU sheet, the editor's engine switch, the `printscale://connect` deep link |
+
+Honest limits:
+* **Privacy:** with Cloud GPU the cropped artwork leaves the phone and goes to your notebook on Google's or Kaggle's servers. The app says so wherever the option appears. The on-device engine stays fully offline. The app now holds the INTERNET permission for this, and uses it only for the server you connect.
+* **Free-tier rules:** Colab's free tier may disconnect notebooks used as servers, and Kaggle sessions end after 12 hours. When that happens the app reports that the server can't be reached; restart the notebook and connect with the new link (it changes every start).
+* **Data:** about 1 MB up and 20 to 40 MB down for a typical 1024 × 1536 crop. The editor shows an estimate.
+* **Tested here:** the server ran locally with the real AuraSR v2 weights on CPU. The engine client completed real round trips, including transparency and cancellation. The actual Android worker completed a real cloud job against it (29 s on CPU). The Cloudflare tunnel step could not be run in this sandbox, which does not allow opening public tunnels, so it is untested.
+
+To run the cloud integration tests yourself, start the server notebook (or `printscale_server.py`) and set `PRINTSCALE_TEST_SERVER` to its link before `./gradlew :engine:test :app:testDebugUnitTest`.
+
+## 9. Project layout
 
 ```
 engine/                 pure Kotlin: planner, crop geometry, tiling, Lanczos, PNG writer, ONNX model, formats
@@ -137,7 +163,7 @@ app/src/main/java/com/printscale/ai/
   ui/                   home, editor (crop canvas), processing, result (compare viewer), history, settings
 app/src/main/assets/models/   Real-ESRGAN ONNX checkpoints, blend map, licence
 tools/export_realesrgan_onnx.py
-notebooks/                    AuraSR v2 Colab and Kaggle notebooks + shared code
+notebooks/                    AuraSR v2 batch notebooks, server notebooks, shared code
 tools/build_notebooks.py
 ```
 

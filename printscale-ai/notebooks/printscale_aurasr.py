@@ -71,36 +71,58 @@ def default_batch():
     return 64 if gb >= 20 else 32 if gb >= 12 else 16
 
 
-def ai_upscale_4x(model, rgb: Image.Image, block=1024, overlap=64, seed=0, progress=None, batch=8) -> Image.Image:
+def _blocks(w, h, block, overlap):
+    if w <= block and h <= block:
+        return [(0, 0, w, h)]
+    step = block - overlap
+    xs = list(range(0, max(w - overlap, 1), step))
+    ys = list(range(0, max(h - overlap, 1), step))
+    return [(x0, y0, min(x0 + block, w), min(y0 + block, h)) for y0 in ys for x0 in xs]
+
+
+def _batches_for(bw, bh, tile, batch):
+    """GPU calls AuraSR makes for one block: a normal pass plus a half-tile-offset pass."""
+    pw, ph = math.ceil(bw / tile) * tile, math.ceil(bh / tile) * tile
+    t1 = (pw // tile) * (ph // tile)
+    t2 = ((pw + tile) // tile) * ((ph + tile) // tile)
+    return math.ceil(t1 / batch) + math.ceil(t2 / batch)
+
+
+def ai_upscale_4x(model, rgb: Image.Image, block=1024, overlap=64, seed=0, progress=None, batch=8,
+                  cancelled=None) -> Image.Image:
     """
     4x a whole image in overlapping blocks and feather them together, so memory stays bounded
-    for any input size (AuraSR keeps its whole output as float tensors).
+    for any input size (AuraSR keeps its whole output as float tensors). progress(done, total)
+    is called after every GPU batch; cancelled() is checked at the same points.
     """
     w, h = rgb.size
     tile = model.input_image_size
     # Keep every block on AuraSR's own 64 px tile grid so blocks match whole-image inference.
     overlap = max(tile, round(overlap / tile) * tile)
     block = max(overlap + tile, round(block / tile) * tile)
-    if w <= block and h <= block:
-        out = _ai_block(model, rgb, seed, batch)
-        if progress:
-            progress(1, 1)
-        return Image.fromarray(np.clip(out + 0.5, 0, 255).astype(np.uint8))
+    blocks = _blocks(w, h, block, overlap)
+    total = sum(_batches_for(x1 - x0, y1 - y0, tile, batch) for x0, y0, x1, y1 in blocks)
+    count = [0]
 
-    step = block - overlap
-    xs = list(range(0, max(w - overlap, 1), step))
-    ys = list(range(0, max(h - overlap, 1), step))
-    acc = np.zeros((h * 4, w * 4, 3), np.float32)
-    wsum = np.zeros((h * 4, w * 4, 1), np.float32)
-    total = len(xs) * len(ys)
-    done = 0
-    for y0 in ys:
-        for x0 in xs:
-            x1 = min(x0 + block, w)
-            y1 = min(y0 + block, h)
+    def on_batch(*_):
+        count[0] += 1
+        if cancelled is not None and cancelled():
+            raise InterruptedError("cancelled")
+        if progress:
+            progress(min(count[0], total), total)
+
+    hook = model.upsampler.register_forward_hook(on_batch)
+    try:
+        if len(blocks) == 1:
+            out = _ai_block(model, rgb, seed, batch)
+            return Image.fromarray(np.clip(out + 0.5, 0, 255).astype(np.uint8))
+
+        acc = np.zeros((h * 4, w * 4, 3), np.float32)
+        wsum = np.zeros((h * 4, w * 4, 1), np.float32)
+        ramp = overlap * 4
+        for x0, y0, x1, y1 in blocks:
             part = _ai_block(model, rgb.crop((x0, y0, x1, y1)), seed, batch)
             bh, bw = part.shape[:2]
-            ramp = overlap * 4
 
             def axis(n, at_start, at_end):
                 # linear cross-fade over the overlap; edges of the image keep full weight
@@ -114,16 +136,13 @@ def ai_upscale_4x(model, rgb: Image.Image, block=1024, overlap=64, seed=0, progr
                         v[n - r:] = np.minimum(v[n - r:], up[::-1])
                 return v
 
-            wy = axis(bh, y0 == 0, y1 == h)
-            wx = axis(bw, x0 == 0, x1 == w)
-            wt = (wy[:, None] * wx[None, :])[..., None]
+            wt = (axis(bh, y0 == 0, y1 == h)[:, None] * axis(bw, x0 == 0, x1 == w)[None, :])[..., None]
             acc[y0 * 4: y0 * 4 + bh, x0 * 4: x0 * 4 + bw] += part * wt
             wsum[y0 * 4: y0 * 4 + bh, x0 * 4: x0 * 4 + bw] += wt
-            done += 1
-            if progress:
-                progress(done, total)
-    out = acc / np.maximum(wsum, 1e-6)
-    return Image.fromarray(np.clip(out + 0.5, 0, 255).astype(np.uint8))
+        out = acc / np.maximum(wsum, 1e-6)
+        return Image.fromarray(np.clip(out + 0.5, 0, 255).astype(np.uint8))
+    finally:
+        hook.remove()
 
 
 # ----------------------------------------------------------------------------- framing
@@ -315,7 +334,7 @@ def process(model, path, out_dir, s: Settings, log=print):
         def prog(d, t):
             if time.time() - last[0] > 5 or d == t:
                 last[0] = time.time()
-                log(f"   AI blocks {d}/{t}")
+                log(f"   AI {100 * d // t}%")
         ai = ai_upscale_4x(model, rgb, block=s.block, seed=s.seed, progress=prog, batch=s.batch or default_batch())
         method = "AuraSR 4x"
         if (ai.width, ai.height) != (plan.target_w, plan.target_h):

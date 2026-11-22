@@ -62,7 +62,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
-private val STAGES = listOf(JobStage.PREPARING, JobStage.ANALYZING, JobStage.UPSCALING, JobStage.FINALIZING)
+private val DEVICE_STAGES = listOf(JobStage.PREPARING, JobStage.ANALYZING, JobStage.UPSCALING, JobStage.FINALIZING)
+private val CLOUD_STAGES = listOf(JobStage.PREPARING, JobStage.UPLOADING, JobStage.CLOUD, JobStage.DOWNLOADING, JobStage.FINALIZING)
 
 @Composable
 fun ProcessingScreen(graph: AppGraph, jobId: String, onDone: () -> Unit, onLeave: () -> Unit) {
@@ -83,7 +84,8 @@ fun ProcessingScreen(graph: AppGraph, jobId: String, onDone: () -> Unit, onLeave
     LaunchedEffect(status) { if (status == JobStatus.Succeeded) onDone() }
     BackHandler(enabled = status is JobStatus.Running) { onLeave() }
 
-    ProcessingBody(status, thumb, now, onCancel = { confirmCancel = true }, onLeave = onLeave)
+    val cloud = spec?.let { it.useAi && it.engine == JobSpec.ENGINE_CLOUD } == true
+    ProcessingBody(status, thumb, now, cloud, onCancel = { confirmCancel = true }, onLeave = onLeave)
 
     if (confirmCancel) {
         AlertDialog(
@@ -98,7 +100,7 @@ fun ProcessingScreen(graph: AppGraph, jobId: String, onDone: () -> Unit, onLeave
 
 /** Stateless so every status can be rendered and checked directly. */
 @Composable
-fun ProcessingBody(status: JobStatus?, thumb: ImageBitmap?, now: Long, onCancel: () -> Unit, onLeave: () -> Unit) {
+fun ProcessingBody(status: JobStatus?, thumb: ImageBitmap?, now: Long, cloud: Boolean, onCancel: () -> Unit, onLeave: () -> Unit) {
     Column(
         Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).safeDrawingPadding().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -119,7 +121,7 @@ fun ProcessingBody(status: JobStatus?, thumb: ImageBitmap?, now: Long, onCancel:
 
         when (val s = status) {
             null -> CircularProgressIndicator()
-            is JobStatus.Running -> RunningBlock(s, now, onCancel)
+            is JobStatus.Running -> RunningBlock(s, now, if (cloud) CLOUD_STAGES else DEVICE_STAGES, onCancel)
             JobStatus.Succeeded -> CircularProgressIndicator()
             is JobStatus.Failed -> {
                 val cancelled = s.message == "Cancelled."
@@ -141,18 +143,24 @@ fun ProcessingBody(status: JobStatus?, thumb: ImageBitmap?, now: Long, onCancel:
 }
 
 @Composable
-private fun RunningBlock(s: JobStatus.Running, now: Long, onCancel: () -> Unit) {
+private fun RunningBlock(s: JobStatus.Running, now: Long, stages: List<JobStage>, onCancel: () -> Unit) {
     Column(Modifier.fillMaxWidth()) {
         Text(s.stage.label, style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
         Spacer(Modifier.height(12.dp))
-        val determinate = s.stage == JobStage.UPSCALING && s.total > 1
+        val determinate = s.stage in setOf(JobStage.UPSCALING, JobStage.CLOUD, JobStage.UPLOADING, JobStage.DOWNLOADING) && s.total > 1
         if (determinate) {
             val f = (s.done.toFloat() / s.total).coerceIn(0f, 1f)
             LinearProgressIndicator(progress = { f }, modifier = Modifier.fillMaxWidth().height(6.dp))
             Spacer(Modifier.height(8.dp))
             Row {
-                Text("${(f * 100).toInt()}% of the artwork through the model", style = MaterialTheme.typography.bodySmall.merge(Numeric),
+                val mb = { b: Long -> String.format("%.1f", b / 1048576.0) }
+                Text(when (s.stage) {
+                    JobStage.UPLOADING -> "${mb(s.done)} of ${mb(s.total)} MB sent"
+                    JobStage.DOWNLOADING -> "${mb(s.done)} of ${mb(s.total)} MB received"
+                    JobStage.CLOUD -> "${(f * 100).toInt()}% done on the cloud GPU"
+                    else -> "${(f * 100).toInt()}% of the artwork through the model"
+                }, style = MaterialTheme.typography.bodySmall.merge(Numeric),
                     color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
                 s.etaMs?.let {
                     Text("about ${formatDuration(it)} left", style = MaterialTheme.typography.bodySmall.merge(Numeric),
@@ -169,8 +177,8 @@ private fun RunningBlock(s: JobStatus.Running, now: Long, onCancel: () -> Unit) 
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Spacer(Modifier.height(24.dp))
-        val current = STAGES.indexOf(s.stage)
-        STAGES.forEachIndexed { i, st ->
+        val current = stages.indexOf(s.stage)
+        stages.forEachIndexed { i, st ->
             Row(Modifier.padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(20.dp), contentAlignment = Alignment.Center) {
                     when {

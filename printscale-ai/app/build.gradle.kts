@@ -44,6 +44,7 @@ android {
             isIncludeAndroidResources = true
             all {
                 it.systemProperty("robolectric.graphicsMode", "NATIVE")
+                it.systemProperty("cloudServer", System.getenv("PRINTSCALE_TEST_SERVER") ?: "")
                 it.systemProperty("screenshotDir", layout.buildDirectory.dir("screenshots").get().asFile.absolutePath)
                 it.maxHeapSize = "3g"
                 it.testLogging { events("passed", "failed"); showStandardStreams = true; exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL }

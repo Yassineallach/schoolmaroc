@@ -30,6 +30,9 @@ class AppGraph(val app: Application) {
 
     /** An image shared into the app from another app, waiting for Home to import it. */
     val sharedImage = MutableStateFlow<Uri?>(null)
+
+    /** Set when a QR/deep link connected a cloud server, so Home can confirm it. */
+    val cloudNotice = MutableStateFlow<String?>(null)
 }
 
 /**
