@@ -87,7 +87,22 @@ import com.mardev.nearshelf.ui.theme.ButtonShape
 import com.mardev.nearshelf.ui.theme.ControlShape
 import com.mardev.nearshelf.ui.theme.Gutter
 import com.mardev.nearshelf.ui.theme.Space
-import com.mardev.nearshelf.ui.theme.Wordmark
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.contentDescription
+import com.mardev.nearshelf.ui.components.MonogramSize
+import com.mardev.nearshelf.ui.theme.Tagline
+import com.mardev.nearshelf.ui.theme.WordmarkLarge
 
 @Composable
 fun HomeScreen(
@@ -167,18 +182,13 @@ internal fun HomeContent(
         Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = Space.xl),
     ) {
-        // A warm panel holds the masthead and the search: the first layer, where the page starts.
+        // The masthead over the header art, then the search field overlapping the art's foot.
         item(key = "top") {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-                    .background(colors.surfaceContainer),
-                contentAlignment = Alignment.TopCenter,
-            ) {
-                Column(Modifier.statusBarsPadding().readableWidth().padding(bottom = Space.xl)) {
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                HeaderArt(Modifier.align(Alignment.TopEnd))
+                Column(Modifier.statusBarsPadding().readableWidth().padding(bottom = Space.s)) {
                     Masthead(onPreferences, onSettings)
-                    Column(Modifier.padding(start = Gutter, end = Gutter, top = Space.l)) {
+                    Column(Modifier.padding(start = Gutter, end = Gutter, top = Space.xl)) {
                         // One control: the keyboard's Search key checks the libraries; Scan sits inside the field.
                         PaperSearchField(
                             value = input,
@@ -187,6 +197,7 @@ internal fun HomeContent(
                             label = stringResource(R.string.search_label),
                             onSearch = { if (count > 0) onSubmit() },
                             raised = true,
+                            pill = true,
                             trailing = if (hasCamera) {
                                 {
                                     IconButton(onClick = onScan, enabled = count > 0) {
@@ -194,7 +205,7 @@ internal fun HomeContent(
                                             painterResource(R.drawable.ic_barcode),
                                             stringResource(R.string.cd_scan),
                                             tint = if (count > 0) colors.primary else colors.outline,
-                                            modifier = Modifier.size(22.dp),
+                                            modifier = Modifier.size(26.dp),
                                         )
                                     }
                                 }
@@ -208,7 +219,7 @@ internal fun HomeContent(
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                 SectionHeader(
                     stringResource(R.string.home_your_libraries),
-                    Modifier.readableWidth().padding(top = Space.l),
+                    Modifier.readableWidth().padding(top = Space.xl, bottom = Space.s),
                     count = count.takeIf { it > 0 },
                     action = if (count > 0) stringResource(R.string.home_manage) else null,
                     onAction = onManageLibraries,
@@ -222,10 +233,12 @@ internal fun HomeContent(
                 if (list != null && list.isEmpty()) {
                     Box(Modifier.readableWidth()) { NoLibraries(onAddLibrary) }
                 } else {
-                    val shape = MaterialTheme.shapes.large
+                    val shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
                     Column(
                         Modifier.readableWidth().padding(horizontal = Gutter, vertical = Space.xs)
-                            .clip(shape).background(cardColor).border(1.dp, colors.outlineVariant, shape),
+                            .shadow(10.dp, shape, ambientColor = colors.primary.copy(alpha = 0.3f), spotColor = colors.primary.copy(alpha = 0.3f))
+                            .clip(shape).background(cardColor).border(1.dp, colors.outlineVariant.copy(alpha = 0.6f), shape)
+                            .padding(vertical = Space.xs),
                     ) {
                         if (list == null) {
                             // Libraries come from the local database; skeleton rows hold their place meanwhile.
@@ -235,11 +248,11 @@ internal fun HomeContent(
                                 library,
                                 onClick = onManageLibraries,
                                 onClickLabel = stringResource(R.string.home_manage),
-                                inset = Space.l,
+                                inset = Space.l + Space.xs,
                                 trailing = { RowChevron() },
                             )
                             if (index < list.lastIndex) {
-                                HorizontalDivider(Modifier.padding(start = Space.l + 40.dp + Space.l, end = Space.l), color = colors.outlineVariant)
+                                HorizontalDivider(Modifier.padding(start = Space.l + Space.xs + MonogramSize + Space.l, end = Space.xl), color = colors.outlineVariant)
                             }
                         }
                     }
@@ -251,7 +264,7 @@ internal fun HomeContent(
                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                     SectionHeader(
                         stringResource(R.string.home_recent),
-                        Modifier.readableWidth().padding(top = Space.l),
+                        Modifier.readableWidth().padding(top = Space.xl, bottom = Space.s),
                         action = stringResource(R.string.home_see_all),
                         onAction = { onOpenHistory(null) },
                     )
@@ -262,54 +275,110 @@ internal fun HomeContent(
     }
 }
 
-/** Wordmark and tagline on the left, the two global actions on the right. */
+/**
+ * Header illustration on the right of the masthead. It fades into the page on its
+ * left and bottom edges, so the art's own background melts into the paper. The
+ * night theme loads its own version (res/drawable-night-nodpi/home_header.webp).
+ */
+@Composable
+private fun HeaderArt(modifier: Modifier = Modifier) {
+    androidx.compose.foundation.Image(
+        painterResource(R.drawable.home_header),
+        contentDescription = null,
+        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+        alignment = Alignment.CenterEnd,
+        modifier = modifier
+            .fillMaxWidth(0.66f)
+            .widthIn(max = 420.dp)
+            .height(HeaderArtHeight + WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
+            .graphicsLayer {
+                compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen
+            }
+            .drawWithContent {
+                drawContent()
+                drawRect(
+                    Brush.horizontalGradient(0f to Color.Transparent, 0.35f to Color.Black),
+                    blendMode = BlendMode.DstIn,
+                )
+                drawRect(
+                    Brush.verticalGradient(0.6f to Color.Black, 1f to Color.Transparent),
+                    blendMode = BlendMode.DstIn,
+                )
+            },
+    )
+}
+
+private val HeaderArtHeight = 210.dp
+
+/** Large wordmark and serif tagline with a short oxblood rule; the two global actions as round buttons. */
 @Composable
 private fun Masthead(onPreferences: () -> Unit, onSettings: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
     Row(
-        Modifier.fillMaxWidth().padding(start = Gutter, end = Gutter - 12.dp, top = Space.m),
-        verticalAlignment = Alignment.CenterVertically,
+        Modifier.fillMaxWidth().padding(start = Gutter, end = Gutter, top = Space.l),
+        verticalAlignment = Alignment.Top,
     ) {
-        Column(Modifier.weight(1f)) {
+        Column(Modifier.weight(1f).padding(top = Space.l)) {
             Text(
                 stringResource(R.string.app_name),
-                style = Wordmark,
-                color = MaterialTheme.colorScheme.primary,
+                style = WordmarkLarge,
+                color = colors.primary,
                 modifier = Modifier.semantics { heading() },
             )
             Text(
                 stringResource(R.string.tagline),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 2.dp),
+                style = Tagline,
+                color = colors.onSurface,
+                modifier = Modifier.padding(top = Space.xs),
             )
+            Box(Modifier.padding(top = Space.m).width(48.dp).height(3.dp).clip(RoundedCornerShape(2.dp)).background(colors.primary))
         }
-        val tint = MaterialTheme.colorScheme.onSurfaceVariant
-        IconButton(onClick = onPreferences) {
-            Icon(painterResource(R.drawable.ic_sliders), stringResource(R.string.cd_reading_preferences), tint = tint, modifier = Modifier.size(22.dp))
-        }
-        IconButton(onClick = onSettings) {
-            Icon(painterResource(R.drawable.ic_settings), stringResource(R.string.settings_title), tint = tint, modifier = Modifier.size(22.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+            RoundAction(R.drawable.ic_sliders, stringResource(R.string.cd_reading_preferences), onPreferences)
+            RoundAction(R.drawable.ic_settings, stringResource(R.string.settings_title), onSettings)
         }
     }
 }
 
-/** Recently checked books, face out, like a shelf. */
+/** A round cream button with a soft shadow, readable over the header art. */
+@Composable
+private fun RoundAction(icon: Int, label: String, onClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val light = colors.background.luminance() > 0.5f
+    Box(
+        Modifier
+            .size(48.dp)
+            .shadow(6.dp, CircleShape, ambientColor = colors.primary.copy(alpha = 0.35f), spotColor = colors.primary.copy(alpha = 0.35f))
+            .clip(CircleShape)
+            .background(if (light) colors.surfaceContainerLowest else colors.surfaceContainerHigh)
+            .clickable(onClickLabel = null, role = Role.Button, onClick = onClick)
+            .semantics { contentDescription = label },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(painterResource(icon), contentDescription = null, tint = colors.onSurface, modifier = Modifier.size(22.dp))
+    }
+}
+
+/** Recently checked books, face out: covers only, the title is in each cover's label. */
 @Composable
 private fun RecentShelf(recent: List<HistoryItem>, onOpen: (HistoryItem) -> Unit) {
-    val shelf = MaterialTheme.colorScheme.secondary.copy(alpha = 0.45f)
-    LazyRow(contentPadding = PaddingValues(horizontal = Gutter - Space.s)) {
+    LazyRow(
+        contentPadding = PaddingValues(start = Gutter, end = Gutter, top = Space.xs, bottom = Space.m),
+        horizontalArrangement = Arrangement.spacedBy(Space.l),
+    ) {
         items(recent, key = { it.key }) { h ->
-            Column(Modifier.width(112.dp).clip(MaterialTheme.shapes.small).clickable(role = Role.Button, onClick = { onOpen(h) })) {
-                // Covers stand on a thin shelf that runs under the whole row.
-                CoverThumb(h.coverUrl, title = h.title, width = 88.dp, height = 128.dp, elevated = true, modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = Space.s))
-                Box(Modifier.fillMaxWidth().height(3.dp).background(shelf))
-                Column(Modifier.padding(horizontal = 12.dp, vertical = Space.s)) {
-                    Text(h.title, style = BookTitleSmall, color = MaterialTheme.colorScheme.onSurface, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    h.author?.let {
-                        Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                }
-            }
+            val label = listOfNotNull(h.title, h.author).joinToString(", ")
+            CoverThumb(
+                h.coverUrl,
+                title = h.title,
+                width = 100.dp,
+                height = 144.dp,
+                elevated = true,
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .clickable(role = Role.Button, onClick = { onOpen(h) })
+                    .semantics { contentDescription = label },
+            )
         }
     }
 }

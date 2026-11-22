@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.luminance
@@ -61,6 +62,7 @@ fun PaperSearchField(
     onSearch: () -> Unit = {},
     raised: Boolean = false,
     trailing: (@Composable () -> Unit)? = null,
+    pill: Boolean = false,
 ) {
     val interaction = remember { MutableInteractionSource() }
     val focused by interaction.collectIsFocusedAsState()
@@ -74,6 +76,7 @@ fun PaperSearchField(
     }
     val reduced = rememberReducedMotion()
     val edge by animateColorAsState(if (focused) colors.primary else colors.outlineVariant, tween(if (reduced) 0 else 150), label = "edge")
+    val shape = if (pill) RoundedCornerShape(50) else ControlShape
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
@@ -88,27 +91,27 @@ fun PaperSearchField(
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .height(if (trailing != null) 56.dp else 52.dp)
-                    // Raised: a soft, warm shadow lifts the field off a tinted panel.
-                    .then(if (raised && light) Modifier.shadow(3.dp, ControlShape, ambientColor = colors.primary.copy(alpha = 0.25f), spotColor = colors.primary.copy(alpha = 0.25f)) else Modifier)
-                    .clip(ControlShape)
+                    .height(if (pill) 60.dp else if (trailing != null) 56.dp else 52.dp)
+                    // Raised: a soft, warm shadow lifts the field off the page.
+                    .then(if (raised && light) Modifier.shadow(if (pill) 8.dp else 3.dp, shape, ambientColor = colors.primary.copy(alpha = 0.3f), spotColor = colors.primary.copy(alpha = 0.3f)) else Modifier)
+                    .clip(shape)
                     .background(fill)
-                    .border(if (focused) 1.5.dp else 1.dp, edge, ControlShape)
-                    .padding(start = Space.l, end = Space.xs),
+                    .border(if (focused) 1.5.dp else 1.dp, if (pill && !focused) edge.copy(alpha = 0.6f) else edge, shape)
+                    .padding(start = if (pill) Space.xl - Space.xs else Space.l, end = if (pill) Space.s else Space.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     painterResource(R.drawable.ic_search),
                     contentDescription = null,
-                    tint = if (focused) colors.primary else colors.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp),
+                    tint = if (focused || pill) colors.primary else colors.onSurfaceVariant,
+                    modifier = Modifier.size(if (pill) 22.dp else 20.dp),
                 )
                 Spacer(Modifier.width(Space.m))
                 Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                     if (value.isEmpty()) {
                         Text(
                             placeholder,
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = if (pill) com.mardev.nearshelf.ui.theme.Tagline else MaterialTheme.typography.bodyLarge,
                             color = colors.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -124,7 +127,7 @@ fun PaperSearchField(
                     Spacer(Modifier.width(Space.m))
                 }
                 if (trailing != null) {
-                    Box(Modifier.padding(horizontal = 2.dp).width(1.dp).height(24.dp).background(colors.outlineVariant))
+                    Box(Modifier.padding(horizontal = 2.dp).width(1.dp).height(if (pill) 30.dp else 24.dp).background(if (pill) colors.outline.copy(alpha = 0.35f) else colors.outlineVariant))
                     trailing()
                 }
             }

@@ -29,6 +29,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.widthIn
+import com.mardev.nearshelf.ui.theme.Space
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -39,46 +44,54 @@ import com.mardev.nearshelf.ui.components.lightswind.rememberReducedMotion
 data class NavDestinationItem(@StringRes val label: Int, @DrawableRes val icon: Int, @DrawableRes val selectedIcon: Int)
 
 /**
- * The app's bottom navigation: 64 dp on the page's own paper, a hairline above it,
- * and a short accent rule over the selected tab instead of a large pill. The
- * selected tab's icon takes the accent colour and its label turns semibold.
+ * The app's bottom navigation: a floating cream card with a soft shadow, hairlines
+ * between tabs, and the selected tab in oxblood with a short rule under its label.
  */
 @Composable
 fun NearshelfNavBar(items: List<NavDestinationItem>, selectedIndex: Int, onSelect: (Int) -> Unit) {
     val colors = MaterialTheme.colorScheme
     val reduced = rememberReducedMotion()
-    Column(Modifier.fillMaxWidth().background(colors.background)) {
-        HorizontalDivider(color = colors.outlineVariant)
+    val shape = RoundedCornerShape(28.dp)
+    val light = colors.background.luminance() > 0.5f
+    Box(
+        Modifier.fillMaxWidth().navigationBarsPadding().padding(start = Space.l, end = Space.l, top = Space.s, bottom = Space.m),
+        contentAlignment = Alignment.Center,
+    ) {
         Row(
-            Modifier.fillMaxWidth().navigationBarsPadding().selectableGroup(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            Modifier
+                .widthIn(max = 560.dp)
+                .fillMaxWidth()
+                .shadow(10.dp, shape, ambientColor = colors.primary.copy(alpha = 0.35f), spotColor = colors.primary.copy(alpha = 0.35f))
+                .clip(shape)
+                .background(if (light) colors.surfaceContainerLowest else colors.surfaceContainerHigh)
+                .border(1.dp, colors.outlineVariant.copy(alpha = 0.6f), shape)
+                .selectableGroup(),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             items.forEachIndexed { i, t ->
+                if (i > 0) Box(Modifier.width(1.dp).height(36.dp).background(colors.outlineVariant))
                 val selected = i == selectedIndex
                 val tint by animateColorAsState(if (selected) colors.primary else colors.onSurfaceVariant, androidx.compose.animation.core.tween(if (reduced) 0 else 200), label = "tint")
-                val rule by animateDpAsState(if (selected) 24.dp else 0.dp, label = "rule", animationSpec = androidx.compose.animation.core.tween(if (reduced) 0 else 200))
-                Box(
+                val rule by animateDpAsState(if (selected) 36.dp else 0.dp, label = "rule", animationSpec = androidx.compose.animation.core.tween(if (reduced) 0 else 200))
+                Column(
                     Modifier
                         .weight(1f)
-                        .heightIn(min = 64.dp)
-                        .selectable(selected = selected, role = Role.Tab, onClick = { onSelect(i) }),
-                    contentAlignment = Alignment.Center,
+                        .heightIn(min = 72.dp)
+                        .selectable(selected = selected, role = Role.Tab, onClick = { onSelect(i) })
+                        .padding(top = 12.dp, bottom = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Box(
-                        Modifier.align(Alignment.TopCenter).width(rule).height(2.dp)
-                            .clip(RoundedCornerShape(bottomStart = 2.dp, bottomEnd = 2.dp)).background(colors.primary),
+                    Icon(painterResource(t.icon), contentDescription = null, tint = tint, modifier = Modifier.size(26.dp))
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        stringResource(t.label),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                        color = tint,
+                        maxLines = 1,
                     )
-                    Column(Modifier.padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        // One stroke weight in both states; colour, label weight and the rule mark selection.
-                        Icon(painterResource(t.icon), contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            stringResource(t.label),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-                            color = if (selected) colors.onSurface else colors.onSurfaceVariant,
-                        )
-                    }
+                    Spacer(Modifier.height(6.dp))
+                    Box(Modifier.width(rule).height(3.dp).clip(RoundedCornerShape(2.dp)).background(colors.primary))
                 }
             }
         }

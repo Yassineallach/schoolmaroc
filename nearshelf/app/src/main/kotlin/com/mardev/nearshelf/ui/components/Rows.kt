@@ -14,6 +14,12 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.ui.res.painterResource
+import com.mardev.nearshelf.ui.theme.Space
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,18 +45,39 @@ import com.mardev.nearshelf.ui.theme.Gutter
  */
 @Composable
 fun SectionHeader(title: String, modifier: Modifier = Modifier, count: Int? = null, action: String? = null, onAction: () -> Unit = {}) {
+    val colors = MaterialTheme.colorScheme
     Row(
         modifier.fillMaxWidth().heightIn(min = 48.dp).padding(start = Gutter, end = Gutter - 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-        if (count != null) {
-            Spacer(Modifier.width(8.dp))
-            Text(count.toString(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        // A short oxblood rule marks the start of a section, like a ribbon bookmark.
+        Box(Modifier.width(4.dp).height(26.dp).clip(RoundedCornerShape(2.dp)).background(colors.primary))
+        Spacer(Modifier.width(Space.m))
+        Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                title,
+                style = com.mardev.nearshelf.ui.theme.SectionTitle,
+                color = colors.onSurface,
+                modifier = Modifier.weight(1f, fill = false).semantics { heading() },
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (count != null) {
+                Spacer(Modifier.width(Space.m))
+                Box(
+                    Modifier.defaultMinSize(minWidth = 28.dp, minHeight = 28.dp).clip(RoundedCornerShape(50)).background(colors.surfaceContainer).padding(horizontal = 8.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(count.toString(), style = MaterialTheme.typography.labelLarge, color = colors.onSurface)
+                }
+            }
         }
-        Spacer(Modifier.weight(1f))
         if (action != null) {
-            TextButton(onClick = onAction, contentPadding = PaddingValues(horizontal = 12.dp)) { Text(action, style = MaterialTheme.typography.labelLarge) }
+            TextButton(onClick = onAction, contentPadding = PaddingValues(start = 12.dp, end = 8.dp)) {
+                Text(action, style = com.mardev.nearshelf.ui.theme.SectionAction)
+                Spacer(Modifier.width(6.dp))
+                Icon(painterResource(com.mardev.nearshelf.R.drawable.ic_caret_right), null, modifier = Modifier.size(16.dp))
+            }
         }
     }
 }
@@ -104,20 +131,27 @@ fun RowDivider() = HorizontalDivider(
 
 /** A library's initial set in the serif, on a quiet tile: identifies it at a glance. */
 @Composable
-fun Monogram(name: String, modifier: Modifier = Modifier) {
+fun Monogram(name: String, modifier: Modifier = Modifier, size: Dp = MonogramSize) {
     val letter = name.split(' ').firstOrNull { it.isNotBlank() && !it.equals("The", ignoreCase = true) }
         ?.firstOrNull { it.isLetterOrDigit() }?.uppercaseChar() ?: '·'
+    val shape = MaterialTheme.shapes.medium
     Box(
-        modifier.size(RowLeadingWidth).clip(MaterialTheme.shapes.small).background(MaterialTheme.colorScheme.surfaceContainer),
+        modifier.size(size)
+            // A filled tile, like a stamped binding: the library's mark.
+            .shadow(2.dp, shape, ambientColor = MaterialTheme.colorScheme.primary, spotColor = MaterialTheme.colorScheme.primary)
+            .clip(shape).background(MaterialTheme.colorScheme.primary),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             letter.toString(),
             style = com.mardev.nearshelf.ui.theme.MonogramStyle,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.onPrimary,
         )
     }
 }
+
+/** Library monogram tile size; card dividers are inset past it. */
+val MonogramSize: Dp = 48.dp
 
 /** Small book cover for a row; a quiet placeholder spine when there is none. */
 @Composable

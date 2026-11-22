@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="window_background">#FF15130F</color>
-    <color name="ad_surface">#FF211E1B</color>
-    <color name="ad_outline">#FF35312C</color>
-    <color name="ad_text">#FFEDE8E1</color>
-    <color name="ad_text_secondary">#FFA9A39B</color>
-    <color name="ad_badge">#FF2A2622</color>
-    <color name="ad_badge_text">#FFEDE8E1</color>
-    <color name="ad_cta">#FF3A271C</color>
-    <color name="ad_cta_text">#FFF3DCCB</color>
+    <color name="window_background">#FF171311</color>
+    <color name="ad_surface">#FF231E1B</color>
+    <color name="ad_outline">#FF38312C</color>
+    <color name="ad_text">#FFF0E8DF</color>
+    <color name="ad_text_secondary">#FFADA49B</color>
+    <color name="ad_badge">#FF2C2622</color>
+    <color name="ad_badge_text">#FFF0E8DF</color>
+    <color name="ad_cta">#FF4A1820</color>
+    <color name="ad_cta_text">#FFF7DADA</color>
 </resources>

@@ -72,17 +72,32 @@ val NearshelfTypography = Typography(
 /** The wordmark: the serif at title size, a touch tighter. */
 val Wordmark = style(SerifDisplay, 600, 24, 28, (-0.4).sp)
 
+/** The Home masthead: the wordmark at display size. */
+val WordmarkLarge = style(SerifDisplay, 600, 42, 46, (-0.8).sp)
+
+/** Home tagline: the serif at reading size. */
+val Tagline = style(SerifText, 400, 17, 22)
+
+/** Library names on cards: the serif, like a spine label. */
+val LibraryName = style(SerifText, 600, 19, 24, (-0.1).sp)
+
+/** Section headings ("Your libraries"): the display serif, semibold. */
+val SectionTitle = style(SerifDisplay, 600, 26, 32, (-0.3).sp)
+
+/** A section's action ("Manage", "See all"): the serif, semibold. */
+val SectionAction = style(SerifText, 600, 17, 22)
+
 /** Book titles in lists and shelves: the serif at reading size. */
 val BookTitleSmall = style(SerifText, 600, 15, 19)
 
-/** Library monogram initial (40 dp tile). */
-val MonogramStyle = style(SerifDisplay, 500, 22, 22)
+/** Library monogram initial (on a filled oxblood tile). */
+val MonogramStyle = style(SerifDisplay, 600, 26, 28)
 
 /** Initial on a cover placeholder ("cloth binding"). */
 val CoverInitial = style(SerifDisplay, 500, 30, 34)
 
 /** Service tags: label size at medium weight, so a row of tags stays quiet. */
-val TagLabel = style(Sans, 500, 12, 16, 0.2.sp)
+val TagLabel = style(Sans, 500, 13, 18, 0.1.sp)
 
 /** Book titles as row headings (watchlist, results header). */
 val BookTitle = style(SerifText, 600, 17, 22)

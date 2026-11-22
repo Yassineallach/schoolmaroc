@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="window_background">#FFFBF7F0</color>
+    <color name="window_background">#FFF9F0E3</color>
     <color name="ic_launcher_background">#FF7C3A10</color>
-    <color name="ad_surface">#FFFFFFFF</color>
-    <color name="ad_outline">#FFE6E1D9</color>
-    <color name="ad_text">#FF292722</color>
-    <color name="ad_text_secondary">#FF6F6B64</color>
-    <color name="ad_badge">#FFF1EEE8</color>
-    <color name="ad_badge_text">#FF292722</color>
-    <color name="ad_cta">#FFF1E5DB</color>
-    <color name="ad_cta_text">#FF3A2010</color>
+    <color name="ad_surface">#FFFFFAF3</color>
+    <color name="ad_outline">#FFE8DCCB</color>
+    <color name="ad_text">#FF231915</color>
+    <color name="ad_text_secondary">#FF5E534A</color>
+    <color name="ad_badge">#FFF3E5D2</color>
+    <color name="ad_badge_text">#FF231915</color>
+    <color name="ad_cta">#FFF3E1DA</color>
+    <color name="ad_cta_text">#FF3A0A12</color>
 </resources>

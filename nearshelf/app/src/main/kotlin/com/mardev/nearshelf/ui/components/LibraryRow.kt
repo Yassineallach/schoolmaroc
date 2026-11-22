@@ -34,7 +34,7 @@ import com.mardev.nearshelf.ui.theme.Space
 
 /**
  * One library, the same everywhere: identity (monogram + name), location, then its
- * services as tags: filled for digital lending, outlined for the physical catalog.
+ * services as tags (a reader icon for digital lending, a row of books for the catalog).
  * [footer] adds per-screen controls under the tags; [trailing] sits on the right.
  */
 @OptIn(ExperimentalLayoutApi::class)
@@ -60,10 +60,14 @@ fun LibraryRow(
         Monogram(library.name)
         Spacer(Modifier.width(Space.l))
         Column(Modifier.weight(1f)) {
-            Text(library.name, style = MaterialTheme.typography.titleMedium, color = colors.onSurface, maxLines = 3, overflow = TextOverflow.Ellipsis)
+            Text(library.name, style = com.mardev.nearshelf.ui.theme.LibraryName, color = colors.onSurface, maxLines = 3, overflow = TextOverflow.Ellipsis)
             val place = listOfNotNull(library.city, library.region).joinToString(", ")
             if (place.isNotEmpty()) {
-                Text(place, style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Row(Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(painterResource(R.drawable.ic_map_pin), contentDescription = null, tint = colors.onSurfaceVariant, modifier = Modifier.size(15.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(place, style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
             }
             val (digital, physical) = remember(library) {
                 library.digitalServices.map { it.provider.displayName }.distinct() to
@@ -71,12 +75,12 @@ fun LibraryRow(
             }
             if (digital.isNotEmpty() || physical.isNotEmpty()) {
                 FlowRow(
-                    Modifier.padding(top = Space.s),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    Modifier.padding(top = Space.m),
+                    horizontalArrangement = Arrangement.spacedBy(Space.s),
+                    verticalArrangement = Arrangement.spacedBy(Space.s),
                 ) {
                     digital.forEach { Tag(it, R.drawable.ic_ebook) }
-                    physical.forEach { Tag(it, R.drawable.ic_books, filled = false) }
+                    physical.forEach { Tag(it, R.drawable.ic_books) }
                 }
             }
             footer()
@@ -85,20 +89,20 @@ fun LibraryRow(
     }
 }
 
-/** Right-hand "opens something" affordance for a row. */
+/** Right-hand "opens something" affordance for a row: an oxblood caret level with the title. */
 @Composable
 fun RowChevron() = Icon(
     painterResource(R.drawable.ic_caret_right),
     contentDescription = null,
-    tint = MaterialTheme.colorScheme.outline,
-    modifier = Modifier.padding(start = Space.s, top = 10.dp).size(18.dp),
+    tint = MaterialTheme.colorScheme.primary,
+    modifier = Modifier.padding(start = Space.s, top = 14.dp).size(20.dp),
 )
 
 /** Placeholder with the same proportions as [LibraryRow]. */
 @Composable
 fun LibraryRowSkeleton(inset: androidx.compose.ui.unit.Dp = Gutter) {
     Row(Modifier.fillMaxWidth().padding(horizontal = inset, vertical = Space.l)) {
-        Skeleton(Modifier.size(40.dp), variant = SkeletonVariant.Rounded)
+        Skeleton(Modifier.size(MonogramSize), variant = SkeletonVariant.Rounded)
         Spacer(Modifier.width(Space.l))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Space.s)) {
             Skeleton(Modifier.fillMaxWidth(0.7f).height(16.dp))

@@ -7,14 +7,16 @@ Started from the [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-m
 
 | Role | Light | Dark | Use |
 |---|---|---|---|
-| background / surface | #FAF9F6 | #161412 | page |
-| onSurface | #292722 | #EDE8E1 | primary text |
-| onSurfaceVariant | #6F6B64 | #A9A39B | secondary text (≥4.5:1 on every surface) |
-| primary | #75452D | #D9A784 | the one accent: wordmark, primary button, links, selection |
-| secondary | #A77A57 | #C49A76 | icons and rules only (3.6:1, never small text) |
-| surfaceContainer | #F1EEE8 | #211E1B | subtle surfaces: tags, tiles, secondary button |
-| surfaceContainerLowest | #FFFFFF | (dark uses surfaceContainerHigh) | search field |
-| outlineVariant | #E6E1D9 | #35312C | hairlines and borders |
+| background / surface | #F9F0E3 | #171311 | page (warm cream) |
+| onSurface | #231915 | #F0E8DF | primary text |
+| onSurfaceVariant | #5E534A | #ADA49B | secondary text (≥4.5:1 on every surface) |
+| primary | #5C1220 | #EBB0AE | the one accent (oxblood): wordmark, monograms, primary button, links, selection |
+| secondary | #8C5E45 | #C9A086 | icons and rules only |
+| surfaceContainer | #F3E5D2 | #231E1B | tan surfaces: service tags, count badges |
+| surfaceContainerLowest | #FFFAF3 | (dark uses surfaceContainer/High) | cards, search field, nav bar, round buttons |
+| outlineVariant | #E8DCCB | #38312C | hairlines and borders |
+
+Home header art: `res/drawable-nodpi/home_header.webp` (day) and `res/drawable-night-nodpi/home_header.webp` (night), 1536×1024, subject on the right; the app fades its left and bottom edges into the page.
 
 Availability colours (available / waitlist) live in `LocalStatusColors`, outside the accent.
 
@@ -24,7 +26,9 @@ Two families, both OFL and bundled: **Newsreader** (serif) for the wordmark, hea
 
 | Token | Family | Size/line (sp) | Weight |
 |---|---|---|---|
-| Wordmark | Newsreader | 24/28 | 600 |
+| WordmarkLarge (Home) / Wordmark | Newsreader | 42/46 · 24/28 | 600 |
+| SectionTitle | Newsreader | 26/32 | 600 |
+| LibraryName | Newsreader | 19/24 | 600 |
 | headlineSmall | Newsreader | 24/30 | 500 |
 | titleLarge (section titles, app bar) | Newsreader | 20/26 | 600 |
 | BookTitleSmall | Newsreader | 15/19 | 600 |

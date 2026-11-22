@@ -14,72 +14,71 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-// Nearshelf palette: warm paper, ink, and one leather-brown accent.
-//   page #FAF9F6 · ink #292722 · secondary ink #6F6B64 (the brief's #77736D, one step
-//   darker so it passes 4.5:1 on every surface) · accent #75452D · secondary accent
-//   #A77A57 (icons and indicators only: 3.6:1, not for text) · subtle #F1EEE8 ·
-//   hairline #E6E1D9 · white #FFFFFF.
+// Nearshelf palette: warm cream paper, ink, and one oxblood accent (the "library binding").
+//   page #F9F0E3 · cards #FFFAF3 · tint #F3E5D2 (tags, badges) · hairline #E8DCCB ·
+//   ink #231915 · secondary ink #5E534A (≥ 6:1 on every surface) · accent #5C1220 ·
+//   secondary accent #8C5E45 (icons and indicators only).
 internal val Light = lightColorScheme(
-    primary = Color(0xFF75452D),
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFF1E5DB),
-    onPrimaryContainer = Color(0xFF3A2010),
-    secondary = Color(0xFFA77A57),
+    primary = Color(0xFF5C1220),
+    onPrimary = Color(0xFFFFFAF3),
+    primaryContainer = Color(0xFFF3E1DA),
+    onPrimaryContainer = Color(0xFF3A0A12),
+    secondary = Color(0xFF8C5E45),
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFF1EEE8),
-    onSecondaryContainer = Color(0xFF292722),
-    tertiary = Color(0xFF75452D),
+    secondaryContainer = Color(0xFFF3E5D2),
+    onSecondaryContainer = Color(0xFF231915),
+    tertiary = Color(0xFF5C1220),
     onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFF1EEE8),
-    onTertiaryContainer = Color(0xFF292722),
-    background = Color(0xFFFAF9F6),
-    onBackground = Color(0xFF292722),
-    surface = Color(0xFFFAF9F6),
-    onSurface = Color(0xFF292722),
-    surfaceVariant = Color(0xFFF1EEE8),
-    onSurfaceVariant = Color(0xFF6F6B64),
-    surfaceContainerLowest = Color(0xFFFFFFFF),
-    surfaceContainerLow = Color(0xFFF6F4F0),
-    surfaceContainer = Color(0xFFF1EEE8),
-    surfaceContainerHigh = Color(0xFFECE8E1),
-    surfaceContainerHighest = Color(0xFFE6E1D9),
-    outline = Color(0xFF8F8A82),
-    outlineVariant = Color(0xFFE6E1D9),
+    tertiaryContainer = Color(0xFFF3E5D2),
+    onTertiaryContainer = Color(0xFF231915),
+    background = Color(0xFFF9F0E3),
+    onBackground = Color(0xFF231915),
+    surface = Color(0xFFF9F0E3),
+    onSurface = Color(0xFF231915),
+    surfaceVariant = Color(0xFFF3E5D2),
+    onSurfaceVariant = Color(0xFF5E534A),
+    surfaceContainerLowest = Color(0xFFFFFAF3),
+    surfaceContainerLow = Color(0xFFFCF5EB),
+    surfaceContainer = Color(0xFFF3E5D2),
+    surfaceContainerHigh = Color(0xFFEEDDC6),
+    surfaceContainerHighest = Color(0xFFE8D5BB),
+    outline = Color(0xFF8A7D70),
+    outlineVariant = Color(0xFFE8DCCB),
     error = Color(0xFFB3261E),
 )
 
-// The same roles at night: lamp-lit brown on warm black.
+// The same roles at night: rose-lit oxblood on warm black.
 internal val Dark = darkColorScheme(
-    primary = Color(0xFFD9A784),
-    onPrimary = Color(0xFF2B1A10),
-    primaryContainer = Color(0xFF3A271C),
-    onPrimaryContainer = Color(0xFFF3DCCB),
-    secondary = Color(0xFFC49A76),
+    primary = Color(0xFFEBB0AE),
+    onPrimary = Color(0xFF3E0A12),
+    primaryContainer = Color(0xFF4A1820),
+    onPrimaryContainer = Color(0xFFF7DADA),
+    secondary = Color(0xFFC9A086),
     onSecondary = Color(0xFF2B1A10),
-    secondaryContainer = Color(0xFF2A2622),
-    onSecondaryContainer = Color(0xFFEDE8E1),
-    tertiary = Color(0xFFD9A784),
-    onTertiary = Color(0xFF2B1A10),
-    tertiaryContainer = Color(0xFF2A2622),
-    onTertiaryContainer = Color(0xFFEDE8E1),
-    background = Color(0xFF161412),
-    onBackground = Color(0xFFEDE8E1),
-    surface = Color(0xFF161412),
-    onSurface = Color(0xFFEDE8E1),
-    surfaceVariant = Color(0xFF2A2622),
-    onSurfaceVariant = Color(0xFFA9A39B),
-    surfaceContainerLowest = Color(0xFF110F0E),
-    surfaceContainerLow = Color(0xFF1B1917),
-    surfaceContainer = Color(0xFF211E1B),
-    surfaceContainerHigh = Color(0xFF2A2622),
-    surfaceContainerHighest = Color(0xFF34302B),
-    outline = Color(0xFF7D776F),
-    outlineVariant = Color(0xFF35312C),
+    secondaryContainer = Color(0xFF2C2622),
+    onSecondaryContainer = Color(0xFFF0E8DF),
+    tertiary = Color(0xFFEBB0AE),
+    onTertiary = Color(0xFF3E0A12),
+    tertiaryContainer = Color(0xFF2C2622),
+    onTertiaryContainer = Color(0xFFF0E8DF),
+    background = Color(0xFF171311),
+    onBackground = Color(0xFFF0E8DF),
+    surface = Color(0xFF171311),
+    onSurface = Color(0xFFF0E8DF),
+    surfaceVariant = Color(0xFF2C2622),
+    onSurfaceVariant = Color(0xFFADA49B),
+    surfaceContainerLowest = Color(0xFF120F0D),
+    surfaceContainerLow = Color(0xFF1C1816),
+    surfaceContainer = Color(0xFF231E1B),
+    surfaceContainerHigh = Color(0xFF2C2622),
+    surfaceContainerHighest = Color(0xFF36302B),
+    outline = Color(0xFF80776F),
+    outlineVariant = Color(0xFF38312C),
     error = Color(0xFFF2B8B5),
 )
 
 /** Ink on a white control over the camera preview, where the theme's onSurface may be light. */
-val InkOnWhite = Color(0xFF292722)
+val InkOnWhite = Color(0xFF231915)
 
 /** Availability colours, outside Material's roles. */
 @Immutable
