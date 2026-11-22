@@ -18,7 +18,7 @@ Kotlin, Jetpack Compose and Material 3. On-device inference uses ONNX Runtime. N
 
 | Model | Size | Mobile CPU cost | Licence | Verdict |
 |---|---|---|---|---|
-| **Real-ESRGAN General x4v3** (SRVGGNetCompact) | 4.8 MB, 1.2 M params | about 2.4 GFLOP per source megapixel per conv stack, plain 3×3 convs | BSD-3-Clause | **Chosen.** Built for degraded "real-world" input (JPEG blocking, noise, softness), which is what generator output looks like. Its denoise checkpoint pair gives a real noise-reduction control. |
+| **Real-ESRGAN General x4v3** (SRVGGNetCompact) | 4.8 MB, 1.2 M params | about 2.4 TFLOP per source megapixel, plain 3×3 convs | BSD-3-Clause | **Chosen.** Built for degraded "real-world" input (JPEG blocking, noise, softness), which is what generator output looks like. Its denoise checkpoint pair gives a real noise-reduction control. |
 | Real-ESRGAN x4plus (RRDBNet) | 64 MB, 16.7 M params | about 15× heavier | BSD-3 | Better on some photos, but minutes per megapixel on a phone. Rejected. |
 | SwinIR / HAT | 12 to 80 MB | Attention blocks, poor mobile kernels | Apache-2.0 | Quality is high, but too slow and memory-hungry on device. |
 | waifu2x | small | fast | MIT | Tuned for anime/line art and weaker on painterly or photographic AI art. |
@@ -106,7 +106,24 @@ python tools/export_realesrgan_onnx.py <dir with realesr-general-x4v3.pth and re
 * **Motif:** printer's crop marks frame the artwork in the editor, processing and result screens, and form the logo.
 * **Shape:** 10 dp radius on buttons and cards, 8 dp on chips. Nothing is pill-shaped.
 
-## 7. Project layout
+## 7. High-quality upscaling on Colab or Kaggle (AuraSR v2)
+
+For your own listings, two notebooks run **AuraSR v2** (`fal/AuraSR-v2`, a 600 M-parameter GigaGAN upscaler trained for AI-generated images) on a free cloud GPU. It's a much larger model than the one in the app, and it gives crisper edges and cleaner JPEG artefacts.
+
+| Notebook | How to open |
+|---|---|
+| `notebooks/PrintScale_AuraSR_Colab.ipynb` | colab.research.google.com > File > Upload notebook (or Open notebook > GitHub). Runtime > Change runtime type > **T4 GPU**. |
+| `notebooks/PrintScale_AuraSR_Kaggle.ipynb` | kaggle.com > Create > New Notebook > File > Import Notebook. Settings: Accelerator **GPU T4 x2**, **Internet on**. Add images as a dataset. |
+
+Run the cells in order. You get a framing preview before anything is processed, then batch 4× upscaling and an exact resize to print pixels (presets, custom inches/cm, 150 to 300 DPI, fill/fit/keep). Files are PNG or JPEG with the DPI and colour profile embedded and transparency kept. You also get 100% comparison crops against Lanczos, a summary table with the *AI detail DPI*, and a zip with `CREDITS.txt`.
+
+* **Licence:** the AuraSR v2 repo's `LICENSE.md` is **CC BY-SA 4.0**, even though its card metadata says Apache-2.0. Both allow commercial use; credit is required, and the credit text is written into the zip. This is a reading of the licence, not legal advice.
+* **Not a backend for the app:** Colab and Kaggle free tiers are for interactive notebook use, not for serving an app. A cloud mode in the app would need a paid GPU endpoint.
+* **Behaviour:** it is a GAN, so it sharpens edges strongly but can add faint texture to smooth gradients and slightly roughen perfectly clean edges. Check the comparison crops for flat or minimal designs.
+* **Tested here:** both notebooks were executed top to bottom on a CPU with the real AuraSR v2 weights, including a full 7200 × 10800 output, transparency and JPEG with DPI and ICC. Processing large images in 64 px-aligned blocks matches whole-image output (99.9% of pixels within 5/255). They have not yet been run on an actual Colab or Kaggle GPU, so GPU speed is unmeasured.
+* `notebooks/printscale_aurasr.py` is the shared code. After editing it, run `python tools/build_notebooks.py` to rebuild both notebooks.
+
+## 8. Project layout
 
 ```
 engine/                 pure Kotlin: planner, crop geometry, tiling, Lanczos, PNG writer, ONNX model, formats
@@ -118,6 +135,8 @@ app/src/main/java/com/printscale/ai/
   ui/                   home, editor (crop canvas), processing, result (compare viewer), history, settings
 app/src/main/assets/models/   Real-ESRGAN ONNX checkpoints, blend map, licence
 tools/export_realesrgan_onnx.py
+notebooks/                    AuraSR v2 Colab and Kaggle notebooks + shared code
+tools/build_notebooks.py
 ```
 
 Licences: Real-ESRGAN weights are BSD-3-Clause (© Xintao Wang); Manrope and Instrument Serif are SIL OFL 1.1. All three are viewable in Settings.
