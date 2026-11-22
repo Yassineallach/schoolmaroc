@@ -74,7 +74,6 @@ import com.mardev.nearshelf.ui.components.CoverThumb
 import com.mardev.nearshelf.ui.components.LibraryRow
 import com.mardev.nearshelf.ui.components.LibraryRowSkeleton
 import com.mardev.nearshelf.ui.components.RowChevron
-import com.mardev.nearshelf.ui.components.FieldHint
 import com.mardev.nearshelf.ui.components.PaperSearchField
 import com.mardev.nearshelf.ui.components.Monogram
 import com.mardev.nearshelf.ui.components.SectionHeader
@@ -142,7 +141,7 @@ fun HomeScreen(
  * Stateless Home UI (rendered with sample data in the screenshot tests).
  *
  * Composition, top to bottom: a compact masthead (wordmark, tagline, two actions), the
- * search block (field, contextual tip, primary and secondary action), the reader's
+ * search field (the keyboard's Search key runs it; Scan sits inside), the reader's
  * libraries, then recently checked books as a small shelf of covers.
  */
 @Composable
@@ -180,23 +179,26 @@ internal fun HomeContent(
                 Column(Modifier.statusBarsPadding().readableWidth().padding(bottom = Space.xl)) {
                     Masthead(onPreferences, onSettings)
                     Column(Modifier.padding(start = Gutter, end = Gutter, top = Space.l)) {
+                        // One control: the keyboard's Search key checks the libraries; Scan sits inside the field.
                         PaperSearchField(
                             value = input,
                             onValueChange = onInputChange,
                             placeholder = stringResource(R.string.search_hint),
                             label = stringResource(R.string.search_label),
-                            onSearch = onSubmit,
+                            onSearch = { if (count > 0) onSubmit() },
                             raised = true,
-                        )
-                        FieldHint(stringResource(R.string.search_tip_label), stringResource(R.string.search_tip_body), Modifier.padding(top = Space.s, start = 2.dp))
-                        SearchActions(
-                            label = if (count > 0) pluralStringResource(R.plurals.search_action_count, count, count) else stringResource(R.string.search_action),
-                            canSearch = input.isNotBlank() && count > 0,
-                            canScan = count > 0,
-                            hasCamera = hasCamera,
-                            onSubmit = onSubmit,
-                            onScan = onScan,
-                            modifier = Modifier.padding(top = Space.l),
+                            trailing = if (hasCamera) {
+                                {
+                                    IconButton(onClick = onScan, enabled = count > 0) {
+                                        Icon(
+                                            painterResource(R.drawable.ic_barcode),
+                                            stringResource(R.string.cd_scan),
+                                            tint = if (count > 0) colors.primary else colors.outline,
+                                            modifier = Modifier.size(22.dp),
+                                        )
+                                    }
+                                }
+                            } else null,
                         )
                     }
                 }
@@ -287,70 +289,6 @@ private fun Masthead(onPreferences: () -> Unit, onSettings: () -> Unit) {
         }
         IconButton(onClick = onSettings) {
             Icon(painterResource(R.drawable.ic_settings), stringResource(R.string.settings_title), tint = tint, modifier = Modifier.size(22.dp))
-        }
-    }
-}
-
-/**
- * Primary action (leather brown) and Scan (subtle surface), same height and radius.
- * Stacked full width at large font sizes so neither label wraps inside its button.
- */
-@Composable
-private fun SearchActions(
-    label: String,
-    canSearch: Boolean,
-    canScan: Boolean,
-    hasCamera: Boolean,
-    onSubmit: () -> Unit,
-    onScan: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = MaterialTheme.colorScheme
-    val stacked = LocalDensity.current.fontScale >= 1.5f
-    val primary = @Composable { m: Modifier ->
-        Button(
-            onClick = onSubmit,
-            enabled = canSearch,
-            shape = ButtonShape,
-            // Disabled keeps the accent as a tint: still the primary, clearly waiting for input.
-            colors = ButtonDefaults.buttonColors(
-                // Tinted from the panel it sits on, so it stays visible as a waiting button.
-                disabledContainerColor = lerp(colors.surfaceContainer, colors.primary, 0.16f),
-                disabledContentColor = lerp(colors.surfaceContainer, colors.primary, 0.6f),
-            ),
-            contentPadding = PaddingValues(horizontal = Space.l),
-            modifier = m.height(48.dp),
-        ) { Text(label, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-    }
-    val scan = @Composable { m: Modifier ->
-        FilledTonalButton(
-            onClick = onScan,
-            enabled = canScan,
-            shape = ButtonShape,
-            // On the tinted panel the secondary action is a white (or lifted) surface.
-            colors = ButtonDefaults.filledTonalButtonColors(
-                containerColor = if (colors.background.luminance() > 0.5f) colors.surfaceContainerLowest else colors.surfaceContainerHighest,
-                contentColor = colors.onSurface,
-                disabledContainerColor = colors.surfaceContainerHigh,
-                disabledContentColor = colors.outline,
-            ),
-            contentPadding = PaddingValues(horizontal = Space.l),
-            modifier = m.height(48.dp),
-        ) {
-            Icon(painterResource(R.drawable.ic_barcode), null, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.width(Space.s))
-            Text(stringResource(R.string.action_scan), style = MaterialTheme.typography.labelLarge)
-        }
-    }
-    if (stacked) {
-        Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-            primary(Modifier.fillMaxWidth())
-            if (hasCamera) scan(Modifier.fillMaxWidth())
-        }
-    } else {
-        Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-            primary(Modifier.weight(1f))
-            if (hasCamera) scan(Modifier)
         }
     }
 }

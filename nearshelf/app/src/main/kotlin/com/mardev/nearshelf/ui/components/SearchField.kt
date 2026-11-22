@@ -48,7 +48,8 @@ import com.mardev.nearshelf.ui.theme.Space
 
 /**
  * White field on the paper page with a hairline edge. Focus draws a brown edge and
- * colours the search glyph; text gets a Clear action.
+ * colours the search glyph; text gets a Clear action. [trailing] adds an action at the
+ * right end (Home puts Scan there), set off by a short hairline.
  */
 @Composable
 fun PaperSearchField(
@@ -59,6 +60,7 @@ fun PaperSearchField(
     modifier: Modifier = Modifier,
     onSearch: () -> Unit = {},
     raised: Boolean = false,
+    trailing: (@Composable () -> Unit)? = null,
 ) {
     val interaction = remember { MutableInteractionSource() }
     val focused by interaction.collectIsFocusedAsState()
@@ -86,7 +88,7 @@ fun PaperSearchField(
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .height(if (trailing != null) 56.dp else 52.dp)
                     // Raised: a soft, warm shadow lifts the field off a tinted panel.
                     .then(if (raised && light) Modifier.shadow(3.dp, ControlShape, ambientColor = colors.primary.copy(alpha = 0.25f), spotColor = colors.primary.copy(alpha = 0.25f)) else Modifier)
                     .clip(ControlShape)
@@ -118,8 +120,12 @@ fun PaperSearchField(
                     IconButton(onClick = { onValueChange("") }) {
                         Icon(painterResource(R.drawable.ic_x), stringResource(R.string.cd_clear), tint = colors.onSurfaceVariant, modifier = Modifier.size(18.dp))
                     }
-                } else {
+                } else if (trailing == null) {
                     Spacer(Modifier.width(Space.m))
+                }
+                if (trailing != null) {
+                    Box(Modifier.padding(horizontal = 2.dp).width(1.dp).height(24.dp).background(colors.outlineVariant))
+                    trailing()
                 }
             }
         },
