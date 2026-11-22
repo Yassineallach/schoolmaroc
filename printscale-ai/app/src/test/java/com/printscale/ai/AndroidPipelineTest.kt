@@ -105,7 +105,7 @@ class AndroidPipelineTest {
         val (id, _) = Fixtures.runJob(Fixtures.app, Fixtures.spec(info.id, 500, 500, print = Fixtures.print8x10))
         val item = Fixtures.app.graph.history.get(id)!!
         assertTrue(item.hasAlpha)
-        val jpg = Fixtures.app.graph.exporter.render(item, ExportOptions(ExportFormat.JPEG, 95, fileName = "a.jpg"))
+        val jpg = Fixtures.app.graph.exporter.render(item, ExportOptions(ExportFormat.JPEG, 95, fileName = "a.jpg")).file
         val b = jpg.readBytes()
         assertEquals(0xFF.toByte(), b[0]); assertEquals(0xD8.toByte(), b[1])
         if (String(b, 6, 4, Charsets.ISO_8859_1) == "JFIF") {
@@ -117,9 +117,36 @@ class AndroidPipelineTest {
         // transparent corner flattened onto white
         val corner = decoded.getPixel(2, 2)
         assertTrue((corner and 0xFF) > 240)
-        val png = Fixtures.app.graph.exporter.render(item, ExportOptions(ExportFormat.PNG, fileName = "a.png"))
+        val png = Fixtures.app.graph.exporter.render(item, ExportOptions(ExportFormat.PNG, fileName = "a.png")).file
         assertTrue(png.readBytes().contentEquals(Paths(Fixtures.app).jobMaster(id).readBytes()))
-        val webp = Fixtures.app.graph.exporter.render(item, ExportOptions(ExportFormat.WEBP, webpLossless = true, fileName = "a.webp"))
+        val webp = Fixtures.app.graph.exporter.render(item, ExportOptions(ExportFormat.WEBP, webpLossless = true, fileName = "a.webp")).file
         assertEquals(500, BitmapFactory.decodeFile(webp.path).width)
+    }
+
+    @Test fun etsyExportPicksBestQualityUnderLimit() = runBlocking {
+        // noisy artwork compresses badly, so quality has to drop to fit
+        val noisy = Fixtures.artwork(600, 750).also { b ->
+            val r = java.util.Random(7)
+            for (y in 0 until b.height step 2) for (x in 0 until b.width step 2) b.setPixel(x, y, 0xFF000000.toInt() or r.nextInt(0xFFFFFF))
+        }
+        val info = Fixtures.import(Fixtures.writePng(noisy, "noisy.png"))
+        val (id, _) = Fixtures.runJob(Fixtures.app, Fixtures.spec(info.id, 600, 750, aspect = 0.8, print = Fixtures.print8x10))
+        val item = Fixtures.app.graph.history.get(id)!!
+        val exporter = Fixtures.app.graph.exporter
+        val q100 = exporter.render(item, ExportOptions(ExportFormat.JPEG, 100, fileName = "q100.jpg")).file.length()
+        val q70 = exporter.render(item, ExportOptions(ExportFormat.JPEG, 70, fileName = "q70.jpg")).file.length()
+        val limit = (q70 + q100) / 2
+        val r = exporter.render(item, ExportOptions(ExportFormat.ETSY, fileName = "etsy.jpg", maxBytes = limit))
+        assertTrue("fits: ${r.file.length()} <= $limit", r.file.length() <= limit)
+        assertTrue("quality ${r.jpegQuality} between 70 and 100", r.jpegQuality!! in 71..99)
+        // one step better would not fit: the search really picked the best quality
+        val next = exporter.render(item, ExportOptions(ExportFormat.JPEG, r.jpegQuality!! + 1, fileName = "next.jpg")).file.length()
+        assertTrue("q+1 is over the limit", next > limit)
+        val b = exporter.render(item, ExportOptions(ExportFormat.ETSY, fileName = "etsy2.jpg", maxBytes = limit)).file.readBytes()
+        if (String(b, 6, 4, Charsets.ISO_8859_1) == "JFIF") assertEquals(300, ((b[14].toInt() and 0xFF) shl 8) or (b[15].toInt() and 0xFF))
+        // a limit no reasonable JPEG can meet gives a clear reason instead of a bad file
+        val e = runCatching { exporter.render(item, ExportOptions(ExportFormat.ETSY, fileName = "tiny.jpg", maxBytes = 2_000)) }.exceptionOrNull()
+        assertTrue(e!!.message!!.contains("Even at 70% JPEG quality"))
+        assertTrue(!java.io.File(Fixtures.app.cacheDir, "exports/tiny.jpg").exists())
     }
 }

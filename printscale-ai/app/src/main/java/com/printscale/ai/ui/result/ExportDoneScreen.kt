@@ -60,7 +60,7 @@ fun ExportDoneScreen(graph: AppGraph, jobId: String, onDone: () -> Unit, onBack:
             return@Column
         }
         val it = item!!
-        val format = ExportFormat.entries.firstOrNull { f -> f.label == record.format } ?: ExportFormat.PNG
+        val format = ExportFormat.forFileName(record.fileName)
         BrandMark(40.dp)
         Spacer(Modifier.height(20.dp))
         Text("Saved", style = MaterialTheme.typography.displayMedium)
@@ -70,11 +70,15 @@ fun ExportDoneScreen(graph: AppGraph, jobId: String, onDone: () -> Unit, onBack:
             StatRow("Resolution", "${it.finalW} × ${it.finalH} px")
             StatRow("File size", formatBytes(record.sizeBytes))
             if (it.printWIn != null && it.printHIn != null) {
-                StatRow("Print size", "${PrintMath.formatInches(it.printWIn)} × ${PrintMath.formatInches(it.printHIn)} in")
+                StatRow("Print size", PrintMath.describe(it.printWIn, it.printHIn))
             }
             StatRow("DPI", if (format == ExportFormat.WEBP) "${it.dpi ?: 300} (WebP files carry no DPI tag)" else "${it.dpi ?: 300}")
             StatRow("Format", record.format)
             StatRow("Location", record.location)
+        }
+        if (record.sizeBytes > PrintMath.ETSY_FILE_LIMIT_BYTES) {
+            Spacer(Modifier.height(10.dp))
+            Note("This file is over Etsy's 20 MB limit for digital downloads. Export it as \"Etsy download\" to fit, or share it through a download link.", NoteTone.WARNING)
         }
         Spacer(Modifier.height(24.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

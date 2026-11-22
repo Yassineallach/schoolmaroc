@@ -16,6 +16,7 @@ import androidx.core.content.FileProvider
 import com.printscale.ai.data.HistoryItem
 import com.printscale.ai.data.Paths
 import com.printscale.engine.JfifDpiOutputStream
+import com.printscale.engine.PrintMath
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedOutputStream
@@ -26,13 +27,28 @@ enum class ExportFormat(val label: String, val ext: String, val mime: String) {
     PNG("PNG", "png", "image/png"),
     JPEG("JPEG", "jpg", "image/jpeg"),
     WEBP("WebP", "webp", "image/webp"),
+    /** JPEG at the highest quality that fits Etsy's per-file limit for digital downloads. */
+    ETSY("Etsy download", "jpg", "image/jpeg");
+
+    companion object {
+        fun forFileName(name: String) = when (name.substringAfterLast('.').lowercase()) {
+            "jpg", "jpeg" -> JPEG
+            "webp" -> WEBP
+            else -> PNG
+        }
+    }
 }
+
+/** The written file, plus the JPEG quality used when it was chosen automatically. */
+data class Rendered(val file: File, val jpegQuality: Int? = null)
 
 data class ExportOptions(
     val format: ExportFormat = ExportFormat.PNG,
     val jpegQuality: Int = 95,
     val webpLossless: Boolean = true,
     val fileName: String,
+    /** Size cap for ETSY exports; Etsy's limit unless a test needs a smaller one. */
+    val maxBytes: Long = PrintMath.ETSY_FILE_LIMIT_BYTES,
 )
 
 class ExportException(message: String) : Exception(message)
@@ -50,7 +66,8 @@ class Exporter(private val context: Context) {
                 !fitsInMemory(px) -> "Too large to convert in this phone's free memory. PNG works at any size."
                 else -> null
             }
-            ExportFormat.JPEG -> if (!fitsInMemory(px)) "Too large to convert in this phone's free memory. PNG works at any size." else null
+            ExportFormat.JPEG, ExportFormat.ETSY ->
+                if (!fitsInMemory(px)) "Too large to convert in this phone's free memory. PNG works at any size." else null
         }
     }
 
@@ -62,16 +79,28 @@ class Exporter(private val context: Context) {
     }
 
     /** Writes the export into the app cache. Saving and sharing copy from there. */
-    suspend fun render(item: HistoryItem, opts: ExportOptions): File = withContext(Dispatchers.IO) {
+    suspend fun render(item: HistoryItem, opts: ExportOptions): Rendered = withContext(Dispatchers.IO) {
         val master = paths.jobMaster(item.id)
         if (!master.exists()) throw ExportException("The processed file is no longer on this phone.")
         unavailableReason(item, opts.format)?.let { throw ExportException(it) }
         paths.exports.listFiles()?.forEach { it.delete() } // keep only the latest temporary export
         val out = File(paths.exports, opts.fileName)
+        var chosenQuality: Int? = null
         try {
             when (opts.format) {
                 // The master already is a lossless PNG with DPI and colour profile embedded.
                 ExportFormat.PNG -> master.copyTo(out, overwrite = true)
+                ExportFormat.ETSY -> {
+                    val decoded = BitmapFactory.decodeFile(master.path, BitmapFactory.Options().apply {
+                        inPreferredConfig = Bitmap.Config.ARGB_8888
+                    }) ?: throw ExportException("The processed file could not be read.")
+                    val bmp = if (item.hasAlpha) flattenOnWhite(decoded) else decoded
+                    try {
+                        chosenQuality = jpegUnder(bmp, item.dpi ?: 300, opts.maxBytes, out)
+                    } finally {
+                        bmp.recycle()
+                    }
+                }
                 ExportFormat.JPEG, ExportFormat.WEBP -> {
                     val decoded = BitmapFactory.decodeFile(master.path, BitmapFactory.Options().apply {
                         inPreferredConfig = Bitmap.Config.ARGB_8888
@@ -94,7 +123,40 @@ class Exporter(private val context: Context) {
             out.delete()
             throw ExportException("Not enough memory to convert. Export as PNG instead.")
         }
-        out
+        Rendered(out, chosenQuality)
+    }
+
+    /**
+     * Highest JPEG quality from 100 down to 70 whose file fits [limit]. Binary search: about five
+     * encodes. Below 70 JPEG artefacts start to show in print, so it stops there and says why.
+     */
+    private fun jpegUnder(bmp: Bitmap, dpi: Int, limit: Long, out: File): Int {
+        val trial = File(out.path + ".trial")
+        var lo = MIN_ETSY_QUALITY
+        var hi = 100
+        var best = -1
+        while (lo <= hi) {
+            val q = (lo + hi) / 2
+            BufferedOutputStream(FileOutputStream(trial), 1 shl 20).use { fos ->
+                JfifDpiOutputStream(fos, dpi).use { s -> bmp.compress(Bitmap.CompressFormat.JPEG, q, s) }
+            }
+            if (trial.length() <= limit) {
+                best = q
+                trial.copyTo(out, overwrite = true)
+                lo = q + 1
+            } else {
+                hi = q - 1
+            }
+        }
+        trial.delete()
+        if (best < 0) {
+            out.delete()
+            throw ExportException(
+                "Even at $MIN_ETSY_QUALITY% JPEG quality this file is over ${limit / 1_000_000} MB, Etsy's limit per file. " +
+                    "Choose a smaller print size or a lower DPI, or deliver this size as a download link (for example a PDF with a Google Drive link).",
+            )
+        }
+        return best
     }
 
     private fun flattenOnWhite(src: Bitmap): Bitmap {
@@ -137,6 +199,10 @@ class Exporter(private val context: Context) {
     }
 
     fun contentUri(file: File): Uri = FileProvider.getUriForFile(context, context.packageName + ".files", file)
+
+    companion object {
+        const val MIN_ETSY_QUALITY = 70
+    }
 
     fun shareIntent(file: File, format: ExportFormat): Intent {
         val send = Intent(Intent.ACTION_SEND).apply {

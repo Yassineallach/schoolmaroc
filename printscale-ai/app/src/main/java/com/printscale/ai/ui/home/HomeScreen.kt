@@ -190,13 +190,13 @@ fun HomeScreen(
             Spacer(Modifier.height(36.dp))
             SectionLabel("Print size presets")
             Spacer(Modifier.height(4.dp))
-            Text("Pixel sizes at 300 DPI. All 14 sizes and other DPIs are in the editor.",
+            Text("Pixel sizes at 300 DPI. All 19 sizes, including A1 to A5, and other DPIs are in the editor.",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(12.dp))
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                listOf("8x10", "11x14", "16x20", "18x24", "24x36", "36x48").forEach { id ->
+                listOf("8x10", "11x14", "a4", "a3", "16x20", "18x24", "24x36", "36x48").forEach { id ->
                     val p = PrintMath.preset(id)!!
-                    PresetTile(p.shortIn, p.longIn) { pick(Intent(preset = id)) }
+                    PresetTile(p.shortIn, p.longIn, p.name) { pick(Intent(preset = id)) }
                 }
             }
 
@@ -280,7 +280,7 @@ private fun FactorTile(factor: Int, example: String, modifier: Modifier, onClick
 }
 
 @Composable
-private fun PresetTile(shortIn: Double, longIn: Double, onClick: () -> Unit) {
+private fun PresetTile(shortIn: Double, longIn: Double, name: String?, onClick: () -> Unit) {
     val (w, h) = PrintMath.pixels(shortIn, 300) to PrintMath.pixels(longIn, 300)
     Surface(
         onClick = onClick, shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainer,
@@ -297,7 +297,7 @@ private fun PresetTile(shortIn: Double, longIn: Double, onClick: () -> Unit) {
                 )
             }
             Spacer(Modifier.height(10.dp))
-            Text("${PrintMath.formatInches(shortIn)} × ${PrintMath.formatInches(longIn)} in", style = MaterialTheme.typography.titleSmall)
+            Text(name ?: "${PrintMath.formatInches(shortIn)} × ${PrintMath.formatInches(longIn)} in", style = MaterialTheme.typography.titleSmall)
             Text("$w × $h px", style = MaterialTheme.typography.labelSmall.merge(Numeric), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }

@@ -21,7 +21,16 @@ class CoreTest {
         assertEquals(7200 to 10800, p.pixels(300))
         assertEquals(3600 to 5400, p.pixels(150))
         assertEquals(1500 to 2100, PrintMath.preset("5x7")!!.oriented(false).pixels(300))
-        assertEquals(14, PrintMath.PRESETS.size)
+        assertEquals(19, PrintMath.PRESETS.size)
+        // ISO 216 at 300 DPI: the standard pixel sizes printers expect
+        assertEquals(1748 to 2480, PrintMath.preset("a5")!!.oriented(false).pixels(300))
+        assertEquals(2480 to 3508, PrintMath.preset("a4")!!.oriented(false).pixels(300))
+        assertEquals(3508 to 4961, PrintMath.preset("a3")!!.oriented(false).pixels(300))
+        assertEquals(4961 to 7016, PrintMath.preset("a2")!!.oriented(false).pixels(300))
+        assertEquals(7016 to 9933, PrintMath.preset("a1")!!.oriented(false).pixels(300))
+        assertEquals("A4", PrintMath.preset("a4")!!.label)
+        assertEquals("A3", PrintMath.nameFor(16.535, 11.693))
+        assertEquals(null, PrintMath.nameFor(8.0, 10.0))
         assertEquals(2.0 / 3.0, p.aspect, 1e-9)
         assertEquals(2400 to 3000, PrintSize(LengthUnit.CM.toInches(20.32), LengthUnit.CM.toInches(25.4)).pixels(300))
     }

@@ -263,7 +263,8 @@ private fun EditorContent(vm: EditorViewModel, ui: EditorUi, plan: UpscalePlan?,
                 }
             }
             if (ui.printSize != null) {
-                Text("Ratio follows the ${PrintMath.formatInches(ui.printSize!!.widthIn)} × ${PrintMath.formatInches(ui.printSize!!.heightIn)} in print.",
+                Text("Ratio follows the ${PrintMath.preset(ui.presetId)?.name?.takeIf { ui.customPrint == null }
+                    ?: "${PrintMath.formatInches(ui.printSize!!.widthIn)} × ${PrintMath.formatInches(ui.printSize!!.heightIn)} in"} print.",
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 Spacer(Modifier.height(6.dp))
@@ -387,7 +388,7 @@ private fun PrintSection(vm: EditorViewModel, ui: EditorUi, customOpen: Boolean,
             PrintMath.PRESETS.filter { it.group == group }.forEach { p ->
                 val s = p.oriented(ui.landscape)
                 val (w, h) = s.pixels(ui.dpi)
-                PresetChip("${PrintMath.formatInches(s.widthIn)} × ${PrintMath.formatInches(s.heightIn)}", "$w × $h",
+                PresetChip(p.name ?: "${PrintMath.formatInches(s.widthIn)} × ${PrintMath.formatInches(s.heightIn)}", "$w × $h",
                     selected = ui.presetId == p.id && ui.customPrint == null) { vm.setPreset(p.id) }
             }
         }
@@ -432,7 +433,7 @@ private fun PlanPanel(ui: EditorUi, plan: UpscalePlan) {
     Panel {
         Text("${plan.targetW} × ${plan.targetH} px", style = MaterialTheme.typography.headlineLarge.merge(Numeric))
         ui.printSize?.let {
-            Text("${PrintMath.formatInches(it.widthIn)} × ${PrintMath.formatInches(it.heightIn)} in at ${ui.dpi} DPI",
+            Text("${PrintMath.describe(it.widthIn, it.heightIn)} at ${ui.dpi} DPI",
                 style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Spacer(Modifier.height(10.dp))

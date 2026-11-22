@@ -23,7 +23,19 @@ PRESETS = {
     "11x14": (11, 14), "12x16": (12, 16), "12x18": (12, 18), "16x20": (16, 20),
     "18x24": (18, 24), "20x24": (20, 24), "20x30": (20, 30), "24x36": (24, 36),
     "30x40": (30, 40), "36x48": (36, 48),
+    # ISO 216 paper, from exact millimetres (A4 at 300 DPI = 2480 x 3508 px)
+    "A5": (148 / 25.4, 210 / 25.4), "A4": (210 / 25.4, 297 / 25.4), "A3": (297 / 25.4, 420 / 25.4),
+    "A2": (420 / 25.4, 594 / 25.4), "A1": (594 / 25.4, 841 / 25.4),
 }
+ETSY_FILE_LIMIT = 20_000_000  # bytes; fits whether Etsy's "20 MB" means 10^6 or 2^20
+
+
+def describe_size(w_in, h_in):
+    """'A4' for ISO sizes in either orientation, otherwise '8x10 in'."""
+    for k, (a, b) in PRESETS.items():
+        if k.startswith("A") and abs(min(w_in, h_in) - a) < 0.01 and abs(max(w_in, h_in) - b) < 0.01:
+            return k
+    return f"{round(w_in, 2):g}x{round(h_in, 2):g} in"
 
 
 # ----------------------------------------------------------------------------- model
@@ -157,7 +169,7 @@ class Settings:
     framing: str = "fill"          # "fill" (crop to the print ratio), "fit" (add margin), "keep" (no crop, largest print that fits)
     crop_anchor: str = "center"    # "center", "top", "bottom", "left", "right"
     margin: str = "white"          # "fit" margin: "white", "black", "transparent", "edge"
-    output_format: str = "png"     # "png" or "jpg"
+    output_format: str = "png"     # "png", "jpg", or "etsy" (JPEG at the best quality under Etsy's 20 MB per-file limit)
     jpeg_quality: int = 95
     seed: int = 0
     block: int = 1024              # source pixels per AI block; lower it if the GPU runs out of memory
@@ -258,7 +270,7 @@ def plan_for(name, img, s: Settings) -> Plan:
         box = (x0, y0, x0 + cw, y0 + ch)
         if (cw, ch) != (w, h):
             lost = 100 * (1 - cw * ch / (w * h))
-            notes.append(f"Crops {lost:.0f}% of the image to fit {pw_in:g}x{ph_in:g} in.")
+            notes.append(f"Crops {lost:.0f}% of the image to fit {describe_size(pw_in, ph_in)}.")
     else:  # fit
         if w / h > target_ratio:
             cw, ch = w, round(w / target_ratio)
@@ -314,7 +326,9 @@ def output_name(name, plan: Plan, s: Settings):
     f = round(plan.needed_scale, 1)
     factor = f"{int(f)}x" if f == int(f) else f"{f}x"
     dpi = f"_{s.dpi}DPI" if s.mode == "print" else ""
-    ext = "jpg" if s.output_format == "jpg" else "png"
+    ext = "jpg" if s.output_format in ("jpg", "etsy") else "png"
+    if s.output_format == "etsy":
+        base += "_Etsy"
     return f"{base}_{factor}_{plan.target_w}x{plan.target_h}{dpi}.{ext}"
 
 
@@ -356,7 +370,17 @@ def process(model, path, out_dir, s: Settings, log=print):
     save_kw = {"dpi": (s.dpi, s.dpi)}
     if icc:
         save_kw["icc_profile"] = icc
-    if s.output_format == "jpg":
+    quality_note = ""
+    if s.output_format == "etsy":
+        if out.mode == "RGBA":
+            flat = Image.new("RGB", out.size, (255, 255, 255))
+            flat.paste(out, mask=out.getchannel("A"))
+            out = flat
+        q, sub, data = save_jpeg_under(out, ETSY_FILE_LIMIT, save_kw)
+        with open(dst, "wb") as f:
+            f.write(data)
+        quality_note = f" JPEG quality {q}%{'' if sub == 0 else ', 4:2:0 colour'} to fit Etsy's 20 MB limit."
+    elif s.output_format == "jpg":
         if out.mode == "RGBA":
             flat = Image.new("RGB", out.size, (255, 255, 255))
             flat.paste(out, mask=out.getchannel("A"))
@@ -375,12 +399,33 @@ def process(model, path, out_dir, s: Settings, log=print):
     res = {
         "file": name, "output": fname, "source": f"{plan.src_w}x{plan.src_h}",
         "output_px": f"{plan.target_w}x{plan.target_h}",
-        "print": f"{plan.print_w_in:g}x{plan.print_h_in:g} in @ {s.dpi} DPI" if plan.print_w_in else "-",
+        "print": f"{describe_size(plan.print_w_in, plan.print_h_in)} @ {s.dpi} DPI" if plan.print_w_in else "-",
         "ai_detail_dpi": round(ai_dpi) if ai_dpi else "-",
         "method": method, "size_mb": round(os.path.getsize(dst) / 2**20, 1),
-        "seconds": round(time.time() - t0, 1), "notes": " ".join(plan.notes), "compare": compare_path,
+        "seconds": round(time.time() - t0, 1), "notes": (" ".join(plan.notes) + quality_note).strip(), "compare": compare_path,
     }
     return res
+
+
+def save_jpeg_under(img, limit, save_kw, min_quality=70):
+    """
+    Highest JPEG quality (70 to 100) whose file is at most `limit` bytes. Tries full colour
+    resolution (4:4:4) first, then standard 4:2:0. Raises with a clear reason if nothing fits.
+    """
+    for sub in (0, 2):
+        lo, hi, best = min_quality, 100, None
+        while lo <= hi:
+            q = (lo + hi) // 2
+            buf = io.BytesIO()
+            img.save(buf, "JPEG", quality=q, subsampling=sub, optimize=True, **save_kw)
+            if buf.tell() <= limit:
+                best, lo = (q, buf.getvalue()), q + 1
+            else:
+                hi = q - 1
+        if best:
+            return best[0], sub, best[1]
+    raise ValueError(f"Even at {min_quality}% JPEG quality this file is over {limit // 1_000_000} MB, Etsy's limit per file. "
+                     "Use a smaller print size or lower DPI, or deliver this size through a download link.")
 
 
 def comparison_sheet(src_rgb: Image.Image, out: Image.Image, plan: Plan, side=640) -> Image.Image:

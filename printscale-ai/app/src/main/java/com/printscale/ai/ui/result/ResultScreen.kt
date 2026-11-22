@@ -25,6 +25,7 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.material3.CircularProgressIndicator
@@ -160,6 +161,11 @@ fun ResultScreen(graph: AppGraph, jobId: String, onClose: () -> Unit, onUpscaleA
                                 vm.export(ExportOptions(ExportFormat.PNG, fileName = vm.suggestedName(ExportFormat.PNG)), null, onExported)
                             })
                         Spacer(Modifier.height(10.dp))
+                        SecondaryButton("Save for Etsy (under 20 MB)", enabled = ui.busy == null && vm.unavailable(ExportFormat.ETSY) == null,
+                            icon = Icons.Outlined.Storefront, modifier = Modifier.fillMaxWidth(), onClick = {
+                                vm.export(ExportOptions(ExportFormat.ETSY, fileName = vm.suggestedName(ExportFormat.ETSY)), null, onExported)
+                            })
+                        Spacer(Modifier.height(10.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             SecondaryButton("Share", onClick = { vm.share { context.startActivity(it) } }, enabled = ui.busy == null,
                                 icon = Icons.Outlined.Share, modifier = Modifier.weight(1f))
@@ -192,8 +198,12 @@ private fun StatsPanel(item: HistoryItem) {
             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(10.dp)); HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant); Spacer(Modifier.height(6.dp))
         StatRow("File", "PNG, ${formatBytes(item.masterBytes)}, lossless")
+        if (item.masterBytes > PrintMath.ETSY_FILE_LIMIT_BYTES) {
+            Note("The PNG is over Etsy's 20 MB limit for digital downloads. Use Save for Etsy to get a JPEG that fits.", NoteTone.WARNING,
+                Modifier.padding(vertical = 4.dp))
+        }
         if (item.dpi != null && item.printWIn != null && item.printHIn != null) {
-            StatRow("Print size", "${PrintMath.formatInches(item.printWIn)} × ${PrintMath.formatInches(item.printHIn)} in at ${item.dpi} DPI")
+            StatRow("Print size", "${PrintMath.describe(item.printWIn, item.printHIn)} at ${item.dpi} DPI")
         } else {
             StatRow("DPI tag", "300 (no print size chosen)")
         }
@@ -221,7 +231,7 @@ private fun StatsPanel(item: HistoryItem) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 covered.forEach {
                     val s = it.oriented(item.finalW > item.finalH)
-                    Text("${PrintMath.formatInches(s.widthIn)} × ${PrintMath.formatInches(s.heightIn)}", style = MaterialTheme.typography.labelMedium,
+                    Text(it.name ?: "${PrintMath.formatInches(s.widthIn)} × ${PrintMath.formatInches(s.heightIn)}", style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh, ChipShape).padding(horizontal = 8.dp, vertical = 4.dp))
                 }
             }
@@ -257,7 +267,10 @@ private fun ExportSheet(vm: ResultViewModel, item: HistoryItem, onDismiss: () ->
             Spacer(Modifier.height(8.dp))
             SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                 ExportFormat.entries.forEachIndexed { i, f ->
-                    SegmentedButton(format == f, { format = f }, SegmentedButtonDefaults.itemShape(i, ExportFormat.entries.size)) { Text(f.label) }
+                    SegmentedButton(format == f, { format = f; name = vm.suggestedName(f).substringBeforeLast('.') },
+                        SegmentedButtonDefaults.itemShape(i, ExportFormat.entries.size)) {
+                        Text(if (f == ExportFormat.ETSY) "Etsy" else f.label, maxLines = 1)
+                    }
                 }
             }
             Spacer(Modifier.height(8.dp))
@@ -269,6 +282,10 @@ private fun ExportSheet(vm: ResultViewModel, item: HistoryItem, onDismiss: () ->
                     }
                     Note(if (item.hasAlpha) "JPEG has no transparency: transparent areas become white." else "Most print labs accept JPEG at 95% or higher. The DPI tag is written into the file.")
                 }
+                ExportFormat.ETSY -> Note(
+                    "JPEG at the highest quality (70 to 100%) that stays under Etsy's 20 MB limit per digital file, chosen automatically. " +
+                        "The DPI tag is kept." + if (item.hasAlpha) " Transparent areas become white." else "",
+                )
                 ExportFormat.WEBP -> {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(webpLossless, { webpLossless = true }, { Text("Lossless") }, shape = ChipShape)

@@ -18,6 +18,7 @@ enum class PresetGroup(val title: String) {
     MEDIUM("Medium prints"),
     LARGE("Large prints"),
     EXTRA_LARGE("Extra large prints"),
+    ISO("International (A sizes)"),
 }
 
 /** A physical print size stored short side first. Orientation is applied separately. */
@@ -26,8 +27,10 @@ data class PrintPreset(
     val shortIn: Double,
     val longIn: Double,
     val group: PresetGroup,
+    /** Paper name for ISO sizes, e.g. "A4". */
+    val name: String? = null,
 ) {
-    val label: String get() = "${fmt(shortIn)} × ${fmt(longIn)} in"
+    val label: String get() = name ?: "${fmt(shortIn)} × ${fmt(longIn)} in"
 
     fun oriented(landscape: Boolean): PrintSize =
         if (landscape) PrintSize(longIn, shortIn) else PrintSize(shortIn, longIn)
@@ -68,7 +71,31 @@ object PrintMath {
         PrintPreset("24x36", 24.0, 36.0, PresetGroup.LARGE),
         PrintPreset("30x40", 30.0, 40.0, PresetGroup.EXTRA_LARGE),
         PrintPreset("36x48", 36.0, 48.0, PresetGroup.EXTRA_LARGE),
+        iso("a5", "A5", 148, 210),
+        iso("a4", "A4", 210, 297),
+        iso("a3", "A3", 297, 420),
+        iso("a2", "A2", 420, 594),
+        iso("a1", "A1", 594, 841),
     )
+
+    /** ISO 216 sizes from their exact millimetres. */
+    private fun iso(id: String, name: String, shortMm: Int, longMm: Int) =
+        PrintPreset(id, shortMm / 25.4, longMm / 25.4, PresetGroup.ISO, name)
+
+    /** "A4" when a stored print size is an ISO preset (either orientation), otherwise null. */
+    fun nameFor(wIn: Double, hIn: Double): String? = PRESETS.firstOrNull {
+        it.name != null && abs(minOf(wIn, hIn) - it.shortIn) < 0.01 && abs(maxOf(wIn, hIn) - it.longIn) < 0.01
+    }?.name
+
+    /** Human label for a stored print size: "A4" or "8 × 10 in". */
+    fun describe(wIn: Double, hIn: Double): String =
+        nameFor(wIn, hIn)?.let { "$it (${formatInches(wIn)} × ${formatInches(hIn)} in)" } ?: "${formatInches(wIn)} × ${formatInches(hIn)} in"
+
+    /**
+     * Etsy's limit for each digital-download file. Written as 20 000 000 bytes so the file fits
+     * whether "20 MB" means 10^6 or 2^20 bytes.
+     */
+    const val ETSY_FILE_LIMIT_BYTES = 20_000_000L
 
     fun preset(id: String?): PrintPreset? = PRESETS.firstOrNull { it.id == id }
 

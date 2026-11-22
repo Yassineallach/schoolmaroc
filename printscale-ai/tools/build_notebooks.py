@@ -80,7 +80,7 @@ SETTINGS_COLAB = """
 #@markdown **Output size**
 MODE = "print"  #@param ["print", "scale"]
 #@markdown `auto` picks the largest common print (up to 24×36 in) that matches each image's ratio.
-PRINT_SIZE = "auto"  #@param ["auto", "5x7", "8x10", "8x12", "10x12", "11x14", "12x16", "12x18", "16x20", "18x24", "20x24", "20x30", "24x36", "30x40", "36x48", "custom"]
+PRINT_SIZE = "auto"  #@param ["auto", "5x7", "8x10", "8x12", "10x12", "11x14", "12x16", "12x18", "16x20", "18x24", "20x24", "20x30", "24x36", "30x40", "36x48", "A5", "A4", "A3", "A2", "A1", "custom"]
 CUSTOM_SIZE = "16x20"  #@param {type:"string"}
 UNIT = "in"  #@param ["in", "cm"]
 DPI = 300  #@param [300, 240, 200, 150] {type:"raw"}
@@ -90,7 +90,8 @@ FRAMING = "fill"  #@param ["fill", "fit", "keep"]
 CROP_ANCHOR = "center"  #@param ["center", "top", "bottom", "left", "right"]
 MARGIN = "white"  #@param ["white", "black", "transparent", "edge"]
 #@markdown **File**
-OUTPUT_FORMAT = "png"  #@param ["png", "jpg"]
+#@markdown `etsy` = JPEG at the best quality that fits Etsy's 20 MB limit per digital file.
+OUTPUT_FORMAT = "png"  #@param ["png", "jpg", "etsy"]
 JPEG_QUALITY = 95  #@param [90, 95, 100] {type:"raw"}
 COMPARISON_IMAGES = True  #@param {type:"boolean"}
 
@@ -105,14 +106,14 @@ print(settings)
 SETTINGS_KAGGLE = """
 # 4. Settings: edit the values, then run the cell.
 MODE = "print"          # "print" (inches at a DPI) or "scale" (factor)
-PRINT_SIZE = "auto"     # "auto", a preset like "8x10", "16x20", "24x36", or a custom "WxH"
+PRINT_SIZE = "auto"     # "auto", a preset like "8x10", "16x20", "24x36", "A4", "A3", or a custom "WxH"
 UNIT = "in"             # "in" or "cm" (for custom sizes)
 DPI = 300               # 300, 240, 200 or 150
 SCALE = 4               # used when MODE = "scale": 2, 4 or 8
 FRAMING = "fill"        # "fill" crops to the print ratio, "fit" adds a margin, "keep" never crops
 CROP_ANCHOR = "center"  # "center", "top", "bottom", "left", "right"
 MARGIN = "white"        # for "fit": "white", "black", "transparent", "edge"
-OUTPUT_FORMAT = "png"   # "png" or "jpg"
+OUTPUT_FORMAT = "png"   # "png", "jpg", or "etsy" (best JPEG quality under Etsy's 20 MB limit)
 JPEG_QUALITY = 95       # 90, 95 or 100
 COMPARISON_IMAGES = True
 

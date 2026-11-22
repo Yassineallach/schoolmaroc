@@ -67,7 +67,8 @@ class ResultViewModel(private val graph: AppGraph, private val jobId: String) : 
 
     fun suggestedName(format: ExportFormat): String {
         val it = _ui.value.item ?: return "Artwork.${format.ext}"
-        return FileNaming.suggest(it.displayName, it.effectiveScale, it.finalW, it.finalH, it.dpi, format.ext)
+        val base = if (format == ExportFormat.ETSY) "${it.displayName.substringBeforeLast('.')}_Etsy" else it.displayName
+        return FileNaming.suggest(base, it.effectiveScale, it.finalW, it.finalH, it.dpi, format.ext)
     }
 
     fun unavailable(format: ExportFormat): String? = _ui.value.item?.let { graph.exporter.unavailableReason(it, format) }
@@ -114,14 +115,16 @@ class ResultViewModel(private val graph: AppGraph, private val jobId: String) : 
         _ui.update { it.copy(busy = "Exporting ${options.format.label}") }
         viewModelScope.launch {
             try {
-                val file = graph.exporter.render(item, options)
+                val rendered = graph.exporter.render(item, options)
+                val file = rendered.file
+                val formatLabel = rendered.jpegQuality?.let { "JPEG $it% (Etsy download)" } ?: options.format.label
                 val (uri, location) = if (target == null) {
                     graph.exporter.saveToGallery(file, options.format) to "Gallery · Pictures/PrintScale"
                 } else {
                     graph.exporter.saveToUri(file, target)
                     target to "Files · ${displayName(target) ?: file.name}"
                 }
-                graph.history.addExport(item.id, ExportRecord(file.name, options.format.label, file.length(), location, uri.toString(), System.currentTimeMillis()))
+                graph.history.addExport(item.id, ExportRecord(file.name, formatLabel, file.length(), location, uri.toString(), System.currentTimeMillis()))
                 _ui.update { it.copy(busy = null) }
                 onDone()
             } catch (e: Exception) {
@@ -136,7 +139,7 @@ class ResultViewModel(private val graph: AppGraph, private val jobId: String) : 
         viewModelScope.launch {
             try {
                 val opts = ExportOptions(ExportFormat.PNG, fileName = suggestedName(ExportFormat.PNG))
-                val file = graph.exporter.render(item, opts)
+                val file = graph.exporter.render(item, opts).file
                 _ui.update { it.copy(busy = null) }
                 launch(graph.exporter.shareIntent(file, ExportFormat.PNG))
             } catch (e: Exception) {

@@ -97,6 +97,10 @@ class UiFlowTest {
         rule.onNodeWithText("150 DPI").performScrollTo().performClick()
         rule.onNodeWithText("Upscale to 3600 × 5400 px").assertIsDisplayed()
         rule.onNodeWithText("300 DPI").performScrollTo().performClick()
+        // ISO paper: A4 at 300 DPI is the standard 2480 x 3508 px
+        rule.onNodeWithText("A4").performScrollTo().performClick()
+        rule.onNodeWithText("Upscale to 2480 × 3508 px").assertIsDisplayed()
+        rule.onNodeWithText("Ratio follows the A4 print.").performScrollTo().assertIsDisplayed()
 
         rule.onNodeWithText("Custom size").performScrollTo().performClick()
         rule.onNodeWithText("Custom print size").performScrollTo().assertIsDisplayed()
@@ -187,10 +191,13 @@ class UiFlowTest {
         rule.onNodeWithText("Tap the area you want to inspect at 100%.").assertIsDisplayed()
         rule.onNodeWithText("Cancel").performClick()
         rule.onNodeWithText("Largest print at each resolution").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithText("Save for Etsy (under 20 MB)").performScrollTo().assertIsEnabled()
         rule.onNodeWithText("Export as").performScrollTo().performClick()
         rule.onNodeWithText("Save to Files").assertIsDisplayed()
         rule.onNodeWithText("JPEG").performClick()
         rule.onNodeWithText("95%").assertIsDisplayed()
+        rule.onNodeWithText("Etsy").performClick()
+        rule.onNodeWithText("under Etsy's 20 MB limit", substring = true).assertExists()
         Fixtures.screenshot(rule, "07_export_sheet")
         assertTrue(!exported)
     }
