@@ -93,6 +93,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.BlendMode
@@ -286,29 +287,31 @@ private fun HeaderArt(modifier: Modifier = Modifier) {
         painterResource(R.drawable.home_header),
         contentDescription = null,
         contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-        alignment = Alignment.CenterEnd,
+        alignment = Alignment.BottomEnd,
         modifier = modifier
-            .fillMaxWidth(0.66f)
-            .widthIn(max = 420.dp)
             .height(HeaderArtHeight + WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
+            .aspectRatio(HeaderArtRatio)
             .graphicsLayer {
                 compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen
             }
             .drawWithContent {
                 drawContent()
                 drawRect(
-                    Brush.horizontalGradient(0f to Color.Transparent, 0.35f to Color.Black),
+                    Brush.horizontalGradient(0f to Color.Transparent, 0.3f to Color.Black),
                     blendMode = BlendMode.DstIn,
                 )
                 drawRect(
-                    Brush.verticalGradient(0.6f to Color.Black, 1f to Color.Transparent),
+                    Brush.verticalGradient(0.9f to Color.Black, 1f to Color.Transparent),
                     blendMode = BlendMode.DstIn,
                 )
             },
     )
 }
 
-private val HeaderArtHeight = 210.dp
+private val HeaderArtHeight = 160.dp
+
+/** Width / height of res/drawable*-nodpi/home_header.webp. */
+private const val HeaderArtRatio = 1016f / 775f
 
 /** Large wordmark and serif tagline with a short oxblood rule; the two global actions as round buttons. */
 @Composable
