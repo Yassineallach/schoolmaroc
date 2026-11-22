@@ -27,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.AddPhotoAlternate
+import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Settings
@@ -59,6 +60,7 @@ import com.printscale.ai.AppGraph
 import com.printscale.ai.data.HistoryItem
 import com.printscale.ai.data.HistoryState
 import com.printscale.ai.data.Paths
+import com.printscale.ai.ui.cloud.StudioQualitySheet
 import com.printscale.ai.ui.components.BrandMark
 import com.printscale.ai.ui.components.EmptyState
 import com.printscale.ai.ui.components.PrimaryButton
@@ -90,6 +92,7 @@ fun HomeScreen(
     var pending by remember { mutableStateOf(Intent()) }
     var importing by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var showStudio by remember { mutableStateOf(false) }
     val history by graph.history.state.collectAsStateWithLifecycle()
     val active by graph.processing.active().collectAsStateWithLifecycle(initialValue = emptyList())
     val shared by graph.sharedImage.collectAsStateWithLifecycle()
@@ -196,6 +199,15 @@ fun HomeScreen(
             }
 
             Spacer(Modifier.height(36.dp))
+            SectionLabel("Studio quality")
+            Spacer(Modifier.height(4.dp))
+            Text("For big prints and fine texture: run the much larger AuraSR v2 model on a free cloud GPU in Colab or Kaggle.",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(12.dp))
+            SecondaryButton("Upscale on a cloud GPU", onClick = { showStudio = true }, icon = Icons.Outlined.Cloud,
+                modifier = Modifier.fillMaxWidth())
+
+            Spacer(Modifier.height(36.dp))
             SectionLabel("Recent projects") {
                 val hasItems = (history as? HistoryState.Loaded)?.items?.isNotEmpty() == true
                 if (hasItems) TextButton(onClick = openHistory) { Text("All projects") }
@@ -232,6 +244,7 @@ fun HomeScreen(
                 }
             }
         }
+        if (showStudio) StudioQualitySheet(artwork = null, onDismiss = { showStudio = false })
         error?.let { msg ->
             Snackbar(
                 modifier = Modifier.align(Alignment.BottomCenter).safeDrawingPadding().padding(16.dp),

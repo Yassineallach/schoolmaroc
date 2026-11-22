@@ -22,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Share
@@ -62,6 +63,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.printscale.ai.AppGraph
 import com.printscale.ai.data.HistoryItem
 import com.printscale.ai.export.ExportFormat
+import com.printscale.ai.ui.cloud.Artwork
+import com.printscale.ai.ui.cloud.StudioQualitySheet
 import com.printscale.ai.export.ExportOptions
 import com.printscale.ai.ui.components.ChipShape
 import com.printscale.ai.ui.components.EmptyState
@@ -88,6 +91,7 @@ fun ResultScreen(graph: AppGraph, jobId: String, onClose: () -> Unit, onUpscaleA
     val snackbar = remember { SnackbarHostState() }
     var mode by remember { mutableStateOf(CompareMode.SPLIT) }
     var showExport by remember { mutableStateOf(false) }
+    var showStudio by remember { mutableStateOf(false) }
 
     LaunchedEffect(ui.message) { ui.message?.let { snackbar.showSnackbar(it); vm.clearMessage() } }
 
@@ -171,12 +175,19 @@ fun ResultScreen(graph: AppGraph, jobId: String, onClose: () -> Unit, onUpscaleA
                     TextButton(onClick = { onUpscaleAgain(item.importId) }, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Outlined.Refresh, null, Modifier.size(18.dp)); Text("  Upscale again with other settings")
                     }
+                    TextButton(onClick = { showStudio = true }, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Outlined.Cloud, null, Modifier.size(18.dp)); Text("  More detail with AuraSR on a cloud GPU")
+                    }
                     Spacer(Modifier.height(24.dp))
                 }
             }
         }
     }
 
+    if (showStudio && ui.item != null) {
+        val item = ui.item!!
+        StudioQualitySheet(Artwork(graph.imports.original(item.importId), item.displayName), onDismiss = { showStudio = false })
+    }
     if (showExport && ui.item != null) {
         ExportSheet(vm, ui.item!!, onDismiss = { showExport = false }, onExported = { showExport = false; onExported() })
     }

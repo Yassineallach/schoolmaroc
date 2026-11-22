@@ -36,6 +36,8 @@ def load_aurasr(model_id="fal/AuraSR-v2"):
     from safetensors.torch import load_file
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    if device == "cuda":
+        torch.backends.cudnn.benchmark = True  # tiles are all 64 px, so cuDNN can pick the fastest kernels once
     path = snapshot_download(model_id, allow_patterns=["config.json", "model.safetensors"])
     with open(os.path.join(path, "config.json")) as f:
         config = json.load(f)
@@ -45,7 +47,7 @@ def load_aurasr(model_id="fal/AuraSR-v2"):
     return model, device
 
 
-def _ai_block(model, rgb: Image.Image, seed: int) -> np.ndarray:
+def _ai_block(model, rgb: Image.Image, seed: int, batch: int = 8) -> np.ndarray:
     """4x one block. Pads to whole 64 px tiles with edge pixels so small or odd sizes work."""
     import torch
     tile = model.input_image_size
@@ -56,11 +58,20 @@ def _ai_block(model, rgb: Image.Image, seed: int) -> np.ndarray:
     if (pw, ph) != (w, h):
         arr = np.pad(arr, ((0, ph - h), (0, pw - w), (0, 0)), mode="edge")
     torch.manual_seed(seed)  # the GAN takes a noise vector; fixed seed = repeatable output
-    out = model.upscale_4x_overlapped(Image.fromarray(arr))
+    out = model.upscale_4x_overlapped(Image.fromarray(arr), max_batch_size=batch)
     return np.asarray(out, dtype=np.float32)[: h * 4, : w * 4]
 
 
-def ai_upscale_4x(model, rgb: Image.Image, block=1024, overlap=64, seed=0, progress=None) -> Image.Image:
+def default_batch():
+    """Tiles per GPU call. AuraSR's own default of 8 leaves a T4 mostly idle."""
+    import torch
+    if not torch.cuda.is_available():
+        return 8
+    gb = torch.cuda.get_device_properties(0).total_memory / 2**30
+    return 64 if gb >= 20 else 32 if gb >= 12 else 16
+
+
+def ai_upscale_4x(model, rgb: Image.Image, block=1024, overlap=64, seed=0, progress=None, batch=8) -> Image.Image:
     """
     4x a whole image in overlapping blocks and feather them together, so memory stays bounded
     for any input size (AuraSR keeps its whole output as float tensors).
@@ -71,7 +82,7 @@ def ai_upscale_4x(model, rgb: Image.Image, block=1024, overlap=64, seed=0, progr
     overlap = max(tile, round(overlap / tile) * tile)
     block = max(overlap + tile, round(block / tile) * tile)
     if w <= block and h <= block:
-        out = _ai_block(model, rgb, seed)
+        out = _ai_block(model, rgb, seed, batch)
         if progress:
             progress(1, 1)
         return Image.fromarray(np.clip(out + 0.5, 0, 255).astype(np.uint8))
@@ -87,7 +98,7 @@ def ai_upscale_4x(model, rgb: Image.Image, block=1024, overlap=64, seed=0, progr
         for x0 in xs:
             x1 = min(x0 + block, w)
             y1 = min(y0 + block, h)
-            part = _ai_block(model, rgb.crop((x0, y0, x1, y1)), seed)
+            part = _ai_block(model, rgb.crop((x0, y0, x1, y1)), seed, batch)
             bh, bw = part.shape[:2]
             ramp = overlap * 4
 
@@ -131,6 +142,7 @@ class Settings:
     jpeg_quality: int = 95
     seed: int = 0
     block: int = 1024              # source pixels per AI block; lower it if the GPU runs out of memory
+    batch: int = 0                 # 64 px tiles per GPU call; 0 = pick from GPU memory
     comparison: bool = True
 
 
@@ -304,7 +316,7 @@ def process(model, path, out_dir, s: Settings, log=print):
             if time.time() - last[0] > 5 or d == t:
                 last[0] = time.time()
                 log(f"   AI blocks {d}/{t}")
-        ai = ai_upscale_4x(model, rgb, block=s.block, seed=s.seed, progress=prog)
+        ai = ai_upscale_4x(model, rgb, block=s.block, seed=s.seed, progress=prog, batch=s.batch or default_batch())
         method = "AuraSR 4x"
         if (ai.width, ai.height) != (plan.target_w, plan.target_h):
             ai = ai.resize((plan.target_w, plan.target_h), Image.LANCZOS)

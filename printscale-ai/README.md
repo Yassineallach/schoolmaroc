@@ -121,6 +121,8 @@ Run the cells in order. You get a framing preview before anything is processed, 
 * **Not a backend for the app:** Colab and Kaggle free tiers are for interactive notebook use, not for serving an app. A cloud mode in the app would need a paid GPU endpoint.
 * **Behaviour:** it is a GAN, so it sharpens edges strongly but can add faint texture to smooth gradients and slightly roughen perfectly clean edges. Check the comparison crops for flat or minimal designs.
 * **Tested here:** both notebooks were executed top to bottom on a CPU with the real AuraSR v2 weights, including a full 7200 × 10800 output, transparency and JPEG with DPI and ICC. Processing large images in 64 px-aligned blocks matches whole-image output (99.9% of pixels within 5/255). They have not yet been run on an actual Colab or Kaggle GPU, so GPU speed is unmeasured.
+* **GPU:** the notebooks always run AuraSR on the GPU when one is attached. Colab notebooks open with a T4 preselected; on Kaggle, choose the accelerator once in Settings. They send 16 to 64 tiles per GPU call, sized from GPU memory (AuraSR's own default is 8, which leaves a T4 mostly idle). If the GPU runs out of memory, they retry with smaller batches automatically.
+* **From the app:** Home > *Upscale on a cloud GPU*, or *More detail with AuraSR on a cloud GPU* on any result, opens a sheet with the steps and the upload notice. Buttons open the notebook in Colab or Kaggle and can save the current artwork to Drive or Files first. The links point to the branch in `NOTEBOOK_REF` (`app/build.gradle.kts`); change it to `main` after merging.
 * `notebooks/printscale_aurasr.py` is the shared code. After editing it, run `python tools/build_notebooks.py` to rebuild both notebooks.
 
 ## 8. Project layout

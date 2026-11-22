@@ -95,8 +95,9 @@ fun SettingsScreen(graph: AppGraph, onBack: () -> Unit) {
             Spacer(Modifier.height(6.dp))
             Panel {
                 Text(
-                    "Your artwork never leaves this phone. Upscaling runs on the device with ONNX Runtime; the app has no internet permission, no account and no analytics. " +
-                        "Files stay in the app's private storage until you export, share or delete them.",
+                    "The app never uploads your artwork. Upscaling runs on the device with ONNX Runtime; the app has no internet permission, no account and no analytics. " +
+                        "Files stay in the app's private storage until you export, share or delete them. " +
+                        "The optional Studio quality route opens a Colab or Kaggle notebook in your browser; images you upload there are processed on Google's or Kaggle's servers.",
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }

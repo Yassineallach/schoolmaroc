@@ -50,7 +50,8 @@ GPU_CHECK = """
 #@title 1. Check the GPU
 import os, subprocess, torch
 if torch.cuda.is_available():
-    print("GPU:", torch.cuda.get_device_name(0))
+    props = torch.cuda.get_device_properties(0)
+    print(f"GPU: {props.name}, {props.total_memory / 2**30:.0f} GB. AuraSR will run on it.")
 elif os.environ.get("PRINTSCALE_ALLOW_CPU") == "1":
     print("No GPU: running on CPU (test mode, very slow).")
 else:
@@ -179,7 +180,7 @@ for pl in plans:
 LOAD_MODEL = """
 #@title 7. Load AuraSR v2 (downloads 2.5 GB the first time)
 model, device = ps.load_aurasr()
-print("AuraSR v2 loaded on", device)
+print("AuraSR v2 loaded on", device.upper(), f"| {ps.default_batch()} tiles per GPU batch" if device == "cuda" else "")
 """
 
 RUN = """
@@ -191,23 +192,26 @@ os.makedirs(OUTPUT_DIR)
 results, t_all = [], time.time()
 for i, path in enumerate(images, 1):
     print(f"[{i}/{len(images)}] {os.path.basename(path)}")
-    block = settings.block
-    for attempt in range(3):
+    block, batch = settings.block, ps.default_batch()
+    for attempt in range(4):
         try:
-            settings.block = block
+            settings.block, settings.batch = block, batch
             r = ps.process(model, path, OUTPUT_DIR, settings, log=print)
             results.append(r)
             print(f"   saved {r['output']} ({r['size_mb']} MB, {r['seconds']} s, {r['method']})")
             break
         except torch.cuda.OutOfMemoryError:
             torch.cuda.empty_cache(); gc.collect()
-            block //= 2
-            print(f"   GPU memory full; retrying with smaller blocks ({block} px)")
+            if batch > 4:
+                batch //= 2
+            else:
+                block //= 2
+            print(f"   GPU memory full; retrying with batch {batch}, blocks of {block} px")
         except Exception as e:
             print(f"   skipped: {type(e).__name__}: {e}")
             results.append({"file": os.path.basename(path), "output": "FAILED", "notes": str(e)})
             break
-    settings.block = 1024
+    settings.block, settings.batch = 1024, 0
     torch.cuda.empty_cache(); gc.collect()
 with open(os.path.join(OUTPUT_DIR, "CREDITS.txt"), "w") as f:
     f.write(ps.CREDIT + "\\n")

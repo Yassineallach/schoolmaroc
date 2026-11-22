@@ -240,4 +240,41 @@ class UiFlowTest {
         rule.onNodeWithText("Upscale to 2400 × 3000 px").assertExists()
         rule.onNodeWithText("8 × 10 in at 300 DPI").assertExists()
     }
+
+    @Test fun studioQualityOpensNotebooks() {
+        rule.setContent { PrintScaleTheme(ThemeChoice.DARK) { HomeScreen(graph, { _, _, _ -> }, {}, {}, {}, {}) } }
+        waitForText("Nothing here yet")
+        rule.onNodeWithText("Upscale on a cloud GPU").performScrollTo().performClick()
+        rule.onNodeWithText("Studio quality upscaling").assertIsDisplayed()
+        rule.onNodeWithText("uploaded to Google's or Kaggle's servers", substring = true).assertExists()
+        val shadow = org.robolectric.Shadows.shadowOf(rule.activity)
+        rule.onNodeWithText("Open in Colab").performScrollTo().performClick()
+        val colab = shadow.nextStartedActivity
+        assertEquals(android.content.Intent.ACTION_VIEW, colab.action)
+        assertEquals(
+            "https://colab.research.google.com/github/Yassineallach/schoolmaroc/blob/${BuildConfig.NOTEBOOK_REF}/printscale-ai/notebooks/PrintScale_AuraSR_Colab.ipynb",
+            colab.dataString,
+        )
+        rule.onNodeWithText("Open in Kaggle").performScrollTo().performClick()
+        val kaggle = shadow.nextStartedActivity
+        assertEquals(
+            "https://www.kaggle.com/kernels/welcome?src=https://github.com/Yassineallach/schoolmaroc/blob/${BuildConfig.NOTEBOOK_REF}/printscale-ai/notebooks/PrintScale_AuraSR_Kaggle.ipynb",
+            kaggle.dataString,
+        )
+    }
+
+    @Test fun studioQualityFromResultSharesNamedArtwork() {
+        val id = finishedJob()
+        rule.setContent { PrintScaleTheme(ThemeChoice.DARK) { ResultScreen(graph, id, {}, {}, {}) } }
+        waitForText("720 × 900 px")
+        rule.onNodeWithText("More detail with AuraSR on a cloud GPU", substring = true).performScrollTo().performClick()
+        rule.onNodeWithText("Save artwork to Drive or Files").performScrollTo().performClick()
+        val chooser = org.robolectric.Shadows.shadowOf(rule.activity).nextStartedActivity
+        @Suppress("DEPRECATION")
+        val send = chooser.getParcelableExtra<android.content.Intent>(android.content.Intent.EXTRA_INTENT)!!
+        @Suppress("DEPRECATION")
+        val uri = send.getParcelableExtra<android.net.Uri>(android.content.Intent.EXTRA_STREAM)!!
+        assertTrue("shared under its real name: $uri", uri.lastPathSegment!!.endsWith(".png"))
+        assertEquals("image/png", send.type)
+    }
 }
