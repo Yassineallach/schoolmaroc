@@ -204,7 +204,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: three ancient copper swords lying side by side on a stone shelf; their hilts carry inlaid silver patterns (zigzags and lines). Behind the shelf, two thick mudbrick columns of a palace room.
+Draw: three ancient copper swords exactly like the second attached drawing lying side by side on a stone shelf; their hilts carry inlaid silver patterns (zigzags and lines). Behind the shelf, two thick mudbrick columns of a palace room.
 Isolated on a plain white background.
 ```
 
@@ -231,7 +231,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: a Roman legionary standing, front view: segmented armour, helmet with cheek guards, a large curved rectangular shield on his left arm, a gladius held point down in his right hand, clearly visible.
+Draw: a Roman legionary standing, front view, of the Republic (about 200 BC): mail shirt, bronze Montefortino helmet (rounded, a knob on top with a short plume, cheek guards), a large oval curved shield (scutum) with a central boss on his left arm, a gladius exactly like the second attached drawing held point down in his right hand, clearly visible. No segmented plate armour.
 Isolated on a plain white background.
 ```
 
@@ -240,7 +240,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: side view of a Roman legionary crouching slightly behind his large rectangular shield, thrusting his gladius forward and low past its edge, his arm kept close to the body, not raised.
+Draw: side view of a Roman legionary of the Republic (about 200 BC): mail shirt, bronze Montefortino helmet (rounded, a knob on top with a short plume, cheek guards), a large oval curved shield (scutum) with a central boss, crouching slightly behind the shield, thrusting his gladius forward and low past its edge, his arm kept close to the body, not raised. No segmented plate armour.
 Isolated on a plain white background.
 ```
 
@@ -249,7 +249,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: a line of six Roman legionaries seen from the front at an angle, shoulder to shoulder, their large rectangular shields edge to edge forming a wall, short swords just visible between the shields.
+Draw: a line of six Roman legionaries of the Republic (mail shirts, Montefortino helmets with a knob and short plume) seen from the front at an angle, shoulder to shoulder, their large oval curved shields edge to edge forming a wall, short swords just visible between the shields. No segmented plate armour.
 Isolated on a plain white background.
 ```
 
