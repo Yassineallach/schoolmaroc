@@ -94,7 +94,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: a prehistoric human in animal-skin clothing, empty-handed, half-turned and looking back over his shoulder at a large cave lion standing behind him on a rock. Tall grass at their feet.
+Draw: a prehistoric human in animal-skin clothing, empty-handed, half-turned and looking back over his shoulder at a large cave lion standing behind him on a rock (a cave lion: no mane, short coat). Tall grass at their feet.
 Isolated on a plain white background.
 ```
 
@@ -157,7 +157,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: two hands in thick gloves tip a clay crucible; a stream of molten metal flows into an open two-piece stone mould carved in the shape of a sword. A little smoke rising.
+Draw: two bare hands lift a small clay crucible with two green wooden sticks; a stream of molten metal flows into an open two-piece stone mould carved in the shape of a sword. A little smoke rising.
 Isolated on a plain white background.
 ```
 
