@@ -20,9 +20,12 @@ def _first_frame():
         wm = brand.CFG['watermark']
         was, wm['enabled'] = wm['enabled'], False   # the gliding logo is the only logo until it lands
         saved = dict(style.EVENTS)                  # act 1's sounds belong to act 1, not to the intro
-        try:
-            _FIRST['f'] = act1.frame(0.05)          # the hook's first image, fully in
+        first = act1.ENTRIES[0]
+        start, first.start = first.start, 1e9       # the user: « the drawing starts before the intro finishes »:
+        try:                                        # the intro ends on the bare board; the pen starts with act 1
+            _FIRST['f'] = act1.frame(0.05)
         finally:
+            first.start = start
             wm['enabled'] = was
             style.EVENTS.clear(); style.EVENTS.update(saved)
     return _FIRST['f']
