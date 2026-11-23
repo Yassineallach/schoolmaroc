@@ -48,7 +48,7 @@ the CICR are represented by objects (a book, a hall, a treaty), not faces or emb
 | 6 · 16.8 | Le bronze… rend les lames plus dures | **G15**: molten bronze poured from a crucible into a sword mould | — |
 | 6 · 21.3 | Le fer… en grand nombre | **G16**: a rack of many identical iron swords | — |
 
-## Act 3 — Le prix d’une lame (clips 7–9, ≈ 80 s)
+## Act 3 — Le prix d’une lame (clips 7–8, ≈ 51 s)
 | Clip · s | Line | Drawing | ✎ |
 |---|---|---|---|
 | 7 · 0.0 | Mais une épée coûte cher. Il faut du minerai, du charbon… | **G17**: a smith at the anvil, a basket of ore and a heap of charcoal | — |
@@ -60,10 +60,7 @@ the CICR are represented by objects (a book, a hall, a treaty), not faces or emb
 | 8 · 0.0 | Le glaive romain… jusqu’à 65 cm | **G23**: a legionary standing with gladius and large shield (**the gladius returns**) | 65 cm |
 | 8 · 8.9 | frapper de la pointe depuis l’abri de leur bouclier | **G24**: a legionary thrusting low from behind his shield | — |
 | 8 · 16.5 | Serrés épaule contre épaule… | **G25**: a line of legionaries, shields locked | — |
-| 9 · 0.0 | Dans la culture arabe… plus de soixante-dix noms | **G26**: a curved Arab sword and its scabbard | plus de 70 noms |
-| 9 · 7.0 | Dhou al-Fiqar… un emblème | **G27**: Dhou al-Fiqar, the two-pointed blade, alone | Dhou al-Fiqar |
-| 9 · 12.6 | En 838, la prise d’Amorium… Abou Tammam | **G28**: a fortified Byzantine city wall with a breach | Amorium · 838 |
-| 9 · 21.8 | L’épée dit plus vrai que les livres… le sérieux et le jeu | **G29**: a sword laid across a stack of books | — |
+| ~~9~~ | *Clip 9 (the sword in Arab culture, Dhou al-Fiqar, Amorium, Abou Tammam) was cut at the user's request; G26–G29 are not used.* | | |
 
 ## Act 4 — La distance (clips 10–11, ≈ 50 s, the turn: music changes here)
 | Clip · s | Line | Drawing | ✎ |

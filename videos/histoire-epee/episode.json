@@ -1,5 +1,5 @@
 {
- "subject": "The history of the sword: Philip V of Macedon and the Roman gladius in 200 BC (Livy), early humans and the Schoningen spears, the Arslantepe arsenical copper swords, bronze and iron, swords as rank (royal burials, knighthood), the Roman legion, the sword in Arab culture (Dhu al-Fiqar, Abu Tammam's Amorium ode), gunpowder, killing at a distance (Grossman, On Killing), autonomous weapons and the 2026 Geneva CCW process",
+ "subject": "The history of the sword: Philip V of Macedon and the Roman gladius in 200 BC (Livy), early humans and the Schoningen spears, the Arslantepe arsenical copper swords, bronze and iron, swords as rank (royal burials, knighthood), the Roman legion, gunpowder, killing at a distance (Grossman, On Killing), autonomous weapons and the 2026 Geneva CCW process",
  "lang": "fr",
  "style": "board",
  "drawings": "chatgpt",
@@ -9,7 +9,16 @@
  "palette": "history_archive",
  "title": "L’histoire de l’épée",
  "brand": {
-  "watermark": {"hide_env": []},
-  "cta": {"comment": {"question": "Et vous, une machine peut-elle décider de tirer sans qu’un humain valide ?"}}
- }
+  "watermark": {
+   "hide_env": []
+  },
+  "cta": {
+   "comment": {
+    "question": "Et vous, une machine peut-elle décider de tirer sans qu’un humain valide ?"
+   }
+  }
+ },
+ "cut_clips": [
+  9
+ ]
 }

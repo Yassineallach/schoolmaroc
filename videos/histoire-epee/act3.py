@@ -1,9 +1,8 @@
-"""Acte 3 : Le prix d'une lame. Narration clips 7-9.
+"""Acte 3 : Le prix d'une lame. Narration clips 7-8 (clip 9, the Arab part, was cut).
 
 The board continues (acts 1-2 stay where they were drawn). One drawing per view.
 The gladius of act 1 returns in the legionary's hand (G23).
-Words written by the pen: 65 cm, plus de 70 noms, Dhou al-Fiqar, 838, Amorium.
-Ali ibn Abi Talib is never depicted: only the sword Dhou al-Fiqar is drawn.
+Words written by the pen: 65 cm.
 """
 import sys
 from vox import *  # noqa: F401,F403
@@ -12,7 +11,7 @@ import board as BD
 import act1
 import act2
 
-CLIPS = (7, 8, 9)
+CLIPS = (7, 8)          # clip 9 cut at the user's request
 cue = make_cue(CLIPS)
 LAND = 1.2
 
@@ -35,10 +34,7 @@ ENTRIES = [
     E('G23', 'le légionnaire', cue(8, 'glaive') + 1.0, scale=1.3),   # a tall portrait drawing: drawn larger                              # « Le glaive romain… 65 centimètres »
     E('G24', 'le coup de pointe', arrive(8, 'Plutot')),                       # « …frapper de la pointe depuis l'abri… »
     E('G25', 'épaule contre épaule', arrive(8, 'Serres')),
-    E('G26', 'l’épée arabe', arrive(9, 'Dans')),                              # « …plus de soixante-dix noms »
-    E('G27', 'Dhou al-Fiqar', cue(9, 'Dhou') + 1.8),
-    E('G28', 'les murs d’Amorium', cue(9, 'apres') + 0.6),                          # « En 838, après la prise… d'Amorium »
-    E('G29', 'l’épée et les livres', cue(9, 'dit') + 0.9),                    # « L'épée dit plus vrai que les livres. »
+    # clip 9 (the sword in Arab culture: G26-G29) was cut at the user's request
 ]
 MARKS = []
 END = cue.total + 1.2
@@ -59,10 +55,6 @@ def chain(code, items):
 
 
 chain('G23', [('65 cm', 64, -0.32, 0.66, cue(8, '65'), dict(frac='ink'))])
-chain('G26', [('plus de 70 noms', 60, 0.5, -0.28, cue(9, 'noms'), dict(frac='ink'))])
-chain('G27', [('Dhou al-Fiqar', 64, 0.5, 1.45, cue(9, 'Dhou') + 0.35, dict(frac='ink'))])
-chain('G28', [('838', 72, 0.5, -0.12, cue(9, '838'), dict(frac='ink')),
-              ('Amorium', 64, 0.5, 1.12, cue(9, "'Amorium"), dict(frac='ink'))])
 
 SHOTS = [(0.0, BOARD.scene)]
 
