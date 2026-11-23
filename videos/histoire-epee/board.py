@@ -34,62 +34,12 @@ HOP = 1.0                     # a short move to the neighbouring drawing
 CLOSE_PAN = 3.2               # the final move in on the last drawing, slow
 START_EARLY = 0.45            # the pen starts this long before the camera has fully landed
 
-# The board's composition: layout « C », chosen by the user from the compact random boards
-# (tools/layout_options.py organic2(42, cols=9, rows=6, sx=1380, sy=880, jx=70, jy=50)): a dense,
-# hand-placed wall where every next drawing is a neighbour of the last one, in any direction.
-LAYOUT_COMPACT = {
-    'M01': (38, -6),
-    'G01': (50, 900),
-    'G02': (-57, 1808),
-    'G03': (1372, 853),
-    'G04': (1400, 32),
-    'G05': (2799, -31),
-    'G06': (4088, -2),
-    'G07': (5546, -36),
-    'G08': (4102, 897),
-    'G09': (2755, 834),
-    'G10': (2712, 1778),
-    'G33': (1388, 1716),
-    'G11': (37, 2669),
-    'G12': (-52, 3515),
-    'M06': (1426, 2653),
-    'G13': (1416, 3505),
-    'G14': (-18, 4443),
-    'G32': (1446, 4439),
-    'G15': (2756, 4369),
-    'G16': (2736, 3507),
-    'G17': (2794, 2687),
-    'G38': (4131, 1793),
-    'M04': (5478, 831),
-    'G18': (6924, -3),
-    'G19': (6909, 906),
-    'G20': (5560, 1776),
-    'G21': (4168, 2621),
-    'G22': (5549, 2668),
-    'M07': (4187, 3550),
-    'G23': (4124, 4379),
-    'G24': (5470, 4361),
-    'G25': (5514, 3527),
-    'G37': (6860, 4391),
-    'G26': (8324, 4367),
-    'M05': (6834, 3514),
-    'M08': (8303, 3511),
-    'C01': (9632, 4413),
-    'G27': (11033, 4377),
-    'G34': (11079, 3542),
-    'G35': (11007, 2687),
-    'G28': (9652, 3508),
-    'G29': (8288, 2668),
-    'G36': (6919, 1765),
-    'G30': (6908, 2620),
-    'M09': (8251, 1776),
-    'G31': (9611, 2660),
-}
-# the user: « the draws are too compact » - the same arrangement (layout C), spread out so every
-# drawing has open parchment around it
-SPREAD = 1.4
-LAYOUT = {c: (round(x * SPREAD), round(y * SPREAD)) for c, (x, y) in LAYOUT_COMPACT.items()}
-SIZE = {'M01': 1.035, 'G01': 0.93, 'G02': 0.946, 'G03': 0.927, 'G04': 1.028, 'G05': 1.014, 'G06': 0.756, 'G07': 0.994, 'G08': 0.988, 'G09': 0.997, 'G10': 0.962, 'G33': 0.725, 'G11': 0.974, 'G12': 0.949, 'M06': 1.007, 'G13': 0.988, 'G14': 0.926, 'G32': 1.039, 'G15': 0.987, 'G16': 0.989, 'G17': 0.903, 'G38': 0.681, 'M04': 1.017, 'G18': 0.912, 'G19': 0.974, 'G20': 1.041, 'G21': 0.789, 'G22': 0.94, 'M07': 0.712, 'G23': 0.978, 'G24': 0.903, 'G25': 1.024, 'G37': 1.034, 'G26': 0.983, 'M05': 0.916, 'M08': 0.942, 'C01': 0.999, 'G27': 1.009, 'G34': 0.916, 'G35': 1.037, 'G28': 0.935, 'G29': 0.787, 'G36': 0.956, 'G30': 0.871, 'M09': 1.021, 'G31': 0.948}
+# The board's composition: a compact random walk (tools/make_layout.py -> layout.json), the
+# arrangement the user chose for L'histoire du sel: every next drawing is a neighbour of the last one,
+# in any direction, spread out so every drawing has open parchment around it.
+import json as _json
+LAYOUT = {c: tuple(p) for c, p in _json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'layout.json'))).items()}
+SIZE = {}
 
 
 def world(code):
