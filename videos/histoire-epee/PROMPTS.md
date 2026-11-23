@@ -177,7 +177,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: an ancient smith at an anvil, hammer raised, holding a glowing blade with tongs. Beside him a woven basket of ore stones and a heap of charcoal, a small forge with bellows.
+Draw: an ancient smith in a plain belted wool tunic and a leather apron (no animal skins), hammer raised, holding a glowing sword blade with tongs on a simple block anvil set on a tree stump (no horn on the anvil). Beside him a woven basket of ore stones and a heap of charcoal, a small clay forge with leather bellows.
 Isolated on a plain white background.
 ```
 
