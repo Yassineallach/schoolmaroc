@@ -243,6 +243,10 @@ class Board:
                 e.pan = CLOSE_PAN
             if e.arrive is None:
                 e.arrive = (e.pan + 0.2) if (prev and i == 0) else (entries[i - 1].arrive + 0.1 if i else 0.0)
+            if i == 0 and prev is not None and self.before and e.arrive - e.pan < 0.1:
+                # the user: « the first draw in act 4 slides into the frame »: an act opens on the
+                # previous act's last drawing, at rest; the travel starts on screen, never before the cut
+                e.arrive = e.pan + 0.1
             e.start = max(0.0, e.arrive - START_EARLY) if e.arrive > 0 else 0.0
             prev = (x + fx, y + fy)
         for i, e in enumerate(entries):
