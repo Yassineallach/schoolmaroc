@@ -38,7 +38,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: a funeral pyre of stacked logs with a body on top wrapped in a cloak, not yet lit. Soldiers in crested helmets stand around it with heads bowed. In the foreground, seen from behind, a king in a plumed helmet and a long cloak faces the pyre. His face is not visible.
+Draw: a funeral pyre of stacked logs with a body on top wrapped in a cloak, not yet lit. Soldiers in Phrygian helmets like the attached drawing, round shields on their backs, stand around it with heads bowed. In the foreground, seen from behind, a king in a plumed helmet and a long cloak faces the pyre. His face is not visible.
 Isolated on a plain white background.
 ```
 
@@ -56,7 +56,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: a group of four Macedonian soldiers in crested helmets standing still, shocked, one with a hand over his mouth, one stepping back, looking down at a body on the ground entirely covered by a cloak. No blood, no wound, nothing visible under the cloak.
+Draw: a group of four Macedonian soldiers in Phrygian helmets like the attached drawing standing still, shocked, one with a hand over his mouth, one stepping back, looking down at a body on the ground entirely covered by a cloak. No blood, no wound, nothing visible under the cloak.
 Isolated on a plain white background.
 ```
 
