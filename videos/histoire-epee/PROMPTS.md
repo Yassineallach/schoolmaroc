@@ -112,7 +112,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: two Neanderthals (broad faces, heavy brows, fur clothing) sitting at the edge of a lake, scraping long wooden spears with flint tools; shavings on the ground; more spears leaning on a rock. A few wild horses in the distance by the water, small reeds.
+Draw: two Neanderthals (broad faces, heavy brows, fur clothing) sitting at the edge of a lake, scraping long wooden spears with flint scrapers. The spears are plain wood only: straight shafts sharpened to a tapered point, with no stone or metal head, no binding, no rings. Wood shavings on the ground; three more plain wooden spears leaning on a rock. A few wild horses in the distance by the water, small reeds.
 Isolated on a plain white background.
 ```
 
@@ -166,7 +166,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: a wooden rack holding a long row of about twelve identical straight iron swords, standing point down, evenly spaced.
+Draw: a simple wooden rack holding a row of about twelve identical early Iron Age swords, standing point down. Each sword has a leaf-shaped blade that widens slightly before the point, no crossguard, a short plain hilt with a small flat pommel, no wrapped grip. Not medieval swords.
 Isolated on a plain white background.
 ```
 
