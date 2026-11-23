@@ -341,7 +341,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: two swordsmen face to face, close, swords crossed between them, looking each other in the eyes. Side view, the gap between them clearly visible.
+Draw: two medieval swordsmen in mail face to face at arm's length, swords crossed between them, looking each other in the eyes. Side view, full figures, the short gap between them clearly visible.
 Isolated on a plain white background.
 ```
 
@@ -350,7 +350,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: a soldier lying prone, aiming a long bolt-action rifle to the right. Side view.
+Draw: a First World War soldier lying prone, aiming a long bolt-action rifle to the right. Side view, small in the left half of the picture, the right half left empty.
 Isolated on a plain white background.
 ```
 
@@ -359,7 +359,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: a field artillery gun firing to the right, a puff of smoke at the muzzle, the barrel raised at an angle. Side view, no crew.
+Draw: a First World War field artillery gun on two wooden-spoked wheels firing to the right, a puff of smoke at the muzzle, the barrel raised at an angle. Side view, no crew, in the left half of the picture, the right half left empty.
 Isolated on a plain white background.
 ```
 
@@ -368,7 +368,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: a large military drone in flight, side view, long thin wings, a sensor dome under the nose, two missiles under the wings. Nothing else.
+Draw: a large military drone in flight toward the right, side view, long thin wings, a sensor dome under the nose, two missiles under the wings, in the left half of the picture, the right half left empty. No markings, no letters.
 Isolated on a plain white background.
 ```
 
