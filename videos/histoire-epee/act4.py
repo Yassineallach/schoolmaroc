@@ -72,7 +72,7 @@ chain('G30', [(lambda at: BD.write('IXe siècle', 64, 0.5, 1.10, at, frac='ink')
 chain('G35', [(lambda at: distance((0.37, 0.235), 0.63, at, 0.5), cue(11, 'bras'))])            # « à portée de bras »: eye to eye
 chain('G36', [(lambda at: distance((0.77, 0.497), 0.93, at, 0.6), cue(11, 'centaines'))])            # short of the drawing's edge
 chain('G37', [(lambda at: distance((0.70, 0.30), 0.97, at, 0.6), cue(11, 'kilometres'))])            # further
-chain('G38', [(lambda at: distance((0.63, 0.45), 1.30, at, 1.0), cue(11, 'continents'))])       # past the frame's edge, not into the next drawing
+chain('G38', [(lambda at: distance((0.63, 0.45), 1.02, at, 1.0), cue(11, 'continents'))])       # the longest line, stopping short of the turret's view (its neighbour)
 chain('G39', [(lambda at: BD.write('On Killing', 72, 0.5, 1.12, at, frac='ink'), cue(11, 'Killing'))])
 
 SHOTS = [(0.0, BOARD.scene)]
