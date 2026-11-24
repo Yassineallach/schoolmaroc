@@ -388,7 +388,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: an automated weapon turret on a squat base, a gun barrel and a round camera sensor eye on top, turned toward the right. No people, no screens.
+Draw: an automated weapon turret on a squat base, a gun barrel and a round camera sensor eye on top, aiming to the right. Side view, in the left half of the picture, the right half left empty. No people, no screens, no markings, no letters.
 Isolated on a plain white background.
 ```
 
@@ -424,7 +424,7 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: two men's faces in profile, close, facing each other, eye to eye, the blade of a sword held upright between them.
+Draw: two men's faces in profile, close, facing each other at arm's length, eye to eye, the blade of a plain straight sword held upright between them. Calm, not violent. No helmets.
 Isolated on a plain white background.
 ```
 
@@ -433,6 +433,6 @@ Isolated on a plain white background.
 ```
 Use ONLY the drawing style of the attached image: hand-drawn black ink sketch, bold uneven contour line, quick hatching strokes for texture and shadow, white left inside the shapes. No colour, no grey, no text or letters anywhere.
 
-Draw: a close-up of one human hand resting open on the hilt of a sword whose point stands on the ground, the blade going down out of the bottom. The hand is not gripping, just resting.
+Draw: a close-up of one human hand, drawn like the hand in the second attached drawing, resting open on the round pommel of a plain straight sword whose point stands on the ground, the blade going down to the bottom of the picture. The hand is not gripping, just resting. Nothing else.
 Isolated on a plain white background.
 ```
