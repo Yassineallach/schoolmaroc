@@ -3,7 +3,7 @@
 The board continues. One drawing per view. The distance line returns twice: from the turret it runs
 to no one (« sans qu'un humain valide chaque frappe »), and between the two faces it is short again
 (« …à regarder celui qui meurt »). The film ends on a human hand resting on a sword (answers G07, the
-open hand of act 1): once it is drawn, the camera moves in slowly on the hand and holds, then the outro.
+open hand of act 1); a short hold after the last word, then the outro.
 Words written by the pen: ?, 21 novembre 2026, Genève, 163.
 """
 import json
@@ -40,14 +40,12 @@ ENTRIES = [
 MARKS = []
 BEFORE = act1.ENTRIES + act2.ENTRIES + act3.ENTRIES + act4.ENTRIES
 BEFORE_MARKS = act1.MARKS + act2.MARKS + act3.MARKS + act4.MARKS
-# the ending: once the last word is said, the camera moves in slowly on the hand and holds 3 s
-_gx, _gy = BD.world('G45')
-CLOSE = E('CLOSE', 'gros plan sur la main', cue.total + 0.6 + BD.CLOSE_PAN, look=True, at=(_gx, _gy - 300), zoom=1.45)
-ENTRIES.append(CLOSE)
-END = CLOSE.arrive + 3.0
+# the ending (the user: « the zoom at the end has no meaning and it was too long »): no move in;
+# the hand stays as drawn, under the same gentle push as every drawing, for a short hold after the last word
+END = cue.total + 1.5
 BOARD = BD.Board(ENTRIES, before=BEFORE, end=END, marks=MARKS, before_marks=BEFORE_MARKS)
 G = {e.code: e for e in ENTRIES}
-DONE = {c: e.start + e.dur + 0.15 for c, e in G.items() if not e.look}
+DONE = {c: e.start + e.dur + 0.15 for c, e in G.items()}
 
 
 def distance(p0, x1, at, dur=0.8):
