@@ -65,7 +65,10 @@ Add to `local.properties` (from AdMob › Apps › Nearshelf):
 ```properties
 admob.appId=ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX
 admob.nativeUnitId=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob.testAds=false
 ```
+
+**Test ads on/off:** `admob.testAds=true` makes the release build show Google's test ads too (for a release you want to try on your own phone); set it back to `false` before building the version you upload to Play. The build log and `build-release.ps1` say which ads the release contains.
 
 Only **release** builds use these IDs. Debug builds always show Google's test ads, so testing on your own phone never touches your live ads (AdMob can suspend an account whose owner taps its own ads). The build stops with a clear message if an ID is in the wrong place (the app ID has `~`, the unit ID has `/`).
 
