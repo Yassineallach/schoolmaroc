@@ -8,12 +8,17 @@
 </head>
 <body>
   <header class="bar">
-    <div class="brand"><img src="icons/icon32.png" alt="" width="20" height="20"> Claude</div>
+    <div class="brand"><img src="icons/icon32.png" alt="" width="20" height="20"></div>
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-view="chatView" role="tab" type="button">Chat</button>
+      <button class="tab" data-view="etsyView" role="tab" type="button">Etsy</button>
+    </div>
     <select id="model" aria-label="Model"></select>
     <button id="newChat" class="icon-btn" title="New chat" aria-label="New chat">＋</button>
     <button id="openSettings" class="icon-btn" title="Settings" aria-label="Settings">⚙</button>
   </header>
 
+  <div id="chatView" class="view">
   <main id="messages" aria-live="polite">
     <div id="empty" class="empty">
       <h1>How can I help?</h1>
@@ -23,7 +28,9 @@
         <button class="chip" data-action="explain">Explain this page simply</button>
       </div>
       <p id="noKey" class="notice" hidden>
-        Add your Anthropic API key in <a href="#" id="settingsLink">Settings</a> to start.
+        No API key set, so questions open in <strong>Claude.ai</strong> with your Pro plan:
+        the prompt is copied, you press <kbd>Ctrl</kbd>+<kbd>V</kbd> there and send.
+        To get answers right here instead, add an API key in <a href="#" id="settingsLink">Settings</a>.
       </p>
     </div>
   </main>
@@ -36,6 +43,40 @@
       <button id="stop" type="button" class="send stop" aria-label="Stop" hidden>■</button>
     </div>
   </form>
+  </div>
+
+  <div id="etsyView" class="view etsy" hidden>
+    <div class="etsy-scroll">
+      <fieldset class="seg">
+        <legend>Read from</legend>
+        <label><input type="radio" name="scope" value="current" checked> This tab</label>
+        <label><input type="radio" name="scope" value="all"> All open Etsy tabs</label>
+      </fieldset>
+      <div class="btn-row">
+        <button id="extract" class="primary" type="button">Extract Etsy data</button>
+        <button id="clearData" type="button">Clear</button>
+      </div>
+      <p class="hint">Open any Etsy search, shop, category or listing page, then extract. Go to the next page and extract again to add more; duplicates are skipped.</p>
+      <p id="etsyStatus" role="status"></p>
+
+      <div id="etsyResults" hidden>
+        <div id="etsySummary" class="summary"></div>
+        <div class="table-wrap"><table id="etsyTable"></table></div>
+        <div class="btn-row">
+          <button id="downloadCsv" type="button">Download CSV</button>
+          <button id="copyJson" type="button">Copy JSON</button>
+        </div>
+
+        <label for="etsyQuestion" class="q-label">Ask anything about this data</label>
+        <textarea id="etsyQuestion" rows="3" placeholder="e.g. Which items have the best rating for the price? What do bestseller titles have in common? Suggest a price for my mug."></textarea>
+        <div class="btn-row">
+          <button id="askClaudeAi" class="primary" type="button">Ask on Claude.ai (Pro)</button>
+          <button id="askApi" type="button">Ask here (API key)</button>
+        </div>
+        <p class="hint">"Ask on Claude.ai" copies your question and the data, then opens Claude.ai. Press <kbd>Ctrl</kbd>+<kbd>V</kbd> and send. It uses your Pro plan, no API key needed.</p>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="chat.js"></script>
 </body>

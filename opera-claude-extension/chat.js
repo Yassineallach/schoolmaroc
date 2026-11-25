@@ -1,5 +1,6 @@
 import { getSettings, streamMessage, MODELS } from "./api.js";
 import { renderMarkdown } from "./markdown.js";
+import { extractEtsyPage, toCSV, toPromptText, LISTING_COLUMNS } from "./etsy.js";
 
 const $ = (id) => document.getElementById(id);
 const messagesEl = $("messages");
@@ -134,16 +135,16 @@ async function handlePending(p) {
 }
 
 async function send(text, page, note) {
-  if (!settings.apiKey) {
-    $("noKey").hidden = false;
-    updateEmpty(true);
-    return;
-  }
-
   // The page text is attached to the API message but only the short prompt is shown.
   const apiContent = page
     ? `<page title="${attr(page.title)}" url="${attr(page.url)}">\n${page.text}\n</page>\n\n${text}`
     : text;
+
+  // No API key: hand the prompt to Claude.ai so it runs on the user's Pro plan.
+  if (!settings.apiKey) {
+    await askOnClaudeAi(apiContent);
+    return;
+  }
   const shown = page ? `${text}\n\n📄 ${page.title}` : note ? `${text}\n\n${note}` : text;
 
   history.push({ role: "user", content: apiContent, display: shown });
@@ -271,3 +272,201 @@ function autoGrow() {
   input.style.height = "auto";
   input.style.height = Math.min(input.scrollHeight, 160) + "px";
 }
+
+// ---------- Claude.ai handoff (Pro plan, no API key) ----------
+async function askOnClaudeAi(prompt) {
+  try {
+    await navigator.clipboard.writeText(prompt);
+  } catch {
+    // Fallback for contexts where the async clipboard API is blocked.
+    const ta = document.createElement("textarea");
+    ta.value = prompt;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+  }
+  await chrome.tabs.create({ url: "https://claude.ai/new" });
+}
+
+// ---------- view switching ----------
+document.querySelectorAll(".tab").forEach((tab) =>
+  tab.addEventListener("click", () => showView(tab.dataset.view))
+);
+function showView(id) {
+  document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.view === id));
+  document.querySelectorAll(".view").forEach((v) => (v.hidden = v.id !== id));
+  modelSel.hidden = $("newChat").hidden = id !== "chatView";
+  chrome.storage.local.set({ lastView: id });
+}
+chrome.storage.local.get("lastView").then(({ lastView }) => lastView && showView(lastView));
+
+// ---------- Etsy ----------
+let etsyPages = []; // results of extractEtsyPage(), newest last
+
+chrome.storage.local.get("etsyPages").then(({ etsyPages: saved }) => {
+  if (saved?.length) {
+    etsyPages = saved;
+    renderEtsy();
+  }
+});
+
+function allListings() {
+  const seen = new Set();
+  const out = [];
+  for (const p of etsyPages) {
+    for (const l of p.listings) {
+      if (seen.has(l.id)) continue;
+      seen.add(l.id);
+      out.push(l);
+    }
+  }
+  return out;
+}
+
+function etsyStatus(msg, bad) {
+  const el = $("etsyStatus");
+  el.textContent = msg;
+  el.className = bad ? "bad" : "";
+}
+
+$("extract").addEventListener("click", async () => {
+  const scope = document.querySelector('input[name="scope"]:checked').value;
+  let tabs;
+  if (scope === "all") {
+    tabs = await chrome.tabs.query({ url: ["https://*.etsy.com/*"] });
+  } else {
+    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    tabs = tab ? [tab] : [];
+    if (tab && !/^https:\/\/([a-z0-9-]+\.)?etsy\.com\//i.test(tab.url || "")) {
+      return etsyStatus("This tab isn't an Etsy page. Open etsy.com first.", true);
+    }
+  }
+  if (!tabs.length) return etsyStatus("No open Etsy tabs found.", true);
+
+  etsyStatus(`Reading ${tabs.length} tab${tabs.length > 1 ? "s" : ""}…`);
+  const before = allListings().length;
+  let ok = 0;
+  for (const tab of tabs) {
+    try {
+      const [res] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: extractEtsyPage });
+      const page = res.result;
+      // Replace an earlier extraction of the same URL instead of duplicating it.
+      etsyPages = etsyPages.filter((p) => p.url !== page.url);
+      etsyPages.push(page);
+      ok++;
+    } catch (e) {
+      console.warn("Etsy extraction failed", tab.url, e);
+    }
+  }
+  if (!ok) return etsyStatus("Couldn't read the page. Reload the Etsy tab and try again.", true);
+
+  // Keep storage small: page text is only kept for the last few pages.
+  etsyPages = etsyPages.slice(-30).map((p, i, arr) => (i < arr.length - 5 ? { ...p, pageText: "" } : p));
+  await chrome.storage.local.set({ etsyPages });
+  const added = allListings().length - before;
+  etsyStatus(`Read ${ok} page${ok > 1 ? "s" : ""}. ${added} new listing${added === 1 ? "" : "s"} added.`);
+  renderEtsy();
+});
+
+$("clearData").addEventListener("click", async () => {
+  etsyPages = [];
+  await chrome.storage.local.remove("etsyPages");
+  $("etsyResults").hidden = true;
+  etsyStatus("Cleared.");
+});
+
+function renderEtsy() {
+  const listings = allListings();
+  const products = etsyPages.filter((p) => p.product);
+  const reviews = etsyPages.reduce((n, p) => n + p.reviews.length, 0);
+  const shops = etsyPages.filter((p) => p.shop);
+  $("etsyResults").hidden = false;
+
+  const parts = [`<strong>${etsyPages.length}</strong> page${etsyPages.length === 1 ? "" : "s"}`];
+  parts.push(`<strong>${listings.length}</strong> listings`);
+  if (products.length) parts.push(`<strong>${products.length}</strong> product page${products.length === 1 ? "" : "s"}`);
+  if (reviews) parts.push(`<strong>${reviews}</strong> reviews`);
+  if (shops.length) parts.push(`<strong>${shops.length}</strong> shop${shops.length === 1 ? "" : "s"}`);
+  $("etsySummary").innerHTML = parts.join(" · ");
+
+  const table = $("etsyTable");
+  table.replaceChildren();
+  const rows = [
+    ...products.map((p) => ({ ...p.product, _kind: "Product" })),
+    ...listings,
+  ];
+  const head = table.createTHead().insertRow();
+  for (const h of ["Title", "Price", "Rating", "Reviews", "Shop"]) {
+    const th = document.createElement("th");
+    th.textContent = h;
+    head.appendChild(th);
+  }
+  const tbody = table.createTBody();
+  for (const r of rows.slice(0, 200)) {
+    const tr = tbody.insertRow();
+    const tdTitle = tr.insertCell();
+    const a = document.createElement("a");
+    a.href = r.url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.textContent = r.title;
+    tdTitle.appendChild(a);
+    tr.insertCell().textContent = [r.currency, r.price].filter(Boolean).join(" ");
+    tr.insertCell().textContent = r.rating;
+    tr.insertCell().textContent = r.reviewCount;
+    tr.insertCell().textContent = r.shop;
+  }
+  if (!rows.length) {
+    const td = tbody.insertRow().insertCell();
+    td.colSpan = 5;
+    td.textContent = "No listings found on these pages; Claude will use the page text instead.";
+  }
+}
+
+$("downloadCsv").addEventListener("click", () => {
+  const products = etsyPages.filter((p) => p.product).map((p) => p.product);
+  const rows = [...products, ...allListings()];
+  const blob = new Blob([toCSV(rows, LISTING_COLUMNS)], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `etsy-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+});
+
+$("copyJson").addEventListener("click", async (e) => {
+  const data = etsyPages.map(({ pageText, ...p }) => p);
+  await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+  e.target.textContent = "Copied";
+  setTimeout(() => (e.target.textContent = "Copy JSON"), 1200);
+});
+
+function etsyPrompt() {
+  const q = $("etsyQuestion").value.trim();
+  if (!q) {
+    $("etsyQuestion").focus();
+    etsyStatus("Type a question first.", true);
+    return null;
+  }
+  return { q, data: toPromptText(etsyPages) };
+}
+
+$("askClaudeAi").addEventListener("click", async () => {
+  const p = etsyPrompt();
+  if (!p) return;
+  await askOnClaudeAi(
+    `Here is data I extracted from Etsy pages I was browsing.\n\n<etsy_data>\n${p.data}\n</etsy_data>\n\n${p.q}`
+  );
+});
+
+$("askApi").addEventListener("click", () => {
+  const p = etsyPrompt();
+  if (!p) return;
+  if (!settings.apiKey) {
+    etsyStatus("No API key set. Use \"Ask on Claude.ai (Pro)\" or add a key in Settings.", true);
+    return;
+  }
+  showView("chatView");
+  send(p.q, { title: `Etsy data (${allListings().length} listings)`, url: "etsy.com", text: p.data });
+});
