@@ -71,6 +71,7 @@ var _bg_key := ""
 var _bg_tween: Tween
 var bg_spin := {"real": 0.0, "eased": 0.0, "amount": 0.0}
 var bg_spin_time := 0.0
+var modal_back := Callable()  # what Android back does on a locked modal
 var net_gate: NetGate
 var crt_rect: ColorRect  # Balatro's CRT pass over the whole screen
 # Balatro's flame_handler: flames rise from the Chips and Mult boxes while
@@ -3056,14 +3057,17 @@ func leave_shop() -> void:
 
 # ---------------------------------------------------------------- modal popups
 
-func open_modal() -> VBoxContainer:
+## Open a modal panel. A tap outside it closes it, unless `locked`: a
+## question the game is waiting on must be answered with its own buttons
+## (set `modal_back` for what Android's back button does then).
+func open_modal(locked := false) -> VBoxContainer:
 	close_modal()
 	modal.mouse_filter = Control.MOUSE_FILTER_STOP
 	var dim := ColorRect.new()
 	dim.color = Color(0, 0, 0, 0.6)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim.gui_input.connect(func(e):
-		if e is InputEventMouseButton and e.pressed:
+		if e is InputEventMouseButton and e.pressed and not locked:
 			close_modal())
 	modal.add_child(dim)
 	var center := CenterContainer.new()
@@ -3085,6 +3089,7 @@ func open_modal() -> VBoxContainer:
 
 
 func close_modal() -> void:
+	modal_back = Callable()
 	music.set_muffled(false)
 	for c in modal.get_children():
 		c.queue_free()
@@ -3648,7 +3653,8 @@ func _second_chance() -> bool:
 	if not ads.can_offer("second_chance", _ad_ctx()):
 		return false
 	var pick := Picker.new()
-	var vb := open_modal()
+	var vb := open_modal(true)
+	modal_back = func(): pick.chosen.emit(false)
 	vb.add_child(_label("One more hand?", 40, Palette.HEADING))
 	var l := _label("Watch an ad to get one more hand for this blind. An assisted run doesn't count for Fastest Win or stake unlocks.", 22)
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -3678,7 +3684,8 @@ func _leave_run(next: Callable) -> void:
 	if ads.should_offer_remove(stats.wins + stats.losses):
 		ads.mark_offered()
 		var pick := Picker.new()
-		var vb := open_modal()
+		var vb := open_modal(true)
+		modal_back = func(): pick.chosen.emit(false)
 		vb.add_child(_label("Remove ads", 40, Palette.HEADING))
 		var l := _label("Enjoying Aleatro? Remove the ads between rounds for good. Optional reward ads stay available.", 22)
 		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -3827,7 +3834,10 @@ func go_back() -> void:
 		mascot.buttons()[0].pressed.emit()
 		return
 	if not modal.get_children().filter(func(c): return not c.is_queued_for_deletion()).is_empty():
-		close_modal()
+		if modal_back.is_valid():
+			modal_back.call()  # a question the game waits on: back answers it
+		else:
+			close_modal()
 		return
 	if in_round and not busy and not selected_views().is_empty():
 		deselect_all()
