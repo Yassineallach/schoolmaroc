@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude Settings</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="options">
+  <main class="settings">
+    <h1><img src="icons/icon48.png" alt="" width="32" height="32"> Claude for Opera</h1>
+
+    <label for="apiKey">Anthropic API key</label>
+    <input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off">
+    <p class="hint">Get one at console.anthropic.com → API Keys. It is stored only in this browser profile and sent only to api.anthropic.com.</p>
+
+    <label for="model">Default model</label>
+    <select id="model"></select>
+
+    <label for="effort">Effort</label>
+    <select id="effort">
+      <option value="low">Low — fastest, cheapest</option>
+      <option value="medium">Medium — balanced</option>
+      <option value="high">High — more thorough</option>
+      <option value="xhigh">Extra high</option>
+      <option value="max">Max — slowest, most thorough</option>
+    </select>
+
+    <label for="system">System prompt</label>
+    <textarea id="system" rows="4"></textarea>
+
+    <div class="row">
+      <button id="save" class="primary" type="button">Save</button>
+      <button id="test" type="button">Test key</button>
+      <span id="status" role="status"></span>
+    </div>
+  </main>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

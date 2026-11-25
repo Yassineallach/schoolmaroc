@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Claude for Opera",
+  "version": "1.0.0",
+  "description": "Chat with Claude from Opera's sidebar or toolbar. Summarize pages and ask about selected text.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Claude",
+    "default_popup": "chat.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "sidebar_action": {
+    "default_panel": "chat.html?sidebar=1",
+    "default_title": "Claude",
+    "default_icon": "icons/icon32.png"
+  },
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage", "activeTab", "scripting", "contextMenus"],
+  "host_permissions": ["https://api.anthropic.com/*"],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": { "default": "Alt+Shift+C" },
+      "description": "Open Claude"
+    }
+  }
+}
