@@ -26,33 +26,37 @@ def arrive(clip, phrase, n=1):
 
 E = BD.Entry
 ENTRIES = [
-    E('G04', 'la galère', None),                                         # opens with the travel down to row 2: « contacts par la Méditerranée »
-    E('G05', 'la caravelle', arrive(3, 'débuté'), max_dur=2.2),                      # « La traite… fin des années 1400… portugaises »
-    locked(E('G06', 'canne, tabac, coton', arrive(3, 'Dans'))),         # « la canne à sucre, le tabac et le coton »
-    E('G07', 'le champ vide', arrive(3, 'colons')),                     # « …trop peu nombreux pour cultiver… »
-    E('G08', 'le village taïno', arrive(3, 'Amerindiens') - 0.5),       # « Les Amérindiens… d'autres ont résisté »
-    E('M02', "vers l'Afrique", arrive(3, 'repondre'), max_dur=1.8),                  # « …les Européens se sont alors tournés vers l'Afrique »
-    E('G09', 'la ville', arrive(4, 'L’esclavage')),                     # « L'esclavage y existait depuis des siècles »
-    E('G10', 'les cauris', arrive(4, 'Certains')),                      # « des sortes d'engagés… racheter leur liberté »
-    locked(E('G11', 'le paysan', arrive(4, 'D’autres'), max_dur=2.4)),  # « …aux serfs européens »
-    E('G12', 'la famille', arrive(4, 'Dans')),                          # « …positions de pouvoir »
+    E('G04', 'la galère', None, max_dur=1.6),                           # opens with the travel down to row 2: « contacts par la Méditerranée »
+    E('G05', 'la caravelle', arrive(3, 'débuté'), max_dur=2.2),        # « …fin des années 1400… portugaises… espagnole aux Amériques »
+    locked(E('G06', 'canne, tabac, coton', arrive(3, 'Dans'), max_dur=1.8)),   # « …exigeaient une main-d'œuvre abondante »
+    E('G07', 'le champ vide', arrive(3, 'colons'), max_dur=1.6),        # « …trop peu nombreux pour cultiver… »
+    E('G08', 'le village taïno', arrive(3, 'Amerindiens') - 0.5),       # « Les Amérindiens… maladies… d'autres ont résisté »
+    E('M02', "vers l'Afrique", arrive(3, 'repondre'), max_dur=1.8),     # « …les Européens se sont alors tournés vers l'Afrique »
+    E('G09', 'la ville', arrive(4, 'L’esclavage'), max_dur=1.2),        # « L'esclavage y existait depuis des siècles »
+    E('G10', 'les cauris', arrive(4, 'sortes'), max_dur=1.5),           # « …durée limitée… racheter leur liberté »
+    locked(E('G11', 'le paysan', arrive(4, 'D’autres'), max_dur=1.4)),  # « …aux serfs européens »
+    E('G12', 'la famille', arrive(4, 'esclave'), max_dur=2.4),          # « …famille de son maître, posséder des terres… pouvoir »
 ]
 END = cue.total + 1.2
 BOARD = BD.Board(ENTRIES, before=act1.ENTRIES, end=END)
 G, chain = chainer(ENTRIES)
 M02 = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'M02.json')))
 
-chain('G04', [(lambda at: write('Méditerranée', 62, 0.50, 1.10, at, frac='ink'), cue(3, 'Méditerranée'))])
-chain('G05', [(lambda at: write('fin des années 1400', 62, 0.50, 1.10, at, frac='ink'), cue(3, '1400'))])
-chain('G06', [(lambda at: write('canne à sucre', 52, 0.17, 1.08, at, frac='ink'), cue(3, 'canna')),
-              (lambda at: write('tabac', 52, 0.50, 1.08, at, frac='ink'), cue(3, 'tabac')),
-              (lambda at: write('coton', 52, 0.84, 1.08, at, frac='ink'), cue(3, 'coton'))])
-chain('G07', [(lambda at: write('trop peu nombreux', 62, 0.50, -0.06, at, frac='ink'), cue(3, 'nombreux'))])
-chain('M02', [(lambda at: route(M02['pins'], at, 1.8, arrow=True), cue(3, 'tournés'))])        # the motif turns south
-chain('G10', [(lambda at: write('engagés', 60, 0.28, 1.07, at, frac='ink'), cue(4, 'd’engagés')),
-              (lambda at: write('durée limitée', 56, 0.72, 1.07, at, frac='ink'), cue(4, 'limitée'))])
-chain('G11', [(lambda at: write('serfs', 64, 0.50, 1.10, at, frac='ink'), cue(4, 'serfs'))])
-chain('G12', [(lambda at: write('positions de pouvoir', 60, 0.50, 1.08, at, frac='ink'), cue(4, 'pouvoir'))])
+# the key information of each sentence (the user: « put the important texts, the information »)
+chain('G04', [(lambda at: write('des siècles de contacts', 60, 0.50, 1.10, at, frac='ink', dur=1.9), cue(3, 'contacts'))])
+chain('G05', [(lambda at: write('fin des années 1400', 62, 0.50, -0.07, at, frac='ink'), cue(3, '1400')),
+              (lambda at: write('Portugal, puis Espagne', 60, 0.50, 1.09, at, frac='ink', dur=1.6), cue(3, 'espagnole'))])
+chain('G06', [(lambda at: write("besoin de main-d'œuvre", 62, 0.50, 1.09, at, frac='ink', dur=2.0), cue(3, 'exigeaient'))])
+chain('G07', [(lambda at: write('trop peu de colons', 62, 0.50, -0.06, at, frac='ink', dur=1.7), cue(3, 'nombreux'))])
+chain('G08', [(lambda at: write('Amérindiens : maladies', 58, 0.50, 1.08, at, frac='ink'), cue(3, 'maladies')),
+              (lambda at: write('et résistance', 58, 0.50, 1.20, at, frac='ink'), cue(3, 'résisté'))])
+chain('M02', [(lambda at: route(M02['pins'], at, 1.6, arrow=True), cue(3, 'tournés'))])        # the motif turns south
+chain('G09', [(lambda at: write("l'esclavage existait déjà", 60, 0.50, 1.10, at, frac='ink', dur=2.2), cue(4, 'existait'))])
+chain('G10', [(lambda at: write('liberté rachetable', 60, 0.50, 1.07, at, frac='ink', dur=1.3), cue(4, 'racheter'))])
+chain('G11', [(lambda at: write('comme des serfs', 62, 0.50, 1.10, at, frac='ink', dur=1.4), cue(4, 'serfs'))])
+chain('G12', [(lambda at: write('famille', 58, 0.20, 1.08, at, frac='ink', dur=0.7), cue(4, 'famille')),
+              (lambda at: write('terres', 58, 0.50, 1.08, at, frac='ink', dur=0.6), cue(4, 'terres')),
+              (lambda at: write('pouvoir', 58, 0.80, 1.08, at, frac='ink', dur=0.7), cue(4, 'pouvoir'))])
 
 SHOTS = [(0.0, BOARD.scene)]
 
