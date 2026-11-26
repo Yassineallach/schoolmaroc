@@ -108,7 +108,7 @@ take about 1 s. Everything else takes about 3 s. One drawing in three is locked 
 |---|---|---|---|
 | 7 · 0.0 | une brutalité inimaginable | **pull-back 2** over the board, then **G20**: Elmina Castle on the Gold Coast (Portuguese, 1482): whitewashed walls, cannons facing the sea | — |
 | 7 · 4.5 | marche forcée jusqu'aux forts | **G21**: a coffle: captives walking in single file, necks held in forked wooden yokes, guarded, toward the coast | marche forcée |
-| 7 · ≈8 | rasés… marqués au fer | **G21b**: a trader's small branding iron with initials, heating in a brazier (the object, with no person) | marqués au fer |
+| 7 · ≈8 | rasés… marqués au fer | **G39**: a trader's small branding iron with initials, heating in a brazier (the object, with no person) | marqués au fer |
 | 7 · ≈11 | embarqués sur des navires | **G22**: canoes ferrying captives through the surf to a ship at anchor (there were no docks, so canoes took them out) | — |
 | 7 · 13.6 | Environ 20 % ne reverraient jamais la terre ferme | **M04**: code Atlantic map; **the route crosses the ocean, part of the line breaks off and never arrives** | — (see facts to check) |
 | 8 · 0.0 | l'entassement à outrance, serrant sous le pont | **G23**: the 1788 *Brookes* plan redrawn in ink: the ship seen from above, captives lying in rows, chained in pairs (6 s of pen) | sous le pont |
