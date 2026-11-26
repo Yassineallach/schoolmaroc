@@ -78,7 +78,8 @@ Ads declaration: "Contains ads" = Yes. Advertising ID permission (`AD_ID`) is pr
 
 - [x] Contact email in PRIVACY.md and `app/src/main/assets/privacy.md` (the test keeps them identical)
 - [x] Privacy policy published at https://mar-devl.github.io/Nearshelf-legal/ (put this URL in Play Console)
-- [ ] AdMob app + native ad unit; put `admob.appId` and `admob.nativeUnitId` in `local.properties`, and add `app-ads.txt` on your developer website
+- [x] AdMob app + native ad unit (IDs in `app/build.gradle.kts`)
+- [ ] Add `app-ads.txt` on your developer website
 - [ ] Upload keystore; `release.storeFile/storePassword/keyAlias/keyPassword` in `local.properties`; enrol in Play App Signing
 - [ ] Optional: `nearshelf.registryUrl` pointing to the hosted `libraries.json` for weekly updates
 - [ ] Optional: generate the baseline profile on a device: `./gradlew :app:generateReleaseBaselineProfile`

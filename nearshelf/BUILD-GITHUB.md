@@ -34,6 +34,8 @@ Copy the key as text to the clipboard:
 
 ## 3. Add the secrets
 
+(The AdMob IDs are already in `app/build.gradle.kts`; no secret needed for them.)
+
 github.com › your repository › **Settings › Secrets and variables › Actions › New repository secret**:
 
 | Name | Value |
@@ -42,8 +44,6 @@ github.com › your repository › **Settings › Secrets and variables › Acti
 | `KEYSTORE_PASSWORD` | the keystore password |
 | `KEY_ALIAS` | `upload` |
 | `KEY_PASSWORD` | the key password (the script uses the same one as the keystore) |
-| `ADMOB_APP_ID` | your AdMob app ID (with `~`) |
-| `ADMOB_NATIVE_UNIT_ID` | your native ad unit ID (with `/`) |
 
 Secrets are encrypted, hidden in logs, and not given to builds from forks.
 

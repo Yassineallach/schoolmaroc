@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Writes local.properties for a CI build from environment variables (GitHub secrets).
-# Every value is optional: without the keystore the release is unsigned, without the
-# AdMob IDs it shows Google's test ads.
+# Every value is optional: without the keystore the release is unsigned. The AdMob IDs
+# are in app/build.gradle.kts; the ADMOB_* secrets only override them.
 set -euo pipefail
 
 # .properties escaping: a backslash must be doubled; keep everything else literal.
@@ -30,7 +30,7 @@ if [ -n "${ADMOB_APP_ID:-}" ] && [ -n "${ADMOB_NATIVE_UNIT_ID:-}" ]; then
   echo "admob.nativeUnitId=$(esc "$ADMOB_NATIVE_UNIT_ID")" >> "$out"
 fi
 echo "admob.testAds=${TEST_ADS:-false}" >> "$out"
-if [ "${TEST_ADS:-false}" = "true" ] || [ -z "${ADMOB_APP_ID:-}" ]; then
+if [ "${TEST_ADS:-false}" = "true" ]; then
   echo "::warning::This release shows Google's TEST ads."
 else
   echo "AdMob: this release shows your REAL ads."

@@ -61,9 +61,8 @@ if (-not (Test-Path (Join-Path $sdk "licenses"))) {
 # --- What this build will contain ---
 $signed = $props.ContainsKey("release.storeFile") -and $props.ContainsKey("release.storePassword")
 if (-not $signed) { Write-Host "No upload key in local.properties: the release will be UNSIGNED. Run create-keystore.ps1 first." -ForegroundColor Yellow }
-if (-not $props.ContainsKey("admob.appId")) { Write-Host "No admob.appId / admob.nativeUnitId in local.properties: the build shows Google's TEST ads." -ForegroundColor Yellow }
-elseif ("$($props['admob.testAds'])".Trim() -ieq "true") { Write-Host "admob.testAds=true in local.properties: this release shows Google's TEST ads. Set it to false before uploading to Play." -ForegroundColor Yellow }
-else { Write-Host "AdMob: this release shows your REAL ads ($($props['admob.appId']))." -ForegroundColor Green }
+if ("$($props['admob.testAds'])".Trim() -ieq "true") { Write-Host "admob.testAds=true in local.properties: this release shows Google's TEST ads. Set it to false before uploading to Play." -ForegroundColor Yellow }
+else { Write-Host "AdMob: this release shows your REAL ads." -ForegroundColor Green }
 
 # --- Build ---
 $tasks = @()

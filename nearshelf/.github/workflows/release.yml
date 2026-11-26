@@ -1,7 +1,8 @@
 # Builds the signed Play bundle (.aab) and APK in the cloud.
 # Run it from the repository's Actions tab: "Build release" > Run workflow.
 # Secrets (Settings > Secrets and variables > Actions), see BUILD-GITHUB.md:
-#   KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD, ADMOB_APP_ID, ADMOB_NATIVE_UNIT_ID
+#   KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+# The AdMob IDs are in app/build.gradle.kts (optional secrets ADMOB_APP_ID / ADMOB_NATIVE_UNIT_ID override them).
 name: Build release
 
 on:

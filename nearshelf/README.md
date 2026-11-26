@@ -25,12 +25,8 @@ Not affiliated with OverDrive, Hoopla, or any library or catalog vendor.
 Native AdMob ads only, inside content (never banners, never at the bottom, never interstitials,
 never in notifications or the widget): after the first library card on Results, after the 2nd
 book on Watchlist, after the 3rd entry on History. Google UMP consent runs at every launch.
-Test IDs are used unless `local.properties` contains:
-
-```
-admob.appId=ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY
-admob.nativeUnitId=ca-app-pub-XXXXXXXXXXXXXXXX/ZZZZZZZZZZ
-```
+The AdMob IDs are in `app/build.gradle.kts`: release builds use them, debug builds always use
+Google's test IDs. `admob.testAds=true` in `local.properties` makes release builds show test ads too.
 
 ## Build
 
@@ -116,7 +112,7 @@ In the cloud: see BUILD-GITHUB.md (GitHub Actions builds the signed bundle; no t
 On Windows: see BUILD-WINDOWS.md (PowerShell scripts in tools/windows: create-keystore.ps1, build-release.ps1).
 
 
-1. Add to `local.properties` (never committed): `admob.appId`, `admob.nativeUnitId`, `release.storeFile`, `release.storePassword`, `release.keyAlias`, `release.keyPassword`.
+1. Add to `local.properties` (never committed): `release.storeFile`, `release.storePassword`, `release.keyAlias`, `release.keyPassword`.
 2. `./gradlew test :app:lintRelease :app:bundleRelease`, which produces `app/build/outputs/bundle/release/app-release.aab`.
 3. Optional, with a phone connected: `./gradlew :app:generateReleaseBaselineProfile` (faster cold start).
 4. Listing text, screenshots plan, Data Safety answers and the pre-release checklist: docs/play-store.md.

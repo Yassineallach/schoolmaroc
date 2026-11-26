@@ -14,23 +14,24 @@ room {
     schemaDirectory("$projectDir/schemas")
 }
 
-// Real AdMob IDs live in local.properties (never committed):
-//   admob.appId=ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY
-//   admob.nativeUnitId=ca-app-pub-XXXXXXXXXXXXXXXX/ZZZZZZZZZZ
-//   admob.testAds=false   (true = release builds show test ads as well)
-// Without the IDs, release builds use Google's published test IDs too (safe to tap, no revenue).
+// AdMob IDs. The real ones are below; local.properties can override them:
+//   admob.appId=…  admob.nativeUnitId=…
+//   admob.testAds=true   (release builds show Google's test ads as well)
 val localProps = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
 }
 // Google's published test IDs: safe to tap, no revenue.
 val testAdmobAppId = "ca-app-pub-3940256099942544~3347511713"
 val testAdmobNativeUnit = "ca-app-pub-3940256099942544/2247696110"
+// Nearshelf's own AdMob app and native ad unit.
+val realAdmobAppId = "ca-app-pub-4106840885730797~7503768574"
+val realAdmobNativeUnit = "ca-app-pub-4106840885730797/4354861051"
 // Real IDs are used by RELEASE builds only. Debug builds always show test ads, so testing
 // on your own phone can never tap your live ads (AdMob suspends accounts for that).
 // The on/off switch for test ads in release builds: admob.testAds=true in local.properties.
 val forceTestAds = localProps.getProperty("admob.testAds")?.trim().equals("true", ignoreCase = true)
-val admobAppId = localProps.getProperty("admob.appId")?.trim()?.takeIf { it.isNotEmpty() && !forceTestAds } ?: testAdmobAppId
-val admobNativeUnit = localProps.getProperty("admob.nativeUnitId")?.trim()?.takeIf { it.isNotEmpty() && !forceTestAds } ?: testAdmobNativeUnit
+val admobAppId = if (forceTestAds) testAdmobAppId else localProps.getProperty("admob.appId")?.trim()?.takeIf { it.isNotEmpty() } ?: realAdmobAppId
+val admobNativeUnit = if (forceTestAds) testAdmobNativeUnit else localProps.getProperty("admob.nativeUnitId")?.trim()?.takeIf { it.isNotEmpty() } ?: realAdmobNativeUnit
 // Catch the classic mix-up (unit ID where the app ID goes, or the reverse) at build time.
 require(Regex("""ca-app-pub-\d{16}~\d{10}""").matches(admobAppId)) {
     "admob.appId in local.properties should look like ca-app-pub-0000000000000000~0000000000 (with ~), got: $admobAppId"
@@ -39,10 +40,7 @@ require(Regex("""ca-app-pub-\d{16}/\d{10}""").matches(admobNativeUnit)) {
     "admob.nativeUnitId in local.properties should look like ca-app-pub-0000000000000000/0000000000 (with /), got: $admobNativeUnit"
 }
 if (admobAppId == testAdmobAppId) {
-    logger.lifecycle(
-        if (forceTestAds) "Nearshelf: release uses AdMob TEST ids (admob.testAds=true in local.properties)"
-        else "Nearshelf: release uses AdMob TEST ids (set admob.appId / admob.nativeUnitId in local.properties)",
-    )
+    logger.lifecycle("Nearshelf: release uses AdMob TEST ids (admob.testAds=true in local.properties)")
 }
 
 android {
