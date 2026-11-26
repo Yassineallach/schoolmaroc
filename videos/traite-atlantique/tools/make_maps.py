@@ -181,8 +181,7 @@ def dashed_sword(path, Wd=1500, Hd=520):
 
 if __name__ == '__main__':
     A = lambda c: os.path.join(PROJ, 'assets', c + '.png')
-    country_map(A('M01'), 'DEU', (10.95, 52.14), Wd=1000, Hd=1100)          # Schöningen, Lower Saxony
-    country_map(A('M02'), 'TUR', (38.36, 38.38), Wd=1500, Hd=800)           # Arslantepe, near Malatya
-    country_map(A('M03'), 'CHN', None, Wd=1400, Hd=1050)                    # « connue en Chine »: the country only
-    country_map(A('M04'), 'CHE', (6.14, 46.20), Wd=1400, Hd=900)            # Geneva
-    dashed_sword(A('C01'))
+    # M01: the Atlantic and the three continents. Route ends (no pins): Lisbon, Elmina (Gold Coast),
+    # Hispaniola (Caribbean) - the corners of the dashed triangle, the film's motif.
+    region_map(A('M01'), ('Europe', 'Africa', 'North America', 'South America'), (-100, 42, -38, 62),
+               [(-9.14, 38.72, False), (-1.35, 5.08, False), (-70.7, 19.0, False)], Wd=1500, Hd=1000, frame=True)

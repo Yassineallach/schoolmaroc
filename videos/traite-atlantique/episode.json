@@ -7,5 +7,15 @@
  "music": "original",
  "text": "more",
  "palette": "history_archive",
- "title": "La traite atlantique"
+ "title": "La traite atlantique",
+ "brand": {
+  "watermark": {
+   "hide_env": []
+  },
+  "cta": {
+   "comment": {
+    "question": "Et vous, connaissiez-vous les conséquences de la traite atlantique sur l’Afrique elle-même ?"
+   }
+  }
+ }
 }

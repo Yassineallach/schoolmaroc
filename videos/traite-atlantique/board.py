@@ -207,7 +207,7 @@ class Board:
         for e in entries:
             if e.look:
                 continue
-            e.at, e.zoom, e.still = None, None, False
+            e.at, e.zoom, e.still = None, None, getattr(e, 'lock', False)   # lock: no push (one drawing in three)
             if e.stay:
                 e.stay, e.hop = False, True
                 if e.arrive is not None:
