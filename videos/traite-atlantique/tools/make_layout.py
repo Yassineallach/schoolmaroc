@@ -14,7 +14,7 @@ ROWS = [
     ['G34', 'G35', 'G36', 'G37', 'G38', 'G44'],
 ]
 FIRST_COL = [5, 0, 0, 0, 0, 0]            # act 1 starts above G44's column
-SX, SY, JX, JY = 1930, 1250, 90, 70
+SX, SY, JX, JY = 1930, 1400, 90, 70
 GAP_LAST = 500                            # act 6 sits apart
 
 if __name__ == '__main__':

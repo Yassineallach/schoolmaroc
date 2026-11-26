@@ -185,3 +185,9 @@ if __name__ == '__main__':
     # Hispaniola (Caribbean) - the corners of the dashed triangle, the film's motif.
     region_map(A('M01'), ('Europe', 'Africa', 'North America', 'South America'), (-100, 42, -38, 62),
                [(-9.14, 38.72, False), (-1.35, 5.08, False), (-70.7, 19.0, False)], Wd=1500, Hd=1000, frame=True)
+    # M02: Europe and Africa; the motif turns south: one dashed arrow from Lisbon down the coast
+    # (past Cape Verde) to the Gold Coast (« les Européens se sont alors tournés vers l'Afrique »).
+    region_map(A('M02'), ('Europe', 'Africa'), (-32, 52, -36, 62),
+               [(-9.14, 38.72, False), (-19.5, 22.0, False), (-19.0, 12.0, False), (-1.35, 5.08, False)],
+               Wd=1100, Hd=1100, frame=True)
+

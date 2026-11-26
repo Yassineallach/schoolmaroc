@@ -200,6 +200,7 @@ class Board:
         marks: pen lines and words placed on the board itself (Line, Note), across drawings."""
         self.entries = entries
         self.before = [b_ for b_ in before if not b_.look]
+        self.last_before = before[-1] if before else None   # may be a look stop (a pull-back): the act opens on it
         prev = self.spot(before[-1]) if before else None
         # one drawing per view, at full size (the user: two framed together « make the draws look
         # small »): every drawing gets its own view; a drawing that used to share the previous view
@@ -283,7 +284,7 @@ class Board:
             nxt = stops[i + 1][0] if i + 1 < len(stops) else (self.end or rest_from + 8)
             k = _ease((t - rest_from) / max(0.5, nxt - rest_from))
             return x1 + fx1 * k, y1 + fy1 * k, zr * (1 + (0.0 if (e.look or e.stay or getattr(e, 'still', False)) else PUSH) * k)
-        pe = self.before[-1] if i == 0 else stops[i - 1][1]
+        pe = self.last_before if i == 0 else stops[i - 1][1]
         px, py, pfx, pfy = self.spot(pe)
         x0, y0 = px + pfx, py + pfy
         z0 = (pe.zoom or ZOOM) * (1 + (0.0 if (pe.look or pe.stay or getattr(pe, 'still', False)) else PUSH))

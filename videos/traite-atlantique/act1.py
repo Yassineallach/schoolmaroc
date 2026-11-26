@@ -12,22 +12,16 @@ import sys
 from vox import *  # noqa: F401,F403
 import style as st
 import scenes as S
-import annotate as A
 import board as BD
+from ta import locked, route, chainer, ACCENT
 
 CLIPS = (1, 2)
 cue = make_cue(CLIPS)
 LAND = 1.2                     # the camera sets off on the sentence's first word and lands just after it
-ACCENT = S.PAL.accent          # the motif's ink, and only the motif's
 
 
 def arrive(clip, phrase, n=1):
     return cue(clip, phrase, n) + LAND
-
-
-def locked(e):
-    e.lock = True
-    return e
 
 
 E = BD.Entry
@@ -45,30 +39,8 @@ ENTRIES.append(PULL)                                                     # pull-
 
 END = cue.total + 1.2          # silence before the next act
 BOARD = BD.Board(ENTRIES, end=END)
-G = {e.code: e for e in ENTRIES if not e.look}
-DONE = {c: e.start + e.dur + 0.15 for c, e in G.items()}   # one pen at a time: words after their drawing
+G, chain = chainer(ENTRIES)
 M01 = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'M01.json')))
-
-
-def route(pts, at, dur=1.4):
-    """The motif: a dashed route in the accent ink, between points given as fractions of the
-    drawing's image (the map's pins), drawn by the pen inside the drawing's own canvas."""
-    def fn(c, lt, e):
-        bx, by, bw, bh = e.d.box
-        A.connect(c, [(bx + x * bw, by + y * bh) for x, y in pts], lt, at - e.start, dur=dur,
-                  dashed=True, dots=False, width=8, sound=False, colour=ACCENT, arrowhead=False)
-    fn.sound = (at, dur, lambda: ((0.0, 1.0),))
-    return fn
-
-
-def chain(code, items):
-    """One pen at a time: each mark starts when the previous one is finished, never before it is said."""
-    t = DONE[code]
-    for make, said in items:
-        at = max(t, said)
-        fn = make(at)
-        G[code].extras.append(fn)
-        t = at + fn.sound[1] + 0.15
 
 
 LIS, ELM, HIS = M01['pins']
