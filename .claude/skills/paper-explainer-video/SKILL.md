@@ -810,7 +810,7 @@ with the lift, pen strokes with tremor (SVG paths with a seeded wobble). Worked 
 
 ### 19. The infinite canvas: one board drawn by one pen
 
-Built on *L'histoire du sel* (4:51, 5 acts, 13 clips), entirely from the user's notes. Use it when the user asks for a "board", "infinite canvas", "whiteboard" or "drawn" film. The engine is in `examples/sel_board.py` (board, camera, handwriting) and `examples/sel_plates.py` (pen order, scratch sound); copy both into the project.
+Built on *L'histoire du sel* (4:51, 5 acts, 13 clips), entirely from the user's notes, then used for *L'histoire de l'épée* (4:34, `videos/histoire-epee/`). Use it when the user asks for a "board", "infinite canvas", "whiteboard" or "drawn" film. The engine is in `examples/sel_board.py` (board, camera, handwriting) and `examples/sel_plates.py` (pen order, scratch sound); copy both into the project.
 
 **The look**
 - **One drawing style for the whole film**, generated in ChatGPT from one reference: a black ink sketch, one subject per image, on plain white (`examples/sel_PROMPTS.md`, reference `sel_style_reference.png`). Approve G01 alone first, then attach G01 to every later prompt. Check each drawing for period errors (fleurs-de-lis on a British crown, hard hats in 1900, a modern bulldozer) and send a one-line fix.
@@ -829,13 +829,27 @@ Built on *L'histoire du sel* (4:51, 5 acts, 13 clips), entirely from the user's 
 - **One drawing per view, at full size** (about 1,300 px wide). Two or three drawings framed together "look small" and "too many in one scene". When a sentence is too quick for its own view, leave that drawing out rather than squeeze it.
 - **The camera sets off on the sentence's first word and lands about 1.2 s after it**; each drawing then has at least 1.4 s of pen. Measure every view's time on screen before rendering and fix the ones under 2 s.
 - **A gentle push while the pen draws** (5 %), so text beside the drawing stays in frame.
-- **The ending**: once the last drawing is done, a slow move in on it (about 3 s) and a 3 s hold, then the outro. The user dropped the zoom-out over the whole board.
+- **The ending**: a short hold (about 1.5 s) on the last drawing after the last word, then the outro. *L'histoire de l'épée*: « the zoom at the end has no meaning and it was too long » (a 3 s move in plus a 3 s hold were cut); a move at the end must show something new, or there is none.
+- **Every act opens at rest** on the previous act's last drawing; the travel starts on screen and the pen starts only once the camera has landed (`board.py` forces `arrive >= pan + 0.1` for an act's first drawing). Starting an act mid-travel made the first drawing « slide into the frame ».
+- **Drawings that are cut leave holes in the layout.** When a clip is removed after the layout is fixed, regenerate the layout without its drawings, or the camera glides over empty parchment.
 
 **Marks and words**
 - **Only the most important words**: a place, a date, a term, a formula the narration names (here: Parc national Olympic, NaCl, Na, Cl, il y a ~11 000 ans, Chine, Hallstatt, the taste words, ?, Sahara, salaire, au-dessus du sel / en dessous, 1930, Dandi, production / prix, 1911). Everything else was cut as too much.
 - **Words go around the drawn part, never on it**: position them against the ink's own bounding box, not the image's (`frac='ink'`), and give each drawing a canvas larger than the screen (`CW, CH`) so a word beside a wide drawing is not clipped.
 - **Pen marks only where they explain**: a dashed route for a journey, a dashed divide (the banquet table), a curved tapered arrow for a cause. No circles or highlights for decoration. **Never an arrow from one drawing to another** when each drawing has its own view: it gets cut off.
 - A chart is used only when the narration states a trend (production up, price down), drawn as two hand curves with no numbers.
+
+**The next board film: the improvements to make from the start** (the user's choice after *L'histoire de l'épée*, 4:34, 5 acts, `videos/histoire-epee/`). Plan these in the storyboard, show a preview of each before rendering:
+
+1. **The layout tells the story.** Not a random walk: the board is a **timeline**, the camera always moving forward in time (left to right, a new row per era or per act), so every travel means "later". The last act gets its own row or region, so the ending feels like another world. Generate the layout from the act and era of each drawing (`tools/make_layout.py`), and regenerate it if a clip is cut.
+2. **Two or three short pull-backs over the whole board** at the film's turns (end of the first part, the turning point, the end): 2 s each, enough to see the history stacked up; never a long zoom.
+3. **One visual motif is the spine of the film**, introduced in act 1 and transformed in every act (on *L'histoire de l'épée*: the dashed distance line between the one who strikes and the one who is struck, short at arm's length, longer with the rifle and the gun, leaving the frame with the drone, ending on no one with the machine). Plan where it appears in each act before writing the prompts, and leave empty space in those drawings for it ("in the left half of the picture, the right half left empty"). The `distance()` extra in `videos/histoire-epee/act4.py` draws a mark inside a drawing's own canvas, so it moves with the drawing; it must end inside that drawing's view, never in a neighbour's.
+4. **One accent ink, for the motif only**: the identity's accent (oxblood in history) for the motif's marks and the key « ? », everything else in the brown ink. One colour on brown makes the motif impossible to miss.
+5. **Vary the pen's rhythm**: simple objects drawn in about 1 s, key images (the hook, the turn, the last drawing) in 5-6 s; not every drawing in the same 3 s (`Entry(max_dur=)`, `dur`).
+6. **Two drawings on one view only where the narration compares them** (spear and stag, rifle and drone), with a pen mark between them inside that view; otherwise one drawing per view.
+7. **Lock the camera off on one drawing in three**: no push, the pen as the only movement.
+8. **Write the hook and the last drawing first and best**: the opening drawing is a tight, dramatic composition (a face, a gesture), and the last drawing visibly answers it (on the same view as the motif's first appearance, or side by side with it).
+9. **The motif has its own sound**: a slightly different scratch for the dashed line, a soft tap per dash, a low tone when it leaves the frame; still far under the voice.
 
 ## Rules learned from the user (keep them)
 
@@ -882,5 +896,6 @@ Built on *L'histoire du sel* (4:51, 5 acts, 13 clips), entirely from the user's 
 41. **Real material of the subject itself:** real photos of the people, the real logos, real screenshots or official promotional images of the works discussed (official store and publisher pages before Wikipedia), and quotes typed letter by letter (`press.typed_quote`).
 42. **The channel logo is on every scene,** from after the intro to the last frame of the closing hold (`brand.json` watermark `hide_env: []`).
 43. **Keep animation plain unless asked.** When the user rejects an effect, simplify: on *L'histoire de GTA* letter-by-letter ragdoll physics and a stumbling card were both refused for « trébucher / tomber »; the accepted version was two ordinary labels appearing on their words. Show a short preview clip with the voice and wait for approval before re-rendering.
-44. **The board film: one pen, one place, one drawing per view.** Lines only (no fill), words handwritten left to right by the same pen, the scratch synced to the pen and far under the voice, one drawing per view at full size, the camera leaving on the sentence's first word, only the essential words placed beside the drawn part, no arrow that crosses between views, a slow move in on the last drawing. Show layouts and changes as previews and render only the acts that changed (section 19).
+44. **The board film: one pen, one place, one drawing per view.** Lines only (no fill), words handwritten left to right by the same pen, the scratch synced to the pen and far under the voice, one drawing per view at full size, the camera leaving on the sentence's first word, only the essential words placed beside the drawn part, no arrow that crosses between views, a short hold on the last drawing (no closing zoom). Show layouts and changes as previews and render only the acts that changed (section 19).
 45. **Ask the style first.** Every new video starts by asking the user which style to use (infinite canvas, paper collage, or their own reference), never by choosing one; the answer goes in `episode.json` (phase 0).
+46. **A board film is built around a timeline layout and one motif.** The board's layout follows time, one motif (with the one accent ink) carries the film and is planned into the prompts, the pen's rhythm and the camera vary (some views locked off, two or three short pull-backs at the turns), the hook and the last drawing answer each other, and the ending is a short hold, not a zoom (section 19, « The next board film »).
