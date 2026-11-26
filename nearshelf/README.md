@@ -112,6 +112,7 @@ The app downloads it at most once a week and falls back to the bundled copy.
 
 ## Release
 
+In the cloud: see BUILD-GITHUB.md (GitHub Actions builds the signed bundle; no tools on your PC).
 On Windows: see BUILD-WINDOWS.md (PowerShell scripts in tools/windows: create-keystore.ps1, build-release.ps1).
 
 
