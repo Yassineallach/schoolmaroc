@@ -190,4 +190,9 @@ if __name__ == '__main__':
     region_map(A('M02'), ('Europe', 'Africa'), (-32, 52, -36, 62),
                [(-9.14, 38.72, False), (-19.5, 22.0, False), (-19.0, 12.0, False), (-1.35, 5.08, False)],
                Wd=1100, Hd=1100, frame=True)
+    # M03: the West African coast; the motif splits in two: goods come in from the sea (armes, rhum),
+    # people go out (« en échange d'esclaves »). Points: offshore, the Gold Coast, the Bight of Benin.
+    region_map(A('M03'), ('Africa',), (-20, 16, -6, 22),
+               [(-14.0, 1.0, False), (-1.35, 5.08, False), (2.4, 6.3, False), (-6.0, -3.5, False)],
+               Wd=1400, Hd=1000, frame=True)
 
