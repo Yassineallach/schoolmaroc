@@ -36,7 +36,17 @@ def chainer(entries):
             fn = make(at)
             G[code].extras.append(fn)
             t = at + fn.sound[1] + 0.15
+        frame_words(G[code])
     return G, chain
+
+
+def frame_words(e):
+    """Centre the camera on the drawing together with the words written under (or above) it, so a
+    larger drawing and its words both sit inside the frame."""
+    h = 880 * e.scale
+    below = [f.dy for f in e.extras if getattr(f, 'frac', None) == 'ink' and f.dy > 1]
+    above = [f.dy for f in e.extras if getattr(f, 'frac', None) == 'ink' and f.dy < 0]
+    e.cam_dy = (((max(below) - 1 + 0.06) * h / 2) if below else 0.0) - (((-min(above) + 0.06) * h / 2) if above else 0.0)
 
 
 write = BD.write

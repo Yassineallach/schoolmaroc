@@ -1,8 +1,5 @@
-"""The board's layout for La traite atlantique: a timeline (rule 46). Each act is a row read left
-to right, so every travel moves forward in time; the next act's row starts again on the left, one
-step lower. Act 1 sits on the right of the top row, so the hook G01 is directly above the last
-drawing G44, which closes act 6 on its own row, set further down (« another world »).
-    python tools/make_layout.py   ->  layout.json
+"""The act order of the board (ROWS) and the first layout, one row per act (option A, now layouts/A.json).
+The user chose the free walk (D) from tools/layout_options.py: layout.json is a copy of layouts/D.json.
 """
 import json, random
 ROWS = [
@@ -24,5 +21,5 @@ if __name__ == '__main__':
         y0 = r * SY + (GAP_LAST if r == len(ROWS) - 1 else 0)
         for i, c in enumerate(row):
             out[c] = (round((FIRST_COL[r] + i) * SX + rnd.uniform(-JX, JX)), round(y0 + rnd.uniform(-JY, JY)))
-    json.dump(out, open('layout.json', 'w'), indent=0)
+    json.dump(out, open('layouts/A.json', 'w'), indent=0)
     print(len(out), 'placed')

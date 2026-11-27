@@ -25,8 +25,8 @@ from style import Shot, sfx
 
 CW, CH = 2600, 1500            # each drawing's own canvas: room around it for its words
 SCALE = 1.00                  # drawings are drawn smaller than the frame, so the board shows around them
-ZOOM = 0.80                   # camera framing at rest: wide, so the board and the neighbouring drawings are in view
-PUSH = 0.05                   # the camera moves in on the drawing's detail while the pen works
+ZOOM = 0.90                   # camera framing at rest (the user: the framing in each view; drawings were too small)
+PUSH = 0.03                   # the camera moves in a little while the pen works
 DIP = 1 / 5200                # on a travel the camera pulls back with the distance (an infinite canvas)
 PAN = 1.5                     # seconds for a travel to the neighbouring drawing; longer travels take longer
 GROUP = 0.0                   # sentences closer than this share one frame (no travel)
@@ -189,6 +189,7 @@ def write(text, size, dx, dy, at, dur=None, frac=False, anchor='m'):
         y0 = int(py - lines.height / 2)
         PL.draw_layers(c, lines, None, T, lt, at - e.start, dur, x0, y0)
     fn.sound = (at, dur, lambda: _text_ink(text, size)[2])
+    fn.dy, fn.frac = dy, frac
     return fn
 
 
@@ -264,7 +265,7 @@ class Board:
         wx, wy = world(e.code)
         fx = (e.focus[0] - 0.5) * 1500 * e.scale * 0.45
         fy = (e.focus[1] - 0.5) * 880 * e.scale * 0.45
-        return wx + e.offset[0], wy + e.offset[1], fx, fy
+        return wx + e.offset[0], wy + e.offset[1] + getattr(e, 'cam_dy', 0.0), fx, fy   # cam_dy: frame the drawing with its words
 
     def camera(self, t):
         """Rest on a drawing (a slow push towards its focus), then travel to the next at the same
