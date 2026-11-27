@@ -26,7 +26,8 @@ from style import Shot, sfx
 CW, CH = 2600, 1500            # each drawing's own canvas: room around it for its words
 SCALE = 1.00                  # drawings are drawn smaller than the frame, so the board shows around them
 ZOOM = 0.90                   # camera framing at rest (the user: the framing in each view; drawings were too small)
-PUSH = 0.03                   # the camera moves in a little while the pen works
+PUSH = float(os.environ.get('VOX_PUSH', 0.03))   # the slow zoom in on every view (VOX_PUSH to preview another)
+NOLOCK = os.environ.get('VOX_NOLOCK') == '1'       # every view zooms, none locked off
 DIP = 1 / 5200                # on a travel the camera pulls back with the distance (an infinite canvas)
 PAN = 1.5                     # seconds for a travel to the neighbouring drawing; longer travels take longer
 GROUP = 0.0                   # sentences closer than this share one frame (no travel)
@@ -214,7 +215,7 @@ class Board:
                 e.at, e.zoom = e.keep_at
                 e.still = True
                 continue
-            e.at, e.zoom, e.still = None, None, getattr(e, 'lock', False)   # lock: no push (one drawing in three)
+            e.at, e.zoom, e.still = None, None, getattr(e, 'lock', False) and not NOLOCK   # lock: no push (one drawing in three)
             if e.stay:
                 e.stay, e.hop = False, True
                 if e.arrive is not None:
