@@ -49,7 +49,9 @@ chain('G15', [(lambda at: write('criminels, débiteurs', 60, 0.50, 1.08, at, fra
               (lambda at: write('prisonniers de guerre', 60, 0.50, 1.20, at, frac='ink', dur=1.2), cue(5, 'guerre'))])
 chain('M03', [(lambda at: route(IN, at, 0.9, arrow=True), cue(5, 'vendant')),                 # the motif splits: in…
               (lambda at: route(OUT, at, 0.9, arrow=True), cue(5, 'vendant')),                # …and out
-              (lambda at: write('royaumes enrichis et renforcés', 58, 0.50, -0.08, at, frac='ink', dur=2.0), cue(5, 'renforçaient'))])
+              (lambda at: write('armes, rhum', 50, 0.22, 0.83, at, frac='ink', dur=0.9), cue(5, 'vendant')),
+              (lambda at: write('captifs', 50, 0.47, 0.86, at, frac='ink', anchor='l', dur=0.7), cue(5, 'vendant')),
+              (lambda at: write('royaumes enrichis et renforcés', 58, 0.50, -0.08, at, frac='ink', dur=1.4), cue(5, 'renforçaient'))])
 chain('G16', [(lambda at: write('une concurrence acharnée', 62, 0.50, 1.08, at, frac='ink', dur=1.6), cue(6, 'concurrence'))])
 chain('G17', [(lambda at: write('la capture devient le mobile', 60, 0.50, 1.08, at, frac='ink', dur=1.0), cue(6, 'mobile'))])
 chain('G18', [(lambda at: write('armes à feu', 62, 0.50, 1.08, at, frac='ink', dur=1.0), cue(6, 'feu')),
