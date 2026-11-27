@@ -6,8 +6,7 @@ resistance (the netting, the first sight of the ship, refusing food), the shackl
 Violence is never drawn: places, objects and the moments around it. The two narration claims the
 user has not settled (« 20 % », the ears « comme preuve d'achat ») stay off screen.
 Locked off: G39, G25, G29. Clip 7 is quick, so the hops between its five views are shorter (0.9 s).
-Pen marks in the accent ink: the yoke (G21), the tallies (G25), the netting (G26), the leg irons
-(G30). A push into the rows of the Brookes plan (G23). The mood turns colder from here.
+No pen marks on the drawings (the user). A push into the rows of the Brookes plan (G23). The mood turns colder from here.
 """
 import json
 import os
@@ -16,7 +15,7 @@ from vox import *  # noqa: F401,F403
 import style as st
 import board as BD
 import act3
-from ta import locked, route, chainer, write, side, over, big, under, mark
+from ta import locked, route, chainer, write, side, over, big, under
 
 CLIPS = (7, 8, 9, 10)
 cue = make_cue(CLIPS)
@@ -63,8 +62,7 @@ M04 = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'a
 ELM, MID, HIS, BRK1, BRK2 = M04['pins']
 
 chain('G20', [(lambda at: under('une brutalité inimaginable', at, dur=1.1), cue(7, 'inimaginable'))])
-chain('G21', [(lambda at: mark('ring', (0.19, 0.14, 0.35, 0.31), at, 0.5), cue(7, 'marche')),          # the forked yoke
-              (lambda at: under('marche forcée', at, dur=0.8), cue(7, 'forcée'))])
+chain('G21', [(lambda at: under('marche forcée', at, dur=0.8), cue(7, 'forcée'))])
 chain('G39', [(lambda at: under('marqués au fer', at, size=66, dur=0.8), cue(7, 'fer'))])
 chain('M04', [(lambda at: route([ELM, MID, HIS], at, 1.0, arrow=True), cue(7, 'Environ')),       # the motif crosses the ocean…
               (lambda at: route([ELM, BRK1, BRK2], at, 0.7), cue(7, 'reverraient')),             # …and part of it never arrives
@@ -72,15 +70,13 @@ chain('M04', [(lambda at: route([ELM, MID, HIS], at, 1.0, arrow=True), cue(7, 'E
 chain('G23', [(lambda at: big('entassés sous le pont', at, size=84, dur=1.2), max(cue(8, 'pont'), a23 + 2.7))])
 chain('G24', [(lambda at: under('maladies', at, size=58, dur=0.7), cue(8, 'maladie')),
               (lambda at: under('jetés par-dessus bord', at, line=1, size=58, dur=1.2), cue(8, 'bord'))])
-chain('G25', [(lambda at: mark('ring', (0.10, 0.40, 0.21, 0.77), at, 0.5), cue(8, 'profits')),         # the column of tally marks
-              (lambda at: under('leurs profits', at, dur=0.9), cue(8, 'profits'))])
-chain('G26', [(lambda at: mark('arrow', ((0.90, 0.36), (0.72, 0.74)), at, 0.5), cue(9, 'destin'))])   # the netting along the rail: no words
+chain('G25', [(lambda at: under('leurs profits', at, dur=0.9), cue(8, 'profits'))])
+# G26 (the netting): no words, no mark: the image says it
 chain('G27', [(lambda at: under('ils croyaient les Blancs cannibales', at, size=58, dur=1.6), cue(9, 'cannibales'))])
 chain('G28', [(lambda at: under('se laisser mourir de faim', at, size=58, dur=1.3), cue(9, 'faim')),
               (lambda at: under('l’âme retournerait au pays', at, line=1, size=58, dur=1.0), cue(9, 'pays'))])
 chain('G29', [(lambda at: big('une simple cargaison', at, size=96, dur=0.9), cue(10, 'cargaison'))])
 chain('G30', [(lambda at: under('forcés à danser', at, dur=1.0), cue(10, 'danser')),
-              (lambda at: mark('underline', (0.10, 0.63, 0.94), at, 0.5), cue(10, 'danser')),       # the leg irons
               (lambda at: under('pour prévenir les révoltes', at, line=1, dur=1.3), cue(10, 'révoltes'))])
 
 SHOTS = [(0.0, BOARD.scene)]

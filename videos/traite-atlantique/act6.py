@@ -13,7 +13,7 @@ import style as st
 import board as BD
 import brand
 import act5
-from ta import locked, chainer, write, side, over, big, under, mark
+from ta import locked, chainer, write, side, over, big, under
 
 CLIPS = (13, 14)
 cue = make_cue(CLIPS)
@@ -58,8 +58,6 @@ chain('G37', [(lambda at: under('« biologiquement inférieurs »', at, size=64,
 chain('G38', [(lambda at: side('un fondement racial', at, size=80, y=0.40, dur=1.1), cue(13, 'racial')),
               (lambda at: side("l'égalité interdite", at, size=62, y=0.58, dur=1.0), cue(13, "'égalité", 2))])
 chain('G44', [(lambda at: under('une injustice immense', at, size=76, dur=1.2), cue(14, 'immense')),
-              (lambda at: mark('ring', (0.08, 0.26, 0.42, 0.40), at, 0.5), cue(14, 'répercussions')),   # the rope marks…
-              (lambda at: mark('ring', (0.53, 0.26, 0.87, 0.40), at, 0.5), cue(14, 'répercussions')),   # …on both wrists
               (lambda at: under('bien après son abolition', at, line=1, size=76, dur=1.3), cue(14, 'abolition'))])
 
 SHOTS = [(0.0, BOARD.scene)]
