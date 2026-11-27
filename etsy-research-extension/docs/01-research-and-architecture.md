@@ -1,6 +1,6 @@
 # Etsy Research Workspace — Phase 1 Research Report & Proposed Architecture
 
-Status: **draft for approval. No code has been written yet.**
+Status: **approved with one change (see Addendum). Implemented in this folder.**
 Date: 2026-11-27
 
 ---
@@ -267,3 +267,16 @@ Proposal: page reading is **off by default** and turned on in Settings with a pl
 - Search volume: https://keywordseverywhere.com/etsy-search-volume.html · https://apify.com/maximedupre/etsy-keywords-research-tool
 - Sales-estimate heuristics: https://sellertoolshq.com/guides/etsy-shop-revenue-estimator/ · https://apify.com/marielise.dev/etsy-sales-intelligence
 - Etsy API: https://developer.etsy.com/documentation/ · https://developer.etsy.com/documentation/essentials/rate-limits/ · https://www.etsy.com/legal/api
+
+---
+
+## Addendum: decision of 2026-11-27, no APIs
+
+The owner chose **no API of any kind**: no Etsy Open API, no exchange-rate API and no other external service. The implementation therefore:
+
+- uses **passive reading of Etsy pages the user opens** as its only data source. It is off until the user enables it, never crawls or fetches, and the risk is disclosed on the welcome screen;
+- takes exchange rates **entered by the user** only;
+- replaces API-only fields with what pages show: tags become "related search terms shown on the page", and the original creation date becomes "Listed on" (latest renewal) with its caveat;
+- keeps every other part of the architecture above, except that the `core/api` module was not built.
+
+See `README.md` for the features as built, the test report and the known limitations.

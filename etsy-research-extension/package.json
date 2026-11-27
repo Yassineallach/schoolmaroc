@@ -1,0 +1,24 @@
+{
+  "name": "shoplens-research",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Etsy seller research workspace for Opera and Chrome. Local-only, no AI, no APIs.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "node tests/e2e/run.mjs"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "^0.0.287",
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^22.10.2",
+    "esbuild": "^0.24.0",
+    "fake-indexeddb": "^6.0.0",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

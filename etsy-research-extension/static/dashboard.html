@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shoplens Research</title>
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/dashboard.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <button class="btn small nav-toggle" type="button" aria-controls="nav" aria-expanded="false">Menu</button>
+      <a class="brand" href="#overview">Shoplens Research</a>
+      <form class="global-search" role="search">
+        <label class="sr-only" for="q">Search saved data</label>
+        <input id="q" type="search" placeholder="Search products, keywords, shops…" autocomplete="off">
+      </form>
+      <div class="row top-actions">
+        <label class="sr-only" for="theme">Theme</label>
+        <select id="theme">
+          <option value="system">System theme</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+    </header>
+    <nav id="nav" class="nav" aria-label="Sections"></nav>
+    <main id="main" class="main" tabindex="-1"></main>
+  </div>
+  <script src="dashboard.js" type="module"></script>
+</body>
+</html>
