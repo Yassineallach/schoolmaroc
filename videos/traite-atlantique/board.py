@@ -291,8 +291,10 @@ class Board:
         zr = e.zoom or ZOOM
         if t >= rest_from:
             nxt = stops[i + 1][0] if i + 1 < len(stops) else (self.end or rest_from + 8)
-            k = _ease((t - rest_from) / max(0.5, nxt - rest_from))
-            x, y, z = x1 + fx1 * k, y1 + fy1 * k, zr * (1 + (0.0 if (e.look or e.stay or getattr(e, 'still', False)) else PUSH) * k)
+            u = min(1.0, max(0.0, (t - rest_from) / max(0.5, nxt - rest_from)))
+            k = _ease(u)
+            kz = u if NOLOCK else k                     # the slow zoom starts the moment the camera lands, at a constant pace
+            x, y, z = x1 + fx1 * k, y1 + fy1 * k, zr * (1 + (0.0 if (e.look or e.stay or getattr(e, 'still', False)) else PUSH) * kz)
             return self._zoomin(e, t, x, y, z)
         pe = self.last_before if i == 0 else stops[i - 1][1]
         px, py, pfx, pfy = self.spot(pe)
