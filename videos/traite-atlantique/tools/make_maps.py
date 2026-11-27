@@ -179,6 +179,31 @@ def dashed_sword(path, Wd=1500, Hd=520):
     print(path)
 
 
+def africa_borders(path, pins, Wd=1100, Hd=1150, pad=50):
+    """Africa with its country borders, the lines drawn by the colonial partition (M06), plus
+    points (fractions saved in the json) for the motif's marks."""
+    box = (-20, 53, -36, 38)
+    lon0, lon1, lat0_, lat1 = box
+    latm = math.radians((lat0_ + lat1) / 2)
+    k = min((Wd - 2 * pad) / ((lon1 - lon0) * math.cos(latm)), (Hd - 2 * pad) / (lat1 - lat0_))
+
+    def P(lon, lat):
+        return (pad + (lon - lon0) * math.cos(latm) * k, pad + (lat1 - lat) * k)
+    im = Image.new('RGB', (Wd, Hd), 'white')
+    d = ImageDraw.Draw(im)
+    for c in GEO:
+        if c['continent'] != 'Africa':
+            continue
+        for poly in c['polys']:
+            for ring in poly:
+                if len(ring) < 6:
+                    continue
+                d.line([P(x, y) for x, y in ring] + [P(*ring[0])], fill='black', width=4, joint='curve')
+    im.save(path)
+    json.dump({'pins': [[P(*p)[0] / Wd, P(*p)[1] / Hd] for p in pins]}, open(path[:-4] + '.json', 'w'))
+    print(path)
+
+
 if __name__ == '__main__':
     A = lambda c: os.path.join(PROJ, 'assets', c + '.png')
     # M01: the Atlantic and the three continents. Route ends (no pins): Lisbon, Elmina (Gold Coast),
@@ -200,4 +225,10 @@ if __name__ == '__main__':
     region_map(A('M04'), ('Europe', 'Africa', 'North America', 'South America'), (-100, 42, -38, 62),
                [(-1.35, 5.08, False), (-30.0, 8.0, False), (-70.7, 19.0, False), (-24.0, 4.0, False), (-33.0, 0.0, False)],
                Wd=1500, Hd=1000, frame=True)
+    # M05: Africa alone (« l'avenir de l'Afrique »). No marks: the pen writes the question.
+    region_map(A('M05'), ('Africa',), (-20, 53, -36, 38), [(-1.35, 5.08, False)], Wd=1100, Hd=1150)
+    # M06: Africa partitioned. Motif: the sea route from the Gold Coast is cut (abolition), the gun
+    # arrows stay inside the continent (« des guerres et une instabilité qui perdurent »).
+    africa_borders(A('M06'), [(-1.35, 5.08), (-14.0, -2.0), (-7.5, 1.5), (2.0, 12.0), (12.0, 15.0),
+                              (18.0, 2.0), (27.0, -6.0), (24.0, 10.0), (30.0, 16.0)])
 
