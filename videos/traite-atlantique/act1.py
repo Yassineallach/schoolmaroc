@@ -2,8 +2,7 @@
 
 One continuous shot on the board (board.py), laid out as a timeline (tools/make_layout.py): the hook
 G01 (bound hands), the globe G02, the Atlantic map M01 where the film's motif is first drawn (the
-dashed route in oxblood, a triangle between three continents), the ledger G03; then a short
-pull-back over the row. Words written by the pen: « des biens », « ampleur planétaire »,
+dashed route in oxblood, a triangle between three continents), the ledger G03. Words written by the pen: « des biens », « ampleur planétaire »,
 « XVe – XIXe siècle », « + de 10 millions ».
 """
 import json
@@ -31,13 +30,7 @@ ENTRIES = [
     E('M01', "l'Atlantique", arrive(2, 'atlantique'), max_dur=2.0),                          # « La traite atlantique… trois continents… 10 millions »
     locked(E('G03', 'le registre', arrive(2, 'Ces'), max_dur=1.4)),     # « l'économie et l'histoire de vastes régions »
 ]
-ROW = [e.code for e in ENTRIES]
-PULL = E('PULL1', 'la rangée', look=True, at=None, zoom=None)
-PULL.at, PULL.zoom = BD.frame_of(ROW, 1.15)
-PULL.arrive = cue(2, 'monde') + 1.0
-ENTRIES.append(PULL)                                                     # pull-back 1: the row in one view, 2 s
-
-END = cue.total + 2.2          # silence before the next act: the pull-back holds 1.5 s
+END = cue.total + 1.2          # silence before the next act (no pull-back: the user removed it)
 BOARD = BD.Board(ENTRIES, end=END)
 G, chain = chainer(ENTRIES)
 M01 = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'M01.json')))

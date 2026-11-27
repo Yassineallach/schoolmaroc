@@ -30,7 +30,7 @@ right, and each new row starts back on the left, one step lower:
 | 5 | Ce que l'Afrique a perdu | abolition → today |
 | 6 | Une idéologie | its own row, set apart: the ending |
 
-There are three short pull-backs over the whole board, 2 s each: at the end of act 1, at the start
+No pull-backs over the board: the user removed the one after act 1 and none are used.
 of act 4 (the turn) and before the last drawing.
 
 **2. One motif: the dashed Atlantic route, in oxblood.** It is drawn by the pen on code-drawn maps
