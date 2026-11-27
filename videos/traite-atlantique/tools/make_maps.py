@@ -191,14 +191,31 @@ def africa_borders(path, pins, Wd=1100, Hd=1150, pad=50):
         return (pad + (lon - lon0) * math.cos(latm) * k, pad + (lat1 - lat) * k)
     im = Image.new('RGB', (Wd, Hd), 'white')
     d = ImageDraw.Draw(im)
+    # Morocco is drawn whole, with its Sahara (the user: « use the full map of Morocco »): no border
+    # line between MAR and SAH; their joint outline is traced from a filled mask instead.
+    import numpy as np
+    from scipy import ndimage
+    whole = ('MAR', 'SAH')
     for c in GEO:
-        if c['continent'] != 'Africa':
+        if c['continent'] != 'Africa' or c['iso'] in whole:
             continue
         for poly in c['polys']:
             for ring in poly:
                 if len(ring) < 6:
                     continue
                 d.line([P(x, y) for x, y in ring] + [P(*ring[0])], fill='black', width=4, joint='curve')
+    m = Image.new('L', (Wd, Hd), 0)
+    dm = ImageDraw.Draw(m)
+    for c in GEO:
+        if c['iso'] in whole:
+            for poly in c['polys']:
+                dm.polygon([P(x, y) for x, y in poly[0]], fill=255)
+    a = np.asarray(m) > 0
+    a = ndimage.binary_closing(a, iterations=2)
+    edge = a ^ ndimage.binary_erosion(a, iterations=4)
+    arr = np.asarray(im).copy()
+    arr[edge] = 0
+    im = Image.fromarray(arr)
     im.save(path)
     json.dump({'pins': [[P(*p)[0] / Wd, P(*p)[1] / Hd] for p in pins]}, open(path[:-4] + '.json', 'w'))
     print(path)
