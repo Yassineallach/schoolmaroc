@@ -13,7 +13,7 @@ from vox import *  # noqa: F401,F403
 import style as st
 import board as BD
 import act1
-from ta import locked, route, chainer, write
+from ta import locked, route, chainer, write, side, over, big, under
 
 CLIPS = (3, 4)
 cue = make_cue(CLIPS)
@@ -43,17 +43,17 @@ G, chain = chainer(ENTRIES)
 M02 = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'M02.json')))
 
 # the key information of each sentence (the user: « put the important texts, the information »)
-chain('G04', [(lambda at: write('des siècles de contacts', 60, 0.50, 1.10, at, frac='ink', dur=1.9), cue(3, 'contacts'))])
-chain('G05', [(lambda at: write('fin des années 1400', 62, 0.50, -0.07, at, frac='ink'), cue(3, '1400')),
-              (lambda at: write('Portugal, puis Espagne', 60, 0.50, 1.09, at, frac='ink', dur=1.6), cue(3, 'espagnole'))])
-chain('G06', [(lambda at: write("besoin de main-d'œuvre", 62, 0.50, 1.09, at, frac='ink', dur=2.0), cue(3, 'exigeaient'))])
-chain('G07', [(lambda at: write('trop peu de colons', 62, 0.50, -0.06, at, frac='ink', dur=1.7), cue(3, 'nombreux'))])
-chain('G08', [(lambda at: write('Amérindiens : maladies', 58, 0.50, 1.08, at, frac='ink'), cue(3, 'maladies')),
-              (lambda at: write('et résistance', 58, 0.50, 1.20, at, frac='ink'), cue(3, 'résisté'))])
-chain('M02', [(lambda at: route(M02['pins'], at, 1.6, arrow=True), cue(3, 'tournés'))])        # the motif turns south
-chain('G09', [(lambda at: write("l'esclavage existait déjà", 60, 0.50, 1.10, at, frac='ink', dur=2.2), cue(4, 'existait'))])
-chain('G10', [(lambda at: write('liberté rachetable', 60, 0.50, 1.07, at, frac='ink', dur=1.3), cue(4, 'racheter'))])
-chain('G11', [(lambda at: write('comme des serfs', 62, 0.50, 1.10, at, frac='ink', dur=1.4), cue(4, 'serfs'))])
+chain('G04', [(lambda at: under('des siècles de contacts', at, dur=1.9), cue(3, 'contacts'))])
+chain('G05', [(lambda at: over('fin des années 1400', at, size=84), cue(3, '1400')),
+              (lambda at: under('Portugal, puis Espagne', at, dur=1.6), cue(3, 'espagnole'))])
+chain('G06', [(lambda at: under("besoin de main-d'œuvre", at, size=70, dur=2.0), cue(3, 'exigeaient'))])
+chain('G07', [(lambda at: over('trop peu de colons', at, size=70, dur=1.7), cue(3, 'nombreux'))])
+chain('G08', [(lambda at: under('Amérindiens : maladies', at, size=58), cue(3, 'maladies')),
+              (lambda at: under('et résistance', at, line=1, size=58), cue(3, 'résisté'))])
+chain('M02', [(lambda at: route(M02['pins'], at, 1.6, arrow=True), cue(3, 'tournés'))])        # the motif turns south; no words: the arrow says it
+chain('G09', [(lambda at: under("l'esclavage existait déjà", at, dur=2.2), cue(4, 'existait'))])
+chain('G10', [(lambda at: under('liberté rachetable', at, dur=1.3), cue(4, 'racheter'))])
+chain('G11', [(lambda at: under('comme des serfs', at, dur=1.4), cue(4, 'serfs'))])
 chain('G12', [(lambda at: write('famille', 58, 0.20, 1.08, at, frac='ink', dur=0.7), cue(4, 'famille')),
               (lambda at: write('terres', 58, 0.50, 1.08, at, frac='ink', dur=0.6), cue(4, 'terres')),
               (lambda at: write('pouvoir', 58, 0.80, 1.08, at, frac='ink', dur=0.7), cue(4, 'pouvoir'))])

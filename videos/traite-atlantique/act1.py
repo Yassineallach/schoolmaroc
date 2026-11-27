@@ -12,7 +12,7 @@ from vox import *  # noqa: F401,F403
 import style as st
 import scenes as S
 import board as BD
-from ta import locked, route, chainer, write
+from ta import locked, route, chainer, write, side, over, big, under
 
 CLIPS = (1, 2)
 cue = make_cue(CLIPS)
@@ -37,18 +37,18 @@ M01 = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'a
 
 
 LIS, ELM, HIS = M01['pins']
-# the key information of each sentence, written by the pen beside the drawing (the user: « put the
-# important texts, the information »): the definition, the scale, the dates, the number, the stakes.
-chain('G01', [(lambda at: write('des êtres humains', 64, 0.50, 1.07, at, frac='ink'), cue(1, 'humains')),
-              (lambda at: write('traités comme des biens', 64, 0.50, 1.19, at, frac='ink'), cue(1, 'biens'))])
-chain('G02', [(lambda at: write('ampleur planétaire', 62, 1.04, 0.55, at, frac='ink', anchor='l', dur=1.6), cue(1, 'planetaire'))])
+# the key information of each sentence, its layout chosen by meaning (side, over, big, under)
+chain('G01', [(lambda at: side('des êtres humains', at, size=66, y=0.36), cue(1, 'humains')),
+              (lambda at: side('comme des biens', at, size=94, y=0.56), cue(1, 'biens'))])
+chain('G02', [(lambda at: side('ampleur', at, size=72, y=0.40, dur=0.8), cue(1, 'planetaire')),
+              (lambda at: side('planétaire', at, size=72, y=0.56, dur=0.9), cue(1, 'planetaire'))])
 chain('M01', [
-    (lambda at: write('fin XVe – milieu XIXe siècle', 58, 0.50, -0.09, at, frac='ink', dur=1.9), cue(2, 'XIXe')),
+    (lambda at: over('fin XVe – milieu XIXe siècle', at, size=72, dur=1.9), cue(2, 'XIXe')),
     (lambda at: route([LIS, ELM, HIS, LIS], at, 1.4), cue(2, 'trois')),                           # the motif: three continents
     (lambda at: write('3 continents', 56, 1.03, 0.45, at, frac='ink', anchor='l', dur=1.0), cue(2, 'trois')),
-    (lambda at: write("+ de 10 millions d'Africains", 58, 0.50, 1.09, at, frac='ink', dur=2.3), cue(2, 'millions')),
+    (lambda at: big("+ de 10 millions d'Africains", at, size=84, dur=2.3), cue(2, 'millions')),
 ])
-chain('G03', [(lambda at: write("l'économie et l'histoire", 60, 0.50, 1.10, at, frac='ink', dur=1.9), cue(2, 'l’économie'))])
+chain('G03', [(lambda at: under("l'économie et l'histoire", at, dur=1.9), cue(2, 'l’économie'))])
 
 SHOTS = [(0.0, BOARD.scene)]
 

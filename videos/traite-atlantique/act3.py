@@ -12,7 +12,7 @@ from vox import *  # noqa: F401,F403
 import style as st
 import board as BD
 import act2
-from ta import locked, route, chainer, write
+from ta import locked, route, chainer, write, side, over, big, under
 
 CLIPS = (5, 6)
 cue = make_cue(CLIPS)
@@ -42,21 +42,21 @@ SEA_W, GOLD, BENIN, SEA_S = M03['pins']
 IN = [SEA_W, (GOLD[0] - 0.02, GOLD[1] + 0.05)]                           # goods come in from the sea
 OUT = [(BENIN[0] - 0.02, BENIN[1] + 0.07), SEA_S]                         # captives go out
 
-chain('G13', [(lambda at: write('armes et rhum', 62, 0.50, 1.08, at, frac='ink', dur=1.2), cue(5, 'rhum')),
-              (lambda at: write('contre des esclaves', 62, 0.50, 1.20, at, frac='ink', dur=1.2), cue(5, 'd’esclaves'))])
-chain('G14', [(lambda at: write("les rois n'hésitent pas", 62, 0.50, 1.08, at, frac='ink', dur=1.9), cue(5, 'd’hésiter'))])
-chain('G15', [(lambda at: write('criminels, débiteurs', 60, 0.50, 1.08, at, frac='ink', dur=1.2), cue(5, 'débiteurs')),
-              (lambda at: write('prisonniers de guerre', 60, 0.50, 1.20, at, frac='ink', dur=1.2), cue(5, 'guerre'))])
+chain('G13', [(lambda at: under('armes et rhum', at, dur=1.2), cue(5, 'rhum')),
+              (lambda at: under('contre des esclaves', at, line=1, dur=1.2), cue(5, 'd’esclaves'))])
+chain('G14', [(lambda at: under("les rois n'hésitent pas", at, dur=1.9), cue(5, 'd’hésiter'))])
+chain('G15', [(lambda at: under('criminels, débiteurs', at, size=60, dur=1.2), cue(5, 'débiteurs')),
+              (lambda at: under('prisonniers de guerre', at, line=1, size=60, dur=1.2), cue(5, 'guerre'))])
 chain('M03', [(lambda at: route(IN, at, 0.9, arrow=True), cue(5, 'vendant')),                 # the motif splits: in…
               (lambda at: route(OUT, at, 0.9, arrow=True), cue(5, 'vendant')),                # …and out
               (lambda at: write('armes, rhum', 50, 0.22, 0.83, at, frac='ink', dur=0.9), cue(5, 'vendant')),
               (lambda at: write('captifs', 50, 0.47, 0.86, at, frac='ink', anchor='l', dur=0.7), cue(5, 'vendant')),
-              (lambda at: write('royaumes enrichis et renforcés', 58, 0.50, -0.08, at, frac='ink', dur=1.4), cue(5, 'renforçaient'))])
-chain('G16', [(lambda at: write('une concurrence acharnée', 62, 0.50, 1.08, at, frac='ink', dur=1.6), cue(6, 'concurrence'))])
-chain('G17', [(lambda at: write('la capture devient le mobile', 60, 0.50, 1.08, at, frac='ink', dur=1.0), cue(6, 'mobile'))])
-chain('G18', [(lambda at: write('armes à feu', 62, 0.50, 1.08, at, frac='ink', dur=1.0), cue(6, 'feu')),
-              (lambda at: write('payées en esclaves', 62, 0.50, 1.20, at, frac='ink', dur=1.2), cue(6, 'esclaves'))])
-chain('G19', [(lambda at: write('une course aux armements', 64, 0.50, 1.08, at, frac='ink', dur=1.8), cue(6, 'armements'))])
+              (lambda at: over('royaumes enrichis et renforcés', at, size=58, dur=1.4), cue(5, 'renforçaient'))])
+chain('G16', [(lambda at: under('une concurrence acharnée', at, dur=1.6), cue(6, 'concurrence'))])
+chain('G17', [(lambda at: under('la capture devient le mobile', at, size=60, dur=1.0), cue(6, 'mobile'))])
+chain('G18', [(lambda at: side('armes à feu', at, size=70, y=0.38, dur=1.0), cue(6, 'feu')),
+              (lambda at: side('payées en esclaves', at, size=70, y=0.54, dur=1.2), cue(6, 'esclaves'))])
+chain('G19', [(lambda at: big('une course aux armements', at, size=88, dur=1.8), cue(6, 'armements'))])
 
 SHOTS = [(0.0, BOARD.scene)]
 

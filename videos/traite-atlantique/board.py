@@ -189,17 +189,18 @@ def write(text, size, dx, dy, at, dur=None, frac=False, anchor='m'):
         y0 = int(py - lines.height / 2)
         PL.draw_layers(c, lines, None, T, lt, at - e.start, dur, x0, y0)
     fn.sound = (at, dur, lambda: _text_ink(text, size)[2])
-    fn.dy, fn.frac = dy, frac
+    fn.dx, fn.dy, fn.frac, fn.size, fn.text, fn.anchor = dx, dy, frac, size, text, anchor
     return fn
 
 
 # ------------------------------------------------------------------ the board and its camera
 class Board:
-    def __init__(self, entries, before=(), end=None, marks=None, before_marks=()):
+    def __init__(self, entries, before=(), end=None, marks=None, before_marks=(), mood=None):
         """entries: this act's drawings in order. before: the earlier acts' entries (with their
         words), shown finished on the board; the act opens travelling from the last of them.
         marks: pen lines and words placed on the board itself (Line, Note), across drawings."""
         self.entries = entries
+        self.mood = mood or [(0.0, (1.0, 0.0, 1.0))]
         self.before = [b_ for b_ in before if not b_.look]
         self.last_before = before[-1] if before else None   # may be a look stop (a pull-back): the act opens on it
         prev = self.spot(before[-1]) if before else None
@@ -208,6 +209,10 @@ class Board:
         # (stay) is reached by a short hop of the camera that sets off on its sentence
         for e in entries:
             if e.look:
+                continue
+            if getattr(e, 'keep_at', None):          # a view that frames two drawings (the closing loop)
+                e.at, e.zoom = e.keep_at
+                e.still = True
                 continue
             e.at, e.zoom, e.still = None, None, getattr(e, 'lock', False)   # lock: no push (one drawing in three)
             if e.stay:
@@ -243,6 +248,8 @@ class Board:
                 e.pan = PAN + min(2.5, max(0.0, dist - 2000) / 9000)   # long travels take longer
             if e.look and e.code == 'CLOSE':
                 e.pan = CLOSE_PAN
+            if getattr(e, 'fixed_pan', None):
+                e.pan = e.fixed_pan
             if e.arrive is None:
                 e.arrive = (e.pan + 0.2) if (prev and i == 0) else (entries[i - 1].arrive + 0.1 if i else 0.0)
             if i == 0 and prev is not None and self.before and e.arrive - e.pan < 0.1:
@@ -265,7 +272,7 @@ class Board:
         wx, wy = world(e.code)
         fx = (e.focus[0] - 0.5) * 1500 * e.scale * 0.45
         fy = (e.focus[1] - 0.5) * 880 * e.scale * 0.45
-        return wx + e.offset[0], wy + e.offset[1] + getattr(e, 'cam_dy', 0.0), fx, fy   # cam_dy: frame the drawing with its words
+        return wx + e.offset[0] + getattr(e, 'cam_dx', 0.0), wy + e.offset[1] + getattr(e, 'cam_dy', 0.0), fx, fy   # cam_dx/dy: frame the drawing with its words
 
     def camera(self, t):
         """Rest on a drawing (a slow push towards its focus), then travel to the next at the same
@@ -284,7 +291,8 @@ class Board:
         if t >= rest_from:
             nxt = stops[i + 1][0] if i + 1 < len(stops) else (self.end or rest_from + 8)
             k = _ease((t - rest_from) / max(0.5, nxt - rest_from))
-            return x1 + fx1 * k, y1 + fy1 * k, zr * (1 + (0.0 if (e.look or e.stay or getattr(e, 'still', False)) else PUSH) * k)
+            x, y, z = x1 + fx1 * k, y1 + fy1 * k, zr * (1 + (0.0 if (e.look or e.stay or getattr(e, 'still', False)) else PUSH) * k)
+            return self._zoomin(e, t, x, y, z)
         pe = self.last_before if i == 0 else stops[i - 1][1]
         px, py, pfx, pfy = self.spot(pe)
         x0, y0 = px + pfx, py + pfy
@@ -296,6 +304,20 @@ class Board:
             pull = 0.0                                        # a framing stop: zoom straight to it
         z = (z0 + (zr - z0) * k) * (1 - pull * math.sin(math.pi * u))
         return x0 + (x1 - x0) * k, y0 + (y1 - y0) * k, z
+
+    def _zoomin(self, e, t, x, y, z):
+        """A slow push into one detail of the drawing and back out (zoomin on the Entry)."""
+        zi = getattr(e, 'zoomin', None)
+        if not zi:
+            return x, y, z
+        t0, t1, t2, t3, amt, (fx, fy) = zi
+        if t <= t0 or t >= t3:
+            return x, y, z
+        u = _ease((t - t0) / (t1 - t0)) if t < t1 else (1.0 if t < t2 else 1 - _ease((t - t2) / (t3 - t2)))
+        lw, lh = e.d.layers(e.scale)[0].size
+        wx, wy = world(e.code)
+        tx, ty = wx + e.offset[0] + (fx - 0.5) * lw, wy + e.offset[1] + (fy - 0.5) * lh
+        return x + (tx - x) * u, y + (ty - y) * u, z * (1 + amt * u)
 
     def cell(self, e, t, final=False):
         """One drawing's place (a 1920x1080 cell centred on it), as drawn by time t."""
@@ -342,6 +364,7 @@ class Board:
         for m in self.marks:
             m.draw(frame, t, cx, cy, z)
             m.sound()
+        frame = grade(frame, self.mood_at(t))
         s.mid.alpha_composite(frame)
         for e in self.entries:                 # the pen's scratch, for drawings and for words
             if e.look:
@@ -357,12 +380,37 @@ class Board:
                     sfx('draw', at, W / 2, dur=dur, gate=PL.gate(sp(), dur))
         return s
 
+    def mood_at(self, t):
+        ks = self.mood
+        if t <= ks[0][0]:
+            return ks[0][1]
+        for (ta, a), (tb, b) in zip(ks, ks[1:]):
+            if t < tb:
+                u = _ease((t - ta) / max(1e-6, tb - ta))
+                return tuple(p + (q - p) * u for p, q in zip(a, b))
+        return ks[-1][1]
+
     def _before_cell(self, b_):
         """An earlier act's drawing, finished, with its words."""
         key = '_b_' + b_.code
         if key not in self._done:
             self._done[key] = self.cell(b_, 1e6)
         return self._done[key]
+
+
+def grade(frame, mood):
+    """The act's mood on the whole board (the parchment and the ink): brightness, warmth (+ warmer,
+    - colder) and saturation. Neutral (1, 0, 1) leaves the frame untouched."""
+    b, w, sat = mood
+    if abs(b - 1) < 1e-3 and abs(w) < 1e-3 and abs(sat - 1) < 1e-3:
+        return frame
+    a = np.asarray(frame).astype(np.float32)
+    rgb = a[..., :3]
+    lum = rgb @ np.array([0.299, 0.587, 0.114], np.float32)
+    rgb = lum[..., None] + (rgb - lum[..., None]) * sat
+    rgb = rgb * b * np.array([1 + w, 1.0, 1 - w], np.float32)
+    a[..., :3] = np.clip(rgb, 0, 255)
+    return Image.fromarray(a.astype(np.uint8), frame.mode)
 
 
 # ------------------------------------------------------------------ pen marks on the board itself

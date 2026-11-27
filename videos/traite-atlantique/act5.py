@@ -12,7 +12,7 @@ from vox import *  # noqa: F401,F403
 import style as st
 import board as BD
 import act4
-from ta import locked, route, chainer, write
+from ta import locked, route, chainer, write, side, over, big, under
 
 CLIPS = (11, 12)
 cue = make_cue(CLIPS)
@@ -31,16 +31,21 @@ ENTRIES = [
     E('G33', 'le palais', arrive(12, 'Lorsque'), max_dur=2.4),          # « …interdite… les royaumes… se sont effondrés »
     E('M06', 'le partage', arrive(12, 'devenant') + 0.8, max_dur=1.6),        # « …la conquête et la colonisation… guerres… aujourd'hui »
 ]
+G32 = ENTRIES[2]
+a32 = G32.arrive
+G32.zoomin = (a32 + 0.5, a32 + 1.9, a32 + 2.8, a32 + 3.5, 0.35, (0.80, 0.40))   # into the elder and the empty doorway, then back
 END = cue.total + 1.2
-BOARD = BD.Board(ENTRIES, before=act4.BOARD.before + act4.ENTRIES, end=END)
+QUIET = (0.92, -0.015, 0.70)                                                   # what Africa lost: quieter, more drained
+BOARD = BD.Board(ENTRIES, before=act4.BOARD.before + act4.ENTRIES, end=END, mood=[(0.0, act4.COLD), (4.0, QUIET)])
 G, chain = chainer(ENTRIES)
 M06 = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'M06.json')))['pins']
 GOLD, SEA, CUT, *GUNS = M06
 
 chain('G31', [(lambda at: write('le Nouveau Monde', 60, 0.50, 1.08, at, frac='ink', dur=1.0), cue(11, 'Monde')),
               (lambda at: write('bien connu', 60, 0.50, 1.20, at, frac='ink', dur=0.6), cue(11, 'connus'))])
-chain('M05', [(lambda at: write("et l'avenir de l'Afrique ?", 62, 0.50, 1.07, at, frac='ink', dur=1.3), cue(11, 'l’Afrique'))])
-chain('G32', [(lambda at: write('des personnes valides perdues', 60, 0.50, 1.08, at, frac='ink', dur=1.6), cue(12, 'valides')),
+chain('M05', [(lambda at: side("et l'avenir", at, size=74, y=0.40, dur=0.7), cue(11, 'l’avenir')),
+              (lambda at: side("de l'Afrique ?", at, size=74, y=0.55, dur=0.9), cue(11, 'l’Afrique'))])
+chain('G32', [(lambda at: write('des personnes valides perdues', 60, 0.50, 1.08, at, frac='ink', dur=1.6), max(cue(12, 'valides'), a32 + 3.5)),
               (lambda at: write('surtout des hommes', 60, 0.50, 1.20, at, frac='ink', dur=1.2), cue(12, 'hommes'))])
 chain('G33', [(lambda at: write('traite interdite', 60, 0.50, 1.08, at, frac='ink', dur=1.0), cue(12, 'interdite')),
               (lambda at: write('royaumes effondrés', 60, 0.50, 1.20, at, frac='ink', dur=0.9), cue(12, 'effondrés'))])
