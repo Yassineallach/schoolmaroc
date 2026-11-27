@@ -195,4 +195,9 @@ if __name__ == '__main__':
     region_map(A('M03'), ('Africa',), (-20, 16, -6, 22),
                [(-14.0, 1.0, False), (-1.35, 5.08, False), (2.4, 6.3, False), (-6.0, -3.5, False)],
                Wd=1400, Hd=1000, frame=True)
+    # M04: the crossing. The route leaves the Gold Coast for the Caribbean; a second line breaks off
+    # mid-ocean and never arrives (« ne reverraient jamais la terre ferme »).
+    region_map(A('M04'), ('Europe', 'Africa', 'North America', 'South America'), (-100, 42, -38, 62),
+               [(-1.35, 5.08, False), (-30.0, 8.0, False), (-70.7, 19.0, False), (-24.0, 4.0, False), (-33.0, 0.0, False)],
+               Wd=1500, Hd=1000, frame=True)
 
