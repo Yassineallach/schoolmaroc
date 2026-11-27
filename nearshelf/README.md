@@ -115,4 +115,4 @@ On Windows: see BUILD-WINDOWS.md (PowerShell scripts in tools/windows: create-ke
 1. Add to `local.properties` (never committed): `release.storeFile`, `release.storePassword`, `release.keyAlias`, `release.keyPassword`.
 2. `./gradlew test :app:lintRelease :app:bundleRelease`, which produces `app/build/outputs/bundle/release/app-release.aab`.
 3. Optional, with a phone connected: `./gradlew :app:generateReleaseBaselineProfile` (faster cold start).
-4. Listing text, screenshots plan, Data Safety answers and the pre-release checklist: docs/play-store.md.
+4. Everything for Play Console (listing text, Data Safety, content rating, closed test) in docs/play-store.md; store images in docs/play-listing/ (tools/store/make_store_images.py).

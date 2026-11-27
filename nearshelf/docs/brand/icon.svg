@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="512" height="512">
-  <rect width="108" height="108" fill="#7C3A10"/>
+  <rect width="108" height="108" fill="#5C1220"/>
   <!-- book spines -->
   <rect x="31" y="43" width="9" height="29" rx="1.5" fill="#F4E9D8"/>
   <rect x="42" y="37" width="9" height="35" rx="1.5" fill="#F4E9D8"/>
-  <rect x="33" y="48" width="5" height="2" fill="#7C3A10" opacity="0.35"/>
-  <rect x="44" y="43" width="5" height="2" fill="#7C3A10" opacity="0.35"/>
+  <rect x="33" y="48" width="5" height="2" fill="#5C1220" opacity="0.35"/>
+  <rect x="44" y="43" width="5" height="2" fill="#5C1220" opacity="0.35"/>
   <!-- location pin standing on the shelf -->
   <path d="M64,71.5 C60,63 52.5,56.5 52.5,47.5 A11.5,11.5 0 0 1 75.5,47.5 C75.5,56.5 68,63 64,71.5 Z" fill="#E8B04B"/>
-  <circle cx="64" cy="47.5" r="4.6" fill="#7C3A10"/>
+  <circle cx="64" cy="47.5" r="4.6" fill="#5C1220"/>
   <!-- shelf -->
   <rect x="30" y="72" width="48" height="4" rx="2" fill="#F4E9D8"/>
 </svg>

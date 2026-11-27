@@ -168,4 +168,9 @@ tasks.withType<Test>().configureEach {
     if (providers.gradleProperty("nearshelf.screenshots").orNull == "true") {
         systemProperty("roborazzi.test.record", "true")
     }
+    // Play Store images: ./gradlew :app:testDebugUnitTest --tests '*StoreScreenshotTest*' -Pnearshelf.store=true
+    if (providers.gradleProperty("nearshelf.store").orNull == "true") {
+        systemProperty("roborazzi.test.record", "true")
+        systemProperty("nearshelf.store", "true")
+    }
 }
