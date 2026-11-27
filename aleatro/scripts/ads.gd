@@ -45,6 +45,9 @@ const RULES := {
 	"remove_offer_every_days": 7.0,
 	"remove_offer_after_ads": 5,
 }
+## Waiting before asking AdMob again after a load found no ad (seconds).
+const RETRY_FIRST := 30.0
+const RETRY_LONGEST := 600.0
 ## How often each reward can be taken: per run, per shop, per ante.
 const REWARD_LIMITS := {
 	"second_chance": {"run": 1},
@@ -71,6 +74,8 @@ var uses := {"run": {}, "shop": {}, "ante": {}}
 var _ante := -1
 var _earned := {}
 var _start_called := false
+var _load_fails := {}  # ad unit -> failed loads in a row
+var _retry_waiting := {}  # ad unit -> a retry is scheduled
 var _paused_at := -1.0
 
 
@@ -89,7 +94,12 @@ func attach(p: Object) -> void:
 	plugin.ad_closed.connect(func(unit: String): _done(unit))
 	plugin.ad_failed.connect(func(unit: String, msg: String):
 		push_warning("Ad %s failed: %s" % [unit, msg])
-		_done(unit))
+		if msg.begins_with("load"):
+			_load_failed(unit)  # no ad to give (no fill): try again later, not now
+		else:
+			_done(unit))
+	if plugin.has_signal("ad_loaded"):
+		plugin.ad_loaded.connect(func(unit: String): _load_fails.erase(unit))
 	plugin.reward_earned.connect(func(unit: String): _earned[unit] = true)
 	plugin.owned.connect(func(csv: String): _set_removed(remove_sku in csv.split(",")))
 	plugin.price.connect(func(sku: String, p: String):
@@ -196,6 +206,24 @@ func _preload(slot: String) -> void:
 
 func _loaded(slot: String) -> bool:
 	return plugin != null and started and plugin.is_loaded(units[slot])
+
+
+## A load came back empty (usually "no fill": AdMob had no ad for this
+## player right now). Asking again at once only piles up requests that fail
+## the same way, so wait, longer after each failure in a row: 30 s, 1 min,
+## 2 min ... up to 10 min. A successful load resets the wait.
+func _load_failed(unit: String) -> void:
+	var n: int = _load_fails.get(unit, 0) + 1
+	_load_fails[unit] = n
+	if _retry_waiting.has(unit) or not is_inside_tree():
+		return
+	_retry_waiting[unit] = true
+	var wait: float = minf(RETRY_FIRST * pow(2.0, n - 1), RETRY_LONGEST)
+	get_tree().create_timer(wait).timeout.connect(func():
+		_retry_waiting.erase(unit)
+		for slot in SLOTS:
+			if units[slot] == unit:
+				_preload(slot))
 
 
 func _done(unit: String) -> void:
