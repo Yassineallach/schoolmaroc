@@ -1,0 +1,12 @@
+.env
+.env.*
+node_modules/
+dist/
+production/fal/
+build/
+app/.godot/
+*.apk
+*.idsig
+review/run1/
+review/run2/
+review/movie/*.avi

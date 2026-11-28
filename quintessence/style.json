@@ -1,0 +1,91 @@
+{
+  "status": "locked",
+  "anchors": [],
+  "palette": [
+    {
+      "role": "bone paper (card faces, parchment UI)",
+      "hex": "#EDE3CF",
+      "reference_id": null,
+      "coverage": "cards ~25% of frame",
+      "notes": "never pure white; lit warm by candle"
+    },
+    {
+      "role": "lamp-black ink (linework, Gravity, darkness)",
+      "hex": "#15110E",
+      "reference_id": null,
+      "coverage": "room darkness ~50%",
+      "notes": "darkest framing value"
+    },
+    {
+      "role": "gold leaf (Light)",
+      "hex": "#C9A227",
+      "reference_id": null,
+      "coverage": "<5%, only Light and highlights",
+      "notes": "the only bright warm accent"
+    },
+    {
+      "role": "vermilion thread (Fate, wax seal)",
+      "hex": "#C8341E",
+      "reference_id": null,
+      "coverage": "<3%",
+      "notes": "reserved for seals and future Thread"
+    },
+    {
+      "role": "prussian blue (reversed cards)",
+      "hex": "#1F3A5F",
+      "reference_id": null,
+      "coverage": "0% in Cycle 1",
+      "notes": "reversal locked in Cycle 1"
+    },
+    {
+      "role": "table cloth",
+      "hex": "#2A1C16",
+      "reference_id": null,
+      "coverage": "~40%",
+      "notes": "warm dark velvet, falls to ink at edges"
+    },
+    {
+      "role": "candle flame core",
+      "hex": "#FFE9B0",
+      "reference_id": null,
+      "coverage": "tiny",
+      "notes": "single light source"
+    }
+  ],
+  "identity": [
+    "Single candle is the only light; everything outside its radius falls to ink",
+    "Cards are woodcut prints on bone paper with a double ink border and Roman numerals",
+    "Querent sits across the table as a silhouette lit from below",
+    "Score axes are materials: Light = gold leaf, Gravity = ink, total = vermilion wax seal"
+  ],
+  "materials": [
+    "bone paper with fibre noise",
+    "lamp-black ink with slight bleed",
+    "gold leaf flakes",
+    "red wax seal",
+    "chalk position labels on velvet cloth"
+  ],
+  "lighting": "One candle, upper-left of the spread. Radial warm falloff to near-black. Flicker 3-6 Hz drives light radius and card shadow offsets. Cards cast hard-ish shadows away from the candle.",
+  "camera": "Orthographic top-down 2D, portrait 720x1280 base (Android phone). Querent top 22%, score + candle 18%, spread 28%, hand bottom 26%.",
+  "ui": "IM Fell English (OFL) for all text; numbers large old-style. Buttons are paper tags with ink border; Reading names stamped in vermilion. No glossy panels, no gradients except candlelight.",
+  "motion": "Physical: flakes rise and settle, ink drops fall with gravity, stamps hit with a 6% overshoot and hold 0.25 s, candle gutters sideways when the Shadow acts. Speed x1/x2/x4/instant.",
+  "nonnegotiables": [
+    "Candle flame height = Insight / target",
+    "Gold for Light, ink for Gravity, wax seal for final Insight",
+    "Darkness vignette always present",
+    "Shadow intents shown as an ink stain/shadow before they happen"
+  ],
+  "avoid": [
+    "CRT/scanlines",
+    "pixel art",
+    "swirling psychedelic background",
+    "flames on counters",
+    "idle card wobble",
+    "flat white UI panels"
+  ],
+  "deliberate_changes": [
+    "Card art is procedural woodcut-style emblems, not the 1909 illustrations (no art pipeline yet)",
+    "No audio in this slice"
+  ],
+  "authored_note": "Text-only brief: every choice here is authored from 'Quintessence: Visual Effects Direction' in the design conversation, not extracted from an image."
+}

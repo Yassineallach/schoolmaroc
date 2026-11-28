@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "title": "Quintessence",
+  "engine": "godot 4.7 (Android)",
+  "brief": "Cycle 1 vertical slice of Quintessence, a tarot-reading roguelike deckbuilder, from the written design doc (Claude Doc 'Quintessence — Game Design Document v1.1') and the authored candle/ink/gold/thread visual direction. Text-only brief: no image references.",
+  "references": [],
+  "generation": {
+    "enabled": false,
+    "budget_usd": 0
+  },
+  "notes": []
+}

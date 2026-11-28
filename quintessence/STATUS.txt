@@ -1,0 +1,27 @@
+Quintessence: Cycle I vertical slice (Godot 4.7.2, Android). Status as of 2026-11-28.
+
+DONE
+- Rules (app/scripts/rules): deck, 7 Readings, positions, Seed, 8 Major Arcana, Shadow Eclipse,
+  The Twin boss rule, economy, Market (buy/sell/reroll), Sigils, save/load (versioned, validated).
+- View (app/scripts/view, app/shaders): candlelit room, woodcut cards, flame-as-score-meter,
+  gold-leaf Light, ink Gravity, vermilion stamp + wax seal, Shadow ink stains, Querent silhouettes,
+  shadow puppets, gold storm on big scores, gutter on Shadow/defeat, speed x1/x2/x4/skip.
+- Screens: title, Patron choice, Night intro (tutorial lines), play, win, Market, defeat, victory.
+- Android: export preset; debug APK built (arm64-v8a + armeabi-v7a, minSdk 24, targetSdk 36).
+
+VERIFIED (see review/)
+- tests/run_tests.gd: 65 rule checks pass, plus 150 bot runs through the RunState API
+  (142/150 clear Cycle I; 8 lost to The Twin).
+- tests/driver.gd: the real scene played start-to-victory only via pointer events (tap, drag,
+  buttons); in-game checks pass: tap lay/return, reshuffle count, back -> Continue restores the
+  exact run, restart resets. Screenshots and trace.json in review/run3.
+- Rendering checked under Mesa llvmpipe (OpenGL 4.5 compatibility renderer), 720x1280.
+
+NOT VERIFIED
+- Not run on a physical Android device or emulator (no device in this environment).
+- Frame rate on phones not measured.
+- Difficulty for human players not playtested.
+
+NEXT
+- Install the APK on a phone; check touch feel, text size, frame rate.
+- Audio; illustrated card art; reduced-motion setting; Cycle II systems (orientation unlock).

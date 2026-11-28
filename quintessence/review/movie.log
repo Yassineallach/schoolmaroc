@@ -1,0 +1,20 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.
+     at: set_use_vsync (platform/linuxbsd/x11/gl_manager_x11.cpp:372)
+OpenGL API 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.5 - Compatibility - Using Device: Mesa - llvmpipe (LLVM 20.1.2, 256 bits)
+
+Movie Maker mode enabled, recording movie in 405×720 @ 30 FPS...
+ERROR: button not found: new
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] button (res://tests/driver.gd:91)
+       [1] _run (res://tests/driver.gd:253)
+       [2] secs (res://tests/driver.gd:36)
+DRIVER DONE phase=won
+--------------------------------------------------------------------------------
+Done recording movie at path: /home/user/schoolmaroc/quintessence/review/movie/night1.avi
+777 frames at 30 FPS (movie length: 00:00:25:27), recorded in 00:00:55 (45% of real-time speed).
+CPU render time: 27.48 seconds (average: 35.37 ms/frame)
+GPU render time: 28.36 seconds (average: 36.50 ms/frame)
+Encoding time: 4.57 seconds (average: 5.88 ms/frame)
+--------------------------------------------------------------------------------

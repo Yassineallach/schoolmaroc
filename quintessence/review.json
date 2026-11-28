@@ -1,0 +1,61 @@
+{
+  "build_fingerprint": "71f0bd3bb99c28b3db38db684427931c6aee522fb764db0a9d66267d574cb5d8",
+  "checks": {
+    "style": {
+      "status": "passed",
+      "evidence": [
+        {
+          "path": "review/run3/17-scoring-flakes.png",
+          "sha256": "513e0a903201b1a720e0e81c0fe93ec1995fc02c4c3964614da5dd103d3a06ad"
+        }
+      ],
+      "notes": "Authored direction (no image reference). Candle-only light, gold Light / ink Gravity slip / wax seal, woodcut cards and Shadow ink stain all present at gameplay scale; checked title, play, scoring, Shadow, market, end screens. Gap: card art is procedural emblems, not illustrated; no audio."
+    },
+    "playability": {
+      "status": "passed",
+      "evidence": [
+        {
+          "path": "review/night1-gameplay.mp4",
+          "sha256": "d030a3eb3fa2eef77b558245156f37911473969c503ae7b2efdc20b0df6d7246"
+        }
+      ],
+      "notes": "Input-driven run (tests/driver.gd, pointer events only) from title through Patron, 3 Nights, 2 Markets to victory; Night 1 recorded with Godot Movie Maker. Bot plays strongly; human difficulty not playtested."
+    },
+    "state_and_restart": {
+      "status": "passed",
+      "evidence": [
+        {
+          "path": "review/input-trace.json",
+          "sha256": "c045e69f2b737ef62c8119a342b3ad22dbe387efdaee037fe3c32e68e3030122"
+        }
+      ],
+      "notes": "In-game checks pass: tap lay/return, reshuffle consumes exactly one, back->Continue restores identical state, restart resets; 65 rule tests incl. save roundtrip, bad save rejection, conservation."
+    },
+    "build": {
+      "status": "passed",
+      "evidence": [
+        {
+          "path": "review/apk-badging.txt",
+          "sha256": "5a363bc928bd366f811a6cf66778804ff863e147e1d445b394d27ffeda40ea36"
+        }
+      ],
+      "notes": "Debug APK exported headless with Godot 4.7.2 templates; minSdk 24, targetSdk 36, arm64-v8a + armeabi-v7a. Not installed on a device here."
+    },
+    "performance": {
+      "status": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    "assets": {
+      "status": "passed",
+      "evidence": [
+        {
+          "path": "review/rules-tests.log",
+          "sha256": "4b566ae5f7450cd8416c1c21584f8a6378bd28ffddc7a7ab8a774519f206092e"
+        }
+      ],
+      "notes": "No generated assets. All art procedural (art.gd, shaders). Fonts IM Fell + Playfair Display, OFL."
+    }
+  },
+  "limitations": []
+}

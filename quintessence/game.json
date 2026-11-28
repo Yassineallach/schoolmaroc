@@ -1,0 +1,84 @@
+{
+  "status": "ready",
+  "premise": "Quintessence Cycle 1 vertical slice: a tarot reader satisfies three Querents (Curious, Troubled, Fated) by laying Minor Arcana into a Three-Card Spread. Score = Light x Gravity. Majors are collectible Arcana. Android portrait, touch.",
+  "actions": [
+    "Tap a hand card to lay it in the first open position, or drag it onto a position",
+    "Tap a laid card to return it to hand",
+    "READ: score the laid cards (1-3)",
+    "RESHUFFLE: mark hand cards, confirm to redraw",
+    "Market: buy/sell/reroll, leave",
+    "Speed toggle"
+  ],
+  "loop": {
+    "goal": "Reach each Querent's Insight target within 4 Readings; clear the Fated Querent to finish Cycle 1",
+    "success": "Insight >= target: coins, then Market",
+    "failure_or_pressure": "Readings run out below target: run ends. Shadow (Troubled/Fated) previews and then Eclipses one position. Fated rule The Twin halves suits already used this Night.",
+    "restart": "New Reading button on defeat/victory starts a fresh seeded run in one tap"
+  },
+  "mechanics": [
+    {
+      "name": "Reading detection",
+      "authored": true,
+      "rule": "Royal-less 3-card version of design table: Glimpse (no pattern), Echo (pair), Path (3 consecutive ranks), Triad, Harmony (3 same suit; design says 4+, reduced for Three-Card Spread), Court Assembly (3 courts), River (Path + one suit). Best match wins."
+    },
+    {
+      "name": "Positions",
+      "authored": true,
+      "rule": "Past: card Light counts twice. Present: +2 Gravity (+3 if Court). Future: card Light halved, card returns to hand after the Reading."
+    },
+    {
+      "name": "Score",
+      "authored": true,
+      "rule": "Insight = Light x Gravity. Light = reading base + card ranks (+position, Arcana). Gravity = reading base + position + Arcana. Fate fixed at 1 in Cycle 1."
+    },
+    {
+      "name": "Shadow Eclipse",
+      "authored": true,
+      "rule": "Troubled/Fated only. After Readings 1 and 3, the Shadow marks one position; on the next Reading it is blocked. Max 1 intent per turn (v1.1 cap)."
+    },
+    {
+      "name": "Economy",
+      "authored": true,
+      "rule": "Start 4 coins. Win: Curious 3 / Troubled 4 / Fated 5 + 1 per unused Reading + interest 1 per 5 held (max 5). Market: 2 Majors (6), 2 Minor cards (3), 1 Sigil (3), reroll 2. Sell Major for 3."
+    },
+    {
+      "name": "Arcana (slice pool)",
+      "authored": true,
+      "rule": "Empress, Lovers, Hermit, Star, Sun, Tower, Emperor-lite excluded (depends on locked Dignities). 5 slots."
+    }
+  ],
+  "invariants": [
+    "Deck conservation: hand + spread + draw + discard + destroyed = 56 + bought",
+    "Each Reading consumes exactly one Reading; Read rejected with 0 cards or while animating",
+    "Reshuffle consumes exactly one Reshuffle and returns exactly the marked count",
+    "Score preview equals the scored result for the same placement",
+    "A Major exists at most once per run",
+    "Coins never negative; purchase rejected when unaffordable or slots full",
+    "Restart resets all state, tweens and particles"
+  ],
+  "levels": [
+    {
+      "id": "cycle1-curious",
+      "target": 600,
+      "spread": "three-card"
+    },
+    {
+      "id": "cycle1-troubled",
+      "target": 900,
+      "spread": "three-card",
+      "shadow": "eclipse"
+    },
+    {
+      "id": "cycle1-fated-twin",
+      "target": 1200,
+      "spread": "three-card",
+      "shadow": "eclipse",
+      "rule": "The Twin"
+    }
+  ],
+  "assumptions": [
+    "Targets are first-pass tuning, to be playtested",
+    "Skip/Signs, Wagers, Debt, orientation, Dignities, Thread, Quintessence are out of scope for Cycle 1 (unlock schedule in design v1.1)",
+    "Targets 600/900/1200 set from bot data: a full-search greedy bot (no reshuffles) clears Cycle I in ~95% of runs; humans will be weaker. Needs playtesting."
+  ]
+}

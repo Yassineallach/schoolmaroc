@@ -1,0 +1,440 @@
+[
+  {
+    "label": "new",
+    "ms": 1426,
+    "type": "tap",
+    "x": 360.0,
+    "y": 739.0
+  },
+  {
+    "label": "patron:2",
+    "ms": 2159,
+    "type": "tap",
+    "x": 559.0,
+    "y": 1007.0
+  },
+  {
+    "label": "begin",
+    "ms": 2769,
+    "type": "tap",
+    "x": 360.0,
+    "y": 1130.0
+  },
+  {
+    "label": "tap lay",
+    "ms": 4484,
+    "type": "tap",
+    "x": 87.0,
+    "y": 1179.40002441406
+  },
+  {
+    "label": "tap return",
+    "ms": 5121,
+    "type": "tap",
+    "x": 174.0,
+    "y": 722.0
+  },
+  {
+    "label": "tap lay + return",
+    "ok": true,
+    "type": "check"
+  },
+  {
+    "label": "reshuffle",
+    "ms": 5728,
+    "type": "tap",
+    "x": 175.0,
+    "y": 978.0
+  },
+  {
+    "label": "mark",
+    "ms": 5974,
+    "type": "tap",
+    "x": 87.0,
+    "y": 1179.40002441406
+  },
+  {
+    "label": "mark",
+    "ms": 6216,
+    "type": "tap",
+    "x": 165.0,
+    "y": 1165.0
+  },
+  {
+    "label": "discard",
+    "ms": 7053,
+    "type": "tap",
+    "x": 545.0,
+    "y": 978.0
+  },
+  {
+    "label": "reshuffle consumed",
+    "ok": true,
+    "type": "check"
+  },
+  {
+    "label": "lay Knight of Swords -> Present",
+    "ms": 7533,
+    "type": "drag",
+    "x": 325.009582519531,
+    "x2": 360.0,
+    "y": 1150.59997558594,
+    "y2": 722.0
+  },
+  {
+    "label": "lay Knight of Pentacles -> Future",
+    "ms": 8409,
+    "type": "drag",
+    "x": 516.0,
+    "x2": 546.0,
+    "y": 1159.59997558594,
+    "y2": 722.0
+  },
+  {
+    "label": "lay King of Pentacles -> Past",
+    "ms": 9337,
+    "type": "drag",
+    "x": 555.0,
+    "x2": 174.0,
+    "y": 1165.0,
+    "y2": 722.0
+  },
+  {
+    "label": "read",
+    "ms": 10630,
+    "type": "tap",
+    "x": 545.0,
+    "y": 978.0
+  },
+  {
+    "label": "onward",
+    "ms": 18074,
+    "type": "tap",
+    "x": 360.0,
+    "y": 1130.0
+  },
+  {
+    "label": "buy:0",
+    "ms": 18782,
+    "type": "tap",
+    "x": 200.0,
+    "y": 544.0
+  },
+  {
+    "label": "buy:4",
+    "ms": 19074,
+    "type": "tap",
+    "x": 535.0,
+    "y": 806.0
+  },
+  {
+    "label": "continue",
+    "ms": 19743,
+    "type": "tap",
+    "x": 360.0,
+    "y": 841.0
+  },
+  {
+    "label": "back + continue restores run",
+    "ok": true,
+    "type": "check"
+  },
+  {
+    "label": "leave",
+    "ms": 20280,
+    "type": "tap",
+    "x": 519.0,
+    "y": 1135.0
+  },
+  {
+    "label": "begin",
+    "ms": 20919,
+    "type": "tap",
+    "x": 360.0,
+    "y": 1130.0
+  },
+  {
+    "label": "lay IX of Cups -> Past",
+    "ms": 22073,
+    "type": "drag",
+    "x": 477.0,
+    "x2": 174.0,
+    "y": 1155.40002441406,
+    "y2": 722.0
+  },
+  {
+    "label": "lay VII of Cups -> Present",
+    "ms": 23018,
+    "type": "drag",
+    "x": 438.0,
+    "x2": 360.0,
+    "y": 1152.40002441406,
+    "y2": 722.0
+  },
+  {
+    "label": "lay III of Cups -> Future",
+    "ms": 23992,
+    "type": "drag",
+    "x": 399.0,
+    "x2": 546.0,
+    "y": 1150.59997558594,
+    "y2": 722.0
+  },
+  {
+    "label": "read",
+    "ms": 24925,
+    "type": "tap",
+    "x": 545.0,
+    "y": 978.0
+  },
+  {
+    "label": "lay VI of Wands -> Present",
+    "ms": 31639,
+    "type": "drag",
+    "x": 243.0,
+    "x2": 360.0,
+    "y": 1155.40002441406,
+    "y2": 722.0
+  },
+  {
+    "label": "lay V of Wands -> Future",
+    "ms": 32617,
+    "type": "drag",
+    "x": 204.0,
+    "x2": 546.0,
+    "y": 1159.59997558594,
+    "y2": 722.0
+  },
+  {
+    "label": "lay X of Wands -> Past",
+    "ms": 33639,
+    "type": "drag",
+    "x": 243.0,
+    "x2": 174.0,
+    "y": 1155.40002441406,
+    "y2": 722.0
+  },
+  {
+    "label": "read",
+    "ms": 34613,
+    "type": "tap",
+    "x": 545.0,
+    "y": 978.0
+  },
+  {
+    "label": "lay V of Swords -> Past",
+    "ms": 41019,
+    "type": "drag",
+    "x": 476.913970947266,
+    "x2": 174.0,
+    "y": 1155.39599609375,
+    "y2": 722.0
+  },
+  {
+    "label": "lay V of Wands -> Future",
+    "ms": 42125,
+    "type": "drag",
+    "x": 204.0,
+    "x2": 546.0,
+    "y": 1159.59997558594,
+    "y2": 722.0
+  },
+  {
+    "label": "read",
+    "ms": 43574,
+    "type": "tap",
+    "x": 545.0,
+    "y": 978.0
+  },
+  {
+    "label": "lay II of Wands -> Past",
+    "ms": 49177,
+    "type": "drag",
+    "x": 87.0,
+    "x2": 174.0,
+    "y": 1179.40002441406,
+    "y2": 722.0
+  },
+  {
+    "label": "lay II of Pentacles -> Present",
+    "ms": 50136,
+    "type": "drag",
+    "x": 594.000305175781,
+    "x2": 360.0,
+    "y": 1171.60009765625,
+    "y2": 722.0
+  },
+  {
+    "label": "lay II of Cups -> Future",
+    "ms": 51131,
+    "type": "drag",
+    "x": 243.0,
+    "x2": 546.0,
+    "y": 1155.40002441406,
+    "y2": 722.0
+  },
+  {
+    "label": "read",
+    "ms": 52075,
+    "type": "tap",
+    "x": 545.0,
+    "y": 978.0
+  },
+  {
+    "label": "onward",
+    "ms": 60403,
+    "type": "tap",
+    "x": 360.0,
+    "y": 1130.0
+  },
+  {
+    "label": "buy:4",
+    "ms": 61041,
+    "type": "tap",
+    "x": 535.0,
+    "y": 806.0
+  },
+  {
+    "label": "continue",
+    "ms": 61561,
+    "type": "tap",
+    "x": 360.0,
+    "y": 841.0
+  },
+  {
+    "label": "back + continue restores run",
+    "ok": true,
+    "type": "check"
+  },
+  {
+    "label": "leave",
+    "ms": 62020,
+    "type": "tap",
+    "x": 519.0,
+    "y": 1135.0
+  },
+  {
+    "label": "begin",
+    "ms": 62618,
+    "type": "tap",
+    "x": 360.0,
+    "y": 1130.0
+  },
+  {
+    "label": "speed",
+    "ms": 64079,
+    "type": "tap",
+    "x": 658.0,
+    "y": 27.0
+  },
+  {
+    "label": "speed",
+    "ms": 64260,
+    "type": "tap",
+    "x": 658.0,
+    "y": 27.0
+  },
+  {
+    "label": "lay King of Wands -> Past",
+    "ms": 64473,
+    "type": "drag",
+    "x": 243.0,
+    "x2": 174.0,
+    "y": 1155.40002441406,
+    "y2": 722.0
+  },
+  {
+    "label": "lay Queen of Wands -> Present",
+    "ms": 65338,
+    "type": "drag",
+    "x": 204.0,
+    "x2": 360.0,
+    "y": 1159.59997558594,
+    "y2": 722.0
+  },
+  {
+    "label": "lay IV of Wands -> Future",
+    "ms": 66195,
+    "type": "drag",
+    "x": 165.0,
+    "x2": 546.0,
+    "y": 1165.0,
+    "y2": 722.0
+  },
+  {
+    "label": "read",
+    "ms": 67018,
+    "type": "tap",
+    "x": 545.0,
+    "y": 978.0
+  },
+  {
+    "label": "lay VIII of Cups -> Past",
+    "ms": 69121,
+    "type": "drag",
+    "x": 87.0,
+    "x2": 174.0,
+    "y": 1179.40002441406,
+    "y2": 722.0
+  },
+  {
+    "label": "lay VIII of Pentacles -> Present",
+    "ms": 69956,
+    "type": "drag",
+    "x": 516.0,
+    "x2": 360.0,
+    "y": 1159.59997558594,
+    "y2": 722.0
+  },
+  {
+    "label": "lay VIII of Swords -> Future",
+    "ms": 70715,
+    "type": "drag",
+    "x": 243.0,
+    "x2": 546.0,
+    "y": 1155.40002441406,
+    "y2": 722.0
+  },
+  {
+    "label": "read",
+    "ms": 71582,
+    "type": "tap",
+    "x": 545.0,
+    "y": 978.0
+  },
+  {
+    "label": "onward",
+    "ms": 74366,
+    "type": "tap",
+    "x": 360.0,
+    "y": 1130.0
+  },
+  {
+    "arcana": [
+      "magician",
+      "death"
+    ],
+    "insight": 1452,
+    "night": 2,
+    "phase": "victory",
+    "stats": {
+      "best_reading": 850,
+      "best_reading_name": "Triad",
+      "readings": 7,
+      "total_insight": 3732
+    },
+    "type": "result"
+  },
+  {
+    "label": "new",
+    "ms": 75493,
+    "type": "tap",
+    "x": 360.0,
+    "y": 1100.0
+  },
+  {
+    "label": "restart resets",
+    "ok": true,
+    "type": "check"
+  }
+]
